@@ -1,0 +1,3 @@
+[submodule "assets/MaaCommonAssets"]
+	path = assets/MaaCommonAssets
+	url = https://github.com/MaaXYZ/MaaCommonAssets

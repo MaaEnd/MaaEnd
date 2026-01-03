@@ -1,0 +1,36 @@
+name: check
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "**.py"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/check.yml"
+      - "assets/**"
+      - "**.py"
+  workflow_dispatch:
+
+jobs:
+  resource:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # pip install maafw
+      - name: Install maafw
+        run: |
+            python -m pip install --upgrade pip
+            python -m pip install --upgrade maafw --pre
+
+      - name: Check Resource
+        run: |
+            python ./check_resource.py ./assets/resource/

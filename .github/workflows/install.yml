@@ -1,0 +1,191 @@
+name: install
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "**.py"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - ".github/workflows/install.yml"
+      - "assets/**"
+      - "**.py"
+  workflow_dispatch:
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: set_tag
+        run: |
+          # 检查标签格式
+          is_release=${{ startsWith(github.ref, 'refs/tags/v') }}
+          tag=$(git describe --tags --match "v*" ${{ github.ref }} || true)
+          if [[ $tag != v* ]]; then
+            tag=$(curl -sX GET "https://api.github.com/repos/${{ github.repository }}/releases/latest" --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | awk '/tag_name/{print $4}' FS='["]')
+            if [[ $tag != v* ]]; then
+              tag="v0.0.0"
+            fi
+            tag=$(date "+$tag-%y%m%d-$(git rev-parse --short HEAD)")
+          fi
+
+          if ! $($is_release) ; then
+            prefix=${tag%-*-*}
+            suffix=${tag#$prefix-}
+            tag="$prefix-ci.$suffix"
+          fi
+
+          # 检查是否为预发布版本
+          is_prerelease=false
+          if [[ $tag =~ .*alpha.* || $tag =~ .*beta.* || $tag =~ .*rc.* || $tag =~ .*dev.* || $tag =~ .*-ci.* ]]; then
+            is_prerelease=true
+            echo "This is a pre-release version"
+          fi
+
+          echo tag=$tag | tee -a $GITHUB_OUTPUT
+          echo is_release=$is_release | tee -a $GITHUB_OUTPUT
+          echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
+    outputs:
+      tag: ${{ steps.set_tag.outputs.tag }}
+      is_release: ${{ steps.set_tag.outputs.is_release }}
+      is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
+
+  install:
+    needs: meta
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [win, macos, linux, android]
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download MaaFramework
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
+          latest: true
+          out-file-path: "deps"
+          extract: true
+
+      - name: Download MFAAvalonia
+        if: matrix.os != 'android'
+        id: download_mfa
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: SweetSmellFox/MFAAvalonia
+          fileName: "MFAAvalonia-*-${{ (matrix.os == 'win' && 'win') || (matrix.os == 'macos' && 'osx') || (matrix.os == 'linux' && 'linux') }}-${{ (matrix.arch == 'x86_64' && 'x64') || (matrix.arch == 'aarch64' && 'arm64') }}*"
+          latest: true
+          out-file-path: "MFA"
+          extract: true
+
+      - name: Clean up MFAAvalonia archive
+        if: matrix.os != 'android'
+        shell: bash
+        run: |
+          ARCHIVE_FILE_PATH="${{ fromJson(steps.download_mfa.outputs.downloaded_files)[0] }}"
+          rm -f "${ARCHIVE_FILE_PATH}"
+          echo "Archive cleanup command executed for MFAAvalonia."
+
+      - name: Remove built-in runtime in MFA
+        if: matrix.os != 'android'
+        shell: bash
+        run: |
+          rm -rf MFA/runtimes
+      
+      - name: Install
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" != "android" ]]; then
+            if [ -d "MFA" ]; then
+              echo "Copying MFA files to install directory..."
+              mkdir -p install
+              rsync -av --ignore-existing MFA/ install/
+              echo "MFA files copied successfully."
+            else
+              echo "MFA directory not found, skipping copy."
+            fi
+          else
+            echo "Skipping copy MFA for Android."
+          fi
+
+          cd tools/
+          python -m pip install -r ./requirements.txt
+          python ./install.py ${{ needs.meta.outputs.tag }} ${{ matrix.os }} ${{ matrix.arch }}
+          cd ..
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaXXX-${{ matrix.os }}-${{ matrix.arch }}
+          path: "install"
+
+  changelog:
+    name: Generate changelog
+    runs-on: ubuntu-latest
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: .github/cliff.toml
+          args: -vv --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+          GITHUB_REPO: ${{ github.repository }}
+
+  release:
+    if: ${{ needs.meta.outputs.is_release == 'true' }}
+    needs: [meta, install, changelog]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+
+      - run: |
+          cd assets
+          for f in *; do
+            (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
+          done
+          
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*
+          tag_name: ${{ needs.meta.outputs.tag }}
+          body: ${{ needs.changelog.outputs.release_body }}
+          draft: false
+          prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
+
+        # Mirror酱为第三方分发服务，新项目默认关闭
+        # 若有需要请联系 Mirror酱 开通，直接自行开启是无法使用的
+        # https://mirrorchyan.com/
+      - name: Trigger MirrorChyanUploading
+        if: false
+        shell: bash
+        run: |
+          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release.yml -f tag=${{ needs.meta.outputs.tag }}
+          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note.yml -f tag=${{ needs.meta.outputs.tag }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
