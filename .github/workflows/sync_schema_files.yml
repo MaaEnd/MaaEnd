@@ -1,0 +1,120 @@
+name: Sync JSON Schema Files from MaaFramework
+
+on:
+  schedule:
+    - cron: '10 0 * * *'  # UTC 00:10 每天运行
+  
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-repository:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.repository }}" == "MaaXYZ/MaaPracticeBoilerplate" ]]; then
+            echo "Repository is MaaXYZ/MaaPracticeBoilerplate, proceeding with sync"
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Repository is not MaaXYZ/MaaPracticeBoilerplate, skipping sync"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  sync-schema-files:
+    needs: check-repository
+    if: needs.check-repository.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v3
+      
+      - name: Download JSON schema files from MaaFramework
+        run: |
+          echo "Current Date and Time (UTC): $(date -u '+%Y-%m-%d %H:%M:%S')"
+          
+          # 确保目标目录存在
+          mkdir -p deps/tools
+          
+          # 下载四个JSON schema文件
+          curl -s -o deps/tools/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || echo "Failed to download interface.schema.json"
+          curl -s -o deps/tools/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || echo "Failed to download interface_config.schema.json"
+          curl -s -o deps/tools/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || echo "Failed to download pipeline.schema.json"
+          
+          # 检查文件是否成功下载
+          echo "Checking downloaded files:"
+          ls -la deps/tools/*.schema.json
+      
+      - name: Check for changes with git status
+        id: check_status
+        run: |
+          # 确保git能看到未跟踪的文件
+          git add -N deps/tools/
+          
+          # 检查是否有任何更改（修改、新增、删除）
+          if [[ -n "$(git status --porcelain deps/tools/*.schema.json)" ]]; then
+            echo "Changes detected in JSON schema files"
+            git status --porcelain deps/tools/*.schema.json
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+            
+            # 检查哪些文件发生了变化
+            if [[ -n "$(git status --porcelain deps/tools/interface.schema.json)" ]]; then
+              echo "interface_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "interface_changed=false" >> $GITHUB_OUTPUT
+            fi
+            if [[ -n "$(git status --porcelain deps/tools/interface_config.schema.json)" ]]; then
+              echo "interface_config_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "interface_config_changed=false" >> $GITHUB_OUTPUT
+            fi
+            if [[ -n "$(git status --porcelain deps/tools/pipeline.schema.json)" ]]; then
+              echo "pipeline_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "pipeline_changed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No changes detected in JSON schema files"
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+            echo "interface_changed=false" >> $GITHUB_OUTPUT
+            echo "interface_config_changed=false" >> $GITHUB_OUTPUT
+            echo "pipeline_changed=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and Push Changes
+        if: steps.check_status.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add deps/tools/*.schema.json
+          timestamp=$(date -u "+%Y-%m-%d %H:%M:%S")
+          
+          # 创建定制的提交消息
+          changed_files=""
+          if [[ "${{ steps.check_status.outputs.interface_changed }}" == "true" ]]; then
+            changed_files+="interface "
+          fi
+          if [[ "${{ steps.check_status.outputs.interface_config_changed }}" == "true" ]]; then
+            changed_files+="interface_config "
+          fi
+          if [[ "${{ steps.check_status.outputs.pipeline_changed }}" == "true" ]]; then
+            changed_files+="pipeline "
+          fi
+          
+          # 去除末尾空格
+          changed_files=$(echo "$changed_files" | xargs)
+          
+          git commit -m "chore: update $changed_files schema files from MaaFramework - $timestamp UTC"
+          git push
+          
+          echo "JSON schema files successfully synchronized"
+
+      - name: No changes detected
+        if: steps.check_status.outputs.changes_detected != 'true'
+        run: echo "No changes detected in JSON schema files"

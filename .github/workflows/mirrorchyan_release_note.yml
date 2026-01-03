@@ -1,0 +1,35 @@
+# Mirror酱为第三方分发服务，新项目默认关闭
+# 若有需要请联系 Mirror酱 开通，直接自行开启是无法使用的
+# https://mirrorchyan.com/
+
+name: mirrorchyan_release_note
+
+on:
+  workflow_dispatch:
+    inputs:
+        tag:
+            default: ''
+            required: false
+  release:
+    types: [edited]
+
+jobs:
+  mirrorchyan:
+    runs-on: macos-latest
+    # Mirror酱为第三方分发服务，新项目默认关闭
+    # 若有需要请联系 Mirror酱 开通，直接自行开启是无法使用的
+    # https://mirrorchyan.com/
+    if: false
+    # if: ${{ github.repository_owner == 'MaaXYZ' }}
+
+    steps:
+      - id: uploading
+        uses: MirrorChyan/release-note-action@v1
+        with:
+          mirrorchyan_rid: MaaXXX
+          version_name: ${{ inputs.tag }}
+
+          owner: MaaXYZ
+          repo: MaaXXX
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
