@@ -82,30 +82,32 @@ jobs:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
           latest: true
-          out-file-path: "MaaFramework"
+          out-file-path: "downloads/MaaFramework"
           extract: true
 
       - name: Download MXU
-        id: download_mfa
         if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
         uses: robinraju/release-downloader@v1
         with:
           repository: MistEO/MXU
           fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
           latest: true
-          out-file-path: "MXU"
+          out-file-path: "downloads/MXU"
           extract: true
 
       - name: Install
         shell: bash
         run: |
           mkdir install
-          if [[ -d MXU ]]; then
-            cp -r MXU/* install
+          if [[ -d downloads/MXU ]]; then
+            rm -rf downloads/MXU*.zip downloads/MXU*.tgz
+            cp -r downloads/MXU/mxu* install
           fi
 
           mkdir -p install/maafw
-          cp -r MaaFramework/bin/* install/maafw
+          cp -r downloads/MaaFramework/bin/* install/maafw/
+          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
+          rm -rf install/maafw/MaaNode*
 
           python tools/configure.py
           rm -rf assets/MaaCommonAssets
