@@ -59,7 +59,7 @@
         {
             "name": "🤖实时开荒辅助",
             "entry": "RealTimeTaskMain",
-            // "description": "执行开荒辅助任务",
+            "description": "改任务会一直执行，实时识别游戏画面，自动按下需要的按键",
             "option": [
                 "自动剧情",
                 "自动战斗"
