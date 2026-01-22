@@ -54,7 +54,7 @@
             "name": "📖百科一键已读",
             "entry": "ReadAllWiki",
             "default_check": true,
-            "description": "去掉终末地百科所有未读红点，请再终末地百科首页开始任务"
+            "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
         }
     ],
     "option": {
