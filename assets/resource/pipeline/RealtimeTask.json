@@ -4,6 +4,7 @@
         "next": [
             "RealTimeAutoSkip",
             "RealTimeAutoFight",
+            "RealTimeAutoPick",
             "RealTimeTaskMain"
         ]
     }

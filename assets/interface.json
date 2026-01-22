@@ -2,7 +2,7 @@
     "interface_version": 2,
     "name": "MaaEnd",
     "description": "MaaEnd 终末地小助手，绝赞开发中！",
-    "version": "v0.0.1",
+    "version": "v10.0.1",
     "contact": "misc/CONTACT.md",
     "license": "LICENSE",
     "welcome": "README.md",
@@ -72,7 +72,8 @@
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
                 "自动剧情",
-                "自动战斗"
+                "自动战斗",
+                "自动触发拾取"
             ]
         }
     ],
@@ -184,6 +185,27 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoFightCombo": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "自动触发拾取": {
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPick": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPick": {
                             "enabled": false
                         }
                     }
