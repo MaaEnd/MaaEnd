@@ -51,6 +51,12 @@
     ],
     "task": [
         {
+            "name": "📅日常奖励领取",
+            "entry": "DailyRewards",
+            "default_check": true,
+            "description": "领取每日任务奖励"
+        },
+        {
             "name": "📖百科一键已读",
             "entry": "ReadAllWiki",
             "default_check": true,
