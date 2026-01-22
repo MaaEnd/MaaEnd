@@ -49,6 +49,10 @@
             ]
         }
     ],
+    "agent": {
+        "child_exec": "agent/service",
+        "child_args": []
+    },
     "task": [
         {
             "name": "📅日常奖励领取",
