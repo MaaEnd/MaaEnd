@@ -24,15 +24,30 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 ## 本地开发
 
-1. 编译 GoAgent、配置路径
+1. 完整 clone 项目及子仓库
+
+    ```bash
+    git clone https://github.com/MaaEnd/MaaEnd --recursive
+    ```
+
+    **不要漏了 `--recursive`**
+
+    或者
+
+    ```bash
+    git clone https://github.com/MaaEnd/MaaEnd
+    git submodule update --init --recursive
+    ```
+
+2. 编译 GoAgent、配置路径
 
     ```bash
     python tools/build_and_install.py
     ```
 
-2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/`
-3. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`
-4. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹
+3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/`
+4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`
+5. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹
 
 ## 沟通交流
 
