@@ -2,93 +2,15 @@
     "RealTimeAutoFight": {
         "doc": "自动辅助战斗",
         // 判断是否在战斗场景
-        "recognition": "Or",
-        "any_of": [
-            {
-                // 左下角4名干员健康蓝色血条 22,197,253 无渐变
-                "recognition": "ColorMatch",
-                "roi": [
-                    0,
-                    640,
-                    300,
-                    50
-                ],
-                "lower": [
-                    18,
-                    195,
-                    248
-                ],
-                "upper": [
-                    25,
-                    205,
-                    255
-                ],
-                "count": 50 // 单个干员满血血条55x5像素
-            },
-            {
-                // 左下角4名干员危机红色血条 255,143,146 无渐变
-                "recognition": "ColorMatch",
-                "roi": [
-                    0,
-                    640,
-                    300,
-                    50
-                ],
-                "lower": [
-                    250,
-                    130,
-                    140
-                ],
-                "upper": [
-                    255,
-                    150,
-                    155
-                ],
-                "count": 50 // 单个干员满血血条55x5像素
-            },
-            {
-                // 主角下方健康蓝色血条 22,209,253 - 22,181,253 有渐变
-                "recognition": "ColorMatch",
-                "roi": [
-                    500,
-                    630,
-                    280,
-                    50
-                ],
-                "lower": [
-                    20,
-                    170,
-                    250
-                ],
-                "upper": [
-                    25,
-                    230,
-                    255
-                ],
-                "count": 200 // 单个干员满血血条210x10像素
-            },
-            {
-                // 主角下方危机红色血条 255,153,165 有渐变
-                "recognition": "ColorMatch",
-                "roi": [
-                    500,
-                    630,
-                    280,
-                    50
-                ],
-                "lower": [
-                    250,
-                    145,
-                    160
-                ],
-                "upper": [
-                    260,
-                    160,
-                    170
-                ],
-                "count": 100 // 单个干员满血血条210x10像素
-            }
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            590,
+            350,
+            30
         ],
+        "threshold": 0.9,
+        "template": "RealTimeTask/AutoFightBar.png",
         "next": [
             "RealTimeAutoFightCombo",
             "RealTimeTaskMain"
