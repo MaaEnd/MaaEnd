@@ -57,9 +57,9 @@
             "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
         },
         {
-            "name": "实时任务",
+            "name": "🤖实时开荒辅助",
             "entry": "RealTimeTaskMain",
-            "description": "执行开荒辅助任务",
+            // "description": "执行开荒辅助任务",
             "option": [
                 "自动剧情",
                 "自动战斗"
