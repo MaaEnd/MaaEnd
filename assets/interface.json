@@ -73,7 +73,8 @@
             "option": [
                 "自动剧情",
                 "自动战斗",
-                "自动触发拾取"
+                "自动触发拾取",
+                "实时辅助间隔"
             ]
         }
     ],
@@ -211,6 +212,24 @@
                     }
                 }
             ]
+        },
+        "实时辅助间隔": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "检测间隔",
+                    "label": "检测间隔(ms)",
+                    "description": "过小的检测间隔可能会导致卡顿，请根据实际情况调整，建议至少大于 50ms",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 400
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskDelay": {
+                    "post_delay": "{检测间隔}"
+                }
+            }
         }
     }
 }

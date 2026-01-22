@@ -6,7 +6,12 @@
             "param": {
                 "threshold": 0.9,
                 "template": "RealTimeTask/AutoPick.png",
-                "roi": [640, 90, 575, 591]
+                "roi": [
+                    640,
+                    90,
+                    575,
+                    591
+                ]
             }
         },
         "action": {
@@ -17,5 +22,5 @@
         },
         "pre_delay": 0,
         "next": "RealTimeTaskMain"
-  }
+    }
 }

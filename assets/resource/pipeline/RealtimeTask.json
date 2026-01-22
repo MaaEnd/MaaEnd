@@ -1,11 +1,19 @@
 {
     "RealTimeTaskMain": {
         "doc": "实时任务主入口",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "RealTimeAutoSkip",
             "RealTimeAutoFight",
             "RealTimeAutoPick",
-            "RealTimeTaskMain"
+            "RealTimeTaskDelay"
         ]
+    },
+    "RealTimeTaskDelay": {
+        "doc": "实时任务延迟入口",
+        "pre_delay": 0,
+        "post_delay": 400,
+        "next": "RealTimeTaskMain"
     }
 }
