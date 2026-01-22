@@ -226,8 +226,8 @@
                 }
             ],
             "pipeline_override": {
-                "RealTimeTaskDelay": {
-                    "post_delay": "{检测间隔}"
+                "RealTimeTaskMain": {
+                    "rate_limit": "{检测间隔}"
                 }
             }
         }

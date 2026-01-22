@@ -20,7 +20,6 @@
                 "key": 70
             }
         },
-        "pre_delay": 0,
-        "next": "RealTimeTaskMain"
+        "pre_delay": 0
     }
 }

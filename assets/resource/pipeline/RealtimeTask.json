@@ -3,17 +3,12 @@
         "doc": "实时任务主入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "timeout": 999999999,
+        "rate_limit": 400,
         "next": [
-            "RealTimeAutoSkip",
-            "RealTimeAutoFight",
-            "RealTimeAutoPick",
-            "RealTimeTaskDelay"
+            "[JumpBack]RealTimeAutoSkip",
+            "[JumpBack]RealTimeAutoFightCombo",
+            "[JumpBack]RealTimeAutoPick"
         ]
-    },
-    "RealTimeTaskDelay": {
-        "doc": "实时任务延迟入口",
-        "pre_delay": 0,
-        "post_delay": 400,
-        "next": "RealTimeTaskMain"
     }
 }
