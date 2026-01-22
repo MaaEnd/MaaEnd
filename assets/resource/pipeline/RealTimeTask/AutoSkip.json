@@ -1,15 +1,31 @@
 {
     "RealTimeAutoSkip": {
         "doc": "自动剧情入口",
-        // 找左上角log图标
-        "recognition": "TemplateMatch",
-        "threshold": 0.9,
-        "template": "RealTimeTask/AutoSkipLog.png",
-        "roi": [
-            0,
-            0,
-            75,
-            75
+        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "threshold": 0.85,
+                "template": "RealTimeTask/AutoSkipA.png",
+                "roi": [
+                    1140,
+                    0,
+                    120,
+                    80
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "threshold": 0.85,
+                "template": "RealTimeTask/AutoSkipEsc.png",
+                "roi": [
+                    1140,
+                    0,
+                    120,
+                    80
+                ]
+            }
         ],
         "next": [
             "RealTimeAutoSkipChoose",
