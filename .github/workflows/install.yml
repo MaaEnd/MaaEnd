@@ -64,30 +64,45 @@ jobs:
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
 
+  prepare_mxu_icon:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download MXU
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MistEO/MXU
+          fileName: "*win-x86_64*"
+          latest: true
+          out-file-path: "downloads/MXU"
+          extract: true
+
+      - name: Convert PNG to ICO
+        shell: bash
+        run: |
+          choco install imagemagick -y
+          magick convert assets/misc/MaaEnd-Tiny.png -define icon:auto-resize=256,128,64,48,32,24,16 maaend.ico
+
+      - name: Modify MXU exe icon
+        shell: bash
+        run: |
+          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
+          ./rcedit.exe "downloads/MXU/mxu.exe" --set-icon "maaend.ico"
+          echo "MXU icon modified successfully"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mxu-win-x86_64-with-icon
+          path: "downloads/MXU/mxu.exe"
+
   build_and_install:
-    needs: meta
-    runs-on: ${{ matrix.runner }}
+    needs: [meta, prepare_mxu_icon]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - os: win
-            arch: x86_64
-            runner: windows-latest
-          - os: win
-            arch: aarch64
-            runner: ubuntu-latest
-          - os: macos
-            arch: x86_64
-            runner: ubuntu-latest
-          - os: macos
-            arch: aarch64
-            runner: ubuntu-latest
-          - os: linux
-            arch: x86_64
-            runner: ubuntu-latest
-          - os: linux
-            arch: aarch64
-            runner: ubuntu-latest
+        os: [win, macos, linux]
+        arch: [aarch64, x86_64]
       fail-fast: false
 
     steps:
@@ -108,7 +123,7 @@ jobs:
           extract: true
 
       - name: Download MXU
-        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') && !(matrix.os == 'win' && matrix.arch == 'x86_64') }}
         uses: robinraju/release-downloader@v1
         with:
           repository: MistEO/MXU
@@ -117,24 +132,12 @@ jobs:
           out-file-path: "downloads/MXU"
           extract: true
 
-      - name: Convert PNG to ICO (Windows x64)
+      - name: Download MXU with icon (Windows x64)
         if: matrix.os == 'win' && matrix.arch == 'x86_64'
-        shell: bash
-        run: |
-          choco install imagemagick -y
-          magick convert assets/misc/MaaEnd-Tiny.png -define icon:auto-resize=256,128,64,48,32,24,16 maaend.ico
-
-      - name: Modify MXU exe icon (Windows x64)
-        if: matrix.os == 'win' && matrix.arch == 'x86_64'
-        shell: bash
-        run: |
-          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
-          if [[ -f "downloads/MXU/mxu.exe" ]]; then
-            ./rcedit.exe "downloads/MXU/mxu.exe" --set-icon "maaend.ico"
-            echo "MXU icon modified successfully"
-          else
-            echo "mxu.exe not found, skipping icon modification"
-          fi
+        uses: actions/download-artifact@v4
+        with:
+          name: mxu-win-x86_64-with-icon
+          path: "downloads/MXU"
 
       - name: Install
         shell: bash
@@ -195,11 +198,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
+          pattern: MaaEnd-*
           path: assets
 
       - run: |
           cd assets
-          for f in *; do
+          for f in MaaEnd-*; do
             (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
           done
 
