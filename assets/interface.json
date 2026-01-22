@@ -55,6 +55,12 @@
             "entry": "ReadAllWiki",
             "default_check": true,
             "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
+        },
+        {
+            "name": "📅日常奖励领取",
+            "entry": "DailyRewards",
+            "default_check": true,
+            "description": "领取每日任务奖励"
         }
     ],
     "option": {
