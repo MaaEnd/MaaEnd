@@ -1,0 +1,13 @@
+{
+    "Default": {
+        "rate_limit": 500
+    },
+    "RealTimeTaskMain": {
+        "doc": "实时任务主入口",
+        "next": [
+            "RealTimeAutoSkip",
+            "RealTimeAutoFight",
+            "RealTimeTaskMain"
+        ]
+    }
+}

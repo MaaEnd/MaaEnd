@@ -1,0 +1,93 @@
+{
+    "RealTimeAutoFight": {
+        "doc": "自动辅助战斗",
+        // 判断是否在战斗场景
+        "recognition": "Or",
+        "any_of": [
+            {
+                // 左下角4名干员健康蓝色血条 22,197,253 无渐变
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    640,
+                    300,
+                    50
+                ],
+                "lower": [
+                    18,
+                    195,
+                    248
+                ],
+                "upper": [
+                    25,
+                    205,
+                    255
+                ],
+                "count": 50 // 单个干员满血血条55x5像素
+            },
+            {
+                // 左下角4名干员危机红色血条 255,143,146 无渐变
+                "recognition": "ColorMatch",
+                "roi": [
+                    0,
+                    640,
+                    300,
+                    50
+                ],
+                "lower": [
+                    250,
+                    130,
+                    140
+                ],
+                "upper": [
+                    255,
+                    150,
+                    155
+                ],
+                "count": 50 // 单个干员满血血条55x5像素
+            },
+            {
+                // 主角下方蓝色血条 22,209,253 - 22,181,253 有渐变
+                "recognition": "ColorMatch",
+                "roi": [
+                    500,
+                    630,
+                    280,
+                    50
+                ],
+                "lower": [
+                    20,
+                    170,
+                    250
+                ],
+                "upper": [
+                    25,
+                    230,
+                    255
+                ],
+                "count": 100
+            }
+        ],
+        "next": [
+            "RealTimeAutoFightCombo",
+            "RealTimeTaskMain"
+        ]
+    },
+    "RealTimeAutoFightCombo": {
+        "doc": "自动触发连携技能",
+        // 找连携技能提示头像上方图标
+        "recognition": "TemplateMatch",
+        "template": "RealTimeTask/AutoFightCombo.png",
+        "roi": [
+            750,
+            250,
+            100,
+            100
+        ],
+        "action": "ClickKey",
+        "key": 69, // E键
+        "next": [
+            "RealTimeTaskMain"
+        ]
+    }
+}

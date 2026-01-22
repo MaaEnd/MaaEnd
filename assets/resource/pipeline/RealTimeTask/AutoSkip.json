@@ -1,0 +1,54 @@
+{
+    "RealTimeAutoSkip": {
+        "doc": "自动剧情入口",
+        // 找左上角log图标
+        "recognition": "TemplateMatch",
+        "threshold": 0.9,
+        "template": "RealTimeTask/AutoSkipLog.png",
+        "roi": [
+            0,
+            0,
+            75,
+            75
+        ],
+        "next": [
+            "RealTimeAutoSkipChoose",
+            "RealTimeAutoSkipNext",
+            "RealTimeTaskMain"
+        ]
+    },
+    "RealTimeAutoSkipChoose": {
+        "doc": "自动跳过剧情中分支选择",
+        // 找右侧区域是否有待选择的功能点
+        "recognition": "TemplateMatch",
+        "threshold": 0.9,
+        "template": "RealTimeTask/AutoSkipTip.png",
+        "roi": [
+            900,
+            400,
+            300,
+            300
+        ],
+        "action": "Click",
+        "next": [
+            "RealTimeTaskMain"
+        ]
+    },
+    "RealTimeAutoSkipNext": {
+        "doc": "自动点击剧情下一步",
+        // 查找游戏下方三角形按钮
+        "recognition": "TemplateMatch",
+        "threshold": 0.9,
+        "template": "RealTimeTask/AutoSkipNext.png",
+        "roi": [
+            630,
+            690,
+            20,
+            25
+        ],
+        "action": "Click",
+        "next": [
+            "RealTimeTaskMain"
+        ]
+    }
+}
