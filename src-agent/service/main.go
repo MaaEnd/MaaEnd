@@ -23,6 +23,14 @@ func main() {
 	identifier := os.Args[1]
 	log.Info().Str("identifier", identifier).Msg("Starting agent server")
 
+	// Initialize toolkit config option
+	userPath := getCwd()
+	if ok := maa.ConfigInitOption(userPath, "{}"); !ok {
+		log.Warn().Str("userPath", userPath).Msg("Failed to init toolkit config option")
+	} else {
+		log.Info().Str("userPath", userPath).Msg("Toolkit config option initialized")
+	}
+
 	// Register custom recognition and actions
 	maa.AgentServerRegisterCustomRecognition("MyRecognition", &myRecognition{})
 	maa.AgentServerRegisterCustomAction("MyAction", &myAction{})
@@ -40,4 +48,12 @@ func main() {
 	// Shutdown
 	maa.AgentServerShutDown()
 	log.Info().Msg("Agent server shutdown")
+}
+
+func getCwd() string {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "."
+	}
+	return cwd
 }

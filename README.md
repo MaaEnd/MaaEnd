@@ -20,7 +20,19 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 ## 项目说明
 
-正在开发中，暂无实际功能，敬请期待！（新版本会自动更新）
+正在开发中，BUG 较多，如遇问题请提 [issue](https://github.com/MaaEnd/MaaEnd/issues)，更多功能敬请期待！（新版本会自动更新）
+
+## 本地开发
+
+1. 编译 GoAgent、配置路径
+
+    ```bash
+    python tools/build_and_install.py
+    ```
+
+2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/`
+3. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`
+4. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹
 
 ## 沟通交流
 
