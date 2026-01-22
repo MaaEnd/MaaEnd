@@ -218,29 +218,24 @@ def main():
     print("[2/5] 构建 Go Agent...")
     build_go_agent(root_dir, install_dir, args.target_os, args.target_arch, args.version)
 
-    # 3. 链接/复制 resource 目录
-    print("[3/5] 处理 resource 目录...")
-    resource_src = assets_dir / "resource"
-    resource_dst = install_dir / "resource"
-    if resource_src.exists():
-        if link_or_copy_dir(resource_src, resource_dst):
-            print(f"  -> {resource_dst}")
+    # 3. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
+    print("[3/5] 处理 assets 目录...")
+    for item in assets_dir.iterdir():
+        if item.name == "MaaCommonAssets":
+            continue
+        dst = install_dir / item.name
+        if item.is_dir():
+            if link_or_copy_dir(item, dst):
+                print(f"  -> {dst}")
+        elif item.is_file():
+            if link_or_copy_file(item, dst):
+                print(f"  -> {dst}")
 
-    # resource_bilibili
-    resource_bilibili_src = assets_dir / "resource_bilibili"
-    resource_bilibili_dst = install_dir / "resource_bilibili"
-    if resource_bilibili_src.exists():
-        if link_or_copy_dir(resource_bilibili_src, resource_bilibili_dst):
-            print(f"  -> {resource_bilibili_dst}")
-
-    # 4. 链接/复制文件
+    # 4. 链接/复制项目根目录文件
     print("[4/5] 处理项目文件...")
-    files_to_process = [
-        (assets_dir / "interface.json", install_dir / "interface.json"),
-        (root_dir / "README.md", install_dir / "README.md"),
-        (root_dir / "LICENSE", install_dir / "LICENSE"),
-    ]
-    for src, dst in files_to_process:
+    for filename in ["README.md", "LICENSE"]:
+        src = root_dir / filename
+        dst = install_dir / filename
         if src.exists():
             if link_or_copy_file(src, dst):
                 print(f"  -> {dst}")
