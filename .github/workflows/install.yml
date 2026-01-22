@@ -83,10 +83,10 @@ jobs:
         run: |
           choco install imagemagick -y
           # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
-          for size in 256 128 64 48 32 24 16; do
+          for size in 512 256 128 64 48 32 24 16; do
             magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
           done
-          magick assets/misc/MaaEnd-Tiny.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
+          magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
 
       - name: Modify MXU exe icon
         shell: bash
