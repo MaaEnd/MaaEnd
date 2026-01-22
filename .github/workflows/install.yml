@@ -9,8 +9,8 @@ on:
     paths:
       - ".github/workflows/install.yml"
       - "assets/**"
-      - "agent/**"
       - "src-agent/**"
+      - "tools/**"
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
     paths:
       - ".github/workflows/install.yml"
       - "assets/**"
-      - "agent/**"
       - "src-agent/**"
+      - "tools/**"
 
   workflow_dispatch:
 
@@ -81,21 +81,6 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
 
-      - name: Build Go Agent
-        working-directory: src-agent/service
-        env:
-          GOOS: ${{ matrix.os == 'win' && 'windows' || matrix.os == 'macos' && 'darwin' || 'linux' }}
-          GOARCH: ${{ matrix.arch == 'x86_64' && 'amd64' || 'arm64' }}
-          CGO_ENABLED: "0"
-        run: |
-          go mod tidy
-          ext=""
-          if [ "${{ matrix.os }}" = "win" ]; then
-            ext=".exe"
-          fi
-          mkdir -p ../../install/agent
-          go build -ldflags="-s -w -X main.Version=${{ needs.meta.outputs.tag }}" -o ../../install/agent/service${ext} .
-
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
@@ -118,26 +103,23 @@ jobs:
       - name: Install
         shell: bash
         run: |
+          # 运行安装脚本（构建 Go Agent + 复制资源）
+          python tools/build_and_install.py --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+
+          # 安装 MaaFramework
+          cp -r downloads/MaaFramework/bin/* install/maafw/
+          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
+          rm -rf install/maafw/MaaNode*
+
+          # 安装 MXU
           if [[ -d downloads/MXU ]]; then
             rm -rf downloads/MXU*.zip downloads/MXU*.tgz
             cp -r downloads/MXU/mxu* install
           fi
 
-          mkdir -p install/maafw
-          cp -r downloads/MaaFramework/bin/* install/maafw/
-          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
-          rm -rf install/maafw/MaaNode*
-
-          python tools/configure.py
-          rm -rf assets/MaaCommonAssets
-          cp -r assets/* install
-
           # 更新 interface.json 中的版本号
           sed -E '/^[[:space:]]*\/\//d' install/interface.json | jq --indent 4 --arg version "${{ needs.meta.outputs.tag }}" '.version=$version' > install/interface.json.tmp
           mv install/interface.json.tmp install/interface.json
-
-          cp README.md install
-          cp LICENSE install
 
       - uses: actions/upload-artifact@v4
         with:
