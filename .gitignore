@@ -439,6 +439,9 @@ enc_temp_folder/*
 # Nuke
 .nuke/temp/*
 
+# MaaDebugger
+.nicegui/*
+
 # Build
 install/
 maafw/*
