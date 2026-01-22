@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -22,6 +23,16 @@ func main() {
 
 	identifier := os.Args[1]
 	log.Info().Str("identifier", identifier).Msg("Starting agent server")
+
+	// Initialize MAA framework first (required before any other MAA calls)
+	// MAA DLL 位于工作目录下的 maafw 子目录
+	libDir := filepath.Join(getCwd(), "maafw")
+	log.Info().Str("libDir", libDir).Msg("Initializing MAA framework")
+	if err := maa.Init(maa.WithLibDir(libDir)); err != nil {
+		log.Fatal().Err(err).Msg("Failed to initialize MAA framework")
+	}
+	defer maa.Release()
+	log.Info().Msg("MAA framework initialized")
 
 	// Initialize toolkit config option
 	userPath := getCwd()

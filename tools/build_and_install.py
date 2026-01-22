@@ -138,8 +138,9 @@ def build_go_agent(
     else:
         machine = platform.machine().lower()
         goarch = (
-            "amd64" if machine in ("x86_64", "amd64") else
-            "arm64" if machine in ("aarch64", "arm64") else machine
+            "amd64"
+            if machine in ("x86_64", "amd64")
+            else "arm64" if machine in ("aarch64", "arm64") else machine
         )
 
     ext = ".exe" if goos == "windows" else ""
@@ -210,16 +211,8 @@ def main():
     link_or_copy_dir = copy_directory if use_copy else create_directory_link
     link_or_copy_file = copy_file if use_copy else create_file_link
 
-    # 1. 配置 OCR 模型
-    print("[1/5] 配置 OCR 模型...")
-    configure_ocr_model(assets_dir, use_copy)
-
-    # 2. 构建 Go Agent
-    print("[2/5] 构建 Go Agent...")
-    build_go_agent(root_dir, install_dir, args.target_os, args.target_arch, args.version)
-
-    # 3. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
-    print("[3/5] 处理 assets 目录...")
+    # 1. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
+    print("[1/5] 处理 assets 目录...")
     for item in assets_dir.iterdir():
         if item.name == "MaaCommonAssets":
             continue
@@ -230,6 +223,16 @@ def main():
         elif item.is_file():
             if link_or_copy_file(item, dst):
                 print(f"  -> {dst}")
+
+    # 2. 配置 OCR 模型
+    print("[2/5] 配置 OCR 模型...")
+    configure_ocr_model(assets_dir, use_copy)
+
+    # 3. 构建 Go Agent
+    print("[3/5] 构建 Go Agent...")
+    build_go_agent(
+        root_dir, install_dir, args.target_os, args.target_arch, args.version
+    )
 
     # 4. 链接/复制项目根目录文件
     print("[4/5] 处理项目文件...")
