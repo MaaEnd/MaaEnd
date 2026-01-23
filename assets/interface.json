@@ -55,6 +55,12 @@
     },
     "task": [
         {
+            "name": "🎮打开游戏",
+            "entry": "OpenGame",
+            "default_check": true,
+            "description": "打开游戏"
+        },
+        {
             "name": "📅日常奖励领取",
             "entry": "DailyRewards",
             "default_check": true,

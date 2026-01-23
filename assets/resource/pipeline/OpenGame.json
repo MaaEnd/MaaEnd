@@ -1,0 +1,97 @@
+{
+    "OpenGame": {
+        "action": {
+            "type": "StartApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        },
+        "post_delay": 5000,
+        "timeout": 60000,
+        "next": [
+            "ClickToContinue",
+            "[JumpBack]WaitingLoading"
+        ]
+    },
+    "WaitingLoading": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "正在",
+                    "资源",
+                    "加载",
+                    "完整性"
+                ],
+                "roi": [
+                    300,
+                    640,
+                    700,
+                    70
+                ]
+            }
+        }
+    },
+    "ClickToContinue": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击",
+                    "任意",
+                    "位置",
+                    "继续"
+                ],
+                "roi": [
+                    1101,
+                    357,
+                    158,
+                    40
+                ]
+            }
+        },
+        "post_delay": 5000,
+        "timeout": 60000,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "InTheGame",
+            "[JumpBack]WaitingNowLoading"
+        ]
+    },
+    "WaitingNowLoading": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "NOW",
+                    "LOAD",
+                    "ING"
+                ],
+                "roi": [
+                    1116,
+                    652,
+                    92,
+                    25
+                ]
+            }
+        }
+    },
+    "InTheGame": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "探索"
+                ],
+                "roi": [
+                    54,
+                    19,
+                    110,
+                    32
+                ]
+            }
+        }
+    }
+}
