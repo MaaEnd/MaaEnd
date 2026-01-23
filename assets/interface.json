@@ -232,20 +232,21 @@
         "AutoPick": {
             "label": "自动拾取",
             "type": "switch",
+            "description": "仅采集物，掉落物游戏自带收集",
             "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "RealTimeAutoPick": {
-                            "enabled": true
-                        }
-                    }
-                },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoPick": {
                             "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPick": {
+                            "enabled": true
                         }
                     }
                 }
