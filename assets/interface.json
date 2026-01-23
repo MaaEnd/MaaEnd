@@ -71,15 +71,15 @@
             "entry": "RealTimeTaskMain",
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
-                "自动剧情",
-                "辅助战斗",
-                "自动触发拾取",
-                "实时辅助间隔"
+                "AutoSkip",
+                "AutoFight",
+                "AutoPick",
+                "AutoTaskInterval"
             ]
         }
     ],
     "option": {
-        "自动剧情": {
+        "AutoSkip": {
             "type": "switch",
             "label": "自动剧情",
             "cases": [
@@ -91,9 +91,9 @@
                         }
                     },
                     "option": [
-                        "跳过所有剧情",
-                        "自动选择剧情分支",
-                        "加速剧情播放"
+                        "AutoSkipAll",
+                        "AutoSkipChoose",
+                        "AutoSkipNext"
                     ]
                 },
                 {
@@ -106,7 +106,8 @@
                 }
             ]
         },
-        "跳过所有剧情": {
+        "AutoSkipAll": {
+            "label": "跳过所有剧情",
             "description": "在自动剧情过程中，自动点击跳过按钮，跳过所有剧情",
             "type": "switch",
             "cases": [
@@ -128,7 +129,9 @@
                 }
             ]
         },
-        "自动选择剧情分支": {
+        "AutoSkipChoose": {
+            "label": "自动选择剧情分支",
+            "description": "在自动剧情过程中，自动选择剧情分支选项",
             "type": "switch",
             "cases": [
                 {
@@ -149,7 +152,9 @@
                 }
             ]
         },
-        "加速剧情播放": {
+        "AutoSkipNext": {
+            "label": "加速剧情播放",
+            "description": "在自动剧情过程中，不断点击屏幕以加速剧情播放",
             "type": "switch",
             "cases": [
                 {
@@ -170,8 +175,10 @@
                 }
             ]
         },
-        "自动战斗": {
+        "AutoFight": {
             "type": "switch",
+            "label": "辅助战斗",
+            "description": "半自动战斗",
             "cases": [
                 {
                     "name": "Yes",
@@ -181,7 +188,7 @@
                         }
                     },
                     "option": [
-                        "自动触发连携技能"
+                        "AutoFightCombo"
                     ]
                 },
                 {
@@ -194,7 +201,8 @@
                 }
             ]
         },
-        "自动触发连携技能": {
+        "AutoFightCombo": {
+            "label": "自动触发连携技能",
             "type": "switch",
             "cases": [
                 {
@@ -215,7 +223,8 @@
                 }
             ]
         },
-        "自动触发拾取": {
+        "AutoPick": {
+            "label": "自动拾取",
             "type": "switch",
             "cases": [
                 {
@@ -236,8 +245,9 @@
                 }
             ]
         },
-        "实时辅助间隔": {
+        "AutoTaskInterval": {
             "type": "input",
+            "label": "实时辅助间隔",
             "inputs": [
                 {
                     "name": "检测间隔",
