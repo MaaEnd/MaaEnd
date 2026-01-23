@@ -46,10 +46,10 @@
                     "日常"
                 ],
                 "roi": [
-                    395,
-                    155,
-                    40,
-                    20
+                    170,
+                    140,
+                    795,
+                    45
                 ]
             }
         },
@@ -60,7 +60,8 @@
         "next": [
             "ClaimSingleReward",
             "ClaimActivityRewards",
-            "GoToBattlePass"
+            "GoToBattlePass",
+            "CloseDailyToEnterPass"
         ]
     },
     "ClaimSingleReward": {
@@ -82,19 +83,20 @@
         },
         "next": [
             "ClaimActivityRewards",
-            "GoToBattlePass"
+            "GoToBattlePass",
+            "CloseDailyToEnterPass"
         ]
     },
     "ClaimActivityRewards": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Daily/ActivityReward.png",
+                "template": "DailyRewards/ActivityReward.png",
                 "roi": [
-                    191,
-                    223,
-                    26,
-                    27
+                    185,
+                    475,
+                    35,
+                    35
                 ],
                 "threshold": 0.9
             }
@@ -111,7 +113,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Daily/CloseReward.png",
+                "template": "DailyRewards/CloseReward.png",
                 "roi": [
                     622,
                     645,
@@ -126,7 +128,51 @@
             "param": {}
         },
         "next": [
-            "GoToBattlePass"
+            "GoToBattlePass",
+            "CloseDailyToEnterPass"
+        ]
+    },
+    "CloseDailyToEnterPass": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "DailyRewards/CloseButton.png",
+                "threshold": 0.9,
+                "roi": [
+                    1215,
+                    11,
+                    35,
+                    35
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "EnterBattlePassManual"
+        ]
+    },
+    "EnterBattlePassManual": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": "通行证",
+                "roi": [
+                    1100,
+                    175,
+                    115,
+                    65
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "EnterBattlePassTasks"
         ]
     },
     "GoToBattlePass": {
@@ -167,6 +213,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 500,
         "next": [
             "ClaimBattlePassTaskRewards",
             "EnterBattlePassRewards"
@@ -210,6 +257,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 500,
         "next": [
             "ClaimBattlePassLevelRewards",
             "DailyTaskComplete"
@@ -240,7 +288,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Daily/CloseReward.png",
+                "template": "DailyRewards/CloseReward.png",
                 "roi": [
                     622,
                     645,

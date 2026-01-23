@@ -45,6 +45,9 @@
                 ]
             }
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 0,
         "next": [
             "RealTimeAutoSkipAll",
             "RealTimeAutoSkipChoose",
@@ -64,6 +67,32 @@
             120,
             90
         ],
+        "action": "Click",
+        "next": [
+            "RealTimeAutoSkipAllConfirm"
+        ]
+    },
+    "RealTimeAutoSkipAllConfirm": {
+        "doc": "确认跳过全部剧情",
+        // 找中间跳过确认按钮
+        "recognition": "ColorMatch",
+        "roi": [
+            650,
+            440,
+            200,
+            50
+        ],
+        "upper": [
+            255,
+            249,
+            11
+        ],
+        "lower": [
+            245,
+            229,
+            0
+        ],
+        "count": 200,
         "action": "Click"
     },
     "RealTimeAutoSkipChoose": {
@@ -83,14 +112,30 @@
     "RealTimeAutoSkipNext": {
         "doc": "自动点击剧情下一步",
         // 查找游戏下方三角形按钮
-        "recognition": "TemplateMatch",
-        "threshold": 0.7,
-        "template": "RealTimeTask/AutoSkipNext.png",
-        "roi": [
-            630,
-            690,
-            20,
-            25
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "threshold": 0.7,
+                "template": "RealTimeTask/AutoSkipNext.png",
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "threshold": 0.7,
+                "template": "RealTimeTask/AutoSkipNext2.png",
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ]
+            }
         ],
         "action": "Click"
     }

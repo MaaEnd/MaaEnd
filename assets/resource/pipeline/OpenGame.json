@@ -1,0 +1,115 @@
+{
+    "OpenGame": {
+        "action": {
+            "type": "StartApp",
+            "param": {
+                "package": "com.hypergryph.endfield"
+            }
+        },
+        "next": [
+            "ClickContinue",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]WaitAnnouncement"
+        ]
+    },
+    "WaitBlackScreen": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    0,
+                    0
+                ],
+                "roi": [
+                    657,
+                    30,
+                    308,
+                    124
+                ]
+            }
+        }
+    },
+    "WaitAnnouncement": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "公告"
+                ],
+                "roi": [
+                    1165,
+                    34,
+                    68,
+                    34
+                ]
+            }
+        }
+    },
+    "ClickContinue": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击",
+                    "任意",
+                    "位置",
+                    "继续"
+                ],
+                "roi": [
+                    1101,
+                    357,
+                    158,
+                    40
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "EnterGame",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]WaitLoading"
+        ]
+    },
+    "WaitLoading": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "NOW",
+                    "LOAD",
+                    "ING"
+                ],
+                "roi": [
+                    1116,
+                    652,
+                    92,
+                    25
+                ]
+            }
+        }
+    },
+    "EnterGame": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "探索"
+                ],
+                "roi": [
+                    54,
+                    19,
+                    110,
+                    32
+                ]
+            }
+        }
+    }
+}
