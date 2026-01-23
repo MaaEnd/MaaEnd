@@ -68,7 +68,7 @@
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
                 "自动剧情",
-                "自动战斗"
+                "辅助战斗"
             ]
         }
     ],
@@ -85,6 +85,7 @@
                         }
                     },
                     "option": [
+                        "跳过所有剧情",
                         "自动选择剧情分支",
                         "加速剧情播放"
                     ]
@@ -99,7 +100,30 @@
                 }
             ]
         },
+        "跳过所有剧情": {
+            "description": "在自动剧情过程中，自动点击跳过按钮，跳过所有剧情",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipAll": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipAll": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "自动选择剧情分支": {
+            "description": "在自动剧情过程中，遇到分支选择时会自动点击第一个选项",
             "type": "switch",
             "cases": [
                 {
@@ -121,6 +145,7 @@
             ]
         },
         "加速剧情播放": {
+            "description": "在自动剧情过程中，通过点击画面加快剧情播放速度",
             "type": "switch",
             "cases": [
                 {
@@ -141,7 +166,7 @@
                 }
             ]
         },
-        "自动战斗": {
+        "辅助战斗": {
             "type": "switch",
             "cases": [
                 {

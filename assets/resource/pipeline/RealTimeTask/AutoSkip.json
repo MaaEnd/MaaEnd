@@ -1,41 +1,106 @@
 {
     "RealTimeAutoSkip": {
         "doc": "自动剧情入口",
-        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
-        "recognition": "And",
-        "all_of": [
+        "recognition": "Or",
+        // 防止背景变化过大，使用左上角和右上角两个画面进行匹配
+        "any_of": [
             {
+                // 匹配左上角log图标
                 "recognition": "TemplateMatch",
-                "threshold": 0.85,
-                "template": "RealTimeTask/AutoSkipA.png",
+                "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
+                "template": "RealTimeTask/AutoSkipLog.png",
                 "roi": [
-                    1140,
-                    0,
-                    120,
-                    80
+                    10,
+                    20,
+                    55,
+                    40
                 ]
             },
             {
-                "recognition": "TemplateMatch",
-                "threshold": 0.85,
-                "template": "RealTimeTask/AutoSkipEsc.png",
-                "roi": [
-                    1140,
-                    0,
-                    120,
-                    80
+                // 匹配右上角Auto和Esc图标
+                "recognition": "And",
+                "all_of": [
+                    {
+                        "recognition": "TemplateMatch",
+                        "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
+                        "template": "RealTimeTask/AutoSkipA.png",
+                        "roi": [
+                            1140,
+                            0,
+                            120,
+                            90
+                        ]
+                    },
+                    {
+                        "recognition": "TemplateMatch",
+                        "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
+                        "template": "RealTimeTask/AutoSkipEsc.png",
+                        "roi": [
+                            1140,
+                            0,
+                            120,
+                            90
+                        ]
+                    }
                 ]
             }
         ],
+        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
         "next": [
+            "RealTimeAutoSkipAll",
             "RealTimeAutoSkipChoose",
             "RealTimeAutoSkipNext",
+            "RealTimeTaskMain"
+        ]
+    },
+    "RealTimeAutoSkipAll": {
+        "doc": "自动跳过全部剧情",
+        // 找右上角跳过按钮
+        "recognition": "TemplateMatch",
+        "threshold": 0.7,
+        "green_mask": true,
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "action": "Click",
+        "next": [
+            "RealTimeAutoSkipAllConfirm"
+        ]
+    },
+    "RealTimeAutoSkipAllConfirm": {
+        "doc": "确认跳过全部剧情",
+        // 找跳过确认对话框的黄色无渐变 255,239,1 确认按钮
+        "recognition": "ColorMatch",
+        "count": 100,
+        "roi": [
+            650,
+            450,
+            230,
+            60
+        ],
+        "lower": [
+            250,
+            230,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            10
+        ],
+        "action": "Click",
+        "next": [
             "RealTimeTaskMain"
         ]
     },
     "RealTimeAutoSkipChoose": {
         "doc": "自动跳过剧情中分支选择",
         // 找右侧区域是否有待选择的功能点
+        // TODO 部分对话需要1、2、3每个都选一遍，目前会重复选择第一个
         "recognition": "TemplateMatch",
         "threshold": 0.9,
         "template": "RealTimeTask/AutoSkipTip.png",
@@ -54,7 +119,7 @@
         "doc": "自动点击剧情下一步",
         // 查找游戏下方三角形按钮
         "recognition": "TemplateMatch",
-        "threshold": 0.9,
+        "threshold": 0.7,
         "template": "RealTimeTask/AutoSkipNext.png",
         "roi": [
             630,
