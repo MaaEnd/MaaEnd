@@ -32,6 +32,8 @@
         ],
         "action": "ClickKey",
         "pre_delay": 0,
-        "key": 69 // E键
+        "key": 69, // E键
+        "repeat": 3, // 最大三个干员同时连携
+        "repeat_delay": 10
     }
 }
