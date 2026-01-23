@@ -3,7 +3,7 @@
         "doc": "实时任务主入口",
         "pre_delay": 0,
         "post_delay": 0,
-        "timeout": 999999999,
+        "timeout": -1,
         "rate_limit": 400,
         "next": [
             "[JumpBack]RealTimeAutoSkip",
