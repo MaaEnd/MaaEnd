@@ -55,25 +55,32 @@
     },
     "task": [
         {
-            "name": "🎮打开游戏",
-            "entry": "OpenGame",
+            "name": "AndroidOpenGame",
+            "label": "🎮打开游戏",
+            "entry": "AndroidOpenGame",
             "default_check": true,
-            "description": "打开游戏"
+            "description": "打开游戏",
+            "controller": [
+                "ADB"
+            ]
         },
         {
-            "name": "📅日常奖励领取",
+            "name": "DailyRewards",
+            "label": "📅日常奖励领取",
             "entry": "DailyRewards",
             "default_check": true,
             "description": "领取每日任务奖励"
         },
         {
-            "name": "📖百科一键已读",
+            "name": "ReadAllWiki",
+            "label": "📖百科一键已读",
             "entry": "ReadAllWiki",
             "default_check": true,
             "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
         },
         {
-            "name": "🤖实时开荒辅助",
+            "name": "RealTimeTask",
+            "label": "🤖实时开荒辅助",
             "entry": "RealTimeTaskMain",
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
@@ -81,6 +88,9 @@
                 "AutoFight",
                 "AutoPick",
                 "AutoTaskInterval"
+            ],
+            "controller": [
+                "Win32"
             ]
         }
     ],

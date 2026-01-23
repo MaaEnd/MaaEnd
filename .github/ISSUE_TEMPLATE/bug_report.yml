@@ -1,0 +1,67 @@
+name: Bug 报告 / Bug Report
+description: Bug / 使用问题 / 识别错误等 / Bug, Usage Issue, Recognition Error, etc.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        📖 **提交前请阅读 [问题反馈指南](https://github.com/MaaEnd/MaaEnd/blob/main/docs/users/troubleshooting.md)。**  
+        ⚠️ **请先更新到最新版本的 MaaEnd，确认问题是否仍然存在后再提交 Issue。**
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述及复现步骤
+      placeholder: |
+        预期行为: ...
+        实际行为: ...
+        复现步骤:
+        1. ...
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志文件
+      description: |
+        ⚠️**请将整个 `debug` 文件夹压缩后上传。**⚠️  
+        💡 点击界面上“运行日志”右上角的 📂 可直接打开 `debug` 文件夹。
+        - ❌ 不要复制文字发送。
+        - ❌ 不要截图日志。
+        - ❌ 不要只上传单个文件。
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 软件画面截图
+      description: 请提供出现问题时完整的 MaaEnd 软件画面截图。
+    validations:
+      required: true
+
+  - type: textarea
+    id: version
+    attributes:
+      label: 版本信息截图
+      description: 请提供 MaaEnd - 设置 - 调试 - 版本信息 截图。
+    validations:
+      required: true
+
+  - type: textarea
+    id: draw_images
+    attributes:
+      label: Draw 调试图片 (仅识别问题)
+      description: 上传 `debug/vision/` 目录下对应的调试图片
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 其他信息
+      description: 其他可能有帮助的信息，如运行环境、原始截图等
+    validations:
+      required: false
