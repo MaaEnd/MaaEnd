@@ -213,7 +213,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 1000,
+        "post_wait_freezes": 500,
         "next": [
             "ClaimBattlePassTaskRewards",
             "EnterBattlePassRewards"
@@ -257,7 +257,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 1000,
+        "post_wait_freezes": 500,
         "next": [
             "ClaimBattlePassLevelRewards",
             "DailyTaskComplete"
