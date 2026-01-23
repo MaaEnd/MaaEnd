@@ -47,11 +47,11 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "timeout": 0,
         "next": [
             "RealTimeAutoSkipAll",
             "RealTimeAutoSkipChoose",
-            "RealTimeAutoSkipNext"
+            "RealTimeAutoSkipNext",
+            "RealTimeTaskMainDelay"
         ]
     },
     "RealTimeAutoSkipAll": {
@@ -93,7 +93,10 @@
             0
         ],
         "count": 200,
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "RealTimeTaskMain"
+        ]
     },
     "RealTimeAutoSkipChoose": {
         "doc": "自动跳过剧情中分支选择",
@@ -107,7 +110,11 @@
             300,
             300
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "RealTimeAutoSkip",
+            "RealTimeTaskMain"
+        ]
     },
     "RealTimeAutoSkipNext": {
         "doc": "自动点击剧情下一步",
@@ -137,6 +144,10 @@
                 ]
             }
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "RealTimeAutoSkip",
+            "RealTimeTaskMain"
+        ]
     }
 }

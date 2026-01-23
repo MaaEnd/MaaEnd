@@ -12,10 +12,11 @@
         "threshold": 0.9,
         "pre_delay": 0,
         "post_delay": 0,
-        "timeout": 0,
         "template": "RealTimeTask/AutoFightBar.png",
         "next": [
-            "RealTimeAutoFightCombo"
+            "RealTimeAutoFightCombo",
+            "RealTimeAutoFight",
+            "RealTimeTaskMain"
         ]
     },
     "RealTimeAutoFightCombo": {
@@ -34,6 +35,11 @@
         "pre_delay": 0,
         "key": 69, // E键
         "repeat": 3, // 最大三个干员同时连携
-        "repeat_delay": 10
+        "repeat_delay": 10,
+        "next": [
+            "RealTimeAutoFightCombo",
+            "RealTimeAutoFight",
+            "RealTimeTaskMain"
+        ]
     }
 }

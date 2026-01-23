@@ -63,6 +63,10 @@
                 "key": 70
             }
         },
-        "pre_delay": 0
+        "pre_delay": 0,
+        "next": [
+            "RealTimeAutoPick",
+            "RealTimeTaskMain"
+        ]
     }
 }
