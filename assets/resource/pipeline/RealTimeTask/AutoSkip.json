@@ -120,9 +120,9 @@
                 "template": "RealTimeTask/AutoSkipNext.png",
                 "roi": [
                     630,
-                    690,
+                    680,
                     20,
-                    25
+                    35
                 ]
             },
             {
@@ -131,9 +131,9 @@
                 "template": "RealTimeTask/AutoSkipNext2.png",
                 "roi": [
                     630,
-                    690,
+                    680,
                     20,
-                    25
+                    35
                 ]
             }
         ],
