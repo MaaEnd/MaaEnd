@@ -6,33 +6,52 @@
                 "package": "com.hypergryph.endfield"
             }
         },
-        "post_delay": 5000,
-        "timeout": 60000,
         "next": [
-            "ClickToContinue",
-            "[JumpBack]WaitingLoading"
+            "ClickContinue",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]WaitAnnouncement"
         ]
     },
-    "WaitingLoading": {
+    "WaitBlackScreen": {
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
-                "expected": [
-                    "正在",
-                    "资源",
-                    "加载",
-                    "完整性"
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    0,
+                    0,
+                    0
                 ],
                 "roi": [
-                    300,
-                    640,
-                    700,
-                    70
+                    657,
+                    30,
+                    308,
+                    124
                 ]
             }
         }
     },
-    "ClickToContinue": {
+    "WaitAnnouncement": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "公告"
+                ],
+                "roi": [
+                    1165,
+                    34,
+                    68,
+                    34
+                ]
+            }
+        }
+    },
+    "ClickContinue": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -50,17 +69,16 @@
                 ]
             }
         },
-        "post_delay": 5000,
-        "timeout": 60000,
         "action": {
             "type": "Click"
         },
         "next": [
-            "InTheGame",
-            "[JumpBack]WaitingNowLoading"
+            "EnterGame",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]WaitLoading"
         ]
     },
-    "WaitingNowLoading": {
+    "WaitLoading": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -78,7 +96,7 @@
             }
         }
     },
-    "InTheGame": {
+    "EnterGame": {
         "recognition": {
             "type": "OCR",
             "param": {
