@@ -1,7 +1,6 @@
 {
     "RealTimeAutoSkip": {
         "doc": "自动剧情入口",
-        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
         "recognition": "Or",
         // 防止背景变化过大，使用左上角和右上角两个画面进行匹配
         "any_of": [

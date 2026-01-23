@@ -7,7 +7,7 @@
         "rate_limit": 400,
         "next": [
             "[JumpBack]RealTimeAutoSkip",
-            "[JumpBack]RealTimeAutoFightCombo",
+            "[JumpBack]RealTimeAutoFight",
             "[JumpBack]RealTimeAutoPick"
         ]
     }
