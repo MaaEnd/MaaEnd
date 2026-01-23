@@ -115,8 +115,8 @@ def check_go_environment() -> bool:
     return False
 
 
-def configure_ocr_model(assets_dir: Path, use_copy: bool = False) -> bool:
-    """配置 OCR 模型"""
+def configure_ocr_model(assets_dir: Path) -> bool:
+    """配置 OCR 模型，逐个复制文件，已存在则跳过"""
     assets_ocr_src = assets_dir / "MaaCommonAssets" / "OCR" / "ppocr_v5" / "zh_cn"
     if not assets_ocr_src.exists():
         print(f"  [ERROR] OCR 资源不存在: {assets_ocr_src}")
@@ -124,16 +124,23 @@ def configure_ocr_model(assets_dir: Path, use_copy: bool = False) -> bool:
         return False
 
     ocr_dir = assets_dir / "resource" / "model" / "ocr"
-    if ocr_dir.exists():
-        print("  [SKIP] OCR 目录已存在")
-        return True
+    ocr_dir.mkdir(parents=True, exist_ok=True)
 
-    if use_copy:
-        shutil.copytree(assets_ocr_src, ocr_dir)
-    else:
-        create_directory_link(assets_ocr_src, ocr_dir)
+    copied_count = 0
+    skipped_count = 0
+
+    for src_file in assets_ocr_src.iterdir():
+        if not src_file.is_file():
+            continue
+        dst_file = ocr_dir / src_file.name
+        if dst_file.exists():
+            skipped_count += 1
+        else:
+            shutil.copy2(src_file, dst_file)
+            copied_count += 1
 
     print(f"  -> {ocr_dir}")
+    print(f"  复制 {copied_count} 个文件，跳过 {skipped_count} 个已存在文件")
     return True
 
 
@@ -255,7 +262,7 @@ def main():
 
     # 2. 配置 OCR 模型
     print("[2/5] 配置 OCR 模型...")
-    configure_ocr_model(assets_dir, use_copy)
+    configure_ocr_model(assets_dir)
 
     # 3. 构建 Go Agent
     print("[3/5] 构建 Go Agent...")
