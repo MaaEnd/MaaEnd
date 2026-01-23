@@ -208,7 +208,7 @@ def build_go_agent(
         ldflags += f" -X main.Version={version}"
 
     result = subprocess.run(
-        ["go", "build", f"-ldflags={ldflags}", "-o", str(output_path), "."],
+        ["go", "build", "-trimpath", f"-ldflags={ldflags}", "-o", str(output_path), "."],
         cwd=go_service_dir,
         capture_output=True,
         text=True,
