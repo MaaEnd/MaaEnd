@@ -1,10 +1,14 @@
 {
     "RealTimeTaskMain": {
         "doc": "实时任务主入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 999999999,
+        "rate_limit": 400,
         "next": [
-            "RealTimeAutoSkip",
-            "RealTimeAutoFight",
-            "RealTimeTaskMain"
+            "[JumpBack]RealTimeAutoSkip",
+            "[JumpBack]RealTimeAutoFightCombo",
+            "[JumpBack]RealTimeAutoPick"
         ]
     }
 }

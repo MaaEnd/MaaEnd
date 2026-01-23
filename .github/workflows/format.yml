@@ -1,0 +1,50 @@
+name: format
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * *" # UTC
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          submodules: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          cache-dependency-path: agent/go-service/go.sum
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run format
+        run: pnpm format:all
+
+      - name: Commit and push changes
+        uses: actions-js/push@master
+        with:
+          rebase: true
+          branch: ${{ github.ref }}
+          message: "styles: auto format code
+
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            [skip changelog]"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

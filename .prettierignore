@@ -1,0 +1,18 @@
+# 构建产物
+install/
+node_modules/
+
+# 子模块
+assets/MaaCommonAssets/
+
+# 锁文件
+pnpm-lock.yaml
+package-lock.json
+
+# Go
+agent/go-service/go.sum
+agent/go-service/vendor/
+
+# 其他
+*.min.js
+*.min.css

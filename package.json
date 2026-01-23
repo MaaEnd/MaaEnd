@@ -1,0 +1,15 @@
+{
+    "name": "maaend",
+    "private": true,
+    "scripts": {
+        "format": "prettier --write \"**/*.{json,yml,yaml,md}\"",
+        "format:check": "prettier --check \"**/*.{json,yml,yaml,md}\"",
+        "format:go": "cd agent/go-service && go fmt ./...",
+        "format:all": "pnpm format && pnpm format:go"
+    },
+    "devDependencies": {
+        "prettier": "3.5.3",
+        "prettier-plugin-multiline-arrays": "3.0.6"
+    },
+    "packageManager": "pnpm@10.28.0+sha512.05df71d1421f21399e053fde567cea34d446fa02c76571441bfc1c7956e98e363088982d940465fd34480d4d90a0668bc12362f8aa88000a64e83d0b0e47be48"
+}

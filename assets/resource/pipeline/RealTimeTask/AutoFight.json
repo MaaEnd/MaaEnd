@@ -10,10 +10,12 @@
             30
         ],
         "threshold": 0.9,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 0,
         "template": "RealTimeTask/AutoFightBar.png",
         "next": [
-            "RealTimeAutoFightCombo",
-            "RealTimeTaskMain"
+            "RealTimeAutoFightCombo"
         ]
     },
     "RealTimeAutoFightCombo": {
@@ -29,9 +31,7 @@
             100
         ],
         "action": "ClickKey",
-        "key": 69, // E键
-        "next": [
-            "RealTimeTaskMain"
-        ]
+        "pre_delay": 0,
+        "key": 69 // E键
     }
 }

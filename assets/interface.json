@@ -2,11 +2,11 @@
     "interface_version": 2,
     "name": "MaaEnd",
     "description": "MaaEnd 终末地小助手，绝赞开发中！",
-    "version": "v0.0.1",
+    "version": "v114514.0.0",
     "contact": "misc/CONTACT.md",
     "license": "LICENSE",
     "welcome": "README.md",
-    "icon": "misc/MaaEnd-Tiny-64.png",
+    "icon": "misc/MaaEnd-Tiny.png",
     "github": "https://github.com/MaaEnd/MaaEnd",
     "mirrorchyan_rid": "MaaEnd",
     "mirrorchyan_multiplatform": true,
@@ -49,6 +49,10 @@
             ]
         }
     ],
+    "agent": {
+        "child_exec": "agent/go-service",
+        "child_args": []
+    },
     "task": [
         {
             "name": "📅日常奖励领取",
@@ -68,7 +72,9 @@
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
                 "自动剧情",
-                "辅助战斗"
+                "辅助战斗",
+                "自动触发拾取",
+                "实时辅助间隔"
             ]
         }
     ],
@@ -123,7 +129,6 @@
             ]
         },
         "自动选择剧情分支": {
-            "description": "在自动剧情过程中，遇到分支选择时会自动点击第一个选项",
             "type": "switch",
             "cases": [
                 {
@@ -145,7 +150,6 @@
             ]
         },
         "加速剧情播放": {
-            "description": "在自动剧情过程中，通过点击画面加快剧情播放速度",
             "type": "switch",
             "cases": [
                 {
@@ -166,7 +170,7 @@
                 }
             ]
         },
-        "辅助战斗": {
+        "自动战斗": {
             "type": "switch",
             "cases": [
                 {
@@ -210,6 +214,45 @@
                     }
                 }
             ]
+        },
+        "自动触发拾取": {
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPick": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPick": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "实时辅助间隔": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "检测间隔",
+                    "label": "检测间隔(ms)",
+                    "description": "过小的检测间隔可能会导致卡顿，请根据实际情况调整，建议至少大于 50ms",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 400
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskMain": {
+                    "rate_limit": "{检测间隔}"
+                }
+            }
         }
     }
 }

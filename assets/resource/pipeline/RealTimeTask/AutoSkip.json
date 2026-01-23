@@ -1,6 +1,7 @@
 {
     "RealTimeAutoSkip": {
         "doc": "自动剧情入口",
+        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
         "recognition": "Or",
         // 防止背景变化过大，使用左上角和右上角两个画面进行匹配
         "any_of": [
@@ -45,12 +46,10 @@
                 ]
             }
         ],
-        // 找右上角A和Esc图标，左上角log图标有时候会消失不能用
         "next": [
             "RealTimeAutoSkipAll",
             "RealTimeAutoSkipChoose",
-            "RealTimeAutoSkipNext",
-            "RealTimeTaskMain"
+            "RealTimeAutoSkipNext"
         ]
     },
     "RealTimeAutoSkipAll": {
@@ -66,41 +65,11 @@
             120,
             90
         ],
-        "action": "Click",
-        "next": [
-            "RealTimeAutoSkipAllConfirm"
-        ]
-    },
-    "RealTimeAutoSkipAllConfirm": {
-        "doc": "确认跳过全部剧情",
-        // 找跳过确认对话框的黄色无渐变 255,239,1 确认按钮
-        "recognition": "ColorMatch",
-        "count": 100,
-        "roi": [
-            650,
-            450,
-            230,
-            60
-        ],
-        "lower": [
-            250,
-            230,
-            0
-        ],
-        "upper": [
-            255,
-            255,
-            10
-        ],
-        "action": "Click",
-        "next": [
-            "RealTimeTaskMain"
-        ]
+        "action": "Click"
     },
     "RealTimeAutoSkipChoose": {
         "doc": "自动跳过剧情中分支选择",
         // 找右侧区域是否有待选择的功能点
-        // TODO 部分对话需要1、2、3每个都选一遍，目前会重复选择第一个
         "recognition": "TemplateMatch",
         "threshold": 0.9,
         "template": "RealTimeTask/AutoSkipTip.png",
@@ -110,10 +79,7 @@
             300,
             300
         ],
-        "action": "Click",
-        "next": [
-            "RealTimeTaskMain"
-        ]
+        "action": "Click"
     },
     "RealTimeAutoSkipNext": {
         "doc": "自动点击剧情下一步",
@@ -127,9 +93,6 @@
             20,
             25
         ],
-        "action": "Click",
-        "next": [
-            "RealTimeTaskMain"
-        ]
+        "action": "Click"
     }
 }
