@@ -1,79 +1,64 @@
 package main
 
 import (
-	"log/slog"
 	"os"
-	"os/signal"
 	"path/filepath"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	cleanup, err := initLogger()
+	logFile, err := initLogger()
 	if err != nil {
-		slog.Error("Failed to initialize logger", "error", err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("Failed to initialize logger")
 	}
-	defer cleanup()
+	defer logFile.Close()
 
-	slog.Info("MaaEnd Agent Service", "version", Version)
+	log.Info().Str("version", Version).Msg("MaaEnd Agent Service")
 
 	if len(os.Args) < 2 {
-		slog.Error("Usage: go-service <identifier>")
-		os.Exit(1)
+		log.Fatal().Msg("Usage: go-service <identifier>")
 	}
 
 	identifier := os.Args[1]
-	slog.Info("Starting agent server", "identifier", identifier)
+	log.Info().Str("identifier", identifier).Msg("Starting agent server")
 
 	// Initialize MAA framework first (required before any other MAA calls)
 	// MAA DLL 位于工作目录下的 maafw 子目录
 	libDir := filepath.Join(getCwd(), "maafw")
-	slog.Info("Initializing MAA framework", "libDir", libDir)
+	log.Info().Str("libDir", libDir).Msg("Initializing MAA framework")
 	if err := maa.Init(maa.WithLibDir(libDir)); err != nil {
-		slog.Error("Failed to initialize MAA framework", "error", err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("Failed to initialize MAA framework")
 	}
 	defer maa.Release()
-	slog.Info("MAA framework initialized")
+	log.Info().Msg("MAA framework initialized")
 
 	// Initialize toolkit config option
 	userPath := getCwd()
 	if ok := maa.ConfigInitOption(userPath, "{}"); !ok {
-		slog.Warn("Failed to init toolkit config option", "userPath", userPath)
+		log.Warn().Str("userPath", userPath).Msg("Failed to init toolkit config option")
 	} else {
-		slog.Info("Toolkit config option initialized", "userPath", userPath)
+		log.Info().Str("userPath", userPath).Msg("Toolkit config option initialized")
 	}
 
 	// Register custom recognition and actions
 	maa.AgentServerRegisterCustomRecognition("MyRecognition", &myRecognition{})
 	maa.AgentServerRegisterCustomAction("MyAction", &myAction{})
-	slog.Info("Registered custom recognition and actions")
-
-	// Setup signal handling for graceful shutdown
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, shutdownSignals...)
-
-	go func() {
-		sig := <-sigChan
-		slog.Info("Received signal, initiating shutdown", "signal", sig.String())
-		maa.AgentServerShutDown()
-	}()
+	log.Info().Msg("Registered custom recognition and actions")
 
 	// Start the agent server
 	if !maa.AgentServerStartUp(identifier) {
-		slog.Error("Failed to start agent server")
-		os.Exit(1)
+		log.Fatal().Msg("Failed to start agent server")
 	}
-	slog.Info("Agent server started")
+	log.Info().Msg("Agent server started")
 
 	// Wait for the server to finish
 	maa.AgentServerJoin()
 
-	// Shutdown (idempotent, safe to call even if already shut down by signal)
+	// Shutdown
 	maa.AgentServerShutDown()
-	slog.Info("Agent server shutdown complete")
+	log.Info().Msg("Agent server shutdown")
 }
 
 func getCwd() string {
