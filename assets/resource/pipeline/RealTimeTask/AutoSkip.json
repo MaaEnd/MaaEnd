@@ -69,7 +69,8 @@
         ],
         "action": "Click",
         "next": [
-            "RealTimeAutoSkipAllConfirm"
+            "RealTimeAutoSkipAllConfirm",
+            "RealTimeAutoSkipAll"
         ]
     },
     "RealTimeAutoSkipAllConfirm": {
