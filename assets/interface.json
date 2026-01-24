@@ -281,7 +281,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "RealTimeQuickTeleport": {
+                        "RealTimeQuickTeleportList": {
+                            "enabled": false
+                        },
+                        "RealTimeQuickTeleportDirect": {
                             "enabled": false
                         }
                     }
@@ -289,7 +292,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "RealTimeQuickTeleport": {
+                        "RealTimeQuickTeleportList": {
+                            "enabled": true
+                        },
+                        "RealTimeQuickTeleportDirect": {
                             "enabled": true
                         }
                     }
@@ -310,7 +316,7 @@
                 }
             ],
             "pipeline_override": {
-                "RealTimeTaskMainDelay": {
+                "RealTimeTaskMain": {
                     "post_delay": "{检测间隔}"
                 }
             }
