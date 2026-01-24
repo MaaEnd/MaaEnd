@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -88,12 +87,8 @@ func initLogger() (func(), error) {
 	slog.SetDefault(slog.New(multi))
 
 	cleanup := func() {
-		// lumberjack.Logger implements io.WriteCloser
-		if closer, ok := interface{}(lj).(io.Closer); ok {
-			err := closer.Close()
-			if err != nil {
-				return
-			}
+		if err := lj.Close(); err != nil {
+			slog.Error("Failed to close log file", "error", err)
 		}
 	}
 

@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"syscall"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 )
@@ -54,7 +53,7 @@ func main() {
 
 	// Setup signal handling for graceful shutdown
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(sigChan, shutdownSignals...)
 
 	go func() {
 		sig := <-sigChan
