@@ -215,13 +215,82 @@
                         }
                     },
                     "option": [
-                        "AutoFightCombo"
+                        "AutoFightAttack",
+                        "AutoFightCombo",
+                        "AutoFightSkill",
+                        "AutoFightEndSkill"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoFight": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightAttack": {
+            "label": "自动普攻",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttack": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttack": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightSkill": {
+            "label": "自动释放技能",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSkill": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSkill": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightEndSkill": {
+            "label": "自动释放终结技",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightEndSkill": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightEndSkill": {
                             "enabled": false
                         }
                     }
