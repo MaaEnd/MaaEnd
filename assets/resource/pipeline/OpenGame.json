@@ -13,6 +13,14 @@
             "[JumpBack]WaitCloseGameButton"
         ]
     },
+    "PCOpenGame": {
+        "next": [
+            "ClickContinue",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]LoginFailed",
+            "[JumpBack]WaitCloseGameButton"
+        ]
+    },
     "WaitBlackScreen": {
         "recognition": {
             "type": "ColorMatch",
@@ -46,8 +54,7 @@
                     626,
                     69,
                     63
-                ],
-                "green_mask": true
+                ]
             }
         }
     },
@@ -242,8 +249,7 @@
                     70,
                     49,
                     54
-                ],
-                "green_mask": true
+                ]
             }
         },
         "action": {
