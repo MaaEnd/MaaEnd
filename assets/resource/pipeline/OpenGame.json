@@ -9,7 +9,16 @@
         "next": [
             "ClickContinue",
             "[JumpBack]WaitBlackScreen",
-            "[JumpBack]WaitAnnouncement"
+            "[JumpBack]LoginFailed",
+            "[JumpBack]WaitCloseGameButton"
+        ]
+    },
+    "PCOpenGame": {
+        "next": [
+            "ClickContinue",
+            "[JumpBack]WaitBlackScreen",
+            "[JumpBack]LoginFailed",
+            "[JumpBack]WaitCloseGameButton"
         ]
     },
     "WaitBlackScreen": {
@@ -35,20 +44,58 @@
             }
         }
     },
-    "WaitAnnouncement": {
+    "WaitCloseGameButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "OpenGame/CloseGameButton.png",
+                "roi": [
+                    0,
+                    626,
+                    69,
+                    63
+                ]
+            }
+        }
+    },
+    "LoginFailed": {
         "recognition": {
             "type": "OCR",
             "param": {
                 "expected": [
-                    "公告"
+                    "登录失败",
+                    "检查网络",
+                    "状态后重试"
                 ],
                 "roi": [
-                    1165,
-                    34,
-                    68,
-                    34
+                    477,
+                    314,
+                    329,
+                    59
                 ]
             }
+        },
+        "next": [
+            "LoginFailureConfirmation"
+        ]
+    },
+    "LoginFailureConfirmation": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "确认"
+                ],
+                "roi": [
+                    528,
+                    417,
+                    217,
+                    56
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "ClickContinue": {
@@ -75,10 +122,28 @@
         "next": [
             "EnterGame",
             "[JumpBack]WaitBlackScreen",
-            "[JumpBack]WaitLoading"
+            "[JumpBack]WaitLoadingIcon",
+            "[JumpBack]WaitLoadingText",
+            "[JumpBack]MonthlyCard",
+            "[JumpBack]CheckIn",
+            "[JumpBack]CloseButton"
         ]
     },
-    "WaitLoading": {
+    "WaitLoadingIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "OpenGame/LoadingIcon.png",
+                "roi": [
+                    638,
+                    272,
+                    325,
+                    127
+                ]
+            }
+        }
+    },
+    "WaitLoadingText": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -101,7 +166,8 @@
             "type": "OCR",
             "param": {
                 "expected": [
-                    "探索"
+                    "探索",
+                    "工业"
                 ],
                 "roi": [
                     54,
@@ -110,6 +176,95 @@
                     32
                 ]
             }
+        }
+    },
+    "MonthlyCard": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击确认今日",
+                    "今日月卡奖励"
+                ],
+                "roi": [
+                    519,
+                    549,
+                    232,
+                    54
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CheckIn": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "一键领取"
+                ],
+                "roi": [
+                    942,
+                    261,
+                    173,
+                    57
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CollectRewards",
+            "CloseButton"
+        ]
+    },
+    "CollectRewards": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "获得奖励"
+                ],
+                "roi": [
+                    589,
+                    106,
+                    103,
+                    34
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseButton",
+            "[JumpBack]waitCloseButton"
+        ]
+    },
+    "waitCloseButton": {
+        "action": {
+            "type": "Click",
+            "target": "CollectRewards"
+        }
+    },
+    "CloseButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "OpenGame/CloseButton.png",
+                "roi": [
+                    1197,
+                    70,
+                    49,
+                    54
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
         }
     }
 }

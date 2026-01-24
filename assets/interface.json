@@ -59,9 +59,19 @@
             "label": "🎮打开游戏",
             "entry": "AndroidOpenGame",
             "default_check": true,
-            "description": "打开游戏",
+            "description": "安卓端打开游戏，需先手动打开模拟器",
             "controller": [
                 "ADB"
+            ]
+        },
+        {
+            "name": "PCOpenGame",
+            "label": "🎮进入游戏",
+            "entry": "PCOpenGame",
+            "default_check": true,
+            "description": "PC端进入游戏，需先手动打开游戏",
+            "controller": [
+                "Win32"
             ]
         },
         {
