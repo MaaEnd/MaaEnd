@@ -122,13 +122,28 @@
         "next": [
             "EnterGame",
             "[JumpBack]WaitBlackScreen",
-            "[JumpBack]WaitLoading",
+            "[JumpBack]WaitLoadingIcon",
+            "[JumpBack]WaitLoadingText",
             "[JumpBack]MonthlyCard",
             "[JumpBack]CheckIn",
             "[JumpBack]CloseButton"
         ]
     },
-    "WaitLoading": {
+    "WaitLoadingIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "OpenGame/LoadingIcon.png",
+                "roi": [
+                    638,
+                    272,
+                    325,
+                    127
+                ]
+            }
+        }
+    },
+    "WaitLoadingText": {
         "recognition": {
             "type": "OCR",
             "param": {
