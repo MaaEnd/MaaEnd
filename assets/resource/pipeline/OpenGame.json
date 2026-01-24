@@ -232,7 +232,7 @@
     "waitCloseButton": {
         "action": {
             "type": "Click",
-            "target": "领取签到奖励"
+            "target": "CollectRewards"
         },
         "next": [
             "CloseButton",
