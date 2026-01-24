@@ -7,6 +7,7 @@
             "RealTimeAutoSkip",
             "RealTimeAutoFight",
             "RealTimeAutoPick",
+            "RealTimeQuickTeleport",
             "RealTimeTaskMainDelay"
         ]
     },

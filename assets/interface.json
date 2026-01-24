@@ -87,6 +87,7 @@
                 "AutoSkip",
                 "AutoFight",
                 "AutoPick",
+                "QuickTeleport",
                 "AutoTaskInterval"
             ],
             "controller": [
@@ -256,6 +257,29 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "RealTimeAutoPick": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "QuickTeleport": {
+            "type": "switch",
+            "label": "快速传送",
+            "description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeQuickTeleport": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeQuickTeleport": {
                             "enabled": true
                         }
                     }
