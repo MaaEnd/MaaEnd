@@ -26,6 +26,7 @@
             "EnterGame",
             "[JumpBack]ClickContinue",
             "[JumpBack]CheckIn",
+            "[JumpBack]CheckInConfirmButton",
             "[JumpBack]MonthlyCard",
             "[JumpBack]WaitCloseGameButton",
             "[JumpBack]CloseButton",
@@ -70,6 +71,23 @@
                     63
                 ]
             }
+        }
+    },
+    "CheckInConfirmButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "OpenGame/ConfirmButton.png",
+                "roi": [
+                    519,
+                    570,
+                    259,
+                    149
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "LoginFailed": {
@@ -208,7 +226,7 @@
             "type": "OCR",
             "param": {
                 "expected": [
-                    "一键领取"
+                    "领取"
                 ],
                 "roi": [
                     942,
@@ -260,11 +278,12 @@
             "param": {
                 "template": "OpenGame/CloseButton.png",
                 "roi": [
-                    1197,
-                    70,
-                    49,
-                    54
-                ]
+                    928,
+                    10,
+                    345,
+                    281
+                ],
+                "threshold": 0.5
             }
         },
         "action": {
