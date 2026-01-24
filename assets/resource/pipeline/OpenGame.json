@@ -226,18 +226,14 @@
         },
         "next": [
             "CloseButton",
-            "waitCloseButton"
+            "[JumpBack]waitCloseButton"
         ]
     },
     "waitCloseButton": {
         "action": {
             "type": "Click",
             "target": "CollectRewards"
-        },
-        "next": [
-            "CloseButton",
-            "waitCloseButton"
-        ]
+        }
     },
     "CloseButton": {
         "recognition": {
