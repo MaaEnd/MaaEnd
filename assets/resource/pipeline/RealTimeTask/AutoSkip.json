@@ -47,11 +47,46 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "进入剧情场景"
+        },
+        "next": [
+            "RealTimeAutoSkipEntry"
+        ]
+    },
+    "RealTimeAutoSkipEntry": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "post_delay": 0,
         "next": [
             "RealTimeAutoSkipAll",
             "RealTimeAutoSkipChoose",
             "RealTimeAutoSkipNext",
-            "RealTimeTaskMainDelay"
+            "RealTimeAutoSkipExit",
+            "RealTimeAutoSkipEntry"
+        ]
+    },
+    "RealTimeAutoSkipExit": {
+        "doc": "auto图标消失，退出剧情",
+        // 找右上角退出按钮
+        "recognition": "TemplateMatch",
+        "threshold": 0.7,
+        "inverse": true,
+        "template": "RealTimeTask/AutoSkipA.png",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "退出剧情场景"
+        },
+        "next": [
+            "RealTimeTaskMain"
         ]
     },
     "RealTimeAutoSkipAll": {
@@ -59,7 +94,6 @@
         // 找右上角跳过按钮
         "recognition": "TemplateMatch",
         "threshold": 0.7,
-        "green_mask": true,
         "template": "RealTimeTask/AutoSkipEsc.png",
         "roi": [
             1140,
@@ -68,9 +102,10 @@
             90
         ],
         "action": "Click",
+        "post_wait_freezes": 100,
         "next": [
             "RealTimeAutoSkipAllConfirm",
-            "RealTimeAutoSkipAll"
+            "RealTimeAutoSkipEntry"
         ]
     },
     "RealTimeAutoSkipAllConfirm": {
@@ -79,9 +114,9 @@
         "recognition": "ColorMatch",
         "roi": [
             650,
-            440,
+            450,
             200,
-            50
+            100
         ],
         "upper": [
             255,
@@ -96,7 +131,7 @@
         "count": 200,
         "action": "Click",
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeAutoSkipEntry"
         ]
     },
     "RealTimeAutoSkipChoose": {
@@ -113,8 +148,7 @@
         ],
         "action": "Click",
         "next": [
-            "RealTimeAutoSkip",
-            "RealTimeTaskMain"
+            "RealTimeAutoSkipEntry"
         ]
     },
     "RealTimeAutoSkipNext": {
@@ -147,8 +181,7 @@
         ],
         "action": "Click",
         "next": [
-            "RealTimeAutoSkip",
-            "RealTimeTaskMain"
+            "RealTimeAutoSkipEntry"
         ]
     }
 }
