@@ -217,8 +217,8 @@
                     "option": [
                         "AutoFightAttack",
                         "AutoFightCombo",
-                        "AutoFightSkill",
-                        "AutoFightEndSkill"
+                        "AutoFightSkill"
+                        // "AutoFightEndSkill"
                     ]
                 },
                 {
