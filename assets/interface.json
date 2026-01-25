@@ -140,6 +140,12 @@
             "controller": [
                 "Win32"
             ]
+        },
+        {
+            "name": "Resell",
+            "label": "💰一键倒卖",
+            "entry": "ResellMain",
+            "description": "自动倒卖弹性需求物资"
         }
     ],
     "option": {

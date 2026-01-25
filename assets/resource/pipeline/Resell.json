@@ -1,0 +1,155 @@
+{
+    "ResellMain": {
+        "doc": "一键倒卖主入口",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "next": [
+            "ResellStageCheckInGame",
+            "ResellStageNotInGame"
+        ]
+    },
+    "ResellStageCheckInGame": {
+        "doc": "检查当前界面是否在大世界中，然后进入地图",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inGame.png",
+        "threshold": 0.8,
+        "roi": [
+            172,
+            0,
+            133,
+            118
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 77,
+        "next": [
+            "ResellStageCheckInMap",
+            "ResellStageNotInMap"
+        ]
+    },
+    "ResellStageNotInGame": {
+        "doc": "不在在大世界，不断按ESC进入大世界",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "ResellMain"
+        ]
+    },
+    "ResellStageCheckInMap": {
+        "doc": "检查当前界面是否在地图中",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inMap.png",
+        "threshold": 0.5,
+        "roi": [
+            1121,
+            0,
+            113,
+            115
+        ],
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "next": [
+            "ResellStageCheckInShip",
+            "ResellStageNotInShip"
+        ]
+    },
+    "ResellStageNotInMap": {
+        "doc": "不在地图中",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "ResellMain"
+        ]
+    },
+    "ResellStageCheckInShip": {
+        "doc": "地图是否在帝江号内，在则将地图拉至右上角",
+        "recognition": "OCR",
+        "threshold": 0.3,
+        "roi": [
+            526,
+            0,
+            156,
+            120
+        ],
+        "expected": ".*中.*",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Swipe",
+        "begin": [
+            390,
+            160
+        ],
+        "end": [
+            255,
+            290
+        ],
+        "next": [
+            "ResellStageClickTeleport"
+        ]
+    },
+    "ResellStageNotInShip": {
+        "doc": "地图不在帝江号内，点右上角进入帝江号",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1155,
+            67,
+            52,
+            33
+        ],
+        "next": [
+            "ResellStageCheckInMap"
+        ]
+    },
+    "ResellStageClickTeleport": {
+        "doc": "点击传送按钮",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            529,
+            194,
+            17,
+            15
+        ],
+        "next": [
+            "ResellStageTeleport"
+        ]
+    },
+    "ResellStageTeleport": {
+        "doc": "传送到倒卖点",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ConfirmTeleport.png",
+        "threshold": 0.8,
+        "roi": [
+            1158,
+            594,
+            122,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "ResellStageStart"
+        ]
+    },
+    "ResellStageStart": {
+        "doc": "开始倒卖",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 27
+    }
+}
