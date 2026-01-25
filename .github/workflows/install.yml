@@ -124,7 +124,8 @@ jobs:
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
-          tag: v5.5.0-beta.5
+          prerelease: true
+          latest: true
           out-file-path: "downloads/MaaFramework"
           extract: true
 
