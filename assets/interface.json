@@ -98,8 +98,8 @@
                 "AutoFight",
                 "AutoPick",
                 "QuickTeleport",
-                "AutoTaskInterval",
-                "AutoZipline"
+                "AutoZipline",
+                "AutoTaskInterval"
             ],
             "controller": [
                 "Win32"
@@ -394,6 +394,7 @@
         "AutoZipline": {
             "type": "switch",
             "label": "自动长距滑索",
+            "description": "自动触发长距滑索,YJ你就不能改成按一下切换吗",
             "cases": [
                 {
                     "name": "Yes",
