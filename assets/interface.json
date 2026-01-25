@@ -390,6 +390,28 @@
                     "post_delay": "{检测间隔}"
                 }
             }
+        },
+        "AutoZipline": {
+            "type": "switch",
+            "label": "自动长距滑索",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoZipline": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoZipline": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
         }
     }
 }
