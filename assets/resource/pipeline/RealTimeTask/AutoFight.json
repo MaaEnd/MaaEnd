@@ -2,20 +2,144 @@
     "RealTimeAutoFight": {
         "doc": "自动辅助战斗",
         // 判断是否在战斗场景
-        "recognition": "TemplateMatch",
-        "roi": [
-            0,
-            590,
-            350,
-            30
+        "recognition": "And",
+        "all_of": [
+            {
+                // 面向敌人
+                "recognition": "TemplateMatch",
+                "threshold": 0.8,
+                "template": "RealTimeTask/AutoFightTarget.png",
+                "roi": [
+                    300,
+                    125,
+                    700,
+                    250
+                ]
+            },
+            {
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        // 第一格能量检测（黄色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
+                        "recognition": "ColorMatch",
+                        "roi": [
+                            533,
+                            650,
+                            70,
+                            8
+                        ],
+                        "lower": [
+                            220,
+                            190,
+                            0
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            30
+                        ],
+                        "count": 100
+                    },
+                    {
+                        // 第一格能量（白色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
+                        "recognition": "ColorMatch",
+                        "roi": [
+                            533,
+                            650,
+                            70,
+                            8
+                        ],
+                        "lower": [
+                            240,
+                            240,
+                            240
+                        ],
+                        "upper": [
+                            255,
+                            255,
+                            255
+                        ],
+                        "count": 10
+                    }
+                ]
+            }
         ],
-        "threshold": 0.9,
         "pre_delay": 0,
         "post_delay": 0,
-        "template": "RealTimeTask/AutoFightBar.png",
+        "focus": {
+            "Node.Recognition.Succeeded": "进入战斗场景"
+        },
+        "next": [
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightEntry": {
+        "recognition": "DirectHit",
+        "pre_delay": 200,
+        "post_delay": 0,
         "next": [
             "RealTimeAutoFightCombo",
-            "RealTimeAutoFight",
+            // "RealTimeAutoFightEndSkill",
+            "RealTimeAutoFightSkill",
+            "RealTimeAutoFightExit",
+            "RealTimeAutoFightAttack",
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightExit": {
+        "doc": "能量条消失，退出战斗",
+        "recognition": "Or",
+        "inverse": true,
+        "any_of": [
+            {
+                // 第一格能量检测（黄色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
+                "recognition": "ColorMatch",
+                "roi": [
+                    533,
+                    650,
+                    70,
+                    8
+                ],
+                "lower": [
+                    220,
+                    190,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    30
+                ],
+                "count": 100
+            },
+            {
+                // 第一格能量（白色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
+                "recognition": "ColorMatch",
+                "roi": [
+                    533,
+                    650,
+                    70,
+                    8
+                ],
+                "lower": [
+                    240,
+                    240,
+                    240
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "退出战斗场景"
+        },
+        "next": [
             "RealTimeTaskMain"
         ]
     },
@@ -23,6 +147,7 @@
         "doc": "自动触发连携技能",
         // 找连携技能提示头像上方图标
         "recognition": "TemplateMatch",
+        "sub_name": "AutoFightCombo",
         "threshold": 0.9,
         "template": "RealTimeTask/AutoFightCombo.png",
         "roi": [
@@ -33,13 +158,107 @@
         ],
         "action": "ClickKey",
         "pre_delay": 0,
+        "post_delay": 0,
         "key": 69, // E键
         "repeat": 3, // 最大三个干员同时连携
         "repeat_delay": 10,
+        "focus": {
+            "Node.Action.Succeeded": "触发连携技能"
+        },
         "next": [
-            "RealTimeAutoFightCombo",
-            "RealTimeAutoFight",
-            "RealTimeTaskMain"
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightAttack": {
+        "doc": "自动普攻",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "next": [
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightEndSkill": {
+        "doc": "自动释放终结技",
+        "sub_name": "AutoFightEndSkill",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1010,
+            548,
+            270,
+            45
+        ],
+        "template": "RealTimeTask/AutoFightEndSkill.png",
+        "threshold": 0.9,
+        "green_mask": true,
+        "action": "Custom",
+        "custom_action": "RealTimeAutoFightEndSkillAction",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "释放终结技"
+        },
+        "next": [
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightSkill": {
+        "doc": "自动触发技能",
+        "recognition": "And",
+        "all_of": [
+            {
+                // 第一格能量检测（黄色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
+                "sub_name": "AutoFightEnergy",
+                "recognition": "ColorMatch",
+                "roi": [
+                    533,
+                    650,
+                    70,
+                    8
+                ],
+                "lower": [
+                    220,
+                    190,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    30
+                ],
+                "count": 100
+            },
+            {
+                // 技能可用检测
+                "sub_name": "AutoFightSkill",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1010,
+                    615,
+                    265,
+                    20
+                ],
+                "template": "RealTimeTask/AutoFightSkill.png",
+                "threshold": 0.4
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "RealTimeAutoFightSkillAction",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发技能"
+        },
+        "next": [
+            "RealTimeAutoFightEntry"
         ]
     }
 }

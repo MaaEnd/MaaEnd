@@ -3,7 +3,7 @@ module github.com/MaaXYZ/MaaEnd/agent/go-service
 go 1.25.6
 
 require (
-	github.com/MaaXYZ/maa-framework-go/v3 v3.5.1
+	github.com/MaaXYZ/maa-framework-go/v3 v3.6.0-beta.1
 	github.com/rs/zerolog v1.33.0
 )
 
