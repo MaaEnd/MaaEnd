@@ -98,7 +98,8 @@
                 "AutoFight",
                 "AutoPick",
                 "QuickTeleport",
-                "AutoTaskInterval"
+                "AutoTaskInterval",
+                "AutoZipline"
             ],
             "controller": [
                 "Win32"
