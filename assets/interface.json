@@ -131,13 +131,37 @@
                     "option": [
                         "AutoSkipAll",
                         "AutoSkipChoose",
-                        "AutoSkipNext"
+                        "AutoSkipNext",
+                        "AutoCloseInfoPanel"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoSkip": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCloseInfoPanel": {
+            "label": "自动关闭文档/语音",
+            "description": "遇到剧情文档（档案）或语音记录界面时，自动点击右上角关闭按钮",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
                             "enabled": false
                         }
                     }
