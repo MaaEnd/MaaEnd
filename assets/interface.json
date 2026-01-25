@@ -140,6 +140,15 @@
             "controller": [
                 "Win32"
             ]
+        },
+        {
+            "name": "PuzzleSolver",
+            "label": "🧩自动解拼图",
+            "entry": "PuzzleSolver",
+            "description": "自动解决拼图小游戏，**建议打开拼图游戏界面后开始任务**（该任务执行成功一次后将会自动结束）\n目前该任务处于早期测试阶段，如遇任何 Bug 请前往 GitHub 提交 Issue 并 @isHarryh",
+            "controller": [
+                "Win32"
+            ]
         }
     ],
     "option": {
