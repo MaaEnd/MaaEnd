@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
+	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -51,6 +52,9 @@ func main() {
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsEnterCodeAction", &importtask.ImportBluePrintsEnterCodeAction{})
+
+	maa.AgentServerRegisterCustomRecognition("PuzzleRecognition", &puzzle.Recognition{})
+	maa.AgentServerRegisterCustomAction("PuzzleAction", &puzzle.Action{})
 
 	log.Info().Msg("Registered custom recognition and actions")
 
