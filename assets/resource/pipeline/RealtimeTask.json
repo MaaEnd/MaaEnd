@@ -10,7 +10,7 @@
             "RealTimeQuickTeleportList",
             "RealTimeQuickTeleportDirect",
             "RealTimeAutoZipline",
-            "CheckSpecialInfoPanel",
+            "AutoCloseInfoLayer",
             "RealTimeTaskMainDelay"
         ]
     },

@@ -1,7 +1,71 @@
 {
+    // ========================================================
+    // Note: 
+    // 关于“指引光标(白色小手)”的识别：
+    // 目前已尝试使用 TemplateMatch，但由于光标常出现在高亮的黄色/橙色图标背景上，
+    // 导致背景干扰严重，无法稳定提取通用特征。
+    // 暂时移除 HandleTutorialGuide 节点，后续如有带透明通道的完美素材再通过 ColorMatch 尝试。
+    // ========================================================
+    "AutoCloseInfoLayer": {
+        "doc": "自定义自动化逻辑入口（点击继续/关闭弹窗）",
+        "recognition": "DirectHit", // 直接命中，强制执行 next 列表检查
+        "action": "DoNothing",
+        "next": [
+            "ClickAnywhereToContinue", // 优先级 1：全屏阻断提示（最高）
+            "CheckSpecialInfoPanel", // 优先级 2：特定UI关闭
+            "HandleTutorialConfirm",
+            "HandleTutorialPaging",
+            "RealTimeTaskMain"
+        ]
+    },
+    // ========================================================
+    // 任务 1：全屏阻断点击
+    // ========================================================
+    "ClickAnywhereToContinue": {
+        "doc": "检测屏幕上出现的'点击任意处继续'提示并点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击任意处继续",
+                    "点击任意处",
+                    "任意处继续"
+                ],
+                // 稍微扩大一点范围，防止 OCR 漏字
+                "roi": [
+                    25,
+                    25,
+                    1200,
+                    680
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            // 既然是任意处，点击右下角或固定位置通常比点击文字更稳
+            // 避免文字识别框飘忽不定
+            "param": {
+                "target": [
+                    1100,
+                    600,
+                    50,
+                    50
+                ]
+            }
+        },
+        "post_wait_freezes": 400,
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到[点击任意处继续]，正在点击"
+        },
+        "next": [
+            "AutoCloseInfoLayer" // 【关键修改】点完后，回到 Layer 入口再次检查是否有其他弹窗
+        ]
+    },
+    // ========================================================
+    // 任务 2：特殊 UI 检测
+    // ========================================================
     "CheckSpecialInfoPanel": {
         "doc": "检测并关闭特殊信息面板(档案/语音)",
-        // 使用 Or 识别器，同时检测两种情况
         "recognition": "Or",
         "any_of": [
             {
@@ -29,7 +93,6 @@
                 ]
             }
         ],
-        // 如果任意一个识别成功，就执行后续操作
         "focus": {
             "Node.Recognition.Succeeded": "识别到剧情文档/语音，准备关闭"
         },
@@ -37,6 +100,9 @@
             "SafeCloseButton"
         ]
     },
+    // ========================================================
+    // 动作：执行关闭
+    // ========================================================
     "SafeCloseButton": {
         "doc": "执行通用关闭操作",
         "recognition": "TemplateMatch",
@@ -49,12 +115,59 @@
             35
         ],
         "action": "Click",
-        "post_wait_freezes": 500, // 点击后冷却 500ms
+        "post_wait_freezes": 500,
         "focus": {
             "Node.Action.Succeeded": "已点击关闭按钮"
         },
         "next": [
-            "CheckSpecialInfoPanel" // 再次检测，确保真的关掉了（防止卡顿没点上）
+            "AutoCloseInfoLayer" // 【关键修改】关完后，也回到 Layer 入口再次检查
+        ]
+    },
+    "HandleTutorialPaging": {
+        "doc": "识别说明书翻页箭头，成功则继续翻，失败则尝试确认",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/TutorialNext.png",
+                "threshold": 0.8,
+                "roi": [
+                    910,
+                    250,
+                    110,
+                    100
+                ] // 基于你的坐标 933,269 微调放宽
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 400,
+        // 【关键拓扑】
+        // 1. 翻页后尝试确定，HandleTutorialConfirm
+        "next": [
+            "HandleTutorialConfirm"
+        ]
+    },
+    // ========================================================
+    // 任务 B：教程确认
+    // ========================================================
+    "HandleTutorialConfirm": {
+        "doc": "识别说明书底部的黄色确认按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/TutorialConfirm.png",
+                "threshold": 0.8,
+                "roi": [
+                    520,
+                    620,
+                    250,
+                    80
+                ] // 基于你的坐标 536,634 微调放宽
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "next": [
+            "AutoCloseInfoLayer" // 关完后，回到总入口，防止后面紧接着还有东西
         ]
     }
 }

@@ -105,6 +105,7 @@
             "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
             "option": [
                 "AutoSkip",
+                "AutoCloseInteraction",
                 "AutoFight",
                 "AutoPick",
                 "QuickTeleport",
@@ -131,37 +132,13 @@
                     "option": [
                         "AutoSkipAll",
                         "AutoSkipChoose",
-                        "AutoSkipNext",
-                        "AutoCloseInfoPanel"
+                        "AutoSkipNext"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoSkip": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoCloseInfoPanel": {
-            "label": "自动关闭文档/语音",
-            "description": "遇到剧情文档（档案）或语音记录界面时，自动点击右上角关闭按钮",
-            "type": "switch",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "CheckSpecialInfoPanel": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "CheckSpecialInfoPanel": {
                             "enabled": false
                         }
                     }
@@ -231,6 +208,113 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoSkipNext": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCloseInteraction": {
+            "type": "switch",
+            "label": "自动交互处理",
+            "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoCloseInfoLayer": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "EnableTutorialGuide",
+                        "EnableTutorialBook",
+                        "EnableClickAnywhere",
+                        "EnableCloseSpecialPanel"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoCloseInfoLayer": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialBook": {
+            "label": "翻阅说明书",
+            "description": "自动翻页并确认说明教程弹窗",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableClickAnywhere": {
+            "label": "点击任意处继续",
+            "description": "自动识别并点击全屏遮罩提示",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ClickAnywhereToContinue": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ClickAnywhereToContinue": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableCloseSpecialPanel": {
+            "label": "关闭档案/语音",
+            "description": "自动识别并关闭剧情文档或语音记录界面",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
                             "enabled": false
                         }
                     }
