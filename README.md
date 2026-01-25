@@ -22,34 +22,11 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 正在开发中，BUG 较多，如遇问题请提 [issue](https://github.com/MaaEnd/MaaEnd/issues)，更多功能敬请期待！（新版本会自动更新）
 
-## 本地开发
+## 开发手册
 
-1. 完整 clone 项目及子仓库
-
-    ```bash
-    git clone https://github.com/MaaEnd/MaaEnd --recursive
-    ```
-
-    **不要漏了 `--recursive`**
-
-    或者
-
-    ```bash
-    git clone https://github.com/MaaEnd/MaaEnd
-    git submodule update --init --recursive
-    ```
-
-2. 编译 go-service 、配置路径
-
-    ```bash
-    python tools/build_and_install.py
-    ```
-
-3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/`
-4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/`
-5. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹
+[development.md](https://github.com/MaaEnd/MaaEnd/blob/main/docs/developers/development.md)
 
 ## 沟通交流
 
 - 用户 QQ 群: 1078075580
-- 开发 QQ 群: 1072587329
+- 开发 QQ 群: 1072587329 （干活群，欢迎加入开发，但不受理用户问题）
