@@ -26,6 +26,7 @@
             "EnterGame",
             "[JumpBack]ClickContinue",
             "[JumpBack]CheckIn",
+            "[JumpBack]CollectRewards",
             "[JumpBack]CheckInConfirmButton",
             "[JumpBack]MonthlyCard",
             "[JumpBack]WaitCloseGameButton",
@@ -229,10 +230,10 @@
                     "领取"
                 ],
                 "roi": [
-                    942,
-                    261,
-                    173,
-                    57
+                    891,
+                    257,
+                    235,
+                    108
                 ]
             }
         },
@@ -252,10 +253,10 @@
                     "获得奖励"
                 ],
                 "roi": [
-                    589,
-                    106,
-                    103,
-                    34
+                    588,
+                    67,
+                    111,
+                    74
                 ]
             }
         },
@@ -276,14 +277,18 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "OpenGame/CloseButton.png",
+                "template": [
+                    "OpenGame/CloseButtonPC.png",
+                    "OpenGame/CloseButton.png"
+                ],
                 "roi": [
                     928,
                     10,
                     345,
                     281
                 ],
-                "threshold": 0.5
+                "threshold": 0.65,
+                "green_mask": true
             }
         },
         "action": {
