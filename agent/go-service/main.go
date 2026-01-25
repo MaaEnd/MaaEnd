@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -46,6 +47,11 @@ func main() {
 	// Register custom recognition and actions
 	maa.AgentServerRegisterCustomAction("RealTimeAutoFightEndSkillAction", &realtime.RealTimeAutoFightEndSkillAction{})
 	maa.AgentServerRegisterCustomAction("RealTimeAutoFightSkillAction", &realtime.RealTimeAutoFightSkillAction{})
+
+	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
+	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
+	maa.AgentServerRegisterCustomAction("ImportBluePrintsEnterCodeAction", &importtask.ImportBluePrintsEnterCodeAction{})
+
 	log.Info().Msg("Registered custom recognition and actions")
 
 	// Start the agent server

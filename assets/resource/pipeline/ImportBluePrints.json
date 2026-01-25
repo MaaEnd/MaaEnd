@@ -1,0 +1,187 @@
+{
+    "ImportBluePrints": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ImportBluePrintsChooseTab"
+        ]
+    },
+    "ImportBluePrintsChooseTab": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    700,
+                    70
+                ]
+            },
+            "expected": "共享蓝图"
+        },
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "ImportBluePrintsInitText"
+        ]
+    },
+    "ImportBluePrintsInitText": {
+        "doc": "导入用户输入的文本",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ImportBluePrintsInitTextAction"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ImportBluePrintsFinish"
+        ]
+    },
+    "ImportBluePrintsFinish": {
+        "doc": "检测是否导入完成，完成了在action内退出任务",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ImportBluePrintsFinishAction"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]ImportBluePrintsChooseImport",
+            "ImportBluePrintsActiveInputBox"
+        ]
+    },
+    "ImportBluePrintsChooseImport": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    700,
+                    600,
+                    250,
+                    110
+                ],
+                "expected": "导入蓝图"
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 100
+    },
+    "ImportBluePrintsActiveInputBox": {
+        "doc": "激活输入框",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    760,
+                    250,
+                    300,
+                    230
+                ],
+                "template": "ImportBluePrints/InputPaste.png",
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -50,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "ImportBluePrintsEnterCode"
+        ]
+    },
+    "ImportBluePrintsEnterCode": {
+        "doc": "输入一个蓝图码",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ImportBluePrintsEnterCodeAction"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ImportBluePrintsConfirm"
+        ]
+    },
+    "ImportBluePrintsConfirm": {
+        "doc": "点击确认按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    600,
+                    350,
+                    350,
+                    230
+                ],
+                "expected": "确认"
+            }
+        },
+        "post_wait_freezes": 100,
+        "action": "Click",
+        "timeout": 2000, // 等待一段时间未跳转，错误蓝图码
+        "next": [
+            "ImportBluePrintsSave",
+            "ImportBluePrintsExists"
+        ],
+        "on_error": [
+            "ImportBluePrintsFinish"
+        ]
+    },
+    "ImportBluePrintsSave": {
+        "doc": "点击保存按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    600,
+                    375,
+                    110
+                ],
+                "expected": "存至共享蓝图"
+            }
+        },
+        "post_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "ImportBluePrintsFinish"
+        ]
+    },
+    "ImportBluePrintsExists": {
+        "doc": "蓝图已存在，退出",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    600,
+                    375,
+                    110
+                ]
+            },
+            "expected": "已保存"
+        },
+        "post_wait_freezes": 100,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "next": [
+            "ImportBluePrintsFinish"
+        ]
+    }
+}
