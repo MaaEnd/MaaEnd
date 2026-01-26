@@ -9,14 +9,6 @@
             "PuzzleSolverMain" // 循环检测
         ]
     },
-    "PuzzleSolverOnSuccess": {
-        // 解谜成功后，触发此节点
-        "recognition": "DirectHit",
-        "pre_delay": 5000, // 摸一会儿鱼...
-        "next": [
-            "PuzzleSolverMain" // 继续检测
-        ]
-    },
     "PuzzleSolverOnScenePrepare": {
         // 解谜的准备界面，匹配左侧的特征性图案
         "recognition": "TemplateMatch",
@@ -43,7 +35,9 @@
         "roi": [944, 0, 236, 164],
         "next": [
             "PuzzleSolverFindUnavailableTip",
-            "PuzzleSolverSolvePuzzle"
+            "PuzzleSolverFindCompleteTip",
+            "PuzzleSolverSolvePuzzle",
+            "PuzzleSolverMain" // 重试检测
         ]
     },
     "PuzzleSolverFindUnavailableTip": {
@@ -53,7 +47,16 @@
         "roi": [497, 314, 129, 128],
         "action": "ClickKey",
         "key": 27, // ESC
-        "pre_delay": 1000,
+        "pre_delay": 1500,
+        "next": [
+            "PuzzleSolverMain" // 重试检测
+        ]
+    },
+    "PuzzleSolverFindCompleteTip": {
+        // 查找是否存在“拼图已完成”的提示，此时跳过
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/TipComplete.png",
+        "roi": [426, 318, 428, 119],
         "next": [
             "PuzzleSolverMain" // 重试检测
         ]
@@ -69,6 +72,18 @@
         },
         "next": [
             "PuzzleSolverOnSuccess"
+        ]
+    },
+    "PuzzleSolverOnSuccess": {
+        // 解谜成功后触发，关闭拼图界面
+        "recognition": "DirectHit",
+        "action": "LongPress",
+        "target": [640, 620],
+        "duration": 250,
+        "post_delay": 1500,
+        "pre_wait_freezes": 750, // 等待结算动画结束
+        "next": [
+            "PuzzleSolverMain" // 继续检测
         ]
     }
 }
