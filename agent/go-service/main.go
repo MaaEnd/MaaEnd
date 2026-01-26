@@ -6,6 +6,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
 )
@@ -51,6 +52,9 @@ func main() {
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsEnterCodeAction", &importtask.ImportBluePrintsEnterCodeAction{})
+
+	maa.AgentServerRegisterCustomAction("ResellInitAction", &resell.ResellInitAction{})
+	maa.AgentServerRegisterCustomAction("ResellFinishAction", &resell.ResellFinishAction{})
 
 	log.Info().Msg("Registered custom recognition and actions")
 

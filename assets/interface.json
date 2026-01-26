@@ -146,6 +146,13 @@
             "label": "💰一键倒卖",
             "entry": "ResellMain",
             "description": "自动倒卖弹性需求物资"
+        },
+        {
+            "name": "CustomTest",
+            "label": "🧪自定义测试任务",
+            "entry": "gotest",
+            "default_check": false,
+            "description": "用于测试自定义识别和自定义动作的任务"
         }
     ],
     "option": {
