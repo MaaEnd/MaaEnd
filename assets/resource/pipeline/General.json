@@ -1,0 +1,19 @@
+{
+    "Confirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    794,
+                    426,
+                    79,
+                    78
+                ],
+                "template": "General/Confirm.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}
