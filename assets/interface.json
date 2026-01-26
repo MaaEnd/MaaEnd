@@ -10,10 +10,17 @@
     "github": "https://github.com/MaaEnd/MaaEnd",
     "mirrorchyan_rid": "MaaEnd",
     "mirrorchyan_multiplatform": true,
+    "languages": {
+        "zh_cn": "resource/translations/zh_cn.json",
+        "zh_tw": "resource/translations/zh_tw.json",
+        "en_us": "resource/translations/en_us.json",
+        "ja_jp": "resource/translations/ja_jp.json",
+        "ko_kr": "resource/translations/ko_kr.json"
+    },
     "controller": [
         {
             "name": "Win32",
-            "label": "电脑端",
+            "label": "$controller.Win32.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -26,7 +33,7 @@
         },
         {
             "name": "Win32-Window",
-            "label": "电脑端（备选-窗口）",
+            "label": "$controller.Win32-Window.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -39,7 +46,7 @@
         },
         {
             "name": "Win32-Front",
-            "label": "电脑端（备选-前台）",
+            "label": "$controller.Win32-Front.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -52,7 +59,7 @@
         },
         {
             "name": "ADB",
-            "label": "安卓端",
+            "label": "$controller.ADB.label",
             "type": "Adb"
         },
         {
@@ -82,18 +89,20 @@
     "task": [
         {
             "name": "AndroidOpenGame",
-            "label": "🎮打开游戏",
+            "label": "$task.AndroidOpenGame.label",
             "entry": "AndroidOpenGame",
-            "description": "安卓端打开游戏，需先手动打开模拟器",
+            "default_check": true,
+            "description": "$task.AndroidOpenGame.description",
             "controller": [
                 "ADB"
             ]
         },
         {
             "name": "PCOpenGame",
-            "label": "🎮进入游戏",
+            "label": "$task.PCOpenGame.label",
             "entry": "PCOpenGame",
-            "description": "PC端进入游戏，需先手动打开游戏",
+            "default_check": true,
+            "description": "$task.PCOpenGame.description",
             "controller": [
                 "Win32",
                 "Win32-Window",
@@ -102,39 +111,40 @@
         },
         {
             "name": "DailyRewards",
-            "label": "📅日常奖励领取",
+            "label": "$task.DailyRewards.label",
             "entry": "DailyRewards",
             "default_check": true,
-            "description": "领取每日任务奖励"
+            "description": "$task.DailyRewards.description"
         },
         {
             "name": "ReadAllWiki",
-            "label": "📖百科一键已读",
+            "label": "$task.ReadAllWiki.label",
             "entry": "ReadAllWiki",
             "default_check": true,
-            "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
+            "description": "$task.ReadAllWiki.description"
         },
         {
             "name": "BakerEntry",
-            "label": "💬会话消息嘴替",
+            "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
             "default_check": true,
-            "description": "清掉所有会话消息，聊个五毛钱的.jpg"
+            "description": "$task.BakerEntry.description"
         },
         {
             "name": "ImportBluePrints",
-            "label": "📐一键导入蓝图",
+            "label": "$task.ImportBluePrints.label",
             "entry": "ImportBluePrints",
-            "description": "一键批量导入蓝图，支持智能解析，**请在终末地我的蓝图页面开始任务**",
+            "default_check": false,
+            "description": "$task.ImportBluePrints.description",
             "option": [
                 "ImportBluePrints"
             ]
         },
         {
             "name": "RealTimeTask",
-            "label": "🤖实时开荒辅助",
+            "label": "$task.RealTimeTask.label",
             "entry": "RealTimeTaskMain",
-            "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
+            "description": "$task.RealTimeTask.description",
             "option": [
                 "AutoSkip",
                 "AutoFight",
@@ -153,7 +163,7 @@
     "option": {
         "AutoSkip": {
             "type": "switch",
-            "label": "自动剧情",
+            "label": "$option.AutoSkip.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -179,8 +189,8 @@
             ]
         },
         "AutoSkipAll": {
-            "label": "跳过所有剧情",
-            "description": "在自动剧情过程中，自动点击跳过按钮，跳过所有剧情",
+            "label": "$option.AutoSkipAll.label",
+            "description": "$option.AutoSkipAll.description",
             "type": "switch",
             "cases": [
                 {
@@ -202,8 +212,8 @@
             ]
         },
         "AutoSkipChoose": {
-            "label": "自动选择剧情分支",
-            "description": "在自动剧情过程中，自动选择剧情分支选项",
+            "label": "$option.AutoSkipChoose.label",
+            "description": "$option.AutoSkipChoose.description",
             "type": "switch",
             "cases": [
                 {
@@ -225,8 +235,8 @@
             ]
         },
         "AutoSkipNext": {
-            "label": "加速剧情播放",
-            "description": "在自动剧情过程中，不断点击屏幕以加速剧情播放",
+            "label": "$option.AutoSkipNext.label",
+            "description": "$option.AutoSkipNext.description",
             "type": "switch",
             "cases": [
                 {
@@ -249,8 +259,8 @@
         },
         "AutoFight": {
             "type": "switch",
-            "label": "辅助战斗",
-            "description": "半自动战斗",
+            "label": "$option.AutoFight.label",
+            "description": "$option.AutoFight.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -277,7 +287,7 @@
             ]
         },
         "AutoFightAttack": {
-            "label": "自动普攻",
+            "label": "$option.AutoFightAttack.label",
             "type": "switch",
             "cases": [
                 {
@@ -299,7 +309,7 @@
             ]
         },
         "AutoFightSkill": {
-            "label": "自动释放技能",
+            "label": "$option.AutoFightSkill.label",
             "type": "switch",
             "cases": [
                 {
@@ -321,7 +331,7 @@
             ]
         },
         "AutoFightEndSkill": {
-            "label": "自动释放终结技",
+            "label": "$option.AutoFightEndSkill.label",
             "type": "switch",
             "cases": [
                 {
@@ -343,7 +353,7 @@
             ]
         },
         "AutoFightCombo": {
-            "label": "自动触发连携技能",
+            "label": "$option.AutoFightCombo.label",
             "type": "switch",
             "cases": [
                 {
@@ -365,7 +375,7 @@
             ]
         },
         "AutoPick": {
-            "label": "自动拾取",
+            "label": "$option.AutoPick.label",
             "type": "switch",
             "cases": [
                 {
@@ -394,8 +404,8 @@
         },
         "QuickTeleport": {
             "type": "switch",
-            "label": "快速传送",
-            "description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",
+            "label": "$option.QuickTeleport.label",
+            "description": "$option.QuickTeleport.description",
             "cases": [
                 {
                     "name": "No",
@@ -423,12 +433,12 @@
         },
         "AutoTaskInterval": {
             "type": "input",
-            "label": "实时辅助间隔",
+            "label": "$option.AutoTaskInterval.label",
             "inputs": [
                 {
                     "name": "检测间隔",
-                    "label": "检测间隔(ms)",
-                    "description": "过小的检测间隔可能会导致卡顿，请根据实际情况调整，建议至少大于 50ms",
+                    "label": "$option.AutoTaskInterval.inputs.检测间隔.label",
+                    "description": "$option.AutoTaskInterval.inputs.检测间隔.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "default": 400
@@ -442,8 +452,8 @@
         },
         "AutoZipline": {
             "type": "switch",
-            "label": "自动长距滑索",
-            "description": "自动触发长距滑索,YJ你就不能改成按一下切换吗",
+            "label": "$option.AutoZipline.label",
+            "description": "$option.AutoZipline.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -465,12 +475,12 @@
         },
         "ImportBluePrints": {
             "type": "input",
-            "label": "导入蓝图",
+            "label": "$option.ImportBluePrints.label",
             "inputs": [
                 {
                     "name": "ImportBluePrintsText",
-                    "label": "蓝图文本",
-                    "description": "请输入文本，可以夹杂任意字符，将智能拆分蓝图分享码",
+                    "label": "$option.ImportBluePrints.inputs.ImportBluePrintsText.label",
+                    "description": "$option.ImportBluePrints.inputs.ImportBluePrintsText.description",
                     "pipeline_type": "string"
                 }
             ],
