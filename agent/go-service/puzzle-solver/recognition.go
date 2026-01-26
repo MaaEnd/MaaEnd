@@ -248,6 +248,33 @@ func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	return puzzleList
 }
 
+func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
+	rect1 := image.Rect(int(TAB_1_X), int(TAB_Y), int(TAB_1_X+TAB_W), int(TAB_Y+TAB_H))
+	rect2 := image.Rect(int(TAB_2_X), int(TAB_Y), int(TAB_2_X+TAB_W), int(TAB_Y+TAB_H))
+
+	val1 := calcColorVal(img, rect1)
+	val2 := calcColorVal(img, rect2)
+	log.Debug().Float64("val1", val1).Float64("val2", val2).Msg("Checking tab selection state")
+
+	var ctrl = ctx.GetTasker().GetController()
+
+	// If tab 1 brightness is not greater than tab 2, it's likely on tab 2
+	if val1 <= val2 {
+		log.Info().Msg("Tab 2 detected as active, switching back to Tab 1")
+		ctrl.PostClickKey(9) // Tab
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	// Then refresh screenshot
+	ctrl.PostScreencap().Wait()
+	newImg := ctrl.CacheImage()
+	if newImg == nil {
+		log.Error().Msg("Failed to capture image")
+		return nil
+	}
+	return newImg
+}
+
 func getPuzzleDesc(img image.Image) *PuzzleDesc {
 	blocks := [][2]int{}
 	var totalHue float64
@@ -297,6 +324,8 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 
 func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 	results := [][2]int{}
+	hasGap := false
+
 	for r := 0; r < PUZZLE_THUMBNAIL_MAX_ROWS; r++ {
 		for c := 0; c < PUZZLE_THUMBNAIL_MAX_COLS; c++ {
 			x := int(PUZZLE_THUMBNAIL_START_X + float64(c)*PUZZLE_THUMBNAIL_W)
@@ -306,12 +335,27 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 			variance := calcColorVar(img, rect)
 			// log.Debug().Int("r", r).Int("c", c).Float64("var", variance).Msg("Puzzle thumbnail area color variance")
 
-			// Threshold for standard deviation: if it's too low, the area is likely a solid background.
 			if variance > PUZZLE_THUMBNAIL_COLOR_VAR_GRT {
+				// Color variation is sufficient, likely a puzzle thumbnail
+				if hasGap {
+					// Validation 1
+					log.Warn().Msg("Detected non-contiguous puzzle thumbnails (gap found), skipping immediately")
+					return [][2]int{}
+				}
 				results = append(results, [2]int{x, y})
+			} else {
+				// Color variation too low, the area is likely a solid background.
+				hasGap = true
 			}
 		}
 	}
+
+	// Validation 2
+	if len(results) >= PUZZLE_THUMBNAIL_MAX_ROWS*PUZZLE_THUMBNAIL_MAX_COLS {
+		log.Warn().Int("count", len(results)).Msg("Detected too many puzzle thumbnails, skipping")
+		return [][2]int{}
+	}
+
 	return results
 }
 
@@ -351,6 +395,7 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 3. Touch Up (Release)
 	ctrl.PostTouchUp(0).Wait()
+	time.Sleep(100 * time.Millisecond)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)
@@ -455,7 +500,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	puzzleList := getAllPuzzleDesc(ctx, img)
 
 	if len(puzzleList) == 0 {
-		log.Info().Msg("No puzzles detected")
+		log.Info().Msg("No puzzles detected or invalid puzzles")
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{}`,
@@ -468,6 +513,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	var lockedBlockList [][]*LockedBlockDesc
 
 	// 4. For each hue, determine board projection and locked blocks
+	img = doEnsureTab(ctx, img) // Ensure tab 1 is active first
+
 	var refProj *ProjDesc
 
 	for i, hue := range hueList {

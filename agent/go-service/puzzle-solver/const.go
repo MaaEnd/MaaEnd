@@ -14,7 +14,7 @@ var (
 	PUZZLE_THUMBNAIL_START_Y       = 0.166 * float64(WORK_H)
 	PUZZLE_THUMBNAIL_MAX_COLS      = 2
 	PUZZLE_THUMBNAIL_MAX_ROWS      = 4
-	PUZZLE_THUMBNAIL_COLOR_VAR_GRT = 15.0
+	PUZZLE_THUMBNAIL_COLOR_VAR_GRT = 20.0
 	PUZZLE_CLUSTER_DIFF_GRT        = 24
 )
 
@@ -47,4 +47,13 @@ var (
 	BOARD_PROJ_COLOR_VAL_GRT   = 0.25
 	BOARD_PROJ_INIT_GAP        = 0.008 * float64(WORK_H)
 	BOARD_PROJ_EACH_GAP        = 0.013 * float64(WORK_H)
+)
+
+// Other UI parameters
+var (
+	TAB_1_X = 0.463 * float64(WORK_W)
+	TAB_2_X = 0.505 * float64(WORK_W)
+	TAB_Y   = 0.910 * float64(WORK_H)
+	TAB_W   = 0.029 * float64(WORK_W)
+	TAB_H   = 0.029 * float64(WORK_H)
 )
