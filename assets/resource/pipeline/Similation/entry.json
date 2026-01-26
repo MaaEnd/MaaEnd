@@ -1,0 +1,228 @@
+{
+    "Similation": {
+        "next": [
+            "InSideTheSimilation",
+            "[JumpBack]OpenSimilation",
+            "[JumpBack]OpenAIC_Plan"
+        ]
+    },
+    "InSideTheSimilation": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    380,
+                    274,
+                    222,
+                    259
+                ],
+                "template": "Similation/InSideTheSimilation.png"
+            }
+        },
+        "next": [
+            "StartStage3_ShreddingUnit"
+        ]
+    },
+    "OpenSimilation": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    800,
+                    0,
+                    123,
+                    72
+                ],
+                "template": "Similation/SimilationEntry.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "OpenAIC_Plan": {
+        //识别到工业计划(AIC Factory Plan)入口
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    143,
+                    0,
+                    95,
+                    81
+                ],
+                "template": "Similation/AICFactoryPlan.png"
+            }
+        },
+        //按下T键
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 84
+            }
+        }
+    },
+    "StartSimilation": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    619,
+                    84,
+                    83
+                ],
+                "template": "Similation/StartSimilation.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "NeedSkip": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1204,
+                    0,
+                    76,
+                    64
+                ],
+                "expected": "^(E|e)(S|s)(C|c)$"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        }
+    },
+    "EnterTopView": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "进入俯瞰"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 20
+            }
+        }
+    },
+    "CloseTips": {
+        //模拟空间内关闭提示
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1163,
+                    124,
+                    85,
+                    84
+                ],
+                "template": "Similation/CloseTips.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "TopViewUp": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    100
+                ],
+                "end": [
+                    640,
+                    720
+                ],
+                "duration": 500
+            }
+        }
+    },
+    "TopViewDown": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    510
+                ],
+                "end": [
+                    640,
+                    0
+                ],
+                "duration": 500
+            }
+        }
+    },
+    "TopViewLeft": {
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 65,
+                "duration": 500
+            }
+        }
+    },
+    "TopViewRight": {
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 68,
+                "duration": 500
+            }
+        }
+    },
+    "OpenBelt": {
+        //打开传送带
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1194,
+                    488,
+                    86,
+                    86
+                ],
+                "template": "Similation/OpenBelt.png"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 69
+            }
+        }
+    },
+    "CloseBelt": {
+        //关闭传送带编辑,
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1,
+                "target": [
+                    640,
+                    380
+                ]
+            }
+        }
+    },
+    "Complete_Similation": {
+        //完成模拟
+        "inverse": true
+    }
+}
