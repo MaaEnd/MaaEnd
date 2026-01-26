@@ -2,9 +2,21 @@
 package puzzle
 
 import (
+	"encoding/json"
 	"image"
 	"math"
+
+	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/rs/zerolog/log"
 )
+
+type TemplateMatchDTO struct {
+	X       int
+	Y       int
+	CenterX int
+	CenterY int
+	Score   float64
+}
 
 // calcColorVar calculates the average standard deviation across RGB channels
 func calcColorVar(img image.Image, rect image.Rectangle) float64 {
@@ -218,4 +230,74 @@ func clusterHues(hues []int, maxDiff int) map[int][]int {
 		processed[h1] = true
 	}
 	return clusters
+}
+
+// convertLTCoordToBoardCoord converts pixel LT coordinate to grid index.
+// totalW/totalH are the dimensions of the board (used to determine odd/even grid alignment).
+func convertLTCoordToBoardCoord(ltX, ltY int, totalW, totalH int) (int, int) {
+	// Formula: idx = (LT - CenterLT) / BlockW + (TotalW - 1) / 2.0
+	// This handles both Odd (center at integer index) and Even (center at half-integer index) correctly.
+
+	dx := int(math.Round((float64(ltX)-BOARD_CENTER_BLOCK_LT_X)/BOARD_BLOCK_W + float64(totalW-1)/2.0))
+	dy := int(math.Round((float64(ltY)-BOARD_CENTER_BLOCK_LT_Y)/BOARD_BLOCK_H + float64(totalH-1)/2.0))
+	return dx, dy
+}
+
+// convertBoardCoordToLTCoord converts grid index to pixel LT coordinate.
+// totalW/totalH are the dimensions of the board (used to determine odd/even grid alignment).
+func convertBoardCoordToLTCoord(bx, by int, totalW, totalH int) (int, int) {
+	// Formula: LT = CenterLT + (idx - (TotalW - 1) / 2.0) * BlockW
+
+	ltX := BOARD_CENTER_BLOCK_LT_X + (float64(bx)-float64(totalW-1)/2.0)*BOARD_BLOCK_W
+	ltY := BOARD_CENTER_BLOCK_LT_Y + (float64(by)-float64(totalH-1)/2.0)*BOARD_BLOCK_H
+	return int(ltX), int(ltY)
+}
+
+// matchTemplateAll performs template matching and returns all matches up to maxMatch.
+func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []int, maxMatch int) []TemplateMatchDTO {
+	nodeName := "PuzzleSolverTemplateMatch_" + template
+	config := map[string]any{
+		nodeName: map[string]any{
+			"recognition": "TemplateMatch",
+			"template":    template,
+			"threshold":   0.65,
+			"roi":         roi,
+			"order_by":    "score",
+			"method":      5, // TM_CCOEFF_NORMED
+		},
+	}
+
+	res := ctx.RunRecognition(nodeName, img, config)
+	if res == nil || !res.Hit {
+		return make([]TemplateMatchDTO, 0)
+	}
+
+	var detail struct {
+		All []struct {
+			Box   []int   `json:"box"`
+			Score float64 `json:"score"`
+		} `json:"all"`
+	}
+
+	if err := json.Unmarshal([]byte(res.DetailJson), &detail); err != nil {
+		log.Error().Err(err).Msg("Failed to unmarshal match detail")
+		return nil
+	}
+
+	matches := make([]TemplateMatchDTO, 0, min(len(detail.All), maxMatch))
+	for i, m := range detail.All {
+		if len(m.Box) >= 4 {
+			matches = append(matches, TemplateMatchDTO{
+				m.Box[0],
+				m.Box[1],
+				m.Box[0] + m.Box[2]/2,
+				m.Box[1] + m.Box[3]/2,
+				m.Score,
+			})
+		}
+		if i+1 >= maxMatch {
+			break
+		}
+	}
+	return matches
 }

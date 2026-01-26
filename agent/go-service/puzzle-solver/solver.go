@@ -84,38 +84,32 @@ type Board struct {
 }
 
 func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
-	// 1. Determine Board Dimensions (Max Extents)
-	// The problem requires a fixed rectangular grid.
-	// Since individual hue projections might be smaller (if blocks are missing on edge),
-	// we take the maximum extent observed across all hue projections.
-	maxExtX := 0
-	maxExtY := 0
+	// 1. Determine Board Dimensions (Max)
+	maxW := 0
+	maxH := 0
 	for _, pd := range bd.ProjDescList {
-		if pd.ExtX > maxExtX {
-			maxExtX = pd.ExtX
+		if pd.W > maxW {
+			maxW = pd.W
 		}
-		if pd.ExtY > maxExtY {
-			maxExtY = pd.ExtY
+		if pd.H > maxH {
+			maxH = pd.H
 		}
 	}
 
-	b.XSize = 2*maxExtX + 1
-	b.YSize = 2*maxExtY + 1
+	b.XSize = maxW
+	b.YSize = maxH
 	b.K = len(bd.HueList)
 
 	// 2. Initialize Projections
 	// Map ProjDescList (by hue index) to XProj/YProj
 	// Align projections to the center.
-	// pd.XProjList is centered at pd.ExtX. b.XProj is centered at maxExtX.
 	b.XProj = make([][]int, b.K)
 	b.YProj = make([][]int, b.K)
 
 	for i, pd := range bd.ProjDescList {
 		// X Project
 		b.XProj[i] = make([]int, b.XSize)
-		// Offset: The center of ProjDesc (index ExtX) should map to center of Board (index maxExtX)
-		// Shift = maxExtX - pd.ExtX
-		shiftX := maxExtX - pd.ExtX
+		shiftX := (b.XSize - pd.W) / 2
 		for j, val := range pd.XProjList {
 			targetIdx := j + shiftX
 			if targetIdx >= 0 && targetIdx < b.XSize {
@@ -125,7 +119,7 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 
 		// Y Project
 		b.YProj[i] = make([]int, b.YSize)
-		shiftY := maxExtY - pd.ExtY
+		shiftY := (b.YSize - pd.H) / 2
 		for j, val := range pd.YProjList {
 			targetIdx := j + shiftY
 			if targetIdx >= 0 && targetIdx < b.YSize {
@@ -152,16 +146,15 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 	}
 
 	// 4. Fill Banned Blocks
-	// Banned blocks are stored relative to refProj (which should match our maxExt or close to it)
 	var refProj ProjDesc
 	for _, pd := range bd.ProjDescList {
-		if pd.ExtX+pd.ExtY > refProj.ExtX+refProj.ExtY {
+		if pd.W+pd.H > refProj.W+refProj.H {
 			refProj = pd
 		}
 	}
 
-	bannedShiftX := maxExtX - refProj.ExtX
-	bannedShiftY := maxExtY - refProj.ExtY
+	bannedShiftX := (b.XSize - refProj.W) / 2
+	bannedShiftY := (b.YSize - refProj.H) / 2
 
 	for _, bb := range bd.BannedBlockList {
 		nx := bb.Loc[0] + bannedShiftX
@@ -172,14 +165,11 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 	}
 
 	// 5. Fill Locked Blocks
-	// LockedBlockList is [hueIndex][blockIndex].
-	// Each block has Loc (relative to that hue's ExtX/ExtY).
-	// So each hue needs its own shift.
 	for hIdx, blocks := range bd.LockedBlockList {
-		hbExtX := bd.ProjDescList[hIdx].ExtX
-		hbExtY := bd.ProjDescList[hIdx].ExtY
-		shiftX := maxExtX - hbExtX
-		shiftY := maxExtY - hbExtY
+		hbW := bd.ProjDescList[hIdx].W
+		hbH := bd.ProjDescList[hIdx].H
+		shiftX := (b.XSize - hbW) / 2
+		shiftY := (b.YSize - hbH) / 2
 
 		for _, lb := range blocks {
 			nx := lb.Loc[0] + shiftX

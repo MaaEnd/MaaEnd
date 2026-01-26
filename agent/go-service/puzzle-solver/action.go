@@ -12,11 +12,11 @@ type Action struct{}
 
 // doPlace performs the interaction to place a single puzzle piece
 func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
-	log.Info().
-		Int("puzzleIndex", p.PuzzleIndex).
-		Int("mx", p.MachineX).
-		Int("my", p.MachineY).
-		Int("rot", p.Rotation).
+	log.Debug().
+		Int("PuzzleIndex", p.PuzzleIndex).
+		Int("MachineX", p.MachineX).
+		Int("MachineY", p.MachineY).
+		Int("Rotation", p.Rotation).
 		Msg("Placing puzzle piece")
 
 	ctrl := ctx.GetTasker().GetController()
@@ -35,27 +35,26 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	// Find refProj to determine center alignment
 	var refProj ProjDesc
 	for _, pd := range bd.ProjDescList {
-		if pd.ExtX+pd.ExtY > refProj.ExtX+refProj.ExtY {
+		if pd.W+pd.H > refProj.W+refProj.H {
 			refProj = pd
 		}
 	}
 
 	// Target pixel coordinates are centered at the block
-	// MachineX is in range [0, 2*maxExtX]. Grid center is maxExtX.
-	// However, solver uses maxExt across all hues.
-	maxExtX, maxExtY := 0, 0
+	maxW, maxH := 0, 0
 	for _, pd := range bd.ProjDescList {
-		if pd.ExtX > maxExtX {
-			maxExtX = pd.ExtX
+		if pd.W > maxW {
+			maxW = pd.W
 		}
-		if pd.ExtY > maxExtY {
-			maxExtY = pd.ExtY
+		if pd.H > maxH {
+			maxH = pd.H
 		}
 	}
 
-	// targetX = CENTER_BLOCK_LT_X + (MachineX - maxExtX) * BLOCK_W + BLOCK_W/2
-	targetX := BOARD_CENTER_BLOCK_LT_X + float64(p.MachineX-maxExtX)*BOARD_BLOCK_W + BOARD_BLOCK_W/2
-	targetY := BOARD_CENTER_BLOCK_LT_Y + float64(p.MachineY-maxExtY)*BOARD_BLOCK_H + BOARD_BLOCK_H/2
+	// targetX = CENTER_BLOCK_LT_X + (MachineX - (maxW-1)/2) * BLOCK_W + BLOCK_W/2
+	ltX, ltY := convertBoardCoordToLTCoord(p.MachineX, p.MachineY, maxW, maxH)
+	targetX := float64(ltX) + BOARD_BLOCK_W/2
+	targetY := float64(ltY) + BOARD_BLOCK_H/2
 
 	endX := int32(targetX)
 	endY := int32(targetY)
@@ -90,14 +89,31 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	}
 
 	ctrl.PostTouchUp(0).Wait()
+}
+
+func doResetCursor(ctx *maa.Context) {
+	ctrl := ctx.GetTasker().GetController()
+
+	x := int32(640)
+	y := int32(620)
+
+	ctrl.PostTouchUp(0).Wait()
 	time.Sleep(100 * time.Millisecond)
+
+	ctrl.PostTouchMove(0, x, y, 1).Wait()
+	time.Sleep(100 * time.Millisecond)
+
+	ctrl.PostTouchDown(0, x, y, 1).Wait()
+	time.Sleep(100 * time.Millisecond)
+
+	ctrl.PostTouchUp(0).Wait()
 }
 
 // Run executes the puzzle solving action.
 func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Debug().
+	log.Info().
 		Str("action", arg.CustomActionName).
-		Msg("Running PuzzleSolver action")
+		Msg("Starting PuzzleSolver action")
 
 	// Parse custom action parameters
 	isDryRun := false
@@ -148,13 +164,15 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Error().Err(err).Str("detail", recData).Msg("Failed to solve puzzle")
 		return false
 	}
-
 	log.Info().Interface("placements", placements).Msg("Puzzle solved successfully")
 
 	// Execute the solution steps (placements)
 	for _, p := range placements {
 		doPlace(ctx, &boardDesc, p, isDryRun)
+		time.Sleep(250 * time.Millisecond)
 	}
+	doResetCursor(ctx)
+	log.Info().Msg("Finished PuzzleSolver action")
 
 	return true
 }
