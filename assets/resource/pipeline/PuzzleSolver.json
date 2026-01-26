@@ -1,44 +1,53 @@
 {
-    "PuzzleSolver": {
+    // 终末地电路拼图游戏的自动化 Pipeline
+    "PuzzleSolverMain": {
+        // 主入口节点
         "recognition": "DirectHit",
         "next": [
-            "OnScenePrepare",
-            "OnSceneMain",
-            "PuzzleSolver" // 循环执行
-        ],
-        "focus": "SolvePuzzle"
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain",
+            "PuzzleSolverMain" // 循环检测
+        ]
     },
-    "OnScenePrepare": {
-        // 电路拼图游戏的准备界面，匹配左侧的特征性图案
+    "PuzzleSolverOnSuccess": {
+        // 解谜成功后，触发此节点
+        "recognition": "DirectHit",
+        "pre_delay": 5000, // 摸一会儿鱼...
+        "next": [
+            "PuzzleSolverMain" // 继续检测
+        ]
+    },
+    "PuzzleSolverOnScenePrepare": {
+        // 解谜的准备界面，匹配左侧的特征性图案
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ScenePrepare.png",
         "roi": [167, 199, 354, 296],
         "next": [
-            "FindStartButton"
+            "PuzzleSolverFindStartButton"
         ]
     },
-    "FindStartButton": {
+    "PuzzleSolverFindStartButton": {
         // 点击右下角的“修复”按钮开始拼图游戏
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ButtonStart.png",
         "roi": [999, 469, 134, 140],
         "action": "Click",
         "next": [
-            "OnSceneMain"
+            "PuzzleSolverOnSceneMain"
         ]
     },
-    "OnSceneMain": {
-        // 电路拼图游戏的主界面，匹配右上角的特征性图案
+    "PuzzleSolverOnSceneMain": {
+        // 解谜的主界面，匹配右上角的特征性图案
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/SceneMain.png",
         "roi": [944, 0, 236, 164],
         "next": [
-            "FindUnavailableTip",
-            "SolvePuzzle"
+            "PuzzleSolverFindUnavailableTip",
+            "PuzzleSolverSolvePuzzle"
         ]
     },
-    "FindUnavailableTip": {
-        // 查找“有尚未了解的元件样式”的提示，此时不能进行游戏
+    "PuzzleSolverFindUnavailableTip": {
+        // 查找是否存在“有尚未了解的元件样式”的提示，此时不能进行游戏
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipUnavailable.png",
         "roi": [497, 314, 129, 128],
@@ -46,16 +55,20 @@
         "key": 27, // ESC
         "pre_delay": 1000,
         "next": [
-            "PuzzleSolver" // 循环执行
+            "PuzzleSolverMain" // 重试检测
         ]
     },
-    "SolvePuzzle": {
+    "PuzzleSolverSolvePuzzle": {
         // 执行拼图解决方案（识别+计算+自动化操作）
         "recognition": "Custom",
         "custom_recognition": "PuzzleRecognition",
         "action": "Custom",
         "custom_action": "PuzzleAction",
-        "post_delay": 2000
-        // 结束任务
+        "custom_action_param": {
+            "dryRun": false
+        },
+        "next": [
+            "PuzzleSolverOnSuccess"
+        ]
     }
 }

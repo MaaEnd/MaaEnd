@@ -11,7 +11,7 @@ import (
 type Action struct{}
 
 // doPlace performs the interaction to place a single puzzle piece
-func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement) {
+func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	log.Info().
 		Int("puzzleIndex", p.PuzzleIndex).
 		Int("mx", p.MachineX).
@@ -77,10 +77,18 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement) {
 	// Mapping: 0->0, 1->3, 2->2, 3->1
 	rotTimes := (4 - p.Rotation) % 4
 	for range rotTimes {
-		ctx.RunTask("PressR", `{"PressR": {"action": "ClickKey", "key": 82}}`)
+		ctrl.PostClickKey(82).Wait() // R key
+		time.Sleep(250 * time.Millisecond)
 	}
 
-	// 5. Release
+	// 5. Complete
+	if isDryRun {
+		// In dry run mode, just return the piece to the thumbnail area
+		time.Sleep(1000 * time.Millisecond)
+		ctrl.PostTouchMove(0, startX, startY, 1).Wait()
+		time.Sleep(250 * time.Millisecond)
+	}
+
 	ctrl.PostTouchUp(0).Wait()
 	time.Sleep(100 * time.Millisecond)
 }
@@ -90,6 +98,21 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Debug().
 		Str("action", arg.CustomActionName).
 		Msg("Running PuzzleSolver action")
+
+	// Parse custom action parameters
+	isDryRun := false
+	if arg.CustomActionParam != "" {
+		var params struct {
+			DryRun bool `json:"dryRun"`
+		}
+		if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err == nil {
+			isDryRun = params.DryRun
+		}
+	}
+
+	if isDryRun {
+		log.Info().Msg("Dry run mode enabled: actions will be logged but not executed")
+	}
 
 	// Get the recognition result (boardDesc JSON)
 	recData := arg.RecognitionDetail.DetailJson
@@ -130,7 +153,7 @@ func (a *Action) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Execute the solution steps (placements)
 	for _, p := range placements {
-		doPlace(ctx, &boardDesc, p)
+		doPlace(ctx, &boardDesc, p, isDryRun)
 	}
 
 	return true
