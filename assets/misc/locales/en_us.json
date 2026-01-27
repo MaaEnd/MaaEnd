@@ -40,5 +40,13 @@
     "option.AutoZipline.description": "Automatically trigger long-distance ziplines.",
     "option.ImportBluePrints.label": "Import Blueprints",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "Blueprint Text",
-    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "Enter text (any characters allowed). Blueprint share codes will be extracted intelligently."
+    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "Enter text (any characters allowed). Blueprint share codes will be extracted intelligently.",
+    "task.PuzzleSolver.label": "🧩 Auto Solve Puzzle",
+    "task.PuzzleSolver.description": "Automatically solve puzzle mini-games for you. No need to think anymore!",
+    "option.PuzzleSolverMode.label": "Mode",
+    "option.PuzzleSolverMode.description": "- Single Run: Task ends automatically after successfully solving once\n- Loop: Repeat solving until manually stopped\n- Demo Only: Does not actually solve, only demonstrates steps (you'll still need to solve it yourself)",
+    "option.PuzzleSolverMode.cases.Single.label": "Single Run",
+    "option.PuzzleSolverMode.cases.Loop.label": "Loop",
+    "option.PuzzleSolverMode.cases.DryRun.label": "Demo Only",
+    "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md"
 }

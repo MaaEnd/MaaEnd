@@ -40,5 +40,13 @@
     "option.AutoZipline.description": "長距離ジップラインを自動で発動します。",
     "option.ImportBluePrints.label": "設計図インポート",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "設計図テキスト",
-    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。"
+    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。",
+    "task.PuzzleSolver.label": "🧩 パズル自動解決",
+    "task.PuzzleSolver.description": "パズルミニゲームを自動で解決します。もう考える必要はありません！",
+    "option.PuzzleSolverMode.label": "モード",
+    "option.PuzzleSolverMode.description": "- 単回実行：成功解決1回後にタスクが自動終了\n- 繰り返し実行：手動停止まで繰り返し解決\n- デモのみ：実際には解決せず、操作手順のみをデモンストレーション（結局自分で解く必要があります）",
+    "option.PuzzleSolverMode.cases.Single.label": "単回実行",
+    "option.PuzzleSolverMode.cases.Loop.label": "繰り返し実行",
+    "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ",
+    "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md"
 }

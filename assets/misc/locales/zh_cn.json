@@ -46,4 +46,12 @@
     "option.ImportMinimumProfit.label": "最低利润",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利润值",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "当前最高利润低于该值时，不进行购买，仅支持整数"
+    "task.PuzzleSolver.label": "🧩自动解拼图",
+    "task.PuzzleSolver.description": "自动帮你通关拼图小游戏，太好了不用自己动脑子了.jpg",
+    "option.PuzzleSolverMode.label": "模式",
+    "option.PuzzleSolverMode.description": "- 单次执行：成功解谜一次后任务自动结束\n- 重复执行：重复执行解谜直到手动停止\n- 仅演示：不会实际执行解谜，仅进行操作步骤的演示（搞半天还要自己拼）",
+    "option.PuzzleSolverMode.cases.Single.label": "单次执行",
+    "option.PuzzleSolverMode.cases.Loop.label": "重复执行",
+    "option.PuzzleSolverMode.cases.DryRun.label": "仅演示",
+    "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md"
 }

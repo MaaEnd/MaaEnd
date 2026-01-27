@@ -40,5 +40,13 @@
     "option.AutoZipline.description": "自動觸發長距滑索,YJ你就不能改成按一下切換嗎",
     "option.ImportBluePrints.label": "導入藍圖",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "藍圖文本",
-    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "請輸入文本，可以夾雜任意字元，將智慧拆分藍圖分享碼"
+    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "請輸入文本，可以夾雜任意字元，將智慧拆分藍圖分享碼",
+    "task.PuzzleSolver.label": "🧩自動解拼圖",
+    "task.PuzzleSolver.description": "自動幫你通關拼圖小遊戲，太好了不用自己動腦子了.jpg",
+    "option.PuzzleSolverMode.label": "模式",
+    "option.PuzzleSolverMode.description": "- 單次執行：成功解謎一次後任務自動結束\n- 重複執行：重複執行解謎直到手動停止\n- 僅演示：不會實際執行解謎，僅進行操作步驟的演示（搞半天還要自己拼）",
+    "option.PuzzleSolverMode.cases.Single.label": "單次執行",
+    "option.PuzzleSolverMode.cases.Loop.label": "重複執行",
+    "option.PuzzleSolverMode.cases.DryRun.label": "僅演示",
+    "contact.file": "misc/locales/CONTACT/CONTACT.zh_tw.md"
 }

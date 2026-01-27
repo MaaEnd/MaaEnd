@@ -40,5 +40,13 @@
     "option.AutoZipline.description": "장거리 집라인을 자동으로 발동합니다.",
     "option.ImportBluePrints.label": "청사진 가져오기",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "청사진 텍스트",
-    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "텍스트를 입력하세요(임의의 문자를 포함해도 됨). 공유 코드를 스마트하게 추출합니다."
+    "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "텍스트를 입력하세요(임의의 문자를 포함해도 됨). 공유 코드를 스마트하게 추출합니다.",
+    "task.PuzzleSolver.label": "🧩 퍼즐 자동 해결",
+    "task.PuzzleSolver.description": "퍼즐 미니게임을 자동으로 해결해 줍니다. 더 이상 생각할 필요가 없습니다!",
+    "option.PuzzleSolverMode.label": "모드",
+    "option.PuzzleSolverMode.description": "- 단일 실행: 성공적으로 한 번 해결한 후 작업이 자동 종료\n- 반복 실행: 수동으로 중지할 때까지 반복 해결\n- 데모만: 실제로 해결하지 않고 작업 단계만 시연(결국 직접 해결해야 함)",
+    "option.PuzzleSolverMode.cases.Single.label": "단일 실행",
+    "option.PuzzleSolverMode.cases.Loop.label": "반복 실행",
+    "option.PuzzleSolverMode.cases.DryRun.label": "데모만",
+    "contact.file": "misc/locales/CONTACT/CONTACT.ko_kr.md"
 }
