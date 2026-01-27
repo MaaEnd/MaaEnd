@@ -405,12 +405,12 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	previewImg := ctrl.CacheImage()
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
-		aw.TouchUpSync(1)
+		aw.TouchUpSync(0)
 		return nil
 	}
 
 	// 3. Touch Up (Release)
-	aw.TouchUpSync(1)
+	aw.TouchUpSync(0)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)

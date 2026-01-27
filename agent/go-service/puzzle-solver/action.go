@@ -64,7 +64,7 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 		aw.TouchMoveSync(0, startX, startY, 250)
 	}
 
-	aw.TouchUpSync(1)
+	aw.TouchUpSync(0)
 }
 
 func doResetCursor(ctx *maa.Context) {
