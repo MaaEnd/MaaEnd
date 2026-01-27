@@ -109,7 +109,7 @@
                     117,
                     72
                 ],
-                "expected": "进入俯瞰"
+                "expected": "^进入俯(瞰)$"
             }
         },
         "action": {
@@ -138,6 +138,20 @@
         }
     },
     "TopViewUp": {
+        //上滑
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
@@ -153,7 +167,51 @@
             }
         }
     },
+    "TopViewUpLittle": {
+        //上滑一点点
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    100
+                ],
+                "end": [
+                    640,
+                    150
+                ],
+                "duration": 100
+            }
+        }
+    },
     "TopViewDown": {
+        //下滑
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
@@ -170,6 +228,20 @@
         }
     },
     "TopViewLeft": {
+        //左滑
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
         "action": {
             "type": "LongPressKey",
             "param": {
@@ -179,11 +251,62 @@
         }
     },
     "TopViewRight": {
-        "action": {
-            "type": "LongPressKey",
+        //右滑
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
             "param": {
-                "key": 68,
-                "duration": 500
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    360
+                ],
+                "end": [
+                    0,
+                    360
+                ],
+                "duration": 100
+            }
+        }
+    },
+    "TopViewRightLittle": {
+        //右滑一点点
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    360
+                ],
+                "end": [
+                    550,
+                    360
+                ],
+                "duration": 100
             }
         }
     },
@@ -208,8 +331,20 @@
             }
         }
     },
-    "CloseBelt": {
-        //关闭传送带编辑,
+    "CloseAIC_Edit": {
+        //关闭俯瞰图编辑
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    171,
+                    79
+                ],
+                "expected": "建造状态"
+            }
+        },
         "action": {
             "type": "Click",
             "param": {
@@ -221,8 +356,79 @@
             }
         }
     },
-    "Complete_Similation": {
+    "ChangeToAIC_Mode": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    171,
+                    79
+                ],
+                "expected": [
+                    "探索"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 9
+            }
+        }
+    },
+    "InSideTheTopView": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        }
+    },
+    "CompleteSimilation": {
         //完成模拟
-        "inverse": true
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    140,
+                    278,
+                    279
+                ],
+                "template": "Similation/CompleteSimilation.png"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        }
+    },
+    "ExitSimilation": {
+        //退出模拟
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    477,
+                    522,
+                    352,
+                    198
+                ],
+                "template": "Similation/StartSimilation.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     }
 }

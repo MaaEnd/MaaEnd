@@ -19,10 +19,13 @@
             "type": "Click"
         },
         "next": [
-            "Complete_Similation",
+            "[JumpBack]ChangeToAIC_Mode",
+            "[JumpBack]CompleteSimilation",
+            "ExitSimilation",
             "[JumpBack]EnterTopView",
             "[JumpBack]CloseTips",
             "[JumpBack]Stage_3_Mission_1",
+            "[JumpBack]WaitForStage_3_Mission_1_Complete",
             "[JumpBack]Stage_3_Mission_2",
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
@@ -33,10 +36,14 @@
     "TestStage3": {
         "timeout": 60000,
         "next": [
-            "Complete_Similation",
+            "[JumpBack]ChangeToAIC_Mode",
+            "CompleteSimilation",
             "[JumpBack]EnterTopView",
             "[JumpBack]CloseTips",
             "[JumpBack]Stage_3_Mission_1",
+            "[JumpBack]WaitForStage_3_Mission_1_Complete",
+            "[JumpBack]Stage_3_Mission_2",
+            "[JumpBack]WaitForStage_3_Mission_2_Complete",
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
             "[JumpBack]WaitLoadingText",
@@ -45,19 +52,43 @@
     },
     "Stage_3_Mission_1": {
         //粉碎机任务1"连接各设备,使用粉碎机生产3份荞花粉末并存入仓库
+        "max_hit": 1,
         "timeout": 60000,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    32,
-                    99,
-                    294,
-                    92
-                ],
-                "expected": [
-                    "使用粉碎机生产3份荞",
-                    "花粉末并存入仓库"
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    32,
+                                    99,
+                                    294,
+                                    92
+                                ],
+                                "expected": [
+                                    "使用粉碎机生产3份荞",
+                                    "花粉末并存入仓库"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    513,
+                                    30,
+                                    117,
+                                    72
+                                ],
+                                "expected": "^退出俯(瞰)$"
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -80,7 +111,24 @@
             "Stage_3_Mission_1_Localtion_1"
         ]
     },
-    //步骤分解:任务1第一位置 #begin
+    "WaitForStage_3_Mission_1_Complete": {
+        "post_delay": 1000,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    32,
+                    99,
+                    294,
+                    92
+                ],
+                "expected": [
+                    "使用粉碎机生产3份荞",
+                    "花粉末并存入仓库"
+                ]
+            }
+        }
+    },
     "Stage_3_Mission_1_Localtion_1": {
         //到达任务1位置1:第一个供电桩位置,粉碎机在视角上方
         "max_hit": 1,
@@ -152,11 +200,9 @@
             "type": "Click"
         },
         "next": [
-            "CloseBelt"
+            "CloseAIC_Edit"
         ]
     },
-    //步骤分解:任务1第一位置 #end
-    //步骤分解:任务1第二位置 #begin
     "Stage_3_Mission_1_Localtion_2": {
         //到达任务1位置2:第二个供电桩位置,粉碎机在视角下方
         "max_hit": 1,
@@ -228,10 +274,10 @@
             "type": "Click"
         },
         "next": [
+            "[JumpBack]CloseAIC_Edit",
             "TopViewDown"
         ]
     },
-    //步骤分解:任务1第二位置 #end
     "Complete_Stage_3_Mission_1_Localtion": {
         //完成任务1子动作:将协议储存箱连接到粉碎机或者将粉碎机连接到协议储存箱
         "recognition": {
@@ -284,7 +330,376 @@
         }
     },
     "Stage_3_Mission_2": {
+        "max_hit": 1,
         //任务2:获取3份晶体外壳粉末并存入仓库
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    32,
+                                    99,
+                                    294,
+                                    92
+                                ],
+                                "expected": [
+                                    "使用粉碎机生产",
+                                    "3份晶体外壳粉末并存入仓库"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    513,
+                                    30,
+                                    117,
+                                    72
+                                ],
+                                "expected": "^退出俯(瞰)$"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "MoveToStage_3_Mission_2_Localtion_1",
+            "[JumpBack]Stage_3_Mission_2_Localtion_1_MoveRight",
+            "[JumpBack]TopViewUpLittle"
+        ]
+    },
+    "MoveToStage_3_Mission_2_Localtion_1": {
+        //到达任务2位置1:可以完全看到整个粉碎机区域
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    516,
+                    306,
+                    185,
+                    251
+                ],
+                "expected": [
+                    "精炼炉"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]Stage_3_DropElectricPylon",
+            "[JumpBack]OpenBelt",
+            "[JumpBack]Stage_3_Mission_2_Localtion_1_Link_1",
+            "[JumpBack]Stage_3_Mission_2_Localtion_1_Link_2",
+            "Stage_3_Mission_2_Localtion_1_Link_3"
+        ]
+    },
+    "Stage_3_DropElectricPylon": {
+        "max_hit": 1,
+        //放置供电桩
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    15,
+                    586,
+                    269,
+                    90
+                ],
+                "expected": [
+                    "供电桩"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 49
+            }
+        },
+        "next": [
+            "FindDropTarget"
+        ]
+    },
+    "FindDropTarget": {
+        //找到协议储存箱
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    695,
+                    13,
+                    466,
+                    417
+                ],
+                "expected": [
+                    "协议储存箱"
+                ]
+            }
+        },
+        //放置在协议存储器下方
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    200,
+                    -80,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "InSideTheTopView"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_1": {
+        //任务2连接生产线1:连接协议储存箱到精炼炉
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    122,
+                    339,
+                    346,
+                    231
+                ],
+                "expected": [
+                    "协议储存箱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_3_Mission_2_Localtion_1_Link_1_Select"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_1_Select": {
+        //任务2连接生产线1:连接协议储存箱到精炼炉
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    392,
+                    320,
+                    335,
+                    255
+                ],
+                "expected": [
+                    "精炼炉"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_2": {
+        //任务2连接生产线1:连接精炼炉到粉碎机
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    392,
+                    320,
+                    335,
+                    255
+                ],
+                "expected": [
+                    "精炼炉"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_3_Mission_2_Localtion_1_Link_2_Select"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_2_Select": {
+        //任务2连接生产线1:连接精炼炉到粉碎机
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    487,
+                    62,
+                    423,
+                    532
+                ],
+                "expected": [
+                    "粉碎机"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_3": {
+        //任务2连接生产线1:连接粉碎机到协议储存箱
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    387,
+                    78,
+                    356,
+                    219
+                ],
+                "expected": [
+                    "粉碎机"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]Stage_3_Mission_2_Localtion_1_Link_3_Select_1",
+            "CloseAIC_Edit"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_3_Select_1": {
+        //任务2连接生产线1:连接粉碎机到协议储存箱
+        //特殊:生产线路会出现一个180度的角度,需要点击两次
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    681,
+                    64,
+                    372,
+                    285
+                ],
+                "expected": [
+                    "协议储存箱"
+                ]
+            }
+        },
+        //设置生产线180度转弯起始点,位于协议储存箱左下角
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -57,
+                    105,
+                    -126,
+                    -39
+                ]
+            }
+        },
+        "next": [
+            "Stage_3_Mission_2_Localtion_1_Link_3_Select_2"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_Link_3_Select_2": {
+        //任务2连接生产线1:连接粉碎机到协议储存箱
+        //特殊:转弯完毕,重新点击协议储存箱
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    681,
+                    64,
+                    372,
+                    285
+                ],
+                "expected": [
+                    "协议储存箱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Stage_3_Mission_2_Localtion_1_MoveRight": {
+        //移动到任务2位置1:右
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    693,
+                    292,
+                    454,
+                    102
+                ],
+                "expected": [
+                    "粉碎机"
+                ]
+            }
+        },
+        "next": [
+            "MoveToStage_3_Mission_2_Localtion_1_Success",
+            "[JumpBack]Stage_3_Mission_2_Localtion_1_TopViewRight",
+            "[JumpBack]TopViewRightLittle"
+        ]
+    },
+    "Stage_3_Mission_2_Localtion_1_TopViewRight": {
+        //关卡3特殊右滑,只会运行一次,用于快速划过空白区域
+        //右滑
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    360
+                ],
+                "end": [
+                    0,
+                    360
+                ],
+                "duration": 100
+            }
+        }
+    },
+    "MoveToStage_3_Mission_2_Localtion_1_Success": {
+        //到达任务2位置1:成功
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    516,
+                    306,
+                    185,
+                    251
+                ],
+                "expected": [
+                    "精炼炉"
+                ]
+            }
+        }
+    },
+    "WaitForStage_3_Mission_2_Complete": {
+        "post_delay": 1000,
         "recognition": {
             "type": "OCR",
             "param": {
