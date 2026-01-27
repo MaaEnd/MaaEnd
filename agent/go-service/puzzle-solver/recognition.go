@@ -400,6 +400,7 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	aw := NewActionWrapper(ctrl)
 	aw.TouchUpSync(100)
+
 	aw.TouchDownSync(0, startX, startY, 100)
 	aw.TouchMoveSync(0, endX, endY, 500)
 
@@ -409,6 +410,7 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
 		aw.TouchUpSync(0)
+		time.Sleep(600 * time.Millisecond)
 		return nil
 	}
 
