@@ -12,8 +12,6 @@ import (
 )
 
 type ProjDesc struct {
-	W         int
-	H         int
 	XProjList []int
 	YProjList []int
 }
@@ -134,15 +132,15 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	return [2]int{bestW, bestH}
 }
 
-func convertBlockLtToBannedBlockDesc(proj *ProjDesc, blocks [][2]int) []*BannedBlockDesc {
+func convertBlockLtToBannedBlockDesc(boardW, boardH int, blocks [][2]int) []*BannedBlockDesc {
 	gridBlocks := make([]*BannedBlockDesc, 0, len(blocks))
 
 	for _, b := range blocks {
 		// Calculate grid coordinate
-		idx, idy := convertLTCoordToBoardCoord(b[0], b[1], proj.W, proj.H)
+		idx, idy := convertLTCoordToBoardCoord(b[0], b[1], boardW, boardH)
 
 		// Validate coordinates bounds [0, W-1][0, H-1]
-		if idx >= 0 && idx < proj.W && idy >= 0 && idy < proj.H {
+		if idx >= 0 && idx < boardW && idy >= 0 && idy < boardH {
 			gridBlocks = append(gridBlocks, &BannedBlockDesc{
 				Loc:    [2]int{idx, idy},
 				RawLoc: b,
@@ -192,8 +190,6 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 	log.Debug().Interface("XProj", finalXProjList).Interface("YProj", finalYProjList).Msg("Board projections")
 
 	return &ProjDesc{
-		W:         W,
-		H:         H,
 		XProjList: finalXProjList,
 		YProjList: finalYProjList,
 	}
@@ -430,13 +426,13 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	return getPuzzleDesc(previewImg)
 }
 
-func getLockedBlocksDesc(img image.Image, proj *ProjDesc, targetHue int) []*LockedBlockDesc {
+func getLockedBlocksDesc(img image.Image, boardW, boardH int, targetHue int) []*LockedBlockDesc {
 	locked := []*LockedBlockDesc{}
 
-	for gridY := 0; gridY < proj.H; gridY++ {
-		for gridX := 0; gridX < proj.W; gridX++ {
+	for gridY := 0; gridY < boardH; gridY++ {
+		for gridX := 0; gridX < boardW; gridX++ {
 			// Get LT coordinate from Grid Index (gridX, gridY)
-			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, proj.W, proj.H)
+			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, boardW, boardH)
 
 			// Sampling center point of the block
 			centerX := int(float64(ltX) + BOARD_BLOCK_W/2)
@@ -518,20 +514,21 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		projDesc := getProjDesc(ctx, img, boardSize, hue)
 		log.Debug().Int("hue", hue).Interface("projDesc", projDesc).Msg("Puzzle board projection description for hue")
 
-		if i == 0 {
-			refProj = projDesc
-		} else {
-			if projDesc.W != refProj.W || projDesc.H != refProj.H {
-				log.Error().
-					Int("hue", hue).
-					Int("W", projDesc.W).Int("H", projDesc.H).
-					Int("refW", refProj.W).Int("refH", refProj.H).
-					Msg("Inconsistent board dimensions detected between hues")
-				return nil, false
-			}
+		// Validate projection list dimensions match board size
+		if len(projDesc.XProjList) != boardSize[0] || len(projDesc.YProjList) != boardSize[1] {
+			log.Error().
+				Int("hue", hue).
+				Int("XProjLen", len(projDesc.XProjList)).Int("YProjLen", len(projDesc.YProjList)).
+				Int("boardW", boardSize[0]).Int("boardH", boardSize[1]).
+				Msg("Projection list length mismatch with board dimensions")
+			return nil, false
 		}
 
-		locked := getLockedBlocksDesc(img, projDesc, hue)
+		if i == 0 {
+			refProj = projDesc
+		}
+
+		locked := getLockedBlocksDesc(img, boardSize[0], boardSize[1], hue)
 		log.Debug().Int("hue", hue).Interface("locked", locked).Msg("Puzzle locked blocks for hue")
 
 		projDescList = append(projDescList, *projDesc)
@@ -547,7 +544,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		W:               boardSize[0],
 		H:               boardSize[1],
 		ProjDescList:    projDescList,
-		BannedBlockList: convertBlockLtToBannedBlockDesc(refProj, banned),
+		BannedBlockList: convertBlockLtToBannedBlockDesc(boardSize[0], boardSize[1], banned),
 		LockedBlockList: lockedBlockList,
 		PuzzleList:      puzzleList,
 		HueList:         hueList,

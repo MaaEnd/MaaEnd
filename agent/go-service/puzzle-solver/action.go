@@ -32,26 +32,11 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	startY := int32(thumbY + PUZZLE_THUMBNAIL_H/2)
 
 	// 2. Calculate target location on board
-	// Find refProj to determine center alignment
-	var refProj ProjDesc
-	for _, pd := range bd.ProjDescList {
-		if pd.W+pd.H > refProj.W+refProj.H {
-			refProj = pd
-		}
+	if bd.W <= 0 || bd.H <= 0 {
+		log.Error().Msg("Invalid BoardDesc: missing W/H dimensions")
+		return
 	}
-
-	// Target pixel coordinates are centered at the block
 	maxW, maxH := bd.W, bd.H
-	if maxW == 0 || maxH == 0 {
-		for _, pd := range bd.ProjDescList {
-			if pd.W > maxW {
-				maxW = pd.W
-			}
-			if pd.H > maxH {
-				maxH = pd.H
-			}
-		}
-	}
 
 	// targetX = CENTER_BLOCK_LT_X + (MachineX - (maxW-1)/2) * BLOCK_W + BLOCK_W/2
 	ltX, ltY := convertBoardCoordToLTCoord(p.MachineX, p.MachineY, maxW, maxH)
