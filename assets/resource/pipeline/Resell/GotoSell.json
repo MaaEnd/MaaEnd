@@ -91,7 +91,7 @@
         "post_delay": 500,
         "action": "DoNothing",
         "next": [
-            "ResellStageEnterStore",
+            "ResellinShip",
             "WaitingForLoading"
         ]
     },
@@ -108,8 +108,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "ClickKey",
-        "key": "F1",
+        "action": "DoNothing",
         "next": []
     }
 }
