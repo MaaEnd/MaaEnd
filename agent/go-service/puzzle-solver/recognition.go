@@ -391,36 +391,29 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 1. Drag thumbnail to preview area
 	// Start point is center of the thumbnail
-	startX := int32(float64(thumbX + int(PUZZLE_THUMBNAIL_W)/2))
-	startY := int32(float64(thumbY + int(PUZZLE_THUMBNAIL_H)/2))
+	startX := int(float64(thumbX + int(PUZZLE_THUMBNAIL_W)/2))
+	startY := int(float64(thumbY + int(PUZZLE_THUMBNAIL_H)/2))
 
 	// End point is preview area center
-	endX := int32(PUZZLE_PREVIEW_MV_X)
-	endY := int32(PUZZLE_PREVIEW_MV_Y)
+	endX := int(PUZZLE_PREVIEW_MV_X)
+	endY := int(PUZZLE_PREVIEW_MV_Y)
 
-	ctrl.PostTouchUp(0).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchMove(0, startX, startY, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchDown(0, startX, startY, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchMove(0, endX, endY, 1).Wait()
-	time.Sleep(500 * time.Millisecond)
+	aw := NewActionWrapper(ctrl)
+	aw.TouchUpSync(100)
+	aw.TouchDownSync(0, startX, startY, 100)
+	aw.TouchMoveSync(0, endX, endY, 500)
 
 	// 2. Screenshot
 	ctrl.PostScreencap().Wait()
 	previewImg := ctrl.CacheImage()
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
-		ctrl.PostTouchUp(0).Wait()
+		aw.TouchUpSync(1)
 		return nil
 	}
 
 	// 3. Touch Up (Release)
-	ctrl.PostTouchUp(0).Wait()
+	aw.TouchUpSync(1)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)

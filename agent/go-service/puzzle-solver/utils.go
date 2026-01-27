@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"image"
 	"math"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
 )
+
+/* ******** Recognitions ******** */
 
 type TemplateMatchDTO struct {
 	X       int
@@ -17,6 +20,57 @@ type TemplateMatchDTO struct {
 	CenterY int
 	Score   float64
 }
+
+// matchTemplateAll performs template matching and returns all matches up to maxMatch.
+func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []int, maxMatch int) []TemplateMatchDTO {
+	nodeName := "PuzzleSolverTemplateMatch_" + template
+	config := map[string]any{
+		nodeName: map[string]any{
+			"recognition": "TemplateMatch",
+			"template":    template,
+			"threshold":   0.65,
+			"roi":         roi,
+			"order_by":    "score",
+			"method":      5, // TM_CCOEFF_NORMED
+		},
+	}
+
+	res := ctx.RunRecognition(nodeName, img, config)
+	if res == nil || !res.Hit {
+		return make([]TemplateMatchDTO, 0)
+	}
+
+	var detail struct {
+		All []struct {
+			Box   []int   `json:"box"`
+			Score float64 `json:"score"`
+		} `json:"all"`
+	}
+
+	if err := json.Unmarshal([]byte(res.DetailJson), &detail); err != nil {
+		log.Error().Err(err).Msg("Failed to unmarshal match detail")
+		return nil
+	}
+
+	matches := make([]TemplateMatchDTO, 0, min(len(detail.All), maxMatch))
+	for i, m := range detail.All {
+		if len(m.Box) >= 4 {
+			matches = append(matches, TemplateMatchDTO{
+				m.Box[0],
+				m.Box[1],
+				m.Box[0] + m.Box[2]/2,
+				m.Box[1] + m.Box[3]/2,
+				m.Score,
+			})
+		}
+		if i+1 >= maxMatch {
+			break
+		}
+	}
+	return matches
+}
+
+/* ******** Colors ******** */
 
 // getAreaVariance calculates the average standard deviation across RGB channels
 func getAreaVariance(img image.Image, rect image.Rectangle) float64 {
@@ -183,6 +237,8 @@ func clusterHues(hues []int, maxDiff int) map[int][]int {
 	return clusters
 }
 
+/* ******** Coordinate Conversions ******** */
+
 // convertLTCoordToBoardCoord converts pixel LT coordinate to grid index.
 // totalW/totalH are the dimensions of the board (used to determine odd/even grid alignment).
 func convertLTCoordToBoardCoord(ltX, ltY int, totalW, totalH int) (int, int) {
@@ -204,51 +260,41 @@ func convertBoardCoordToLTCoord(bx, by int, totalW, totalH int) (int, int) {
 	return int(ltX), int(ltY)
 }
 
-// matchTemplateAll performs template matching and returns all matches up to maxMatch.
-func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []int, maxMatch int) []TemplateMatchDTO {
-	nodeName := "PuzzleSolverTemplateMatch_" + template
-	config := map[string]any{
-		nodeName: map[string]any{
-			"recognition": "TemplateMatch",
-			"template":    template,
-			"threshold":   0.65,
-			"roi":         roi,
-			"order_by":    "score",
-			"method":      5, // TM_CCOEFF_NORMED
-		},
-	}
+/* ******** Actions ******** */
 
-	res := ctx.RunRecognition(nodeName, img, config)
-	if res == nil || !res.Hit {
-		return make([]TemplateMatchDTO, 0)
-	}
+// ActionWrapper provides synchronized touch/key operations with built-in delays
+type ActionWrapper struct {
+	ctrl *maa.Controller
+}
 
-	var detail struct {
-		All []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-		} `json:"all"`
-	}
+// NewActionWrapper creates a new ActionWrapper from a context
+func NewActionWrapper(ctrl *maa.Controller) *ActionWrapper {
+	return &ActionWrapper{ctrl}
+}
 
-	if err := json.Unmarshal([]byte(res.DetailJson), &detail); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal match detail")
-		return nil
-	}
+// TouchUpSync releases touch contact and waits
+func (aw *ActionWrapper) TouchUpSync(delayMillis int) {
+	aw.ctrl.PostTouchUp(0).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
 
-	matches := make([]TemplateMatchDTO, 0, min(len(detail.All), maxMatch))
-	for i, m := range detail.All {
-		if len(m.Box) >= 4 {
-			matches = append(matches, TemplateMatchDTO{
-				m.Box[0],
-				m.Box[1],
-				m.Box[0] + m.Box[2]/2,
-				m.Box[1] + m.Box[3]/2,
-				m.Score,
-			})
-		}
-		if i+1 >= maxMatch {
-			break
-		}
-	}
-	return matches
+// TouchDownSync moves to position then touches down
+func (aw *ActionWrapper) TouchDownSync(contact, x, y int, delayMillis int) {
+	halfDelay := delayMillis / 2
+	aw.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(halfDelay) * time.Millisecond)
+	aw.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis-halfDelay) * time.Millisecond)
+}
+
+// TouchMoveSync moves touch contact to position and waits
+func (aw *ActionWrapper) TouchMoveSync(contact, x, y int, delayMillis int) {
+	aw.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 1).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
+}
+
+// TypeKeySync sends a key press and waits
+func (aw *ActionWrapper) TypeKeySync(keyCode int, delayMillis int) {
+	aw.ctrl.PostClickKey(int32(keyCode)).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
