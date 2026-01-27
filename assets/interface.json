@@ -840,15 +840,23 @@
             "label": "$option.WhatToTransfer.label",
             "inputs": [
                 {
-                    "name": "WhatToTransfer",
+                    "name": "ItemName",
                     "label": "$option.WhatToTransfer.input.label",
                     "default": "中容谷地电池",
                     "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
-                //todo
-            },
+                "ItemTransfer": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "ItemName": "{ItemName}"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "TransferringContainer": {
             "type": "switch",
@@ -860,7 +868,6 @@
                     "option": [
                         "ContainerContent"
                     ]
-                    //todo
                 },
                 {
                     "name": "No"
