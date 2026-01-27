@@ -8,7 +8,7 @@
     "task.ReadAllWiki.label": "📖百科一鍵已讀",
     "task.ReadAllWiki.description": "點掉百科所有未讀紅點，**請在終末地百科首頁開始任務**",
     "task.ReceiveProdManual.label": "🌾簡製手冊一鍵領取",
-    "task.ReceiveProdManual.description": "領取所有簡製手冊獎勵，**請在背包介面至簡製手冊進度介面開始任務**",
+    "task.ReceiveProdManual.description": "領取所有簡製手冊獎勵，**可在手冊進度/手冊列表/背包介面/導航選單/主介面開始任務**",
     "task.BakerEntry.label": "💬會話訊息嘴替",
     "task.BakerEntry.description": "清掉所有會話訊息，聊個五毛錢的.jpg",
     "task.ImportBluePrints.label": "📐一鍵導入藍圖",

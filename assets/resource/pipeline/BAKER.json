@@ -152,7 +152,10 @@
     },
     "TalkWith": {
         "recognition": "TemplateMatch",
-        "template": "Baker/TalkWith.png",
+        "template": [
+            "Baker/TalkWith.png",
+            "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+        ],
         "threshold": 0.95,
         "roi": [
             31,
@@ -163,6 +166,7 @@
         "action": "Click",
         "next": [
             "TalkOver",
+            "TalkOver2",
             "CheckChatPage",
             "TalkWith"
         ]
@@ -180,6 +184,7 @@
         "post_delay": 0,
         "next": [
             "TalkOver",
+            "TalkOver2",
             "Say",
             "Say2",
             "SaySmile",
@@ -263,6 +268,24 @@
             251,
             135
         ],
+        "next": [
+            "TalkWith",
+            "RefreshBakerFilter"
+        ]
+    },
+    "TalkOver2": { // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/talkover.png"
+        ],
+        "threshold": 0.95,
+        "roi": [
+            31,
+            77,
+            78,
+            574
+        ],
+        "action": "DoNothing",
         "next": [
             "TalkWith",
             "RefreshBakerFilter"
