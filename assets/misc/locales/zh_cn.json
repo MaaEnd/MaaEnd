@@ -47,5 +47,6 @@
     "option.PuzzleSolverMode.description": "- 单次执行：成功解谜一次后任务自动结束\n- 重复执行：重复执行解谜直到手动停止\n- 仅演示：不会实际执行解谜，仅进行操作步骤的演示（搞半天还要自己拼）",
     "option.PuzzleSolverMode.cases.Single.label": "单次执行",
     "option.PuzzleSolverMode.cases.Loop.label": "重复执行",
-    "option.PuzzleSolverMode.cases.DryRun.label": "仅演示"
+    "option.PuzzleSolverMode.cases.DryRun.label": "仅演示",
+    "contact.content": "- 用户群: 1062010346\n- 开发群: 1072587329 （干活群，欢迎加入一起开发，但不受理用户问题）\n- 官网: [maaend.com](https://maaend.com)\n- 开源代码: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- 问题反馈: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
 }

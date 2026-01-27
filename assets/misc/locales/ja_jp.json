@@ -47,5 +47,6 @@
     "option.PuzzleSolverMode.description": "- 単回実行：成功解決1回後にタスクが自動終了\n- 繰り返し実行：手動停止まで繰り返し解決\n- デモのみ：実際には解決せず、操作手順のみをデモンストレーション（結局自分で解く必要があります）",
     "option.PuzzleSolverMode.cases.Single.label": "単回実行",
     "option.PuzzleSolverMode.cases.Loop.label": "繰り返し実行",
-    "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ"
+    "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ",
+    "contact.content": "- ユーザーグループ: 1062010346\n- 開発者グループ: 1072587329（開発グループ、参加歓迎、ただしユーザー問題は対応しません）\n- 公式サイト: [maaend.com](https://maaend.com)\n- ソースコード: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- 問題報告: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
 }

@@ -47,5 +47,6 @@
     "option.PuzzleSolverMode.description": "- Single Run: Task ends automatically after successfully solving once\n- Loop: Repeat solving until manually stopped\n- Demo Only: Does not actually solve, only demonstrates steps (you'll still need to solve it yourself)",
     "option.PuzzleSolverMode.cases.Single.label": "Single Run",
     "option.PuzzleSolverMode.cases.Loop.label": "Loop",
-    "option.PuzzleSolverMode.cases.DryRun.label": "Demo Only"
+    "option.PuzzleSolverMode.cases.DryRun.label": "Demo Only",
+    "contact.content": "- User Group: 1062010346\n- Developer Group: 1072587329 (Development group, welcome to join and contribute, but user issues are not handled here)\n- Website: [maaend.com](https://maaend.com)\n- Source Code: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- Issue Reports: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
 }

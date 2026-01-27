@@ -3,7 +3,7 @@
     "name": "MaaEnd",
     "description": "MaaEnd 终末地小助手，绝赞开发中！",
     "version": "v114514.0.0",
-    "contact": "misc/CONTACT.md",
+    "contact": "$contact.content",
     "license": "misc/LICENSE_SHORT.md",
     "welcome": "README.md",
     "icon": "misc/MaaEnd-Tiny.png",
@@ -91,7 +91,6 @@
             "name": "AndroidOpenGame",
             "label": "$task.AndroidOpenGame.label",
             "entry": "AndroidOpenGame",
-            "default_check": true,
             "description": "$task.AndroidOpenGame.description",
             "controller": [
                 "ADB"
@@ -101,7 +100,6 @@
             "name": "PCOpenGame",
             "label": "$task.PCOpenGame.label",
             "entry": "PCOpenGame",
-            "default_check": true,
             "description": "$task.PCOpenGame.description",
             "controller": [
                 "Win32",
@@ -134,7 +132,6 @@
             "name": "ImportBluePrints",
             "label": "$task.ImportBluePrints.label",
             "entry": "ImportBluePrints",
-            "default_check": false,
             "description": "$task.ImportBluePrints.description",
             "option": [
                 "ImportBluePrints"

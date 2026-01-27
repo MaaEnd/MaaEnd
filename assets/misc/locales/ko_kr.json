@@ -47,5 +47,6 @@
     "option.PuzzleSolverMode.description": "- 단일 실행: 성공적으로 한 번 해결한 후 작업이 자동 종료\n- 반복 실행: 수동으로 중지할 때까지 반복 해결\n- 데모만: 실제로 해결하지 않고 작업 단계만 시연(결국 직접 해결해야 함)",
     "option.PuzzleSolverMode.cases.Single.label": "단일 실행",
     "option.PuzzleSolverMode.cases.Loop.label": "반복 실행",
-    "option.PuzzleSolverMode.cases.DryRun.label": "데모만"
+    "option.PuzzleSolverMode.cases.DryRun.label": "데모만",
+    "contact.content": "- 사용자 그룹: 1062010346\n- 개발자 그룹: 1072587329 (개발 그룹, 참여 환영하지만 사용자 문제는 처리하지 않음)\n- 웹사이트: [maaend.com](https://maaend.com)\n- 소스 코드: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- 문제 보고: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
 }
