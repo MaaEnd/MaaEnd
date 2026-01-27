@@ -88,56 +88,6 @@
     },
     "task": [
         {
-            "name": "AndroidOpenGame",
-            "label": "$task.AndroidOpenGame.label",
-            "entry": "AndroidOpenGame",
-            "description": "$task.AndroidOpenGame.description",
-            "controller": [
-                "ADB"
-            ]
-        },
-        {
-            "name": "PCOpenGame",
-            "label": "$task.PCOpenGame.label",
-            "entry": "PCOpenGame",
-            "description": "$task.PCOpenGame.description",
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Front"
-            ]
-        },
-        {
-            "name": "DailyRewards",
-            "label": "$task.DailyRewards.label",
-            "entry": "DailyRewards",
-            "default_check": true,
-            "description": "$task.DailyRewards.description"
-        },
-        {
-            "name": "ReadAllWiki",
-            "label": "$task.ReadAllWiki.label",
-            "entry": "ReadAllWiki",
-            "default_check": true,
-            "description": "$task.ReadAllWiki.description"
-        },
-        {
-            "name": "BakerEntry",
-            "label": "$task.BakerEntry.label",
-            "entry": "BakerEntry",
-            "default_check": true,
-            "description": "$task.BakerEntry.description"
-        },
-        {
-            "name": "ImportBluePrints",
-            "label": "$task.ImportBluePrints.label",
-            "entry": "ImportBluePrints",
-            "description": "$task.ImportBluePrints.description",
-            "option": [
-                "ImportBluePrints"
-            ]
-        },
-        {
             "name": "RealTimeTask",
             "label": "$task.RealTimeTask.label",
             "entry": "RealTimeTaskMain",
@@ -183,6 +133,56 @@
             ],
             "option": [
                 "ImportMinimumProfit"
+            ]
+        },
+        {
+            "name": "ImportBluePrints",
+            "label": "$task.ImportBluePrints.label",
+            "entry": "ImportBluePrints",
+            "description": "$task.ImportBluePrints.description",
+            "option": [
+                "ImportBluePrints"
+            ]
+        },
+        {
+            "name": "DailyRewards",
+            "label": "$task.DailyRewards.label",
+            "entry": "DailyRewards",
+            "default_check": true,
+            "description": "$task.DailyRewards.description"
+        },
+        {
+            "name": "ReadAllWiki",
+            "label": "$task.ReadAllWiki.label",
+            "entry": "ReadAllWiki",
+            "default_check": true,
+            "description": "$task.ReadAllWiki.description"
+        },
+        {
+            "name": "BakerEntry",
+            "label": "$task.BakerEntry.label",
+            "entry": "BakerEntry",
+            "default_check": true,
+            "description": "$task.BakerEntry.description"
+        },
+        {
+            "name": "PCOpenGame",
+            "label": "$task.PCOpenGame.label",
+            "entry": "PCOpenGame",
+            "description": "$task.PCOpenGame.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        },
+        {
+            "name": "AndroidOpenGame",
+            "label": "$task.AndroidOpenGame.label",
+            "entry": "AndroidOpenGame",
+            "description": "$task.AndroidOpenGame.description",
+            "controller": [
+                "ADB"
             ]
         }
     ],
