@@ -175,6 +175,8 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		maxRecord = records[maxProfitIdx]
 		if maxRecord.Profit >= 3000 {
 			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
+			ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
 		} else {
 			fmt.Printf("\n没有利润超过3000的商品，建议把配额留至明天\n")
 			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
@@ -183,8 +185,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		fmt.Printf("\nMax Profit: %d\n", maxProfit)
 	}
 	fmt.Println("===================================\n")
-	taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
-	ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
 	return true
 }
 
