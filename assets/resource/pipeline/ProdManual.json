@@ -158,10 +158,106 @@
             "type": "OCR"
         }
     },
+    "PMBackAtBackpack": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Succeeded": "已返回主界面"
+        },
+        "recognition": {
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "PMBackAtList": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtProd"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "PMBackAtPM": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtList"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "返回"
+                ],
+                "roi": [
+                    960,
+                    87,
+                    189,
+                    98
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "PMBackAtProd": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtBackpack"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    1139,
+                    5,
+                    136,
+                    68
+                ],
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
     "ProdManualDone": {
         "focus": {
+            "Node.Action.Succeeded": "返回主界面",
             "Node.Recognition.Succeeded": "奖励已全部领取"
         },
+        "next": [
+            "PMBackAtPM"
+        ],
         "post_delay": 0,
         "pre_delay": 0
     },
