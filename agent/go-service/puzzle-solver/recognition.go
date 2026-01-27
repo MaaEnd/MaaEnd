@@ -35,6 +35,8 @@ type PuzzleDesc struct {
 }
 
 type BoardDesc struct {
+	W               int
+	H               int
 	ProjDescList    []ProjDesc
 	BannedBlockList []*BannedBlockDesc
 	LockedBlockList [][]*LockedBlockDesc
@@ -163,13 +165,13 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 	projFigY := BOARD_CENTER_BLOCK_LT_Y - distY*BOARD_BLOCK_H - BOARD_X_PROJ_FIGURE_H
 
 	finalXProjList := make([]int, W)
-	for dx := range W {
+	for gridX := range W {
 		// Calculate precise X-coordinate for each column's projection figure
 		// gridIdxRel is the column index relative to the visual center (0)
-		gridIdxRel := float64(dx) - float64(W-1)/2.0
+		gridIdxRel := float64(gridX) - float64(W-1)/2.0
 		projFigX := BOARD_CENTER_BLOCK_LT_X + gridIdxRel*BOARD_BLOCK_W
 
-		finalXProjList[dx] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "X", targetHue)
+		finalXProjList[gridX] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "X", targetHue)
 	}
 
 	// Y Projection (Left Column)
@@ -178,12 +180,12 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 	projFigX := BOARD_CENTER_BLOCK_LT_X - distX*BOARD_BLOCK_W - BOARD_Y_PROJ_FIGURE_W
 
 	finalYProjList := make([]int, H)
-	for dy := range H {
+	for gridY := range H {
 		// Calculate precise Y-coordinate for each row's projection figure
-		gridIdxRel := float64(dy) - float64(H-1)/2.0
+		gridIdxRel := float64(gridY) - float64(H-1)/2.0
 		projFigY := BOARD_CENTER_BLOCK_LT_Y + gridIdxRel*BOARD_BLOCK_H
 
-		finalYProjList[dy] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "Y", targetHue)
+		finalYProjList[gridY] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "Y", targetHue)
 	}
 
 	log.Debug().Int("W", W).Int("H", H).Msg("Board shape determination")
@@ -310,11 +312,11 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 	coreX := PUZZLE_PREVIEW_MV_X
 	coreY := PUZZLE_PREVIEW_MV_Y
 
-	for dy := -PUZZLE_MAX_EXTENT_ONE_SIDE; dy <= PUZZLE_MAX_EXTENT_ONE_SIDE; dy++ {
-		for dx := -PUZZLE_MAX_EXTENT_ONE_SIDE; dx <= PUZZLE_MAX_EXTENT_ONE_SIDE; dx++ {
+	for offsetY := -PUZZLE_MAX_EXTENT_ONE_SIDE; offsetY <= PUZZLE_MAX_EXTENT_ONE_SIDE; offsetY++ {
+		for offsetX := -PUZZLE_MAX_EXTENT_ONE_SIDE; offsetX <= PUZZLE_MAX_EXTENT_ONE_SIDE; offsetX++ {
 			// Calculate block center
-			blockCenterX := coreX + float64(dx)*PUZZLE_W
-			blockCenterY := coreY + float64(dy)*PUZZLE_H
+			blockCenterX := coreX + float64(offsetX)*PUZZLE_W
+			blockCenterY := coreY + float64(offsetY)*PUZZLE_H
 
 			// Calculate block rect (top-left to bottom-right)
 			x1 := int(blockCenterX - PUZZLE_W/2)
@@ -330,7 +332,7 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 			isBlock := variance > PUZZLE_COLOR_VAR_GRT && saturation > PUZZLE_COLOR_SAT_GRT && value > PUZZLE_COLOR_VAL_GRT
 
 			if isBlock {
-				blocks = append(blocks, [2]int{dx, dy})
+				blocks = append(blocks, [2]int{offsetX, offsetY})
 				totalHue += hue
 				count++
 			}
@@ -431,10 +433,10 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 func getLockedBlocksDesc(img image.Image, proj *ProjDesc, targetHue int) []*LockedBlockDesc {
 	locked := []*LockedBlockDesc{}
 
-	for dy := 0; dy < proj.H; dy++ {
-		for dx := 0; dx < proj.W; dx++ {
-			// Get LT coordinate from Grid Index (dx, dy)
-			ltX, ltY := convertBoardCoordToLTCoord(dx, dy, proj.W, proj.H)
+	for gridY := 0; gridY < proj.H; gridY++ {
+		for gridX := 0; gridX < proj.W; gridX++ {
+			// Get LT coordinate from Grid Index (gridX, gridY)
+			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, proj.W, proj.H)
 
 			// Sampling center point of the block
 			centerX := int(float64(ltX) + BOARD_BLOCK_W/2)
@@ -444,7 +446,7 @@ func getLockedBlocksDesc(img image.Image, proj *ProjDesc, targetHue int) []*Lock
 
 			if s > BOARD_LOCKED_COLOR_SAT_GRT && v > BOARD_LOCKED_COLOR_VAL_GRT {
 				locked = append(locked, &LockedBlockDesc{
-					Loc:    [2]int{dx, dy},
+					Loc:    [2]int{gridX, gridY},
 					RawLoc: [2]int{ltX, ltY},
 					Hue:    int(h),
 				})
@@ -542,6 +544,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 6. Construct board description
 	boardDesc := &BoardDesc{
+		W:               boardSize[0],
+		H:               boardSize[1],
 		ProjDescList:    projDescList,
 		BannedBlockList: convertBlockLtToBannedBlockDesc(refProj, banned),
 		LockedBlockList: lockedBlockList,

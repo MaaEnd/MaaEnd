@@ -85,19 +85,23 @@ type Board struct {
 
 func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 	// 1. Determine Board Dimensions (Max)
-	maxW := 0
-	maxH := 0
-	for _, pd := range bd.ProjDescList {
-		if pd.W > maxW {
-			maxW = pd.W
+	if bd.W > 0 && bd.H > 0 {
+		b.XSize = bd.W
+		b.YSize = bd.H
+	} else {
+		maxW := 0
+		maxH := 0
+		for _, pd := range bd.ProjDescList {
+			if pd.W > maxW {
+				maxW = pd.W
+			}
+			if pd.H > maxH {
+				maxH = pd.H
+			}
 		}
-		if pd.H > maxH {
-			maxH = pd.H
-		}
+		b.XSize = maxW
+		b.YSize = maxH
 	}
-
-	b.XSize = maxW
-	b.YSize = maxH
 	b.K = len(bd.HueList)
 
 	// 2. Initialize Projections

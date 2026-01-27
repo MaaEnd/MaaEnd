@@ -41,13 +41,15 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	}
 
 	// Target pixel coordinates are centered at the block
-	maxW, maxH := 0, 0
-	for _, pd := range bd.ProjDescList {
-		if pd.W > maxW {
-			maxW = pd.W
-		}
-		if pd.H > maxH {
-			maxH = pd.H
+	maxW, maxH := bd.W, bd.H
+	if maxW == 0 || maxH == 0 {
+		for _, pd := range bd.ProjDescList {
+			if pd.W > maxW {
+				maxW = pd.W
+			}
+			if pd.H > maxH {
+				maxH = pd.H
+			}
 		}
 	}
 

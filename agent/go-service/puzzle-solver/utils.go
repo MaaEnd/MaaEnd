@@ -52,6 +52,41 @@ func getAreaVariance(img image.Image, rect image.Rectangle) float64 {
 	return (math.Sqrt(varR/count) + math.Sqrt(varG/count) + math.Sqrt(varB/count)) / 3.0
 }
 
+// rgbToHSV converts normalized RGB [0, 1] to HSV: Hue[0, 360), Saturation[0, 1], Value[0, 1]
+func rgbToHSV(fr, fg, fb float64) (float64, float64, float64) {
+	maxC := math.Max(fr, math.Max(fg, fb))
+	minC := math.Min(fr, math.Min(fg, fb))
+	delta := maxC - minC
+
+	// Value
+	v := maxC
+
+	// Saturation
+	s := 0.0
+	if maxC != 0 {
+		s = delta / maxC
+	}
+
+	// Hue
+	h := 0.0
+	if delta != 0 {
+		switch maxC {
+		case fr:
+			h = (fg - fb) / delta
+			if fg < fb {
+				h += 6
+			}
+		case fg:
+			h = (fb-fr)/delta + 2
+		default:
+			h = (fr-fg)/delta + 4
+		}
+		h *= 60
+	}
+
+	return h, s, v
+}
+
 // getAreaHSV calculates average Hue[0, 360), Saturation[0, 1], Value[0, 1] of an area
 func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
 	var sumHue, sumSat, sumVal float64
@@ -61,38 +96,10 @@ func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float6
 			r, g, b, _ := img.At(x, y).RGBA()
 			fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
 
-			maxC := math.Max(fr, math.Max(fg, fb))
-			minC := math.Min(fr, math.Min(fg, fb))
-			delta := maxC - minC
-
-			// Value
-			v := maxC
-			sumVal += v
-
-			// Saturation
-			var s float64
-			if maxC != 0 {
-				s = delta / maxC
-			}
-			sumSat += s
-
-			// Hue
-			var h float64
-			if delta != 0 {
-				switch maxC {
-				case fr:
-					h = (fg - fb) / delta
-					if fg < fb {
-						h += 6
-					}
-				case fg:
-					h = (fb-fr)/delta + 2
-				default:
-					h = (fr-fg)/delta + 4
-				}
-				h *= 60
-			}
+			h, s, v := rgbToHSV(fr, fg, fb)
 			sumHue += h
+			sumSat += s
+			sumVal += v
 
 			count++
 		}
@@ -108,36 +115,13 @@ func getPixelHSV(img image.Image, x, y int, targetHue int, targetHueAllowance in
 	r, g, b, _ := img.At(x, y).RGBA()
 	fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
 
-	maxC := math.Max(fr, math.Max(fg, fb))
-	minC := math.Min(fr, math.Min(fg, fb))
-	delta := maxC - minC
-
-	var h float64
-	if delta == 0 {
-		h = 0
-	} else if maxC == fr {
-		h = 60 * math.Mod((fg-fb)/delta, 6)
-	} else if maxC == fg {
-		h = 60 * ((fb-fr)/delta + 2)
-	} else {
-		h = 60 * ((fr-fg)/delta + 4)
-	}
-	if h < 0 {
-		h += 360
-	}
+	h, s, v := rgbToHSV(fr, fg, fb)
 
 	if targetHue >= 0 {
 		if diffHue(int(h), targetHue) > targetHueAllowance {
 			return 0, 0, 0
 		}
 	}
-
-	s := 0.0
-	if maxC != 0 {
-		s = delta / maxC
-	}
-
-	v := maxC
 	return h, s, v
 }
 
@@ -205,9 +189,9 @@ func convertLTCoordToBoardCoord(ltX, ltY int, totalW, totalH int) (int, int) {
 	// Formula: idx = (LT - CenterLT) / BlockW + (TotalW - 1) / 2.0
 	// This handles both Odd (center at integer index) and Even (center at half-integer index) correctly.
 
-	dx := int(math.Round((float64(ltX)-BOARD_CENTER_BLOCK_LT_X)/BOARD_BLOCK_W + float64(totalW-1)/2.0))
-	dy := int(math.Round((float64(ltY)-BOARD_CENTER_BLOCK_LT_Y)/BOARD_BLOCK_H + float64(totalH-1)/2.0))
-	return dx, dy
+	gridX := int(math.Round((float64(ltX)-BOARD_CENTER_BLOCK_LT_X)/BOARD_BLOCK_W + float64(totalW-1)/2.0))
+	gridY := int(math.Round((float64(ltY)-BOARD_CENTER_BLOCK_LT_Y)/BOARD_BLOCK_H + float64(totalH-1)/2.0))
+	return gridX, gridY
 }
 
 // convertBoardCoordToLTCoord converts grid index to pixel LT coordinate.
