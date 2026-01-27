@@ -116,6 +116,124 @@
             "type": "OCR"
         }
     },
+    "OpenPMInMain": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        },
+        "next": [
+            "OpenPMInMainClick"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    916,
+                    2,
+                    360,
+                    108
+                ],
+                "template": [
+                    "ProdManual/Backpack.png",
+                    "ProdManual/Backpack2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "OpenPMInMainClick": {
+        "action": {
+            "param": {
+                "target": "OpenPMInMain"
+            },
+            "type": "Click"
+        },
+        "next": [
+            "OpenPMInMainDone"
+        ]
+    },
+    "OpenPMInMainDone": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        }
+    },
+    "OpenPMInMenu": {
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
+        },
+        "next": [
+            "OpenPMInMenuSwipe"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "探索等级"
+                ],
+                "roi": [
+                    195,
+                    390,
+                    400,
+                    203
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "OpenPMInMenuOpen": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "recognition": {
+            "param": {
+                "expected": [
+                    "背包"
+                ],
+                "roi": [
+                    1000,
+                    282,
+                    194,
+                    160
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "OpenPMInMenuSwipe": {
+        "action": {
+            "param": {
+                "begin": [
+                    1099,
+                    525,
+                    0,
+                    0
+                ],
+                "end": [
+                    [
+                        1112,
+                        244,
+                        0,
+                        0
+                    ]
+                ]
+            },
+            "type": "Swipe"
+        },
+        "next": [
+            "OpenPMInMenuOpen"
+        ],
+        "post_delay": 500
+    },
     "OpenPMInProd": {
         "focus": {
             "Node.Recognition.Succeeded": "进入简易手册界面"
@@ -158,10 +276,106 @@
             "type": "OCR"
         }
     },
+    "PMBackAtBackpack": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Succeeded": "已返回主界面"
+        },
+        "recognition": {
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "PMBackAtList": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtProd"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "PMBackAtPM": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtList"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "返回"
+                ],
+                "roi": [
+                    960,
+                    87,
+                    189,
+                    98
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "PMBackAtProd": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "PMBackAtBackpack"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    1139,
+                    5,
+                    136,
+                    68
+                ],
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
     "ProdManualDone": {
         "focus": {
+            "Node.Action.Succeeded": "返回主界面",
             "Node.Recognition.Succeeded": "奖励已全部领取"
         },
+        "next": [
+            "PMBackAtPM"
+        ],
         "post_delay": 0,
         "pre_delay": 0
     },
@@ -170,7 +384,9 @@
             "AlreadyInPM",
             "[JumpBack]OpenPMInBackpack",
             "[JumpBack]OpenPMInProd",
-            "[JumpBack]OpenPMInList"
+            "[JumpBack]OpenPMInList",
+            "[JumpBack]OpenPMInMain",
+            "[JumpBack]OpenPMInMenu"
         ],
         "post_delay": 0,
         "pre_delay": 0

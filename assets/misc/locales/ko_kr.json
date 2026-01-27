@@ -8,7 +8,7 @@
     "task.ReadAllWiki.label": "📖 도감 일괄 읽음 처리",
     "task.ReadAllWiki.description": "도감의 미열람 빨간 점을 모두 제거합니다. **종말지 도감 홈에서 작업을 시작해 주세요.**",
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 일괄 수령",
-    "task.ReceiveProdManual.description": "모든 간단 제작 매뉴얼 보상을 수령합니다. **가방 화면에서 간단 제작 매뉴얼 진행도 화면으로 이동하여 작업을 시작해 주세요.**",
+    "task.ReceiveProdManual.description": "모든 간단 제작 매뉴얼 보상을 수령합니다. **매뉴얼 진행도 / 매뉴얼 목록 / 가방 화면 / 내비게이션 메뉴 / 메인 화면에서 작업을 시작할 수 있습니다.**",
     "task.BakerEntry.label": "💬 대화 메시지 정리",
     "task.BakerEntry.description": "모든 대화 메시지를 정리합니다.",
     "task.ImportBluePrints.label": "📐 청사진 일괄 가져오기",
