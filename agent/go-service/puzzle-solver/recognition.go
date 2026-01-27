@@ -413,7 +413,7 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	}
 
 	// 3. Touch Up (Release)
-	aw.TouchUpSync(0)
+	aw.TouchUpSync(250)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)
