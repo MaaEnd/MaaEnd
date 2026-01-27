@@ -235,8 +235,6 @@ func (r *RealTimeAutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.Cu
 		return nil, false
 	}
 
-	log.Info().Str("detail json", detail.DetailJson).Msg("")
-
 	// 解析模板匹配结果
 	var templateMatchDetail struct {
 		Filtered []struct {
