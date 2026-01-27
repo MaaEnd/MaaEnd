@@ -3,7 +3,7 @@
     "name": "MaaEnd",
     "description": "MaaEnd 终末地小助手，绝赞开发中！",
     "version": "v114514.0.0",
-    "contact": "$contact.content",
+    "contact": "$contact.file",
     "license": "misc/LICENSE_SHORT.md",
     "welcome": "README.md",
     "icon": "misc/MaaEnd-Tiny.png",

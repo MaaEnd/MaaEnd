@@ -48,5 +48,5 @@
     "option.PuzzleSolverMode.cases.Single.label": "Single Run",
     "option.PuzzleSolverMode.cases.Loop.label": "Loop",
     "option.PuzzleSolverMode.cases.DryRun.label": "Demo Only",
-    "contact.content": "- User Group: 1062010346\n- Developer Group: 1072587329 (Development group, welcome to join and contribute, but user issues are not handled here)\n- Website: [maaend.com](https://maaend.com)\n- Source Code: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- Issue Reports: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
+    "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md"
 }

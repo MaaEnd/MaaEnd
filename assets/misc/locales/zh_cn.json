@@ -48,5 +48,5 @@
     "option.PuzzleSolverMode.cases.Single.label": "单次执行",
     "option.PuzzleSolverMode.cases.Loop.label": "重复执行",
     "option.PuzzleSolverMode.cases.DryRun.label": "仅演示",
-    "contact.content": "- 用户群: 1062010346\n- 开发群: 1072587329 （干活群，欢迎加入一起开发，但不受理用户问题）\n- 官网: [maaend.com](https://maaend.com)\n- 开源代码: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- 问题反馈: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
+    "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md"
 }

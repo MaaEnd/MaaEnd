@@ -48,5 +48,5 @@
     "option.PuzzleSolverMode.cases.Single.label": "単回実行",
     "option.PuzzleSolverMode.cases.Loop.label": "繰り返し実行",
     "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ",
-    "contact.content": "- ユーザーグループ: 1062010346\n- 開発者グループ: 1072587329（開発グループ、参加歓迎、ただしユーザー問題は対応しません）\n- 公式サイト: [maaend.com](https://maaend.com)\n- ソースコード: [GitHub](https://github.com/MaaEnd/MaaEnd)\n- 問題報告: [issue](https://github.com/MaaEnd/MaaEnd/issues)"
+    "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md"
 }
