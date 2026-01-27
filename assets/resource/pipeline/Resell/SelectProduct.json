@@ -600,14 +600,14 @@
     "ResellScrollToTop": {
         "doc": "滚动到顶部，准备去飞船",
         "recognition": "DirectHit",
-        "pre_delay": 0,
+        "pre_delay": 500,
         "post_delay": 1000,
         "action": "Scroll",
         "target": [
             640,
             360
         ],
-        "dy": 960,
+        "dy": 240,
         "next": [
             "ResellGotoSell",
             "ResellReturnToStore"

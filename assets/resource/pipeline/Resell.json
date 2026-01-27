@@ -168,14 +168,14 @@
             128,
             126
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
+        "pre_delay": 500,
+        "post_delay": 1000,
         "action": "Scroll",
         "target": [
             640,
             360
         ],
-        "dy": -960,
+        "dy": -240,
         "next": [
             "ResellStartCheckStock",
             "ResellStart"
