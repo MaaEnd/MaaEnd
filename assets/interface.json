@@ -143,16 +143,9 @@
         },
         {
             "name": "Resell",
-            "label": "💰一键倒卖",
+            "label": "💰半自动倒卖",
             "entry": "ResellMain",
-            "description": "自动倒卖弹性需求物资"
-        },
-        {
-            "name": "CustomTest",
-            "label": "🧪自定义测试任务",
-            "entry": "gotest",
-            "default_check": false,
-            "description": "用于测试自定义识别和自定义动作的任务"
+            "description": "半自动倒卖弹性需求物资，自行识别最高利润货物并进行购买，进入对应好友的飞船，目前仍需手动进行地区切换和售卖"
         }
     ],
     "option": {

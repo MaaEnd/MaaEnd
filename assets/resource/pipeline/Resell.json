@@ -107,6 +107,7 @@
         "post_delay": 500,
         "action": "DoNothing",
         "next": [
+            "ResellStageEnterStore",
             "Wuling2FourthValley",
             "ResellStageCheckArea"
         ]
@@ -175,6 +176,75 @@
             360
         ],
         "dy": -960,
+        "next": [
+            "ResellStartCheckStock",
+            "ResellStart"
+        ]
+    },
+    "ResellStartCheckStock": {
+        "doc": "检查库存",
+        "recognition": "DirectHit",
+        "pre_delay": 1000,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            100,
+            380
+        ],
+        "next": [
+            "ResellCheckSoldout",
+            "ResellCheckStockRemain"
+        ]
+    },
+    "ResellCheckSoldout": {
+        "doc": "识别库存是否售罄，售罄则切换区域",
+        "recognition": "ColorMatch",
+        "method": 40,
+        "roi": [
+            810,
+            509,
+            43,
+            25
+        ],
+        "lower": [
+            156,
+            43,
+            46
+        ],
+        "upper": [
+            180,
+            255,
+            255
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1075,
+            140
+        ],
+        "next": [
+            //"NextRegion"
+        ]
+    },
+    "ResellCheckStockRemain": {
+        "doc": "识别库存未售罄，开始选择倒卖商品",
+        "recognition": "TemplateMatch",
+        "template": "Resell/Confirm.png",
+        "threshold": 0.8,
+        "roi": [
+            1010,
+            525,
+            120,
+            122
+        ],
+        "pre_delay": 500,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1075,
+            140
+        ],
         "next": [
             "ResellStart"
         ]
