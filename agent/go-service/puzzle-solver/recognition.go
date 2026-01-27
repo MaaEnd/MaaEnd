@@ -69,8 +69,11 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	cropFactor := 0.8 // important
 	bestW, bestH := 0, 0
 
+	// Convert to SVGB format
+	imgSvgb := getSVGBImage(img)
+
 	// 1. Determine H (using XProj figures at the top)
-	xMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjX.png", []int{0, 0, WORK_W, int(float64(WORK_H) * 0.5)}, 16)
+	xMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjX_SVGB.png", []int{0, 0, WORK_W, int(float64(WORK_H) * 0.5)}, 16)
 	if len(xMatches) > 0 {
 		hScores := make(map[int]float64)
 		for h := 2; h <= 2*maxExtent+1; h++ {
@@ -100,7 +103,7 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	}
 
 	// 2. Determine W (using YProj figures at the left)
-	yMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjY.png", []int{0, 0, int(float64(WORK_W) * 0.5), WORK_H}, 16)
+	yMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjY_SVGB.png", []int{0, 0, int(float64(WORK_W) * 0.5), WORK_H}, 16)
 	if len(yMatches) > 0 {
 		wScores := make(map[int]float64)
 		for w := 2; w <= 2*maxExtent+1; w++ {
@@ -185,9 +188,6 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 
 		finalYProjList[gridY] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "Y", targetHue)
 	}
-
-	log.Debug().Int("W", W).Int("H", H).Msg("Board shape determination")
-	log.Debug().Interface("XProj", finalXProjList).Interface("YProj", finalYProjList).Msg("Board projections")
 
 	return &ProjDesc{
 		XProjList: finalXProjList,
@@ -275,8 +275,8 @@ func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
 	rect1 := image.Rect(int(TAB_1_X), int(TAB_Y), int(TAB_1_X+TAB_W), int(TAB_Y+TAB_H))
 	rect2 := image.Rect(int(TAB_2_X), int(TAB_Y), int(TAB_2_X+TAB_W), int(TAB_Y+TAB_H))
 
-	_, _, val1 := getAreaHSV(img, rect1)
-	_, _, val2 := getAreaHSV(img, rect2)
+	_, _, val1 := getAreaMeanHSV(img, rect1)
+	_, _, val2 := getAreaMeanHSV(img, rect2)
 	log.Debug().Float64("val1", val1).Float64("val2", val2).Msg("Checking tab selection state")
 
 	var ctrl = ctx.GetTasker().GetController()
@@ -323,12 +323,12 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 			rect := image.Rect(x1, y1, x2, y2)
 
 			variance := getAreaVariance(img, rect)
-			hue, saturation, value := getAreaHSV(img, rect)
-
-			isBlock := variance > PUZZLE_COLOR_VAR_GRT && saturation > PUZZLE_COLOR_SAT_GRT && value > PUZZLE_COLOR_VAL_GRT
+			_, sat, val := getAreaMeanHSV(img, rect)
+			isBlock := variance > PUZZLE_COLOR_VAR_GRT && sat > PUZZLE_COLOR_SAT_GRT && val > PUZZLE_COLOR_VAL_GRT
 
 			if isBlock {
 				blocks = append(blocks, [2]int{offsetX, offsetY})
+				hue, _, _ := getAreaMidHSV(img, rect) // Use mid to avoid noises
 				totalHue += hue
 				count++
 			}
@@ -408,36 +408,35 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	previewImg := ctrl.CacheImage()
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
-		aw.TouchUpSync(1)
+		aw.TouchUpSync(0)
 		return nil
 	}
 
 	// 3. Touch Up (Release)
-	aw.TouchUpSync(1)
+	aw.TouchUpSync(0)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)
 }
 
-func getLockedBlocksDesc(img image.Image, boardW, boardH int, targetHue int) []*LockedBlockDesc {
+func getLockedBlocksDesc(img image.Image, boardW, boardH int) []*LockedBlockDesc {
 	locked := []*LockedBlockDesc{}
 
-	for gridY := 0; gridY < boardH; gridY++ {
-		for gridX := 0; gridX < boardW; gridX++ {
+	for gridY := range boardH {
+		for gridX := range boardW {
 			// Get LT coordinate from Grid Index (gridX, gridY)
 			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, boardW, boardH)
+			rect := image.Rect(ltX, ltY, ltX+int(BOARD_BLOCK_W), ltY+int(BOARD_BLOCK_H))
 
-			// Sampling center point of the block
-			centerX := int(float64(ltX) + BOARD_BLOCK_W/2)
-			centerY := int(float64(ltY) + BOARD_BLOCK_H/2)
+			_, sat, val := getAreaMeanHSV(img, rect)
+			isLocked := sat > BOARD_LOCKED_COLOR_SAT_GRT && val > BOARD_LOCKED_COLOR_VAL_GRT
 
-			h, s, v := getPixelHSV(img, centerX, centerY, targetHue, PUZZLE_CLUSTER_DIFF_GRT)
-
-			if s > BOARD_LOCKED_COLOR_SAT_GRT && v > BOARD_LOCKED_COLOR_VAL_GRT {
+			if isLocked {
+				hue, _, _ := getAreaMidHSV(img, rect)
 				locked = append(locked, &LockedBlockDesc{
 					Loc:    [2]int{gridX, gridY},
 					RawLoc: [2]int{ltX, ltY},
-					Hue:    int(h),
+					Hue:    int(hue),
 				})
 			}
 		}
@@ -491,9 +490,12 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 	log.Info().Int("boardW", boardSize[0]).Int("boardH", boardSize[1]).Msg("Determined possible board size")
 
-	// 3. Find banned blocks
+	// 3. Find banned and locked blocks
 	banned := getBannedBlocksLTCoord(ctx, img)
-	log.Info().Interface("banned", banned).Msg("Puzzle banned blocks")
+	log.Info().Interface("banned", banned).Msg("Puzzle board banned blocks")
+
+	locked := getLockedBlocksDesc(img, boardSize[0], boardSize[1])
+	log.Info().Interface("locked", locked).Msg("Puzzle board locked blocks")
 
 	// 4. Find possible hues from puzzles
 	hueList := getPossibleHues(puzzleList)
@@ -501,9 +503,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	var lockedBlockList [][]*LockedBlockDesc
 
 	// 5. For each hue, determine board projection and locked blocks
-	var refProj *ProjDesc
-
-	for i, hue := range hueList {
+	for _, hue := range hueList {
 		projDesc := getProjDesc(ctx, img, boardSize, hue)
 		log.Debug().Int("hue", hue).Interface("projDesc", projDesc).Msg("Puzzle board projection description for hue")
 
@@ -517,19 +517,18 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			return nil, false
 		}
 
-		if i == 0 {
-			refProj = projDesc
+		// Get locked blocks for this hue
+		thisLocked := []*LockedBlockDesc{}
+		for i, lb := range locked {
+			if lb != nil && diffHue(lb.Hue, hue) <= PUZZLE_CLUSTER_DIFF_GRT {
+				thisLocked = append(thisLocked, lb)
+				locked[i] = nil
+			}
 		}
-
-		locked := getLockedBlocksDesc(img, boardSize[0], boardSize[1], hue)
-		log.Debug().Int("hue", hue).Interface("locked", locked).Msg("Puzzle locked blocks for hue")
+		log.Debug().Int("hue", hue).Interface("locked", thisLocked).Msg("Puzzle board locked blocks for hue")
 
 		projDescList = append(projDescList, *projDesc)
-		lockedBlockList = append(lockedBlockList, locked)
-	}
-
-	if refProj == nil {
-		refProj = &ProjDesc{}
+		lockedBlockList = append(lockedBlockList, thisLocked)
 	}
 
 	// 6. Construct board description
