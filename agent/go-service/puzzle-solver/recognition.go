@@ -405,12 +405,18 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 2. Screenshot
 	ctrl.PostScreencap().Wait()
-	previewImg := ctrl.CacheImage()
-	if previewImg == nil {
-		log.Error().Msg("Failed to capture preview image")
-		aw.TouchUpSync(0)
-		return nil
-	}
+    previewImg := ctrl.CacheImage()
+    if previewImg == nil {
+        log.Error().Msg("Failed to capture preview image")
+        aw.TouchUpSync(0)
+        select {
+        case <-time.After(600 * time.Millisecond):
+            // 等待成功
+        default:
+            // 如果没有取消机制，这里什么都不做
+        }
+        return nil
+    }
 
 	// 3. Touch Up (Release)
 	aw.TouchUpSync(0)
