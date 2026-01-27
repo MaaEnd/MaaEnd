@@ -10,7 +10,11 @@
             "RealTimeQuickTeleportList",
             "RealTimeQuickTeleportDirect",
             "RealTimeAutoZipline",
-            "AutoCloseInfoLayer",
+            "HandleTutorialGuide",
+            "ClickAnywhereToContinue",
+            "HandleTutorialPaging",
+            "HandleTutorialConfirm",
+            "CheckSpecialInfoPanel",
             "RealTimeTaskMainDelay"
         ]
     },

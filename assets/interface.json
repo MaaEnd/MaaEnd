@@ -222,7 +222,19 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoCloseInfoLayer": {
+                        "HandleTutorialGuide": {
+                            "enabled": true
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        },
+                        "ClickAnywhereToContinue": {
+                            "enabled": true
+                        },
+                        "CheckSpecialInfoPanel": {
                             "enabled": true
                         }
                     },
@@ -236,7 +248,43 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoCloseInfoLayer": {
+                        "HandleTutorialGuide": {
+                            "enabled": false
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        },
+                        "ClickAnywhereToContinue": {
+                            "enabled": false
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialGuide": {
+            "label": "点击指引光标",
+            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！）",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
                             "enabled": false
                         }
                     }

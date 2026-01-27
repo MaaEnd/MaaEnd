@@ -1,25 +1,7 @@
 {
     // ========================================================
-    // Note: 
-    // 关于“指引光标(白色小手)”的识别：
-    // 目前已尝试使用 TemplateMatch，但由于光标常出现在高亮的黄色/橙色图标背景上，
-    // 导致背景干扰严重，无法稳定提取通用特征。
-    // 暂时移除 HandleTutorialGuide 节点，后续如有带透明通道的完美素材再通过 ColorMatch 尝试。
-    // ========================================================
-    "AutoCloseInfoLayer": {
-        "doc": "自定义自动化逻辑入口（点击继续/关闭弹窗）",
-        "recognition": "DirectHit", // 直接命中，强制执行 next 列表检查
-        "action": "DoNothing",
-        "next": [
-            "ClickAnywhereToContinue", // 优先级 1：全屏阻断提示（最高）
-            "CheckSpecialInfoPanel", // 优先级 2：特定UI关闭
-            "HandleTutorialConfirm",
-            "HandleTutorialPaging",
-            "RealTimeTaskMain"
-        ]
-    },
-    // ========================================================
-    // 任务 1：全屏阻断点击
+    // 任务 1：全屏阻断点击 (Priority: High)
+    // 适配点：ROI 覆盖全屏中央区域，点击位置避开边缘
     // ========================================================
     "ClickAnywhereToContinue": {
         "doc": "检测屏幕上出现的'点击任意处继续'提示并点击",
@@ -29,47 +11,50 @@
                 "expected": [
                     "点击任意处继续",
                     "点击任意处",
-                    "任意处继续"
+                    "任意处继续",
+                    "点击",
+                    "任意处"
                 ],
-                // 稍微扩大一点范围，防止 OCR 漏字
+                // 16:10 安全区优化：X从50开始，宽度给足
                 "roi": [
+                    50,
                     25,
-                    25,
-                    1200,
+                    1100,
                     680
                 ]
             }
         },
         "action": {
             "type": "Click",
-            // 既然是任意处，点击右下角或固定位置通常比点击文字更稳
-            // 避免文字识别框飘忽不定
+            // 点击位置优化：避开最右侧边缘，选一个16:10屏幕肯定在内的点
+            // (1152x720 是16:10的宽，所以 x=1000 很安全)
             "param": {
                 "target": [
-                    1100,
+                    1000,
                     600,
                     50,
                     50
                 ]
             }
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 500,
         "focus": {
-            "Node.Recognition.Succeeded": "识别到[点击任意处继续]，正在点击"
+            "Node.Recognition.Succeeded": "识别到[点击任意处继续]"
         },
         "next": [
-            "AutoCloseInfoLayer" // 【关键修改】点完后，回到 Layer 入口再次检查是否有其他弹窗
+            "RealTimeTaskMain"
         ]
     },
     // ========================================================
-    // 任务 2：特殊 UI 检测
+    // 任务 2：特殊 UI 检测 (Priority: Medium)
+    // 适配点：这些 UI 通常是居中或者相对固定的，保持原样或微调
     // ========================================================
     "CheckSpecialInfoPanel": {
         "doc": "检测并关闭特殊信息面板(档案/语音)",
         "recognition": "Or",
         "any_of": [
             {
-                "doc": "检测档案界面顶部装饰条",
+                "doc": "检测档案界面",
                 "recognition": "TemplateMatch",
                 "template": "CloseInfo/DocHeader.png",
                 "threshold": 0.8,
@@ -78,10 +63,10 @@
                     87,
                     477,
                     36
-                ]
+                ] // 居中区域，安全
             },
             {
-                "doc": "检测语音界面侧边进度条",
+                "doc": "检测语音界面",
                 "recognition": "TemplateMatch",
                 "template": "CloseInfo/VoiceBar.png",
                 "threshold": 0.8,
@@ -90,7 +75,7 @@
                     127,
                     40,
                     471
-                ]
+                ] // 左侧区域，安全
             }
         ],
         "focus": {
@@ -100,54 +85,57 @@
             "SafeCloseButton"
         ]
     },
-    // ========================================================
-    // 动作：执行关闭
-    // ========================================================
+    // 动作节点：右上角关闭按钮
+    // ⚠️ 重点适配对象：右上角在 16:10 上会向左偏移
     "SafeCloseButton": {
         "doc": "执行通用关闭操作",
         "recognition": "TemplateMatch",
         "template": "CloseInfo/CloseButton.png",
-        "threshold": 0.8,
+        "threshold": 0.7, // 稍微降低阈值以适应缩放造成的像素模糊
+        // ROI 扩大：覆盖 16:9 的最右(1280) 和 16:10 的最右(1152)
+        // X 从 1050 开始搜，直到 1280，确保能抓到
         "roi": [
-            1215,
-            11,
-            35,
-            35
+            1050,
+            0,
+            230,
+            80
         ],
         "action": "Click",
         "post_wait_freezes": 500,
-        "focus": {
-            "Node.Action.Succeeded": "已点击关闭按钮"
-        },
         "next": [
-            "AutoCloseInfoLayer" // 【关键修改】关完后，也回到 Layer 入口再次检查
+            "RealTimeTaskMain"
         ]
     },
+    // ========================================================
+    // 任务 3：教程翻页 (Priority: Medium)
+    // ⚠️ 重点适配对象：翻页箭头通常在极右侧
+    // ========================================================
     "HandleTutorialPaging": {
-        "doc": "识别说明书翻页箭头，成功则继续翻，失败则尝试确认",
+        "doc": "识别说明书翻页箭头",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "CloseInfo/TutorialNext.png",
-                "threshold": 0.8,
+                "threshold": 0.75,
+                // ROI 扩大：X 向左延伸到 1000，确保 16:10 也能包住
                 "roi": [
-                    910,
+                    1000,
                     250,
-                    110,
-                    100
-                ] // 基于你的坐标 933,269 微调放宽
+                    280,
+                    200
+                ]
             }
         },
         "action": "Click",
         "post_wait_freezes": 400,
-        // 【关键拓扑】
-        // 1. 翻页后尝试确定，HandleTutorialConfirm
         "next": [
-            "HandleTutorialConfirm"
+            "HandleTutorialConfirm",
+            "RealTimeTaskMain"
         ]
     },
     // ========================================================
-    // 任务 B：教程确认
+    // 任务 4：教程确认 (Priority: Medium)
+    // 适配点：底部居中，天然安全
     // ========================================================
     "HandleTutorialConfirm": {
         "doc": "识别说明书底部的黄色确认按钮",
@@ -156,18 +144,55 @@
             "param": {
                 "template": "CloseInfo/TutorialConfirm.png",
                 "threshold": 0.8,
+                // 稍微放宽一点点
                 "roi": [
-                    520,
-                    620,
-                    250,
-                    80
-                ] // 基于你的坐标 536,634 微调放宽
+                    500,
+                    600,
+                    300,
+                    100
+                ]
             }
         },
         "action": "Click",
         "post_wait_freezes": 500,
         "next": [
-            "AutoCloseInfoLayer" // 关完后，回到总入口，防止后面紧接着还有东西
+            "RealTimeTaskMain"
+        ]
+    },
+    // ========================================================
+    // 任务 5：强制指引 (Priority: High)
+    // 适配点：全屏搜索，天然安全
+    // ========================================================
+    "HandleTutorialGuide": {
+        "doc": "检测并点击新手引导的指引箭头",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/HandPoint.png",
+                "threshold": 0.6,
+                // 直接写满 1280x720，MaaFW 会处理越界
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    25,
+                    -15,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "RealTimeTaskMain"
         ]
     }
 }
