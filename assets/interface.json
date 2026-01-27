@@ -184,18 +184,6 @@
             "option": [
                 "ImportMinimumProfit"
             ]
-        },
-        {
-            "name": "test",
-            "entry": "ResellStart",
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Front"
-            ],
-            "option": [
-                "ImportMinimumProfit"
-            ]
         }
     ],
     "option": {

@@ -45,7 +45,9 @@
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "请输入文本，可以夹杂任意字符，将智能拆分蓝图分享码",
     "option.ImportMinimumProfit.label": "最低利润",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利润值",
-    "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "当前最高利润低于该值时，不进行购买，仅支持整数"
+    "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "当前最高利润低于该值时，不进行购买，仅支持整数",
+    "task.Resell.label": "💰一键倒卖",
+    "task.Resell.description": "在弹性需求物资商店页面，自动识别最高利润货物并进行购买。**请在弹性需求物资商店页面开始任务**",
     "task.PuzzleSolver.label": "🧩自动解拼图",
     "task.PuzzleSolver.description": "自动帮你通关拼图小游戏，太好了不用自己动脑子了.jpg",
     "option.PuzzleSolverMode.label": "模式",

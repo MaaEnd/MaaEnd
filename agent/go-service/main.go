@@ -47,24 +47,7 @@ func main() {
 	}
 
 	// Register custom recognition and actions
-	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightEntryRecognition", &realtime.RealTimeAutoFightEntryRecognition{})
-	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightExitRecognition", &realtime.RealTimeAutoFightExitRecognition{})
-	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightSkillRecognition", &realtime.RealTimeAutoFightSkillRecognition{})
-	maa.AgentServerRegisterCustomAction("RealTimeAutoFightSkillAction", &realtime.RealTimeAutoFightSkillAction{})
-	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightEndSkillRecognition", &realtime.RealTimeAutoFightEndSkillRecognition{})
-	maa.AgentServerRegisterCustomAction("RealTimeAutoFightEndSkillAction", &realtime.RealTimeAutoFightEndSkillAction{})
-
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsEnterCodeAction", &importtask.ImportBluePrintsEnterCodeAction{})
-
-	maa.AgentServerRegisterCustomAction("ResellInitAction", &resell.ResellInitAction{})
-	maa.AgentServerRegisterCustomAction("ResellFinishAction", &resell.ResellFinishAction{})
-  
-	maa.AgentServerRegisterCustomRecognition("PuzzleRecognition", &puzzle.Recognition{})
-	maa.AgentServerRegisterCustomAction("PuzzleAction", &puzzle.Action{})
-
-	log.Info().Msg("Registered custom recognition and actions")
+	registerAll()
 
 	// Start the agent server
 	if !maa.AgentServerStartUp(identifier) {
@@ -78,6 +61,16 @@ func main() {
 	// Shutdown
 	maa.AgentServerShutDown()
 	log.Info().Msg("Agent server shutdown")
+}
+
+func registerAll() {
+	// Register all custom components from each package
+	realtime.Register()
+	importtask.Register()
+	resell.Register()
+	puzzle.Register()
+
+	log.Info().Msg("Registered custom recognition and actions")
 }
 
 func getCwd() string {
