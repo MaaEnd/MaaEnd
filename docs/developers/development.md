@@ -30,15 +30,18 @@
 3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
 4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
 5. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹。
-6.  `resource` 等文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。  
+
+> [!TIP]
+> MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。
+
+6. `resource` 等文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。  
    **但 `interface.json` 是复制的，若有修改需手动复制回 `assets` 再进行提交。**
 
 ## 代码规范
 
-### MaaFramework 说明
+### MaaFW 说明
 
-- MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。
-- MaaEnd 开发中所有图片、坐标均需要以 720p 为基准，MaaFramework 在实际运行时会根据用户设备的分辨率自动进行转换。推荐使用开发工具进行截图和坐标换算。
+- MaaEnd 开发中所有图片、坐标均需要以 720p 为基准，MaaFramework 在实际运行时会根据用户设备的分辨率自动进行转换。推荐使用 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 进行截图和坐标换算。
 
 ### Pipeline 低代码规范
 
@@ -52,4 +55,4 @@
 
 ## 交流
 
-开发 QQ 群: 1072587329 （干活群，不受理用户问题）
+开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）

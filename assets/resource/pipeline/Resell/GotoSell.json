@@ -1,0 +1,114 @@
+{
+    "ResellGotoSell": {
+        "doc": "出发倒卖",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            90,
+            200,
+            100,
+            80
+        ],
+        "next": [
+            "ResellListFriends",
+            "ResellStageEnterStore"
+        ]
+    },
+    "ResellListFriends": {
+        "doc": "打开好友列表",
+        "recognition": "OCR",
+        "threshold": 0.8,
+        "roi": [
+            944,
+            446,
+            98,
+            26
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "ResellClickFriend"
+        ]
+    },
+    "ResellClickFriend": {
+        "doc": "点击好友",
+        "recognition": "TemplateMatch",
+        "template": "Resell/back.png",
+        "threshold": 0.8,
+        "roi": [
+            940,
+            88,
+            117,
+            116
+        ],
+        "pre_delay": 500,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            480,
+            293,
+            28,
+            28
+        ],
+        "next": [
+            "ResellEnterShip"
+        ]
+    },
+    "ResellEnterShip": {
+        "doc": "进入好友的船坞",
+        "recognition": "OCR",
+        "threshold": 0.8,
+        "roi": [
+            532,
+            333,
+            89,
+            19
+        ],
+        "order_by": "Expected",
+        "expected": ".*飞船.*",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            //"WaitingForLoading"
+        ]
+    },
+    "WaitingForLoading": {
+        "doc": "等待加载完成",
+        "recognition": "DirectHit",
+        "pre_delay": 500,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "ResellinShip",
+            "WaitingForLoading"
+        ]
+    },
+    "ResellinShip": {
+        "doc": "在好友的船坞，进入商店",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inShip.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            0,
+            125,
+            125
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": []
+    }
+}

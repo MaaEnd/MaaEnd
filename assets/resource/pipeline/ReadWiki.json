@@ -1,16 +1,43 @@
 {
     "ReadAllWiki": {
         "next": [
-            "OnWikiHomePage"
+            "OnWikiHomePage",
+            "OnESCPageForWiki",
+            "ClickEscForWiki"
+        ]
+    },
+    "OnESCPageForWiki": {
+        "recognition": "OCR",
+        "roi": [
+            708,
+            220,
+            566,
+            489
+        ],
+        "expected": "百科",
+        "action": "Click",
+        "next": [
+            "ReadAllWiki"
+        ]
+    },
+    "ClickEscForWiki": {
+        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
+        "action": "ClickKey",
+        "key": 27, // ESC 键
+        "post_wait_freezes": 1,
+        "next": [
+            "ReadAllWiki"
         ]
     },
     "OnWikiHomePage": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "excepted": "终末地百科"
-            }
-        },
+        "recognition": "OCR",
+        "expected": "终末地百科",
+        "roi": [
+            4,
+            1,
+            253,
+            100
+        ],
         "next": [
             "ClickWikiHomePageUnreadBadge",
             "ClickChapterUnreadBadge",

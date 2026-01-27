@@ -5,7 +5,9 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
+	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
 )
@@ -45,14 +47,7 @@ func main() {
 	}
 
 	// Register custom recognition and actions
-	maa.AgentServerRegisterCustomAction("RealTimeAutoFightEndSkillAction", &realtime.RealTimeAutoFightEndSkillAction{})
-	maa.AgentServerRegisterCustomAction("RealTimeAutoFightSkillAction", &realtime.RealTimeAutoFightSkillAction{})
-
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
-	maa.AgentServerRegisterCustomAction("ImportBluePrintsEnterCodeAction", &importtask.ImportBluePrintsEnterCodeAction{})
-
-	log.Info().Msg("Registered custom recognition and actions")
+	registerAll()
 
 	// Start the agent server
 	if !maa.AgentServerStartUp(identifier) {
@@ -66,6 +61,16 @@ func main() {
 	// Shutdown
 	maa.AgentServerShutDown()
 	log.Info().Msg("Agent server shutdown")
+}
+
+func registerAll() {
+	// Register all custom components from each package
+	realtime.Register()
+	importtask.Register()
+	resell.Register()
+	puzzle.Register()
+
+	log.Info().Msg("Registered custom recognition and actions")
 }
 
 func getCwd() string {
