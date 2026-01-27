@@ -4,28 +4,44 @@
         "pre_delay": 0,
         "post_delay": 500,
         "next": [
+            "ResellStageCheckArea",
             "ResellStageCheckInGame",
             "ResellStageNotInGame"
         ]
     },
     "ResellStageCheckInGame": {
-        "doc": "检查当前界面是否在大世界中，然后进入地图",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inGame.png",
-        "threshold": 0.8,
-        "roi": [
-            172,
-            0,
-            133,
-            118
+        "doc": "检查当前界面是否在大世界中，然后进入地区建设管理",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame1.png",
+                "threshold": 0.8,
+                "roi": [
+                    172,
+                    0,
+                    133,
+                    118
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame2.png",
+                "threshold": 0.8,
+                "roi": [
+                    1182,
+                    0,
+                    98,
+                    128
+                ]
+            }
         ],
         "pre_delay": 0,
         "post_delay": 500,
         "action": "ClickKey",
-        "key": 77,
+        "key": 89,
         "next": [
-            "ResellStageCheckInMap",
-            "ResellStageNotInMap"
+            "ResellStageCheckArea"
         ]
     },
     "ResellStageNotInGame": {
@@ -39,117 +55,136 @@
             "ResellMain"
         ]
     },
-    "ResellStageCheckInMap": {
-        "doc": "检查当前界面是否在地图中",
+    "ResellStageCheckArea": {
+        "doc": "检查当前地区",
         "recognition": "TemplateMatch",
-        "template": "Resell/inMap.png",
-        "threshold": 0.5,
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
         "roi": [
-            1121,
-            0,
-            113,
-            115
+            1139,
+            63,
+            135,
+            127
         ],
         "action": "DoNothing",
-        "pre_delay": 0,
-        "post_delay": 500,
         "next": [
-            "ResellStageCheckInShip",
-            "ResellStageNotInShip"
-        ]
-    },
-    "ResellStageNotInMap": {
-        "doc": "不在地图中",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "DoNothing",
-        "next": [
+            "ResellAreaInFourthValley",
+            "ResellAreaInWuLing",
             "ResellMain"
         ]
     },
-    "ResellStageCheckInShip": {
-        "doc": "地图是否在帝江号内，在则将地图拉至右上角",
+    "ResellAreaInFourthValley": {
+        "doc": "在四号谷地，进入地区建设管理",
         "recognition": "OCR",
-        "threshold": 0.3,
         "roi": [
-            526,
-            0,
-            156,
-            120
+            25,
+            174,
+            178,
+            48
         ],
-        "expected": ".*中.*",
+        "expected": "四号谷地",
+        "threshold": 0.8,
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "Swipe",
-        "begin": [
-            390,
-            160
-        ],
-        "end": [
-            255,
-            290
-        ],
+        "action": "DoNothing",
         "next": [
-            "ResellStageClickTeleport"
+            "ResellStageEnterStore",
+            "ResellStageCheckArea"
         ]
     },
-    "ResellStageNotInShip": {
-        "doc": "地图不在帝江号内，点右上角进入帝江号",
-        "recognition": "DirectHit",
+    "ResellAreaInWuLing": {
+        "doc": "在武陵，进入地区建设管理",
+        "recognition": "OCR",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "武陵",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "Wuling2FourthValley",
+            "ResellStageCheckArea"
+        ]
+    },
+    "ResellStageEnterStore": {
+        "doc": "进入商店",
+        "recognition": "OCR",
+        "roi": [
+            793,
+            338,
+            88,
+            27
+        ],
+        "expected": "物资调度",
+        "threshold": 0.8,
         "pre_delay": 0,
         "post_delay": 500,
         "action": "Click",
-        "target": [
-            1155,
-            67,
-            52,
-            33
-        ],
         "next": [
-            "ResellStageCheckInMap"
+            "ResellinStableStore",
+            "ResellinUnstableStore",
+            "ResellStageCheckArea"
         ]
     },
-    "ResellStageClickTeleport": {
-        "doc": "点击传送按钮",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
-        "target": [
-            529,
-            194,
-            17,
-            15
-        ],
-        "next": [
-            "ResellStageTeleport"
-        ]
-    },
-    "ResellStageTeleport": {
-        "doc": "传送到倒卖点",
+    "ResellinStableStore": {
+        "doc": "在稳定需求物资商店，进入弹性需求物资商店",
         "recognition": "TemplateMatch",
-        "template": "Resell/ConfirmTeleport.png",
+        "template": "Resell/inStableStore.png",
         "threshold": 0.8,
         "roi": [
-            1158,
-            594,
-            122,
+            0,
+            178,
+            125,
+            124
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            389,
+            73,
+            185,
+            43
+        ],
+        "next": [
+            "ResellinUnstableStore",
+            "ResellStageEnterStore"
+        ]
+    },
+    "ResellinUnstableStore": {
+        "doc": "在弹性需求物资商店,滚动至最底端，开始识别价格",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
             126
         ],
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "Click",
+        "action": "Scroll",
+        "target": [
+            640,
+            360
+        ],
+        "dy": -960,
         "next": [
-            "ResellStageStart"
+            "ResellStart"
         ]
     },
-    "ResellStageStart": {
-        "doc": "开始倒卖",
+    "ResellStart": {
+        "doc": "开始识别价格，选择倒卖商品",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "ClickKey",
-        "key": 27
+        "action": "Custom",
+        "custom_action": "ResellInitAction"
     }
 }

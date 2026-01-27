@@ -1,0 +1,9 @@
+{
+    "Wuling2FourthValley": {
+        "doc": "武陵回四号谷地",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing"
+    }
+}
