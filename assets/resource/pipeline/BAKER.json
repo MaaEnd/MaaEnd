@@ -1,0 +1,271 @@
+{
+    "BakerEntry": {
+        "next": [
+            "CheckBakerHome",
+            "ClickH"
+        ]
+    },
+    "ClickH": {
+        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
+        "action": "ClickKey",
+        "key": 72, // H 键
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerEntry"
+        ]
+    },
+    "CheckBakerHome": {
+        "recognition": "OCR",
+        "expected": [
+            "BAKER",
+            "会话消息"
+        ],
+        "roi": [
+            0,
+            0,
+            263,
+            117
+        ],
+        "next": [
+            "OpenBakerFilter",
+            "BakerExpend",
+            "BakerOver"
+        ]
+    },
+    "OpenBakerFilter": {
+        "recognition": "OCR",
+        "max_hit": 1,
+        "expected": [
+            "全部显示",
+            "筛选生效中"
+        ],
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ResetBakerFilter",
+            "SaveBakerFilter"
+        ]
+    },
+    "RefreshBakerFilter": {
+        "recognition": "OCR",
+        "expected": [
+            "筛选生效中"
+        ],
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "SaveBakerFilter"
+        ]
+    },
+    "ResetBakerFilter": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/ResetBakerFilter.png",
+        "max_hit": 1,
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerFilterUnread",
+            "SaveBakerFilter"
+        ]
+    },
+    "BakerFilterUnread": {
+        "recognition": "OCR",
+        "expected": [
+            "未读"
+        ],
+        "max_hit": 1,
+        "roi": [
+            219,
+            296,
+            153,
+            117
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "SaveBakerFilter"
+        ]
+    },
+    "SaveBakerFilter": {
+        "recognition": "OCR",
+        "expected": [
+            "保存"
+        ],
+        "roi": [
+            903,
+            448,
+            247,
+            170
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "CheckBakerHome"
+        ]
+    },
+    "BakerOver": {
+        "recognition": "OCR",
+        "expected": [
+            "当前无",
+            "无该类型会话"
+        ],
+        "roi": [
+            41,
+            251,
+            317,
+            235
+        ]
+    },
+    "BakerExpend": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/Expend.png",
+        "threshold": 0.95,
+        "roi": [
+            286,
+            60,
+            64,
+            584
+        ],
+        "action": "Click",
+        "next": [
+            "TalkWith",
+            "BakerExpend"
+        ]
+    },
+    "TalkWith": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/TalkWith.png",
+        "threshold": 0.95,
+        "roi": [
+            31,
+            77,
+            78,
+            574
+        ],
+        "action": "Click",
+        "next": [
+            "TalkOver",
+            "CheckChatPage",
+            "TalkWith"
+        ]
+    },
+    "CheckChatPage": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/ChatPage.png",
+        "roi": [
+            930,
+            16,
+            293,
+            161
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "TalkOver",
+            "Say",
+            "Say2",
+            "SaySmile",
+            "ClickChat"
+        ]
+    },
+    "ClickChat": {
+        "action": "Click",
+        "target": [ // 聊天框右下角固定的一块区域
+            937,
+            556,
+            203,
+            117
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "CheckChatPage"
+        ]
+    },
+    "Say": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/Say.png",
+        "roi": [
+            507,
+            460,
+            143,
+            214
+        ],
+        "action": "Click",
+        "next": [
+            "CheckChatPage"
+        ]
+    },
+    "Say2": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/Say2.png",
+        "roi": [
+            507,
+            460,
+            143,
+            214
+        ],
+        "action": "Click",
+        "target_offset": [
+            20,
+            15,
+            0,
+            -15
+        ],
+        "next": [
+            "CheckChatPage"
+        ]
+    },
+    "SaySmile": {
+        "recognition": "TemplateMatch",
+        "template": "Baker/SaySmile.png",
+        "threshold": 0.7, // 表情包太多了.jpg
+        "roi": [
+            393,
+            110,
+            628,
+            585
+        ],
+        "order_by": "Vertical",
+        "index": -1,
+        "action": "Click",
+        "next": [
+            "CheckChatPage"
+        ]
+    },
+    "TalkOver": {
+        "recognition": "OCR",
+        "expected": [
+            "话题结束",
+            "暂无新话题"
+        ],
+        "roi": [
+            678,
+            523,
+            251,
+            135
+        ],
+        "next": [
+            "TalkWith",
+            "RefreshBakerFilter"
+        ]
+    }
+}

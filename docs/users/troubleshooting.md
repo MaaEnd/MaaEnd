@@ -32,18 +32,18 @@
 1. 在设置中开启 **"保存调试图像"**。
 2. 再次尝试复现问题。
 3. 上传 `debug/vision/` 目录下生成的调试图片。
-4. 若文件过大无法上传，可上传到 QQ 群文件 (1078075580)，并在 issue 里备注具体文件名。
+4. 若文件过大无法上传，可上传到 QQ 群文件 (1062010346)，并在 issue 里备注具体文件名。
 5. 反馈完成记得关闭，不然硬盘会爆炸（确信
 
 ### 💥 程序崩溃 (闪退)
 
 若程序直接消失或弹出错误框，请尝试提供 Crash Dump 文件：
 
-- **路径**：`C:\Users\<用户名>\AppData\Local\CrashDumps\`
+- **路径**：`C:\Users\<用户名>\AppData\Local\CrashDumps\` 和 `C:\CrashDumps`
 - **文件**：最近生成的 `.dmp` 文件。
 
 ## 4. 交流反馈
 
 - **GitHub Issue**: [点击提交](https://github.com/MaaEnd/MaaEnd/issues)
-- **用户 QQ 群**: 1078075580
-- **开发 QQ 群**: 1072587329 （干活群，不受理使用问题）
+- **用户 QQ 群**: [1062010346](https://qm.qq.com/q/MN6XLvtZia)
+- **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）

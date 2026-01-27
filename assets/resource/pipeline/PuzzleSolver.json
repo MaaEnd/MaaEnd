@@ -1,0 +1,89 @@
+{
+    // 终末地电路拼图游戏的自动化 Pipeline
+    "PuzzleSolverMain": {
+        // 主入口节点
+        "recognition": "DirectHit",
+        "next": [
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain",
+            "PuzzleSolverMain" // 循环检测
+        ]
+    },
+    "PuzzleSolverOnScenePrepare": {
+        // 解谜的准备界面，匹配左侧的特征性图案
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/ScenePrepare.png",
+        "roi": [167, 199, 354, 296],
+        "next": [
+            "PuzzleSolverFindStartButton"
+        ]
+    },
+    "PuzzleSolverFindStartButton": {
+        // 点击右下角的“修复”按钮开始拼图游戏
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/ButtonStart.png",
+        "roi": [999, 469, 134, 140],
+        "action": "Click",
+        "next": [
+            "PuzzleSolverOnSceneMain"
+        ]
+    },
+    "PuzzleSolverOnSceneMain": {
+        // 解谜的主界面，匹配右上角的特征性图案
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/SceneMain.png",
+        "roi": [944, 0, 236, 164],
+        "next": [
+            "PuzzleSolverFindUnavailableTip",
+            "PuzzleSolverFindCompleteTip",
+            "PuzzleSolverSolvePuzzle",
+            "PuzzleSolverMain" // 重试检测
+        ]
+    },
+    "PuzzleSolverFindUnavailableTip": {
+        // 查找是否存在“有尚未了解的元件样式”的提示，此时不能进行游戏
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/TipUnavailable.png",
+        "roi": [497, 314, 129, 128],
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "pre_delay": 1500,
+        "next": [
+            "PuzzleSolverMain" // 重试检测
+        ]
+    },
+    "PuzzleSolverFindCompleteTip": {
+        // 查找是否存在“拼图已完成”的提示，此时跳过
+        "recognition": "TemplateMatch",
+        "template": "PuzzleSolver/TipComplete.png",
+        "roi": [426, 318, 428, 119],
+        "next": [
+            "PuzzleSolverMain" // 重试检测
+        ]
+    },
+    "PuzzleSolverSolvePuzzle": {
+        // 执行拼图解决方案（识别+计算+自动化操作）
+        "recognition": "Custom",
+        "custom_recognition": "PuzzleRecognition",
+        "action": "Custom",
+        "custom_action": "PuzzleAction",
+        "custom_action_param": {
+            "dryRun": false
+        },
+        "next": [
+            "PuzzleSolverOnSuccess"
+        ]
+    },
+    "PuzzleSolverOnSuccess": {
+        // 解谜成功后触发，关闭拼图界面
+        "recognition": "DirectHit",
+        "action": "LongPress",
+        "target": [640, 620],
+        "duration": 250,
+        "post_delay": 1500,
+        "pre_wait_freezes": 750, // 等待结算动画结束
+        "next": [
+            "PuzzleSolverMain" // 继续检测
+        ]
+    }
+}

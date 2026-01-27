@@ -449,3 +449,6 @@ mxu*
 
 config
 debug
+
+# Claude
+.claude/

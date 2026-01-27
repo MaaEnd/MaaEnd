@@ -62,7 +62,7 @@ body:
     id: crash_dumps
     attributes:
       label: dmp 文件 (仅崩溃闪退问题)
-      description: 上传 `C:\Users\<用户名>\AppData\Local\CrashDumps\` 目录下最近生成的 `.dmp` 文件。
+      description: 上传 `C:\Users\<用户名>\AppData\Local\CrashDumps\` 和 `C:\CrashDumps` 目录下最近生成的 `.dmp` 文件。
     validations:
       required: false
 

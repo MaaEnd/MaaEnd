@@ -4,16 +4,23 @@
     "description": "MaaEnd 终末地小助手，绝赞开发中！",
     "version": "v114514.0.0",
     "contact": "misc/CONTACT.md",
-    "license": "LICENSE",
+    "license": "misc/LICENSE_SHORT.md",
     "welcome": "README.md",
     "icon": "misc/MaaEnd-Tiny.png",
     "github": "https://github.com/MaaEnd/MaaEnd",
     "mirrorchyan_rid": "MaaEnd",
     "mirrorchyan_multiplatform": true,
+    "languages": {
+        "zh_cn": "misc/locales/zh_cn.json",
+        "zh_tw": "misc/locales/zh_tw.json",
+        "en_us": "misc/locales/en_us.json",
+        "ja_jp": "misc/locales/ja_jp.json",
+        "ko_kr": "misc/locales/ko_kr.json"
+    },
     "controller": [
         {
             "name": "Win32",
-            "label": "电脑端",
+            "label": "$controller.Win32.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -26,7 +33,7 @@
         },
         {
             "name": "Win32-Window",
-            "label": "电脑端（窗口）",
+            "label": "$controller.Win32-Window.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -39,7 +46,7 @@
         },
         {
             "name": "Win32-Front",
-            "label": "电脑端（前台）",
+            "label": "$controller.Win32-Front.label",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -52,7 +59,7 @@
         },
         {
             "name": "ADB",
-            "label": "安卓端",
+            "label": "$controller.ADB.label",
             "type": "Adb"
         },
         {
@@ -82,60 +89,81 @@
     "task": [
         {
             "name": "AndroidOpenGame",
-            "label": "🎮打开游戏",
+            "label": "$task.AndroidOpenGame.label",
             "entry": "AndroidOpenGame",
-            "default_check": true,
-            "description": "安卓端打开游戏，需先手动打开模拟器",
+            "description": "$task.AndroidOpenGame.description",
             "controller": [
                 "ADB"
             ]
         },
         {
             "name": "PCOpenGame",
-            "label": "🎮进入游戏",
+            "label": "$task.PCOpenGame.label",
             "entry": "PCOpenGame",
-            "default_check": true,
-            "description": "PC端进入游戏，需先手动打开游戏",
+            "description": "$task.PCOpenGame.description",
             "controller": [
-                "Win32"
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
             ]
         },
         {
             "name": "DailyRewards",
-            "label": "📅日常奖励领取",
+            "label": "$task.DailyRewards.label",
             "entry": "DailyRewards",
             "default_check": true,
-            "description": "领取每日任务奖励"
+            "description": "$task.DailyRewards.description"
         },
         {
             "name": "ReadAllWiki",
-            "label": "📖百科一键已读",
+            "label": "$task.ReadAllWiki.label",
             "entry": "ReadAllWiki",
             "default_check": true,
-            "description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**"
+            "description": "$task.ReadAllWiki.description"
+        },
+        {
+            "name": "BakerEntry",
+            "label": "$task.BakerEntry.label",
+            "entry": "BakerEntry",
+            "default_check": true,
+            "description": "$task.BakerEntry.description"
         },
         {
             "name": "ImportBluePrints",
-            "label": "📐一键导入蓝图",
+            "label": "$task.ImportBluePrints.label",
             "entry": "ImportBluePrints",
-            "default_check": false,
-            "description": "一键批量导入蓝图，支持智能解析，**请在终末地我的蓝图页面开始任务**",
+            "description": "$task.ImportBluePrints.description",
             "option": [
                 "ImportBluePrints"
             ]
         },
         {
             "name": "RealTimeTask",
-            "label": "🤖实时开荒辅助",
+            "label": "$task.RealTimeTask.label",
             "entry": "RealTimeTaskMain",
-            "description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
+            "description": "$task.RealTimeTask.description",
             "option": [
                 "AutoSkip",
+                "AutoCloseInteraction",
                 "AutoFight",
                 "AutoPick",
                 "QuickTeleport",
                 "AutoZipline",
                 "AutoTaskInterval"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        },
+        {
+            "name": "PuzzleSolver",
+            "label": "🧩自动解拼图",
+            "entry": "PuzzleSolverMain",
+            "description": "自动帮你通关拼图小游戏，太好了不用自己动脑子了.jpg",
+            "option": [
+                "PuzzleSolverMode"
             ],
             "controller": [
                 "Win32"
@@ -151,7 +179,7 @@
     "option": {
         "AutoSkip": {
             "type": "switch",
-            "label": "自动剧情",
+            "label": "$option.AutoSkip.label",
             "cases": [
                 {
                     "name": "Yes",
@@ -177,8 +205,8 @@
             ]
         },
         "AutoSkipAll": {
-            "label": "跳过所有剧情",
-            "description": "在自动剧情过程中，自动点击跳过按钮，跳过所有剧情",
+            "label": "$option.AutoSkipAll.label",
+            "description": "$option.AutoSkipAll.description",
             "type": "switch",
             "cases": [
                 {
@@ -200,8 +228,8 @@
             ]
         },
         "AutoSkipChoose": {
-            "label": "自动选择剧情分支",
-            "description": "在自动剧情过程中，自动选择剧情分支选项",
+            "label": "$option.AutoSkipChoose.label",
+            "description": "$option.AutoSkipChoose.description",
             "type": "switch",
             "cases": [
                 {
@@ -223,8 +251,8 @@
             ]
         },
         "AutoSkipNext": {
-            "label": "加速剧情播放",
-            "description": "在自动剧情过程中，不断点击屏幕以加速剧情播放",
+            "label": "$option.AutoSkipNext.label",
+            "description": "$option.AutoSkipNext.description",
             "type": "switch",
             "cases": [
                 {
@@ -245,10 +273,165 @@
                 }
             ]
         },
+        "AutoCloseInteraction": {
+            "type": "switch",
+            "label": "自动交互处理",
+            "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
+                            "enabled": true
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        },
+                        "ClickAnywhereToContinue": {
+                            "enabled": true
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "EnableTutorialGuide",
+                        "EnableTutorialBook",
+                        "EnableClickAnywhere",
+                        "EnableCloseSpecialPanel"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
+                            "enabled": false
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        },
+                        "ClickAnywhereToContinue": {
+                            "enabled": false
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialGuide": {
+            "label": "点击指引光标",
+            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！）",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialGuide": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialBook": {
+            "label": "翻阅说明书",
+            "description": "自动翻页并确认说明教程弹窗",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableClickAnywhere": {
+            "label": "点击任意处继续",
+            "description": "自动识别并点击全屏遮罩提示",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ClickAnywhereToContinue": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ClickAnywhereToContinue": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableCloseSpecialPanel": {
+            "label": "关闭档案/语音",
+            "description": "自动识别并关闭剧情文档或语音记录界面",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "AutoFight": {
             "type": "switch",
-            "label": "辅助战斗",
-            "description": "半自动战斗",
+            "label": "$option.AutoFight.label",
+            "description": "$option.AutoFight.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -275,7 +458,7 @@
             ]
         },
         "AutoFightAttack": {
-            "label": "自动普攻",
+            "label": "$option.AutoFightAttack.label",
             "type": "switch",
             "cases": [
                 {
@@ -297,7 +480,7 @@
             ]
         },
         "AutoFightSkill": {
-            "label": "自动释放技能",
+            "label": "$option.AutoFightSkill.label",
             "type": "switch",
             "cases": [
                 {
@@ -319,7 +502,7 @@
             ]
         },
         "AutoFightEndSkill": {
-            "label": "自动释放终结技",
+            "label": "$option.AutoFightEndSkill.label",
             "type": "switch",
             "cases": [
                 {
@@ -341,7 +524,7 @@
             ]
         },
         "AutoFightCombo": {
-            "label": "自动触发连携技能",
+            "label": "$option.AutoFightCombo.label",
             "type": "switch",
             "cases": [
                 {
@@ -363,7 +546,7 @@
             ]
         },
         "AutoPick": {
-            "label": "自动拾取",
+            "label": "$option.AutoPick.label",
             "type": "switch",
             "cases": [
                 {
@@ -392,8 +575,8 @@
         },
         "QuickTeleport": {
             "type": "switch",
-            "label": "快速传送",
-            "description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",
+            "label": "$option.QuickTeleport.label",
+            "description": "$option.QuickTeleport.description",
             "cases": [
                 {
                     "name": "No",
@@ -421,12 +604,12 @@
         },
         "AutoTaskInterval": {
             "type": "input",
-            "label": "实时辅助间隔",
+            "label": "$option.AutoTaskInterval.label",
             "inputs": [
                 {
                     "name": "检测间隔",
-                    "label": "检测间隔(ms)",
-                    "description": "过小的检测间隔可能会导致卡顿，请根据实际情况调整，建议至少大于 50ms",
+                    "label": "$option.AutoTaskInterval.inputs.检测间隔.label",
+                    "description": "$option.AutoTaskInterval.inputs.检测间隔.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "default": 400
@@ -440,8 +623,8 @@
         },
         "AutoZipline": {
             "type": "switch",
-            "label": "自动长距滑索",
-            "description": "自动触发长距滑索,YJ你就不能改成按一下切换吗",
+            "label": "$option.AutoZipline.label",
+            "description": "$option.AutoZipline.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -463,12 +646,12 @@
         },
         "ImportBluePrints": {
             "type": "input",
-            "label": "导入蓝图",
+            "label": "$option.ImportBluePrints.label",
             "inputs": [
                 {
                     "name": "ImportBluePrintsText",
-                    "label": "蓝图文本",
-                    "description": "请输入文本，可以夹杂任意字符，将智能拆分蓝图分享码",
+                    "label": "$option.ImportBluePrints.inputs.ImportBluePrintsText.label",
+                    "description": "$option.ImportBluePrints.inputs.ImportBluePrintsText.description",
                     "pipeline_type": "string"
                 }
             ],
@@ -483,6 +666,57 @@
                     }
                 }
             }
+        },
+        "PuzzleSolverMode": {
+            "type": "select",
+            "label": "模式",
+            "description": "- 单次执行：成功解谜一次后任务自动结束\n- 重复执行：重复执行解谜直到手动停止\n- 仅演示：不会实际执行解谜，仅进行操作步骤的演示（搞半天还要自己拼）",
+            "cases": [
+                {
+                    "name": "Single",
+                    "label": "单次执行",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": []
+                        },
+                        "PuzzleSolverSolvePuzzle": {
+                            "custom_action_param": {
+                                "dryRun": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Loop",
+                    "label": "重复执行",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverSolvePuzzle": {
+                            "custom_action_param": {
+                                "dryRun": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DryRun",
+                    "label": "仅演示",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": []
+                        },
+                        "PuzzleSolverSolvePuzzle": {
+                            "custom_action_param": {
+                                "dryRun": true
+                            }
+                        }
+                    }
+                }
+            ]
         }
     }
 }

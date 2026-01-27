@@ -77,6 +77,7 @@ jobs:
           latest: true
           out-file-path: "downloads/MXU"
           extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Convert PNG to ICO
         shell: bash
@@ -119,15 +120,22 @@ jobs:
         with:
           go-version-file: 'agent/go-service/go.mod'
 
+      - id: latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
-          prerelease: true
-          latest: true
+          tag: ${{ steps.latest-release.outputs.release }}
           out-file-path: "downloads/MaaFramework"
           extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MXU
         if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') && !(matrix.os == 'win' && matrix.arch == 'x86_64') }}
@@ -138,6 +146,7 @@ jobs:
           latest: true
           out-file-path: "downloads/MXU"
           extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MXU with icon (Windows x64)
         if: matrix.os == 'win' && matrix.arch == 'x86_64'
@@ -153,11 +162,13 @@ jobs:
           python tools/build_and_install.py --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
+          echo "Install MaaFramework"
           cp -r downloads/MaaFramework/bin/* install/maafw/
           cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
           rm -rf install/maafw/MaaNode*
 
           # 安装 MXU 并重命名为 MaaEnd
+          echo "Install MXU"
           if [[ -d downloads/MXU ]]; then
             rm -rf downloads/MXU*.zip downloads/MXU*.tgz
             if [[ -f downloads/MXU/mxu.exe ]]; then
@@ -168,8 +179,11 @@ jobs:
           fi
 
           # 更新 interface.json 中的版本号
+          echo "Update interface version to ${{ needs.meta.outputs.tag }}"
           sed -E '/^[[:space:]]*\/\//d' install/interface.json | jq --indent 4 --arg version "${{ needs.meta.outputs.tag }}" '.version=$version' > install/interface.json.tmp
           mv install/interface.json.tmp install/interface.json
+
+          cat install/interface.json
 
       - uses: actions/upload-artifact@v4
         with:

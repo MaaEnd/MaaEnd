@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
+	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/maa-framework-go/v3"
@@ -55,6 +56,9 @@ func main() {
 
 	maa.AgentServerRegisterCustomAction("ResellInitAction", &resell.ResellInitAction{})
 	maa.AgentServerRegisterCustomAction("ResellFinishAction", &resell.ResellFinishAction{})
+  
+	maa.AgentServerRegisterCustomRecognition("PuzzleRecognition", &puzzle.Recognition{})
+	maa.AgentServerRegisterCustomAction("PuzzleAction", &puzzle.Action{})
 
 	log.Info().Msg("Registered custom recognition and actions")
 
