@@ -277,8 +277,8 @@ func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
 	rect1 := image.Rect(int(TAB_1_X), int(TAB_Y), int(TAB_1_X+TAB_W), int(TAB_Y+TAB_H))
 	rect2 := image.Rect(int(TAB_2_X), int(TAB_Y), int(TAB_2_X+TAB_W), int(TAB_Y+TAB_H))
 
-	val1 := calcColorVal(img, rect1)
-	val2 := calcColorVal(img, rect2)
+	_, _, val1 := getAreaHSV(img, rect1)
+	_, _, val2 := getAreaHSV(img, rect2)
 	log.Debug().Float64("val1", val1).Float64("val2", val2).Msg("Checking tab selection state")
 
 	var ctrl = ctx.GetTasker().GetController()
@@ -324,10 +324,8 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 
 			rect := image.Rect(x1, y1, x2, y2)
 
-			variance := calcColorVar(img, rect)
-			saturation := calcColorSat(img, rect)
-			value := calcColorVal(img, rect)
-			hue := calcColorHue(img, rect)
+			variance := getAreaVariance(img, rect)
+			hue, saturation, value := getAreaHSV(img, rect)
 
 			isBlock := variance > PUZZLE_COLOR_VAR_GRT && saturation > PUZZLE_COLOR_SAT_GRT && value > PUZZLE_COLOR_VAL_GRT
 
@@ -357,7 +355,7 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 			y := int(PUZZLE_THUMBNAIL_START_Y + float64(r)*PUZZLE_THUMBNAIL_H)
 			rect := image.Rect(x, y, x+int(PUZZLE_THUMBNAIL_W), y+int(PUZZLE_THUMBNAIL_H))
 
-			variance := calcColorVar(img, rect)
+			variance := getAreaVariance(img, rect)
 			// log.Debug().Int("r", r).Int("c", c).Float64("var", variance).Msg("Puzzle thumbnail area color variance")
 
 			if variance > PUZZLE_THUMBNAIL_COLOR_VAR_GRT {
