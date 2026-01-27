@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"image"
 	"math"
+	"sort"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
@@ -141,8 +142,8 @@ func rgbToHSV(fr, fg, fb float64) (float64, float64, float64) {
 	return h, s, v
 }
 
-// getAreaHSV calculates average Hue[0, 360), Saturation[0, 1], Value[0, 1] of an area
-func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
+// getAreaMeanHSV calculates average Hue[0, 360), Saturation[0, 1], Value[0, 1] of an area
+func getAreaMeanHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
 	var sumHue, sumSat, sumVal float64
 	var count float64
 	for y := rect.Min.Y; y < rect.Max.Y; y++ {
@@ -162,6 +163,36 @@ func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float6
 		return 0, 0, 0
 	}
 	return sumHue / count, sumSat / count, sumVal / count
+}
+
+// getAreaMidHSV calculates the median Hue[0, 360), Saturation[0, 1], Value[0, 1] of an area
+func getAreaMidHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
+	var hues, sats, vals []float64
+	for y := rect.Min.Y; y < rect.Max.Y; y++ {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
+
+			h, s, v := rgbToHSV(fr, fg, fb)
+			hues = append(hues, h)
+			sats = append(sats, s)
+			vals = append(vals, v)
+		}
+	}
+
+	if len(hues) == 0 {
+		return 0, 0, 0
+	}
+
+	sort.Float64s(hues)
+	sort.Float64s(sats)
+	sort.Float64s(vals)
+
+	mid := len(hues) / 2
+	if len(hues)%2 == 0 {
+		return (hues[mid-1] + hues[mid]) / 2, (sats[mid-1] + sats[mid]) / 2, (vals[mid-1] + vals[mid]) / 2
+	}
+	return hues[mid], sats[mid], vals[mid]
 }
 
 // getPixelHSV returns the Hue[0, 360), Saturation[0, 1], Value[0, 1] of a pixel
