@@ -29,7 +29,14 @@ type ResellInitAction struct{}
 func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	//fmt.Println("hello world")
 	log.Info().Msg("Resell initialization action triggered")
-
+	var params struct {
+		MinimumProfit int `json:"MinimumProfit"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().Err(err).Msg("Failed to unmarshal params")
+		return false
+	}
+	MinimumProfit := int(params.MinimumProfit)
 	// Get controller
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
@@ -173,18 +180,18 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	var maxRecord ProfitRecord
 	if maxProfitIdx >= 0 {
 		maxRecord = records[maxProfitIdx]
-		if maxRecord.Profit >= 3000 {
+		if maxRecord.Profit >= MinimumProfit {
 			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 			taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
 			ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
 		} else {
-			fmt.Printf("\n没有利润超过3000的商品，建议把配额留至明天\n")
+			fmt.Printf("\n没有利润超过%d的商品，建议把配额留至明天\n", MinimumProfit)
 			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 		}
 	} else {
-		fmt.Printf("\nMax Profit: %d\n", maxProfit)
+		fmt.Printf("\n出现错误\n", maxProfit)
 	}
-	fmt.Println("===================================\n")
+	fmt.Printf("===================================\n")
 	return true
 }
 
