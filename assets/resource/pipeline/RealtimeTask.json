@@ -11,6 +11,11 @@
             "RealTimeQuickTeleportList",
             "RealTimeQuickTeleportDirect",
             "RealTimeAutoZipline",
+            "HandleTutorialGuide",
+            "ClickAnywhereToContinue",
+            "HandleTutorialPaging",
+            "HandleTutorialConfirm",
+            "CheckSpecialInfoPanel",
             "RealTimeTaskMainDelay"
         ]
     },
