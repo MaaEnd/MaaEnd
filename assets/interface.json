@@ -159,6 +159,13 @@
             "description": "$task.ReadAllWiki.description"
         },
         {
+            "name": "ReceiveProdManual",
+            "label": "$task.ReceiveProdManual.label",
+            "entry": "ProdManualStart",
+            "default_check": true,
+            "description": "$task.ReceiveProdManual.description"
+        },
+        {
             "name": "BakerEntry",
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
