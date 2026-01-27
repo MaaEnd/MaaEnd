@@ -46,8 +46,12 @@ func main() {
 	}
 
 	// Register custom recognition and actions
-	maa.AgentServerRegisterCustomAction("RealTimeAutoFightEndSkillAction", &realtime.RealTimeAutoFightEndSkillAction{})
+	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightEntryRecognition", &realtime.RealTimeAutoFightEntryRecognition{})
+	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightExitRecognition", &realtime.RealTimeAutoFightExitRecognition{})
+	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightSkillRecognition", &realtime.RealTimeAutoFightSkillRecognition{})
 	maa.AgentServerRegisterCustomAction("RealTimeAutoFightSkillAction", &realtime.RealTimeAutoFightSkillAction{})
+	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightEndSkillRecognition", &realtime.RealTimeAutoFightEndSkillRecognition{})
+	maa.AgentServerRegisterCustomAction("RealTimeAutoFightEndSkillAction", &realtime.RealTimeAutoFightEndSkillAction{})
 
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsInitTextAction", &importtask.ImportBluePrintsInitTextAction{})
 	maa.AgentServerRegisterCustomAction("ImportBluePrintsFinishAction", &importtask.ImportBluePrintsFinishAction{})
