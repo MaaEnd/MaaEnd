@@ -69,8 +69,11 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	cropFactor := 0.8 // important
 	bestW, bestH := 0, 0
 
+	// Convert to SVGB format
+	imgSvgb := getSVGBImage(img)
+
 	// 1. Determine H (using XProj figures at the top)
-	xMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjX.png", []int{0, 0, WORK_W, int(float64(WORK_H) * 0.5)}, 16)
+	xMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjX_SVGB.png", []int{0, 0, WORK_W, int(float64(WORK_H) * 0.5)}, 16)
 	if len(xMatches) > 0 {
 		hScores := make(map[int]float64)
 		for h := 2; h <= 2*maxExtent+1; h++ {
@@ -100,7 +103,7 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	}
 
 	// 2. Determine W (using YProj figures at the left)
-	yMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjY.png", []int{0, 0, int(float64(WORK_W) * 0.5), WORK_H}, 16)
+	yMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjY_SVGB.png", []int{0, 0, int(float64(WORK_W) * 0.5), WORK_H}, 16)
 	if len(yMatches) > 0 {
 		wScores := make(map[int]float64)
 		for w := 2; w <= 2*maxExtent+1; w++ {

@@ -4,6 +4,7 @@ package puzzle
 import (
 	"encoding/json"
 	"image"
+	"image/color"
 	"math"
 	"sort"
 	"time"
@@ -29,7 +30,7 @@ func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []
 		nodeName: map[string]any{
 			"recognition": "TemplateMatch",
 			"template":    template,
-			"threshold":   0.65,
+			"threshold":   0.7,
 			"roi":         roi,
 			"order_by":    "score",
 			"method":      5, // TM_CCOEFF_NORMED
@@ -208,6 +209,24 @@ func getPixelHSV(img image.Image, x, y int, targetHue int, targetHueAllowance in
 		}
 	}
 	return h, s, v
+}
+
+// getSVGBImage returns a new image where the R, G, B channels are replaced by 0, Saturation, Value.
+func getSVGBImage(img image.Image) image.Image {
+	bounds := img.Bounds()
+	newImg := image.NewRGBA(bounds)
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
+
+			_, s, v := rgbToHSV(fr, fg, fb)
+
+			newImg.SetRGBA(x, y, color.RGBA{0, uint8(s * 255), uint8(v * 255), 255})
+		}
+	}
+	return newImg
 }
 
 // diffHue returns the smallest difference between two hues [0, 360)
