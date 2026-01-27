@@ -1,204 +1,204 @@
 {
-  "AlreadyInPM": {
-    "next": [
-      "[JumpBack]ReceivePMReward",
-      "ProdManualDone"
-    ],
-    "recognition": {
-      "param": {
-        "expected": [
-          "返回"
+    "AlreadyInPM": {
+        "next": [
+            "[JumpBack]ReceivePMReward",
+            "ProdManualDone"
         ],
-        "roi": [
-          960,
-          87,
-          189,
-          98
-        ]
-      },
-      "type": "OCR"
-    }
-  },
-  "ConfirmPMReward": {
-    "action": {
-      "param": {},
-      "type": "Click"
+        "recognition": {
+            "param": {
+                "expected": [
+                    "返回"
+                ],
+                "roi": [
+                    960,
+                    87,
+                    189,
+                    98
+                ]
+            },
+            "type": "OCR"
+        }
     },
-    "next": [
-      "NextPM"
-    ],
-    "recognition": {
-      "param": {
-        "expected": [
-          "奖励"
+    "ConfirmPMReward": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "NextPM"
         ],
-        "roi": [
-          475,
-          9,
-          332,
-          182
-        ]
-      },
-      "type": "OCR"
-    }
-  },
-  "NextPM": {
-    "action": {
-      "param": {},
-      "type": "Click"
+        "recognition": {
+            "param": {
+                "expected": [
+                    "奖励"
+                ],
+                "roi": [
+                    475,
+                    9,
+                    332,
+                    182
+                ]
+            },
+            "type": "OCR"
+        }
     },
-    "recognition": {
-      "param": {
-        "roi": [
-          933,
-          273,
-          322,
-          274
+    "NextPM": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "recognition": {
+            "param": {
+                "roi": [
+                    933,
+                    273,
+                    322,
+                    274
+                ],
+                "template": [
+                    "ProdManual/NextPM.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "OpenPMInBackpack": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易制作界面"
+        },
+        "recognition": {
+            "param": {
+                "expected": [
+                    "简易制作"
+                ],
+                "roi": [
+                    884,
+                    118,
+                    280,
+                    136
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "OpenPMInList": {
+        "action": {
+            "param": {
+                "target": [
+                    305,
+                    224,
+                    1,
+                    1
+                ]
+            },
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入收集进度界面"
+        },
+        "recognition": {
+            "param": {
+                "expected": [
+                    "每获取对应数量物品",
+                    "可解锁相应内容"
+                ],
+                "roi": [
+                    428,
+                    79,
+                    431,
+                    150
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "OpenPMInProd": {
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易手册界面"
+        },
+        "next": [
+            "OpenPMInProdClick"
         ],
-        "template": [
-          "ProdManual/NextPM.png"
-        ]
-      },
-      "type": "TemplateMatch"
-    }
-  },
-  "OpenPMInBackpack": {
-    "action": {
-      "param": {},
-      "type": "Click"
+        "recognition": {
+            "param": {
+                "expected": [
+                    "应急食药"
+                ],
+                "roi": [
+                    10,
+                    5,
+                    276,
+                    136
+                ]
+            },
+            "type": "OCR"
+        }
     },
-    "focus": {
-      "Node.Recognition.Succeeded": "进入简易制作界面"
+    "OpenPMInProdClick": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "recognition": {
+            "param": {
+                "expected": [
+                    "简制手册"
+                ],
+                "roi": [
+                    983,
+                    5,
+                    289,
+                    77
+                ]
+            },
+            "type": "OCR"
+        }
     },
-    "recognition": {
-      "param": {
-        "expected": [
-          "简易制作"
+    "ProdManualDone": {
+        "focus": {
+            "Node.Recognition.Succeeded": "奖励已全部领取"
+        },
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "ProdManualStart": {
+        "next": [
+            "AlreadyInPM",
+            "[JumpBack]OpenPMInBackpack",
+            "[JumpBack]OpenPMInProd",
+            "[JumpBack]OpenPMInList"
         ],
-        "roi": [
-          884,
-          118,
-          280,
-          136
-        ]
-      },
-      "type": "OCR"
-    }
-  },
-  "OpenPMInList": {
-    "action": {
-      "param": {
-        "target": [
-          305,
-          224,
-          1,
-          1
-        ]
-      },
-      "type": "Click"
+        "post_delay": 0,
+        "pre_delay": 0
     },
-    "focus": {
-      "Node.Recognition.Succeeded": "进入收集进度界面"
-    },
-    "recognition": {
-      "param": {
-        "expected": [
-          "每获取对应数量物品",
-          "可解锁相应内容"
+    "ReceivePMReward": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "领取收集奖励"
+        },
+        "next": [
+            "ConfirmPMReward"
         ],
-        "roi": [
-          428,
-          79,
-          431,
-          150
-        ]
-      },
-      "type": "OCR"
+        "recognition": {
+            "param": {
+                "expected": [
+                    "键领取"
+                ],
+                "roi": [
+                    830,
+                    505,
+                    352,
+                    150
+                ]
+            },
+            "type": "OCR"
+        }
     }
-  },
-  "OpenPMInProd": {
-    "focus": {
-      "Node.Recognition.Succeeded": "进入简易手册界面"
-    },
-    "next": [
-      "OpenPMInProdClick"
-    ],
-    "recognition": {
-      "param": {
-        "expected": [
-          "应急食药"
-        ],
-        "roi": [
-          10,
-          5,
-          276,
-          136
-        ]
-      },
-      "type": "OCR"
-    }
-  },
-  "OpenPMInProdClick": {
-    "action": {
-      "param": {},
-      "type": "Click"
-    },
-    "recognition": {
-      "param": {
-        "expected": [
-          "简制手册"
-        ],
-        "roi": [
-          983,
-          5,
-          289,
-          77
-        ]
-      },
-      "type": "OCR"
-    }
-  },
-  "ProdManualDone": {
-    "focus": {
-      "Node.Recognition.Succeeded": "奖励已全部领取"
-    },
-    "post_delay": 0,
-    "pre_delay": 0
-  },
-  "ProdManualStart": {
-    "next": [
-      "AlreadyInPM",
-      "[JumpBack]OpenPMInBackpack",
-      "[JumpBack]OpenPMInProd",
-      "[JumpBack]OpenPMInList"
-    ],
-    "post_delay": 0,
-    "pre_delay": 0
-  },
-  "ReceivePMReward": {
-    "action": {
-      "param": {},
-      "type": "Click"
-    },
-    "focus": {
-      "Node.Recognition.Succeeded": "领取收集奖励"
-    },
-    "next": [
-      "ConfirmPMReward"
-    ],
-    "recognition": {
-      "param": {
-        "expected": [
-          "键领取"
-        ],
-        "roi": [
-          830,
-          505,
-          352,
-          150
-        ]
-      },
-      "type": "OCR"
-    }
-  }
 }
