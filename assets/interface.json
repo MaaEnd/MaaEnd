@@ -298,7 +298,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         },
                         "HandleTutorialPaging": {
@@ -324,7 +327,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         },
                         "HandleTutorialPaging": {
@@ -352,7 +358,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         }
                     }
@@ -360,7 +369,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         }
                     }
