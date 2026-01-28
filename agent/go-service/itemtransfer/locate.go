@@ -68,8 +68,8 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 				return nil, false
 			}
 
-			log.Debug().Msg("Starting Screencap")
 			// Step 2 - Make screenshot
+			log.Debug().Msg("Starting Screencap")
 			ctrl.PostScreencap().Wait()
 			log.Debug().Msg("Done Screencap")
 
