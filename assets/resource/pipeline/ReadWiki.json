@@ -79,7 +79,8 @@
                     99
                 ]
             }
-        }
+        },
+        "action": "Click"
         // 任务结束
     },
     "ClickWikiHomePageUnreadBadge": {
@@ -98,8 +99,18 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                31,
+                50,
+                229,
+                635
+            ]
+        },
         "next": [
             "ClickChapterUnreadBadge",
+            "ScrollListForNextUnreadWiki",
             "ClickRealUnreadPage",
             "WikiBackButton"
         ]

@@ -4,7 +4,9 @@ package puzzle
 import (
 	"encoding/json"
 	"image"
+	"image/color"
 	"math"
+	"sort"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
@@ -28,7 +30,7 @@ func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []
 		nodeName: map[string]any{
 			"recognition": "TemplateMatch",
 			"template":    template,
-			"threshold":   0.65,
+			"threshold":   0.7,
 			"roi":         roi,
 			"order_by":    "score",
 			"method":      5, // TM_CCOEFF_NORMED
@@ -141,27 +143,39 @@ func rgbToHSV(fr, fg, fb float64) (float64, float64, float64) {
 	return h, s, v
 }
 
-// getAreaHSV calculates average Hue[0, 360), Saturation[0, 1], Value[0, 1] of an area
+// getAreaHSV calculates the Hue (Median), Saturation (Mean), and Value (Mean) of an area.
+// Hue is [0, 360), Saturation is [0, 1], Value is [0, 1].
 func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
-	var sumHue, sumSat, sumVal float64
-	var count float64
+	area := (rect.Max.X - rect.Min.X) * (rect.Max.Y - rect.Min.Y)
+	hues := make([]float64, 0, area)
+	var sumSat, sumVal float64
+
 	for y := rect.Min.Y; y < rect.Max.Y; y++ {
 		for x := rect.Min.X; x < rect.Max.X; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
 			fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
 
 			h, s, v := rgbToHSV(fr, fg, fb)
-			sumHue += h
+			hues = append(hues, h)
 			sumSat += s
 			sumVal += v
-
-			count++
 		}
 	}
-	if count == 0 {
+
+	if len(hues) == 0 {
 		return 0, 0, 0
 	}
-	return sumHue / count, sumSat / count, sumVal / count
+
+	sort.Float64s(hues)
+	var midH float64
+	mid := len(hues) / 2
+	if len(hues)%2 == 0 {
+		midH = (hues[mid-1] + hues[mid]) / 2
+	} else {
+		midH = hues[mid]
+	}
+
+	return midH, sumSat / float64(len(hues)), sumVal / float64(len(hues))
 }
 
 // getPixelHSV returns the Hue[0, 360), Saturation[0, 1], Value[0, 1] of a pixel
@@ -177,6 +191,24 @@ func getPixelHSV(img image.Image, x, y int, targetHue int, targetHueAllowance in
 		}
 	}
 	return h, s, v
+}
+
+// getSVGBImage returns a new image where the R, G, B channels are replaced by 0, Saturation, Value.
+func getSVGBImage(img image.Image) image.Image {
+	bounds := img.Bounds()
+	newImg := image.NewRGBA(bounds)
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, _ := img.At(x, y).RGBA()
+			fr, fg, fb := float64(r>>8)/255.0, float64(g>>8)/255.0, float64(b>>8)/255.0
+
+			_, s, v := rgbToHSV(fr, fg, fb)
+
+			newImg.SetRGBA(x, y, color.RGBA{0, uint8(s * 255), uint8(v * 255), 255})
+		}
+	}
+	return newImg
 }
 
 // diffHue returns the smallest difference between two hues [0, 360)

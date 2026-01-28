@@ -51,7 +51,7 @@ func getPossibleHues(puzzles []*PuzzleDesc) []int {
 	for _, p := range puzzles {
 		hues = append(hues, p.Hue)
 	}
-	clusters := clusterHues(hues, PUZZLE_CLUSTER_DIFF_GRT)
+	clusters := clusterHues(hues, PUZZLE_HUE_DIFF_GRT)
 
 	results := make([]int, 0, len(clusters))
 	for _, members := range clusters {
@@ -69,8 +69,16 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	cropFactor := 0.8 // important
 	bestW, bestH := 0, 0
 
+	// Convert to SVGB format
+	imgSvgb := getSVGBImage(img)
+
 	// 1. Determine H (using XProj figures at the top)
-	xMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjX.png", []int{0, 0, WORK_W, int(float64(WORK_H) * 0.5)}, 16)
+	xMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjX_SVGB.png", []int{
+		int(BOARD_X_LOWER_BOUND),
+		int(BOARD_Y_LOWER_BOUND),
+		int(BOARD_X_UPPER_BOUND - BOARD_X_LOWER_BOUND),
+		int(BOARD_Y_UPPER_BOUND-BOARD_Y_LOWER_BOUND) / 2,
+	}, 16)
 	if len(xMatches) > 0 {
 		hScores := make(map[int]float64)
 		for h := 2; h <= 2*maxExtent+1; h++ {
@@ -100,7 +108,12 @@ func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	}
 
 	// 2. Determine W (using YProj figures at the left)
-	yMatches := matchTemplateAll(ctx, img, "PuzzleSolver/ProjY.png", []int{0, 0, int(float64(WORK_W) * 0.5), WORK_H}, 16)
+	yMatches := matchTemplateAll(ctx, imgSvgb, "PuzzleSolver/ProjY_SVGB.png", []int{
+		int(BOARD_X_LOWER_BOUND),
+		int(BOARD_Y_LOWER_BOUND),
+		int(BOARD_X_UPPER_BOUND-BOARD_X_LOWER_BOUND) / 2,
+		int(BOARD_Y_UPPER_BOUND - BOARD_Y_LOWER_BOUND),
+	}, 16)
 	if len(yMatches) > 0 {
 		wScores := make(map[int]float64)
 		for w := 2; w <= 2*maxExtent+1; w++ {
@@ -160,7 +173,7 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 	// Determine the Y-coordinate of the X Projection figures relative to the board
 	// distY is the distance from the visual center to the top edge of the board in blocks
 	distY := float64(H-1) / 2.0
-	projFigY := BOARD_CENTER_BLOCK_LT_Y - distY*BOARD_BLOCK_H - BOARD_X_PROJ_FIGURE_H
+	projFigY := BOARD_CENTER_BLOCK_LT_Y - distY*BOARD_BLOCK_H - PROJ_X_FIGURE_H
 
 	finalXProjList := make([]int, W)
 	for gridX := range W {
@@ -175,7 +188,7 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 	// Y Projection (Left Column)
 	// Determine the X-coordinate of the Y Projection figures relative to the board
 	distX := float64(W-1) / 2.0
-	projFigX := BOARD_CENTER_BLOCK_LT_X - distX*BOARD_BLOCK_W - BOARD_Y_PROJ_FIGURE_W
+	projFigX := BOARD_CENTER_BLOCK_LT_X - distX*BOARD_BLOCK_W - PROJ_Y_FIGURE_W
 
 	finalYProjList := make([]int, H)
 	for gridY := range H {
@@ -185,9 +198,6 @@ func getProjDesc(ctx *maa.Context, img image.Image, boardSize [2]int, targetHue 
 
 		finalYProjList[gridY] = getProjFigureNumber(ctx, img, int(projFigX), int(projFigY), "Y", targetHue)
 	}
-
-	log.Debug().Int("W", W).Int("H", H).Msg("Board shape determination")
-	log.Debug().Interface("XProj", finalXProjList).Interface("YProj", finalYProjList).Msg("Board projections")
 
 	return &ProjDesc{
 		XProjList: finalXProjList,
@@ -202,9 +212,9 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 	var w, h int
 	if axis == "X" {
 		w = int(BOARD_BLOCK_W)
-		h = int(BOARD_X_PROJ_FIGURE_H)
+		h = int(PROJ_X_FIGURE_H)
 	} else {
-		w = int(BOARD_Y_PROJ_FIGURE_W)
+		w = int(PROJ_Y_FIGURE_W)
 		h = int(BOARD_BLOCK_H)
 	}
 
@@ -217,8 +227,8 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 
 			for _, p := range samplingPoints {
 				x := ltX + int(float64(w)*p)
-				_, s, v := getPixelHSV(img, x, y, targetHue, PUZZLE_CLUSTER_DIFF_GRT)
-				if s > BOARD_PROJ_COLOR_SAT_GRT && v > BOARD_PROJ_COLOR_VAL_GRT {
+				_, s, v := getPixelHSV(img, x, y, targetHue, PUZZLE_HUE_DIFF_GRT)
+				if s > PROJ_COLOR_SAT_GRT && v > PROJ_COLOR_VAL_GRT {
 					valid = true
 					break
 				}
@@ -236,8 +246,8 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 
 			for _, p := range samplingPoints {
 				y := ltY + int(float64(h)*p)
-				_, s, v := getPixelHSV(img, x, y, targetHue, PUZZLE_CLUSTER_DIFF_GRT)
-				if s > BOARD_PROJ_COLOR_SAT_GRT && v > BOARD_PROJ_COLOR_VAL_GRT {
+				_, s, v := getPixelHSV(img, x, y, targetHue, PUZZLE_HUE_DIFF_GRT)
+				if s > PROJ_COLOR_SAT_GRT && v > PROJ_COLOR_VAL_GRT {
 					valid = true
 					break
 				}
@@ -248,7 +258,7 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 		}
 	}
 
-	val := (float64(maxOffset) - float64(BOARD_PROJ_INIT_GAP)) / float64(BOARD_PROJ_EACH_GAP)
+	val := (float64(maxOffset) - float64(PROJ_INIT_GAP)) / float64(PROJ_EACH_GAP)
 	result := int(math.Round(val))
 	if result < 0 {
 		return 0
@@ -259,9 +269,20 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	thumbs := getAllPuzzleThumbLoc(img)
 	log.Info().Interface("thumbs", thumbs).Msg("Puzzle thumbnail positions")
-
+	roiOverride := map[string]any{
+		"WaitStable": map[string]any{
+			"post_wait_freezes": map[string]any{
+				"target": []int{int(PUZZLE_THUMB_START_X), int(PUZZLE_THUMB_START_Y), int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W), int(float64(PUZZLE_THUMB_MAX_ROWS+1) * PUZZLE_THUMB_H)},
+			},
+		},
+	}
 	var puzzleList []*PuzzleDesc
 	for _, thumb := range thumbs {
+		detail := ctx.RunTask("WaitStable", roiOverride)
+		if detail == nil {
+			log.Error().Msg("Failed to run WaitStable task")
+			return nil
+		}
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])
 		if desc != nil {
 			puzzleList = append(puzzleList, desc)
@@ -305,8 +326,8 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 	// Center block is at (0, 0) relative to core
 	// Coordinates of the center block in the preview image
 	// The drag target (PUZZLE_PREVIEW_MV_X, PUZZLE_PREVIEW_MV_Y) corresponds to the CENTER of the core block.
-	coreX := PUZZLE_PREVIEW_MV_X
-	coreY := PUZZLE_PREVIEW_MV_Y
+	coreX := PUZZLE_PREVIEW_MV_CENTER_X
+	coreY := PUZZLE_PREVIEW_MV_CENTER_Y
 
 	for offsetY := -PUZZLE_MAX_EXTENT_ONE_SIDE; offsetY <= PUZZLE_MAX_EXTENT_ONE_SIDE; offsetY++ {
 		for offsetX := -PUZZLE_MAX_EXTENT_ONE_SIDE; offsetX <= PUZZLE_MAX_EXTENT_ONE_SIDE; offsetX++ {
@@ -323,9 +344,8 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 			rect := image.Rect(x1, y1, x2, y2)
 
 			variance := getAreaVariance(img, rect)
-			hue, saturation, value := getAreaHSV(img, rect)
-
-			isBlock := variance > PUZZLE_COLOR_VAR_GRT && saturation > PUZZLE_COLOR_SAT_GRT && value > PUZZLE_COLOR_VAL_GRT
+			hue, sat, val := getAreaHSV(img, rect)
+			isBlock := variance > PUZZLE_COLOR_VAR_GRT && sat > PUZZLE_COLOR_SAT_GRT && val > PUZZLE_COLOR_VAL_GRT
 
 			if isBlock {
 				blocks = append(blocks, [2]int{offsetX, offsetY})
@@ -347,18 +367,18 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 	results := [][2]int{}
 	hasGap := false
 
-	for r := 0; r < PUZZLE_THUMBNAIL_MAX_ROWS; r++ {
-		for c := 0; c < PUZZLE_THUMBNAIL_MAX_COLS; c++ {
-			x := int(PUZZLE_THUMBNAIL_START_X + float64(c)*PUZZLE_THUMBNAIL_W)
-			y := int(PUZZLE_THUMBNAIL_START_Y + float64(r)*PUZZLE_THUMBNAIL_H)
-			rect := image.Rect(x, y, x+int(PUZZLE_THUMBNAIL_W), y+int(PUZZLE_THUMBNAIL_H))
+	for r := 0; r < PUZZLE_THUMB_MAX_ROWS; r++ {
+		for c := 0; c < PUZZLE_THUMB_MAX_COLS; c++ {
+			x := int(PUZZLE_THUMB_START_X + float64(c)*PUZZLE_THUMB_W)
+			y := int(PUZZLE_THUMB_START_Y + float64(r)*PUZZLE_THUMB_H)
+			rect := image.Rect(x, y, x+int(PUZZLE_THUMB_W), y+int(PUZZLE_THUMB_H))
 
 			variance := getAreaVariance(img, rect)
 			// log.Debug().Int("r", r).Int("c", c).Float64("var", variance).Msg("Puzzle thumbnail area color variance")
 
-			if variance > PUZZLE_THUMBNAIL_COLOR_VAR_GRT {
+			if variance > PUZZLE_THUMB_COLOR_VAR_GRT {
 				// Color variation is sufficient, likely a puzzle thumbnail
-				if variance > PUZZLE_THUMBNAIL_COLOR_VAR_LES {
+				if variance > PUZZLE_THUMB_COLOR_VAR_LES {
 					// False-positive
 					log.Warn().Msg("Detected uncertain puzzle thumbnail area, skipping")
 					return [][2]int{}
@@ -376,7 +396,7 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 		}
 	}
 
-	if len(results) >= PUZZLE_THUMBNAIL_MAX_ROWS*PUZZLE_THUMBNAIL_MAX_COLS {
+	if len(results) >= PUZZLE_THUMB_MAX_ROWS*PUZZLE_THUMB_MAX_COLS {
 		// False-positive
 		log.Warn().Int("count", len(results)).Msg("Detected too many puzzle thumbnails, skipping")
 		return [][2]int{}
@@ -391,12 +411,12 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 1. Drag thumbnail to preview area
 	// Start point is center of the thumbnail
-	startX := int(float64(thumbX + int(PUZZLE_THUMBNAIL_W)/2))
-	startY := int(float64(thumbY + int(PUZZLE_THUMBNAIL_H)/2))
+	startX := int(float64(thumbX + int(PUZZLE_THUMB_W)/2))
+	startY := int(float64(thumbY + int(PUZZLE_THUMB_H)/2))
 
 	// End point is preview area center
-	endX := int(PUZZLE_PREVIEW_MV_X)
-	endY := int(PUZZLE_PREVIEW_MV_Y)
+	endX := int(PUZZLE_PREVIEW_MV_CENTER_X)
+	endY := int(PUZZLE_PREVIEW_MV_CENTER_Y)
 
 	aw := NewActionWrapper(ctrl)
 	aw.TouchUpSync(100)
@@ -408,36 +428,34 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 	previewImg := ctrl.CacheImage()
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
-		aw.TouchUpSync(1)
+		aw.TouchUpSync(100)
 		return nil
 	}
 
 	// 3. Touch Up (Release)
-	aw.TouchUpSync(1)
+	aw.TouchUpSync(100)
 
 	// 4. Analyze
 	return getPuzzleDesc(previewImg)
 }
 
-func getLockedBlocksDesc(img image.Image, boardW, boardH int, targetHue int) []*LockedBlockDesc {
+func getLockedBlocksDesc(img image.Image, boardW, boardH int) []*LockedBlockDesc {
 	locked := []*LockedBlockDesc{}
 
-	for gridY := 0; gridY < boardH; gridY++ {
-		for gridX := 0; gridX < boardW; gridX++ {
+	for gridY := range boardH {
+		for gridX := range boardW {
 			// Get LT coordinate from Grid Index (gridX, gridY)
 			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, boardW, boardH)
+			rect := image.Rect(ltX, ltY, ltX+int(BOARD_BLOCK_W), ltY+int(BOARD_BLOCK_H))
 
-			// Sampling center point of the block
-			centerX := int(float64(ltX) + BOARD_BLOCK_W/2)
-			centerY := int(float64(ltY) + BOARD_BLOCK_H/2)
+			hue, sat, val := getAreaHSV(img, rect)
+			isLocked := sat > BOARD_LOCKED_COLOR_SAT_GRT && val > BOARD_LOCKED_COLOR_VAL_GRT
 
-			h, s, v := getPixelHSV(img, centerX, centerY, targetHue, PUZZLE_CLUSTER_DIFF_GRT)
-
-			if s > BOARD_LOCKED_COLOR_SAT_GRT && v > BOARD_LOCKED_COLOR_VAL_GRT {
+			if isLocked {
 				locked = append(locked, &LockedBlockDesc{
 					Loc:    [2]int{gridX, gridY},
 					RawLoc: [2]int{ltX, ltY},
-					Hue:    int(h),
+					Hue:    int(hue),
 				})
 			}
 		}
@@ -447,10 +465,10 @@ func getLockedBlocksDesc(img image.Image, boardW, boardH int, targetHue int) []*
 
 func getBannedBlocksLTCoord(ctx *maa.Context, img image.Image) [][2]int {
 	result := matchTemplateAll(ctx, img, "PuzzleSolver/BlockBanned.png", []int{
-		int(0.2 * WORK_W),
-		int(0.2 * WORK_H),
-		int(0.6 * WORK_W),
-		int(0.6 * WORK_H),
+		int(BOARD_X_LOWER_BOUND),
+		int(BOARD_Y_LOWER_BOUND),
+		int(BOARD_X_UPPER_BOUND - BOARD_X_LOWER_BOUND),
+		int(BOARD_Y_UPPER_BOUND - BOARD_Y_LOWER_BOUND),
 	}, 64)
 	blocks := make([][2]int, 0, len(result))
 	for _, m := range result {
@@ -491,9 +509,12 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	}
 	log.Info().Int("boardW", boardSize[0]).Int("boardH", boardSize[1]).Msg("Determined possible board size")
 
-	// 3. Find banned blocks
+	// 3. Find banned and locked blocks
 	banned := getBannedBlocksLTCoord(ctx, img)
-	log.Info().Interface("banned", banned).Msg("Puzzle banned blocks")
+	log.Info().Interface("banned", banned).Msg("Puzzle board banned blocks")
+
+	locked := getLockedBlocksDesc(img, boardSize[0], boardSize[1])
+	log.Info().Interface("locked", locked).Msg("Puzzle board locked blocks")
 
 	// 4. Find possible hues from puzzles
 	hueList := getPossibleHues(puzzleList)
@@ -501,9 +522,7 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	var lockedBlockList [][]*LockedBlockDesc
 
 	// 5. For each hue, determine board projection and locked blocks
-	var refProj *ProjDesc
-
-	for i, hue := range hueList {
+	for _, hue := range hueList {
 		projDesc := getProjDesc(ctx, img, boardSize, hue)
 		log.Debug().Int("hue", hue).Interface("projDesc", projDesc).Msg("Puzzle board projection description for hue")
 
@@ -517,19 +536,18 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 			return nil, false
 		}
 
-		if i == 0 {
-			refProj = projDesc
+		// Get locked blocks for this hue
+		thisLocked := []*LockedBlockDesc{}
+		for i, lb := range locked {
+			if lb != nil && diffHue(lb.Hue, hue) <= PUZZLE_HUE_DIFF_GRT {
+				thisLocked = append(thisLocked, lb)
+				locked[i] = nil
+			}
 		}
-
-		locked := getLockedBlocksDesc(img, boardSize[0], boardSize[1], hue)
-		log.Debug().Int("hue", hue).Interface("locked", locked).Msg("Puzzle locked blocks for hue")
+		log.Debug().Int("hue", hue).Interface("locked", thisLocked).Msg("Puzzle board locked blocks for hue")
 
 		projDescList = append(projDescList, *projDesc)
-		lockedBlockList = append(lockedBlockList, locked)
-	}
-
-	if refProj == nil {
-		refProj = &ProjDesc{}
+		lockedBlockList = append(lockedBlockList, thisLocked)
 	}
 
 	// 6. Construct board description

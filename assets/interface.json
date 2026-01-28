@@ -117,8 +117,8 @@
             ],
             "controller": [
                 "Win32",
-                "Win32-Window",
-                "Win32-Front"
+                "Win32-Front",
+                "Win32-Window"
             ]
         },
         {
@@ -157,6 +157,13 @@
             "entry": "ReadAllWiki",
             "default_check": true,
             "description": "$task.ReadAllWiki.description"
+        },
+        {
+            "name": "ReceiveProdManual",
+            "label": "$task.ReceiveProdManual.label",
+            "entry": "ProdManualStart",
+            "default_check": true,
+            "description": "$task.ReceiveProdManual.description"
         },
         {
             "name": "BakerEntry",
@@ -291,7 +298,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         },
                         "HandleTutorialPaging": {
@@ -317,7 +327,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         },
                         "HandleTutorialPaging": {
@@ -345,7 +358,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         }
                     }
@@ -353,7 +369,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         }
                     }
@@ -688,11 +707,6 @@
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
                             "next": []
-                        },
-                        "PuzzleSolverSolvePuzzle": {
-                            "custom_action_param": {
-                                "dryRun": false
-                            }
                         }
                     }
                 },
@@ -704,11 +718,6 @@
                             "next": [
                                 "PuzzleSolverMain"
                             ]
-                        },
-                        "PuzzleSolverSolvePuzzle": {
-                            "custom_action_param": {
-                                "dryRun": false
-                            }
                         }
                     }
                 },
@@ -717,6 +726,7 @@
                     "label": "$option.PuzzleSolverMode.cases.DryRun.label",
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
+                            "action": "DoNothing",
                             "next": []
                         },
                         "PuzzleSolverSolvePuzzle": {

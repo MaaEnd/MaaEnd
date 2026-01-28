@@ -69,13 +69,14 @@
         "action": "DoNothing",
         "next": [
             "ResellAreaInFourthValley",
-            "ResellAreaInWuLing",
+            "ResellFristAreaInWuLing",
             "ResellMain"
         ]
     },
     "ResellAreaInFourthValley": {
         "doc": "在四号谷地，进入地区建设管理",
         "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
             25,
             174,
@@ -92,9 +93,30 @@
             "ResellStageCheckArea"
         ]
     },
+    "ResellFristAreaInWuLing": {
+        "doc": "直接在武陵，进入四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "武陵",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "Wuling2FourthValley",
+            "ResellStageCheckArea"
+        ]
+    },
     "ResellAreaInWuLing": {
         "doc": "在武陵，进入地区建设管理",
         "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
             25,
             174,
@@ -108,22 +130,20 @@
         "action": "DoNothing",
         "next": [
             "ResellStageEnterStore",
-            "Wuling2FourthValley",
             "ResellStageCheckArea"
         ]
     },
     "ResellStageEnterStore": {
         "doc": "进入商店",
-        "recognition": "OCR",
+        "recognition": "TemplateMatch",
+        "template": "Resell/EnterStore.png",
         "roi": [
-            793,
-            338,
-            88,
-            27
+            719,
+            291,
+            117,
+            120
         ],
-        "expected": "物资调度",
         "threshold": 0.8,
-        "pre_delay": 0,
         "post_delay": 500,
         "action": "Click",
         "next": [
@@ -168,14 +188,13 @@
             128,
             126
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
+        "post_wait_freezes": 1000,
         "action": "Scroll",
         "target": [
             640,
             360
         ],
-        "dy": -960,
+        "dy": -240,
         "next": [
             "ResellStartCheckStock",
             "ResellStart"
@@ -183,14 +202,16 @@
     },
     "ResellStartCheckStock": {
         "doc": "检查库存",
-        "recognition": "DirectHit",
-        "pre_delay": 1000,
-        "post_delay": 500,
-        "action": "Click",
-        "target": [
-            100,
-            380
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            70,
+            385,
+            1151,
+            254
         ],
+        "expected": "[0-9]+",
+        "action": "Click",
         "next": [
             "ResellCheckSoldout",
             "ResellCheckStockRemain"
@@ -198,33 +219,24 @@
     },
     "ResellCheckSoldout": {
         "doc": "识别库存是否售罄，售罄则切换区域",
-        "recognition": "ColorMatch",
-        "method": 40,
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            810,
-            509,
-            43,
-            25
+            951,
+            571,
+            82,
+            26
         ],
-        "lower": [
-            156,
-            43,
-            46
-        ],
-        "upper": [
-            180,
-            255,
-            255
-        ],
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
-        "target": [
-            1075,
-            140
-        ],
+        "expected": "无法购买",
+        "action": "ClickKey",
+        "key": 27,
+        "repeat": 2,
+        "repeat_wait_freezes": 1000,
+        "focus": {
+            "Node.Action.Starting": "当前地区已售罄，切换下个地区"
+        },
         "next": [
-            //"NextRegion"
+            "ChangeNextRegion"
         ]
     },
     "ResellCheckStockRemain": {
@@ -238,13 +250,8 @@
             120,
             122
         ],
-        "pre_delay": 500,
-        "post_delay": 500,
-        "action": "Click",
-        "target": [
-            1075,
-            140
-        ],
+        "action": "ClickKey",
+        "key": 27,
         "next": [
             "ResellStart"
         ]

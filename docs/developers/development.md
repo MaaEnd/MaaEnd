@@ -49,6 +49,10 @@
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
 - 所有操作通过识别进行，禁止硬编码坐标进行点击等操作。
 
+> [!NOTE]
+>
+> 关于延迟，可扩展阅读 [隔壁 ALAS 的基本运作模式](https://github.com/LmeSzinc/AzurLaneAutoScript/wiki/1.-Start#%E5%9F%BA%E6%9C%AC%E8%BF%90%E4%BD%9C%E6%A8%A1%E5%BC%8F)，其推荐的实践基本等同于我们的 `next` 字段。
+
 ### Go service 代码规范
 
 - Go service 仅用于处理某些特殊动作/识别，整体流程仍请使用 Pipeline 串联。请勿使用 Go service 编写大量流程代码。
