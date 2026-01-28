@@ -286,8 +286,8 @@ func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
 	rect1 := image.Rect(int(TAB_1_X), int(TAB_Y), int(TAB_1_X+TAB_W), int(TAB_Y+TAB_H))
 	rect2 := image.Rect(int(TAB_2_X), int(TAB_Y), int(TAB_2_X+TAB_W), int(TAB_Y+TAB_H))
 
-	_, _, val1 := getAreaMeanHSV(img, rect1)
-	_, _, val2 := getAreaMeanHSV(img, rect2)
+	_, _, val1 := getAreaHSV(img, rect1)
+	_, _, val2 := getAreaHSV(img, rect2)
 	log.Debug().Float64("val1", val1).Float64("val2", val2).Msg("Checking tab selection state")
 
 	var ctrl = ctx.GetTasker().GetController()
@@ -334,12 +334,11 @@ func getPuzzleDesc(img image.Image) *PuzzleDesc {
 			rect := image.Rect(x1, y1, x2, y2)
 
 			variance := getAreaVariance(img, rect)
-			_, sat, val := getAreaMeanHSV(img, rect)
+			hue, sat, val := getAreaHSV(img, rect)
 			isBlock := variance > PUZZLE_COLOR_VAR_GRT && sat > PUZZLE_COLOR_SAT_GRT && val > PUZZLE_COLOR_VAL_GRT
 
 			if isBlock {
 				blocks = append(blocks, [2]int{offsetX, offsetY})
-				hue, _, _ := getAreaMidHSV(img, rect) // Use mid to avoid noises
 				totalHue += hue
 				count++
 			}
@@ -439,11 +438,10 @@ func getLockedBlocksDesc(img image.Image, boardW, boardH int) []*LockedBlockDesc
 			ltX, ltY := convertBoardCoordToLTCoord(gridX, gridY, boardW, boardH)
 			rect := image.Rect(ltX, ltY, ltX+int(BOARD_BLOCK_W), ltY+int(BOARD_BLOCK_H))
 
-			_, sat, val := getAreaMeanHSV(img, rect)
+			hue, sat, val := getAreaHSV(img, rect)
 			isLocked := sat > BOARD_LOCKED_COLOR_SAT_GRT && val > BOARD_LOCKED_COLOR_VAL_GRT
 
 			if isLocked {
-				hue, _, _ := getAreaMidHSV(img, rect)
 				locked = append(locked, &LockedBlockDesc{
 					Loc:    [2]int{gridX, gridY},
 					RawLoc: [2]int{ltX, ltY},
