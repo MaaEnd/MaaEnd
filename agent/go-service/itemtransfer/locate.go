@@ -144,26 +144,25 @@ func checkFoundItem(recognitionTasks []*JobWithGridInfo) (maa.Rect, bool) {
 	return maa.Rect{}, false
 }
 
-func NewJobWithGridInfo(tasker *maa.Tasker, gridRowY, gridRowX int, keyword string) *JobWithGridInfo {
+func NewJobWithGridInfo(tasker *maa.Tasker, gridRowY, gridColX int, keyword string) *JobWithGridInfo {
 	log.Debug().
 		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridRowX).
+		Int("grid_col_x", gridColX).
 		Msg("Start recognizing item")
 	task := tasker.PostRecognition(
 		maa.NodeRecognitionTypeOCR,
 		maa.NodeOCRParam{
 			ROI: maa.NewTargetRect(
-				RepoRoi(gridRowY, gridRowX),
+				RepoRoi(gridRowY, gridColX),
 			),
 			OrderBy:  "Expected",
 			Expected: []string{keyword},
-			OnlyRec:  true,
 		},
 		tasker.GetController().CacheImage(),
 	)
 	log.Trace().
 		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridRowX).
+		Int("grid_col_x", gridColX).
 		Msg("Task created")
-	return &JobWithGridInfo{task, gridRowY, gridRowX}
+	return &JobWithGridInfo{task, gridRowY, gridColX}
 }
