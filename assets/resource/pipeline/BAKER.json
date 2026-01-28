@@ -155,6 +155,7 @@
         "template": [
             "Baker/TalkWith.png",
             "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+
         ],
         "threshold": 0.95,
         "roi": [
@@ -193,7 +194,8 @@
     },
     "ClickChat": {
         "action": "Click",
-        "target": [ // 聊天框右下角固定的一块区域
+        "target": [
+            // 聊天框右下角固定的一块区域
             937,
             556,
             203,
@@ -273,7 +275,8 @@
             "RefreshBakerFilter"
         ]
     },
-    "TalkOver2": { // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
+    "TalkOver2": {
+        // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
         "recognition": "TemplateMatch",
         "template": [
             "Baker/talkover.png"

@@ -1,121 +1,127 @@
 {
-  "AutoPickFalls": {
-    "doc": "拾取掉落物",
-    "recognition": {
-      "type": "And",
-      "param": {
-        "all_of": [
-          {
-            "sub_name": "icon",
-            "recognition": "TemplateMatch",
-            "roi": [
-              755,
-              330,
-              297,
-              312
-            ],
-            "template": [
-              "RealTimeTask/AutoPickF.png"
-            ],
-            "threshold": 0.6
-          },
-          {
-            "sub_name": "number",
-            "recognition": "TemplateMatch",
-            "roi": [
-              755,
-              330,
-              297,
-              312
-            ],
-            "template": [
-              "RealTimeTask/AutoPickF1.png"
-            ],
-            "threshold": 0.95
-          }
+    "AutoPickFalls": {
+        "doc": "拾取掉落物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "template": [
+                            "RealTimeTask/AutoPickF.png"
+                        ],
+                        "threshold": 0.6
+                    },
+                    {
+                        "sub_name": "number",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "template": [
+                            "RealTimeTask/AutoPickF1.png"
+                        ],
+                        "threshold": 0.95
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "拾取掉落物"
+        },
+        "pre_delay": 0,
+        "post_delay": 50,
+        "next": [
+            "RealTimeTaskMain"
         ]
-      }
     },
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": 70
-      }
-    },
-    "pre_delay": 0,
-    "post_delay": 50,
-    "next": [
-      "RealTimeTaskMain"
-    ]
-  },
-  "AutoPickInteractive": {
-    "doc": "拾取交互物",
-    "recognition": {
-      "type": "And",
-      "param": {
-        "all_of": [
-          {
-            "sub_name": "icon",
-            "recognition": "TemplateMatch",
-            "template": "RealTimeTask/AutoPick.png",
-            "roi": [
-              755,
-              330,
-              297,
-              312
-            ],
-            "threshold": 0.9
-          },
-          {
-            "recognition": "OCR",
-            "sub_name": "material",
-            "expected": [
-              "萤壳虫",
-              "灼壳虫",
-              "柑实",
-              "灰芦麦",
-              "锦草",
-              "苦叶椒",
-              "映火荞花",
-              "砂叶",
-              "黯银柑实",
-              "芽针",
-              "荞花",
-              "蓬茸锦草",
-              "酮化灌木",
-              "荆刺芽针",
-              "原木",
-              "重红柱状菌",
-              "受蚀玉化叶",
-              "至晶多齿叶",
-              "岩天使叶",
-              "轻红柱状菌",
-              "晶化多齿叶",
-              "血菌",
-              "中红柱状菌",
-              "纯晶多齿叶",
-              "星门菌"
-            ],
-            "roi": [
-              755,
-              330,
-              297,
-              312
-            ]
-          }
+    "AutoPickInteractive": {
+        "doc": "拾取交互物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "template": "RealTimeTask/AutoPick.png",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "threshold": 0.9
+                    },
+                    {
+                        "recognition": "OCR",
+                        "sub_name": "material",
+                        "expected": [
+                            "萤壳虫",
+                            "灼壳虫",
+                            "柑实",
+                            "灰芦麦",
+                            "锦草",
+                            "苦叶椒",
+                            "映火荞花",
+                            "砂叶",
+                            "黯银柑实",
+                            "芽针",
+                            "荞花",
+                            "蓬茸锦草",
+                            "酮化灌木",
+                            "荆刺芽针",
+                            "原木",
+                            "重红柱状菌",
+                            "受蚀玉化叶",
+                            "至晶多齿叶",
+                            "岩天使叶",
+                            "轻红柱状菌",
+                            "晶化多齿叶",
+                            "血菌",
+                            "中红柱状菌",
+                            "纯晶多齿叶",
+                            "星门菌"
+                        ],
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ]
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "拾取交互物"
+        },
+        "pre_delay": 0,
+        "post_delay": 50,
+        "next": [
+            "RealTimeTaskMain"
         ]
-      }
-    },
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": 70
-      }
-    },
-    "pre_delay": 0,
-    "post_delay": 50,
-    "next": [
-      "RealTimeTaskMain"
-    ]
-  }
+    }
 }

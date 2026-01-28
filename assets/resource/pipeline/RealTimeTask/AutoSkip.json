@@ -103,6 +103,9 @@
         ],
         "action": "Click",
         "post_wait_freezes": 100,
+        "focus": {
+            "Node.Action.Succeeded": "跳过全部剧情"
+        },
         "next": [
             "RealTimeAutoSkipAllConfirm",
             "RealTimeAutoSkipEntry"
@@ -130,6 +133,9 @@
         ],
         "count": 200,
         "action": "Click",
+        "focus": {
+            "Node.Action.Succeeded": "确认跳过全部剧情"
+        },
         "next": [
             "RealTimeAutoSkipEntry"
         ]
@@ -147,6 +153,9 @@
             300
         ],
         "action": "Click",
+        "focus": {
+            "Node.Action.Succeeded": "选择剧情分支"
+        },
         "next": [
             "RealTimeAutoSkipEntry"
         ]
@@ -180,6 +189,9 @@
             }
         ],
         "action": "Click",
+        "focus": {
+            "Node.Action.Succeeded": "点击剧情下一步"
+        },
         "next": [
             "RealTimeAutoSkipEntry"
         ]

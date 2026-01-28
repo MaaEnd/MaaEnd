@@ -472,8 +472,9 @@
                     "option": [
                         "AutoFightAttack",
                         "AutoFightCombo",
-                        "AutoFightSkill"
-                        // "AutoFightEndSkill"
+                        "AutoFightSkill",
+                        "AutoFightEndSkill",
+                        "AutoFightLockTarget"
                     ]
                 },
                 {
@@ -569,6 +570,62 @@
                     "pipeline_override": {
                         "RealTimeAutoFightCombo": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightSaveDamage": {
+            "label": "$option.AutoFightSaveDamage.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSaveDamage": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSaveDamage": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightLockTarget": {
+            "label": "$option.AutoFightLockTarget.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "LockTarget": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "LockTarget": false
+                                    }
+                                }
+                            }
                         }
                     }
                 }

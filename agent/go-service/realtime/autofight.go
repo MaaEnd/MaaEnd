@@ -114,6 +114,20 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 	}
 	log.Debug().Msg("Enter auto fight")
 	autoFightSkillLastIndex = 0
+
+	{
+		var params struct {
+			LockTarget bool `json:"LockTarget"`
+		}
+		if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err != nil {
+			log.Error().Err(err).Msg("Failed to parse CustomRecognitionParam")
+		}
+		if params.LockTarget {
+			log.Info().Msg("LockTarget enabled, sending middle mouse click to lock target")
+			ctx.GetTasker().GetController().PostClickV2(640, 360, 2, 1) // 按下鼠标中键锁定敌人
+		}
+	}
+
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: `{"custom": "fake result"}`,

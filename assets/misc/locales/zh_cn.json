@@ -34,6 +34,8 @@
     "option.AutoFightSkill.label": "自动释放技能",
     "option.AutoFightEndSkill.label": "自动释放终结技",
     "option.AutoFightCombo.label": "自动触发连携技能",
+    "option.AutoFightLockTarget.label": "自动锁定目标",
+    "option.AutoFightSaveDamage.label": "自动保存受击图片(测试用)",
     "option.AutoPick.label": "自动拾取",
     "option.QuickTeleport.label": "快速传送",
     "option.QuickTeleport.description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",

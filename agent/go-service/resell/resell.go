@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -25,18 +26,50 @@ type ResellInitAction struct{}
 func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[Resell]开始倒卖流程")
 	var params struct {
-		MinimumProfit int `json:"MinimumProfit"`
+		MinimumProfit interface{} `json:"MinimumProfit"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().Err(err).Msg("[Resell]反序列化失败")
 		return false
 	}
-	MinimumProfit := int(params.MinimumProfit)
+
+	// Parse MinimumProfit (support both string and int)
+	var MinimumProfit int
+	switch v := params.MinimumProfit.(type) {
+	case float64:
+		MinimumProfit = int(v)
+	case string:
+		parsed, err := strconv.Atoi(v)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to parse MinimumProfit string: %s", v)
+			return false
+		}
+		MinimumProfit = parsed
+	default:
+		log.Error().Msgf("Invalid MinimumProfit type: %T", v)
+		return false
+	}
+
+	fmt.Printf("MinimumProfit: %d\n", MinimumProfit)
+
 	// Get controller
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
 		log.Error().Msg("[Resell]无法获取控制器")
 		return false
+	}
+
+	overflowAmount := 0
+	log.Info().Msg("Checking quota overflow status...")
+	time.Sleep(500 * time.Millisecond)
+	controller.PostScreencap().Wait()
+
+	// OCR and parse quota from two regions
+	x, y, _, b := ocrAndParseQuota(ctx, controller)
+	if x >= 0 && y > 0 && b >= 0 {
+		overflowAmount = x + b - y
+	} else {
+		log.Info().Msg("Failed to parse quota or no quota found, proceeding with normal flow")
 	}
 
 	// Define three rows with different Y coordinates
@@ -162,6 +195,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Int("No.", i+1).Int("列", record.Col).Int("成本", record.CostPrice).Int("售价", record.SalePrice).Int("利润", record.Profit).Msg("[Resell]商品信息")
 	}
 
+	// Check if sold out
+	if len(records) == 0 {
+		log.Info().Msg("库存已售罄，无可购买商品")
+		ResellShowMessage(ctx, "⚠️ 库存已售罄，无可购买商品")
+		return true
+	}
+
 	// Find and output max profit item
 	maxProfitIdx := -1
 	for i, record := range records {
@@ -171,22 +211,43 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 	}
 
-	var maxRecord ProfitRecord
-	if maxProfitIdx >= 0 {
-		maxRecord = records[maxProfitIdx]
-		if maxRecord.Profit >= MinimumProfit {
-			ResellShowMessage(ctx, fmt.Sprintf("总共识别到%d件商品，当前利润最高商品:第%d行, 第%d列，利润%d", len(records), maxRecord.Row, maxRecord.Col, maxRecord.Profit))
-			taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
-			ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
-		} else {
-			ResellShowMessage(ctx, fmt.Sprintf("总共识别到%d件商品,没有利润超过%d的商品，建议把配额留至明天,当前利润最高商品:第%d行, 第%d列，利润%d", len(records), MinimumProfit, maxRecord.Row, maxRecord.Col, maxRecord.Profit))
-			controller.PostClickKey(27) //返回至地区管理界面
-			ctx.OverrideNext(arg.CurrentTaskName, []string{"ChangeNextRegion"})
-		}
-	} else {
-		log.Info().Msg("出现错误")
+	if maxProfitIdx < 0 {
+		log.Error().Msg("未找到最高利润商品")
+		return false
 	}
-	return true
+
+	maxRecord := records[maxProfitIdx]
+	log.Info().Msgf("最高利润商品: 第%d行第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+
+	// Check if we should purchase
+	if overflowAmount > 0 {
+		// Quota overflow detected, show reminder and recommend purchase
+		log.Info().Msgf("配额溢出：建议购买%d件商品，推荐第%d行第%d列（利润：%d）",
+			overflowAmount, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+
+		// Show message with focus
+		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
+			overflowAmount, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+		ResellShowMessage(ctx, message)
+		return true
+	} else if maxRecord.Profit >= MinimumProfit {
+		// Normal mode: purchase if meets minimum profit
+		log.Info().Msgf("利润达标，准备购买第%d行第%d列商品（利润：%d）",
+			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+		taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
+		ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
+		return true
+	} else {
+		// No profitable item, show recommendation
+		log.Info().Msgf("没有达到最低利润%d的商品，推荐第%d行第%d列（利润：%d）",
+			MinimumProfit, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+
+		// Show message with focus
+		message := fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
+			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+		ResellShowMessage(ctx, message)
+		return true
+	}
 }
 
 // extractNumbersFromText - Extract all digits from text and return as integer
@@ -350,17 +411,6 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 	return nil
 }
 
-func ResellShowMessage(ctx *maa.Context, text string) bool {
-	ctx.RunTask("[Resell]TaskShowMessage", map[string]interface{}{
-		"[Resell]TaskShowMessage": map[string]interface{}{
-			"focus": map[string]interface{}{
-				"Node.Action.Starting": text,
-			},
-		},
-	})
-	return true
-}
-
 func Resell_delay_freezes_time(ctx *maa.Context, time int) bool {
 	ctx.RunTask("[Resell]TaskDelay", map[string]interface{}{
 		"[Resell]TaskDelay": map[string]interface{}{
@@ -368,5 +418,133 @@ func Resell_delay_freezes_time(ctx *maa.Context, time int) bool {
 		},
 	},
 	)
+	return true
+}
+
+// ocrAndParseQuota - OCR and parse quota from two regions
+// Region 1 [180, 135, 75, 30]: "x/y" format (current/total quota)
+// Region 2 [250, 130, 110, 30]: "a小时后+b" or "a分钟后+b" format (time + increment)
+// Returns: x (current), y (max), hoursLater (0 for minutes, actual hours for hours), b (to be added)
+func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y int, hoursLater int, b int) {
+	x = -1
+	y = -1
+	hoursLater = -1
+	b = -1
+
+	img := controller.CacheImage()
+	if img == nil {
+		log.Error().Msg("Failed to get screenshot for quota OCR")
+		return x, y, hoursLater, b
+	}
+
+	// OCR region 1: [180, 135, 75, 30] to get "x/y"
+	ocrParam1 := &maa.NodeOCRParam{
+		ROI:       maa.NewTargetRect(maa.Rect{180, 135, 75, 30}),
+		OrderBy:   "Expected",
+		Expected:  []string{".*"},
+		Threshold: 0.3,
+	}
+
+	detail1 := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam1, img)
+	if detail1 != nil && detail1.DetailJson != "" {
+		var rawResults1 map[string]interface{}
+		if err := json.Unmarshal([]byte(detail1.DetailJson), &rawResults1); err == nil {
+			for _, key := range []string{"best", "all"} {
+				if data, ok := rawResults1[key]; ok {
+					if text := extractTextFromOCRResult(data); text != "" {
+						log.Info().Msgf("Quota region 1 OCR: %s", text)
+						// Parse "x/y" format
+						re := regexp.MustCompile(`(\d+)/(\d+)`)
+						if matches := re.FindStringSubmatch(text); len(matches) >= 3 {
+							x, _ = strconv.Atoi(matches[1])
+							y, _ = strconv.Atoi(matches[2])
+							log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
+						}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	// OCR region 2: [250, 130, 110, 30] to get "a小时后+b" or "a分钟后+b"
+	ocrParam2 := &maa.NodeOCRParam{
+		ROI:       maa.NewTargetRect(maa.Rect{250, 130, 110, 30}),
+		OrderBy:   "Expected",
+		Expected:  []string{".*"},
+		Threshold: 0.3,
+	}
+
+	detail2 := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam2, img)
+	if detail2 != nil && detail2.DetailJson != "" {
+		var rawResults2 map[string]interface{}
+		if err := json.Unmarshal([]byte(detail2.DetailJson), &rawResults2); err == nil {
+			for _, key := range []string{"best", "all"} {
+				if data, ok := rawResults2[key]; ok {
+					if text := extractTextFromOCRResult(data); text != "" {
+						log.Info().Msgf("Quota region 2 OCR: %s", text)
+						// Try pattern with hours
+						reHours := regexp.MustCompile(`(\d+)\s*小时.*?[+]\s*(\d+)`)
+						if matches := reHours.FindStringSubmatch(text); len(matches) >= 3 {
+							hoursLater, _ = strconv.Atoi(matches[1])
+							b, _ = strconv.Atoi(matches[2])
+							log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
+							break
+						}
+						// Try pattern with minutes
+						reMinutes := regexp.MustCompile(`(\d+)\s*分钟.*?[+]\s*(\d+)`)
+						if matches := reMinutes.FindStringSubmatch(text); len(matches) >= 3 {
+							b, _ = strconv.Atoi(matches[2])
+							hoursLater = 0
+							log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
+							break
+						}
+						// Fallback: just find "+b"
+						reFallback := regexp.MustCompile(`[+]\s*(\d+)`)
+						if matches := reFallback.FindStringSubmatch(text); len(matches) >= 2 {
+							b, _ = strconv.Atoi(matches[1])
+							hoursLater = 0
+							log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
+						}
+						break
+					}
+				}
+			}
+		}
+	}
+
+	return x, y, hoursLater, b
+}
+
+// extractTextFromOCRResult - Extract text string from OCR result data
+func extractTextFromOCRResult(data interface{}) string {
+	switch v := data.(type) {
+	case []interface{}:
+		if len(v) > 0 {
+			if result, ok := v[0].(map[string]interface{}); ok {
+				if text, ok := result["text"].(string); ok {
+					return text
+				}
+			}
+		}
+	case map[string]interface{}:
+		if text, ok := v["text"].(string); ok {
+			return text
+		}
+	}
+	return ""
+}
+
+// ResellShowMessage - Show message to user with focus
+func ResellShowMessage(ctx *maa.Context, text string) bool {
+	ctx.RunTask("[Resell]TaskShowMessage", map[string]interface{}{
+		"[Resell]TaskShowMessage": map[string]interface{}{
+			"recognition": "DirectHit",
+			"action":      "DoNothing",
+			"focus": map[string]interface{}{
+				"Node.Action.Starting": text,
+			},
+		},
+	})
 	return true
 }

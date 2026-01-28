@@ -34,6 +34,8 @@
     "option.AutoFightSkill.label": "Auto Use Skills",
     "option.AutoFightEndSkill.label": "Auto Use Ultimate",
     "option.AutoFightCombo.label": "Auto Trigger Link Skills",
+    "option.AutoFightLockTarget.label": "Auto Lock Target",
+    "option.AutoFightSaveDamage.label": "Auto Save Damage Images (Test)",
     "option.AutoPick.label": "Auto Pick Up",
     "option.QuickTeleport.label": "Quick Teleport",
     "option.QuickTeleport.description": "When selecting a teleport point on the world map (or from a list), automatically click Teleport.",

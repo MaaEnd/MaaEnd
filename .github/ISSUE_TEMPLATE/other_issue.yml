@@ -2,32 +2,32 @@ name: 其他问题 / Other Issue
 description: 其他类型的问题或疑问 / Other types of issues or questions
 labels: ["question"]
 body:
-    - type: markdown
-      attributes:
-          value: |
-              简单的使用问题建议先在 [QQ 群 (1062010346)](https://qm.qq.com/q/EyirQpBiW4) 咨询。  
+  - type: markdown
+    attributes:
+      value: |
+        简单的使用问题建议先在 [QQ 群 (1062010346)](https://qm.qq.com/q/EyirQpBiW4) 咨询。
 
-    - type: textarea
-      id: description
-      attributes:
-          label: 问题描述
-          description: |
-              请详细描述您的问题
-      validations:
-          required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: |
+        请详细描述您的问题
+    validations:
+      required: false
 
-    - type: input
-      id: version
-      attributes:
-          label: MaaEnd 版本
-          placeholder: "例如: v1.1.0"
-      validations:
-          required: false
+  - type: input
+    id: version
+    attributes:
+      label: MaaEnd 版本
+      placeholder: "例如: v1.1.0"
+    validations:
+      required: false
 
-    - type: textarea
-      id: additional
-      attributes:
-          label: 其他信息
-          description: 日志、截图等
-      validations:
-          required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: 其他信息
+      description: 日志、截图等
+    validations:
+      required: false

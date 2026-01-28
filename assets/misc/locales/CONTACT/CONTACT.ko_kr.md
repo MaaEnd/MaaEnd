@@ -3,4 +3,3 @@
 - 웹사이트: [maaend.com](https://maaend.com)
 - 소스 코드: [GitHub](https://github.com/MaaEnd/MaaEnd)
 - 문제 보고: [issue](https://github.com/MaaEnd/MaaEnd/issues)
-

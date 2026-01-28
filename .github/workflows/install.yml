@@ -118,7 +118,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: 'agent/go-service/go.mod'
+          go-version-file: "agent/go-service/go.mod"
 
       - id: latest-release
         uses: pozetroninc/github-action-get-latest-release@master
@@ -126,7 +126,7 @@ jobs:
           repository: MaaXYZ/MaaFramework
           excludes: "draft"
           token: ${{ secrets.GITHUB_TOKEN }}
-        
+
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
