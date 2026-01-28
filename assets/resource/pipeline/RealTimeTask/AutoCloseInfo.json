@@ -21,9 +21,7 @@
         },
         "inverse": true,
         "next": [
-            "ClickAnywhereToContinue"
-        ],
-        "on_error": [
+            "ClickAnywhereToContinue",
             "RealTimeTaskMain"
         ]
     },
@@ -35,8 +33,7 @@
                 "expected": [
                     "点击任意处继续",
                     "点击任意处",
-                    "任意处继续",
-                    "任意处"
+                    "任意处继续"
                 ],
                 "roi": [
                     50,
@@ -57,11 +54,8 @@
                 ]
             }
         },
-        "post_wait_freezes": 100,
+        "post_wait_freezes": 80,
         "next": [
-            "RealTimeTaskMain"
-        ],
-        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -102,9 +96,6 @@
         },
         "next": [
             "SafeCloseButton"
-        ],
-        "on_error": [
-            "RealTimeTaskMain"
         ]
     },
     "SafeCloseButton": {
@@ -121,9 +112,6 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
-            "RealTimeTaskMain"
-        ],
-        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -151,9 +139,6 @@
         "next": [
             "HandleTutorialConfirm",
             "RealTimeTaskMain"
-        ],
-        "on_error": [
-            "RealTimeTaskMain"
         ]
     },
     // ========================================================
@@ -178,9 +163,6 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
-            "RealTimeTaskMain"
-        ],
-        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -217,9 +199,6 @@
         "post_wait_freezes": 200,
         "next": [
             "RealTimeTaskMain"
-        ],
-        "on_error": [
-            "RealTimeTaskMain"
         ]
     },
     "HandleTutorialGuide_LeftUp": {
@@ -251,9 +230,6 @@
         },
         "post_wait_freezes": 100,
         "next": [
-            "RealTimeTaskMain"
-        ],
-        "on_error": [
             "RealTimeTaskMain"
         ]
     }
