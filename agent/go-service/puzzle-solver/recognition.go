@@ -262,7 +262,7 @@ func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	roiOverride := map[string]any{
 		"WaitStable": map[string]any{
 			"post_wait_freezes": map[string]any{
-				"target": []int{int(PUZZLE_THUMBNAIL_START_X), int(PUZZLE_THUMBNAIL_START_Y), int(float64(PUZZLE_THUMBNAIL_MAX_COLS) * PUZZLE_THUMBNAIL_W), int(float64(PUZZLE_THUMBNAIL_MAX_ROWS) * PUZZLE_THUMBNAIL_H)},
+				"target": []int{int(PUZZLE_THUMBNAIL_START_X), int(PUZZLE_THUMBNAIL_START_Y), int(float64(PUZZLE_THUMBNAIL_MAX_COLS) * PUZZLE_THUMBNAIL_W), int(float64(PUZZLE_THUMBNAIL_MAX_ROWS+1) * PUZZLE_THUMBNAIL_H)},
 			},
 		},
 	}
