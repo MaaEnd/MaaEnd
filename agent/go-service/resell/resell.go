@@ -50,7 +50,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	fmt.Println("MinimumProfit: %d", MinimumProfit)
+	fmt.Printf("MinimumProfit: %d\n", MinimumProfit)
 	
 	// Get controller
 	controller := ctx.GetTasker().GetController()
