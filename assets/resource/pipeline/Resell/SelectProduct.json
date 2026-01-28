@@ -589,10 +589,6 @@
         "pre_delay": 0,
         "post_delay": 500,
         "action": "Click",
-        "target": [
-            1200,
-            700
-        ],
         "next": [
             "ResellScrollToTop"
         ]
@@ -600,14 +596,13 @@
     "ResellScrollToTop": {
         "doc": "滚动到顶部，准备去飞船",
         "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 1000,
+        "post_wait_freezes": 1000,
         "action": "Scroll",
         "target": [
             640,
             360
         ],
-        "dy": 960,
+        "dy": 240,
         "next": [
             "ResellGotoSell",
             "ResellReturnToStore"

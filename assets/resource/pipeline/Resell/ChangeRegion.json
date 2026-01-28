@@ -1,9 +1,144 @@
 {
     "Wuling2FourthValley": {
         "doc": "武陵回四号谷地",
-        "recognition": "DirectHit",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            114,
+            232,
+            122,
+            122
+        ],
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "DoNothing"
+        "action": "Click",
+        "next": [
+            "GotoFourthValley"
+        ]
+    },
+    "GotoFourthValley": {
+        "doc": "前往四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
+        "roi": [
+            479,
+            147,
+            319,
+            94
+        ],
+        "expected": "四号谷地",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "ConfirmChangeRegion"
+        ]
+    },
+    "ConfirmChangeRegion": {
+        "doc": "确认更换地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ConfirmChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            763,
+            371,
+            122,
+            121
+        ],
+        "pre_delay": 0,
+        "post_wait_freezes": 500,
+        "action": "Click",
+        "next": [
+            "ResellStageEnterStore",
+            "ResellStageCheckArea"
+        ]
+    },
+    "ChangeNextRegion": {
+        "doc": "更换到下一个地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            114,
+            232,
+            122,
+            122
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "CheckChangeRegionToWuLing",
+            "LastAreaFinished"
+        ]
+    },
+    "CheckChangeRegionToWuLing": {
+        "doc": "更换到武陵",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "武陵字样的位置",
+                "recognition": "OCR",
+                "threshold": 0.8,
+                "roi": [
+                    714,
+                    218,
+                    36,
+                    21
+                ]
+            },
+            {
+                "sub_name": "当前查看地区字样的位置",
+                "recognition": "OCR",
+                "threshold": 0.8,
+                "roi": [
+                    488,
+                    150,
+                    85,
+                    20
+                ]
+            }
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "ConfirmChangeRegion"
+        ]
+    },
+    "LastAreaFinished": {
+        "doc": "所有地区均已完成，结束售卖流程",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "武陵字样的位置",
+                "recognition": "OCR",
+                "threshold": 0.8,
+                "roi": [
+                    714,
+                    218,
+                    36,
+                    21
+                ]
+            },
+            {
+                "sub_name": "当前查看地区字样的位置",
+                "recognition": "OCR",
+                "roi": [
+                    648,
+                    149,
+                    83,
+                    19
+                ]
+            }
+        ],
+        "focus": {
+            "Node.Action.Starting": "所有地区均已完成"
+        },
+        "action": "DoNothing",
+        "next": []
     }
 }

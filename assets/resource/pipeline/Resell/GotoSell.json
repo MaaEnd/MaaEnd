@@ -24,6 +24,23 @@
             "ResellStageEnterStore"
         ]
     },
+    "ResellClickStock": {
+        "doc": "点击库存",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
+        "roi": [
+            73,
+            241,
+            139,
+            142
+        ],
+        "expected": "[0-9]+",
+        "action": "Click",
+        "next": [
+            "ResellListFriends"
+        ]
+    },
     "ResellListFriends": {
         "doc": "打开好友列表",
         "recognition": "OCR",
