@@ -146,9 +146,9 @@ func rgbToHSV(fr, fg, fb float64) (float64, float64, float64) {
 // getAreaHSV calculates the Hue (Median), Saturation (Mean), and Value (Mean) of an area.
 // Hue is [0, 360), Saturation is [0, 1], Value is [0, 1].
 func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float64) {
-	var hues []float64
+	area := (rect.Max.X - rect.Min.X) * (rect.Max.Y - rect.Min.Y)
+	hues := make([]float64, 0, area)
 	var sumSat, sumVal float64
-	var count float64
 
 	for y := rect.Min.Y; y < rect.Max.Y; y++ {
 		for x := rect.Min.X; x < rect.Max.X; x++ {
@@ -159,11 +159,10 @@ func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float6
 			hues = append(hues, h)
 			sumSat += s
 			sumVal += v
-			count++
 		}
 	}
 
-	if count == 0 {
+	if len(hues) == 0 {
 		return 0, 0, 0
 	}
 
@@ -176,7 +175,7 @@ func getAreaHSV(img image.Image, rect image.Rectangle) (float64, float64, float6
 		midH = hues[mid]
 	}
 
-	return midH, sumSat / count, sumVal / count
+	return midH, sumSat / float64(len(hues)), sumVal / float64(len(hues))
 }
 
 // getPixelHSV returns the Hue[0, 360), Saturation[0, 1], Value[0, 1] of a pixel
