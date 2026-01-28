@@ -20,6 +20,11 @@
                     "RowXNow": "[PLACEHOLDER]" // [0, 3]
                 }
             }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferToBackpack.focus.recognition.failed"
         }
     }
 }
