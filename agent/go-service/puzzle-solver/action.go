@@ -21,13 +21,13 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 
 	// 1. Recalculate thumbnail location
 	// We assume thumbnails are analyzed in standard grid order (row by row, col by col)
-	row := p.PuzzleIndex / int(PUZZLE_THUMBNAIL_MAX_COLS)
-	col := p.PuzzleIndex % int(PUZZLE_THUMBNAIL_MAX_COLS)
-	thumbX := PUZZLE_THUMBNAIL_START_X + float64(col)*PUZZLE_THUMBNAIL_W
-	thumbY := PUZZLE_THUMBNAIL_START_Y + float64(row)*PUZZLE_THUMBNAIL_H
+	row := p.PuzzleIndex / int(PUZZLE_THUMB_MAX_COLS)
+	col := p.PuzzleIndex % int(PUZZLE_THUMB_MAX_COLS)
+	thumbX := PUZZLE_THUMB_START_X + float64(col)*PUZZLE_THUMB_W
+	thumbY := PUZZLE_THUMB_START_Y + float64(row)*PUZZLE_THUMB_H
 
-	startX := int(thumbX + PUZZLE_THUMBNAIL_W/2)
-	startY := int(thumbY + PUZZLE_THUMBNAIL_H/2)
+	startX := int(thumbX + PUZZLE_THUMB_W/2)
+	startY := int(thumbY + PUZZLE_THUMB_H/2)
 
 	// 2. Calculate target location on board
 	if bd.W <= 0 || bd.H <= 0 {
@@ -64,14 +64,14 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 		aw.TouchMoveSync(0, startX, startY, 250)
 	}
 
-	aw.TouchUpSync(0)
+	aw.TouchUpSync(100)
 }
 
 func doResetCursor(ctx *maa.Context) {
 	aw := NewActionWrapper(ctx.GetTasker().GetController())
 	aw.TouchUpSync(100)
 	aw.TouchDownSync(0, 640, 620, 100)
-	aw.TouchUpSync(0)
+	aw.TouchUpSync(100)
 }
 
 // Run executes the puzzle solving action.
