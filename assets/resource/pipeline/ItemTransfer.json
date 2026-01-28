@@ -6,25 +6,33 @@
                 "custom_recognition": "LocateItemFromRepository",
                 "custom_recognition_param": {
                     "ItemName": "[PLACEHOLDER]",
-                    "ContainerContent": null // null(nil) as default, not a cantainer
+                    "ContainerContent": null, // null(nil) as default, indicating not a cantainer
+                    "ItemLastFoundRowAbs": null,
+                    "ItemLastFoundColumnX": null
                 }
             }
         },
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "TransferItemToBackpack",
-                "custom_action_param": {
-                    "GridRowY": "[PLACEHOLDER]", // [0, 3]
-                    "GridColX": "[PLACEHOLDER]", // [0, 7]
-                    "AbsRow": "[PLACEHOLDER]" // [0, INF]
-                }
+                "custom_action": "LeftClickWithCtrlDown"
             }
         },
+        // "param": {
+        //         "custom_action": "TransferItemToBackpack",
+        //         "custom_action_param": {
+        //             "GridRowY": "[PLACEHOLDER]", // [0, 3]
+        //             "GridColX": "[PLACEHOLDER]", // [0, 7]
+        //             "AbsRow": "[PLACEHOLDER]" // [0, INF]
+        //         }
+        //     }
         "focus": {
             "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
             "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
-            "Node.Recognition.Failed": "$node.ItemTransferToBackpack.focus.recognition.failed"
+            "Node.Recognition.Failed": "$node.ItemTransferToBackpack.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferToBackpack.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferToBackpack.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferToBackpack.focus.action.failed"
         }
     }
 }

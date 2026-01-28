@@ -68,8 +68,8 @@
     "option.ContainerContent.label": "内容物设置",
     "option.ContainerContent.input.label": "内容物",
     "option.ContainerContent.input.description": "待转移容器内的内容物名称",
-    "option.TransferAll.label": "转移所有",
-    "option.TransferAll.description": "是否转移物品的所有库存",
+    "option.TransferAll.label": "手动停止",
+    "option.TransferAll.description": "不设置自动停止次数，直到搬空或不满一背包为止",
     "option.TransferTimes.label": "次数设置",
     "option.TransferTimes.input.label": "转移次数",
     "option.TransferTimes.input.description": "“批量转移同类物品”填满背包的次数",
@@ -77,5 +77,8 @@
     "node.ItemTransferToBackpack.focus.recognition.starting": "开始从仓库中查找指定物品",
     "node.ItemTransferToBackpack.focus.recognition.succeeded": "已找到指定物品的位置",
     "node.ItemTransferToBackpack.focus.recognition.failed": "从仓库中查找物品时出错。可能是未找到指定物品",
+    "node.ItemTransferToBackpack.focus.action.starting": "开始批量移动到背包",
+    "node.ItemTransferToBackpack.focus.action.succeeded": "已批量移动到背包",
+    "node.ItemTransferToBackpack.focus.action.failed": "批量移动到背包时出错",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md"
 }
