@@ -49,6 +49,34 @@
                 ]
             }
         },
-        "post_wait_freezes": 500,
+        "post_wait_freezes": 500
+    },
+    "HandleTutorialGuide_General": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/HandPoint.png",
+                "threshold": 0.6,
+                // 直接写满 1280x720，MaaFW 会处理越界
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    25,
+                    -15,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": 500
     }
 }

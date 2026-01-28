@@ -1,0 +1,92 @@
+{
+    "TestStage4": {
+        "next": [
+            "[JumpBack]ChangeToAIC_Mode",
+            "[JumpBack]CompleteSimilation",
+            "ExitSimilation",
+            "[JumpBack]EnterTopView",
+            "[JumpBack]CloseTips",
+            "[JumpBack]NeedSkip",
+            "[JumpBack]Confirm",
+            "[JumpBack]WaitLoadingText",
+            "[JumpBack]StartSimilation"
+        ]
+    },
+    "Stage_4_MedsProduction": {
+        //药品产线模拟空间       
+        "timeout": 60000,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    17,
+                    8,
+                    266,
+                    688
+                ],
+                "expected": "药品产线"
+            }
+        },
+        "next": [
+            "Stage_4_IsComplete",
+            "Stage_4_NotComplete"
+        ]
+    },
+    "Stage_4_NotComplete": {
+        "focus": {
+            "Node.Recognition.Succeeded": "进入药品产线模拟空间"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    17,
+                    8,
+                    266,
+                    688
+                ],
+                "expected": "药品产线"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]ChangeToAIC_Mode",
+            "[JumpBack]CompleteSimilation",
+            "ExitSimilation",
+            "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]EnterTopView",
+            "[JumpBack]CloseTips",
+            "[JumpBack]NeedSkip",
+            "[JumpBack]Confirm",
+            "[JumpBack]WaitLoadingText",
+            "[JumpBack]StartSimilation"
+        ]
+    },
+    "Stage_4_IsComplete": {
+        "focus": {
+            "Node.Recognition.Succeeded": "药品产线模拟已完成"
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "Stage_4_MedsProduction",
+                "roi_offset": [
+                    -20,
+                    -3,
+                    20,
+                    5
+                ],
+                "template": [
+                    "Similation/SimilationComplete_Selected.png",
+                    "Similation/SimilationComplete_Unselect.png"
+                ]
+            }
+        },
+        "next": [
+            "Stage_4_MedsProduction"
+        ]
+    }
+}
