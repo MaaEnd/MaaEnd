@@ -36,14 +36,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	// Get controller
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
-		log.Error().Msg("Failed to get controller")
-		log.Info().Msg("\n[Resell] Get controller failed\n")
+		log.Error().Msg("[Resell]Failed to get controller")
 		return false
 	}
 
 	// Define three rows with different Y coordinates
 	roiRows := []int{354, 484, 571}
-	rowNames := []string{"Row1", "Row2", "Row3"}
+	rowNames := []string{"第一行", "第二行", "第三行"}
 
 	// Process multiple items by scanning across ROI
 	records := make([]ProfitRecord, 0)
@@ -51,7 +50,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	// For each row
 	for rowIdx, roiY := range roiRows {
-		log.Info().Msgf("\n========== Processing %s (Y: %d) ==========\n", rowNames[rowIdx], roiY)
+		log.Info().Msgf("========== 当前处理 %s (Y: %d) ==========", rowNames[rowIdx], roiY)
 
 		// Start with base ROI x coordinate
 		currentROIX := 72
@@ -62,17 +61,16 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msgf("--- Processing ROI X: %d, Y: %d ---", currentROIX, roiY)
 
 			// Step 1: 识别商品价格
-			log.Info().Msg("Step 1 - Requesting screenshot")
+			log.Info().Msg("第一步：识别商品价格")
 			stepCounter++
-			time.Sleep(1000 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 			controller.PostScreencap().Wait()
 
 			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 31)
 			if !success {
-				log.Info().Msgf("Region 1 (Cost): No digit found at X=%d, Y=%d, switching to next row", currentROIX, roiY)
+				log.Info().Msgf("没有在X=%d+141, Y=%d+31的区域内发现数字（代表没有商品）,切换至下一行", currentROIX, roiY)
 				break
 			}
-			log.Info().Msgf("Step 1 - Cost Price: %d", costPrice)
 
 			// Click on region 1
 			centerX := currentROIX + 141/2
@@ -80,37 +78,43 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			controller.PostClick(int32(centerX), int32(centerY))
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
-			log.Info().Msg("Step 2 - Requesting screenshot")
+			log.Info().Msg("第二步：查看好友价格")
 			time.Sleep(500 * time.Millisecond)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
 			if !success {
-				log.Info().Msg("Step 2 - Friend indicator: Not found, skipping")
+				log.Info().Msg("第二步：未找到“好友”字样")
 				currentROIX += 150
 				continue
 			}
-			log.Info().Msg("Step 2 - Friend indicator: Found")
-
+			//商品详情页右下角识别的成本价格为准
+			controller.PostScreencap().Wait()
+			ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27)
+			costPrice = ConfirmcostPrice
+			if !success {
+				log.Info().Msg("第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+			}
+			log.Info().Msgf("第%d个商品售价: %d", stepCounter, costPrice)
 			// 单击“查看好友价格”按钮
 			controller.PostClick(944+98/2, 446+26/2)
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
-			log.Info().Msg("Step 3 - Requesting screenshot")
+			log.Info().Msg("第三步：识别好友出售价")
 			//等两秒加载好友价格
 			time.Sleep(2000 * time.Millisecond)
 			controller.PostScreencap().Wait()
 
-			salePrice, success := ocrExtractNumber(ctx, controller, 795, 297, 54, 24)
+			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28)
 			if !success {
-				log.Info().Msg("Step 3 - Sale Price: No digit found, skipping")
+				log.Info().Msg("第三步：未能识别好友出售价，跳过该商品")
 				currentROIX += 150
 				continue
 			}
-			log.Info().Msgf("Step 3 - Sale Price: %d", salePrice)
+			log.Info().Msgf("第三步：好友出售价: %d", salePrice)
 			// 计算利润
 			profit := salePrice - costPrice
-			log.Info().Msgf("Profit: %d (Sale: %d - Cost: %d)", profit, salePrice, costPrice)
+			log.Info().Msgf("当前商品利润利润: %d (售价: %d - 成本: %d)", profit, salePrice, costPrice)
 
 			// 根据当前roiX位置计算列
 			col := (currentROIX-72)/150 + 1
@@ -129,26 +133,26 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				maxProfit = profit
 			}
 
-			// Step 4: 检查页面右上角的“返回”按钮，点击返回
-			log.Info().Msg("Step 4 - Requesting screenshot")
+			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
+			log.Info().Msg("第四步：返回商品详情页")
 			time.Sleep(500 * time.Millisecond)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 1039, 135, 47, 21, "返回")
 			if success {
-				log.Info().Msg("Step 4 - Return button: Found, clicking")
-				controller.PostClick(1039+47/2, 135+21/2)
+				log.Info().Msg("第四步：发现返回按钮，按ESC返回")
+				controller.PostClickKey(27)
 			}
 
-			// Step 5: 识别“查看好友价格”，包含“好友”二字则点击右上角的“X”关闭页面
-			log.Info().Msg("Step 5 - Requesting screenshot")
+			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
+			log.Info().Msg("第五步：关闭商品详情页")
 			time.Sleep(500 * time.Millisecond)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
 			if success {
-				log.Info().Msg("Step 6 - Template match: Matched and clicked")
-				controller.PostClick(1067+26/2, 135+23/2)
+				log.Info().Msg("第五步：关闭页面")
+				controller.PostClickKey(27)
 			}
 
 			// 移动到下一列（ROI X增加150）
@@ -156,11 +160,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 	}
 
-	// Output results
-	fmt.Printf("\n========== 识别完成 ==========\n")
-	fmt.Printf("总共识别到%d件商品\n", len(records))
+	// Output results using focus
+	log.Info().Msg("========== 识别完成 ==========")
+	log.Info().Msgf("总共识别到%d件商品", len(records))
 	for i, record := range records {
-		fmt.Printf("[%d] 行: %d, 列: %d, 成本: %d, 售价: %d, 利润: %d\n",
+		log.Info().Msgf("[%d] 行: %d, 列: %d, 成本: %d, 售价: %d, 利润: %d",
 			i+1, record.Row, record.Col, record.CostPrice, record.SalePrice, record.Profit)
 	}
 
@@ -176,17 +180,18 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if maxProfitIdx >= 0 {
 		maxRecord = records[maxProfitIdx]
 		if maxRecord.Profit >= MinimumProfit {
-			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			log.Info().Msgf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 			taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
 			ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
 		} else {
-			fmt.Printf("\n没有利润超过%d的商品，建议把配额留至明天\n", MinimumProfit)
-			fmt.Printf("\n当前利润最高商品:第%d行, 第%d列，利润%d\n", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			log.Info().Msgf("没有利润超过%d的商品，建议把配额留至明天", MinimumProfit)
+			log.Info().Msgf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 		}
 	} else {
-		fmt.Printf("\n出现错误\n", maxProfit)
+		log.Info().Msg("出现错误")
 	}
-	fmt.Printf("===================================\n")
+	log.Info().Msg("===================================")
+
 	return true
 }
 
@@ -211,7 +216,7 @@ func extractNumbersFromText(text string) (int, bool) {
 func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width, height int) (int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
-		log.Info().Msg("\n[OCR] Failed to get screenshot\n")
+		log.Info().Msg("[OCR] Failed to get screenshot")
 		return 0, false
 	}
 
@@ -224,7 +229,7 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 
 	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
 	if detail == nil || detail.DetailJson == "" {
-		log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - No result\n", x, y, width, height)
+		log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 无结果", x, y, width, height)
 		return 0, false
 	}
 
@@ -245,7 +250,7 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 						if text, ok := result["text"].(string); ok {
 							// Try to extract numbers from the text
 							if num, success := extractNumbersFromText(text); success {
-								log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - Found: %s -> %d\n", x, y, width, height, text, num)
+								log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 找到: %s -> %d", x, y, width, height, text, num)
 								return num, true
 							}
 						}
@@ -255,7 +260,7 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 				if text, ok := v["text"].(string); ok {
 					// Try to extract numbers from the text
 					if num, success := extractNumbersFromText(text); success {
-						log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - Found: %s -> %d\n", x, y, width, height, text, num)
+						log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 找到: %s -> %d", x, y, width, height, text, num)
 						return num, true
 					}
 				}
@@ -270,7 +275,7 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, height int, keyword string) bool {
 	img := controller.CacheImage()
 	if img == nil {
-		log.Info().Msg("\n[OCR] Failed to get screenshot\n")
+		log.Info().Msg("[OCR] 未能获取截图")
 		return false
 	}
 
@@ -283,7 +288,7 @@ func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, h
 
 	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
 	if detail == nil || detail.DetailJson == "" {
-		log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - No result (keyword: %s)\n", x, y, width, height, keyword)
+		log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 无结果 (keyword: %s)", x, y, width, height, keyword)
 		return false
 	}
 
@@ -302,7 +307,7 @@ func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, h
 					if result, ok := v[0].(map[string]interface{}); ok {
 						if text, ok := result["text"].(string); ok {
 							if containsKeyword(text, keyword) {
-								log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - Found: %s (keyword: %s)\n", x, y, width, height, text, keyword)
+								log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 找到: %s (keyword: %s)", x, y, width, height, text, keyword)
 								return true
 							}
 						}
@@ -311,7 +316,7 @@ func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, h
 			case map[string]interface{}:
 				if text, ok := v["text"].(string); ok {
 					if containsKeyword(text, keyword) {
-						log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - Found: %s (keyword: %s)\n", x, y, width, height, text, keyword)
+						log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 找到: %s (keyword: %s)", x, y, width, height, text, keyword)
 						return true
 					}
 				}
@@ -319,7 +324,7 @@ func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, h
 		}
 	}
 
-	log.Info().Msgf("  [OCR] Region [%d, %d, %d, %d] - Not found (keyword: %s)\n", x, y, width, height, keyword)
+	log.Info().Msgf("  [OCR] 区域 [%d, %d, %d, %d] - 无结果 (keyword: %s)", x, y, width, height, keyword)
 	return false
 }
 
@@ -332,8 +337,7 @@ func containsKeyword(text, keyword string) bool {
 type ResellFinishAction struct{}
 
 func (a *ResellFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("Resell task completed")
-	log.Info().Msg("\n[Resell] Task completed\n")
+	log.Info().Msg("[Resell] Task completed")
 	return true
 }
 
