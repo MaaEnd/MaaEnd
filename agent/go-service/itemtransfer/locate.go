@@ -2,25 +2,10 @@ package itemtransfer
 
 import (
 	"encoding/json"
-	"image"
+	"fmt"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	FirstX       = 161
-	FirstY       = 217
-	LastX        = 643
-	LastY        = 423
-	SquareSize   = 64
-	GridInterval = 5
-)
-
-const (
-	ToolTipCursorOffset = 32
-	TooltipRoiScaleX    = 275
-	TooltipRoiScaleY    = 130
 )
 
 // const (
@@ -73,20 +58,14 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 					Int("grid_row_y", row).
 					Int("grid_col_x", col).
 					Msg("Yes That's it! We have found proper item.")
-				itemPlace, err := json.Marshal(struct {
-					GridRowY int
-					GridColX int
-					AbsRow   int
-				}{row, col, row}) // todo fix absrow
-				if err != nil {
-					log.Error().
-						Int("grid_row_y", row).
-						Int("grid_col_x", col).
-						Msg("Sadly, though we have found the item, some mysterious power ruined our powerful automation")
-				}
+
+				// saving cache todo move standalone
+				template := "{\"ItemTransferToBackpack\": {\"recognition\": {\"param\": {\"custom_recognition_param\": {\"ItemLastFoundRowAbs\": %d,\"ItemLastFoundColumnX\": %d}}}}}"
+				defer ctx.OverridePipeline(fmt.Sprintf(template, row, col))
+
 				return &maa.CustomRecognitionResult{
-					Box:    detail.Box,
-					Detail: string(itemPlace),
+					Box:    RepoSquarePos(row, col),
+					Detail: detail.DetailJson,
 				}, true
 			} else {
 				log.Info().
@@ -103,28 +82,4 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 	return nil, false
 	//todo: switch to next page
 
-}
-
-func MoveAndShot(ctx *maa.Context, gridRowY, gridColX int) (img image.Image) {
-	// Step 1 - Hover to item
-	if !HoverOnto(ctx, gridRowY, gridColX) {
-		log.Error().
-			Int("grid_row_y", gridRowY).
-			Int("grid_col_x", gridColX).
-			Msg("Failed to hover onto item")
-		return nil
-	}
-
-	// Step 2 - Make screenshot
-	log.Debug().
-		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridColX).
-		Msg("Start Capture")
-	controller := ctx.GetTasker().GetController()
-	controller.PostScreencap().Wait()
-	log.Debug().
-		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridColX).
-		Msg("Done Capture")
-	return controller.CacheImage()
 }
