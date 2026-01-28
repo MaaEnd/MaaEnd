@@ -3,4 +3,3 @@
 - 公式サイト: [maaend.com](https://maaend.com)
 - ソースコード: [GitHub](https://github.com/MaaEnd/MaaEnd)
 - 問題報告: [issue](https://github.com/MaaEnd/MaaEnd/issues)
-

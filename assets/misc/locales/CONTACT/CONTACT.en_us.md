@@ -3,4 +3,3 @@
 - Website: [maaend.com](https://maaend.com)
 - Source Code: [GitHub](https://github.com/MaaEnd/MaaEnd)
 - Issue Reports: [issue](https://github.com/MaaEnd/MaaEnd/issues)
-
