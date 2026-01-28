@@ -15,9 +15,9 @@
             "param": {
                 "custom_action": "TransferItemToBackpack",
                 "custom_action_param": {
-                    "GridRowY": "[PLACEHOLDER]", // [0, Infinity)
+                    "GridRowY": "[PLACEHOLDER]", // [0, 3]
                     "GridColX": "[PLACEHOLDER]", // [0, 7]
-                    "RowXNow": "[PLACEHOLDER]" // [0, 3]
+                    "AbsRow": "[PLACEHOLDER]" // [0, INF]
                 }
             }
         },
