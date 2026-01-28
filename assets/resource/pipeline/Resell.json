@@ -232,6 +232,9 @@
         "key": 27,
         "repeat": 2,
         "repeat_wait_freezes": 1000,
+        "focus": {
+            "Node.Action.Starting": "当前地区已售罄，切换下个地区"
+        },
         "next": [
             "ChangeNextRegion"
         ]

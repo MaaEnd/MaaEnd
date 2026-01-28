@@ -135,6 +135,9 @@
                 ]
             }
         ],
+        "focus": {
+            "Node.Action.Starting": "所有地区均已完成"
+        },
         "action": "DoNothing",
         "next": []
     }
