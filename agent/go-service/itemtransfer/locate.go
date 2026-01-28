@@ -2,6 +2,7 @@ package itemtransfer
 
 import (
 	"encoding/json"
+	"image"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -49,28 +50,11 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 	itemName := userSetting["ItemName"].(string)
 	//containerContent := userSetting["ContainerContent"] //todo put this into use
 
-	for row := range 1 { //todo change to 3
+	for row := range 3 {
 		for col := range 8 {
 
-			// Step 1 - Hover to item
-			if !HoverOnto(ctx, row, col) {
-				log.Error().
-					Int("grid_row_y", row).
-					Int("grid_col_x", col).
-					Msg("Failed to hover onto item")
-				return nil, false
-			}
-
-			// Step 2 - Make screenshot
-			log.Debug().
-				Int("grid_row_y", row).
-				Int("grid_col_x", col).
-				Msg("Start Capture")
-			ctrl.PostScreencap().Wait()
-			log.Debug().
-				Int("grid_row_y", row).
-				Int("grid_col_x", col).
-				Msg("Done Capture")
+			// Step 1 & 2
+			img := MoveAndShot(ctx, row, col)
 
 			// Step 3 - Call original OCR
 			log.Debug().Msg("Starting Recognition")
@@ -83,16 +67,34 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 					OrderBy:  "Expected",
 					Expected: []string{itemName},
 				},
-				ctrl.CacheImage(),
+				img,
 			)
 			log.Debug().Msg("Done Recognition")
 			if detail.Hit {
+				log.Info().
+					Int("grid_row_y", row).
+					Int("grid_col_x", col).
+					Msg("Yes That's it! We have found proper item.")
+				itemPlace, err := json.Marshal(struct {
+					GridRowY int
+					GridColX int
+					AbsRow   int
+				}{row, col, row}) // todo fix absrow
+				if err != nil {
+					log.Error().
+						Int("grid_row_y", row).
+						Int("grid_col_x", col).
+						Msg("Sadly, though we have found the item, some mysterious power ruined our powerful automation")
+				}
 				return &maa.CustomRecognitionResult{
 					Box:    detail.Box,
-					Detail: "",
+					Detail: string(itemPlace),
 				}, true
 			} else {
-				return nil, false
+				log.Info().
+					Int("grid_row_y", row).
+					Int("grid_col_x", col).
+					Msg("Not this one. Bypass.")
 			}
 
 		}
@@ -103,4 +105,28 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 	return nil, false
 	//todo: switch to next page
 
+}
+
+func MoveAndShot(ctx *maa.Context, gridRowY, gridColX int) (img image.Image) {
+	// Step 1 - Hover to item
+	if !HoverOnto(ctx, gridRowY, gridColX) {
+		log.Error().
+			Int("grid_row_y", gridRowY).
+			Int("grid_col_x", gridColX).
+			Msg("Failed to hover onto item")
+		return nil
+	}
+
+	// Step 2 - Make screenshot
+	log.Debug().
+		Int("grid_row_y", gridRowY).
+		Int("grid_col_x", gridColX).
+		Msg("Start Capture")
+	controller := ctx.GetTasker().GetController()
+	controller.PostScreencap().Wait()
+	log.Debug().
+		Int("grid_row_y", gridRowY).
+		Int("grid_col_x", gridColX).
+		Msg("Done Capture")
+	return controller.CacheImage()
 }
