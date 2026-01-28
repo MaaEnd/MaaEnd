@@ -2,6 +2,31 @@
     // ========================================================
     // 任务 1：全屏阻断点击 (Priority: High)
     // ========================================================
+    "Guard_CheckMailbox": {
+        "doc": "前置拦截：如果检测到是邮箱界面，则跳过全屏点击，防止误触邮件内容",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/MailHeader.png",
+                // 这种静态UI非常标准，阈值可以拉高，防止误判
+                "threshold": 0.8,
+                // 只看左上角标题栏，非常高效且精准
+                "roi": [
+                    29,
+                    9,
+                    60,
+                    80
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "ClickAnywhereToContinue"
+        ],
+        "on_error": [
+            "RealTimeTaskMain"
+        ]
+    },
     "ClickAnywhereToContinue": {
         "doc": "检测屏幕上出现的'点击任意处继续'提示并点击",
         "recognition": {
@@ -16,7 +41,7 @@
                 "roi": [
                     50,
                     25,
-                    1100,
+                    1150,
                     680
                 ]
             }
@@ -33,10 +58,10 @@
             }
         },
         "post_wait_freezes": 100,
-        "focus": {
-            "Node.Recognition.Succeeded": "识别到[点击任意处继续]"
-        },
         "next": [
+            "RealTimeTaskMain"
+        ],
+        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -77,6 +102,9 @@
         },
         "next": [
             "SafeCloseButton"
+        ],
+        "on_error": [
+            "RealTimeTaskMain"
         ]
     },
     "SafeCloseButton": {
@@ -93,6 +121,9 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
+            "RealTimeTaskMain"
+        ],
+        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -120,6 +151,9 @@
         "next": [
             "HandleTutorialConfirm",
             "RealTimeTaskMain"
+        ],
+        "on_error": [
+            "RealTimeTaskMain"
         ]
     },
     // ========================================================
@@ -144,6 +178,9 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
+            "RealTimeTaskMain"
+        ],
+        "on_error": [
             "RealTimeTaskMain"
         ]
     },
@@ -180,6 +217,9 @@
         "post_wait_freezes": 200,
         "next": [
             "RealTimeTaskMain"
+        ],
+        "on_error": [
+            "RealTimeTaskMain"
         ]
     },
     "HandleTutorialGuide_LeftUp": {
@@ -211,6 +251,9 @@
         },
         "post_wait_freezes": 100,
         "next": [
+            "RealTimeTaskMain"
+        ],
+        "on_error": [
             "RealTimeTaskMain"
         ]
     }
