@@ -474,8 +474,7 @@
                         "AutoFightCombo",
                         "AutoFightSkill",
                         "AutoFightEndSkill",
-                        "AutoFightLockTarget",
-                        // "AutoFightSaveDamage"
+                        "AutoFightLockTarget"
                     ]
                 },
                 {
