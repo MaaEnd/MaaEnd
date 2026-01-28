@@ -15,5 +15,40 @@
         "action": {
             "type": "Click"
         }
+    },
+    "ClickAnywhereToContinue_General": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "点击任意处继续",
+                    "点击任意处",
+                    "任意处继续",
+                    "点击",
+                    "任意处"
+                ],
+                // 16:10 安全区优化：X从50开始，宽度给足
+                "roi": [
+                    50,
+                    25,
+                    1100,
+                    680
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            // 点击位置优化：避开最右侧边缘，选一个16:10屏幕肯定在内的点
+            // (1152x720 是16:10的宽，所以 x=1000 很安全)
+            "param": {
+                "target": [
+                    1000,
+                    600,
+                    50,
+                    50
+                ]
+            }
+        },
+        "post_wait_freezes": 500,
     }
 }

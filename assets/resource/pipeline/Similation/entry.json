@@ -20,7 +20,7 @@
             }
         },
         "next": [
-            "StartStage3_ShreddingUnit"
+            "[JumpBack]StartStage3_ShreddingUnit"
         ]
     },
     "OpenSimilation": {
@@ -342,7 +342,7 @@
                     171,
                     79
                 ],
-                "expected": "^(建|/)造状态$"
+                "expected": "造状态"
             }
         },
         "action": {

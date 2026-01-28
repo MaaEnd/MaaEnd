@@ -1,4 +1,22 @@
 {
+    "TestStage3": {
+        "next": [
+            "[JumpBack]ChangeToAIC_Mode",
+            "[JumpBack]CompleteSimilation",
+            "ExitSimilation",
+            "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]EnterTopView",
+            "[JumpBack]CloseTips",
+            "[JumpBack]Stage_3_Mission_1",
+            "[JumpBack]WaitForStage_3_Mission_1_Complete",
+            "[JumpBack]Stage_3_Mission_2",
+            "[JumpBack]WaitForStage_3_Mission_2_Complete",
+            "[JumpBack]NeedSkip",
+            "[JumpBack]Confirm",
+            "[JumpBack]WaitLoadingText",
+            "[JumpBack]StartSimilation"
+        ]
+    },
     "StartStage3_ShreddingUnit": {
         //粉碎机模拟空间       
         "timeout": 60000,
@@ -8,9 +26,30 @@
             "param": {
                 "roi": [
                     17,
-                    424,
-                    112,
-                    110
+                    8,
+                    266,
+                    688
+                ],
+                "expected": "粉碎机"
+            }
+        },
+        "next": [
+            "Stage_3_IsComplete",
+            "Stage_3_NotComplete"
+        ]
+    },
+    "Stage_3_NotComplete": {
+        "focus": {
+            "Node.Recognition.Succeeded": "进入粉碎机模拟空间"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    17,
+                    8,
+                    266,
+                    688
                 ],
                 "expected": "粉碎机"
             }
@@ -27,28 +66,33 @@
             "[JumpBack]Stage_3_Mission_1",
             "[JumpBack]WaitForStage_3_Mission_1_Complete",
             "[JumpBack]Stage_3_Mission_2",
-            "[JumpBack]NeedSkip",
-            "[JumpBack]Confirm",
-            "[JumpBack]WaitLoadingText",
-            "[JumpBack]StartSimilation"
-        ]
-    },
-    "TestStage3": {
-        "timeout": 60000,
-        "next": [
-            "[JumpBack]ChangeToAIC_Mode",
-            "CompleteSimilation",
-            "[JumpBack]EnterTopView",
-            "[JumpBack]CloseTips",
-            "[JumpBack]Stage_3_Mission_1",
-            "[JumpBack]WaitForStage_3_Mission_1_Complete",
-            "[JumpBack]Stage_3_Mission_2",
             "[JumpBack]WaitForStage_3_Mission_2_Complete",
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
             "[JumpBack]WaitLoadingText",
             "[JumpBack]StartSimilation"
         ]
+    },
+    "Stage_3_IsComplete": {
+        "focus": {
+            "Node.Recognition.Succeeded": "粉碎机模拟已完成"
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "StartStage3_ShreddingUnit",
+                "roi_offset": [
+                    -20,
+                    -3,
+                    20,
+                    5
+                ],
+                "template": [
+                    "Similation/SimilationComplete_Selected.png",
+                    "Similation/SimilationComplete_Unselect.png"
+                ]
+            }
+        }
     },
     "Stage_3_Mission_1": {
         //粉碎机任务1"连接各设备,使用粉碎机生产3份荞花粉末并存入仓库
