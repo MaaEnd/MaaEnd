@@ -99,6 +99,15 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                31,
+                50,
+                229,
+                635
+            ]
+        },
         "next": [
             "ClickChapterUnreadBadge",
             "ScrollListForNextUnreadWiki",
@@ -112,10 +121,10 @@
             "param": {
                 "template": "ReadWiki/WikiUnreadBadge.png",
                 "roi": [
-                    31,
-                    50,
-                    229,
-                    635
+                    21,
+                    51,
+                    350,
+                    58
                 ]
             }
         },
