@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -63,7 +62,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 1: 识别商品价格
 			log.Info().Msg("第一步：识别商品价格")
 			stepCounter++
-			time.Sleep(500 * time.Millisecond)
+			delay_freezes_time(ctx, 400)
 			controller.PostScreencap().Wait()
 
 			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 31)
@@ -79,7 +78,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("第二步：查看好友价格")
-			time.Sleep(500 * time.Millisecond)
+			delay_freezes_time(ctx, 400)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
@@ -102,7 +101,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("第三步：识别好友出售价")
 			//等两秒加载好友价格
-			time.Sleep(2000 * time.Millisecond)
+			delay_freezes_time(ctx, 1000)
 			controller.PostScreencap().Wait()
 
 			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28)
@@ -135,7 +134,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
 			log.Info().Msg("第四步：返回商品详情页")
-			time.Sleep(500 * time.Millisecond)
+			delay_freezes_time(ctx, 400)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 1039, 135, 47, 21, "返回")
@@ -146,7 +145,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
 			log.Info().Msg("第五步：关闭商品详情页")
-			time.Sleep(500 * time.Millisecond)
+			delay_freezes_time(ctx, 400)
 			controller.PostScreencap().Wait()
 
 			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
@@ -161,8 +160,8 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	// Output results using focus
-	log.Info().Msg("========== 识别完成 ==========")
-	log.Info().Msgf("总共识别到%d件商品", len(records))
+	ShowMessage(ctx, "========== 识别完成 ==========")
+	ShowMessage(ctx, fmt.Sprintf("总共识别到%d件商品", len(records)))
 	for i, record := range records {
 		log.Info().Msgf("[%d] 行: %d, 列: %d, 成本: %d, 售价: %d, 利润: %d",
 			i+1, record.Row, record.Col, record.CostPrice, record.SalePrice, record.Profit)
@@ -176,22 +175,24 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			break
 		}
 	}
+
 	var maxRecord ProfitRecord
 	if maxProfitIdx >= 0 {
 		maxRecord = records[maxProfitIdx]
 		if maxRecord.Profit >= MinimumProfit {
-			log.Info().Msgf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			ShowMessage(ctx, fmt.Sprintf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit))
 			taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
 			ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
 		} else {
-			log.Info().Msgf("没有利润超过%d的商品，建议把配额留至明天", MinimumProfit)
-			log.Info().Msgf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			ShowMessage(ctx, fmt.Sprintf("没有利润超过%d的商品，建议把配额留至明天", MinimumProfit))
+			ShowMessage(ctx, fmt.Sprintf("当前利润最高商品:第%d行, 第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit))
+			controller.PostClickKey(27) //返回至地区管理界面
+			ctx.OverrideNext(arg.CurrentTaskName, []string{"ChangeNextRegion"})
 		}
 	} else {
 		log.Info().Msg("出现错误")
 	}
-	log.Info().Msg("===================================")
-
+	ShowMessage(ctx, "=============================")
 	return true
 }
 
@@ -354,4 +355,25 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 	tasker.PostTask("ResellMain").Wait()
 
 	return nil
+}
+
+func ShowMessage(ctx *maa.Context, text string) bool {
+	ctx.RunTask("Task", map[string]interface{}{
+		"Task": map[string]interface{}{
+			"focus": map[string]interface{}{
+				"Node.Action.Starting": text,
+			},
+		},
+	})
+	return true
+}
+
+func delay_freezes_time(ctx *maa.Context, time int) bool {
+	ctx.RunTask("Task", map[string]interface{}{
+		"Task": map[string]interface{}{
+			"pre_wait_freezes": time,
+		},
+	},
+	)
+	return true
 }
