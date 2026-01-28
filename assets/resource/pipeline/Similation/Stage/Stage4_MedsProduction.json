@@ -4,10 +4,14 @@
             "[JumpBack]ChangeToAIC_Mode",
             "[JumpBack]CompleteSimilation",
             "ExitSimilation",
+            "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]HandleTutorialGuide_RightUp_General",
+            "[JumpBack]HandleTutorialGuide_LeftUp_General",
             "[JumpBack]EnterTopView",
             "[JumpBack]CloseTips",
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
+            "[JumpBack]Stage_4_Mission_1",
             "[JumpBack]WaitLoadingText",
             "[JumpBack]StartSimilation"
         ]
@@ -57,6 +61,8 @@
             "[JumpBack]CompleteSimilation",
             "ExitSimilation",
             "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]HandleTutorialGuide_RightUp_General",
+            "[JumpBack]HandleTutorialGuide_LeftUp_General",
             "[JumpBack]EnterTopView",
             "[JumpBack]CloseTips",
             "[JumpBack]NeedSkip",
@@ -88,5 +94,232 @@
         "next": [
             "Stage_4_MedsProduction"
         ]
+    },
+    "Stage_4_Mission_1": {
+        //药品产线模拟空间-任务1:点击协议核心取货口
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Stage_4_Mission_1_Title",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    44,
+                                    459,
+                                    314
+                                ],
+                                "expected": [
+                                    "以生产荞花粉末"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Stage_4_Mission_1_Title",
+                                "roi_offset": [
+                                    276,
+                                    -13,
+                                    -61,
+                                    9
+                                ],
+                                "expected": [
+                                    "0/1"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "Stage_4_Find_PAC",
+            "[JumpBack]Stage_4_TopViewUp"
+        ]
+    },
+    "Stage_4_Mission_1_Complete": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Stage_4_Mission_1_Title",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    44,
+                                    459,
+                                    314
+                                ],
+                                "expected": [
+                                    "以生产荞花粉末"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Stage_4_Mission_1_Title",
+                                "roi_offset": [
+                                    276,
+                                    -13,
+                                    -61,
+                                    9
+                                ],
+                                "expected": [
+                                    "1/1"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Stage_4_Find_PAC": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Stage_4_Find_PAC_Title",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    489,
+                                    79,
+                                    375,
+                                    296
+                                ],
+                                "expected": [
+                                    "协议核心"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_Stage_4_Find_PAC_Title",
+                                "roi_offset": [
+                                    139,
+                                    98,
+                                    16,
+                                    66
+                                ],
+                                "upper": [
+                                    255,
+                                    255,
+                                    10
+                                ],
+                                "lower": [
+                                    232,
+                                    218,
+                                    0
+                                ],
+                                "connected": true,
+                                "count": 10
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_Mission_1_Complete",
+            "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]HandleTutorialGuide_RightUp_General",
+            "[JumpBack]HandleTutorialGuide_LeftUp_General",
+            "[JumpBack]Wait_Stage_4_Mission_1_Complete"
+        ]
+    },
+    "Stage_4_TopViewUp": {
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    100
+                ],
+                "end": [
+                    640,
+                    150
+                ],
+                "duration": 100
+            }
+        }
+    },
+    "Wait_Stage_4_Mission_1_Complete": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Stage_4_Mission_1_Title",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    44,
+                                    459,
+                                    314
+                                ],
+                                "expected": [
+                                    "以生产荞花粉末"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Stage_4_Mission_1_Title",
+                                "roi_offset": [
+                                    276,
+                                    -13,
+                                    -61,
+                                    9
+                                ],
+                                "expected": [
+                                    "0/1"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
     }
 }

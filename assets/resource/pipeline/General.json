@@ -24,7 +24,6 @@
                     "点击任意处继续",
                     "点击任意处",
                     "任意处继续",
-                    "点击",
                     "任意处"
                 ],
                 // 16:10 安全区优化：X从50开始，宽度给足
@@ -51,13 +50,14 @@
         },
         "post_wait_freezes": 500
     },
-    "HandleTutorialGuide_General": {
+    "HandleTutorialGuide_RightUp_General": {
+        "doc": "检测并点击新手引导的指引箭头",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/HandPoint.png",
-                "threshold": 0.6,
-                // 直接写满 1280x720，MaaFW 会处理越界
+                "template": "CloseInfo/RightUpHand.png",
+                "threshold": 0.66,
+                "green_mask": true,
                 "roi": [
                     0,
                     0,
@@ -70,13 +70,42 @@
             "type": "Click",
             "param": {
                 "target_offset": [
-                    25,
-                    -15,
+                    30,
+                    -25,
                     0,
                     0
                 ]
             }
         },
-        "post_wait_freezes": 500
+        "post_wait_freezes": 200
+    },
+    "HandleTutorialGuide_LeftUp_General": {
+        "doc": "检测新手引导箭头(指向左上)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "CloseInfo/LeftUpHand.png",
+                "threshold": 0.66,
+                "green_mask": true,
+                "roi": [
+                    0,
+                    80,
+                    1280,
+                    640
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -30,
+                    -25,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": 100
     }
 }

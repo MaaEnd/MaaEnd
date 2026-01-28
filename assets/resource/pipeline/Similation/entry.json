@@ -81,15 +81,39 @@
     },
     "NeedSkip": {
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    1204,
-                    0,
-                    76,
-                    64
-                ],
-                "expected": "^(E|e)(S|s)(C|c)$"
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "RealTimeTask/AutoSkipA.png",
+                                "roi": [
+                                    1140,
+                                    0,
+                                    120,
+                                    90
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "threshold": 0.7,
+                                "template": "RealTimeTask/AutoSkipEsc.png",
+                                "roi": [
+                                    1140,
+                                    0,
+                                    120,
+                                    90
+                                ]
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {

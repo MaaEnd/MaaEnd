@@ -5,12 +5,16 @@
             "[JumpBack]CompleteSimilation",
             "ExitSimilation",
             "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]HandleTutorialGuide_RightUp_General",
+            "[JumpBack]HandleTutorialGuide_LeftUp_General",
             "[JumpBack]EnterTopView",
             "[JumpBack]CloseTips",
+            //任务流程
             "[JumpBack]Stage_3_Mission_1",
             "[JumpBack]WaitForStage_3_Mission_1_Complete",
             "[JumpBack]Stage_3_Mission_2",
             "[JumpBack]WaitForStage_3_Mission_2_Complete",
+            //任务流程结束
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
             "[JumpBack]WaitLoadingText",
