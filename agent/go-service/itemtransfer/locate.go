@@ -48,7 +48,7 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 	itemName := userSetting["ItemName"].(string)
 	//containerContent := userSetting["ContainerContent"] //todo put this into use
 
-	for row := range 3 {
+	for row := range 4 {
 		for col := range 8 {
 
 			// Step 1 & 2
