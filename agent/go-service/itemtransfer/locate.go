@@ -30,8 +30,6 @@ const (
 type RepoLocate struct{}
 
 func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	tasker := ctx.GetTasker()
-	ctrl := tasker.GetController()
 	var userSetting map[string]any
 
 	err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &userSetting)
