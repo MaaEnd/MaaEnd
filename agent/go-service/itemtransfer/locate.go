@@ -28,16 +28,9 @@ const (
 
 type RepoLocate struct{}
 
-type JobWithGridInfo struct {
-	*maa.TaskJob
-	gridRowY int
-	gridColX int
-}
-
 func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	tasker := ctx.GetTasker()
 	ctrl := tasker.GetController()
-	recognitionTasks := make([]*JobWithGridInfo, 0, 32)
 	var userSetting map[string]any
 
 	err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &userSetting)
@@ -69,26 +62,39 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 			}
 
 			// Step 2 - Make screenshot
-			log.Debug().Msg("Starting Screencap")
+			log.Debug().
+				Int("grid_row_y", row).
+				Int("grid_col_x", col).
+				Msg("Start Capture")
 			ctrl.PostScreencap().Wait()
-			log.Debug().Msg("Done Screencap")
+			log.Debug().
+				Int("grid_row_y", row).
+				Int("grid_col_x", col).
+				Msg("Done Capture")
 
-			// Step 3 - Before continuing: Does any early recognition found what we need?
-			result, done := checkFoundItem(recognitionTasks)
-			if done {
-				// todo rewrite pipeline, as input to result
+			// Step 3 - Call original OCR
+			log.Debug().Msg("Starting Recognition")
+			detail := ctx.RunRecognitionDirect(
+				maa.NodeRecognitionTypeOCR,
+				maa.NodeOCRParam{
+					ROI: maa.NewTargetRect(
+						RepoRoi(row, col),
+					),
+					OrderBy:  "Expected",
+					Expected: []string{itemName},
+				},
+				ctrl.CacheImage(),
+			)
+			log.Debug().Msg("Done Recognition")
+			if detail.Hit {
 				return &maa.CustomRecognitionResult{
-					Box:    result,
+					Box:    detail.Box,
 					Detail: "",
 				}, true
+			} else {
+				return nil, false
 			}
 
-			// Step 4 - Recognize current item's name, add to tasker
-			recognitionTasks = append(recognitionTasks, NewJobWithGridInfo(tasker, row, col, itemName))
-			log.Trace().
-				Int("row", row).
-				Int("col", col).
-				Msg("Task added to tasklist")
 		}
 
 	}
@@ -96,73 +102,5 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 		Msg("No item with given name found. Please check input")
 	return nil, false
 	//todo: switch to next page
-}
 
-func checkFoundItem(recognitionTasks []*JobWithGridInfo) (maa.Rect, bool) {
-	for _, task := range recognitionTasks {
-		if task != nil {
-			if task.Done() {
-				log.Trace().
-					Int64("task_id", task.GetDetail().ID).
-					Msg("A recognition job is done, does it fail? let me see")
-				if task.Success() {
-					log.Debug().
-						Int64("task_id", task.GetDetail().ID).
-						Msg("Recognition job succeeded. Checking item")
-					if task.GetDetail().NodeDetails[0].Recognition.Hit {
-						log.Info().
-							Int("grid_row_y", task.gridRowY).
-							Int("grid_col_x", task.gridColX).
-							Msg("Hooray! We have found the right Item")
-						return RepoRoi(task.gridRowY, task.gridColX), true
-					}
-					// Not this one, continue
-					log.Info().
-						Int("grid_row_y", task.gridRowY).
-						Int("grid_col_x", task.gridColX).
-						Msg("Hmm... Seems we have not reached the item")
-				} else {
-					log.Error().
-						Int("grid_row_y", task.gridRowY).
-						Int("grid_col_x", task.gridColX).
-						Msg("Task Job reported an error.")
-					//roadmap: retry?
-				}
-			} else {
-				log.Trace().
-					Int("grid_row_y", task.gridRowY).
-					Int("grid_col_x", task.gridColX).
-					Msg("Task is not done yet")
-
-			}
-		} else {
-			log.Error().
-				Msg("Task is nil, but how??")
-		}
-
-	}
-	return maa.Rect{}, false
-}
-
-func NewJobWithGridInfo(tasker *maa.Tasker, gridRowY, gridColX int, keyword string) *JobWithGridInfo {
-	log.Debug().
-		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridColX).
-		Msg("Start recognizing item")
-	task := tasker.PostRecognition(
-		maa.NodeRecognitionTypeOCR,
-		maa.NodeOCRParam{
-			ROI: maa.NewTargetRect(
-				RepoRoi(gridRowY, gridColX),
-			),
-			OrderBy:  "Expected",
-			Expected: []string{keyword},
-		},
-		tasker.GetController().CacheImage(),
-	)
-	log.Trace().
-		Int("grid_row_y", gridRowY).
-		Int("grid_col_x", gridColX).
-		Msg("Task created")
-	return &JobWithGridInfo{task, gridRowY, gridColX}
 }
