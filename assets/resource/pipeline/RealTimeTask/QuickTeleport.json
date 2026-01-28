@@ -11,6 +11,9 @@
         ],
         "expected": "协议传送点",
         "action": "Click",
+        "focus": {
+            "Node.Action.Succeeded": "点击协议传送点"
+        },
         "next": [
             "RealTimeQuickTeleportDirect"
         ]
@@ -27,6 +30,9 @@
             26
         ],
         "action": "Click",
+        "focus": {
+            "Node.Action.Succeeded": "点击传送按钮"
+        },
         "next": [
             "RealTimeTaskMain"
         ]

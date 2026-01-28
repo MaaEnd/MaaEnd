@@ -57,6 +57,9 @@
                 ]
             }
         },
+        "focus": {
+            "Node.Action.Succeeded": "跳过点击任意处继续"
+        },
         "post_wait_freezes": 100,
         "next": [
             "RealTimeTaskMain"
@@ -119,6 +122,9 @@
             80
         ],
         "action": "Click",
+        "focus": {
+            "Node.Recognition.Succeeded": "执行通用关闭操作"
+        },
         "post_wait_freezes": 100,
         "next": [
             "RealTimeTaskMain"
@@ -148,6 +154,9 @@
         },
         "action": "Click",
         "post_wait_freezes": 100,
+        "focus": {
+            "Node.Action.Succeeded": "点击说明书翻页"
+        },
         "next": [
             "HandleTutorialConfirm",
             "RealTimeTaskMain"
@@ -177,6 +186,9 @@
         },
         "action": "Click",
         "post_wait_freezes": 100,
+        "focus": {
+            "Node.Action.Succeeded": "点击说明书确认键"
+        },
         "next": [
             "RealTimeTaskMain"
         ],
@@ -214,6 +226,9 @@
                 ]
             }
         },
+        "focus": {
+            "Node.Action.Succeeded": "点击引导箭头"
+        },
         "post_wait_freezes": 200,
         "next": [
             "RealTimeTaskMain"
@@ -250,6 +265,9 @@
             }
         },
         "post_wait_freezes": 100,
+        "focus": {
+            "Node.Action.Succeeded": "点击引导箭头"
+        },
         "next": [
             "RealTimeTaskMain"
         ],

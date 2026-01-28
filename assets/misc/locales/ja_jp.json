@@ -34,6 +34,8 @@
     "option.AutoFightSkill.label": "スキル自動使用",
     "option.AutoFightEndSkill.label": "必殺技自動使用",
     "option.AutoFightCombo.label": "連携スキル自動発動",
+    "option.AutoFightLockTarget.label": "ターゲット自動ロック",
+    "option.AutoFightSaveDamage.label": "被ダメージ画像を自動保存（テスト用）",
     "option.AutoPick.label": "自動拾取",
     "option.QuickTeleport.label": "クイックテレポート",
     "option.QuickTeleport.description": "ワールドマップ（または一覧）で転送地点を選択した時に、転送を自動でクリックします。",

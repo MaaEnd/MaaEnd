@@ -13,7 +13,7 @@
             "RealTimeAutoZipline",
             "HandleTutorialGuide_RightUp",
             "HandleTutorialGuide_LeftUp",
-            "Guard_CheckMailbox",
+            // "Guard_CheckMailbox",
             "HandleTutorialPaging",
             "HandleTutorialConfirm",
             "CheckSpecialInfoPanel",

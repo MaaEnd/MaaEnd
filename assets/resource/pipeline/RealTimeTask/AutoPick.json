@@ -42,6 +42,9 @@
         "key": 70
       }
     },
+    "focus": {
+      "Node.Action.Succeeded": "拾取掉落物"
+    },
     "pre_delay": 0,
     "post_delay": 50,
     "next": [
@@ -111,6 +114,9 @@
       "param": {
         "key": 70
       }
+    },
+    "focus": {
+      "Node.Action.Succeeded": "拾取交互物"
     },
     "pre_delay": 0,
     "post_delay": 50,

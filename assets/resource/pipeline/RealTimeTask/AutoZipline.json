@@ -23,6 +23,9 @@
         "recognition": "DirectHit",
         "action": "ClickKey",
         "key": 69,
+        "focus": {
+            "Node.Action.Succeeded": "确认长距滑索"
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
