@@ -1,0 +1,25 @@
+{
+    "ItemTransferToBackpack": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "LocateItemFromRepository",
+                "custom_recognition_param": {
+                    "ItemName": "[PLACEHOLDER]",
+                    "ContainerContent": null // null(nil) as default, not a cantainer
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "TransferItemToBackpack",
+                "custom_action_param": {
+                    "GridRowY": "[PLACEHOLDER]", // [0, Infinity)
+                    "GridColX": "[PLACEHOLDER]", // [0, 7]
+                    "RowXNow": "[PLACEHOLDER]" // [0, 3]
+                }
+            }
+        }
+    }
+}

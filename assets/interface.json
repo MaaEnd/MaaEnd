@@ -195,7 +195,7 @@
         {
             "name": "ItemTransfer",
             "label": "$task.ItemTransfer.label",
-            "entry": "ItemTransfer",
+            "entry": "ItemTransferToBackpack",
             "description": "$task.ItemTransfer.description",
             "option": [
                 "WhatToTransfer",
@@ -847,10 +847,19 @@
                 }
             ],
             "pipeline_override": {
-                "ItemTransfer": {
-                    "action": {
+                "ItemTransferToBackpack": {
+                    "recognition": {
                         "param": {
-                            "custom_action_param": {
+                            "custom_recognition_param": {
+                                "ItemName": "{ItemName}"
+                            }
+                        }
+                    }
+                },
+                "ItemTransferToRepository": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
                                 "ItemName": "{ItemName}"
                             }
                         }
@@ -888,10 +897,19 @@
                 }
             ],
             "pipeline_override": {
-                "ItemTransfer": {
-                    "action": {
+                "ItemTransferToBackpack": {
+                    "recognition": {
                         "param": {
-                            "custom_action_param": {
+                            "custom_recognition_param": {
+                                "ContainerContent": "{Content}"
+                            }
+                        }
+                    }
+                },
+                "ItemTransferToRepository": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
                                 "ContainerContent": "{Content}"
                             }
                         }
@@ -931,14 +949,8 @@
                 }
             ],
             "pipeline_override": {
-                "ItemTransfer": {
-                    "action": {
-                        "param": {
-                            "custom_action_param": {
-                                "TransferTimes": "{Times}"
-                            }
-                        }
-                    }
+                "ItemTransferToBackpack": {
+                    "max_hit": "{Times}"
                 }
             }
         }
