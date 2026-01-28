@@ -16,3 +16,7 @@ agent/go-service/vendor/
 # 其他
 *.min.js
 *.min.css
+
+# GitHub Workflows (avoid permission issues during auto-format)
+.github/workflows/*.yml
+.github/workflows/*.yaml
