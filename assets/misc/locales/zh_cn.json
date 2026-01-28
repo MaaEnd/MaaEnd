@@ -74,8 +74,8 @@
     "option.TransferTimes.input.label": "转移次数",
     "option.TransferTimes.input.description": "“批量转移同类物品”填满背包的次数",
     "option.TransferTimes.input.error": "请输入非负整数",
-    "node.ItemTransferToBackpack.focus.recognition.starting": "开始从仓库中查找指定物品。任务 ID: {task_id}，子任务 ID:  {reco_id}",
-    "node.ItemTransferToBackpack.focus.recognition.succeeded": "已找到指定物品",
+    "node.ItemTransferToBackpack.focus.recognition.starting": "开始从仓库中查找指定物品",
+    "node.ItemTransferToBackpack.focus.recognition.succeeded": "已找到指定物品的位置",
     "node.ItemTransferToBackpack.focus.recognition.failed": "从仓库中查找物品时出错。可能是未找到指定物品",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md"
 }

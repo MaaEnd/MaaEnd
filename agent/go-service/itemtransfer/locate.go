@@ -37,7 +37,7 @@ type JobWithGridInfo struct {
 func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	tasker := ctx.GetTasker()
 	ctrl := tasker.GetController()
-	recognitionTasks := make([]*JobWithGridInfo, 8)
+	recognitionTasks := make([]*JobWithGridInfo, 0, 32)
 	var userSetting map[string]any
 
 	err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &userSetting)
@@ -60,7 +60,11 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 		for col := range 8 {
 
 			// Step 1 - Hover to item
-			if !HoverTo(ctx, row, col) {
+			if !HoverOnto(ctx, row, col) {
+				log.Error().
+					Int("grid_row_y", row).
+					Int("grid_col_x", col).
+					Msg("Failed to hover onto item")
 				return nil, false
 			}
 
@@ -96,33 +100,44 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 
 func checkFoundItem(recognitionTasks []*JobWithGridInfo) (maa.Rect, bool) {
 	for _, task := range recognitionTasks {
-		if task.Done() {
-			log.Trace().
-				Int64("task_id", task.GetDetail().ID).
-				Msg("A recognition job is done, does it fail? let me see")
-			if task.Success() {
-				log.Debug().
+		if task != nil {
+			if task.Done() {
+				log.Trace().
 					Int64("task_id", task.GetDetail().ID).
-					Msg("Recognition job succeeded. Checking item")
-				if task.GetDetail().NodeDetails[0].Recognition.Hit {
+					Msg("A recognition job is done, does it fail? let me see")
+				if task.Success() {
+					log.Debug().
+						Int64("task_id", task.GetDetail().ID).
+						Msg("Recognition job succeeded. Checking item")
+					if task.GetDetail().NodeDetails[0].Recognition.Hit {
+						log.Info().
+							Int("grid_row_y", task.gridRowY).
+							Int("grid_col_x", task.gridColX).
+							Msg("Hooray! We have found the right Item")
+						return RepoRoi(task.gridRowY, task.gridColX), true
+					}
+					// Not this one, continue
 					log.Info().
 						Int("grid_row_y", task.gridRowY).
 						Int("grid_col_x", task.gridColX).
-						Msg("Hooray! We have found the right Item")
-					return RepoRoi(task.gridRowY, task.gridColX), true
+						Msg("Hmm... Seems we have not reached the item")
+				} else {
+					log.Error().
+						Int("grid_row_y", task.gridRowY).
+						Int("grid_col_x", task.gridColX).
+						Msg("Task Job reported an error.")
+					//roadmap: retry?
 				}
-				// Not this one, continue
-				log.Info().
-					Int("grid_row_y", task.gridRowY).
-					Int("grid_col_x", task.gridColX).
-					Msg("Hmm... Seems we have not reached the item")
 			} else {
-				log.Error().
+				log.Trace().
 					Int("grid_row_y", task.gridRowY).
 					Int("grid_col_x", task.gridColX).
-					Msg("Task Job reported an error.")
-				//roadmap: retry?
+					Msg("Task is not done yet")
+
 			}
+		} else {
+			log.Error().
+				Msg("Task is nil, but how??")
 		}
 
 	}
@@ -133,7 +148,7 @@ func NewJobWithGridInfo(tasker *maa.Tasker, gridRowY, gridRowX int, keyword stri
 	log.Debug().
 		Int("grid_row_y", gridRowY).
 		Int("grid_col_x", gridRowX).
-		Msg("Now recognizing item")
+		Msg("Start recognizing item")
 	task := tasker.PostRecognition(
 		maa.NodeRecognitionTypeOCR,
 		maa.NodeOCRParam{

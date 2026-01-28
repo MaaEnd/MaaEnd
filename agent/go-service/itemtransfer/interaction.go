@@ -5,11 +5,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func HoverTo(ctx *maa.Context, gridRowY, gridColX int) (success bool) {
+func HoverOnto(ctx *maa.Context, gridRowY, gridColX int) (success bool) {
 	log.Debug().
 		Int("grid_row_y", gridRowY).
 		Int("grid_col_x", gridColX).
-		Msg("Agent Start Hovering to Item")
+		Msg("Agent Start Hovering onto Item")
 	success = ctx.RunActionDirect(
 		maa.NodeActionTypeSwipe,
 		maa.NodeSwipeParam{
