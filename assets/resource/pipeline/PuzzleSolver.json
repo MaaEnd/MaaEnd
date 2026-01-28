@@ -13,7 +13,12 @@
         // 解谜的准备界面，匹配左侧的特征性图案
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ScenePrepare.png",
-        "roi": [167, 199, 354, 296],
+        "roi": [
+            167,
+            199,
+            354,
+            296
+        ],
         "next": [
             "PuzzleSolverFindStartButton"
         ],
@@ -25,7 +30,12 @@
         // 点击右下角的“修复”按钮开始拼图游戏
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ButtonStart.png",
-        "roi": [999, 469, 134, 140],
+        "roi": [
+            999,
+            469,
+            134,
+            140
+        ],
         "action": "Click",
         "next": [
             "PuzzleSolverOnSceneMain"
@@ -35,7 +45,12 @@
         // 解谜的主界面，匹配右上角的特征性图案
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/SceneMain.png",
-        "roi": [944, 0, 236, 164],
+        "roi": [
+            944,
+            0,
+            236,
+            164
+        ],
         "next": [
             "PuzzleSolverFindUnavailableTip",
             "PuzzleSolverFindCompleteTip",
@@ -48,7 +63,12 @@
         // 查找是否存在“有尚未了解的元件样式”的提示，此时不能进行游戏
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipUnavailable.png",
-        "roi": [497, 314, 129, 128],
+        "roi": [
+            497,
+            314,
+            129,
+            128
+        ],
         "action": "ClickKey",
         "key": 27, // ESC
         "pre_delay": 1500,
@@ -63,7 +83,12 @@
         // 查找是否存在“拼图已完成”的提示，此时跳过
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipComplete.png",
-        "roi": [426, 318, 428, 119],
+        "roi": [
+            426,
+            318,
+            428,
+            119
+        ],
         "next": [
             "PuzzleSolverMain" // 重试检测
         ]
@@ -102,12 +127,21 @@
         // 解谜成功后触发，关闭拼图界面
         "recognition": "DirectHit",
         "action": "LongPress",
-        "target": [640, 620],
+        "target": [
+            640,
+            620
+        ],
         "duration": 250,
         "post_delay": 2000,
         "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
             "PuzzleSolverMain" // 继续检测
         ]
+    },
+    "WaitStable": {
+        // 等待游戏状态稳定
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "pre_wait_freezes": 100
     }
 }

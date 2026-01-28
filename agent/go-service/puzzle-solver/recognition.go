@@ -259,9 +259,20 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	thumbs := getAllPuzzleThumbLoc(img)
 	log.Info().Interface("thumbs", thumbs).Msg("Puzzle thumbnail positions")
-
+	roiOverride := map[string]any{
+		"WaitStable": map[string]any{
+			"post_wait_freezes": map[string]any{
+				"target": []int{1019, 99, 225, 537},
+			},
+		},
+	}
 	var puzzleList []*PuzzleDesc
 	for _, thumb := range thumbs {
+		detail := ctx.RunTask("WaitStable", roiOverride)
+		if detail == nil {
+			log.Error().Msg("Failed to run WaitStable task")
+			return nil
+		}
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])
 		if desc != nil {
 			puzzleList = append(puzzleList, desc)
