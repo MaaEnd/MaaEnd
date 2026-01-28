@@ -16,7 +16,10 @@
         "roi": [167, 199, 354, 296],
         "next": [
             "PuzzleSolverFindStartButton"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "💡 检测到拼图准备界面"
+        }
     },
     "PuzzleSolverFindStartButton": {
         // 点击右下角的“修复”按钮开始拼图游戏
@@ -36,9 +39,10 @@
         "next": [
             "PuzzleSolverFindUnavailableTip",
             "PuzzleSolverFindCompleteTip",
-            "PuzzleSolverSolvePuzzle",
-            "PuzzleSolverMain" // 重试检测
-        ]
+            "PuzzleSolverSolvePuzzleReady"
+        ],
+        "pre_wait_freezes": 250, // 等待主界面加载完成
+        "ratelimit": 250 // 快速轮询
     },
     "PuzzleSolverFindUnavailableTip": {
         // 查找是否存在“有尚未了解的元件样式”的提示，此时不能进行游戏
@@ -50,7 +54,10 @@
         "pre_delay": 1500,
         "next": [
             "PuzzleSolverMain" // 重试检测
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "❌ 检测到未满足拼图所需条件（请先去获取新元件）"
+        }
     },
     "PuzzleSolverFindCompleteTip": {
         // 查找是否存在“拼图已完成”的提示，此时跳过
@@ -60,6 +67,15 @@
         "next": [
             "PuzzleSolverMain" // 重试检测
         ]
+    },
+    "PuzzleSolverSolvePuzzleReady": {
+        // 准备执行拼图解决方案
+        "recognition": "DirectHit",
+        "next": [
+            "PuzzleSolverSolvePuzzle",
+            "PuzzleSolverMain" // 重试检测
+        ],
+        "timeout": 10000 // 缩小超时阈值（默认 20000）
     },
     "PuzzleSolverSolvePuzzle": {
         // 执行拼图解决方案（识别+计算+自动化操作）
@@ -72,7 +88,15 @@
         },
         "next": [
             "PuzzleSolverOnSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "👀 开始识别拼图局面",
+            "Node.Recognition.Succeeded": "🧐 成功识别拼图局面，我寻思可以拼...",
+            "Node.Recognition.Failed": "❌ 未能识别拼图局面",
+            "Node.Action.Starting": "🫳 开始执行拼图操作",
+            "Node.Action.Succeeded": "⭐ 结束执行拼图操作，哼哼，拼完了~",
+            "Node.Action.Failed": "❌ 未能执行拼图操作"
+        }
     },
     "PuzzleSolverOnSuccess": {
         // 解谜成功后触发，关闭拼图界面
@@ -80,8 +104,8 @@
         "action": "LongPress",
         "target": [640, 620],
         "duration": 250,
-        "post_delay": 1500,
-        "pre_wait_freezes": 750, // 等待结算动画结束
+        "post_delay": 2000,
+        "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
             "PuzzleSolverMain" // 继续检测
         ]

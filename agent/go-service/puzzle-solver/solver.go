@@ -84,20 +84,12 @@ type Board struct {
 }
 
 func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
-	// 1. Determine Board Dimensions (Max)
-	maxW := 0
-	maxH := 0
-	for _, pd := range bd.ProjDescList {
-		if pd.W > maxW {
-			maxW = pd.W
-		}
-		if pd.H > maxH {
-			maxH = pd.H
-		}
+	// 1. Validate and set Board Dimensions
+	if bd.W <= 0 || bd.H <= 0 {
+		return errors.New("invalid board dimensions in BoardDesc")
 	}
-
-	b.XSize = maxW
-	b.YSize = maxH
+	b.XSize = bd.W
+	b.YSize = bd.H
 	b.K = len(bd.HueList)
 
 	// 2. Initialize Projections
@@ -109,7 +101,8 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 	for i, pd := range bd.ProjDescList {
 		// X Project
 		b.XProj[i] = make([]int, b.XSize)
-		shiftX := (b.XSize - pd.W) / 2
+		projW := len(pd.XProjList)
+		shiftX := (b.XSize - projW) / 2
 		for j, val := range pd.XProjList {
 			targetIdx := j + shiftX
 			if targetIdx >= 0 && targetIdx < b.XSize {
@@ -119,7 +112,8 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 
 		// Y Project
 		b.YProj[i] = make([]int, b.YSize)
-		shiftY := (b.YSize - pd.H) / 2
+		projH := len(pd.YProjList)
+		shiftY := (b.YSize - projH) / 2
 		for j, val := range pd.YProjList {
 			targetIdx := j + shiftY
 			if targetIdx >= 0 && targetIdx < b.YSize {
@@ -146,34 +140,21 @@ func (b *Board) convertFromBoardDesc(bd *BoardDesc) error {
 	}
 
 	// 4. Fill Banned Blocks
-	var refProj ProjDesc
-	for _, pd := range bd.ProjDescList {
-		if pd.W+pd.H > refProj.W+refProj.H {
-			refProj = pd
-		}
-	}
-
-	bannedShiftX := (b.XSize - refProj.W) / 2
-	bannedShiftY := (b.YSize - refProj.H) / 2
-
+	// BannedBlockList coordinates are already in board grid space
 	for _, bb := range bd.BannedBlockList {
-		nx := bb.Loc[0] + bannedShiftX
-		ny := bb.Loc[1] + bannedShiftY
+		nx := bb.Loc[0]
+		ny := bb.Loc[1]
 		if nx >= 0 && nx < b.XSize && ny >= 0 && ny < b.YSize {
 			b.Grid[ny][nx] = -2 // -2 means a banned block
 		}
 	}
 
 	// 5. Fill Locked Blocks
+	// LockedBlockList coordinates are already in board grid space
 	for hIdx, blocks := range bd.LockedBlockList {
-		hbW := bd.ProjDescList[hIdx].W
-		hbH := bd.ProjDescList[hIdx].H
-		shiftX := (b.XSize - hbW) / 2
-		shiftY := (b.YSize - hbH) / 2
-
 		for _, lb := range blocks {
-			nx := lb.Loc[0] + shiftX
-			ny := lb.Loc[1] + shiftY
+			nx := lb.Loc[0]
+			ny := lb.Loc[1]
 
 			if nx >= 0 && nx < b.XSize && ny >= 0 && ny < b.YSize {
 				b.Grid[ny][nx] = hIdx // Locked block of color hIdx

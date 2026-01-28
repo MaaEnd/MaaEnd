@@ -88,56 +88,6 @@
     },
     "task": [
         {
-            "name": "AndroidOpenGame",
-            "label": "$task.AndroidOpenGame.label",
-            "entry": "AndroidOpenGame",
-            "description": "$task.AndroidOpenGame.description",
-            "controller": [
-                "ADB"
-            ]
-        },
-        {
-            "name": "PCOpenGame",
-            "label": "$task.PCOpenGame.label",
-            "entry": "PCOpenGame",
-            "description": "$task.PCOpenGame.description",
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Front"
-            ]
-        },
-        {
-            "name": "DailyRewards",
-            "label": "$task.DailyRewards.label",
-            "entry": "DailyRewards",
-            "default_check": true,
-            "description": "$task.DailyRewards.description"
-        },
-        {
-            "name": "ReadAllWiki",
-            "label": "$task.ReadAllWiki.label",
-            "entry": "ReadAllWiki",
-            "default_check": true,
-            "description": "$task.ReadAllWiki.description"
-        },
-        {
-            "name": "BakerEntry",
-            "label": "$task.BakerEntry.label",
-            "entry": "BakerEntry",
-            "default_check": true,
-            "description": "$task.BakerEntry.description"
-        },
-        {
-            "name": "ImportBluePrints",
-            "label": "$task.ImportBluePrints.label",
-            "entry": "ImportBluePrints",
-            "description": "$task.ImportBluePrints.description",
-            "option": [
-                "ImportBluePrints"
-            ]
-        },
-        {
             "name": "RealTimeTask",
             "label": "$task.RealTimeTask.label",
             "entry": "RealTimeTaskMain",
@@ -166,7 +116,80 @@
                 "PuzzleSolverMode"
             ],
             "controller": [
-                "Win32"
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
+            ]
+        },
+        {
+            "name": "AutoResell",
+            "label": "$task.AutoResell.label",
+            "entry": "ResellMain",
+            "description": "$task.AutoResell.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ],
+            "option": [
+                "ImportMinimumProfit"
+            ]
+        },
+        {
+            "name": "ImportBluePrints",
+            "label": "$task.ImportBluePrints.label",
+            "entry": "ImportBluePrints",
+            "description": "$task.ImportBluePrints.description",
+            "option": [
+                "ImportBluePrints"
+            ]
+        },
+        {
+            "name": "DailyRewards",
+            "label": "$task.DailyRewards.label",
+            "entry": "DailyRewards",
+            "default_check": true,
+            "description": "$task.DailyRewards.description"
+        },
+        {
+            "name": "ReadAllWiki",
+            "label": "$task.ReadAllWiki.label",
+            "entry": "ReadAllWiki",
+            "default_check": true,
+            "description": "$task.ReadAllWiki.description"
+        },
+        {
+            "name": "ReceiveProdManual",
+            "label": "$task.ReceiveProdManual.label",
+            "entry": "ProdManualStart",
+            "default_check": true,
+            "description": "$task.ReceiveProdManual.description"
+        },
+        {
+            "name": "BakerEntry",
+            "label": "$task.BakerEntry.label",
+            "entry": "BakerEntry",
+            "default_check": true,
+            "description": "$task.BakerEntry.description"
+        },
+        {
+            "name": "PCOpenGame",
+            "label": "$task.PCOpenGame.label",
+            "entry": "PCOpenGame",
+            "description": "$task.PCOpenGame.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        },
+        {
+            "name": "AndroidOpenGame",
+            "label": "$task.AndroidOpenGame.label",
+            "entry": "AndroidOpenGame",
+            "description": "$task.AndroidOpenGame.description",
+            "controller": [
+                "ADB"
             ]
         }
     ],
@@ -275,7 +298,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         },
                         "HandleTutorialPaging": {
@@ -301,7 +327,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         },
                         "HandleTutorialPaging": {
@@ -329,7 +358,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": true
                         }
                     }
@@ -337,7 +369,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "HandleTutorialGuide": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
                             "enabled": false
                         }
                     }
@@ -672,11 +707,6 @@
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
                             "next": []
-                        },
-                        "PuzzleSolverSolvePuzzle": {
-                            "custom_action_param": {
-                                "dryRun": false
-                            }
                         }
                     }
                 },
@@ -688,11 +718,6 @@
                             "next": [
                                 "PuzzleSolverMain"
                             ]
-                        },
-                        "PuzzleSolverSolvePuzzle": {
-                            "custom_action_param": {
-                                "dryRun": false
-                            }
                         }
                     }
                 },
@@ -701,6 +726,7 @@
                     "label": "$option.PuzzleSolverMode.cases.DryRun.label",
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
+                            "action": "DoNothing",
                             "next": []
                         },
                         "PuzzleSolverSolvePuzzle": {
@@ -711,6 +737,31 @@
                     }
                 }
             ]
+        },
+        "ImportMinimumProfit": {
+            "type": "input",
+            "label": "$option.ImportMinimumProfit.label",
+            "inputs": [
+                {
+                    "name": "ImportMinimumProfit",
+                    "label": "$option.ImportMinimumProfit.inputs.ImportMinimumProfit.label",
+                    "description": "$option.ImportMinimumProfit.inputs.ImportMinimumProfit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 3000
+                }
+            ],
+            "pipeline_override": {
+                "ResellStart": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "MinimumProfit": "{ImportMinimumProfit}"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

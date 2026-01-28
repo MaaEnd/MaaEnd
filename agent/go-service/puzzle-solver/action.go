@@ -19,8 +19,6 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 		Int("Rotation", p.Rotation).
 		Msg("Placing puzzle piece")
 
-	ctrl := ctx.GetTasker().GetController()
-
 	// 1. Recalculate thumbnail location
 	// We assume thumbnails are analyzed in standard grid order (row by row, col by col)
 	row := p.PuzzleIndex / int(PUZZLE_THUMBNAIL_MAX_COLS)
@@ -28,85 +26,52 @@ func doPlace(ctx *maa.Context, bd *BoardDesc, p Placement, isDryRun bool) {
 	thumbX := PUZZLE_THUMBNAIL_START_X + float64(col)*PUZZLE_THUMBNAIL_W
 	thumbY := PUZZLE_THUMBNAIL_START_Y + float64(row)*PUZZLE_THUMBNAIL_H
 
-	startX := int32(thumbX + PUZZLE_THUMBNAIL_W/2)
-	startY := int32(thumbY + PUZZLE_THUMBNAIL_H/2)
+	startX := int(thumbX + PUZZLE_THUMBNAIL_W/2)
+	startY := int(thumbY + PUZZLE_THUMBNAIL_H/2)
 
 	// 2. Calculate target location on board
-	// Find refProj to determine center alignment
-	var refProj ProjDesc
-	for _, pd := range bd.ProjDescList {
-		if pd.W+pd.H > refProj.W+refProj.H {
-			refProj = pd
-		}
+	if bd.W <= 0 || bd.H <= 0 {
+		log.Error().Msg("Invalid BoardDesc: missing W/H dimensions")
+		return
 	}
-
-	// Target pixel coordinates are centered at the block
-	maxW, maxH := 0, 0
-	for _, pd := range bd.ProjDescList {
-		if pd.W > maxW {
-			maxW = pd.W
-		}
-		if pd.H > maxH {
-			maxH = pd.H
-		}
-	}
+	maxW, maxH := bd.W, bd.H
 
 	// targetX = CENTER_BLOCK_LT_X + (MachineX - (maxW-1)/2) * BLOCK_W + BLOCK_W/2
 	ltX, ltY := convertBoardCoordToLTCoord(p.MachineX, p.MachineY, maxW, maxH)
 	targetX := float64(ltX) + BOARD_BLOCK_W/2
 	targetY := float64(ltY) + BOARD_BLOCK_H/2
 
-	endX := int32(targetX)
-	endY := int32(targetY)
+	endX := int(targetX)
+	endY := int(targetY)
 
 	// 3. Execution sequence
-	ctrl.PostTouchUp(0).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchMove(0, startX, startY, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchDown(0, startX, startY, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchMove(0, endX, endY, 1).Wait()
-	time.Sleep(250 * time.Millisecond)
+	aw := NewActionWrapper(ctx.GetTasker().GetController())
+	aw.TouchUpSync(100)
+	aw.TouchDownSync(0, startX, startY, 100)
+	aw.TouchMoveSync(0, endX, endY, 250)
 
 	// 4. Rotation
 	// Mapping: 0->0, 1->3, 2->2, 3->1
 	rotTimes := (4 - p.Rotation) % 4
 	for range rotTimes {
-		ctrl.PostClickKey(82).Wait() // R key
-		time.Sleep(250 * time.Millisecond)
+		aw.TypeKeySync(82, 250) // R key
 	}
 
 	// 5. Complete
 	if isDryRun {
 		// In dry run mode, just return the piece to the thumbnail area
 		time.Sleep(1000 * time.Millisecond)
-		ctrl.PostTouchMove(0, startX, startY, 1).Wait()
-		time.Sleep(250 * time.Millisecond)
+		aw.TouchMoveSync(0, startX, startY, 250)
 	}
 
-	ctrl.PostTouchUp(0).Wait()
+	aw.TouchUpSync(0)
 }
 
 func doResetCursor(ctx *maa.Context) {
-	ctrl := ctx.GetTasker().GetController()
-
-	x := int32(640)
-	y := int32(620)
-
-	ctrl.PostTouchUp(0).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchMove(0, x, y, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchDown(0, x, y, 1).Wait()
-	time.Sleep(100 * time.Millisecond)
-
-	ctrl.PostTouchUp(0).Wait()
+	aw := NewActionWrapper(ctx.GetTasker().GetController())
+	aw.TouchUpSync(100)
+	aw.TouchDownSync(0, 640, 620, 100)
+	aw.TouchUpSync(0)
 }
 
 // Run executes the puzzle solving action.

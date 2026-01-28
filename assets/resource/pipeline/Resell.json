@@ -1,0 +1,260 @@
+{
+    "ResellMain": {
+        "doc": "一键倒卖主入口",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "next": [
+            "ResellStageCheckArea",
+            "ResellStageCheckInGame",
+            "ResellStageNotInGame"
+        ]
+    },
+    "ResellStageCheckInGame": {
+        "doc": "检查当前界面是否在大世界中，然后进入地区建设管理",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame1.png",
+                "threshold": 0.8,
+                "roi": [
+                    172,
+                    0,
+                    133,
+                    118
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame2.png",
+                "threshold": 0.8,
+                "roi": [
+                    1182,
+                    0,
+                    98,
+                    128
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 89,
+        "next": [
+            "ResellStageCheckArea"
+        ]
+    },
+    "ResellStageNotInGame": {
+        "doc": "不在在大世界，不断按ESC进入大世界",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "ResellMain"
+        ]
+    },
+    "ResellStageCheckArea": {
+        "doc": "检查当前地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
+        "roi": [
+            1139,
+            63,
+            135,
+            127
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellAreaInFourthValley",
+            "ResellAreaInWuLing",
+            "ResellMain"
+        ]
+    },
+    "ResellAreaInFourthValley": {
+        "doc": "在四号谷地，进入地区建设管理",
+        "recognition": "OCR",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "四号谷地",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "ResellStageEnterStore",
+            "ResellStageCheckArea"
+        ]
+    },
+    "ResellAreaInWuLing": {
+        "doc": "在武陵，进入地区建设管理",
+        "recognition": "OCR",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "武陵",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "DoNothing",
+        "next": [
+            "ResellStageEnterStore",
+            "Wuling2FourthValley",
+            "ResellStageCheckArea"
+        ]
+    },
+    "ResellStageEnterStore": {
+        "doc": "进入商店",
+        "recognition": "OCR",
+        "roi": [
+            793,
+            338,
+            88,
+            27
+        ],
+        "expected": "物资调度",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "next": [
+            "ResellinStableStore",
+            "ResellinUnstableStore",
+            "ResellStageCheckArea"
+        ]
+    },
+    "ResellinStableStore": {
+        "doc": "在稳定需求物资商店，进入弹性需求物资商店",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inStableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            178,
+            125,
+            124
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            389,
+            73,
+            185,
+            43
+        ],
+        "next": [
+            "ResellinUnstableStore",
+            "ResellStageEnterStore"
+        ]
+    },
+    "ResellinUnstableStore": {
+        "doc": "在弹性需求物资商店,滚动至最底端，开始识别价格",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Scroll",
+        "target": [
+            640,
+            360
+        ],
+        "dy": -960,
+        "next": [
+            "ResellStartCheckStock",
+            "ResellStart"
+        ]
+    },
+    "ResellStartCheckStock": {
+        "doc": "检查库存",
+        "recognition": "DirectHit",
+        "pre_delay": 1000,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            100,
+            380
+        ],
+        "next": [
+            "ResellCheckSoldout",
+            "ResellCheckStockRemain"
+        ]
+    },
+    "ResellCheckSoldout": {
+        "doc": "识别库存是否售罄，售罄则切换区域",
+        "recognition": "ColorMatch",
+        "method": 40,
+        "roi": [
+            810,
+            509,
+            43,
+            25
+        ],
+        "lower": [
+            156,
+            43,
+            46
+        ],
+        "upper": [
+            180,
+            255,
+            255
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1075,
+            140
+        ],
+        "next": [
+            //"NextRegion"
+        ]
+    },
+    "ResellCheckStockRemain": {
+        "doc": "识别库存未售罄，开始选择倒卖商品",
+        "recognition": "TemplateMatch",
+        "template": "Resell/Confirm.png",
+        "threshold": 0.8,
+        "roi": [
+            1010,
+            525,
+            120,
+            122
+        ],
+        "pre_delay": 500,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1075,
+            140
+        ],
+        "next": [
+            "ResellStart"
+        ]
+    },
+    "ResellStart": {
+        "doc": "开始识别价格，选择倒卖商品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Custom",
+        "custom_action": "ResellInitAction"
+    }
+}

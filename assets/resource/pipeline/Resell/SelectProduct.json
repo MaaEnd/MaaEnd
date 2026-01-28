@@ -1,0 +1,616 @@
+{
+    "ResellSelectProductRow1Col1": {
+        "doc": "选择商品，第一行第一列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            72,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col1"
+        ]
+    },
+    "ResellSelectProductRow1Col2": {
+        "doc": "选择商品，第一行第二列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            223,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col2"
+        ]
+    },
+    "ResellSelectProductRow1Col3": {
+        "doc": "选择商品，第一行第三列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            374,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm"
+        ]
+    },
+    "ResellSelectProductRow1Col4": {
+        "doc": "选择商品，第一行第四列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            525,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col4"
+        ]
+    },
+    "ResellSelectProductRow1Col5": {
+        "doc": "选择商品，第一行第五列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            676,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col5"
+        ]
+    },
+    "ResellSelectProductRow1Col6": {
+        "doc": "选择商品，第一行第六列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            827,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col6"
+        ]
+    },
+    "ResellSelectProductRow1Col7": {
+        "doc": "选择商品，第一行第七列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            978,
+            354,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow1Col7"
+        ]
+    },
+    "ResellSelectProductRow2Col1": {
+        "doc": "选择商品，第二行第一列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            72,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col1"
+        ]
+    },
+    "ResellSelectProductRow2Col2": {
+        "doc": "选择商品，第二行第二列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            223,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col2"
+        ]
+    },
+    "ResellSelectProductRow2Col3": {
+        "doc": "选择商品，第二行第三列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            374,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col3"
+        ]
+    },
+    "ResellSelectProductRow2Col4": {
+        "doc": "选择商品，第二行第四列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            525,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col4"
+        ]
+    },
+    "ResellSelectProductRow2Col5": {
+        "doc": "选择商品，第二行第五列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            676,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col5"
+        ]
+    },
+    "ResellSelectProductRow2Col6": {
+        "doc": "选择商品，第二行第六列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            827,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col6"
+        ]
+    },
+    "ResellSelectProductRow2Col7": {
+        "doc": "选择商品，第二行第七列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            978,
+            484,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow2Col7"
+        ]
+    },
+    "ResellSelectProductRow3Col1": {
+        "doc": "选择商品，第三行第一列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            72,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col1"
+        ]
+    },
+    "ResellSelectProductRow3Col2": {
+        "doc": "选择商品，第三行第二列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            223,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col2"
+        ]
+    },
+    "ResellSelectProductRow3Col3": {
+        "doc": "选择商品，第三行第三列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            374,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col3"
+        ]
+    },
+    "ResellSelectProductRow3Col4": {
+        "doc": "选择商品，第三行第四列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            525,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col4"
+        ]
+    },
+    "ResellSelectProductRow3Col5": {
+        "doc": "选择商品，第三行第五列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            676,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col5"
+        ]
+    },
+    "ResellSelectProductRow3Col6": {
+        "doc": "选择商品，第三行第六列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            827,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col6"
+        ]
+    },
+    "ResellSelectProductRow3Col7": {
+        "doc": "选择商品，第三行第七列",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            978,
+            571,
+            141,
+            31
+        ],
+        "next": [
+            "ResellSelectProductConfirm",
+            "ResellSelectProductRow3Col7"
+        ]
+    },
+    "ResellSelectProductConfirm": {
+        "doc": "确认选择商品",
+        "recognition": "TemplateMatch",
+        "template": "Resell/Confirm.png",
+        "threshold": 0.8,
+        "roi": [
+            1010,
+            525,
+            120,
+            122
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Swipe",
+        "begin": [
+            530,
+            500
+        ],
+        "end": [
+            700,
+            500
+        ],
+        "next": [
+            "ResellBuy"
+        ]
+    },
+    "ResellBuy": {
+        "doc": "消费！",
+        "recognition": "TemplateMatch",
+        "template": "Resell/Confirm.png",
+        "threshold": 0.8,
+        "roi": [
+            1010,
+            525,
+            120,
+            122
+        ],
+        "pre_delay": 500,
+        "post_delay": 2000,
+        "action": "Click",
+        "target": [
+            1058,
+            574,
+            23,
+            22
+        ],
+        "next": [
+            "ResellReturnToStore",
+            "ResellBuy",
+            "ResellMain"
+        ]
+    },
+    "ResellReturnToStore": {
+        "doc": "返回商店页面",
+        "recognition": "TemplateMatch",
+        "template": "Resell/success.png",
+        "threshold": 0.8,
+        "roi": [
+            577,
+            601,
+            124,
+            119
+        ],
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "Click",
+        "target": [
+            1200,
+            700
+        ],
+        "next": [
+            "ResellScrollToTop"
+        ]
+    },
+    "ResellScrollToTop": {
+        "doc": "滚动到顶部，准备去飞船",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 1000,
+        "action": "Scroll",
+        "target": [
+            640,
+            360
+        ],
+        "dy": 960,
+        "next": [
+            "ResellGotoSell",
+            "ResellReturnToStore"
+        ]
+    }
+}
