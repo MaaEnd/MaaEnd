@@ -17,19 +17,19 @@
             "param": {
                 "custom_action": "LeftClickWithCtrlDown"
             }
+            // "param": {
+            //         "custom_action": "TransferItemToBackpack",
+            //         "custom_action_param": {
+            //             "GridRowY": "[PLACEHOLDER]", // [0, 3]
+            //             "GridColX": "[PLACEHOLDER]", // [0, 7]
+            //             "AbsRow": "[PLACEHOLDER]" // [0, INF]
+            //         }
+            //     }
         },
         "next": [
-            "[JumpBack]ItemTransferRegionSwitcherEntry" //,
-            // "ItemTransferClickDestination"
+            "[JumpBack]ItemTransferRegionSwitcherEntry",
+            "ItemTransferClickDestination"
         ],
-        // "param": {
-        //         "custom_action": "TransferItemToBackpack",
-        //         "custom_action_param": {
-        //             "GridRowY": "[PLACEHOLDER]", // [0, 3]
-        //             "GridColX": "[PLACEHOLDER]", // [0, 7]
-        //             "AbsRow": "[PLACEHOLDER]" // [0, INF]
-        //         }
-        //     }
         "focus": {
             "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
             "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
@@ -57,8 +57,12 @@
             "type": "Click"
         },
         "focus": {
-            "Node.Recognition.Starting": "TODO RECOG START",
-            "Node.Action.Succeeded": "$node.ItemTransferRegionSwitcherEntry.focus.action.succeeded"
+            "Node.Recognition.Starting": "$node.ItemTransferRegionSwitcherEntry.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferRegionSwitcherEntry.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferRegionSwitcherEntry.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferRegionSwitcherEntry.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferRegionSwitcherEntry.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferRegionSwitcherEntry.focus.action.failed"
         }
     },
     "ItemTransferRegionSwitcherConfirm": {
@@ -79,7 +83,12 @@
             "type": "Click"
         },
         "focus": {
-            "Node.Action.Succeeded": "$node.ItemTransferRegionSwitcherEntry.focus.action.succeeded"
+            "Node.Recognition.Starting": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferRegionSwitcherConfirm.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferRegionSwitcherConfirm.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferRegionSwitcherConfirm.focus.action.failed"
         },
         "post_delay": 2000,
         "next": [
@@ -103,12 +112,17 @@
         "action": {
             "type": "ClickKey",
             "param": {
-                "key": 27 // Esc
+                "key": 27
             }
         },
         "focus": {
-            "Node.Action.Succeeded": "$node.ItemTransferCloseRegionSwitcher.focus.action.succeeded"
-        },
+            "Node.Recognition.Starting": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferCloseRegionSwitcher.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferCloseRegionSwitcher.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferCloseRegionSwitcher.focus.action.failed"
+        }
     },
     "ItemTransferClickDestination": {
         "recognition": {
@@ -130,7 +144,15 @@
         "next": [
             "[JumpBack]ItemTransferRegionSwitcherConfirm",
             "ItemTransferEnsureDestination"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferClickDestination.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferClickDestination.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferClickDestination.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferClickDestination.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferClickDestination.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferClickDestination.focus.action.failed"
+        }
     },
     "ItemTransferClickOrigin": {
         "recognition": {
@@ -152,7 +174,15 @@
         "next": [
             "[JumpBack]ItemTransferRegionSwitcherConfirm",
             "ItemTransferEnsureOrigin"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferClickOrigin.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferClickOrigin.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferClickOrigin.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferClickOrigin.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferClickOrigin.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferClickOrigin.focus.action.failed"
+        }
     },
     "ItemTransferEnsureDestination": {
         "recognition": {
@@ -167,6 +197,11 @@
                 "order_by": "Expected",
                 "expected": "[PLACEHOLDER]"
             }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferEnsureDestination.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferEnsureDestination.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferEnsureDestination.focus.recognition.failed"
         }
     },
     "ItemTransferEnsureOrigin": {
@@ -182,6 +217,11 @@
                 "order_by": "Expected",
                 "expected": "[PLACEHOLDER]"
             }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferEnsureOrigin.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferEnsureOrigin.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferEnsureOrigin.focus.recognition.failed"
         }
     }
 }
