@@ -50,6 +50,8 @@
     "option.ImportMinimumProfit.label": "最低利益",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利益値",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "現在の最高利益がこの値より低い場合、購入しません。整数のみ対応。",
+    "task.Resell.label": "💰 ワンクリック転売",
+    "task.Resell.description": "不安定需要物資ショップ画面で、最高利益の商品を自動で識別して購入します。**不安定需要物資ショップ画面からタスクを開始してください。**",
     "task.PuzzleSolver.label": "🧩 パズル自動解決",
     "task.PuzzleSolver.description": "パズルミニゲームを自動で解決します。もう考える必要はありません！",
     "option.PuzzleSolverMode.label": "モード",
