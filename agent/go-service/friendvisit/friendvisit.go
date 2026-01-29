@@ -2,6 +2,7 @@ package friendvisit
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 var (
 	supportScrollCount int
 	intelScrollCount   int
+	firstEntry         bool
 )
 
 type FriendVisitResetAction struct{}
@@ -19,7 +21,8 @@ type FriendVisitResetAction struct{}
 func (a *FriendVisitResetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	supportScrollCount = 0
 	intelScrollCount = 0
-	log.Info().Msg("[FriendVisit]Reset scroll counters")
+	firstEntry = true
+	log.Info().Str("node", arg.CurrentTaskName).Msg("[FriendVisit]Reset scroll counters")
 	return true
 }
 
@@ -63,6 +66,7 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 
 	log.Info().
+		Str("node", arg.CurrentTaskName).
 		Str("mode", mode).
 		Str("template", params.Template).
 		Int("scrollCount", *counter).
@@ -98,8 +102,10 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		clicked := tryClickMatch(controller, detail.DetailJson)
 		if clicked {
 			log.Info().
+				Str("node", arg.CurrentTaskName).
 				Str("mode", mode).
 				Msg("[FriendVisit]Match found, click and enter visit flow")
+			firstEntry = false
 			*counter = 0
 			if params.NextOnHit != "" {
 				ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnHit})
@@ -110,6 +116,7 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 
 	if *counter >= params.MaxScroll {
 		log.Info().
+			Str("node", arg.CurrentTaskName).
 			Str("mode", mode).
 			Int("scrollCount", *counter).
 			Msg("[FriendVisit]Scroll exhausted, return to quota check")
@@ -123,6 +130,7 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	controller.PostScroll(0, int32(params.ScrollDy)).Wait()
 	*counter++
 	log.Info().
+		Str("node", arg.CurrentTaskName).
 		Str("mode", mode).
 		Int("scrollCount", *counter).
 		Int("scrollDy", params.ScrollDy).
@@ -168,5 +176,142 @@ func tryClickMatch(controller *maa.Controller, detailJSON string) bool {
 	centerX := box[0] + box[2]/2
 	centerY := box[1] + box[3]/2
 	controller.PostClick(int32(centerX), int32(centerY)).Wait()
+	return true
+}
+
+type friendVisitCheckQuotaParam struct {
+	ROI        []int   `json:"ROI"`
+	Expected   string  `json:"Expected"`
+	Threshold  float64 `json:"Threshold"`
+	NextOnHit  string  `json:"NextOnHit"`
+	NextOnMiss string  `json:"NextOnMiss"`
+}
+
+type FriendVisitCheckQuotaAction struct{}
+
+func (a *FriendVisitCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params friendVisitCheckQuotaParam
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().Err(err).Msg("[FriendVisit]Failed to parse quota param")
+		return false
+	}
+
+	if len(params.ROI) != 4 {
+		log.Error().Str("node", arg.CurrentTaskName).Msg("[FriendVisit]Invalid OCR ROI")
+		return false
+	}
+	if params.Threshold <= 0 {
+		params.Threshold = 0.6
+	}
+
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().Msg("[FriendVisit]Controller is nil")
+		return false
+	}
+
+	controller.PostScreencap().Wait()
+	img := controller.CacheImage()
+	if img == nil {
+		log.Error().Msg("[FriendVisit]Failed to get screenshot")
+		return false
+	}
+
+	ocrParam := &maa.NodeOCRParam{
+		ROI:       maa.NewTargetRect(maa.Rect{params.ROI[0], params.ROI[1], params.ROI[2], params.ROI[3]}),
+		OrderBy:   "Expected",
+		Expected:  []string{".*"},
+		Threshold: params.Threshold,
+	}
+
+	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
+	text := ""
+	if detail != nil && detail.DetailJson != "" {
+		text = extractTextFromOCR(detail.DetailJson)
+	}
+
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("text", text).
+		Str("expected", params.Expected).
+		Msg("[FriendVisit]OCR result")
+
+	matched := false
+	if params.Expected != "" && text != "" {
+		re, err := regexp.Compile(params.Expected)
+		if err != nil {
+			log.Error().Err(err).Str("expected", params.Expected).Msg("[FriendVisit]Invalid OCR regex")
+		} else if re.MatchString(text) {
+			matched = true
+		}
+	}
+
+	if matched {
+		if params.NextOnHit != "" {
+			ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnHit})
+		}
+		return true
+	}
+
+	if params.NextOnMiss != "" {
+		ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnMiss})
+	}
+	return true
+}
+
+func extractTextFromOCR(detailJSON string) string {
+	var raw map[string]interface{}
+	if err := json.Unmarshal([]byte(detailJSON), &raw); err != nil {
+		return ""
+	}
+
+	for _, key := range []string{"filtered", "best", "all"} {
+		if data, ok := raw[key]; ok {
+			switch v := data.(type) {
+			case []interface{}:
+				if len(v) > 0 {
+					if result, ok := v[0].(map[string]interface{}); ok {
+						if text, ok := result["text"].(string); ok {
+							return text
+						}
+					}
+				}
+			case map[string]interface{}:
+				if text, ok := v["text"].(string); ok {
+					return text
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
+type friendVisitFirstEntryExitParam struct {
+	NextOnElse string `json:"NextOnElse"`
+}
+
+type FriendVisitFirstEntryExitAction struct{}
+
+func (a *FriendVisitFirstEntryExitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params friendVisitFirstEntryExitParam
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().Err(err).Msg("[FriendVisit]Failed to parse FirstEntryExit param")
+		return false
+	}
+
+	if firstEntry {
+		log.Info().Str("node", arg.CurrentTaskName).Msg("[FriendVisit]First entry exhausted, exit task")
+		controller := ctx.GetTasker().GetController()
+		if controller != nil {
+			controller.PostClickKey(27).Wait()
+		}
+		ctx.GetTasker().PostStop()
+		return true
+	}
+
+	if params.NextOnElse != "" {
+		ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnElse})
+	}
 	return true
 }
