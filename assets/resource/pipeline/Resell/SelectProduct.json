@@ -596,7 +596,7 @@
     "ResellScrollToTop": {
         "doc": "滚动到顶部，准备去飞船",
         "recognition": "DirectHit",
-        "post_wait_freezes": 1000,
+        "post_wait_freezes": 300,
         "action": "Scroll",
         "target": [
             640,

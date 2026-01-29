@@ -48,7 +48,7 @@
             121
         ],
         "pre_delay": 0,
-        "post_wait_freezes": 500,
+        "post_wait_freezes": 200,
         "action": "Click",
         "next": [
             "ResellStageEnterStore",
