@@ -6,6 +6,24 @@
 
 ## 本地运行
 
+### 自动设置
+
+我们提供一个自动化的工作区初始化脚本，只需执行
+
+```bash
+python tools/setup_workspace.py
+```
+
+通常情况下该脚本能完整设置开发所需的环境，但取决于你所在地区的网络环境可能需要自行设置代理或是使用 Github token 进行认证来使用 api
+
+你可以通过设置 `GITHUB_TOKEN` 或是 `GH_TOKEN` 环境变量来使用 token，请注意该 token 应该至少包含 public_repo 作用域
+
+如果以上脚本出现问题，你可以参照下方的手动设置指南来分步骤操作
+
+完成初始化后，请运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹。
+
+### 手动设置
+
 1. 完整 clone 项目及子仓库。
 
     ```bash
@@ -14,10 +32,8 @@
 
     **不要漏了 `--recursive`**
 
-    或者
-
+    如果你已经 clone 了项目，但没有使用 `--recursive` 参数，现在你可以在项目的根目录执行
     ```bash
-    git clone https://github.com/MaaEnd/MaaEnd
     git submodule update --init --recursive
     ```
 
