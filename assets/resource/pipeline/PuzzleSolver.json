@@ -21,7 +21,8 @@
             296
         ],
         "next": [
-            "PuzzleSolverFindStartButton"
+            "PuzzleSolverFindStartButton",
+            "PuzzleSolverMain" // 找不到按钮，返回入口点
         ],
         "focus": {
             "Node.Recognition.Succeeded": "💡 检测到拼图准备界面"
@@ -38,6 +39,7 @@
             140
         ],
         "action": "Click",
+        "post_wait_freezes": 100, // 点击后，等待界面加载
         "next": [
             "PuzzleSolverOnSceneMain"
         ]
@@ -52,16 +54,15 @@
             236,
             164
         ],
+        "ratelimit": 0, // 快速轮询
         "next": [
             "PuzzleSolverFindUnavailableTip",
             "PuzzleSolverFindCompleteTip",
             "PuzzleSolverSolvePuzzleReady"
-        ],
-        "pre_wait_freezes": 250, // 等待主界面加载完成
-        "ratelimit": 250 // 快速轮询
+        ]
     },
     "PuzzleSolverFindUnavailableTip": {
-        // 查找是否存在“有尚未了解的元件样式”的提示，此时跳过
+        // 查找是否存在“有尚未了解的元件样式”的提示
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipUnavailable.png",
         "roi": [
@@ -72,15 +73,14 @@
         ],
         "post_delay": 5000,
         "next": [
-            "PuzzleSolverMain" // 重试检测
-
+            "PuzzleSolverMain" // 无需操作，返回入口点
         ],
         "focus": {
             "Node.Recognition.Succeeded": "❌ 检测到未满足拼图所需条件（请先去获取新元件）"
         }
     },
     "PuzzleSolverFindCompleteTip": {
-        // 查找是否存在“拼图已完成”的提示，此时跳过
+        // 查找是否存在“拼图已完成”的提示
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipComplete.png",
         "roi": [
@@ -89,20 +89,21 @@
             428,
             119
         ],
+        "post_delay": 5000,
         "next": [
-            "PuzzleSolverMain" // 重试检测
-
+            "PuzzleSolverMain" // 无需操作，返回入口点
         ]
     },
     "PuzzleSolverSolvePuzzleReady": {
         // 准备执行拼图解决方案
         "recognition": "DirectHit",
+        "timeout": 10000, // 缩小超时阈值（默认 20000）
+        "pre_delay": 0, // 此节点为守卫节点，无需延迟
+        "post_delay": 0, // 此节点为守卫节点，无需延迟
         "next": [
             "PuzzleSolverSolvePuzzle",
-            "PuzzleSolverMain" // 重试检测
-
-        ],
-        "timeout": 10000 // 缩小超时阈值（默认 20000）
+            "PuzzleSolverMain" // 执行失败，返回入口点
+        ]
     },
     "PuzzleSolverSolvePuzzle": {
         // 执行拼图解决方案（识别+计算+自动化操作）
@@ -137,11 +138,11 @@
         "post_delay": 2000,
         "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
-            "PuzzleSolverMain" // 继续检测
-
+            "PuzzleSolverMain" // 准备下一轮检测，返回入口点
         ]
     },
-    "WaitStable": {
+    // 动态节点（仅在自定义识别和操作中调用）：
+    "PuzzleSolverPuzzlePreviewWaitStable": {
         // 等待游戏状态稳定
         "recognition": "DirectHit",
         "pre_wait_freezes": 100
