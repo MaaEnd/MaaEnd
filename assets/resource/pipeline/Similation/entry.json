@@ -90,10 +90,10 @@
                             "param": {
                                 "template": "RealTimeTask/AutoSkipA.png",
                                 "roi": [
-                                    1140,
+                                    1101,
                                     0,
-                                    120,
-                                    90
+                                    179,
+                                    99
                                 ]
                             }
                         }
@@ -105,10 +105,10 @@
                                 "threshold": 0.7,
                                 "template": "RealTimeTask/AutoSkipEsc.png",
                                 "roi": [
-                                    1140,
+                                    1101,
                                     0,
-                                    120,
-                                    90
+                                    179,
+                                    99
                                 ]
                             }
                         }
@@ -267,10 +267,17 @@
             }
         },
         "action": {
-            "type": "LongPressKey",
+            "type": "Swipe",
             "param": {
-                "key": 65,
-                "duration": 500
+                "begin": [
+                    0,
+                    360
+                ],
+                "end": [
+                    600,
+                    360
+                ],
+                "duration": 100
             }
         }
     },
@@ -366,7 +373,14 @@
                     171,
                     79
                 ],
-                "expected": "造状态"
+                "expected": [
+                    "造状态",
+                    "建造"
+                ],
+                "replace": [
+                    "犬",
+                    "态"
+                ]
             }
         },
         "action": {

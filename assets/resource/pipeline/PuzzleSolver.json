@@ -7,7 +7,6 @@
             "PuzzleSolverOnScenePrepare",
             "PuzzleSolverOnSceneMain",
             "PuzzleSolverMain" // 循环检测
-
         ]
     },
     "PuzzleSolverOnScenePrepare": {
@@ -73,7 +72,6 @@
         "post_delay": 5000,
         "next": [
             "PuzzleSolverMain" // 重试检测
-
         ],
         "focus": {
             "Node.Recognition.Succeeded": "❌ 检测到未满足拼图所需条件（请先去获取新元件）"
@@ -91,7 +89,6 @@
         ],
         "next": [
             "PuzzleSolverMain" // 重试检测
-
         ]
     },
     "PuzzleSolverSolvePuzzleReady": {
@@ -100,7 +97,6 @@
         "next": [
             "PuzzleSolverSolvePuzzle",
             "PuzzleSolverMain" // 重试检测
-
         ],
         "timeout": 10000 // 缩小超时阈值（默认 20000）
     },
@@ -138,7 +134,6 @@
         "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
             "PuzzleSolverMain" // 继续检测
-
         ]
     },
     "WaitStable": {

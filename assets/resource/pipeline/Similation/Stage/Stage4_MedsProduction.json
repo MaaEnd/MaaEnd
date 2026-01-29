@@ -2,7 +2,6 @@
     "TestStage4": {
         "next": [
             "[JumpBack]ChangeToAIC_Mode",
-            "[JumpBack]CompleteSimilation",
             "ExitSimilation",
             "[JumpBack]ClickAnywhereToContinue_General",
             "[JumpBack]HandleTutorialGuide_RightUp_General",
@@ -12,8 +11,11 @@
             "[JumpBack]NeedSkip",
             "[JumpBack]Confirm",
             "[JumpBack]Stage_4_Mission_1",
+            "[JumpBack]Stage_4_Extra_Mission",
             "[JumpBack]WaitLoadingText",
-            "[JumpBack]StartSimilation"
+            "[JumpBack]StartSimilation",
+            "[JumpBack]WaitStage_4_Complete",
+            "[JumpBack]CompleteSimilation"
         ]
     },
     "Stage_4_MedsProduction": {
@@ -90,48 +92,73 @@
                     "Similation/SimilationComplete_Unselect.png"
                 ]
             }
-        },
-        "next": [
-            "Stage_4_MedsProduction"
-        ]
+        }
     },
-    "Stage_4_Mission_1": {
-        //药品产线模拟空间-任务1:点击协议核心取货口
+    "Stage_4_Extra_Mission": {
+        //药品产线模拟空间-奖励目标:晶体外壳粉末产线
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "_Stage_4_Mission_1_Title",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    513,
+                                    30,
+                                    117,
+                                    72
+                                ],
+                                "expected": "^退出俯(瞰)$"
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    140,
+                                    278,
+                                    279
+                                ],
+                                "template": "Similation/CompleteSimilation.png"
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_ExtraMission_Title",
                         "recognition": {
                             "type": "OCR",
                             "param": {
                                 "roi": [
                                     0,
-                                    44,
-                                    459,
-                                    314
+                                    0,
+                                    406,
+                                    400
                                 ],
                                 "expected": [
-                                    "以生产荞花粉末"
+                                    "备一批晶体外壳粉末"
                                 ]
                             }
                         }
                     },
                     {
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
-                                "roi": "_Stage_4_Mission_1_Title",
+                                "roi": "_ExtraMission_Title",
                                 "roi_offset": [
-                                    276,
-                                    -13,
-                                    -61,
-                                    9
+                                    -59,
+                                    -22,
+                                    -75,
+                                    19
                                 ],
-                                "expected": [
-                                    "0/1"
+                                "template": [
+                                    "Similation/SimilationMissionUncomplete.png"
                                 ]
                             }
                         }
@@ -140,15 +167,269 @@
             }
         },
         "next": [
-            "Stage_4_Find_PAC",
+            "Stage_4_ExtraFindPAC",
             "[JumpBack]Stage_4_TopViewUp"
         ]
     },
-    "Stage_4_Mission_1_Complete": {
+    "Stage_4_ExtraFindPAC": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    384,
+                    77,
+                    501,
+                    197
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "next": [
+            "Stage_4_FindRefiningUnit",
+            "[JumpBack]Stage_4_TopViewLeft"
+        ]
+    },
+    "Stage_4_FindRefiningUnit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    579,
+                    77,
+                    317,
+                    428
+                ],
+                "template": [
+                    "Similation/RefiningUnit.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]Stage_4_DestroyBelt",
+            "[JumpBack]Stage_4_SelectShreddingUnit",
+            "Stage_4_Extra_Mission_Link"
+        ]
+    },
+    "Stage_4_Extra_Mission_Link": {
+        //连线
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    401,
+                    0,
+                    879,
+                    538
+                ],
+                "template": [
+                    "Similation/RefiningUnit.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]OpenBelt",
+            "Stage_4_Extra_Mission_Link_1"
+        ]
+    },
+    "Stage_4_Extra_Mission_Link_1": {
+        //连接精炼炉到粉碎机
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    401,
+                    0,
+                    879,
+                    538
+                ],
+                "template": [
+                    "Similation/RefiningUnit.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_Extra_Mission_Link_2"
+        ]
+    },
+    "Stage_4_Extra_Mission_Link_2": {
+        //连接到粉碎机,并且重复点击将粉碎机连接回PAC
+        "repeat": 2,
+        "repeat_delay": 1000,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    401,
+                    0,
+                    879,
+                    538
+                ],
+                "template": [
+                    "Similation/ShreddingUnit.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_Extra_Mission_Link_3"
+        ]
+    },
+    "Stage_4_Extra_Mission_Link_3": {
+        //连接到PAC
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    401,
+                    0,
+                    879,
+                    538
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    100,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "CloseAIC_Edit"
+        ]
+    },
+    "Stage_4_SelectShreddingUnit": {
+        //选择粉碎机
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    47,
+                    599,
+                    433,
+                    65
+                ],
+                "expected": [
+                    "粉碎机"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_DropShreddingUnit"
+        ]
+    },
+    "Stage_4_DropShreddingUnit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    579,
+                    77,
+                    317,
+                    428
+                ],
+                "template": [
+                    "Similation/RefiningUnit.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    40,
+                    200,
+                    -14,
+                    -15
+                ]
+            }
+        }
+    },
+    "Stage_4_DestroyBelt": {
+        //拆除旧的生产线
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    379,
+                    157,
+                    635,
+                    371
+                ],
+                "template": [
+                    "Similation/Stage_4_Item.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_DestroyAllBelt"
+        ]
+    },
+    "Stage_4_DestroyAllBelt": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    763,
+                    132,
+                    244,
+                    127
+                ],
+                "expected": [
+                    "收纳整条产线"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "Stage_4_Mission_1": {
+        //药品产线模拟空间-任务1:点击协议核心取货口
+        //实际上这个任务包含了任务1和任务2
+        //点击出货口更改产物和连接生产线
+        "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    513,
+                                    30,
+                                    117,
+                                    72
+                                ],
+                                "expected": "^退出俯(瞰)$"
+                            }
+                        }
+                    },
                     {
                         "sub_name": "_Stage_4_Mission_1_Title",
                         "recognition": {
@@ -168,43 +449,223 @@
                     },
                     {
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": "_Stage_4_Mission_1_Title",
                                 "roi_offset": [
-                                    276,
-                                    -13,
-                                    -61,
-                                    9
+                                    -46,
+                                    -18,
+                                    -60,
+                                    18
                                 ],
-                                "expected": [
-                                    "1/1"
+                                "template": [
+                                    "Similation/SimilationMissionUncomplete.png"
                                 ]
                             }
                         }
                     }
                 ]
             }
+        },
+        "next": [
+            //这是任务1中特殊设置,他需要重新进入俯瞰模式
+            "[JumpBack]ChangeToAIC_Mode",
+            "[JumpBack]ClickAnywhereToContinue_General",
+            "[JumpBack]HandleTutorialGuide_RightUp_General",
+            "[JumpBack]HandleTutorialGuide_LeftUp_General",
+            "[JumpBack]EnterTopView",
+            "[JumpBack]CloseTips",
+            "[JumpBack]NeedSkip",
+            "[JumpBack]Confirm",
+            //
+            "[JumpBack]Stage_4_Mission_1_Find_PAC",
+            "[JumpBack]Stage_4_Mission_1_Link",
+            "Stage_4_Mission_1_LinkBack",
+            "[JumpBack]Stage_4_TopViewUp",
+            "SwipeError"
+        ]
+    },
+    "Stage_4_Mission_1_LinkBack": {
+        //第二道传送带:粉碎机到协议核心
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    383,
+                    78,
+                    503,
+                    423
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]OpenBelt",
+            "Stage_4_Mission_1_StartBackLink"
+        ]
+    },
+    "Stage_4_Mission_1_StartBackLink": {
+        "max_hit": 1,
+        //点击粉碎机
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    776,
+                    77,
+                    411,
+                    493
+                ],
+                "template": [
+                    "Similation/ShreddingUnit.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_Mission_1_CompleteBackLink"
+        ]
+    },
+    "Stage_4_Mission_1_CompleteBackLink": {
+        //点击协议核心 
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    383,
+                    78,
+                    503,
+                    423
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    100,
+                    0,
+                    0,
+                    0
+                ]
+            }
         }
     },
-    "Stage_4_Find_PAC": {
+    "Stage_4_Mission_1_Link": {
+        //第一道传送带:协议核心到粉碎机
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    383,
+                    78,
+                    503,
+                    423
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]OpenBelt",
+            "Stage_4_Mission_1_StartLink"
+        ]
+    },
+    "Stage_4_Mission_1_StartLink": {
+        "max_hit": 1,
+        //点击协议核心
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    383,
+                    78,
+                    503,
+                    423
+                ],
+                "template": [
+                    "Similation/PAC.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Stage_4_Mission_1_CompleteLink"
+        ]
+    },
+    "Stage_4_Mission_1_CompleteLink": {
+        //点击粉碎机
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    776,
+                    77,
+                    411,
+                    493
+                ],
+                "template": [
+                    "Similation/ShreddingUnit.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]CloseTips",
+            "CloseAIC_Edit"
+        ]
+    },
+    "Wait_Stage_4_Mission_1_LinkComplete": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    776,
+                    77,
+                    411,
+                    493
+                ],
+                "template": [
+                    "Similation/ShreddingUnit.png"
+                ]
+            }
+        },
+        "next": [
+            "Stage_4_Mission_1_Find_PAC"
+        ]
+    },
+    "Stage_4_Mission_1_Find_PAC": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "_Stage_4_Find_PAC_Title",
+                        "sub_name": "_Stage_4_Mission_1_Find_PAC_Title",
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
-                                    489,
-                                    79,
-                                    375,
-                                    296
+                                    383,
+                                    78,
+                                    503,
+                                    423
                                 ],
-                                "expected": [
-                                    "协议核心"
+                                "template": [
+                                    "Similation/PAC.png"
                                 ]
                             }
                         }
@@ -213,12 +674,12 @@
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
-                                "roi": "_Stage_4_Find_PAC_Title",
+                                "roi": "_Stage_4_Mission_1_Find_PAC_Title",
                                 "roi_offset": [
-                                    139,
-                                    98,
-                                    16,
-                                    66
+                                    186,
+                                    62,
+                                    38,
+                                    144
                                 ],
                                 "upper": [
                                     255,
@@ -243,15 +704,30 @@
             "type": "Click"
         },
         "next": [
-            "Stage_4_Mission_1_Complete",
+            "Stage_4_PAC_Complete",
             "[JumpBack]ClickAnywhereToContinue_General",
             "[JumpBack]HandleTutorialGuide_RightUp_General",
-            "[JumpBack]HandleTutorialGuide_LeftUp_General",
-            "[JumpBack]Wait_Stage_4_Mission_1_Complete"
+            "[JumpBack]HandleTutorialGuide_LeftUp_General"
         ]
     },
+    "Stage_4_PAC_Complete": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    779,
+                    115,
+                    423,
+                    119
+                ],
+                "expected": [
+                    "请使用传送带连接协议核心取货口和粉碎机的输入口"
+                ]
+            }
+        }
+    },
     "Stage_4_TopViewUp": {
-        "max_hit": 10,
+        "max_hit": 20,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -279,7 +755,36 @@
             }
         }
     },
-    "Wait_Stage_4_Mission_1_Complete": {
+    "Stage_4_TopViewLeft": {
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    550,
+                    360
+                ],
+                "end": [
+                    600,
+                    360
+                ],
+                "duration": 100
+            }
+        }
+    },
+    "Stage_4_Mission_1_Complete": {
         "recognition": {
             "type": "And",
             "param": {
@@ -303,21 +808,38 @@
                     },
                     {
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": "_Stage_4_Mission_1_Title",
                                 "roi_offset": [
-                                    276,
-                                    -13,
-                                    -61,
-                                    9
+                                    -46,
+                                    -18,
+                                    -60,
+                                    18
                                 ],
-                                "expected": [
-                                    "0/1"
+                                "template": [
+                                    "Similation/SimilationMissionComplete.png"
                                 ]
                             }
                         }
                     }
+                ]
+            }
+        }
+    },
+    "WaitStage_4_Complete": {
+        "max_hit": 100,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    80,
+                    93,
+                    248
+                ],
+                "template": [
+                    "Similation/SimilationMissionUncomplete.png"
                 ]
             }
         }
