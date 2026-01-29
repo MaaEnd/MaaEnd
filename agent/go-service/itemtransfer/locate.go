@@ -37,7 +37,7 @@ func (*RepoLocate) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Cu
 		for col := range 8 {
 
 			// Step 1 & 2
-			img := MoveAndShot(ctx, row, col)
+			img := MoveAndShot(ctx, REPOSITORY, row, col)
 
 			// Step 3 - Call original OCR
 			log.Debug().Msg("Starting Recognition")
