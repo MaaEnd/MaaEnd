@@ -152,6 +152,12 @@
             "description": "$task.DailyRewards.description"
         },
         {
+            "name": "VisitFriends",
+            "label": "$task.VisitFriends.label",
+            "entry": "FriendVisitMain",
+            "description": "$task.VisitFriends.description"
+        },
+        {
             "name": "ReadAllWiki",
             "label": "$task.ReadAllWiki.label",
             "entry": "ReadAllWiki",

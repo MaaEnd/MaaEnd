@@ -1,0 +1,352 @@
+{
+    "FriendVisitMain": {
+        "doc": "Auto visit friends main entry",
+        "recognition": "DirectHit",
+        "next": [
+            "OnFriendListPage",
+            "OpenFriendPanel",
+            "CheckMainMenuKey"
+        ]
+    },
+    "OnFriendListPage": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/VisitFriend.png",
+        "threshold": 0.8,
+        "action": "DoNothing",
+        "next": [
+            "CheckSupportQuota",
+            "CheckIntelQuota",
+            "EndVisit"
+        ]
+    },
+    "CheckMainMenuKey": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ProtosyncMenu.png",
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 27,
+        "post_wait_freezes": 1,
+        "next": [
+            "FriendVisitMain"
+        ]
+    },
+    "OpenFriendPanel": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/FriendList.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "FriendVisitMain"
+        ]
+    },
+    "CheckSupportQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1166,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "SupportScan"
+        ]
+    },
+    "CheckIntelQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1111,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "IntelScan"
+        ]
+    },
+    "EndVisit": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/EndVisit.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EndVisitConfirm",
+            "EndVisit"
+        ]
+    },
+    "EndVisitConfirm": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/Confirm.png",
+        "threshold": 0.8,
+        "action": "Click"
+    },
+    "SupportScan": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FriendVisitScanAction",
+        "custom_action_param": {
+            "Mode": "support",
+            "Template": "VisitFriends/ProductionAssistAvailable.png",
+            "Threshold": 0.8,
+            "ROI": [
+                0,
+                140,
+                1280,
+                520
+            ],
+            "MaxScroll": 12,
+            "ScrollDy": -240,
+            "NextOnHit": "SupportConfirmVisit",
+            "NextOnContinue": "SupportScan",
+            "NextOnExhaust": "FriendVisitMain"
+        },
+        "next": [
+            "SupportScan"
+        ]
+    },
+    "SupportConfirmVisit": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/Confirm.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "SupportOpenTerminal",
+            "SupportConfirmVisit"
+        ]
+    },
+    "SupportOpenTerminal": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/OpenVisitorTerminal.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "post_delay": 300,
+        "next": [
+            "SupportTerminalCheckSupportQuota",
+            "SupportTerminalCheckIntelQuota",
+            "SupportTerminalExit"
+        ]
+    },
+    "SupportTerminalCheckSupportQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1166,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "SupportClickSupportButton",
+            "SupportTerminalCheckIntelQuota",
+            "SupportTerminalExit"
+        ]
+    },
+    "SupportClickSupportButton": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ProductionAssist.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "SupportClickSupportButton",
+            "SupportTerminalCheckIntelQuota",
+            "SupportTerminalExit"
+        ]
+    },
+    "SupportTerminalCheckIntelQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1111,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "SupportClickIntelButton",
+            "SupportTerminalExit"
+        ]
+    },
+    "SupportClickIntelButton": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ClueExchange.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "SupportClickIntelButton",
+            "SupportTerminalExit"
+        ]
+    },
+    "SupportTerminalExit": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 300,
+        "next": [
+            "SupportLeaveCheck",
+            "SupportLeaveWait"
+        ]
+    },
+    "SupportLeaveCheck": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/Leave.png",
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 300,
+        "next": [
+            "FriendVisitMain"
+        ]
+    },
+    "SupportLeaveWait": {
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "post_delay": 300,
+        "next": [
+            "SupportLeaveCheck"
+        ]
+    },
+    "IntelScan": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FriendVisitScanAction",
+        "custom_action_param": {
+            "Mode": "intel",
+            "Template": "VisitFriends/ClueExchangeAvailable.png",
+            "Threshold": 0.8,
+            "ROI": [
+                0,
+                140,
+                1280,
+                520
+            ],
+            "MaxScroll": 12,
+            "ScrollDy": -240,
+            "NextOnHit": "IntelConfirmVisit",
+            "NextOnContinue": "IntelScan",
+            "NextOnExhaust": "FriendVisitMain"
+        },
+        "next": [
+            "IntelScan"
+        ]
+    },
+    "IntelConfirmVisit": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/Confirm.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "IntelOpenTerminal",
+            "IntelConfirmVisit"
+        ]
+    },
+    "IntelOpenTerminal": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/OpenVisitorTerminal.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "post_delay": 300,
+        "next": [
+            "IntelTerminalCheckIntelQuota",
+            "IntelTerminalCheckSupportQuota",
+            "IntelTerminalExit"
+        ]
+    },
+    "IntelTerminalCheckIntelQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1111,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "IntelClickIntelButton",
+            "IntelTerminalCheckSupportQuota",
+            "IntelTerminalExit"
+        ]
+    },
+    "IntelClickIntelButton": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ClueExchange.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "IntelClickIntelButton",
+            "IntelTerminalCheckSupportQuota",
+            "IntelTerminalExit"
+        ]
+    },
+    "IntelTerminalCheckSupportQuota": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            1166,
+            75,
+            10,
+            8
+        ],
+        "expected": "[1-9][0-9]*",
+        "threshold": 0.6,
+        "action": "DoNothing",
+        "next": [
+            "IntelClickSupportButton",
+            "IntelTerminalExit"
+        ]
+    },
+    "IntelClickSupportButton": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ProductionAssist.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "IntelClickSupportButton",
+            "IntelTerminalExit"
+        ]
+    },
+    "IntelTerminalExit": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 300,
+        "next": [
+            "IntelLeaveCheck",
+            "IntelLeaveWait"
+        ]
+    },
+    "IntelLeaveCheck": {
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/Leave.png",
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 300,
+        "next": [
+            "FriendVisitMain"
+        ]
+    },
+    "IntelLeaveWait": {
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "post_delay": 300,
+        "next": [
+            "IntelLeaveCheck"
+        ]
+    }
+}

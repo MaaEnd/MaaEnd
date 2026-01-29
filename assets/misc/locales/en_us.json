@@ -5,6 +5,8 @@
     "task.PCOpenGame.description": "Enter the game on PC. Please launch the game manually first.",
     "task.DailyRewards.label": "📅 Claim Daily Rewards",
     "task.DailyRewards.description": "Claim daily mission rewards.",
+    "task.VisitFriends.label": "Auto Visit Friends",
+    "task.VisitFriends.description": "Automatically visit friends to perform support and intel exchange.",
     "task.ReadAllWiki.label": "📖 Mark All Encyclopedia as Read",
     "task.ReadAllWiki.description": "Clear all unread red dots in the encyclopedia. **Start this task from the Endfield Encyclopedia home page.**",
     "task.ReceiveProdManual.label": "🌾 Claim All Simple Crafting Manual Rewards",
