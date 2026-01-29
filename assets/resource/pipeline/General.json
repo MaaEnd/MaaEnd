@@ -107,5 +107,14 @@
             }
         },
         "post_wait_freezes": 100
+    },
+    "SwipeError": {
+        "focus": {
+            "Node.Action.Starting": "滑动次数过多错误,流程终止"
+        },
+        "action": {
+            "type": "StopTask"
+        },
+        "next": []
     }
 }

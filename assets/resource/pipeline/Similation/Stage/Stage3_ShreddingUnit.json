@@ -323,7 +323,7 @@
         },
         "next": [
             "[JumpBack]CloseAIC_Edit",
-            "TopViewDown"
+            "Stage_3_TopViewDown"
         ]
     },
     "Complete_Stage_3_Mission_1_Localtion": {
@@ -421,7 +421,8 @@
         "next": [
             "MoveToStage_3_Mission_2_Localtion_1",
             "[JumpBack]Stage_3_Mission_2_Localtion_1_MoveRight",
-            "[JumpBack]TopViewUpLittle"
+            "[JumpBack]Stage_3_TopViewUpLittle",
+            "SwipeError"
         ]
     },
     "MoveToStage_3_Mission_2_Localtion_1": {
@@ -695,7 +696,8 @@
         "next": [
             "MoveToStage_3_Mission_2_Localtion_1_Success",
             "[JumpBack]Stage_3_Mission_2_Localtion_1_TopViewRight",
-            "[JumpBack]TopViewRightLittle"
+            "[JumpBack]Stage_3_TopViewRightLittle",
+            "SwipeError"
         ]
     },
     "Stage_3_Mission_2_Localtion_1_TopViewRight": {
@@ -761,6 +763,95 @@
                     "使用粉碎机生产",
                     "3份晶体外壳粉末并存入仓库"
                 ]
+            }
+        }
+    },
+    "Stage_3_TopViewDown": {
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    510
+                ],
+                "end": [
+                    640,
+                    0
+                ],
+                "duration": 500
+            }
+        }
+    },
+    "Stage_3_TopViewUpLittle": {
+        //上滑一点点
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    100
+                ],
+                "end": [
+                    640,
+                    150
+                ],
+                "duration": 100
+            }
+        }
+    },
+    "Stage_3_TopViewRightLittle": {
+        //右滑一点点
+        "max_hit": 20,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    30,
+                    117,
+                    72
+                ],
+                "expected": "^退出俯(瞰)$"
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    600,
+                    360
+                ],
+                "end": [
+                    550,
+                    360
+                ],
+                "duration": 100
             }
         }
     }
