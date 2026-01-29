@@ -57,5 +57,7 @@
     "option.PuzzleSolverMode.cases.Single.label": "単回実行",
     "option.PuzzleSolverMode.cases.Loop.label": "繰り返し実行",
     "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ",
+    "task.Resell.label": "💰 ワンクリック転売",
+    "task.Resell.description": "不安定需要物資ショップ画面で、最高利益の商品を自動で識別して購入します。**不安定需要物資ショップ画面からタスクを開始してください。**",
     "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md"
 }
