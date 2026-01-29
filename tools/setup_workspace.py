@@ -135,23 +135,24 @@ def download_file(url: str, dest_path: Path, timeout: int = 60, retries: int = M
     return False
 
 
-def install_maafw(install_root: Path) -> None:
+def install_maafw(install_root: Path) -> bool:
+    """安装 MaaFramework，成功返回 True，失败返回 False"""
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
     if (maafw_dest / MAAFW_LIB).exists():
         print("[INF] MaaFramework 已安装，跳过。")
-        return
+        return True
     os_kw, arch_kw = get_platform_keywords()
     url, filename = get_latest_release_url(MAA_FW_REPO, [os_kw, arch_kw])
     if not url or not filename:
         print("[ERR] 未找到 MaaFramework 下载链接，请手动安装。")
-        return
+        return False
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         download_path = tmp_path / filename
         if not download_file(url, download_path):
-            print("[ERR] MaaFramework 下载失败，跳过安装。")
-            return
+            print("[ERR] MaaFramework 下载失败。")
+            return False
         print("[INF] 解压 MaaFramework...")
         try:
             extract_root = tmp_path / "extracted"
@@ -174,29 +175,33 @@ def install_maafw(install_root: Path) -> None:
                     bin_found = True
                     break
             if not bin_found:
-                print(f"[WRN] 未找到 bin 目录，检查根目录... 可用目录: {[d.name for d in extract_root.iterdir() if d.is_dir()]}")
+                print(f"[ERR] 未找到 bin 目录，可用目录: {[d.name for d in extract_root.iterdir() if d.is_dir()]}")
+                return False
+            print("[INF] MaaFramework 安装完成")
+            return True
         except Exception as e:
             print(f"[ERR] MaaFramework 解压失败: {e}")
+            return False
 
 
-def install_mxu(install_root: Path) -> None:
-    # 解析真实路径，避免链接导致文件被解压到意外位置
+def install_mxu(install_root: Path) -> bool:
+    """安装 MXU，成功返回 True，失败返回 False"""
     real_install_root = install_root.resolve()
     os_kw, arch_kw = get_platform_keywords()
     mxu_path = real_install_root / MXU_NAME
     if mxu_path.exists():
         print("[INF] MXU 已安装，跳过。")
-        return
+        return True
     url, filename = get_latest_release_url(MXU_REPO, ["mxu", os_kw, arch_kw])
     if not url or not filename:
         print("[ERR] 未找到 MXU 下载链接，请手动安装。")
-        return
+        return False
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         download_path = tmp_path / filename
         if not download_file(url, download_path):
-            print("[ERR] MXU 下载失败，跳过安装。")
-            return
+            print("[ERR] MXU 下载失败。")
+            return False
         print("[INF] 解压 MXU...")
         try:
             extract_root = tmp_path / "extracted"
@@ -206,14 +211,22 @@ def install_mxu(install_root: Path) -> None:
             target_files = [MXU_NAME]
             if OS_KEYWORD == "win":
                 target_files.append("mxu.pdb")
+            copied = False
             for item in extract_root.iterdir():
                 if item.name.lower() in [f.lower() for f in target_files]:
                     dest = real_install_root / item.name
                     shutil.copy2(item, dest)
                     print(f"[INF] 复制 {item.name} 到 {real_install_root}")
+                    if item.name.lower() == MXU_NAME.lower():
+                        copied = True
+            if not copied:
+                print(f"[ERR] 未找到 {MXU_NAME}")
+                return False
             print("[INF] MXU 安装完成")
+            return True
         except Exception as e:
             print(f"[ERR] MXU 解压失败: {e}")
+            return False
 
 
 def main() -> None:
@@ -228,8 +241,12 @@ def main() -> None:
         print("[FATAL] 构建脚本执行失败，退出。")
         sys.exit(1)
     print("\n========== 下载依赖项 ==========")
-    install_maafw(install_dir)
-    install_mxu(install_dir)
+    if not install_maafw(install_dir):
+        print("[FATAL] MaaFramework 安装失败，退出。")
+        sys.exit(1)
+    if not install_mxu(install_dir):
+        print("[FATAL] MXU 安装失败，退出。")
+        sys.exit(1)
     print("\n========== 设置完成 ==========")
     print(f"[INF] 请运行 {install_dir / MXU_NAME} 来检查是否安装成功。后续使用相关工具编辑、调试等，都基于该文件夹。")
 
