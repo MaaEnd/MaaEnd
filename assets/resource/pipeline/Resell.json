@@ -178,7 +178,7 @@
         ]
     },
     "ResellinUnstableStore": {
-        "doc": "在弹性需求物资商店,滚动至最底端，开始识别价格",
+        "doc": "在弹性需求物资商店，滚动至最底端，开始识别价格",
         "recognition": "TemplateMatch",
         "template": "Resell/inUnstableStore.png",
         "threshold": 0.8,
