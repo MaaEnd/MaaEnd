@@ -28,27 +28,43 @@
             "param": {}
         },
         "next": [
-            "ProductionAssistOCR"
+            "ProductionAssistOCR",
+            "ClueExchangeOCR",
+            "VisitEnd"
         ]
     },
     "ProductionAssistOCR": {
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Custom",
+        "recognition": {
+            "type": "OCR",
             "param": {
-                "custom_action": "ProductionAssistOCRAction"
+                "roi": [
+                    1221,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "^[1-5]$"
+                ],
+                "threshold": 0.6
             }
         },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
         "next": [
-            "ProductionAssistOCR"
-        ]
+            "ProductionAssist"
+        ],
+        "timeout": 3000
     },
     "ProductionAssist": {
         "recognition": "DirectHit",
         "next": [
             "ProductionAssistCheck",
             "ProductionAssistSwipe",
-            "ClueExchangeOCR"
+            "ClueExchangeOCR",
+            "VisitEnd"
         ]
     },
     "ProductionAssistCheck": {
@@ -178,22 +194,37 @@
             }
         },
         "next": [
-            "ProductionAssistOCR"
+            "ProductionAssistOCR",
+            "ClueExchangeOCR",
+            "VisitEnd"
         ]
     },
 
 
     "ClueExchangeOCR": {
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Custom",
+        "recognition": {
+            "type": "OCR",
             "param": {
-                "custom_action": "ClueExchangeOCRAction"
+                "roi": [
+                    1165,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "^[1-5]$"
+                ],
+                "threshold": 0.6
             }
         },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
         "next": [
-            "ClueExchangeOCR"
-        ]
+            "ClueExchange"
+        ],
+        "timeout": 3000
     },
     "ClueExchange": {
         "recognition": "DirectHit",
@@ -330,7 +361,8 @@
             }
         },
         "next": [
-            "ClueExchangeOCR"
+            "ClueExchangeOCR",
+            "VisitEnd"
         ]
     },
 

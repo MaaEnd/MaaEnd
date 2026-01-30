@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/friendvisit"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
@@ -70,7 +69,6 @@ func registerAll() {
 	importtask.Register()
 	resell.Register()
 	puzzle.Register()
-	friendvisit.Register()
 
 	log.Info().Msg("Registered custom recognition and actions")
 }
