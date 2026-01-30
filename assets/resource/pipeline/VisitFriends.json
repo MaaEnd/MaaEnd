@@ -1,45 +1,10 @@
 {
     "FriendVisitMain": {
-        "doc": "Auto visit friends main entry",
-        "recognition": "DirectHit",
         "next": [
-            "FriendVisitInit"
+            "OpenMenu"
         ]
     },
-    "FriendVisitInit": {
-        "max_hit": 1,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitResetAction",
-        "next": [
-            "FriendVisitPrecheck"
-        ]
-    },
-    "FriendVisitPrecheck": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitPrecheckAction",
-        "next": [
-            "FriendVisitLoop"
-        ]
-    },
-    "FriendVisitLoop": {
-        "recognition": "DirectHit",
-        "next": [
-            "OnFriendListPage",
-            "OpenFriendPanel",
-            "CheckMainMenuKey",
-            "FriendVisitLoop"
-        ]
-    },
-    "CheckMainMenuKey": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ProtosyncMenu.png",
-                "threshold": 0.3
-            }
-        },
+    "OpenMenu": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -47,27 +12,10 @@
             }
         },
         "next": [
-            "WaitFriendListButton"
+            "OpenFriendList"
         ]
     },
-    "WaitFriendListButton": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/FriendList.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "OpenFriendPanel",
-            "WaitFriendListButton"
-        ]
-    },
-    "OpenFriendPanel": {
+    "OpenFriendList": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -80,134 +28,59 @@
             "param": {}
         },
         "next": [
-            "WaitFriendListPage"
+            "ProductionAssistOCR"
         ]
     },
-    "WaitFriendListPage": {
-        "recognition": {
-            "type": "TemplateMatch",
+    "ProductionAssistOCR": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
             "param": {
-                "template": "VisitFriends/VisitFriend.png",
-                "threshold": 0.8
+                "custom_action": "ProductionAssistOCRAction"
             }
         },
+        "next": [
+            "ProductionAssistOCR"
+        ]
+    },
+    "ClueExchangeOCR": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClueExchangeOCRAction"
+            }
+        },
+        "next": [
+            "ClueExchangeOCR"
+        ]
+    },
+    "ProductionAssist": {
+        "next": [
+            "VisitEnd"
+        ]
+    },
+    "ClueExchange": {
+        "next": [
+            "VisitEnd"
+        ]
+    },
+    "VisitEnd": {
         "action": {
             "type": "DoNothing",
             "param": {}
         },
         "next": [
-            "OnFriendListPage",
-            "WaitFriendListPage"
+            "ClickVisitEnd",
+            "ReturnToMenu"
         ]
     },
-    "OnFriendListPage": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/VisitFriend.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "FriendListReady",
-            "FriendVisitLoop"
-        ]
-    },
-    "FriendListReady": {
+    "ClickVisitEnd": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "VisitFriends/EndVisit.png",
                 "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "CheckSupportQuota",
-            "FriendVisitLoop"
-        ]
-    },
-    "CheckSupportQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1224,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "SupportScan",
-            "NextOnMiss": "CheckIntelQuota"
-        },
-        "next": [
-            "CheckSupportQuota"
-        ]
-    },
-    "CheckIntelQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1165,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "IntelScan",
-            "NextOnMiss": "FirstEntryExitOrEnd"
-        },
-        "next": [
-            "CheckIntelQuota"
-        ]
-    },
-    "FirstEntryExitOrEnd": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitFirstEntryExitAction",
-        "custom_action_param": {
-            "NextOnElse": "WaitEndVisit"
-        },
-        "next": [
-            "FirstEntryExitOrEnd"
-        ]
-    },
-    "WaitEndVisit": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/EndVisit.png",
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "EndVisit",
-            "WaitEndVisit"
-        ]
-    },
-    "EndVisit": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/EndVisit.png",
-                "threshold": 0.9
             }
         },
         "action": {
@@ -215,28 +88,10 @@
             "param": {}
         },
         "next": [
-            "WaitEndVisitConfirm",
-            "EndVisit"
+            "ConfirmVisitEnd"
         ]
     },
-    "WaitEndVisitConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "EndVisitConfirm",
-            "WaitEndVisitConfirm"
-        ]
-    },
-    "EndVisitConfirm": {
+    "ConfirmVisitEnd": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -246,516 +101,35 @@
         },
         "action": {
             "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "VisitComplete"
+        ]
+    },
+    "ReturnToMenu": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/CloseFriendList.png",
+                "threshold": 0.9,
+                "ROI": [
+                    1213, 7, 30, 30
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "VisitComplete"
+        ]
+    },
+    "VisitComplete": {
+        "action": {
+            "type": "DoNothing",
             "param": {}
         }
-    },
-    "SupportScan": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitScanAction",
-        "custom_action_param": {
-            "Mode": "support",
-            "Template": "VisitFriends/ProductionAssistAvailable.png",
-            "Threshold": 0.8,
-            "ROI": [
-                0,
-                140,
-                1280,
-                520
-            ],
-            "MaxScroll": 12,
-            "ScrollDy": -240,
-            "NextOnHit": "WaitSupportConfirm",
-            "NextOnContinue": "SupportScan",
-            "NextOnExhaust": "FirstEntryExitOrMain"
-        },
-        "next": [
-            "SupportScan"
-        ]
-    },
-    "WaitSupportConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "SupportConfirmVisit",
-            "WaitSupportConfirm"
-        ]
-    },
-    "SupportConfirmVisit": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "WaitSupportOpenTerminal",
-            "SupportConfirmVisit"
-        ]
-    },
-    "WaitSupportOpenTerminal": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/OpenVisitorTerminal.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "SupportOpenTerminal",
-            "WaitSupportOpenTerminal"
-        ]
-    },
-    "SupportOpenTerminal": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/OpenVisitorTerminal.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SupportTerminalReady",
-            "SupportOpenTerminal"
-        ]
-    },
-    "SupportTerminalReady": {
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": {
-                    "type": "TemplateMatch",
-                    "param": {
-                        "template": "VisitFriends/ProductionAssist.png",
-                        "threshold": 0.8
-                    }
-                }
-            },
-            {
-                "recognition": {
-                    "type": "TemplateMatch",
-                    "param": {
-                        "template": "VisitFriends/ClueExchange.png",
-                        "threshold": 0.8
-                    }
-                }
-            }
-        ],
-        "action": "DoNothing",
-        "next": [
-            "SupportTerminalCheckSupportQuota",
-            "SupportTerminalCheckIntelQuota",
-            "SupportTerminalExit",
-            "SupportTerminalReady"
-        ]
-    },
-    "SupportTerminalCheckSupportQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1224,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "SupportClickSupportButton",
-            "NextOnMiss": "SupportTerminalCheckIntelQuota"
-        },
-        "next": [
-            "SupportTerminalCheckSupportQuota"
-        ]
-    },
-    "SupportClickSupportButton": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ProductionAssist.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SupportClickSupportButton",
-            "SupportTerminalCheckIntelQuota",
-            "SupportTerminalExit"
-        ]
-    },
-    "SupportTerminalCheckIntelQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1165,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "SupportClickIntelButton",
-            "NextOnMiss": "SupportTerminalExit"
-        },
-        "next": [
-            "SupportTerminalCheckIntelQuota"
-        ]
-    },
-    "SupportClickIntelButton": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ClueExchange.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SupportClickIntelButton",
-            "SupportTerminalExit"
-        ]
-    },
-    "SupportTerminalExit": {
-        "recognition": "DirectHit",
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "WaitSupportLeave",
-            "SupportLeaveWait"
-        ]
-    },
-    "WaitSupportLeave": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Leave.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "SupportLeaveCheck",
-            "WaitSupportLeave"
-        ]
-    },
-    "SupportLeaveCheck": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Leave.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "next": [
-            "FriendVisitLoop"
-        ]
-    },
-    "SupportLeaveWait": {
-        "recognition": "DirectHit",
-        "action": "DoNothing",
-        "next": [
-            "WaitSupportLeave",
-            "FriendVisitLoop"
-        ]
-    },
-    "IntelScan": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitScanAction",
-        "custom_action_param": {
-            "Mode": "intel",
-            "Template": "VisitFriends/ClueExchangeAvailable.png",
-            "Threshold": 0.8,
-            "ROI": [
-                0,
-                140,
-                1280,
-                520
-            ],
-            "MaxScroll": 12,
-            "ScrollDy": -240,
-            "NextOnHit": "WaitIntelConfirm",
-            "NextOnContinue": "IntelScan",
-            "NextOnExhaust": "FirstEntryExitOrMain"
-        },
-        "next": [
-            "IntelScan"
-        ]
-    },
-    "WaitIntelConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "IntelConfirmVisit",
-            "WaitIntelConfirm"
-        ]
-    },
-    "IntelConfirmVisit": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "WaitIntelOpenTerminal",
-            "IntelConfirmVisit"
-        ]
-    },
-    "WaitIntelOpenTerminal": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/OpenVisitorTerminal.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "IntelOpenTerminal",
-            "WaitIntelOpenTerminal"
-        ]
-    },
-    "IntelOpenTerminal": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/OpenVisitorTerminal.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "IntelTerminalReady",
-            "IntelOpenTerminal"
-        ]
-    },
-    "IntelTerminalReady": {
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": {
-                    "type": "TemplateMatch",
-                    "param": {
-                        "template": "VisitFriends/ProductionAssist.png",
-                        "threshold": 0.8
-                    }
-                }
-            },
-            {
-                "recognition": {
-                    "type": "TemplateMatch",
-                    "param": {
-                        "template": "VisitFriends/ClueExchange.png",
-                        "threshold": 0.8
-                    }
-                }
-            }
-        ],
-        "action": "DoNothing",
-        "next": [
-            "IntelTerminalCheckIntelQuota",
-            "IntelTerminalCheckSupportQuota",
-            "IntelTerminalExit",
-            "IntelTerminalReady"
-        ]
-    },
-    "IntelTerminalCheckIntelQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1165,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "IntelClickIntelButton",
-            "NextOnMiss": "IntelTerminalCheckSupportQuota"
-        },
-        "next": [
-            "IntelTerminalCheckIntelQuota"
-        ]
-    },
-    "IntelClickIntelButton": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ClueExchange.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "IntelClickIntelButton",
-            "IntelTerminalCheckSupportQuota",
-            "IntelTerminalExit"
-        ]
-    },
-    "IntelTerminalCheckSupportQuota": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitCheckQuotaAction",
-        "custom_action_param": {
-            "ROI": [
-                1224,
-                71,
-                12,
-                16
-            ],
-            "Expected": "[1-9][0-9]*",
-            "Threshold": 0.6,
-            "NextOnHit": "IntelClickSupportButton",
-            "NextOnMiss": "IntelTerminalExit"
-        },
-        "next": [
-            "IntelTerminalCheckSupportQuota"
-        ]
-    },
-    "IntelClickSupportButton": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ProductionAssist.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "IntelClickSupportButton",
-            "IntelTerminalExit"
-        ]
-    },
-    "IntelTerminalExit": {
-        "recognition": "DirectHit",
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "WaitIntelLeave",
-            "IntelLeaveWait"
-        ]
-    },
-    "WaitIntelLeave": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Leave.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "IntelLeaveCheck",
-            "WaitIntelLeave"
-        ]
-    },
-    "IntelLeaveCheck": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Leave.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "next": [
-            "FriendVisitLoop"
-        ]
-    },
-    "IntelLeaveWait": {
-        "recognition": "DirectHit",
-        "action": "DoNothing",
-        "next": [
-            "WaitIntelLeave",
-            "FriendVisitLoop"
-        ]
-    },
-    "FirstEntryExitOrMain": {
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "FriendVisitFirstEntryExitAction",
-        "custom_action_param": {
-            "NextOnElse": "FriendVisitLoop"
-        },
-        "next": [
-            "FirstEntryExitOrMain"
-        ]
     }
 }

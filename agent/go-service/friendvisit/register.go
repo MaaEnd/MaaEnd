@@ -2,11 +2,8 @@ package friendvisit
 
 import maa "github.com/MaaXYZ/maa-framework-go/v3"
 
-// Register registers all custom action components for friend visit.
+// Register registers friend visit custom components.
 func Register() {
-	maa.AgentServerRegisterCustomAction("FriendVisitResetAction", &FriendVisitResetAction{})
-	maa.AgentServerRegisterCustomAction("FriendVisitPrecheckAction", &FriendVisitPrecheckAction{})
-	maa.AgentServerRegisterCustomAction("FriendVisitScanAction", &FriendVisitScanAction{})
-	maa.AgentServerRegisterCustomAction("FriendVisitCheckQuotaAction", &FriendVisitCheckQuotaAction{})
-	maa.AgentServerRegisterCustomAction("FriendVisitFirstEntryExitAction", &FriendVisitFirstEntryExitAction{})
+	maa.AgentServerRegisterCustomAction("ProductionAssistOCRAction", &ProductionAssistOCRAction{})
+	maa.AgentServerRegisterCustomAction("ClueExchangeOCRAction", &ClueExchangeOCRAction{})
 }
