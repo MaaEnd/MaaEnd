@@ -2,6 +2,7 @@ package realtime
 
 import (
 	"encoding/json"
+	"sync"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
@@ -12,8 +13,18 @@ var (
 	autoFightCharacterCount   int
 	autoFightSkillLastIndex   int
 	autoFightEndSkillIndex    int
-	autoFightEndSkillLastTime time.Time // EndSkillAction 最后触发时间，用于冷却判断
+	autoFightEndSkillLastTime time.Time
+	autoFightMutex            sync.Mutex
 )
+
+func resetAutoFightState() {
+	autoFightMutex.Lock()
+	defer autoFightMutex.Unlock()
+	autoFightCharacterCount = 0
+	autoFightSkillLastIndex = 0
+	autoFightEndSkillIndex = 0
+	autoFightEndSkillLastTime = time.Time{}
+}
 
 type RealTimeAutoFightEntryRecognition struct{}
 
@@ -109,11 +120,15 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 			log.Error().Err(err).Msg("Failed to parse TemplateMatch detail")
 			return nil, false
 		}
+		
+		autoFightMutex.Lock()
 		autoFightCharacterCount = len(templateMatchDetail.Filtered)
-		log.Debug().Int("characterCount", autoFightCharacterCount).Msg("Character count found")
+		autoFightSkillLastIndex = 0
+		autoFightMutex.Unlock()
+		
+		log.Debug().Int("characterCount", len(templateMatchDetail.Filtered)).Msg("Character count found")
 	}
 	log.Debug().Msg("Enter auto fight")
-	autoFightSkillLastIndex = 0
 
 	{
 		var params struct {
@@ -137,8 +152,12 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 type RealTimeAutoFightExitRecognition struct{}
 
 func (r *RealTimeAutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	autoFightMutex.Lock()
+	lastEndSkillTime := autoFightEndSkillLastTime
+	autoFightMutex.Unlock()
+	
 	// EndSkillAction 触发后 3 秒内不触发退出识别，避免大招动画误判
-	if time.Since(autoFightEndSkillLastTime) < 3*time.Second {
+	if time.Since(lastEndSkillTime) < 3*time.Second {
 		return nil, false
 	}
 
@@ -208,7 +227,11 @@ func (r *RealTimeAutoFightSkillRecognition) Run(ctx *maa.Context, arg *maa.Custo
 type RealTimeAutoFightSkillAction struct{}
 
 func (a *RealTimeAutoFightSkillAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	autoFightMutex.Lock()
 	count := autoFightCharacterCount
+	currentIndex := autoFightSkillLastIndex
+	autoFightMutex.Unlock()
+
 	if count == 0 || count > 4 {
 		return true
 	}
@@ -220,14 +243,16 @@ func (a *RealTimeAutoFightSkillAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	} else {
 		// 多个角色时，轮换 2、3、4...（跳过 1）
 		// 例如 4 个角色时，轮换 keycode 50, 51, 52（键 '2', '3', '4'）
-		keycode = 50 + (autoFightSkillLastIndex % (count - 1))
+		keycode = 50 + (currentIndex % (count - 1))
 	}
 
 	ctx.GetTasker().GetController().PostClickKey(int32(keycode))
-	log.Info().Int("skillIndex", autoFightSkillLastIndex).Int("keycode", keycode).Msg("AutoFightSkillAction triggered")
+	log.Info().Int("skillIndex", currentIndex).Int("keycode", keycode).Msg("AutoFightSkillAction triggered")
 
 	if count > 1 {
+		autoFightMutex.Lock()
 		autoFightSkillLastIndex = (autoFightSkillLastIndex + 1) % (count - 1)
+		autoFightMutex.Unlock()
 	}
 	return true
 }
@@ -287,8 +312,10 @@ func (r *RealTimeAutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.Cu
 	default:
 		keyIndex = 4
 	}
-	// 将按键索引传递给 Action
+	
+	autoFightMutex.Lock()
 	autoFightEndSkillIndex = keyIndex
+	autoFightMutex.Unlock()
 
 	return &maa.CustomRecognitionResult{
 		Box:    detail.Box,
@@ -299,16 +326,18 @@ func (r *RealTimeAutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.Cu
 type RealTimeAutoFightEndSkillAction struct{}
 
 func (a *RealTimeAutoFightEndSkillAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// 记录触发时间，用于 ExitRecognition 冷却判断
+	autoFightMutex.Lock()
 	autoFightEndSkillLastTime = time.Now()
+	keyIndex := autoFightEndSkillIndex
+	autoFightMutex.Unlock()
 
-	if autoFightEndSkillIndex < 1 || autoFightEndSkillIndex > 4 {
-		log.Error().Int("keyIndex", autoFightEndSkillIndex).Msg("Invalid keyIndex")
+	if keyIndex < 1 || keyIndex > 4 {
+		log.Error().Int("keyIndex", keyIndex).Msg("Invalid keyIndex")
 		return true
 	}
 
 	// keycode: 1->49, 2->50, 3->51, 4->52
-	keycode := int(48 + autoFightEndSkillIndex)
+	keycode := int(48 + keyIndex)
 	ctx.RunActionDirect("LongPressKey", maa.NodeLongPressKeyParam{
 		Key:      []int{keycode},
 		Duration: 1000, // 长按 1 秒
