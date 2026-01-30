@@ -9,7 +9,8 @@
             "command": "python tools/setup_workspace.py",
             "runOptions": {
                 "instanceLimit": 1
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Prepare Workspace (Update)",
@@ -17,15 +18,17 @@
             "command": "python tools/setup_workspace.py --update",
             "runOptions": {
                 "instanceLimit": 1
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Build",
             "type": "shell",
-            "command": "python tools/build_workspace.py",
+            "command": "python tools/build_and_install.py",
             "runOptions": {
                 "instanceLimit": 1
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }
