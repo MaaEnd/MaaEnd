@@ -17,7 +17,7 @@
             "HandleTutorialPaging",
             "HandleTutorialConfirm",
             "CheckSpecialInfoPanel",
-            "AutoPat",
+            "RealTimeAutoPat",
             "RealTimeTaskMainDelay"
         ]
     },
