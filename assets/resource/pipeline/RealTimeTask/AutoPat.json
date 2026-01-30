@@ -1,0 +1,53 @@
+{
+    "AutoPat": {
+        "doc": "自动拍一拍",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "template": [
+                            "RealTimeTask/AnimPlanInteract.png"
+                        ],
+                        "threshold": 0.9
+                    },
+                    {
+                        "sub_name": "act",
+                        "recognition": "OCR",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "expected": ["拍一拍"],
+                        "threshold": 0.95
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "拍一拍"
+        },
+        "pre_delay": 0,
+        "post_delay": 50,
+        "next": [
+            "AutoPat",
+            "RealTimeTaskMain"
+        ]
+    }
+}
