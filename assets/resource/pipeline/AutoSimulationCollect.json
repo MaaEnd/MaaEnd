@@ -1,11 +1,4 @@
 {
-    "languages": {
-        "zh_cn": "misc/locales/zh_cn.json",
-        "zh_tw": "misc/locales/zh_tw.json",
-        "en_us": "misc/locales/en_us.json",
-        "ja_jp": "misc/locales/ja_jp.json",
-        "ko_kr": "misc/locales/ko_kr.json"
-    },
     "SimulationSpaceEntry": {
         "doc": "第一步：识别模拟空间主界面",
         "recognition": "OCR",
@@ -80,7 +73,7 @@
                 "end_hold": 200
             }
         },
-        "post_wait_freezes": 600,
+        "post_wait_freezes": 200, //降低延迟
         "next": [
             "Sim_HaveSelectedUnfinished",
             "Sim_SelectUnfinished",
@@ -232,7 +225,7 @@
             150
         ],
         "action": "Click",
-        "post_wait_freezes": 400, // 领取后通常有弹窗，等一下
+        "post_wait_freezes": 200, // 降低延迟
         "next": [
             "Sim_CloseRewardPopup", // 领取完去关弹窗
             "Sim_ComfirmReward"
@@ -268,10 +261,10 @@
         "recognition": "TemplateMatch",
         "template": "SimulationSpace/EmptyMenu.png",
         "roi": [
-            946,
-            62,
-            311,
-            550
+            826,
+            169,
+            438,
+            201
         ],
         "action": "DoNothing",
         "focus": {
