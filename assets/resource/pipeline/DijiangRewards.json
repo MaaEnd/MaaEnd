@@ -1,18 +1,20 @@
 {
     "DijiangRewards": {
         "next": [
-            "[JumpBack]ControlNexus",
-            "ReceptionRoom",
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
+            "[JumpBack]ControlNexus", //制造舱室任务
+            "ReceptionRoom", // 会客室线索任务
+            "[JumpBack]OpenDijiangControlNexus", // 打开帝江号控制中枢
+            "[JumpBack]SelectDijiang", // 选择帝江号
+            "[JumpBack]WaitLoadingColor", // 等待加载完成
+            "[JumpBack]Teleport", // 传送到帝江号
+            "[JumpBack]SelectDijiangTeleport", // 选择帝江号传送点
+            "[JumpBack]OpenMap" // 打开地图
         ]
     },
     "ReceptionRoom": {
+        //会客室线索任务
         "recognition": {
+            //识别会客室图标的两种颜色
             "type": "And",
             "param": {
                 "all_of": [
@@ -76,6 +78,7 @@
         ]
     },
     "ReceptionRoomClickTips": {
+        //点击会客室中,线索的红点
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -119,6 +122,8 @@
         ]
     },
     "SetClues": {
+        //放置线索
+        // #I18N_REVIEW
         "recognition": {
             "type": "OCR",
             "param": {
@@ -129,8 +134,7 @@
                     500
                 ],
                 "expected": [
-                    "线索",
-                    "Clues"
+                    "线索"
                 ],
                 "order_by": "Vertical"
             }
@@ -140,6 +144,8 @@
         }
     },
     "CollectClues": {
+        //搜集线索,同时有红点和文字"搜集"
+        // #I18N_REVIEW
         "recognition": {
             "type": "And",
             "param": {
@@ -195,6 +201,7 @@
         }
     },
     "ReceiveClues": {
+        //领取赠送线索
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -214,6 +221,8 @@
         }
     },
     "ControlNexus": {
+        //领取其他舱室产物及补货
+        // #I18N_REVIEW
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -238,6 +247,7 @@
         ]
     },
     "ProductionAssist": {
+        //好友助力界面,分为两种情况,某个舱室内或者总控中心内
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -283,6 +293,8 @@
         ]
     },
     "RecoveryEmotion": {
+        // 总控中心内点开助力:恢复心情
+        // #I18N_REVIEW
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -304,6 +316,8 @@
         ]
     },
     "CouldNotAssistEmotion": {
+        // 恢复心情次数不够
+        // #I18N_REVIEW
         "recognition": {
             "type": "OCR",
             "param": {
@@ -325,6 +339,7 @@
         ]
     },
     "BackToControlNexus": {
+        // 返回总控中心
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -440,6 +455,7 @@
         }
     },
     "ExitProductionAssist": {
+        // 退出好友助力界面
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -459,6 +475,7 @@
         }
     },
     "UseAssist": {
+        // 进入好友助力界面
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -478,6 +495,7 @@
         }
     },
     "InLastCarbin": {
+        // 最后一个舱室
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -494,6 +512,8 @@
         }
     },
     "CarbinSwipe": {
+        // 滑动到下一个舱室
+        // #I18N_REVIEW
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -512,6 +532,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Scroll",
             "param": {
@@ -526,6 +547,7 @@
         }
     },
     "MFG_ReceiveRewards": {
+        // 领取制造室产物
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -547,6 +569,7 @@
         ]
     },
     "OpenDijiangControlNexus": {
+        // 打开总控中心
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -562,6 +585,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
             "param": {
@@ -570,6 +594,7 @@
         }
     },
     "Teleport": {
+        // 传送到帝江号
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -589,6 +614,7 @@
         }
     },
     "SelectDijiangTeleport": {
+        // 选择帝江号传送
         "recognition": {
             "type": "And",
             "param": {
@@ -636,6 +662,7 @@
         }
     },
     "SelectDijiang": {
+        // 选择帝江号
         "recognition": {
             "type": "OCR",
             "param": {
@@ -655,6 +682,7 @@
         }
     },
     "OpenMap": {
+        // 打开地图
         "recognition": {
             "type": "Or",
             "param": {
@@ -692,6 +720,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
             "param": {
@@ -700,6 +729,7 @@
         }
     },
     "WaitLoadingColor": {
+        // 等待加载颜色
         "recognition": {
             "type": "And",
             "param": {
@@ -781,6 +811,7 @@
         }
     },
     "ControlNexusClickTips": {
+        // 点击控制中心内的红点
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -821,6 +852,7 @@
         }
     },
     "TakeRewards": {
+        // 领取奖励
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -840,6 +872,7 @@
         }
     },
     "CloseDijiangRewards": {
+        // 关闭帝江奖励界面
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -858,6 +891,7 @@
         }
     },
     "ReStockAndExit": {
+        // 补货并退出
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -887,6 +921,8 @@
         "max_hit": 10
     },
     "ConfirmRestock": {
+        // 确认补货
+        // #I18N_REVIEW
         "recognition": {
             "type": "OCR",
             "param": {
@@ -909,6 +945,7 @@
         ]
     },
     "EixtCabin": {
+        // 退出舱室
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -931,12 +968,14 @@
         }
     },
     "FinishAllDijiangTask": {
+        // 完成所有帝江任务,返回主界面
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonDijiang"
         ]
     },
     "CloseButtonDijiang": {
+        // 关闭帝江任务界面
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -951,6 +990,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
             "param": {
@@ -959,6 +999,7 @@
         }
     },
     "InMainWindow": {
+        // 确认在主界面
         "recognition": {
             "type": "Or",
             "param": {
