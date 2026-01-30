@@ -8,19 +8,13 @@
 
 ### 自动设置
 
-我们提供一个自动化的工作区初始化脚本，只需执行
+我们提供一个自动化的工作区初始化脚本，只需执行：
 
 ```bash
 python tools/setup_workspace.py
 ```
 
-通常情况下该脚本能完整设置开发所需的环境，但取决于你所在地区的网络环境可能需要自行设置代理或是使用 Github token 进行认证来使用 api
-
-你可以通过设置 `GITHUB_TOKEN` 或是 `GH_TOKEN` 环境变量来使用 token，请注意该 token 应该至少包含 public_repo 作用域
-
-如果以上脚本出现问题，你可以参照下方的手动设置指南来分步骤操作
-
-完成初始化后，请运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹。
+即可完整设置开发所需的环境。如果出现问题，你可以参照下方的手动设置指南来分步骤操作。
 
 ### 手动设置
 
@@ -45,13 +39,19 @@ python tools/setup_workspace.py
 
 3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
 4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
-5. 运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹。
+
+### 后续开发
+
+直接运行 `install/mxu.exe`，且后续使用相关工具编辑、调试等，都基于 `install` 文件夹。
 
 > [!TIP]
+> 
 > MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。
 
-6. `resource` 等文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。  
-   **但 `interface.json` 是复制的，若有修改需手动复制回 `assets` 再进行提交。**
+> [!NOTE]
+>
+> `resource` 等文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。  
+> **但 `interface.json` 是复制的，若有修改需手动复制回 `assets` 再进行提交。**
 
 ## 代码规范
 
