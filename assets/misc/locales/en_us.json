@@ -59,5 +59,7 @@
     "option.PuzzleSolverMode.cases.Single.label": "Single Run",
     "option.PuzzleSolverMode.cases.Loop.label": "Loop",
     "option.PuzzleSolverMode.cases.DryRun.label": "Demo Only",
+    "task.DijiangRewards.label": "🎁Base Rewards",
+    "task.DijiangRewards.description": "Auto-collect products, restock materials, and manage Clue exchange.",
     "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md"
 }

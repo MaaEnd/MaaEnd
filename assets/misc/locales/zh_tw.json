@@ -57,5 +57,7 @@
     "option.PuzzleSolverMode.cases.Single.label": "單次執行",
     "option.PuzzleSolverMode.cases.Loop.label": "重複執行",
     "option.PuzzleSolverMode.cases.DryRun.label": "僅演示",
+    "task.DijiangRewards.label": "🎁基建任務",
+    "task.DijiangRewards.description": "自動領取基建產物並補貨，自動收發與放置線索",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_tw.md"
 }

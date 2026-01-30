@@ -191,6 +191,12 @@
             "controller": [
                 "ADB"
             ]
+        },
+        {
+            "name": "DijiangRewards",
+            "label": "$task.DijiangRewards.label",
+            "entry": "DijiangRewards",
+            "description": "$task.DijiangRewards.description"
         }
     ],
     "option": {

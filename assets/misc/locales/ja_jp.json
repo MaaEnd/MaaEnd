@@ -59,5 +59,7 @@
     "option.PuzzleSolverMode.cases.Single.label": "単回実行",
     "option.PuzzleSolverMode.cases.Loop.label": "繰り返し実行",
     "option.PuzzleSolverMode.cases.DryRun.label": "デモのみ",
+    "task.DijiangRewards.label": "🎁基地報酬",
+    "task.DijiangRewards.description": "製造物の回収と補給、及び手掛かりの受取・設置を自動化します。",
     "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md"
 }
