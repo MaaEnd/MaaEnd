@@ -99,6 +99,7 @@
                 "AutoPick",
                 "QuickTeleport",
                 "AutoZipline",
+                "AutoPat",
                 "AutoTaskInterval"
             ],
             "controller": [
@@ -311,6 +312,7 @@
         "AutoCloseInteraction": {
             "type": "switch",
             "label": "自动交互处理",
+            "default": "No",
             "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
             "cases": [
                 {
@@ -369,9 +371,9 @@
         },
         "EnableTutorialGuide": {
             "label": "点击指引光标",
-            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！）",
+            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！🛑开启后会严重拖慢轮循速度！！）",
             "type": "switch",
-            "default": "Yes",
+            "default": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -711,9 +713,9 @@
             "label": "$option.AutoTaskInterval.label",
             "inputs": [
                 {
-                    "name": "检测间隔",
-                    "label": "$option.AutoTaskInterval.inputs.检测间隔.label",
-                    "description": "$option.AutoTaskInterval.inputs.检测间隔.description",
+                    "name": "CheckInterval",
+                    "label": "$option.AutoTaskInterval.inputs.CheckInterval.label",
+                    "description": "$option.AutoTaskInterval.inputs.CheckInterval.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "default": 400
@@ -721,7 +723,7 @@
             ],
             "pipeline_override": {
                 "RealTimeTaskMain": {
-                    "post_delay": "{检测间隔}"
+                    "post_delay": "{CheckInterval}"
                 }
             }
         },
@@ -742,6 +744,29 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoZipline": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPat": {
+            "type": "switch",
+            "label": "$option.AutoPat.label",
+            "description": "$option.AutoPat.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
                             "enabled": false
                         }
                     }

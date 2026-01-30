@@ -18,9 +18,7 @@
                     1150,
                     680
                 ]
-            },
-            "pre_delay": 0, // 无需等待，保证识别的时效性
-            "post_delay": 0
+            }
         },
         "next": [
             "Guard_CheckMailboxandClickToContinue",
@@ -45,7 +43,6 @@
             }
         },
         "inverse": true,
-        "pre_delay": 0, // 无需等待，保证识别的时效性
         "action": {
             "type": "Click",
             "param": {
@@ -69,56 +66,63 @@
     // ========================================================
     "CheckSpecialInfoPanel": {
         "doc": "检测并关闭特殊信息面板(档案/语音)",
-        "recognition": "Or",
-        "any_of": [
+        "recognition": "And",
+        "all_of": [
             {
-                "doc": "检测档案界面",
-                "recognition": "TemplateMatch",
-                "template": "CloseInfo/DocHeader.png",
-                "threshold": 0.8,
-                "roi": [
-                    401,
-                    87,
-                    477,
-                    36
-                ] // 居中区域，安全
+                "doc": "检测是否处于目标界面 (Or)",
+                "recognition": "Or",
+                "any_of": [
+                    {
+                        "doc": "检测档案界面",
+                        "recognition": "TemplateMatch",
+                        "template": "CloseInfo/DocHeader.png",
+                        "threshold": 0.8,
+                        "roi": [
+                            401,
+                            87,
+                            477,
+                            36
+                        ]
+                    },
+                    {
+                        "doc": "检测语音界面",
+                        "recognition": "TemplateMatch",
+                        "template": "CloseInfo/VoiceBar.png",
+                        "threshold": 0.8,
+                        "roi": [
+                            228,
+                            127,
+                            40,
+                            471
+                        ]
+                    }
+                ]
             },
             {
-                "doc": "检测语音界面",
+                "doc": "识别退出按钮并获取其坐标",
                 "recognition": "TemplateMatch",
-                "template": "CloseInfo/VoiceBar.png",
+                "template": "CloseInfo/CloseButton.png",
                 "threshold": 0.8,
                 "roi": [
-                    228,
-                    127,
-                    40,
-                    471
-                ] // 左侧区域，安全
+                    1050,
+                    0,
+                    230,
+                    80
+                ]
             }
         ],
         "focus": {
             "Node.Recognition.Succeeded": "识别到剧情文档/语音，准备关闭"
         },
-        "next": [
-            "SafeCloseButton"
-        ]
-    },
-    "SafeCloseButton": {
-        "doc": "执行通用关闭操作",
-        "recognition": "TemplateMatch",
-        "template": "CloseInfo/CloseButton.png",
-        "threshold": 0.7,
-        "roi": [
-            1050,
-            0,
-            230,
-            80
-        ],
-        "action": "Click",
-        "focus": {
-            "Node.Recognition.Succeeded": "执行通用关闭操作"
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1230,
+                    30
+                ]
+            }
         },
-        "post_wait_freezes": 100,
         "next": [
             "RealTimeTaskMain"
         ]
