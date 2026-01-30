@@ -12,6 +12,14 @@
         "action": "Custom",
         "custom_action": "FriendVisitResetAction",
         "next": [
+            "FriendVisitPrecheck"
+        ]
+    },
+    "FriendVisitPrecheck": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FriendVisitPrecheckAction",
+        "next": [
             "FriendVisitLoop"
         ]
     },
@@ -171,10 +179,27 @@
         "action": "Custom",
         "custom_action": "FriendVisitFirstEntryExitAction",
         "custom_action_param": {
-            "NextOnElse": "EndVisit"
+            "NextOnElse": "WaitEndVisit"
         },
         "next": [
             "FirstEntryExitOrEnd"
+        ]
+    },
+    "WaitEndVisit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/EndVisit.png",
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "EndVisit",
+            "WaitEndVisit"
         ]
     },
     "EndVisit": {
@@ -190,8 +215,25 @@
             "param": {}
         },
         "next": [
-            "EndVisitConfirm",
+            "WaitEndVisitConfirm",
             "EndVisit"
+        ]
+    },
+    "WaitEndVisitConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Confirm.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "EndVisitConfirm",
+            "WaitEndVisitConfirm"
         ]
     },
     "EndVisitConfirm": {
@@ -223,12 +265,29 @@
             ],
             "MaxScroll": 12,
             "ScrollDy": -240,
-            "NextOnHit": "SupportConfirmVisit",
+            "NextOnHit": "WaitSupportConfirm",
             "NextOnContinue": "SupportScan",
             "NextOnExhaust": "FirstEntryExitOrMain"
         },
         "next": [
             "SupportScan"
+        ]
+    },
+    "WaitSupportConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Confirm.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "SupportConfirmVisit",
+            "WaitSupportConfirm"
         ]
     },
     "SupportConfirmVisit": {
@@ -244,8 +303,25 @@
             "param": {}
         },
         "next": [
-            "SupportOpenTerminal",
+            "WaitSupportOpenTerminal",
             "SupportConfirmVisit"
+        ]
+    },
+    "WaitSupportOpenTerminal": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/OpenVisitorTerminal.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "SupportOpenTerminal",
+            "WaitSupportOpenTerminal"
         ]
     },
     "SupportOpenTerminal": {
@@ -375,8 +451,25 @@
         "action": "ClickKey",
         "key": 27,
         "next": [
-            "SupportLeaveCheck",
+            "WaitSupportLeave",
             "SupportLeaveWait"
+        ]
+    },
+    "WaitSupportLeave": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Leave.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "SupportLeaveCheck",
+            "WaitSupportLeave"
         ]
     },
     "SupportLeaveCheck": {
@@ -401,7 +494,7 @@
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": [
-            "SupportLeaveCheck",
+            "WaitSupportLeave",
             "FriendVisitLoop"
         ]
     },
@@ -421,12 +514,29 @@
             ],
             "MaxScroll": 12,
             "ScrollDy": -240,
-            "NextOnHit": "IntelConfirmVisit",
+            "NextOnHit": "WaitIntelConfirm",
             "NextOnContinue": "IntelScan",
             "NextOnExhaust": "FirstEntryExitOrMain"
         },
         "next": [
             "IntelScan"
+        ]
+    },
+    "WaitIntelConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Confirm.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "IntelConfirmVisit",
+            "WaitIntelConfirm"
         ]
     },
     "IntelConfirmVisit": {
@@ -442,8 +552,25 @@
             "param": {}
         },
         "next": [
-            "IntelOpenTerminal",
+            "WaitIntelOpenTerminal",
             "IntelConfirmVisit"
+        ]
+    },
+    "WaitIntelOpenTerminal": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/OpenVisitorTerminal.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "IntelOpenTerminal",
+            "WaitIntelOpenTerminal"
         ]
     },
     "IntelOpenTerminal": {
@@ -573,8 +700,25 @@
         "action": "ClickKey",
         "key": 27,
         "next": [
-            "IntelLeaveCheck",
+            "WaitIntelLeave",
             "IntelLeaveWait"
+        ]
+    },
+    "WaitIntelLeave": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Leave.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "IntelLeaveCheck",
+            "WaitIntelLeave"
         ]
     },
     "IntelLeaveCheck": {
@@ -599,7 +743,7 @@
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": [
-            "IntelLeaveCheck",
+            "WaitIntelLeave",
             "FriendVisitLoop"
         ]
     },

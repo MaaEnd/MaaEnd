@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"regexp"
 	"strings"
-	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -23,6 +22,43 @@ func (a *FriendVisitResetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	intelScrollCount = 0
 	firstEntry = true
 	log.Info().Str("node", arg.CurrentTaskName).Msg("[FriendVisit]Reset scroll counters")
+	return true
+}
+
+type FriendVisitPrecheckAction struct{}
+
+func (a *FriendVisitPrecheckAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().Msg("[FriendVisit]Controller is nil")
+		return false
+	}
+
+	controller.PostScreencap().Wait()
+	img := controller.CacheImage()
+	if img == nil {
+		log.Error().Msg("[FriendVisit]Failed to get screenshot")
+		return false
+	}
+
+	templates := []string{
+		"VisitFriends/ProtosyncMenu.png",
+		"VisitFriends/FriendList.png",
+		"VisitFriends/VisitFriend.png",
+	}
+
+	for _, template := range templates {
+		detail := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
+			Template:  []string{template},
+			Threshold: []float64{0.8},
+		}, img)
+		if detail != nil && detail.Hit {
+			return true
+		}
+	}
+
+	log.Info().Str("node", arg.CurrentTaskName).Msg("[FriendVisit]Precheck failed, please return to main screen")
+	ctx.GetTasker().PostStop()
 	return true
 }
 
@@ -65,14 +101,6 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		params.Threshold = 0.8
 	}
 
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("mode", mode).
-		Str("template", params.Template).
-		Int("scrollCount", *counter).
-		Int("maxScroll", params.MaxScroll).
-		Msg("[FriendVisit]Scan start")
-
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
 		log.Error().Msg("[FriendVisit]Controller is nil")
@@ -101,10 +129,6 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	if detail != nil && detail.Hit {
 		clicked := tryClickMatch(controller, detail.DetailJson)
 		if clicked {
-			log.Info().
-				Str("node", arg.CurrentTaskName).
-				Str("mode", mode).
-				Msg("[FriendVisit]Match found, click and enter visit flow")
 			firstEntry = false
 			*counter = 0
 			if params.NextOnHit != "" {
@@ -115,11 +139,6 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	}
 
 	if *counter >= params.MaxScroll {
-		log.Info().
-			Str("node", arg.CurrentTaskName).
-			Str("mode", mode).
-			Int("scrollCount", *counter).
-			Msg("[FriendVisit]Scroll exhausted, return to quota check")
 		*counter = 0
 		if params.NextOnExhaust != "" {
 			ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnExhaust})
@@ -129,13 +148,6 @@ func (a *FriendVisitScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 
 	controller.PostScroll(0, int32(params.ScrollDy)).Wait()
 	*counter++
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("mode", mode).
-		Int("scrollCount", *counter).
-		Int("scrollDy", params.ScrollDy).
-		Msg("[FriendVisit]Scroll list and continue")
-	time.Sleep(200 * time.Millisecond)
 	if params.NextOnContinue != "" {
 		ctx.OverrideNext(arg.CurrentTaskName, []string{params.NextOnContinue})
 	}
