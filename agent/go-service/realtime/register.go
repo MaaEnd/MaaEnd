@@ -2,6 +2,15 @@ package realtime
 
 import "github.com/MaaXYZ/maa-framework-go/v3"
 
+var (
+	_ maa.CustomRecognitionRunner = &RealTimeAutoFightEntryRecognition{}
+	_ maa.CustomRecognitionRunner = &RealTimeAutoFightExitRecognition{}
+	_ maa.CustomRecognitionRunner = &RealTimeAutoFightSkillRecognition{}
+	_ maa.CustomRecognitionRunner = &RealTimeAutoFightEndSkillRecognition{}
+	_ maa.CustomActionRunner      = &RealTimeAutoFightSkillAction{}
+	_ maa.CustomActionRunner      = &RealTimeAutoFightEndSkillAction{}
+)
+
 // Register registers all custom recognition and action components for realtime package
 func Register() {
 	maa.AgentServerRegisterCustomRecognition("RealTimeAutoFightEntryRecognition", &RealTimeAutoFightEntryRecognition{})
