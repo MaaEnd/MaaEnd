@@ -3,6 +3,7 @@ package friendvisit
 import (
 	"encoding/json"
 	"image"
+	"strconv"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v3"
@@ -25,14 +26,8 @@ func (a *ProductionAssistOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		return false
 	}
 
-	text := ocrText(ctx, img, []int{1224, 71, 10, 16}, 0.6)
-	norm := strings.TrimSpace(text)
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("roi", "1224,71,10,16").
-		Str("text", text).
-		Msg("[FriendVisit]OCR result")
-	if norm != "" && norm != "0" && norm != "O" && norm != "o" {
+	_, num, ok := ocrNumberWithRetry(ctx, img, []int{1221, 71, 10, 16}, 0.6, 10, arg.CurrentTaskName, "1221,71,10,16")
+	if ok && num > 0 {
 		log.Info().Str("node", arg.CurrentTaskName).Str("next", "ProductionAssist").Msg("[FriendVisit]OCR route")
 		ctx.OverrideNext(arg.CurrentTaskName, []string{"ProductionAssist"})
 		return true
@@ -59,14 +54,8 @@ func (a *ClueExchangeOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	text := ocrText(ctx, img, []int{1165, 71, 10, 16}, 0.6)
-	norm := strings.TrimSpace(text)
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("roi", "1165,71,10,16").
-		Str("text", text).
-		Msg("[FriendVisit]OCR result")
-	if norm != "" && norm != "0" && norm != "O" && norm != "o" {
+	_, num, ok := ocrNumberWithRetry(ctx, img, []int{1167, 71, 10, 16}, 0.6, 10, arg.CurrentTaskName, "1167,71,10,16")
+	if ok && num > 0 {
 		log.Info().Str("node", arg.CurrentTaskName).Str("next", "ClueExchange").Msg("[FriendVisit]OCR route")
 		ctx.OverrideNext(arg.CurrentTaskName, []string{"ClueExchange"})
 		return true
@@ -120,4 +109,39 @@ func extractTextFromOCR(detailJSON string) string {
 	}
 
 	return ""
+}
+
+func ocrNumberWithRetry(ctx *maa.Context, img image.Image, roi []int, threshold float64, maxRetry int, node, roiLabel string) (lastText string, num int, ok bool) {
+	num = -1
+	for i := 0; i < maxRetry; i++ {
+		text := ocrText(ctx, img, roi, threshold)
+		digits := filterDigits(text)
+		n, err := strconv.Atoi(digits)
+		log.Info().
+			Str("node", node).
+			Str("roi", roiLabel).
+			Int("attempt", i+1).
+			Str("text", text).
+			Str("digits", digits).
+			Msg("[FriendVisit]OCR attempt")
+		if err == nil && n >= 0 && n <= 5 {
+			return text, n, true
+		}
+		lastText = text
+		num = n
+	}
+	return lastText, num, false
+}
+
+func filterDigits(text string) string {
+	if text == "" {
+		return ""
+	}
+	var b strings.Builder
+	for _, r := range text {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
