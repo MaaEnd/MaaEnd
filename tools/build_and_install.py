@@ -1,17 +1,9 @@
-"""
-创建 install 目录，支持两种模式：
-- 本地开发模式（默认）：使用链接，方便调试
-- CI 模式（--ci）：使用复制，用于打包分发
-
-Windows 使用 mklink /J 创建目录 Junction（不需要管理员权限）
-Unix/macOS 使用 symlink 创建符号链接
-"""
-
 import argparse
 import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -263,7 +255,7 @@ def main():
     print("[1/4] 配置 OCR 模型...")
     if not configure_ocr_model(assets_dir):
         print("  [ERROR] 配置 OCR 模型失败")
-        return
+        sys.exit(1)
 
     # 2. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
     print("[2/4] 处理 assets 目录...")
@@ -284,7 +276,7 @@ def main():
         root_dir, install_dir, args.target_os, args.target_arch, args.version
     ):
         print("  [ERROR] 构建 Go Agent 失败")
-        return
+        sys.exit(1)
 
     # 4. 链接/复制项目根目录文件并创建 maafw 目录
     print("[4/4] 准备项目文件...")
