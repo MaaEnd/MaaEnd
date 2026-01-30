@@ -9,8 +9,6 @@
     "task.ReadAllWiki.description": "Clear all unread red dots in the encyclopedia. **Start this task from the Endfield Encyclopedia home page.**",
     "task.ReceiveProdManual.label": "🌾 Claim All Simple Crafting Manual Rewards",
     "task.ReceiveProdManual.description": "Claim all simple crafting manual rewards. **You can start this task from: Manual Progress / Manual List / Inventory / Navigation Menu / Main Interface.**",
-    "task.CheckEmail.label": "📬 Claim Mail Rewards",
-    "task.CheckEmail.description": "Claim mail rewards and items from storage. **You can start this task from Main Interface / Mailbox.**",
     "task.BakerEntry.label": "💬 Clear Chat Messages",
     "task.BakerEntry.description": "Clear all chat messages.",
     "task.ImportBluePrints.label": "📐 Import Blueprints",

@@ -177,13 +177,6 @@
             "description": "$task.ReceiveProdManual.description"
         },
         {
-            "name": "CheckEmail",
-            "label": "$task.CheckEmail.label",
-            "entry": "CheckEmailStart",
-            "default_check": true,
-            "description": "$task.CheckEmail.description"
-        },
-        {
             "name": "BakerEntry",
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
