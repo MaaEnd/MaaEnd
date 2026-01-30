@@ -2,65 +2,70 @@
     // ========================================================
     // 任务 1：全屏阻断点击 (Priority: High)
     // ========================================================
-    "Guard_CheckMailbox": {
-        "doc": "前置拦截：如果检测到是邮箱界面，则跳过全屏点击，防止误触邮件内容",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "CloseInfo/MailHeader.png",
-                // 这种静态UI非常标准，阈值可以拉高，防止误判
-                "threshold": 0.8,
-                // 只看左上角标题栏，非常高效且精准
-                "roi": [
-                    29,
-                    9,
-                    60,
-                    80
-                ]
-            }
-        },
-        "inverse": true,
-        "next": [
-            "ClickAnywhereToContinue",
-            "RealTimeTaskMain"
-        ]
-    },
     "ClickAnywhereToContinue": {
         "doc": "检测屏幕上出现的'点击任意处继续'提示并点击",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "expected": [
-                    "点击任意处继续",
-                    "点击任意处",
-                    "任意处继续"
-                ],
-                "roi": [
-                    50,
-                    25,
-                    1150,
-                    680
+                "all_of": [
+                    {
+                        "sub_name": "Guard_CheckMailbox",
+                        "doc": "前置拦截：如果检测到是邮箱界面，则跳过全屏点击，防止误触邮件内容",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "CloseInfo/MailHeader.png",
+                                // 这种静态UI非常标准，阈值可以拉高，防止误判
+                                "threshold": 0.8,
+                                // 只看左上角标题栏，非常高效且精准
+                                "roi": [
+                                    29,
+                                    9,
+                                    60,
+                                    80
+                                ]
+                            }
+                        },
+                        "inverse": true
+                    },
+                    {
+                        "sub_name": "Chick",
+                        "recognition": "OCR",
+                        "param": {
+                            "expected": [
+                                "点击任意处继续",
+                                "点击任意处",
+                                "任意处继续"
+                            ],
+                            "roi": [
+                                50,
+                                25,
+                                1150,
+                                680
+                            ]
+                        }
+                    }
                 ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    1000,
-                    600,
-                    50,
-                    50
-                ]
-            }
-        },
-        "focus": {
-            "Node.Action.Succeeded": "跳过点击任意处继续"
-        },
-        "post_wait_freezes": 80,
-        "next": [
-            "RealTimeTaskMain"
-        ]
+            },
+            "action": {
+                "type": "Click",
+                "param": {
+                    "target": [
+                        1000,
+                        600,
+                        50,
+                        50
+                    ]
+                }
+            },
+            "focus": {
+                "Node.Action.Succeeded": "跳过点击任意处继续"
+            },
+            "post_wait_freezes": 80,
+            "next": [
+                "RealTimeTaskMain"
+            ]
+        }
     },
     // ========================================================
     // 任务 2：特殊 UI 检测 (Priority: Medium)
