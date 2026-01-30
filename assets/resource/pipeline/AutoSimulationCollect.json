@@ -203,12 +203,6 @@
                     276,
                     577
                 ],
-                "roi_offset": [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
                 "template": [
                     "SimulationSpace/SelectedItem.png"
                 ],
