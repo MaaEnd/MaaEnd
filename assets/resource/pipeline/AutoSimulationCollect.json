@@ -136,7 +136,9 @@
         "next": [
             "Sim_Loop_ClaimReward", // 进入领取循环
             "Sim_CheckEmpty", // 如果没有奖励，直接检查是否为空
-            "Sim_SaveFilter"
+            "Sim_SaveFilter",
+            "[JumpBack]Sim_Loop_NextReward",
+            "Sim_Loop_NoReward"
         ]
     },
     "Sim_LoopClickFilter": {
@@ -186,8 +188,52 @@
         "next": [
             "Sim_Loop_ClaimReward", // 进入领取循环
             "Sim_CheckEmpty", // 如果没有奖励，直接检查是否为空
-            "Sim_LoopSaveFilter"
+            "Sim_LoopSaveFilter",
+            "[JumpBack]Sim_Loop_NextReward",
+            "Sim_Loop_NoReward"
         ]
+    },
+    "Sim_Loop_NextReward": {
+        "doc": "当前教程不可跳过",
+        "recognition": {
+            "param": {
+                "roi": [
+                    16,
+                    67,
+                    276,
+                    577
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "template": [
+                    "SimulationSpace/SelectedItem.png"
+                ],
+                "threshold": [
+                    0.65
+                ]
+            },
+            "type": "TemplateMatch"
+        },
+        "action": {
+            "param": {
+                "target_offset": [
+                    0,
+                    40,
+                    0,
+                    0
+                ]
+            },
+            "type": "Click"
+        },
+        "max_hit": 5,
+        "post_wait_freezes": 200
+    },
+    "Sim_Loop_NoReward": {
+        "doc": "结束:无可继续项"
     },
     "Sim_Loop_ClaimReward": {
         "doc": "第六步：一个个点击领取奖励",
