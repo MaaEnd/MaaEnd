@@ -18,7 +18,9 @@
                     1150,
                     680
                 ]
-            }
+            },
+            "pre_delay": 0, // 无需等待，保证识别的时效性
+            "post_delay": 0
         },
         "next": [
             "Guard_CheckMailboxandClickToContinue",
@@ -43,6 +45,7 @@
             }
         },
         "inverse": true,
+        "pre_delay": 0, // 无需等待，保证识别的时效性
         "action": {
             "type": "Click",
             "param": {
@@ -57,7 +60,6 @@
         "focus": {
             "Node.Action.Succeeded": "跳过点击任意处继续"
         },
-        "post_wait_freezes": 80,
         "next": [
             "RealTimeTaskMain"
         ]
