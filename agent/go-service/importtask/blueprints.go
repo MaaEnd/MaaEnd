@@ -33,16 +33,12 @@ func parseBlueprintCodes(text string) []string {
 	return result
 }
 
-func resetBlueprintCodes() {
-	blueprintMutex.Lock()
-	defer blueprintMutex.Unlock()
-	blueprintCodes = nil
-}
-
 type ImportBluePrintsInitTextAction struct{}
 
 func (a *ImportBluePrintsInitTextAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	resetBlueprintCodes()
+	blueprintMutex.Lock()
+	blueprintCodes = nil
+	blueprintMutex.Unlock()
 
 	var params struct {
 		Text string `json:"text"`
@@ -91,22 +87,19 @@ type ImportBluePrintsEnterCodeAction struct{}
 
 func (a *ImportBluePrintsEnterCodeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	blueprintMutex.Lock()
-	defer blueprintMutex.Unlock()
-
 	if len(blueprintCodes) == 0 {
+		blueprintMutex.Unlock()
 		log.Warn().Msg("No more blueprint codes to process")
 		return false
 	}
 
 	code := blueprintCodes[0]
 	blueprintCodes = blueprintCodes[1:]
-
-	log.Info().Str("code", code).Int("remaining", len(blueprintCodes)).Msg("Processing blueprint code")
-	
-	// 释放锁避免阻塞
+	remaining := len(blueprintCodes)
 	blueprintMutex.Unlock()
+
+	log.Info().Str("code", code).Int("remaining", remaining).Msg("Processing blueprint code")
 	ctx.GetTasker().GetController().PostInputText(code)
-	blueprintMutex.Lock()
 
 	return true
 }

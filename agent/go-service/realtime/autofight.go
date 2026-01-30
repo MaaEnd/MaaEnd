@@ -17,15 +17,6 @@ var (
 	autoFightMutex            sync.Mutex
 )
 
-func resetAutoFightState() {
-	autoFightMutex.Lock()
-	defer autoFightMutex.Unlock()
-	autoFightCharacterCount = 0
-	autoFightSkillLastIndex = 0
-	autoFightEndSkillIndex = 0
-	autoFightEndSkillLastTime = time.Time{}
-}
-
 type RealTimeAutoFightEntryRecognition struct{}
 
 func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -326,7 +317,7 @@ func (r *RealTimeAutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.Cu
 type RealTimeAutoFightEndSkillAction struct{}
 
 func (a *RealTimeAutoFightEndSkillAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	autoFightMutex.Lock()
+	// 记录触发时间，用于 ExitRecognition 冷却判断
 	autoFightEndSkillLastTime = time.Now()
 	keyIndex := autoFightEndSkillIndex
 	autoFightMutex.Unlock()
