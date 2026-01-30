@@ -1,0 +1,1000 @@
+{
+    "DijiangRewards": {
+        "next": [
+            "[JumpBack]ControlNexus",
+            "ReceptionRoom",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "ReceptionRoom": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_ReceptionRoomBackground",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    363,
+                                    12,
+                                    538,
+                                    278
+                                ],
+                                "lower": [
+                                    151,
+                                    132,
+                                    235
+                                ],
+                                "upper": [
+                                    158,
+                                    138,
+                                    249
+                                ],
+                                "count": 400,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_ReceptionRoomBackground",
+                                "lower": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "upper": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "count": 50,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]CollectClues",
+            "[JumpBack]ReceiveClues",
+            "[JumpBack]ReceptionRoomClickTips",
+            "FinishAllDijiangTask"
+        ]
+    },
+    "ReceptionRoomClickTips": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    61,
+                    122,
+                    1099,
+                    446
+                ],
+                "lower": [
+                    224,
+                    105,
+                    0
+                ],
+                "upper": [
+                    255,
+                    117,
+                    4
+                ],
+                "count": 40,
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -40,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "SetClues"
+        ]
+    },
+    "SetClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    952,
+                    189,
+                    311,
+                    500
+                ],
+                "expected": [
+                    "线索",
+                    "Clues"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CollectClues": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "搜集"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ReceiveClues": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1124,
+                    575,
+                    156,
+                    145
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceiveAll.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ControlNexus": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssist",
+            "[JumpBack]MFG_ReceiveRewards",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
+        ]
+    },
+    "ProductionAssist": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1112,
+                    0,
+                    168,
+                    74
+                ],
+                "lower": [
+                    224,
+                    105,
+                    0
+                ],
+                "upper": [
+                    255,
+                    117,
+                    4
+                ],
+                "count": 40,
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]UseAssist",
+            "ExitProductionAssist",
+            "RecoveryEmotion"
+        ]
+    },
+    "RecoveryEmotion": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "选择待恢复心情的干员"
+                ]
+            }
+        },
+        "next": [
+            "CouldNotAssistEmotion",
+            "[JumpBack]SelectLowEmotion"
+        ]
+    },
+    "CouldNotAssistEmotion": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    432,
+                    74,
+                    428,
+                    92
+                ],
+                "expected": [
+                    "没有更多的心情激励点数，无法选择更多干员"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]UseAssist",
+            "BackToControlNexus",
+            "ExitProductionAssist"
+        ]
+    },
+    "BackToControlNexus": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "Resell/back.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SelectLowEmotion": {
+        // 选择低心情干员
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 2,
+                "all_of": [
+                    {
+                        // 搜索心情图标
+                        "sub_name": "_EmotionIcon",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    467,
+                                    236,
+                                    620,
+                                    282
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/LowEmotion.png",
+                                    "ClaimDijiangRewards/NormalEmotion.png",
+                                    "ClaimDijiangRewards/HighEmotion.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        // 获取白色心情条大小
+                        "sub_name": "_EmotionBar",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionIcon",
+                                "roi_offset": [
+                                    19,
+                                    7,
+                                    45,
+                                    -14
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    253
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        // 获取灰色心情条存在
+                        "sub_name": "_EmotionBar_Empty",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionBar",
+                                "roi_offset": [
+                                    0,
+                                    0,
+                                    10,
+                                    0
+                                ],
+                                "lower": [
+                                    26,
+                                    26,
+                                    24
+                                ],
+                                "upper": [
+                                    27,
+                                    27,
+                                    25
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    -70,
+                    -10,
+                    0
+                ]
+            }
+        }
+    },
+    "ExitProductionAssist": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1064,
+                    104,
+                    74,
+                    74
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ExitProductionAssist.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "UseAssist": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    991,
+                    527,
+                    160,
+                    141
+                ],
+                "template": [
+                    "ClaimDijiangRewards/TakeRewards.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "InLastCarbin": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    904,
+                    426,
+                    369,
+                    265
+                ],
+                "template": [
+                    "ClaimDijiangRewards/GrowthChamber.png"
+                ]
+            }
+        }
+    },
+    "CarbinSwipe": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 100,
+                "target_offset": [
+                    600,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "MFG_ReceiveRewards": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    16,
+                    134,
+                    131,
+                    74
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InMFG_Cabin.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]TakeRewards",
+            "ReStockAndExit"
+        ]
+    },
+    "OpenDijiangControlNexus": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    247,
+                    0,
+                    80,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ControlNexus.png",
+                    "ClaimDijiangRewards/ControlNexusWithTips.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 73
+            }
+        }
+    },
+    "Teleport": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Teleport.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SelectDijiangTeleport": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_DijiangBridge",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    17,
+                                    38,
+                                    1236,
+                                    640
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangBridge.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "_DijiangBridge",
+                                "roi_offset": [
+                                    133,
+                                    -6,
+                                    21,
+                                    16
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SelectDijiang": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1052,
+                    0,
+                    228,
+                    196
+                ],
+                "expected": [
+                    "(O|o|0)(M|m|N|n)(V|v)"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "OpenMap": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    133,
+                                    118
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77
+            }
+        }
+    },
+    "WaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            //黄色
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    127,
+                                    0
+                                ],
+                                "lower": [
+                                    128,
+                                    127,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            //青色
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    127,
+                                    127
+                                ],
+                                "lower": [
+                                    0,
+                                    127,
+                                    127
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            //红色
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    0,
+                                    127
+                                ],
+                                "lower": [
+                                    128,
+                                    0,
+                                    127
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ControlNexusClickTips": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    434,
+                    462,
+                    846,
+                    69
+                ],
+                "lower": [
+                    224,
+                    105,
+                    0
+                ],
+                "upper": [
+                    255,
+                    117,
+                    4
+                ],
+                "count": 40,
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -100,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "TakeRewards": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    860,
+                    513,
+                    85,
+                    82
+                ],
+                "template": [
+                    "ClaimDijiangRewards/TakeRewards.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CloseDijiangRewards": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "DailyRewards/CloseReward.png",
+                "roi": [
+                    622,
+                    645,
+                    37,
+                    38
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ReStockAndExit": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    892,
+                    437,
+                    82,
+                    82
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Restock.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmRestock",
+            "[JumpBack]ReRecognitionInMFG",
+            "EixtCabin"
+        ]
+    },
+    "ReRecognitionInMFG": {
+        //防止因为某些原因,没有成功补货,设置10次内可以重复识别
+        //超过10次就退出
+        "max_hit": 10
+    },
+    "ConfirmRestock": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    917,
+                    526,
+                    111,
+                    52
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "EixtCabin"
+        ]
+    },
+    "EixtCabin": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1163,
+                    0,
+                    117,
+                    98
+                ],
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "FinishAllDijiangTask": {
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonDijiang"
+        ]
+    },
+    "CloseButtonDijiang": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1077,
+                    0,
+                    203,
+                    147
+                ],
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        }
+    },
+    "InMainWindow": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    133,
+                                    118
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
