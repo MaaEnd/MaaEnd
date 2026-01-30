@@ -99,6 +99,7 @@
                 "AutoPick",
                 "QuickTeleport",
                 "AutoZipline",
+                "AutoPat",
                 "AutoTaskInterval"
             ],
             "controller": [
@@ -735,6 +736,29 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoZipline": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPat": {
+            "type": "switch",
+            "label": "$option.AutoPat.label",
+            "description": "$option.AutoPat.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
                             "enabled": false
                         }
                     }

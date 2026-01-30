@@ -44,6 +44,8 @@
     "option.AutoTaskInterval.inputs.检测间隔.description": "過小的檢測間隔可能會導致卡頓，請根據實際情況調整，建議至少大於 50ms",
     "option.AutoZipline.label": "自動長距滑索",
     "option.AutoZipline.description": "自動觸發長距滑索,YJ你就不能改成按一下切換嗎",
+    "option.AutoPat.label": "自動拍一拍",
+    "option.AutoPat.description": "拍一拍馱獸，與自動拾取配合使用更佳。拍一拍無法識別是否重複拍過，建議在拍後迅速換🐮",
     "option.ImportBluePrints.label": "導入藍圖",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "藍圖文本",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "請輸入文本，可以夾雜任意字元，將智慧拆分藍圖分享碼",

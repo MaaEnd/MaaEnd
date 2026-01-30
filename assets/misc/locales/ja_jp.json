@@ -44,6 +44,8 @@
     "option.AutoTaskInterval.inputs.检测间隔.description": "間隔が小さすぎるとカクつく可能性があります。状況に応じて調整してください（推奨：50ms以上）。",
     "option.AutoZipline.label": "長距離ジップライン自動",
     "option.AutoZipline.description": "長距離ジップラインを自動で発動します。",
+    "option.AutoPat.label": "自動なでなで",
+    "option.AutoPat.description": "荷役獣をなでなでします。自動拾得と併用するとさらに効果的。重複なでなでを判別できないため、なでなで後は素早く動物を変えることをお勧めします🐮",
     "option.ImportBluePrints.label": "設計図インポート",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "設計図テキスト",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。",
