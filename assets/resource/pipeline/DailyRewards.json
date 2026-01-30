@@ -1,37 +1,37 @@
 {
-  "DailyEmailRewardSub": {
-    "focus": {
-      "Node.Recognition.Succeeded": "领取邮件奖励"
+    "DailyEmailRewardSub": {
+        "focus": {
+            "Node.Recognition.Succeeded": "领取邮件奖励"
+        },
+        "max_hit": 1,
+        "next": [
+            "CheckEmailStart"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
     },
-    "max_hit": 1,
-    "next": [
-      "CheckEmailStart"
-    ],
-    "post_delay": 0,
-    "pre_delay": 0
-  },
-  "DailyRewardEnd": {
-    "post_delay": 0,
-    "pre_delay": 0
-  },
-  "DailyRewardStart": {
-    "next": [
-      "[JumpBack]DailyEmailRewardSub",
-      "[JumpBack]DailyTaskRewardSub",
-      "DailyRewardEnd"
-    ],
-    "post_delay": 0,
-    "pre_delay": 0
-  },
-  "DailyTaskRewardSub": {
-    "focus": {
-      "Node.Recognition.Succeeded": "领取每日任务奖励"
+    "DailyRewardEnd": {
+        "post_delay": 0,
+        "pre_delay": 0
     },
-    "max_hit": 1,
-    "next": [
-      "DailyRewards"
-    ],
-    "post_delay": 0,
-    "pre_delay": 0
-  }
+    "DailyRewardStart": {
+        "next": [
+            "[JumpBack]DailyEmailRewardSub",
+            "[JumpBack]DailyTaskRewardSub",
+            "DailyRewardEnd"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "DailyTaskRewardSub": {
+        "focus": {
+            "Node.Recognition.Succeeded": "领取每日任务奖励"
+        },
+        "max_hit": 1,
+        "next": [
+            "DailyRewards"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    }
 }
