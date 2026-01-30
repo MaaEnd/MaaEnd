@@ -191,6 +191,24 @@
             "controller": [
                 "ADB"
             ]
+        },
+        {
+            "name": "ItemTransfer",
+            "label": "$task.ItemTransfer.label",
+            "entry": "ItemTransferToBackpack",
+            "description": "$task.ItemTransfer.description",
+            "option": [
+                "WhatToTransfer",
+                "TransferringContainer",
+                "TransferOrigin",
+                "TransferDestination",
+                "TransferAll"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
         }
     ],
     "option": {
@@ -783,7 +801,6 @@
                     "label": "$option.PuzzleSolverMode.cases.DryRun.label",
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
-                            "action": "DoNothing",
                             "next": []
                         },
                         "PuzzleSolverSolvePuzzle": {
@@ -817,6 +834,219 @@
                             }
                         }
                     }
+                }
+            }
+        },
+        "WhatToTransfer": {
+            "type": "input",
+            "label": "$option.WhatToTransfer.label",
+            "inputs": [
+                {
+                    "name": "ItemName",
+                    "label": "$option.WhatToTransfer.input.label",
+                    "default": "中容谷地电池",
+                    "pipeline_type": "string"
+                }
+            ],
+            "pipeline_override": {
+                "ItemTransferToBackpack": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ItemName": "{ItemName}"
+                            }
+                        }
+                    }
+                },
+                "ItemTransferToRepository": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ItemName": "{ItemName}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "TransferringContainer": {
+            "type": "switch",
+            "label": "$option.TransferringContainer.label",
+            "description": "$option.TransferringContainer.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "ContainerContent"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "ContainerContent": {
+            "type": "input",
+            "label": "$option.ContainerContent.label",
+            "inputs": [
+                {
+                    "name": "Content",
+                    "label": "$option.ContainerContent.input.label",
+                    "description": "$option.ContainerContent.input.description",
+                    "default": "锦草溶液",
+                    "pipeline_type": "string"
+                }
+            ],
+            "pipeline_override": {
+                "ItemTransferToBackpack": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ContainerContent": "{Content}"
+                            }
+                        }
+                    }
+                },
+                "ItemTransferToRepository": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ContainerContent": "{Content}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "TransferOrigin": {
+            "type": "select",
+            "label": "$option.TransferOrigin.label",
+            "cases": [
+                {
+                    "name": "valley",
+                    "label": "$common.in-game.region.valley",
+                    "pipeline_override": {
+                        "ItemTransferClickOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地"
+                                }
+                            }
+                        },
+                        "ItemTransferEnsureOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地仓库"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wuling",
+                    "label": "$common.in-game.region.wuling",
+                    "pipeline_override": {
+                        "ItemTransferClickOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵"
+                                }
+                            }
+                        },
+                        "ItemTransferEnsureOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵仓库"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "valley"
+        },
+        "TransferDestination": {
+            "type": "select",
+            "label": "$option.TransferDestination.label",
+            "cases": [
+                {
+                    "name": "valley",
+                    "label": "$common.in-game.region.valley",
+                    "pipeline_override": {
+                        "ItemTransferClickDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地"
+                                }
+                            }
+                        },
+                        "ItemTransferEnsureDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地仓库"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wuling",
+                    "label": "$common.in-game.region.wuling",
+                    "pipeline_override": {
+                        "ItemTransferClickDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵"
+                                }
+                            }
+                        },
+                        "ItemTransferEnsureDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵仓库"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "wuling"
+        },
+        "TransferAll": {
+            "type": "switch",
+            "label": "$option.TransferAll.label",
+            "description": "$option.TransferAll.description",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "TransferTimes"
+                    ]
+                }
+            ],
+            "default_case": "No"
+        },
+        "TransferTimes": {
+            "type": "input",
+            "label": "$option.TransferTimes.label",
+            "inputs": [
+                {
+                    "name": "Times",
+                    "label": "$option.TransferTimes.input.label",
+                    "description": "$option.TransferTimes.input.description",
+                    "default": "1",
+                    "pipeline_type": "int",
+                    "verify": "^((?!0)\\d+|0)$",
+                    "pattern_msg": "$option.TransferTimes.input.error"
+                }
+            ],
+            "pipeline_override": {
+                "ItemTransferToBackpack": {
+                    "max_hit": "{Times}"
                 }
             }
         }

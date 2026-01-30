@@ -1,0 +1,238 @@
+{
+    "ItemTransferToBackpack": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "LocateItemFromRepository",
+                "custom_recognition_param": {
+                    "ItemName": "[PLACEHOLDER]",
+                    "ContainerContent": null, // null(nil) as default, indicating not a cantainer
+                    "FirstRun": true,
+                    "ItemLastFoundRowAbs": null,
+                    "ItemLastFoundColumnX": null
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "LeftClickWithCtrlDown"
+            }
+            // "param": {
+            //         "custom_action": "TransferItemToBackpack",
+            //         "custom_action_param": {
+            //             "GridRowY": "[PLACEHOLDER]", // [0, 3]
+            //             "GridColX": "[PLACEHOLDER]", // [0, 7]
+            //             "AbsRow": "[PLACEHOLDER]" // [0, INF]
+            //         }
+            //     }
+        },
+        "next": [
+            "[JumpBack]ItemTransferEnterRegionSwitcher",
+            "ItemTransferClickDestination"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferToBackpack.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferToBackpack.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferToBackpack.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferToBackpack.focus.action.failed"
+        }
+    },
+    "ItemTransferEnterRegionSwitcher": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    545,
+                    97,
+                    199,
+                    87
+                ],
+                "template": "ItemTransfer/SwitcherEntry.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferEnterRegionSwitcher.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferEnterRegionSwitcher.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferEnterRegionSwitcher.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferEnterRegionSwitcher.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferEnterRegionSwitcher.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferEnterRegionSwitcher.focus.action.failed"
+        }
+    },
+    "ItemTransferRegionSwitcherConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    905,
+                    536,
+                    219,
+                    88
+                ],
+                "template": "ItemTransfer/Switcher.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferRegionSwitcherConfirm.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferRegionSwitcherConfirm.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferRegionSwitcherConfirm.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferRegionSwitcherConfirm.focus.action.failed"
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                153,
+                548,
+                969,
+                64
+            ]
+        },
+        "next": [
+            "ItemTransferCloseRegionSwitcher"
+        ]
+    },
+    "ItemTransferCloseRegionSwitcher": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    905,
+                    536,
+                    219,
+                    88
+                ],
+                "template": "ItemTransfer/RepoConnected.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferCloseRegionSwitcher.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferCloseRegionSwitcher.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferCloseRegionSwitcher.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferCloseRegionSwitcher.focus.action.failed"
+        }
+    },
+    "ItemTransferClickDestination": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    200,
+                    500,
+                    300
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]ItemTransferRegionSwitcherConfirm",
+            "ItemTransferAtDestination",
+            "ItemTransferClickDestination" // Fallback in case click fails
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferClickDestination.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferClickDestination.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferClickDestination.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferClickDestination.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferClickDestination.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferClickDestination.focus.action.failed"
+        }
+    },
+    "ItemTransferClickOrigin": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    200,
+                    500,
+                    300
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]ItemTransferRegionSwitcherConfirm",
+            "ItemTransferAtOrigin",
+            "ItemTransferClickDestination" // Fallback in case click fails
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferClickOrigin.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferClickOrigin.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferClickOrigin.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferClickOrigin.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferClickOrigin.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferClickOrigin.focus.action.failed"
+        }
+    },
+    "ItemTransferAtDestination": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    184,
+                    102,
+                    131,
+                    71
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferAtDestination.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferAtDestination.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferAtDestination.focus.recognition.failed"
+        }
+    },
+    "ItemTransferAtOrigin": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    184,
+                    102,
+                    131,
+                    71
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferAtOrigin.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferAtOrigin.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferAtOrigin.focus.recognition.failed"
+        }
+    }
+}
