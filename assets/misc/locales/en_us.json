@@ -7,6 +7,8 @@
     "task.DailyRewards.description": "Claim daily rewards",
     "option.DailyTaskRewards.label": "Daily Mission/Pass Rewards",
     "option.DailyEmailRewards.label": "Mail/Temporary Storage Rewards",
+    "task.VisitFriends.label": "🤝 Auto Visit Friends",
+    "task.VisitFriends.description": "Automatically visit friends to perform support and intel exchange.",
     "task.ReadAllWiki.label": "📖 Mark All Encyclopedia as Read",
     "task.ReadAllWiki.description": "Clear all unread red dots in the encyclopedia. **Start this task from the Endfield Encyclopedia home page.**",
     "task.ReceiveProdManual.label": "🌾 Claim All Simple Crafting Manual Rewards",

@@ -7,6 +7,8 @@
     "task.DailyRewards.description": "领取每日奖励",
     "option.DailyTaskRewards.label": "每日任务/通行证奖励",
     "option.DailyEmailRewards.label": "邮件/暂存区奖励",
+    "task.VisitFriends.label": "🤝 自动拜访好友",
+    "task.VisitFriends.description": "自动拜访好友，执行生产助力与情报交流",
     "task.ReadAllWiki.label": "📖百科一键已读",
     "task.ReadAllWiki.description": "点掉百科所有未读红点，**请在终末地百科首页开始任务**",
     "task.ReceiveProdManual.label": "🌾简制手册一键领取",

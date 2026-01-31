@@ -7,6 +7,8 @@
     "task.DailyRewards.description": "デイリー報酬を受け取ります",
     "option.DailyTaskRewards.label": "デイリー任務/パス報酬",
     "option.DailyEmailRewards.label": "メール/一時保管報酬",
+    "task.VisitFriends.label": "🤝 フレンド訪問",
+    "task.VisitFriends.description": "フレンド訪問を自動化し、支援と情報交換を実行します。",
     "task.ReadAllWiki.label": "📖 図鑑を一括既読",
     "task.ReadAllWiki.description": "図鑑の未読（赤点）をすべて消します。**終末地の図鑑トップから開始してください。**",
     "task.ReceiveProdManual.label": "🌾 簡易製作手帳報酬一括受取",

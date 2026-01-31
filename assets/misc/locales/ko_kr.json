@@ -7,6 +7,8 @@
     "task.DailyRewards.description": "일일 보상을 수령합니다",
     "option.DailyTaskRewards.label": "일일 임무/패스 보상",
     "option.DailyEmailRewards.label": "우편/임시 보관함 보상",
+    "task.VisitFriends.label": "🤝 친구 자동 방문",
+    "task.VisitFriends.description": "친구 방문을 자동화하여 지원 및 정보 교환을 수행합니다.",
     "task.ReadAllWiki.label": "📖 도감 일괄 읽음 처리",
     "task.ReadAllWiki.description": "도감의 미열람 빨간 점을 모두 제거합니다. **종말지 도감 홈에서 작업을 시작해 주세요.**",
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 일괄 수령",
