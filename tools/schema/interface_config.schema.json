@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "controller": {
+            "title": "激活的控制器",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "控制器名",
+                    "type": "string"
+                },
+                "type": {
+                    "title": "控制器类型",
+                    "type": "string",
+                    "enum": ["Adb", "Win32", "PlayCover"]
+                }
+            }
+        },
+        "adb": {
+            "title": "ADB配置",
+            "type": "object",
+            "properties": {
+                "adb_path": {
+                    "title": "ADB路径参数",
+                    "type": "string"
+                },
+                "address": {
+                    "title": "ADB连接参数",
+                    "type": "string"
+                },
+                "config": {
+                    "title": "额外配置参数",
+                    "type": "object"
+                }
+            }
+        },
+        "win32": {
+            "title": "Win32配置",
+            "type": "object"
+        },
+        "playcover": {
+            "title": "PlayCover配置",
+            "type": "object",
+            "properties": {
+                "address": {
+                    "title": "服务地址",
+                    "type": "string"
+                },
+                "uuid": {
+                    "title": "Bundle Identifier",
+                    "type": "string"
+                }
+            }
+        },
+        "resource": {
+            "title": "激活的资源",
+            "type": "string"
+        },
+        "task": {
+            "title": "激活的任务",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "title": "任务名",
+                        "type": "string"
+                    },
+                    "option": {
+                        "title": "任务选项",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "title": "选项名",
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "title": "选项值",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["name", "value"]
+                        }
+                    }
+                },
+                "required": ["name"]
+            }
+        }
+    },
+    "required": ["controller", "resource", "task"]
+}
