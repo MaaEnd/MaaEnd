@@ -7,20 +7,20 @@
                 "/assets/resource/**/*.jsonc",
                 "/install/resource/**/*.jsonc"
             ],
-            "url": "/maafw/tools/pipeline.schema.json"
+            "url": "tools/schema/pipeline.schema.json"
         },
         {
             "fileMatch": [
                 "/assets/interface.json",
                 "/install/interface.json"
             ],
-            "url": "/maafw/tools/interface.schema.json"
+            "url": "tools/schema/interface.schema.json"
         },
         {
             "fileMatch": [
                 "/install/config/maa_pi_config.json"
             ],
-            "url": "/maafw/tools/interface_config.schema.json"
+            "url": "tools/schema/interface_config.schema.json"
         }
     ],
     "files.associations": {
