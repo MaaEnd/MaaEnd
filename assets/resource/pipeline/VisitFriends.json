@@ -67,8 +67,7 @@
         },
         "next": [
             "ProductionAssist"
-        ],
-        "timeout": 3000
+        ]
     },
     "ProductionAssist": {
         "recognition": "DirectHit",
@@ -233,8 +232,7 @@
         },
         "next": [
             "ClueExchange"
-        ],
-        "timeout": 3000
+        ]
     },
     "ClueExchange": {
         "recognition": "DirectHit",
