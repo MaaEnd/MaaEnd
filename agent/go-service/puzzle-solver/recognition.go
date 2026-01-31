@@ -269,20 +269,23 @@ func getProjFigureNumber(ctx *maa.Context, img image.Image, ltX, ltY int, axis s
 func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	thumbs := getAllPuzzleThumbLoc(img)
 	log.Info().Interface("thumbs", thumbs).Msg("Puzzle thumbnail positions")
+
 	roiOverride := map[string]any{
-		"WaitStable": map[string]any{
+		"PuzzleSolverPuzzlePreviewWaitStable": map[string]any{
 			"post_wait_freezes": map[string]any{
-				"target": []int{int(PUZZLE_THUMB_START_X), int(PUZZLE_THUMB_START_Y), int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W), int(float64(PUZZLE_THUMB_MAX_ROWS+1) * PUZZLE_THUMB_H)},
+				"target": []int{
+					int(PUZZLE_THUMB_START_X),
+					int(PUZZLE_THUMB_START_Y),
+					int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
+					int(float64(PUZZLE_THUMB_MAX_ROWS+1) * PUZZLE_THUMB_H),
+				},
 			},
 		},
 	}
+
 	var puzzleList []*PuzzleDesc
 	for _, thumb := range thumbs {
-		detail := ctx.RunTask("WaitStable", roiOverride)
-		if detail == nil {
-			log.Error().Msg("Failed to run WaitStable task")
-			return nil
-		}
+		ctx.RunTask("PuzzleSolverPuzzlePreviewWaitStable", roiOverride)
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])
 		if desc != nil {
 			puzzleList = append(puzzleList, desc)

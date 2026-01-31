@@ -188,7 +188,7 @@
             128,
             126
         ],
-        "post_wait_freezes": 1000,
+        "post_wait_freezes": 600,
         "action": "Scroll",
         "target": [
             640,
@@ -210,6 +210,7 @@
             1151,
             254
         ],
+        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "expected": "[0-9]+",
         "action": "Click",
         "next": [
@@ -231,7 +232,8 @@
         "action": "ClickKey",
         "key": 27,
         "repeat": 2,
-        "repeat_wait_freezes": 1000,
+        "repeat_wait_freezes": 200,
+        "post_wait_freezes": 200,
         "focus": {
             "Node.Action.Starting": "当前地区已售罄，切换下个地区"
         },

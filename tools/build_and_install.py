@@ -1,22 +1,18 @@
-"""
-创建 install 目录，支持两种模式：
-- 本地开发模式（默认）：使用链接，方便调试
-- CI 模式（--ci）：使用复制，用于打包分发
-
-Windows 使用 mklink /J 创建目录 Junction（不需要管理员权限）
-Unix/macOS 使用 symlink 创建符号链接
-"""
-
 import argparse
 import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
-    """创建目录链接（Junction/symlink）"""
+    """
+    在指定位置创建一个指定目录的链接
+    - Windows：Junction
+    - Unix/macOS：symlink
+    """
     if dst.exists() or dst.is_symlink():
         if dst.is_dir() and not dst.is_symlink():
             try:
@@ -63,7 +59,7 @@ def create_file_link(src: Path, dst: Path) -> bool:
                 text=True,
             )
             if result.returncode != 0:
-                print(f"  [ERROR] 创建链接失败: {result.stderr}")
+                print(f"  [ERROR] 创建文件链接失败: {result.stderr}")
                 return False
     else:
         try:
@@ -75,7 +71,7 @@ def create_file_link(src: Path, dst: Path) -> bool:
 
 
 def copy_directory(src: Path, dst: Path) -> bool:
-    """复制目录"""
+    """复制目录（替换）"""
     if dst.exists():
         shutil.rmtree(dst)
     shutil.copytree(src, dst)
@@ -208,7 +204,15 @@ def build_go_agent(
         ldflags += f" -X main.Version={version}"
 
     result = subprocess.run(
-        ["go", "build", "-trimpath", f"-ldflags={ldflags}", "-o", str(output_path), "."],
+        [
+            "go",
+            "build",
+            "-trimpath",
+            f"-ldflags={ldflags}",
+            "-o",
+            str(output_path),
+            ".",
+        ],
         cwd=go_service_dir,
         capture_output=True,
         text=True,
@@ -223,7 +227,7 @@ def build_go_agent(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="创建 install 目录")
+    parser = argparse.ArgumentParser(description="MaaEnd 构建工具：处理构建所需资源并创建安装目录")
     parser.add_argument("--ci", action="store_true", help="CI 模式：复制文件而非链接")
     parser.add_argument("--os", dest="target_os", help="目标操作系统 (win/macos/linux)")
     parser.add_argument("--arch", dest="target_arch", help="目标架构 (x86_64/aarch64)")
@@ -248,11 +252,13 @@ def main():
     link_or_copy_file = copy_file if use_copy else create_file_link
 
     # 1. 配置 OCR 模型
-    print("[1/5] 配置 OCR 模型...")
-    configure_ocr_model(assets_dir)
+    print("[1/4] 配置 OCR 模型...")
+    if not configure_ocr_model(assets_dir):
+        print("  [ERROR] 配置 OCR 模型失败")
+        sys.exit(1)
 
     # 2. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
-    print("[2/5] 处理 assets 目录...")
+    print("[2/4] 处理 assets 目录...")
     for item in assets_dir.iterdir():
         if item.name == "MaaCommonAssets":
             continue
@@ -265,13 +271,15 @@ def main():
                 print(f"  -> {dst}")
 
     # 3. 构建 Go Agent
-    print("[3/5] 构建 Go Agent...")
-    build_go_agent(
+    print("[3/4] 构建 Go Agent...")
+    if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version
-    )
+    ):
+        print("  [ERROR] 构建 Go Agent 失败")
+        sys.exit(1)
 
-    # 4. 链接/复制项目根目录文件
-    print("[4/5] 处理项目文件...")
+    # 4. 链接/复制项目根目录文件并创建 maafw 目录
+    print("[4/4] 准备项目文件...")
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
         dst = install_dir / filename
@@ -279,8 +287,6 @@ def main():
             if link_or_copy_file(src, dst):
                 print(f"  -> {dst}")
 
-    # 5. 创建 maafw 目录
-    print("[5/5] 创建 maafw 目录...")
     maafw_dir = install_dir / "maafw"
     maafw_dir.mkdir(parents=True, exist_ok=True)
     print(f"  -> {maafw_dir}")
@@ -290,12 +296,16 @@ def main():
     print("安装目录准备完成！")
 
     if not use_copy:
-        print()
-        print("后续步骤：")
-        print("  1. 下载 MaaFramework 并解压 bin 内容到 install/maafw/")
-        print("     https://github.com/MaaXYZ/MaaFramework/releases")
-        print("  2. 下载 MXU 并解压到 install/")
-        print("     https://github.com/MistEO/MXU/releases")
+        if not any(maafw_dir.iterdir()):
+            print()
+            print("为了使用 MaaFramework，您还需要：")
+            print("  下载 MaaFramework 并解压 bin 内容到 install/maafw/")
+            print("  https://github.com/MaaXYZ/MaaFramework/releases")
+        if not (install_dir / "mxu").exists() and not (install_dir / "mxu.exe").exists():
+            print()
+            print("为了使用 MXU，您还需要：")
+            print("  下载 MXU 并解压到 install/")
+            print("  https://github.com/MistEO/MXU/releases")
 
     print()
 

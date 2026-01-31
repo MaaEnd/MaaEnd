@@ -1,0 +1,117 @@
+name: PNG Image Optimization
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "**/*.png"
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: "Commit Message"
+        type: string
+        required: false
+  pull_request:
+    types:
+      - closed  
+    paths:
+      - "**/*.png"
+    branches:
+      - "main"
+
+jobs:
+  optimize-png:
+    name: Optimize PNG Images
+    # Skip workflow to prevent double consecutive runs
+    # Skip workflow on PR merges
+    if: >-
+      ${{ github.repository_owner == 'MaaEnd' &&
+          github.event.head_commit.author.email != '41898282+github-actions[bot]@users.noreply.github.com' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if it is a direct push
+        id: check_push
+        run: |
+          if [[ "${{ github.event_name }}" != "workflow_dispatch" ]]; then
+            pr_merge_status=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.event.after }}/pulls" | xargs)
+
+            if [[ "$pr_merge_status" == "[ ]" ]]; then
+              echo "Direct push detected. Proceeding..."
+              echo "is_pr=False" >> $GITHUB_OUTPUT
+            else
+              echo "PR merge detected. Exiting."
+              echo "is_pr=True" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Manual trigger detected. Proceeding..."
+            echo "is_pr=False" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout repository
+        if: steps.check_push.outputs.is_pr != 'True'
+        uses: actions/checkout@v6
+        with:
+          show-progress: false
+          persist-credentials: false
+
+      - name: Setup python
+        if: steps.check_push.outputs.is_pr != 'True'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      # - name: Cache Python packages
+      #   id: cache_python
+      #   if: steps.check_push.outputs.is_pr != 'True' && always()
+      #   uses: actions/cache@v4
+      #   continue-on-error: true
+      #   with:
+      #     path: ${{ env.pythonLocation }}/lib/python3.11/site-packages
+      #     key: ${{ runner.os }}-pip-optimize-templates-${{ hashFiles('./tools/OptimizeTemplates/requirements.txt') }}
+
+      - name: Install dependencies
+        # if: steps.check_push.outputs.is_pr != 'True' && steps.cache_python.outputs.cache-hit != 'true'
+        if: steps.check_push.outputs.is_pr != 'True'
+        run: |
+          pip install -r tools/OptimizeTemplates/requirements.txt
+
+      - name: Setup oxipng
+        if: steps.check_push.outputs.is_pr != 'True'
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: oxipng
+
+      - name: Optimize png images
+        if: steps.check_push.outputs.is_pr != 'True'
+        run: |
+          python3 tools/OptimizeTemplates/optimize_templates.py
+
+      - name: Commit changes
+        id: commit_changes
+        if: steps.check_push.outputs.is_pr != 'True'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to commit"
+          else
+            commit_msg="${{ github.event.inputs.commit_message }}"
+            if [ -z "$commit_msg" ]; then
+              commit_msg="chore: Auto Templates Optimization"
+            fi
+            git commit -m "$commit_msg" -m "Triggered by ${{github.sha}}" -m "[skip changelog]"
+            git pull origin $(git rev-parse --abbrev-ref HEAD) --unshallow --rebase
+            echo "have_commits=True" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push changes
+        if: steps.check_push.outputs.is_pr != 'True' && steps.commit_changes.outputs.have_commits == 'True' && github.repository_owner == 'MAA1999'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}

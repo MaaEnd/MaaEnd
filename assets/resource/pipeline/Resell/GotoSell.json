@@ -12,15 +12,9 @@
         ],
         "pre_delay": 0,
         "post_delay": 500,
-        "action": "Click",
-        "target": [
-            90,
-            200,
-            100,
-            80
-        ],
+        "action": "DoNothing",
         "next": [
-            "ResellListFriends",
+            "ResellClickStock",
             "ResellStageEnterStore"
         ]
     },
@@ -30,11 +24,12 @@
         "order_by": "Expected",
         "threshold": 0.8,
         "roi": [
-            73,
+            80,
             241,
             139,
             142
         ],
+        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "expected": "[0-9]+",
         "action": "Click",
         "next": [

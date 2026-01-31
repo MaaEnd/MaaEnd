@@ -99,6 +99,7 @@
                 "AutoPick",
                 "QuickTeleport",
                 "AutoZipline",
+                "AutoPat",
                 "AutoTaskInterval"
             ],
             "controller": [
@@ -115,6 +116,17 @@
             "option": [
                 "PuzzleSolverMode"
             ],
+            "controller": [
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
+            ]
+        },
+        {
+            "name": "ClaimSimulationRewards",
+            "label": "$task.ClaimSimulationRewards.label",
+            "entry": "SimulationSpaceEntry",
+            "description": "$task.ClaimSimulationRewards.description",
             "controller": [
                 "Win32",
                 "Win32-Front",
@@ -147,9 +159,13 @@
         {
             "name": "DailyRewards",
             "label": "$task.DailyRewards.label",
-            "entry": "DailyRewards",
+            "entry": "DailyRewardStart",
             "default_check": true,
-            "description": "$task.DailyRewards.description"
+            "description": "$task.DailyRewards.description",
+            "option": [
+                "DailyEmailRewards",
+                "DailyTaskRewards"
+            ]
         },
         {
             "name": "VisitFriends",
@@ -177,6 +193,13 @@
             "entry": "BakerEntry",
             "default_check": true,
             "description": "$task.BakerEntry.description"
+        },
+        {
+            "name": "SimpleProductionBatchStart",
+            "label": "$task.SimpleProductionBatch.label",
+            "entry": "SimpleProductionBatchStart",
+            "default_check": false,
+            "description": "$task.SimpleProductionBatch.description"
         },
         {
             "name": "PCOpenGame",
@@ -299,6 +322,7 @@
         "AutoCloseInteraction": {
             "type": "switch",
             "label": "自动交互处理",
+            "default": "No",
             "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
             "cases": [
                 {
@@ -316,7 +340,7 @@
                         "HandleTutorialConfirm": {
                             "enabled": true
                         },
-                        "ClickAnywhereToContinue": {
+                        "CheckAnywhere": {
                             "enabled": true
                         },
                         "CheckSpecialInfoPanel": {
@@ -345,7 +369,7 @@
                         "HandleTutorialConfirm": {
                             "enabled": false
                         },
-                        "ClickAnywhereToContinue": {
+                        "CheckAnywhere": {
                             "enabled": false
                         },
                         "CheckSpecialInfoPanel": {
@@ -357,9 +381,9 @@
         },
         "EnableTutorialGuide": {
             "label": "点击指引光标",
-            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！）",
+            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！🛑开启后会严重拖慢轮循速度！！）",
             "type": "switch",
-            "default": "Yes",
+            "default": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -424,7 +448,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "ClickAnywhereToContinue": {
+                        "CheckAnywhere": {
                             "enabled": true
                         }
                     }
@@ -432,7 +456,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "ClickAnywhereToContinue": {
+                        "CheckAnywhere": {
                             "enabled": false
                         }
                     }
@@ -699,9 +723,9 @@
             "label": "$option.AutoTaskInterval.label",
             "inputs": [
                 {
-                    "name": "检测间隔",
-                    "label": "$option.AutoTaskInterval.inputs.检测间隔.label",
-                    "description": "$option.AutoTaskInterval.inputs.检测间隔.description",
+                    "name": "CheckInterval",
+                    "label": "$option.AutoTaskInterval.inputs.CheckInterval.label",
+                    "description": "$option.AutoTaskInterval.inputs.CheckInterval.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
                     "default": 400
@@ -709,7 +733,7 @@
             ],
             "pipeline_override": {
                 "RealTimeTaskMain": {
-                    "post_delay": "{检测间隔}"
+                    "post_delay": "{CheckInterval}"
                 }
             }
         },
@@ -730,6 +754,29 @@
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoZipline": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPat": {
+            "type": "switch",
+            "label": "$option.AutoPat.label",
+            "description": "$option.AutoPat.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
                             "enabled": false
                         }
                     }
@@ -758,6 +805,50 @@
                     }
                 }
             }
+        },
+        "DailyEmailRewards": {
+            "type": "switch",
+            "label": "$option.DailyEmailRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyEmailRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyEmailRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskRewards": {
+            "type": "switch",
+            "label": "$option.DailyTaskRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
         },
         "PuzzleSolverMode": {
             "type": "select",

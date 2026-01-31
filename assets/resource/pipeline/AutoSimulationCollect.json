@@ -1,0 +1,315 @@
+{
+    "SimulationSpaceEntry": {
+        "doc": "第一步：识别模拟空间主界面",
+        "recognition": "OCR",
+        "expected": [
+            "模拟空间",
+            "模拟"
+        ],
+        "roi": [
+            28,
+            6,
+            150,
+            50
+        ],
+        "next": [
+            "Sim_ClickFilter"
+        ],
+        "on_error": [
+            "Sim_NotifyFocus"
+        ],
+        "timeout": 1000
+    },
+    "Sim_NotifyFocus": {
+        "doc": "错误处理：如果没有识别到，提示用户",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ClaimSimulationRewards.error_not_found"
+        }
+    },
+    "Sim_ClickFilter": {
+        "doc": "第二步：点击筛选按钮",
+        "recognition": "OCR",
+        "expected": [
+            "筛选",
+            "筛选匹配"
+        ],
+        "roi": [
+            20,
+            640,
+            250,
+            50
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    120,
+                    660
+                ]
+            }
+        },
+        "post_wait_freezes": 200, // 给筛选菜单弹出的动画一点时间
+        "next": [
+            "Sim_HaveSelectedUnfinished",
+            "Sim_SelectUnfinished",
+            "Sim_SwipeFilter"
+        ]
+    },
+    "Sim_SwipeFilter": {
+        "doc": "第三步：下拉菜单（防止未完成选项在下面）",
+        // 这是一个动作节点，不需要识别，直接执行滑动手势
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    500,
+                    450
+                ],
+                "end": [
+                    500,
+                    200
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 200, //降低延迟
+        "next": [
+            "Sim_HaveSelectedUnfinished",
+            "Sim_SelectUnfinished",
+            "Sim_SwipeFilter"
+        ]
+    },
+    "Sim_SelectUnfinished": {
+        "doc": "第四步：点击[未完成]",
+        "recognition": "OCR",
+        "expected": [
+            "未完成"
+        ],
+        "roi": [
+            230,
+            430,
+            290,
+            70
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "Sim_HaveSelectedUnfinished",
+            "Sim_SelectUnfinished"
+        ]
+    },
+    "Sim_HaveSelectedUnfinished": {
+        "doc": "已经点击[未完成]",
+        "recognition": "TemplateMatch",
+        "template": "SimulationSpace/SelectedUnfinished.png",
+        "roi": [
+            230,
+            430,
+            290,
+            60
+        ],
+        "action": "DoNothing",
+        "post_wait_freezes": 1,
+        "next": [
+            "Sim_SaveFilter"
+        ]
+    },
+    "Sim_SaveFilter": {
+        "doc": "第五步：点击保存/确定",
+        "recognition": "OCR",
+        "expected": [
+            "保存",
+            "确定"
+        ],
+        "roi": [
+            800,
+            500,
+            400,
+            200
+        ] // 覆盖右下角操作区域
+        ,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "Sim_Loop_ClaimReward", // 进入领取循环
+            "Sim_CheckEmpty", // 如果没有奖励，直接检查是否为空
+            "Sim_SaveFilter",
+            "[JumpBack]Sim_Loop_NextReward",
+            "Sim_Loop_NoReward"
+        ]
+    },
+    "Sim_LoopClickFilter": {
+        "doc": "[循环开始]，点击筛选按钮",
+        "recognition": "OCR",
+        "expected": [
+            "筛选",
+            "筛选匹配"
+        ],
+        "roi": [
+            20,
+            640,
+            250,
+            50
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    120,
+                    660
+                ]
+            }
+        },
+        "post_wait_freezes": 200, // 给筛选菜单弹出的动画一点时间
+        "next": [
+            "Sim_LoopSaveFilter"
+        ]
+    },
+    "Sim_LoopSaveFilter": {
+        "doc": "循环：点击保存/确定",
+        "recognition": "OCR",
+        "expected": [
+            "保存"
+        ],
+        "roi": [
+            800,
+            500,
+            400,
+            200
+        ] // 覆盖右下角操作区域
+        ,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "Sim_Loop_ClaimReward", // 进入领取循环
+            "Sim_CheckEmpty", // 如果没有奖励，直接检查是否为空
+            "Sim_LoopSaveFilter",
+            "[JumpBack]Sim_Loop_NextReward",
+            "Sim_Loop_NoReward"
+        ]
+    },
+    "Sim_Loop_NextReward": {
+        "doc": "当前教程不可跳过",
+        "recognition": {
+            "param": {
+                "roi": [
+                    16,
+                    67,
+                    276,
+                    577
+                ],
+                "template": [
+                    "SimulationSpace/SelectedItem.png"
+                ],
+                "threshold": [
+                    0.65
+                ]
+            },
+            "type": "TemplateMatch"
+        },
+        "action": {
+            "param": {
+                "target_offset": [
+                    0,
+                    40,
+                    0,
+                    0
+                ]
+            },
+            "type": "Click"
+        },
+        "max_hit": 5,
+        "post_wait_freezes": 200
+    },
+    "Sim_Loop_NoReward": {
+        "doc": "结束:无可继续项"
+    },
+    "Sim_Loop_ClaimReward": {
+        "doc": "第六步：一个个点击领取奖励",
+        "recognition": "OCR",
+        "expected": [
+            "已掌握",
+            "掌握",
+            "直接完成模拟"
+        ],
+        "roi": [
+            870,
+            500,
+            390,
+            300
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 250, // 领取后通常有弹窗，等一下
+        "next": [
+            "Sim_ComfirmReward", // 领取完去关弹窗
+            "Sim_Loop_ClaimReward"
+        ]
+    },
+    "Sim_ComfirmReward": {
+        "doc": "第七步：确认领取",
+        "recognition": "OCR",
+        "expected": [
+            "确认"
+        ],
+        "roi": [
+            600,
+            400,
+            300,
+            150
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200, // 降低延迟
+        "next": [
+            "Sim_CloseRewardPopup", // 领取完去关弹窗
+            "Sim_ComfirmReward"
+        ]
+    },
+    "Sim_CloseRewardPopup": {
+        "doc": "第八步:处理领取后的弹窗（点击空白处）",
+        "recognition": "TemplateMatch",
+        "template": "SimulationSpace/RewardPopup.png",
+        "threshold": 0.8,
+        "roi": [
+            610,
+            630,
+            61,
+            65
+        ],
+        "action": "Click",
+        "target": [
+            850,
+            520,
+            50,
+            50
+        ], // 点击屏幕右侧空白处关闭弹窗
+        "post_wait_freezes": 250, // 等待弹窗消失
+        "next": [
+            "Sim_LoopClickFilter", // 回去继续找下一个奖励
+            "Sim_CheckEmpty", // 找不到了？去检查是不是空了
+            "Sim_CloseRewardPopup"
+        ]
+    },
+    "Sim_CheckEmpty": {
+        "doc": "结束:发现没有后成功结束",
+        "recognition": "TemplateMatch",
+        "template": "SimulationSpace/EmptyMenu.png",
+        "roi": [
+            826,
+            169,
+            438,
+            201
+        ],
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Succeeded": "$task.ClaimSimulationRewards.success_finished"
+        }
+        // 任务结束，不再有 next
+    }
+}

@@ -13,10 +13,11 @@
             "RealTimeAutoZipline",
             "HandleTutorialGuide_RightUp",
             "HandleTutorialGuide_LeftUp",
-            // "Guard_CheckMailbox",
+            "CheckAnywhere",
             "HandleTutorialPaging",
             "HandleTutorialConfirm",
             "CheckSpecialInfoPanel",
+            "RealTimeAutoPat",
             "RealTimeTaskMainDelay"
         ]
     },
