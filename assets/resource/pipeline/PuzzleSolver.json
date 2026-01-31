@@ -7,7 +7,6 @@
             "PuzzleSolverOnScenePrepare",
             "PuzzleSolverOnSceneMain",
             "PuzzleSolverMain" // 循环检测
-
         ]
     },
     "PuzzleSolverOnScenePrepare": {
@@ -54,7 +53,7 @@
             236,
             164
         ],
-        "ratelimit": 0, // 快速轮询
+        "rate_limit": 100, // 快速轮询
         "next": [
             "PuzzleSolverFindUnavailableTip",
             "PuzzleSolverFindCompleteTip",

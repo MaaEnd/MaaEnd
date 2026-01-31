@@ -15,9 +15,9 @@
                     0,
                     700,
                     70
-                ]
-            },
-            "expected": "共享蓝图"
+                ],
+                "expected": "共享蓝图"
+            }
         },
         "action": "Click",
         "post_wait_freezes": 100,
@@ -169,9 +169,9 @@
                     600,
                     375,
                     110
-                ]
-            },
-            "expected": "已保存"
+                ],
+                "expected": "已保存"
+            }
         },
         "post_wait_freezes": 100,
         "action": {

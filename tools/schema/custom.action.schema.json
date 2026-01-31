@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Custom Action Schema",
+    "description": "Schema for custom actions in MaaFramework pipeline",
+    "type": "object",
+    "additionalProperties": true
+}

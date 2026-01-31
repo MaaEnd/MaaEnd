@@ -418,7 +418,7 @@
             "param": {
                 "template": "VisitFriends/CloseFriendList.png",
                 "threshold": 0.9,
-                "ROI": [
+                "roi": [
                     1213,
                     7,
                     30,
