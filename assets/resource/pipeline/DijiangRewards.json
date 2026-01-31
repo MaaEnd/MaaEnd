@@ -426,6 +426,7 @@
         "recognition": {
             "type": "And",
             "param": {
+                "box_index": 1,
                 "all_of": [
                     {
                         "sub_name": "_Tips",
@@ -465,7 +466,7 @@
                                     36
                                 ],
                                 "expected": [
-                                    "收集"
+                                    "接收"
                                 ]
                             }
                         }
@@ -640,6 +641,7 @@
         },
         "next": [
             "InControlNexus",
+            "[JumpBack]CloseDijiangRewards",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
             "[JumpBack]ReceptionRoomClickTips",
