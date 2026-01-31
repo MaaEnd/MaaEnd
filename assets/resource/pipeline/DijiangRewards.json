@@ -649,7 +649,7 @@
     },
     "StartExchange": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     633,
@@ -657,8 +657,8 @@
                     444,
                     175
                 ],
-                "expected": [
-                    "开展交流"
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
                 ]
             }
         },
