@@ -483,23 +483,76 @@
         "next": [
             "SendTheMostClues",
             "[JumpBack]EntrySendClues",
-            "[JumpBack]ExitReceptionRoom"
+            "[JumpBack]ExitReceptionRoom",
+            "[JumpBack]SendCluesSwipe"
         ]
+    },
+    "SendCluesSwipe": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    121,
+                    112,
+                    239,
+                    597
+                ],
+                "expected": [
+                    "线索"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": 200
+            }
+        }
     },
     "SendTheMostClues": {
         // 找到4-20之间的数字,点击发送
         // 线索最多20个,也就是平均下来每张线索不超过3个就可以正常接收
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    271,
-                    113,
-                    111,
-                    593
-                ],
-                "expected": [
-                    "^(20|[4-9]|1[0-9])$"
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_Clue",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    126,
+                                    157,
+                                    120,
+                                    555
+                                ],
+                                "expected": [
+                                    "自有库存"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "only_rec": true,
+                                "roi": "_Clue",
+                                "roi_offset": [
+                                    165,
+                                    0,
+                                    -46,
+                                    0
+                                ],
+                                "expected": [
+                                    "^(20|[4-9]|1[0-9])$"
+                                ]
+                            }
+                        }
+                    }
                 ]
             }
         },
