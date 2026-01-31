@@ -1,7 +1,7 @@
 {
     "DijiangRewards": {
         "next": [
-            "ControlNexus",
+            "ControlNexus", //主流程内收集所有奖励
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
@@ -28,7 +28,7 @@
             }
         },
         "next": [
-            "[JumpBack]EntryReceptionRoom",
+            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
             "[JumpBack]ControlNexusClickTips",
             "[JumpBack]ProductionAssist",
             "[JumpBack]MFG_ReceiveRewards",
@@ -213,6 +213,7 @@
         }
     },
     "CollectClues": {
+        // 收集线索
         "recognition": {
             "type": "And",
             "param": {
@@ -288,6 +289,7 @@
         ]
     },
     "SendClues": {
+        //线索过多,发送一个
         "recognition": {
             "type": "Or",
             "param": {
@@ -334,6 +336,8 @@
         ]
     },
     "SendTheMostClues": {
+        // 找到4-20之间的数字,点击发送
+        // 线索最多20个,也就是平均下来每张线索不超过3个就可以正常接收
         "recognition": {
             "type": "OCR",
             "param": {
@@ -639,8 +643,28 @@
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
             "[JumpBack]ReceptionRoomClickTips",
+            "[JumpBack]StartExchange",
             "[JumpBack]ExitReceptionRoom"
         ]
+    },
+    "StartExchange": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    633,
+                    476,
+                    444,
+                    175
+                ],
+                "expected": [
+                    "开始交流"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "InControlNexus": {
         "recognition": {
