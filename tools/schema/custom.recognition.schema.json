@@ -1,0 +1,7 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Custom Recognition Schema",
+    "description": "Schema for custom recognitions in MaaFramework pipeline",
+    "type": "object",
+    "additionalProperties": true
+}
