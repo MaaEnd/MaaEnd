@@ -1,43 +1,126 @@
 {
     "DijiangRewards": {
         "next": [
-            "ControlNexus", //任务
-            "[JumpBack]OpenDijiangControlNexus", // 打开帝江号控制中枢
-            "[JumpBack]SelectDijiang", // 选择帝江号
-            "[JumpBack]WaitLoadingColor", // 等待加载完成
-            "[JumpBack]Teleport", // 传送到帝江号
-            "[JumpBack]SelectDijiangTeleport", // 选择帝江号传送点
-            "[JumpBack]OpenMap" // 打开地图
+            "ControlNexus",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
         ]
     },
-    "ReceptionRoom": {
-        //会客室线索任务
+    "ControlNexus": {
+        "max_hit": 1,
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    161,
+                    462,
+                    171,
+                    82
                 ],
                 "expected": [
-                    "会客室"
+                    "总控中枢"
                 ]
             }
         },
         "next": [
-            "InControlNexus",
-            "[JumpBack]CollectClues",
-            "[JumpBack]ReceiveClues",
-            "[JumpBack]ReceptionRoomClickTips",
-            "[JumpBack]ExitReceptionRoom"
+            "[JumpBack]EntryReceptionRoom",
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssist",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
         ]
     },
+    "InLastCarbin": {
+        // 确认在主界面
+        "recognition": {
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    895,
+                    464,
+                    56,
+                    95
+                ],
+                "template": [
+                    "ClaimDijiangRewards/GrowthChamber.png"
+                ]
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
+    },
+    "FinishAllDijiangTask": {
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonDijiang"
+        ]
+    },
+    "InMainWindow": {
+        // 确认在主界面
+        "recognition": {
+            "type": "Or",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "any_of": [
+                    {
+                        // 确认在主界面
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    133,
+                                    118
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        // 确认在主界面
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
     "ExitReceptionRoom": {
-        //完成会客室任务
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     43,
@@ -50,26 +133,36 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "contact": 1
             }
         }
     },
+    // #CONTROLLER_REVIEW
     "ReceptionRoomClickTips": {
-        //点击会客室中,线索的红点
+        // 点击控制中心内的红点
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
         },
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "all_of": [
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     61,
@@ -93,8 +186,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     43,
@@ -111,8 +207,11 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "target_offset": [
                     -40,
@@ -127,10 +226,11 @@
         ]
     },
     "SetClues": {
-        //放置线索
-        // #I18N_REVIEW
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     952,
@@ -144,20 +244,25 @@
                 "order_by": "Vertical"
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
     "CollectClues": {
-        //收集线索,同时有红点和文字"收集"
-        // #I18N_REVIEW
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "all_of": [
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     43,
@@ -173,8 +278,11 @@
                     },
                     {
                         "sub_name": "_Tips",
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     1117,
@@ -198,8 +306,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_Tips",
                                 "roi_offset": [
@@ -217,6 +328,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         },
@@ -225,58 +337,20 @@
             "Collect"
         ]
     },
-    "Collect": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1155,
-                    416,
-                    122,
-                    112
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Confirm.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "ExitCollect"
-        ]
-    },
-    "ExitCollect": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    43,
-                    0,
-                    96,
-                    64
-                ],
-                "expected": [
-                    "会客室"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        }
-    },
     "SendClues": {
+        // 确认在主界面
         "recognition": {
             "type": "Or",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "any_of": [
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     1164,
@@ -285,14 +359,17 @@
                                     96
                                 ],
                                 "expected": [
-                                    "0/5"
+                                    "20/20"
                                 ]
                             }
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     286,
@@ -301,7 +378,7 @@
                                     276
                                 ],
                                 "expected": [
-                                    "线索已满" //#占位,我并不知道提示是什么
+                                    "线索已满"
                                 ]
                             }
                         }
@@ -316,8 +393,11 @@
         ]
     },
     "SendTheMostClues": {
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     271,
@@ -330,6 +410,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         },
@@ -338,8 +419,11 @@
         ]
     },
     "Send": {
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1106,
@@ -352,6 +436,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         },
@@ -360,8 +445,11 @@
         ]
     },
     "ExitSend": {
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1106,
@@ -374,16 +462,22 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "contact": 1
             }
         }
     },
     "EntrySendClues": {
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1182,
@@ -396,20 +490,27 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
+    // #CONTROLLER_REVIEW
     "ReceiveClues": {
-        //领取赠送线索
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "all_of": [
                     {
                         "sub_name": "_Tips",
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     1117,
@@ -433,8 +534,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "OCR",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_Tips",
                                 "roi_offset": [
@@ -452,6 +556,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         },
@@ -459,9 +564,13 @@
             "Receive"
         ]
     },
+    // #CONTROLLER_REVIEW
     "Receive": {
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1124,
@@ -474,42 +583,17 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
-    "ControlNexus": {
-        //领取其他舱室产物及补货
-        // #I18N_REVIEW
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    161,
-                    462,
-                    171,
-                    82
-                ],
-                "expected": [
-                    "总控中枢"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]EntryReceptionRoom", //优先进会客室
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssist",
-            "[JumpBack]MFG_ReceiveRewards",
-            "[JumpBack]GrowthChamber",
-            "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
-        ]
-    },
     "GrowthChamber": {
-        //培养舱收集
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     43,
@@ -529,50 +613,12 @@
             "ExitGrowthChamber"
         ]
     },
-    "DijiangConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    696,
-                    267,
-                    418,
-                    274
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Confirm.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "ExitGrowthChamber": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    43,
-                    0,
-                    96,
-                    64
-                ],
-                "expected": [
-                    "培养舱"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        }
-    },
     "GrowAgain": {
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     792,
@@ -585,37 +631,50 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
-    "InControlNexus": {
+    "DijiangConfirm": {
+        // 确认在主界面
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
-                    161,
-                    462,
-                    171,
-                    82
+                    696,
+                    267,
+                    418,
+                    274
                 ],
-                "expected": [
-                    "总控中枢"
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
                 ]
             }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click"
         }
     },
     "EntryReceptionRoom": {
         "max_hit": 1,
+        // 确认在主界面
         "recognition": {
-            //识别会客室图标的两种颜色
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "all_of": [
                     {
                         "sub_name": "_ReceptionRoomBackground",
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     363,
@@ -639,8 +698,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_ReceptionRoomBackground",
                                 "lower": [
@@ -661,6 +723,7 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         },
@@ -668,14 +731,63 @@
             "ReceptionRoom"
         ]
     },
+    "ReceptionRoom": {
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]CollectClues",
+            "[JumpBack]ReceiveClues",
+            "[JumpBack]ReceptionRoomClickTips",
+            "[JumpBack]ExitReceptionRoom"
+        ]
+    },
+    // #CONTROLLER_REVIEW
+    "InControlNexus": {
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        }
+    },
     "ProductionAssist": {
-        //好友助力界面,分为两种情况,某个舱室内或者总控中心内
+        // 点击控制中心内的红点
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
         },
+        // 确认在主界面
         "recognition": {
             "type": "ColorMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1112,
@@ -697,8 +809,11 @@
                 "connected": true
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "target_offset": [
                     -60,
@@ -714,84 +829,45 @@
             "RecoveryEmotion"
         ]
     },
-    "RecoveryEmotion": {
-        // 总控中心内点开助力:恢复心情
-        // #I18N_REVIEW
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    0,
-                    0
-                ],
-                "expected": [
-                    "选择待恢复心情的干员"
-                ]
-            }
-        },
-        "next": [
-            "CouldNotAssistEmotion",
-            "[JumpBack]SelectLowEmotion"
-        ]
-    },
-    "CouldNotAssistEmotion": {
-        // 恢复心情次数不够
-        // #I18N_REVIEW
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    432,
-                    74,
-                    428,
-                    92
-                ],
-                "expected": [
-                    "没有更多的心情激励点数，无法选择更多干员"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]UseAssist",
-            "BackToControlNexus",
-            "ExitProductionAssist"
-        ]
-    },
-    "BackToControlNexus": {
-        // 返回总控中心
+    "ExitProductionAssist": {
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
-                    980,
-                    102,
-                    187,
-                    82
+                    1064,
+                    104,
+                    74,
+                    74
                 ],
                 "template": [
-                    "Resell/back.png"
+                    "ClaimDijiangRewards/ExitProductionAssist.png"
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
     "SelectLowEmotion": {
-        // 选择低心情干员
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "box_index": 2,
                 "all_of": [
                     {
-                        // 搜索心情图标
                         "sub_name": "_EmotionIcon",
+                        // 确认在主界面
                         "recognition": {
                             "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     467,
@@ -808,10 +884,12 @@
                         }
                     },
                     {
-                        // 获取白色心情条大小
                         "sub_name": "_EmotionBar",
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_EmotionIcon",
                                 "roi_offset": [
@@ -834,10 +912,12 @@
                         }
                     },
                     {
-                        // 获取灰色心情条存在
                         "sub_name": "_EmotionBar_Empty",
+                        // 确认在主界面
                         "recognition": {
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_EmotionBar",
                                 "roi_offset": [
@@ -864,8 +944,11 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "target_offset": [
                     -10,
@@ -876,30 +959,12 @@
             }
         }
     },
-    "ExitProductionAssist": {
-        // 退出好友助力界面
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1064,
-                    104,
-                    74,
-                    74
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ExitProductionAssist.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "UseAssist": {
-        // 进入好友助力界面
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     991,
@@ -912,39 +977,23 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
-    "InLastCarbin": {
-        // 最后一个舱室
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    895,
-                    464,
-                    56,
-                    95
-                ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthChamber.png"
-                ]
-            }
-        },
-        "next": [
-            "FinishAllDijiangTask"
-        ]
-    },
+    // #CONTROLLER_REVIEW
     "CarbinSwipe": {
-        // 滑动到下一个舱室
-        // #I18N_REVIEW
+        // 点击控制中心内的红点
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
         },
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     161,
@@ -960,6 +1009,8 @@
         // #CONTROLLER_REVIEW
         "action": {
             "type": "Scroll",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "dx": 100,
                 "target_offset": [
@@ -972,9 +1023,11 @@
         }
     },
     "MFG_ReceiveRewards": {
-        // 领取制造室产物
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     43,
@@ -993,9 +1046,67 @@
             "ReStock"
         ]
     },
+    "ReStock": {
+        // 确认在主界面
+        "recognition": {
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    892,
+                    437,
+                    82,
+                    82
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Restock.png"
+                ]
+            }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmRestock",
+            "Exit_MFG_Cabin"
+        ]
+    },
+    //防止因为某些原因,没有成功补货,设置10次内可以重复识别
+    //超过10次就退出
+    "ConfirmRestock": {
+        // 确认在主界面
+        "recognition": {
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    847,
+                    416,
+                    416,
+                    277
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ConfirmRestock.png"
+                ]
+            }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Exit_MFG_Cabin"
+        ]
+    },
     "Exit_MFG_Cabin": {
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     43,
@@ -1008,17 +1119,22 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "contact": 1
             }
         }
     },
     "OpenDijiangControlNexus": {
-        // 打开总控中心
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     247,
@@ -1035,15 +1151,19 @@
         // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "key": 73
             }
         }
     },
     "Teleport": {
-        // 传送到帝江号
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1181,
@@ -1056,21 +1176,28 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
+    // #CONTROLLER_REVIEW
     "SelectDijiangTeleport": {
-        // 选择帝江号传送
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "box_index": 1,
                 "all_of": [
                     {
                         "sub_name": "_DijiangBridge",
+                        // 确认在主界面
                         "recognition": {
                             "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     17,
@@ -1085,8 +1212,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": "_DijiangBridge",
                                 "roi_offset": [
@@ -1104,14 +1234,18 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
+    // #CONTROLLER_REVIEW
     "SelectDijiang": {
-        // 选择帝江号
+        // 确认在主界面
         "recognition": {
             "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1052,
@@ -1124,19 +1258,26 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
+    // #CONTROLLER_REVIEW
     "OpenMap": {
-        // 打开地图
+        // 确认在主界面
         "recognition": {
             "type": "Or",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "any_of": [
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "template": "Resell/inGame1.png",
                                 "threshold": 0.8,
@@ -1150,8 +1291,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
                             "type": "TemplateMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "template": "Resell/inGame2.png",
                                 "threshold": 0.8,
@@ -1170,21 +1314,27 @@
         // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "key": 77
             }
         }
     },
     "WaitLoadingColor": {
-        // 等待加载颜色
+        // 确认在主界面
         "recognition": {
             "type": "And",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "all_of": [
                     {
+                        // 确认在主界面
                         "recognition": {
-                            //黄色
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     0,
@@ -1206,9 +1356,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
-                            //青色
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     0,
@@ -1230,9 +1382,11 @@
                         }
                     },
                     {
+                        // 确认在主界面
                         "recognition": {
-                            //红色
                             "type": "ColorMatch",
+                            // #CONTROLLER_REVIEW
+                            // 确认在主界面
                             "param": {
                                 "roi": [
                                     0,
@@ -1263,8 +1417,11 @@
             "time": 200,
             "timeout": 2000
         },
+        // 确认在主界面
         "recognition": {
             "type": "ColorMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     434,
@@ -1286,8 +1443,11 @@
                 "connected": true
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "target_offset": [
                     -100,
@@ -1299,9 +1459,11 @@
         }
     },
     "TakeRewards": {
-        // 领取奖励
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     860,
@@ -1314,14 +1476,18 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
+    // #CONTROLLER_REVIEW
     "CloseDijiangRewards": {
-        // 关闭帝江奖励界面
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "template": "DailyRewards/CloseReward.png",
                 "roi": [
@@ -1333,67 +1499,21 @@
                 "threshold": 0.9
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click"
         }
     },
-    "ReStock": {
-        // 补货
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    892,
-                    437,
-                    82,
-                    82
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Restock.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "ConfirmRestock",
-            "Exit_MFG_Cabin"
-        ]
-    },
+    // #CONTROLLER_REVIEW
     "ReRecognitionInMFG": {
-        //防止因为某些原因,没有成功补货,设置10次内可以重复识别
-        //超过10次就退出
         "max_hit": 10
     },
-    "ConfirmRestock": {
-        // 确认补货
-        // #I18N_REVIEW
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    847,
-                    416,
-                    416,
-                    277
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "Exit_MFG_Cabin"
-        ]
-    },
     "EixtCabin": {
-        // 退出舱室
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1163,
@@ -1406,24 +1526,22 @@
                 ]
             }
         },
+        // #CONTROLLER_REVIEW
         "action": {
             "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "contact": 1
             }
         }
     },
-    "FinishAllDijiangTask": {
-        // 完成所有帝江任务,返回主界面
-        "next": [
-            "InMainWindow",
-            "[JumpBack]CloseButtonDijiang"
-        ]
-    },
     "CloseButtonDijiang": {
-        // 关闭帝江任务界面
+        // 确认在主界面
         "recognition": {
             "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "roi": [
                     1077,
@@ -1439,49 +1557,167 @@
         // #CONTROLLER_REVIEW
         "action": {
             "type": "ClickKey",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
                 "key": 27
             }
         }
     },
-    "InMainWindow": {
+    "Collect": {
         // 确认在主界面
         "recognition": {
-            "type": "Or",
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "template": "Resell/inGame1.png",
-                                "threshold": 0.8,
-                                "roi": [
-                                    172,
-                                    0,
-                                    133,
-                                    118
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "template": "Resell/inGame2.png",
-                                "threshold": 0.8,
-                                "roi": [
-                                    1182,
-                                    0,
-                                    98,
-                                    128
-                                ]
-                            }
-                        }
-                    }
+                "roi": [
+                    1155,
+                    416,
+                    122,
+                    112
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
                 ]
             }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitCollect"
+        ]
+    },
+    "ExitCollect": {
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    // #CONTROLLER_REVIEW
+    "ExitGrowthChamber": {
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "RecoveryEmotion": {
+        "max_hit": 1,
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "选择待恢复心情的干员"
+                ]
+            }
+        },
+        "next": [
+            "CouldNotAssistEmotion",
+            "[JumpBack]SelectLowEmotion"
+        ]
+    },
+    // #CONTROLLER_REVIEW
+    "CouldNotAssistEmotion": {
+        // 确认在主界面
+        "recognition": {
+            "type": "OCR",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    432,
+                    74,
+                    428,
+                    92
+                ],
+                "expected": [
+                    "没有更多的心情激励点数，无法选择更多干员"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]UseAssist",
+            "BackToControlNexus",
+            "ExitProductionAssist"
+        ]
+    },
+    // #CONTROLLER_REVIEW
+    "BackToControlNexus": {
+        // 确认在主界面
+        "recognition": {
+            "type": "TemplateMatch",
+            // #CONTROLLER_REVIEW
+            // 确认在主界面
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "Resell/back.png"
+                ]
+            }
+        },
+        // #CONTROLLER_REVIEW
+        "action": {
+            "type": "Click"
         }
     }
 }
