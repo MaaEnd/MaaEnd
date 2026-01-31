@@ -1,0 +1,16 @@
+{
+    "task": [
+        {
+            "name": "PCOpenGame",
+            "label": "$task.PCOpenGame.label",
+            "entry": "PCOpenGame",
+            "description": "$task.PCOpenGame.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {}
+}

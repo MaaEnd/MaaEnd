@@ -1,0 +1,16 @@
+{
+    "task": [
+        {
+            "name": "ClaimSimulationRewards",
+            "label": "$task.ClaimSimulationRewards.label",
+            "entry": "SimulationSpaceEntry",
+            "description": "$task.ClaimSimulationRewards.description",
+            "controller": [
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
+            ]
+        }
+    ],
+    "option": {}
+}

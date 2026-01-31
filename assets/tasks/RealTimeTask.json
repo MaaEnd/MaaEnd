@@ -1,0 +1,565 @@
+{
+    "task": [
+        {
+            "name": "RealTimeTask",
+            "label": "$task.RealTimeTask.label",
+            "entry": "RealTimeTaskMain",
+            "description": "$task.RealTimeTask.description",
+            "option": [
+                "AutoSkip",
+                "AutoCloseInteraction",
+                "AutoFight",
+                "AutoPick",
+                "QuickTeleport",
+                "AutoZipline",
+                "AutoPat",
+                "AutoTaskInterval"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "AutoSkip": {
+            "type": "switch",
+            "label": "$option.AutoSkip.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoSkip": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoSkipAll",
+                        "AutoSkipChoose",
+                        "AutoSkipNext"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoSkip": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoSkipAll": {
+            "label": "$option.AutoSkipAll.label",
+            "description": "$option.AutoSkipAll.description",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipAll": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipAll": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoSkipChoose": {
+            "label": "$option.AutoSkipChoose.label",
+            "description": "$option.AutoSkipChoose.description",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipChoose": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipChoose": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoSkipNext": {
+            "label": "$option.AutoSkipNext.label",
+            "description": "$option.AutoSkipNext.description",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipNext": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoSkipNext": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCloseInteraction": {
+            "type": "switch",
+            "label": "自动交互处理",
+            "default": "No",
+            "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        },
+                        "CheckAnywhere": {
+                            "enabled": true
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "EnableTutorialGuide",
+                        "EnableTutorialBook",
+                        "EnableClickAnywhere",
+                        "EnableCloseSpecialPanel"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        },
+                        "CheckAnywhere": {
+                            "enabled": false
+                        },
+                        "CheckSpecialInfoPanel": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialGuide": {
+            "label": "点击指引光标",
+            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！🛑开启后会严重拖慢轮循速度！！）",
+            "type": "switch",
+            "default": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": true
+                        },
+                        "HandleTutorialGuide_LeftUp": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialGuide_RightUp": {
+                            "enabled": false
+                        },
+                        "HandleTutorialGuide_LeftUp": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableTutorialBook": {
+            "label": "翻阅说明书",
+            "description": "自动翻页并确认说明教程弹窗",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": true
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "HandleTutorialPaging": {
+                            "enabled": false
+                        },
+                        "HandleTutorialConfirm": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableClickAnywhere": {
+            "label": "点击任意处继续",
+            "description": "自动识别并点击全屏遮罩提示",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CheckAnywhere": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CheckAnywhere": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EnableCloseSpecialPanel": {
+            "label": "关闭档案/语音",
+            "description": "自动识别并关闭剧情文档或语音记录界面",
+            "type": "switch",
+            "default": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CheckSpecialInfoPanel": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFight": {
+            "type": "switch",
+            "label": "$option.AutoFight.label",
+            "description": "$option.AutoFight.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoFightAttack",
+                        "AutoFightCombo",
+                        "AutoFightSkill",
+                        "AutoFightEndSkill",
+                        "AutoFightLockTarget"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightAttack": {
+            "label": "$option.AutoFightAttack.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttack": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttack": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightSkill": {
+            "label": "$option.AutoFightSkill.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSkill": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightSkill": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightEndSkill": {
+            "label": "$option.AutoFightEndSkill.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightEndSkill": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightEndSkill": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightCombo": {
+            "label": "$option.AutoFightCombo.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightCombo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightCombo": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightLockTarget": {
+            "label": "$option.AutoFightLockTarget.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "LockTarget": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFight": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "LockTarget": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPick": {
+            "label": "$option.AutoPick.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoPickFalls": {
+                            "enabled": false
+                        },
+                        "AutoPickInteractive": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoPickFalls": {
+                            "enabled": true
+                        },
+                        "AutoPickInteractive": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "QuickTeleport": {
+            "type": "switch",
+            "label": "$option.QuickTeleport.label",
+            "description": "$option.QuickTeleport.description",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeQuickTeleportList": {
+                            "enabled": false
+                        },
+                        "RealTimeQuickTeleportDirect": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeQuickTeleportList": {
+                            "enabled": true
+                        },
+                        "RealTimeQuickTeleportDirect": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoTaskInterval": {
+            "type": "input",
+            "label": "$option.AutoTaskInterval.label",
+            "inputs": [
+                {
+                    "name": "CheckInterval",
+                    "label": "$option.AutoTaskInterval.inputs.CheckInterval.label",
+                    "description": "$option.AutoTaskInterval.inputs.CheckInterval.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 400
+                }
+            ],
+            "pipeline_override": {
+                "RealTimeTaskMain": {
+                    "post_delay": "{CheckInterval}"
+                }
+            }
+        },
+        "AutoZipline": {
+            "type": "switch",
+            "label": "$option.AutoZipline.label",
+            "description": "$option.AutoZipline.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoZipline": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoZipline": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPat": {
+            "type": "switch",
+            "label": "$option.AutoPat.label",
+            "description": "$option.AutoPat.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoPat": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

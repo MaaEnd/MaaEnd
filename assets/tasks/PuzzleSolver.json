@@ -1,0 +1,62 @@
+{
+    "task": [
+        {
+            "name": "PuzzleSolver",
+            "label": "$task.PuzzleSolver.label",
+            "entry": "PuzzleSolverMain",
+            "description": "$task.PuzzleSolver.description",
+            "option": [
+                "PuzzleSolverMode"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
+            ]
+        }
+    ],
+    "option": {
+        "PuzzleSolverMode": {
+            "type": "select",
+            "label": "$option.PuzzleSolverMode.label",
+            "description": "$option.PuzzleSolverMode.description",
+            "cases": [
+                {
+                    "name": "Single",
+                    "label": "$option.PuzzleSolverMode.cases.Single.label",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": []
+                        }
+                    }
+                },
+                {
+                    "name": "Loop",
+                    "label": "$option.PuzzleSolverMode.cases.Loop.label",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DryRun",
+                    "label": "$option.PuzzleSolverMode.cases.DryRun.label",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "action": "DoNothing",
+                            "next": []
+                        },
+                        "PuzzleSolverSolvePuzzle": {
+                            "custom_action_param": {
+                                "dryRun": true
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
