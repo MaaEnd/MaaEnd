@@ -208,8 +208,6 @@
             "OnFriendList"
         ]
     },
-
-
     "ClueExchangeOCR": {
         "recognition": {
             "type": "OCR",
@@ -372,8 +370,6 @@
             "OnFriendList"
         ]
     },
-
-
     "VisitEnd": {
         "action": {
             "type": "DoNothing",
@@ -422,8 +418,11 @@
             "param": {
                 "template": "VisitFriends/CloseFriendList.png",
                 "threshold": 0.9,
-                "ROI": [
-                    1213, 7, 30, 30
+                "roi": [
+                    1213,
+                    7,
+                    30,
+                    30
                 ]
             }
         },
