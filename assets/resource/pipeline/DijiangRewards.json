@@ -11,6 +11,7 @@
         ]
     },
     "ControlNexus": {
+        //任务主流程
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -37,6 +38,7 @@
         ]
     },
     "InLastCarbin": {
+        // 最后一个培养舱
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -494,6 +496,7 @@
         }
     },
     "GrowthChamber": {
+        // 培养舱任务
         "recognition": {
             "type": "OCR",
             "param": {
@@ -554,6 +557,7 @@
         }
     },
     "EntryReceptionRoom": {
+        //单独进入会客室
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -655,6 +659,7 @@
         }
     },
     "ProductionAssist": {
+        //好友辅助
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -830,6 +835,7 @@
         }
     },
     "CarbinSwipe": {
+        // 滑动总控中枢
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -862,6 +868,7 @@
         }
     },
     "MFG_ReceiveRewards": {
+        //制造舱任务
         "recognition": {
             "type": "OCR",
             "param": {
@@ -883,6 +890,7 @@
         ]
     },
     "ReStock": {
+        //补货
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1181,6 +1189,7 @@
         }
     },
     "ControlNexusClickTips": {
+        //点击任务提示(红点)
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -1221,6 +1230,7 @@
         }
     },
     "TakeRewards": {
+        //领取奖励
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1240,6 +1250,7 @@
         }
     },
     "CloseDijiangRewards": {
+        //关闭奖励界面
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1371,6 +1382,7 @@
         }
     },
     "RecoveryEmotion": {
+        // 控制中枢内打开,选择待恢复心情的干员
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
