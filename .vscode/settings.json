@@ -7,24 +7,25 @@
                 "/assets/resource/**/*.jsonc",
                 "/install/resource/**/*.jsonc"
             ],
-            "url": "/maafw/tools/pipeline.schema.json"
+            "url": "https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/tools/pipeline.schema.json"
         },
         {
             "fileMatch": [
                 "/assets/interface.json",
                 "/install/interface.json"
             ],
-            "url": "/maafw/tools/interface.schema.json"
+            "url": "https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/tools/interface.schema.json"
         },
         {
             "fileMatch": [
                 "/install/config/maa_pi_config.json"
             ],
-            "url": "/maafw/tools/interface_config.schema.json"
+            "url": "https://github.com/MaaXYZ/MaaFramework/raw/refs/heads/main/tools/interface_config.schema.json"
         }
     ],
     "files.associations": {
-        "**/assets/**/*.json": "jsonc"
+        "**/assets/**/*.json": "jsonc",
+        "**/install/**/*.json": "jsonc"
     },
     "[json][jsonc]": {
         "editor.formatOnSave": true,
@@ -33,6 +34,7 @@
         "editor.indentSize": "tabSize"
     },
     "[python]": {
+        "editor.formatOnSave": true,
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "[markdown]": {
