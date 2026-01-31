@@ -1,0 +1,246 @@
+{
+    "AlreadyInEmail": {
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入邮件界面"
+        },
+        "next": [
+            "ExistTSA",
+            "ReceiveEmail"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "邮件",
+                    "收件箱"
+                ],
+                "roi": [
+                    5,
+                    2,
+                    252,
+                    97
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "CEOpenEmailInMain": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入邮件界面"
+        },
+        "next": [
+            "CEOpenEmailInMainClick"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    5,
+                    4,
+                    483,
+                    106
+                ],
+                "template": [
+                    "CheckEmail/email.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "CEOpenEmailInMainClick": {
+        "action": {
+            "param": {
+                "target": "CEOpenEmailInMain"
+            },
+            "type": "Click"
+        },
+        "next": [
+            "CEOpenEmailInMainDone"
+        ]
+    },
+    "CEOpenEmailInMainDone": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        }
+    },
+    "CheckEmailEnd": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "返回主界面"
+        },
+        "recognition": {
+            "param": {
+                "template": [
+                    "CloseInfo/CloseButton.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        },
+        "repeat": 2,
+        "repeat_wait_freezes": 1000
+    },
+    "CheckEmailStart": {
+        "next": [
+            "AlreadyInEmail",
+            "[JumpBack]CEOpenEmailInMain",
+            "NoEmail"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "ConfirmEmail": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "获取邮件奖励"
+        },
+        "next": [
+            "CheckEmailEnd"
+        ],
+        "pre_wait_freezes": 200,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "邮箱奖励"
+                ],
+                "roi": [
+                    473,
+                    16,
+                    330,
+                    155
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "ConfirmTSA": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "ReceiveEmail"
+        ],
+        "pre_wait_freezes": 200,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "获得道具"
+                ],
+                "roi": [
+                    442,
+                    8,
+                    409,
+                    187
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "ExistTSA": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "收取暂存区物资"
+        },
+        "next": [
+            "ReceiveTSA"
+        ],
+        "recognition": {
+            "param": {
+                "template": [
+                    "CheckEmail/TSA.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "NoEmail": {
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "NoEmailRewards": {
+        "focus": {
+            "Node.Recognition.Succeeded": "暂无邮件奖励"
+        },
+        "next": [
+            "CheckEmailEnd"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "暂无附件"
+                ],
+                "roi": [
+                    318,
+                    22,
+                    625,
+                    176
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "ReceiveEmail": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "NoEmailRewards",
+            "ConfirmEmail"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "全部收取"
+                ],
+                "roi": [
+                    7,
+                    587,
+                    406,
+                    125
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "ReceiveTSA": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmTSA"
+        ],
+        "pre_wait_freezes": 200,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "全部领取"
+                ],
+                "roi": [
+                    497,
+                    426,
+                    342,
+                    128
+                ]
+            },
+            "type": "OCR"
+        }
+    }
+}

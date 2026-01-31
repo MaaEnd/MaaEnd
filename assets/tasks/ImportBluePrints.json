@@ -1,0 +1,38 @@
+{
+    "task": [
+        {
+            "name": "ImportBluePrints",
+            "label": "$task.ImportBluePrints.label",
+            "entry": "ImportBluePrints",
+            "description": "$task.ImportBluePrints.description",
+            "option": [
+                "ImportBluePrints"
+            ]
+        }
+    ],
+    "option": {
+        "ImportBluePrints": {
+            "type": "input",
+            "label": "$option.ImportBluePrints.label",
+            "inputs": [
+                {
+                    "name": "ImportBluePrintsText",
+                    "label": "$option.ImportBluePrints.inputs.ImportBluePrintsText.label",
+                    "description": "$option.ImportBluePrints.inputs.ImportBluePrintsText.description",
+                    "pipeline_type": "string"
+                }
+            ],
+            "pipeline_override": {
+                "ImportBluePrintsInitText": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "text": "{ImportBluePrintsText}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

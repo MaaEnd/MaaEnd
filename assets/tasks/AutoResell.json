@@ -1,0 +1,45 @@
+{
+    "task": [
+        {
+            "name": "AutoResell",
+            "label": "$task.AutoResell.label",
+            "entry": "ResellMain",
+            "description": "$task.AutoResell.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ],
+            "option": [
+                "ImportMinimumProfit"
+            ]
+        }
+    ],
+    "option": {
+        "ImportMinimumProfit": {
+            "type": "input",
+            "label": "$option.ImportMinimumProfit.label",
+            "inputs": [
+                {
+                    "name": "ImportMinimumProfit",
+                    "label": "$option.ImportMinimumProfit.inputs.ImportMinimumProfit.label",
+                    "description": "$option.ImportMinimumProfit.inputs.ImportMinimumProfit.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 3000
+                }
+            ],
+            "pipeline_override": {
+                "ResellStart": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "MinimumProfit": "{ImportMinimumProfit}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

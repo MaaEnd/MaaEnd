@@ -1,0 +1,12 @@
+{
+    "task": [
+        {
+            "name": "BakerEntry",
+            "label": "$task.BakerEntry.label",
+            "entry": "BakerEntry",
+            "default_check": true,
+            "description": "$task.BakerEntry.description"
+        }
+    ],
+    "option": {}
+}

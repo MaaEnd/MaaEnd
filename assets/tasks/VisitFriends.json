@@ -1,0 +1,11 @@
+{
+    "task": [
+        {
+            "name": "VisitFriends",
+            "label": "$task.VisitFriends.label",
+            "entry": "FriendVisitMain",
+            "description": "$task.VisitFriends.description"
+        }
+    ],
+    "option": {}
+}

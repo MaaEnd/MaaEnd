@@ -1,0 +1,14 @@
+{
+    "task": [
+        {
+            "name": "AndroidOpenGame",
+            "label": "$task.AndroidOpenGame.label",
+            "entry": "AndroidOpenGame",
+            "description": "$task.AndroidOpenGame.description",
+            "controller": [
+                "ADB"
+            ]
+        }
+    ],
+    "option": {}
+}

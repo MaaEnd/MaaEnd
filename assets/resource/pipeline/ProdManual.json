@@ -2,6 +2,7 @@
     "AlreadyInPM": {
         "next": [
             "[JumpBack]ReceivePMReward",
+            "[JumpBack]ConfirmUpdate",
             "ProdManualDone"
         ],
         "recognition": {
@@ -25,7 +26,8 @@
             "type": "Click"
         },
         "next": [
-            "NextPM"
+            "NextPM",
+            "ConfirmUpdate"
         ],
         "recognition": {
             "param": {
@@ -42,9 +44,34 @@
             "type": "OCR"
         }
     },
-    "NextPM": {
+    "ConfirmUpdate": {
         "action": {
             "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "NextPM",
+            "ConfirmUpdate"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "点击屏幕继续"
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "NextPM": {
+        "action": {
+            "param": {
+                "target_offset": [
+                    10,
+                    14,
+                    -26,
+                    -28
+                ]
+            },
             "type": "Click"
         },
         "recognition": {
@@ -162,9 +189,6 @@
                 "key": 18
             },
             "type": "KeyUp"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "进入背包界面"
         }
     },
     "OpenPMInMenu": {
