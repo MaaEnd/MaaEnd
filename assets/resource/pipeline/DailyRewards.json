@@ -1,315 +1,37 @@
 {
-    "DailyRewards": {
+    "DailyEmailRewardSub": {
+        "focus": {
+            "Node.Recognition.Succeeded": "领取邮件奖励"
+        },
+        "max_hit": 1,
         "next": [
-            "PressEsc"
-        ]
+            "CheckEmailStart"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
     },
-    "PressEsc": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
+    "DailyRewardEnd": {
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "DailyRewardStart": {
         "next": [
-            "EnterTaskMenu"
-        ]
+            "[JumpBack]DailyEmailRewardSub",
+            "[JumpBack]DailyTaskRewardSub",
+            "DailyRewardEnd"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
     },
-    "EnterTaskMenu": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "行动"
-                ],
-                "roi": [
-                    1000,
-                    150,
-                    120,
-                    100
-                ]
-            }
+    "DailyTaskRewardSub": {
+        "focus": {
+            "Node.Recognition.Succeeded": "领取每日任务奖励"
         },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
+        "max_hit": 1,
         "next": [
-            "EnterDailyTab"
-        ]
-    },
-    "EnterDailyTab": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "日常"
-                ],
-                "roi": [
-                    170,
-                    140,
-                    795,
-                    45
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ClaimSingleReward",
-            "ClaimActivityRewards",
-            "GoToBattlePass",
-            "CloseDailyToEnterPass"
-        ]
-    },
-    "ClaimSingleReward": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "领取",
-                "roi": [
-                    1005,
-                    240,
-                    45,
-                    25
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ClaimActivityRewards",
-            "GoToBattlePass",
-            "CloseDailyToEnterPass"
-        ]
-    },
-    "ClaimActivityRewards": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/ActivityReward.png",
-                "roi": [
-                    185,
-                    475,
-                    35,
-                    35
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "CloseActivityRewardPopup"
-        ]
-    },
-    "CloseActivityRewardPopup": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/CloseReward.png",
-                "roi": [
-                    622,
-                    645,
-                    37,
-                    38
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "GoToBattlePass",
-            "CloseDailyToEnterPass"
-        ]
-    },
-    "CloseDailyToEnterPass": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/CloseButton.png",
-                "threshold": 0.9,
-                "roi": [
-                    1215,
-                    11,
-                    35,
-                    35
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "EnterBattlePassManual"
-        ]
-    },
-    "EnterBattlePassManual": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "通行证",
-                "roi": [
-                    1100,
-                    175,
-                    115,
-                    65
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "EnterBattlePassTasks"
-        ]
-    },
-    "GoToBattlePass": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "前往",
-                "roi": [
-                    995,
-                    548,
-                    47,
-                    27
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "EnterBattlePassTasks"
-        ]
-    },
-    "EnterBattlePassTasks": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "任务",
-                "roi": [
-                    324,
-                    18,
-                    37,
-                    22
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 500,
-        "next": [
-            "ClaimBattlePassTaskRewards",
-            "EnterBattlePassRewards"
-        ]
-    },
-    "ClaimBattlePassTaskRewards": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "领取",
-                "roi": [
-                    1004,
-                    596,
-                    88,
-                    31
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "EnterBattlePassRewards"
-        ]
-    },
-    "EnterBattlePassRewards": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "奖励",
-                "roi": [
-                    132,
-                    18,
-                    36,
-                    20
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 500,
-        "next": [
-            "ClaimBattlePassLevelRewards",
-            "DailyTaskComplete"
-        ]
-    },
-    "ClaimBattlePassLevelRewards": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": "领取",
-                "roi": [
-                    691,
-                    572,
-                    88,
-                    31
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ClosePassRewardPopup"
-        ]
-    },
-    "ClosePassRewardPopup": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/CloseReward.png",
-                "roi": [
-                    622,
-                    645,
-                    37,
-                    38
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "DailyTaskComplete"
-        ]
-    },
-    "DailyTaskComplete": {
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        }
+            "DailyRewards"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
     }
 }

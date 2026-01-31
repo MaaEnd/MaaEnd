@@ -159,9 +159,13 @@
         {
             "name": "DailyRewards",
             "label": "$task.DailyRewards.label",
-            "entry": "DailyRewards",
+            "entry": "DailyRewardStart",
             "default_check": true,
-            "description": "$task.DailyRewards.description"
+            "description": "$task.DailyRewards.description",
+            "option": [
+                "DailyEmailRewards",
+                "DailyTaskRewards"
+            ]
         },
         {
             "name": "ReadAllWiki",
@@ -788,6 +792,50 @@
                     }
                 }
             }
+        },
+        "DailyEmailRewards": {
+            "type": "switch",
+            "label": "$option.DailyEmailRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyEmailRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyEmailRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskRewards": {
+            "type": "switch",
+            "label": "$option.DailyTaskRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
         },
         "PuzzleSolverMode": {
             "type": "select",
