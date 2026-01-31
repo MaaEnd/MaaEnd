@@ -72,7 +72,7 @@
     "task.DijiangRewards.description": "製造物の回収と補給、及び手掛かりの受取・設置を自動化します。",
     "option.AutoStartExchange.label": "手がかり交換を自動開始",
     "option.AutoStartExchange.description": "基地任務中に手がかり交換を自動的に開始します。このオプションの有効化は推奨されません。高価値なアイテムを獲得するためには、手がかり交換任務はクレジット取引任務が主動的に開始するのを待つべきです。",
-    "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md"
+    "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md",
     "task.ClaimSimulationRewards.label": "📦模擬空間報酬自動受取",
     "task.ClaimSimulationRewards.description": "模擬空間メニュー内で起動してください",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",

@@ -181,7 +181,7 @@
         "next": [
             "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
             "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssist",
+            "[JumpBack]ProductionAssistInDijiang",
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
@@ -816,7 +816,7 @@
             }
         }
     },
-    "ProductionAssist": {
+    "ProductionAssistInDijiang": {
         //好友辅助
         "post_wait_freezes": {
             "time": 200,
@@ -858,11 +858,11 @@
         },
         "next": [
             "[JumpBack]UseAssist",
-            "ExitProductionAssist",
+            "ExitProductionAssistInDijiang",
             "RecoveryEmotion"
         ]
     },
-    "ExitProductionAssist": {
+    "ExitProductionAssistInDijiang": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1579,7 +1579,7 @@
         "next": [
             "[JumpBack]UseAssist",
             "BackToControlNexus",
-            "ExitProductionAssist"
+            "ExitProductionAssistInDijiang"
         ]
     },
     "BackToControlNexus": {
