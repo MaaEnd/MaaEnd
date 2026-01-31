@@ -8,8 +8,8 @@
         //        "enabled": true
         //    }
         //}
-        //和Entry,option,等参数同级
-        //当然你也可以自己给这项任务添加识别器
+        //和Entry,option等参数同级
+        //当然你也可以自己给NeedCredit这项任务添加识别器
         //
         //当信用点商店中包含玉或者其他高价值物品,但是信用点不够就运行这个任务
         //这个任务会去帝江号基建中开启线索交流(如果会客室也没线索那就没办法了)
@@ -103,7 +103,7 @@
             }
         },
         "next": [
-            "InControlNexus",
+            "InControlNexus_NeedCredit",
             "[JumpBack]CloseDijiangRewards",
             "[JumpBack]StartExchange",
             "[JumpBack]ExitReceptionRoom"
