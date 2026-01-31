@@ -196,7 +196,10 @@
             "name": "DijiangRewards",
             "label": "$task.DijiangRewards.label",
             "entry": "DijiangRewards",
-            "description": "$task.DijiangRewards.description"
+            "description": "$task.DijiangRewards.description",
+            "option": [
+                "AutoStartExchange"
+            ]
         }
     ],
     "option": {
@@ -825,6 +828,25 @@
                     }
                 }
             }
+        },
+        "AutoStartExchange": {
+            "type": "switch",
+            "label": "$option.AutoStartExchange.label",
+            "description": "$option.AutoStartExchange.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StartExchange": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {}
+                }
+            ]
         }
     }
 }

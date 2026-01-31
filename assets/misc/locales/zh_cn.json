@@ -61,5 +61,7 @@
     "option.PuzzleSolverMode.cases.DryRun.label": "仅演示",
     "task.DijiangRewards.label": "🎁基建任务",
     "task.DijiangRewards.description": "自动领取基建产物并补货,自动收取线索和放置线索",
+    "option.AutoStartExchange.label": "自动开启线索交流",
+    "option.AutoStartExchange.description": "在基建任务过程中，自动开启线索交流,并不推荐开启此选项,线索交流任务应该等待信用点交易任务主动开启来获取高价值物品",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md"
 }

@@ -59,5 +59,7 @@
     "option.PuzzleSolverMode.cases.DryRun.label": "僅演示",
     "task.DijiangRewards.label": "🎁基建任務",
     "task.DijiangRewards.description": "自動領取基建產物並補貨，自動收發與放置線索",
+    "option.AutoStartExchange.label": "自動開啟線索交流",
+    "option.AutoStartExchange.description": "在基建任務過程中，自動開啟線索交流，並不推薦開啟此選項，線索交流任務應該等待信用點交易任務主動開啟以獲取高價值物品",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_tw.md"
 }
