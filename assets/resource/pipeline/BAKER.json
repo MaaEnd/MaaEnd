@@ -242,7 +242,10 @@
     },
     "SaySmile": {
         "recognition": "TemplateMatch",
-        "template": "Baker/SaySmile.png",
+        "template": [
+            "Baker/SaySmile.png",
+            "Baker/SaySmile2.png"
+        ],
         "threshold": 0.7, // 表情包太多了.jpg
         "roi": [
             393,
