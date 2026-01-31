@@ -28,6 +28,18 @@
             "param": {}
         },
         "next": [
+            "OnFriendList"
+        ]
+    },
+    "OnFriendList": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/OnFriendList.png",
+                "threshold": 0.8
+            }
+        },
+        "next": [
             "ProductionAssistOCR",
             "ClueExchangeOCR",
             "VisitEnd"
@@ -194,9 +206,7 @@
             }
         },
         "next": [
-            "ProductionAssistOCR",
-            "ClueExchangeOCR",
-            "VisitEnd"
+            "OnFriendList"
         ]
     },
 
@@ -361,11 +371,9 @@
             }
         },
         "next": [
-            "ClueExchangeOCR",
-            "VisitEnd"
+            "OnFriendList"
         ]
     },
-
 
 
     "VisitEnd": {
