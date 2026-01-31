@@ -1,6 +1,11 @@
 package resell
 
-import maa "github.com/MaaXYZ/maa-framework-go/v3"
+import "github.com/MaaXYZ/maa-framework-go/v3"
+
+var (
+	_ maa.CustomActionRunner = &ResellInitAction{}
+	_ maa.CustomActionRunner = &ResellFinishAction{}
+)
 
 // Register registers all custom action components for resell package
 func Register() {
