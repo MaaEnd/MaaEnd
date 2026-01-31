@@ -189,6 +189,13 @@
             "description": "$task.BakerEntry.description"
         },
         {
+            "name": "SimpleProductionBatchStart",
+            "label": "$task.SimpleProductionBatch.label",
+            "entry": "SimpleProductionBatchStart",
+            "default_check": false,
+            "description": "$task.SimpleProductionBatch.description"
+        },
+        {
             "name": "PCOpenGame",
             "label": "$task.PCOpenGame.label",
             "entry": "PCOpenGame",
