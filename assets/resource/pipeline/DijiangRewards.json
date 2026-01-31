@@ -1,4 +1,155 @@
 {
+    "NeedCredit": {
+        "max_hit": 1,
+        //这个节点是给信用点商店任务预留的
+        //使用方式为,在信用点商店的interface节点中,增加
+        //"pipeline_override": {
+        //    "StartExchange": {
+        //        "enabled": true
+        //    }
+        //}
+        //和Entry,option,等参数同级
+        //当然你也可以自己给这项任务添加识别器
+        //
+        //当信用点商店中包含玉或者其他高价值物品,但是信用点不够就运行这个任务
+        //这个任务会去帝江号基建中开启线索交流(如果会客室也没线索那就没办法了)
+        //帝江号的日常收取中不会开启
+        //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
+        "next": [
+            "EntryReceptionRoom_NeedCredit", //单独运行一次会客室
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "EntryReceptionRoom_NeedCredit": {
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_ReceptionRoomBackground",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    363,
+                                    12,
+                                    538,
+                                    278
+                                ],
+                                "lower": [
+                                    151,
+                                    132,
+                                    235
+                                ],
+                                "upper": [
+                                    158,
+                                    138,
+                                    249
+                                ],
+                                "count": 400,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_ReceptionRoomBackground",
+                                "lower": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "upper": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "count": 50,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ReceptionRoom_NeedCredit"
+        ]
+    },
+    "ReceptionRoom_NeedCredit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]StartExchange",
+            "[JumpBack]ExitReceptionRoom"
+        ]
+    },
+    "StartExchange": {
+        "enabled": false,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    633,
+                    476,
+                    444,
+                    175
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "InControlNexus_NeedCredit": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        },
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonDijiang"
+        ]
+    },
+    //主流程
     "DijiangRewards": {
         "next": [
             "ControlNexus", //主流程内收集所有奖励
@@ -644,29 +795,10 @@
             "[JumpBack]CloseDijiangRewards",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
-            "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]StartExchange",
+            "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom"
         ]
-    },
-    "StartExchange": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    633,
-                    476,
-                    444,
-                    175
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Confirm.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     },
     "InControlNexus": {
         "recognition": {
