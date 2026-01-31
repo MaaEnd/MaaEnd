@@ -1,8 +1,7 @@
 {
     "DijiangRewards": {
         "next": [
-            "[JumpBack]ControlNexus", //制造舱室任务
-            "ReceptionRoom", // 会客室线索任务
+            "ControlNexus", //任务
             "[JumpBack]OpenDijiangControlNexus", // 打开帝江号控制中枢
             "[JumpBack]SelectDijiang", // 选择帝江号
             "[JumpBack]WaitLoadingColor", // 等待加载完成
@@ -13,6 +12,601 @@
     },
     "ReceptionRoom": {
         //会客室线索任务
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]CollectClues",
+            "[JumpBack]ReceiveClues",
+            "[JumpBack]ReceptionRoomClickTips",
+            "[JumpBack]ExitReceptionRoom"
+        ]
+    },
+    "ExitReceptionRoom": {
+        //完成会客室任务
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "ReceptionRoomClickTips": {
+        //点击会客室中,线索的红点
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    61,
+                                    122,
+                                    1099,
+                                    446
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "会客室"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -40,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "SetClues"
+        ]
+    },
+    "SetClues": {
+        //放置线索
+        // #I18N_REVIEW
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    952,
+                    189,
+                    311,
+                    500
+                ],
+                "expected": [
+                    "线索"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CollectClues": {
+        //收集线索,同时有红点和文字"收集"
+        // #I18N_REVIEW
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "会客室"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "收集"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SendClues",
+            "Collect"
+        ]
+    },
+    "Collect": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1155,
+                    416,
+                    122,
+                    112
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitCollect"
+        ]
+    },
+    "ExitCollect": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "SendClues": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    1164,
+                                    483,
+                                    116,
+                                    96
+                                ],
+                                "expected": [
+                                    "0/5"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    286,
+                                    174,
+                                    849,
+                                    276
+                                ],
+                                "expected": [
+                                    "线索已满" //#占位,我并不知道提示是什么
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "SendTheMostClues",
+            "[JumpBack]EntrySendClues",
+            "[JumpBack]ExitReceptionRoom"
+        ]
+    },
+    "SendTheMostClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    271,
+                    113,
+                    111,
+                    593
+                ],
+                "expected": [
+                    "^(20|[4-9]|1[0-9])$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Send"
+        ]
+    },
+    "Send": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1106,
+                    102,
+                    87,
+                    81
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitSend"
+        ]
+    },
+    "ExitSend": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1106,
+                    102,
+                    87,
+                    81
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "EntrySendClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ReceiveClues": {
+        //领取赠送线索
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "收集"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Receive"
+        ]
+    },
+    "Receive": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1124,
+                    575,
+                    156,
+                    145
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ReceiveAll.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ControlNexus": {
+        //领取其他舱室产物及补货
+        // #I18N_REVIEW
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom", //优先进会客室
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssist",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
+        ]
+    },
+    "GrowthChamber": {
+        //培养舱收集
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]TakeRewards",
+            "GrowAgain",
+            "ExitGrowthChamber"
+        ]
+    },
+    "DijiangConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    696,
+                    267,
+                    418,
+                    274
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Confirm.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitGrowthChamber": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "GrowAgain": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    792,
+                    461,
+                    198,
+                    151
+                ],
+                "template": [
+                    "ClaimDijiangRewards/GrowthAgain.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "InControlNexus": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    161,
+                    462,
+                    171,
+                    82
+                ],
+                "expected": [
+                    "总控中枢"
+                ]
+            }
+        }
+    },
+    "EntryReceptionRoom": {
+        "max_hit": 1,
         "recognition": {
             //识别会客室图标的两种颜色
             "type": "And",
@@ -71,179 +665,7 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]CollectClues",
-            "[JumpBack]ReceiveClues",
-            "[JumpBack]ReceptionRoomClickTips",
-            "FinishAllDijiangTask"
-        ]
-    },
-    "ReceptionRoomClickTips": {
-        //点击会客室中,线索的红点
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    61,
-                    122,
-                    1099,
-                    446
-                ],
-                "lower": [
-                    224,
-                    105,
-                    0
-                ],
-                "upper": [
-                    255,
-                    117,
-                    4
-                ],
-                "count": 40,
-                "connected": true
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -40,
-                    50,
-                    0,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "SetClues"
-        ]
-    },
-    "SetClues": {
-        //放置线索
-        // #I18N_REVIEW
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    952,
-                    189,
-                    311,
-                    500
-                ],
-                "expected": [
-                    "线索"
-                ],
-                "order_by": "Vertical"
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "CollectClues": {
-        //收集线索,同时有红点和文字"收集"
-        // #I18N_REVIEW
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "_Tips",
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    1117,
-                                    82,
-                                    163,
-                                    517
-                                ],
-                                "lower": [
-                                    224,
-                                    105,
-                                    0
-                                ],
-                                "upper": [
-                                    255,
-                                    117,
-                                    4
-                                ],
-                                "count": 40,
-                                "connected": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": "_Tips",
-                                "roi_offset": [
-                                    -63,
-                                    31,
-                                    81,
-                                    36
-                                ],
-                                "expected": [
-                                    "收集"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "ReceiveClues": {
-        //领取赠送线索
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1124,
-                    575,
-                    156,
-                    145
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "ControlNexus": {
-        //领取其他舱室产物及补货
-        // #I18N_REVIEW
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    161,
-                    462,
-                    171,
-                    82
-                ],
-                "expected": [
-                    "总控中枢"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssist",
-            "[JumpBack]MFG_ReceiveRewards",
-            "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
+            "ReceptionRoom"
         ]
     },
     "ProductionAssist": {
@@ -500,16 +922,19 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    904,
-                    426,
-                    369,
-                    265
+                    895,
+                    464,
+                    56,
+                    95
                 ],
                 "template": [
                     "ClaimDijiangRewards/GrowthChamber.png"
                 ]
             }
-        }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
     },
     "CarbinSwipe": {
         // 滑动到下一个舱室
@@ -549,24 +974,46 @@
     "MFG_ReceiveRewards": {
         // 领取制造室产物
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    16,
-                    134,
-                    131,
-                    74
+                    43,
+                    0,
+                    96,
+                    64
                 ],
-                "template": [
-                    "ClaimDijiangRewards/InMFG_Cabin.png"
+                "expected": [
+                    "制造舱"
                 ]
             }
         },
         "next": [
             "[JumpBack]CloseDijiangRewards",
             "[JumpBack]TakeRewards",
-            "ReStockAndExit"
+            "ReStock"
         ]
+    },
+    "Exit_MFG_Cabin": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
     },
     "OpenDijiangControlNexus": {
         // 打开总控中心
@@ -890,8 +1337,8 @@
             "type": "Click"
         }
     },
-    "ReStockAndExit": {
-        // 补货并退出
+    "ReStock": {
+        // 补货
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -911,8 +1358,7 @@
         },
         "next": [
             "ConfirmRestock",
-            "[JumpBack]ReRecognitionInMFG",
-            "EixtCabin"
+            "Exit_MFG_Cabin"
         ]
     },
     "ReRecognitionInMFG": {
@@ -924,16 +1370,16 @@
         // 确认补货
         // #I18N_REVIEW
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    917,
-                    526,
-                    111,
-                    52
+                    847,
+                    416,
+                    416,
+                    277
                 ],
-                "expected": [
-                    "确认"
+                "template": [
+                    "ClaimDijiangRewards/ConfirmRestock.png"
                 ]
             }
         },
@@ -941,7 +1387,7 @@
             "type": "Click"
         },
         "next": [
-            "EixtCabin"
+            "Exit_MFG_Cabin"
         ]
     },
     "EixtCabin": {
