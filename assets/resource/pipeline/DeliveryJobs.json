@@ -43,8 +43,6 @@
     "ReturnToWorld": {
         "doc": "不在在大世界，不断按ESC进入大世界",
         "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "ClickKey",
         "key": 27,
         "next": [
@@ -81,8 +79,6 @@
         ],
         "expected": "四号谷地",
         "threshold": 0.8,
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
         "next": [
             "EnterDepot",
@@ -101,8 +97,6 @@
         ],
         "expected": "武陵",
         "threshold": 0.8,
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
         "next": [
             "DeliveryJobsWuling2FourthValley",

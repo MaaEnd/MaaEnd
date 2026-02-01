@@ -10,8 +10,6 @@
             122,
             122
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
         "next": [
             "DeliveryJobsGotoFourthValley"
@@ -29,8 +27,6 @@
             94
         ],
         "expected": "四号谷地",
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion"
@@ -84,8 +80,6 @@
             122,
             122
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
         "next": [
             "DeliveryJobsCheckChangeRegionToWuLing",
@@ -120,8 +114,6 @@
             }
         ],
         "box_index": 0,
-        "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion"
