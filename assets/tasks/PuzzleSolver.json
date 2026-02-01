@@ -27,6 +27,16 @@
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
                             "next": []
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
                         }
                     }
                 },
@@ -35,6 +45,16 @@
                     "label": "$option.PuzzleSolverMode.cases.Loop.label",
                     "pipeline_override": {
                         "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
                             "next": [
                                 "PuzzleSolverMain"
                             ]
@@ -48,6 +68,16 @@
                         "PuzzleSolverOnSuccess": {
                             "action": "DoNothing",
                             "next": []
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
                         },
                         "PuzzleSolverSolvePuzzle": {
                             "custom_action_param": {
