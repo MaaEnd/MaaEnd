@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦模擬空間報酬自動受取",
     "task.ClaimSimulationRewards.description": "模擬空間メニュー内で起動してください",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
-    "task.ClaimSimulationRewards.success_finished": "模擬空間報酬の受取が完了しました。"
+    "task.ClaimSimulationRewards.success_finished": "模擬空間報酬の受取が完了しました。",
+    "task.SellProduct.label": "🛒 ワンクリック製品販売",
+    "task.SellProduct.description": "各拠点で製品を使用し、対応する調達券と交換します。"
 }

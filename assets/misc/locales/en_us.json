@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦Claim Simulation Rewards",
     "task.ClaimSimulationRewards.description": "Please start within the Simulation Space menu",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
-    "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully."
+    "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
+    "task.SellProduct.label": "🛒 One-click Sell Products",
+    "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers."
 }
