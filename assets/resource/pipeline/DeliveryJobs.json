@@ -12,6 +12,15 @@
             "ReturnToWorld"
         ]
     },
+    "ReturnToWorld": {
+        "doc": "不在在大世界，不断按ESC进入大世界",
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "DeliveryJobsMain"
+        ]
+    },
     "EnterRegionalConstruction": {
         "doc": "进入地区建设",
         "recognition": "Or",
@@ -43,16 +52,7 @@
         "key": 89,
         "next": [
             "CheckCurrentArea",
-            "DeliveryJobsMain"
-        ]
-    },
-    "ReturnToWorld": {
-        "doc": "不在在大世界，不断按ESC进入大世界",
-        "recognition": "DirectHit",
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "DeliveryJobsMain"
+            "EnterRegionalConstruction"
         ]
     },
     "CheckCurrentArea": {
@@ -70,7 +70,7 @@
         "next": [
             "EnterMgmtInFourthValley",
             "EnterFourthValleyFromWuling",
-            "DeliveryJobsMain"
+            "CheckCurrentArea"
         ]
     },
     "EnterMgmtInFourthValley": {
@@ -175,7 +175,7 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "DeliveryJobsMain"
+            "EnterCargoContainer"
         ]
     },
     "ProceedToNextStep": {
@@ -210,7 +210,7 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "DeliveryJobsMain"
+            "FillCargoToMax"
         ]
     },
     "ClickScreenToContinue": {
@@ -227,6 +227,7 @@
         "action": "Click",
         "next": [
             "EnterDeliveryJob",
+            "ClickScreenToContinue",
             "DeliveryJobsMain"
         ]
     },
@@ -245,7 +246,7 @@
         "key": 74,
         "next": [
             "ClickTransferJob",
-            "DeliveryJobsMain"
+            "EnterDeliveryJob"
         ]
     },
     "ClickTransferJob": {
@@ -262,7 +263,7 @@
         "action": "Click",
         "next": [
             "ConfirmTaskTransfer",
-            "DeliveryJobsMain"
+            "ClickTransferJob"
         ]
     },
     "ConfirmTaskTransfer": {
@@ -278,6 +279,7 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
+            "ConfirmTaskTransfer",
             "DeliveryJobsMain"
         ]
     }
