@@ -3,7 +3,7 @@
         {
             "name": "ItemTransfer",
             "label": "$task.ItemTransfer.label",
-            "entry": "ItemTransfer",
+            "entry": "ItemTransferToBackpack",
             "default_check": true,
             "description": "$task.ItemTransfer.description",
             "option": [
@@ -17,7 +17,39 @@
                 "Win32",
                 "Win32-Window",
                 "Win32-Front"
-            ]
+            ],
+            "pipeline_override": {
+                // 1. 默认起点：武陵 (对应 OriginRegion 的 default: Wuling)
+                "ItemTransferClickOrigin": {
+                    "recognition": {
+                        "param": {
+                            "expected": "武陵|Wuling"
+                        }
+                    }
+                },
+                "ItemTransferAtOrigin": {
+                    "recognition": {
+                        "param": {
+                            "expected": "武陵|Wuling"
+                        }
+                    }
+                },
+                // 2. 默认终点：四号谷地 (对应 DestinationRegion 的 default: ValleyIV)
+                "ItemTransferClickDestination": {
+                    "recognition": {
+                        "param": {
+                            "expected": "四号谷地|四號谷地|Valley IV|Valley 4"
+                        }
+                    }
+                },
+                "ItemTransferAtDestination": {
+                    "recognition": {
+                        "param": {
+                            "expected": "四号谷地|四號谷地|Valley IV|Valley 4"
+                        }
+                    }
+                }
+            }
         }
     ],
     "option": {
@@ -28,13 +60,39 @@
                 {
                     "name": "WhatToTransfer",
                     "label": "$ItemTransfer.option.WhatToTransfer.input.label",
-                    "default": "中容谷地电池",
+                    "default": "蓝铁矿",
                     "pipeline_type": "string"
                 }
             ],
             "pipeline_override": {
-                //todo
-            },
+                "ItemTransferToBackpack": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ItemName": "{WhatToTransfer}",
+                                "ContainerContent": null, // null(nil) as default, indicating not a cantainer
+                                "FirstRun": true,
+                                "ItemLastFoundRowAbs": null,
+                                "ItemLastFoundColumnX": null
+                            }
+                        }
+                    }
+                },
+                "ItemTransferToRepository": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "ItemName": "{WhatToTransfer}",
+                                "ContainerContent": null, // null(nil) as default, indicating not a cantainer
+                                "FirstRun": true,
+                                "Target": "Backpack",
+                                "ItemLastFoundRowAbs": null,
+                                "ItemLastFoundColumnX": null
+                            }
+                        }
+                    }
+                }
+            }
         },
         "TransferringContainer": {
             "type": "switch",
@@ -127,14 +185,14 @@
                         "ItemTransferClickOrigin": {
                             "recognition": {
                                 "param": {
-                                    "expected": "四号谷地|四號谷地 | Valley IV"
+                                    "expected": "四号谷地|四號谷地|Valley IV"
                                 }
                             }
                         },
                         "ItemTransferAtOrigin": {
                             "recognition": {
                                 "param": {
-                                    "expected": "四号谷地|四號谷地 | Valley IV"
+                                    "expected": "四号谷地|四號谷地|Valley IV"
                                 }
                             }
                         }
@@ -176,14 +234,14 @@
                         "ItemTransferClickDestination": {
                             "recognition": {
                                 "param": {
-                                    "expected": "四号谷地|四號谷地 | Valley IV"
+                                    "expected": "四号谷地|四號谷地|Valley IV"
                                 }
                             }
                         },
                         "ItemTransferAtDestination": {
                             "recognition": {
                                 "param": {
-                                    "expected": "四号谷地|四號谷地 | Valley IV"
+                                    "expected": "四号谷地|四號谷地|Valley IV"
                                 }
                             }
                         }

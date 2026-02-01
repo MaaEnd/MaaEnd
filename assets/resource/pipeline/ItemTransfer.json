@@ -2,13 +2,14 @@
     "ItemTransferToBackpack": {
         "recognition": {
             "type": "Custom",
-            "doc": "在仓库(Repository)中识别指定物品([PLACEHOLDER])。如果找到,按住Ctrl+左键点击它,之后尝试进入区域切换流程。",
+            "doc": "在仓库(Repository)中识别指定物品。如果找到,按住Ctrl+左键点击它,之后尝试进入区域切换流程。",
             "param": {
-                "custom_recognition": "LocateItemFromRepository",
+                "custom_recognition": "LocateItem",
                 "custom_recognition_param": {
-                    "ItemName": "[PLACEHOLDER]",
+                    "ItemName": "{ItemParName}",
                     "ContainerContent": null, // null(nil) as default, indicating not a cantainer
                     "FirstRun": true,
+                    "Target": "Repository",
                     "ItemLastFoundRowAbs": null,
                     "ItemLastFoundColumnX": null
                 }
@@ -32,6 +33,7 @@
             "[JumpBack]ItemTransferEnterRegionSwitcher",
             "ItemTransferClickDestination"
         ],
+        "post_wait_freezes": 10,
         "focus": {
             "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
             "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
@@ -218,7 +220,10 @@
             "Node.Recognition.Starting": "$node.ItemTransferAtDestination.focus.recognition.starting",
             "Node.Recognition.Succeeded": "$node.ItemTransferAtDestination.focus.recognition.succeeded",
             "Node.Recognition.Failed": "$node.ItemTransferAtDestination.focus.recognition.failed"
-        }
+        },
+        "next": [
+            "ItemTransferToRepository"
+        ]
     },
     "ItemTransferAtOrigin": {
         "recognition": {
@@ -238,6 +243,46 @@
             "Node.Recognition.Starting": "$node.ItemTransferAtOrigin.focus.recognition.starting",
             "Node.Recognition.Succeeded": "$node.ItemTransferAtOrigin.focus.recognition.succeeded",
             "Node.Recognition.Failed": "$node.ItemTransferAtOrigin.focus.recognition.failed"
+        }
+    },
+    "ItemTransferToRepository": {
+        "recognition": {
+            "type": "Custom",
+            "doc": "在仓库(Repository)中识别指定物品。如果找到,按住Ctrl+左键点击它",
+            "param": {
+                "custom_recognition": "LocateItem",
+                "custom_recognition_param": {
+                    "ItemName": "{ItemParName}",
+                    "ContainerContent": null, // null(nil) as default, indicating not a cantainer
+                    "FirstRun": true,
+                    "Target": "Backpack",
+                    "ItemLastFoundRowAbs": null,
+                    "ItemLastFoundColumnX": null
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "LeftClickWithCtrlDown"
+            }
+            // "param": {
+            //         "custom_action": "TransferItemToBackpack",
+            //         "custom_action_param": {
+            //             "GridRowY": "[PLACEHOLDER]", // [0, 3]
+            //             "GridColX": "[PLACEHOLDER]", // [0, 7]
+            //             "AbsRow": "[PLACEHOLDER]" // [0, INF]
+            //         }
+            //     }
+        },
+        "post_wait_freezes": 10,
+        "focus": {
+            "Node.Recognition.Starting": "$node.ItemTransferToBackpack.focus.recognition.starting",
+            "Node.Recognition.Succeeded": "$node.ItemTransferToBackpack.focus.recognition.succeeded",
+            "Node.Recognition.Failed": "$node.ItemTransferToBackpack.focus.recognition.failed",
+            "Node.Action.Starting": "$node.ItemTransferToBackpack.focus.action.starting",
+            "Node.Action.Succeeded": "$node.ItemTransferToBackpack.focus.action.succeeded",
+            "Node.Action.Failed": "$node.ItemTransferToBackpack.focus.action.failed"
         }
     }
 }
