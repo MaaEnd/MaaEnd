@@ -139,11 +139,5 @@
         "next": [
             "PuzzleSolverMain" // 准备下一轮检测，返回入口点
         ]
-    },
-    // 动态节点（仅在自定义识别和操作中调用）：
-    "PuzzleSolverPuzzlePreviewWaitStable": {
-        // 等待游戏状态稳定
-        "recognition": "DirectHit",
-        "pre_wait_freezes": 100
     }
 }
