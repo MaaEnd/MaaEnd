@@ -1448,10 +1448,6 @@
     },
     "ControlNexusClickTips": {
         //点击任务提示(红点)
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -1483,6 +1479,54 @@
                     50,
                     0,
                     0
+                ]
+            }
+        },
+        "next": [
+            "AlreadyInCarbin",
+            "ControlNexusClickTips"
+        ]
+    },
+    "AlreadyInCarbin": {
+        //已经在舱室内部或者好友助力界面,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱",
+                                    "会客室",
+                                    "培育舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    170,
+                                    104,
+                                    121,
+                                    77
+                                ],
+                                "expected": [
+                                    "生产助力"
+                                ]
+                            }
+                        }
+                    }
                 ]
             }
         }
