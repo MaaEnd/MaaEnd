@@ -2,9 +2,19 @@
 import json
 import sys
 import re
+import tempfile
 from pathlib import Path
-from jsonschema import Draft7Validator, Draft202012Validator, RefResolver
+from jsonschema import Draft7Validator, Draft202012Validator
 from jsonschema.exceptions import ValidationError
+
+try:
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012, DRAFT7
+    HAS_REFERENCING = True
+except ImportError:
+    # 如果没有 referencing 库，回退到旧的 RefResolver
+    from jsonschema import RefResolver
+    HAS_REFERENCING = False
 
 def strip_jsonc_comments(text):
     """
@@ -68,7 +78,7 @@ def load_jsonc(file_path):
     except json.JSONDecodeError as e:
         print(f"JSON decode error in {file_path}: {e}")
         # 调试：保存清理后的内容
-        debug_file = f"/tmp/debug_{Path(file_path).name}"
+        debug_file = Path(tempfile.gettempdir()) / f"debug_{Path(file_path).name}"
         with open(debug_file, 'w') as f:
             f.write(clean_content)
         print(f"Cleaned content saved to {debug_file}")
