@@ -453,7 +453,7 @@ debug
 # Claude
 .claude/
 
-## macOS
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
