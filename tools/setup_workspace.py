@@ -88,10 +88,11 @@ def run_build_script() -> bool:
 
 
 def get_latest_release_url(
-    repo: str, keywords: list[str], retries: int = MAX_RETRIES
+    repo: str, keywords: list[str], retries: int = MAX_RETRIES, pre_release: bool = False
 ) -> tuple[str | None, str | None]:
     """获取指定 GitHub 仓库最新 release 中匹配关键字的资源下载链接和文件名，支持自动重试"""
-    api_url = f"https://api.github.com/repos/{repo}/releases/latest"
+    """更新: pre_release 为 True 时在所有 release 中查找潜在的预发布版本(最新)"""
+    api_url = f"https://api.github.com/repos/{repo}/releases"+("/latest" if not pre_release else "")
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     for attempt in range(1, retries + 1):
@@ -109,6 +110,7 @@ def get_latest_release_url(
 
             with urllib.request.urlopen(req, timeout=30) as response:
                 data = json.loads(response.read().decode())
+            data = data[0] if isinstance(data, list) else data
             assets = data.get("assets", [])
             for asset in assets:
                 name = asset["name"].lower()
@@ -168,6 +170,16 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
     if not url or not filename:
         print("[ERR] 未找到 MaaFramework 下载链接，请手动安装或咨询开发者")
         return False
+    
+    pre_release_url, pre_release_filename = get_latest_release_url(MAA_FW_REPO, [os_kw, arch_kw], pre_release=True)
+    if pre_release_url and pre_release_filename:
+        if pre_release_filename != filename:
+            print(f"\033[36m[y] MaaFramework 预发布版本: {pre_release_filename}\033[0m")
+            print(f"\033[36m[n] MaaFramework 稳定版本: {filename}\033[0m")
+            choice = input("\033[33m[?] 检测到 MaaFramework 存在预发布版本，是否安装预发布版本？(y/n): \033[0m")
+            if choice.lower()[:1] == "y":
+                url = pre_release_url
+                filename = pre_release_filename
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
@@ -227,6 +239,17 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
     if not url or not filename:
         print("[ERR] 未找到 MXU 下载链接，请手动安装或咨询开发者")
         return False
+    
+    pre_release_url, pre_release_filename = get_latest_release_url(MXU_REPO, ["mxu", os_kw, arch_kw], pre_release=True)
+    if pre_release_url and pre_release_filename:
+        if pre_release_filename != filename:
+            print(f"\033[36m[y] MXU 预发布版本: {pre_release_filename}\033[0m")
+            print(f"\033[36m[n] MXU 稳定版本: {filename}\033[0m")
+            choice = input("\033[33m[?] 检测到 MXU 存在预发布版本，是否安装预发布版本？(y/n): \033[0m")
+            if choice.lower()[:1] == "y":
+                url = pre_release_url
+                filename = pre_release_filename
+    
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
