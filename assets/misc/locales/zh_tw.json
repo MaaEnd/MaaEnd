@@ -74,5 +74,7 @@
     "task.ClaimSimulationRewards.label": "📦自動領取模擬空間獎勵",
     "task.ClaimSimulationRewards.description": "請在模擬空間選單內啟動",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
-    "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢"
+    "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",
+    "task.DeliveryJobs.label": "🚚自動轉交送貨任務",
+    "task.DeliveryJobs.description": "自動接取並轉交送貨任務"
 }

@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦Claim Simulation Rewards",
     "task.ClaimSimulationRewards.description": "Please start within the Simulation Space menu",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
-    "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully."
+    "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
+    "task.DeliveryJobs.label": "🚚Auto Delivery Jobs",
+    "task.DeliveryJobs.description": "Automatically accept and hand over delivery jobs"
 }

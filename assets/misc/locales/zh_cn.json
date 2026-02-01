@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦自动领取模拟空间奖励",
     "task.ClaimSimulationRewards.description": "请在模拟空间菜单内启动",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
-    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕"
+    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
+    "task.DeliveryJobs.label": "🚚自动转交送货任务",
+    "task.DeliveryJobs.description": "自动接取并转交送货任务"
 }

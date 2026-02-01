@@ -1,0 +1,284 @@
+{
+    "DeliveryJobsMain": {
+        "doc": "开始自动转交运送委托",
+        "next": [
+            "ClickScreenToContinue",
+            "FillCargoToMax",
+            "ClickTransferJob",
+            "EnterDeliveryJob",
+            "EnterCargoContainer",
+            "CheckCurrentArea",
+            "EnterRegionalConstruction",
+            "ReturnToWorld"
+        ]
+    },
+    "EnterRegionalConstruction": {
+        "doc": "进入地区建设",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame1.png",
+                "threshold": 0.8,
+                "roi": [
+                    172,
+                    0,
+                    133,
+                    118
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inGame2.png",
+                "threshold": 0.8,
+                "roi": [
+                    1182,
+                    0,
+                    98,
+                    128
+                ]
+            }
+        ],
+        "action": "ClickKey",
+        "key": 89,
+        "next": [
+            "CheckCurrentArea",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ReturnToWorld": {
+        "doc": "不在在大世界，不断按ESC进入大世界",
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "DeliveryJobsMain"
+        ]
+    },
+    "CheckCurrentArea": {
+        "doc": "检查当前地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
+        "roi": [
+            1139,
+            63,
+            135,
+            127
+        ],
+        "action": "DoNothing",
+        "next": [
+            "EnterMgmtInFourthValley",
+            "EnterFourthValleyFromWuling",
+            "DeliveryJobsMain"
+        ]
+    },
+    "EnterMgmtInFourthValley": {
+        "doc": "在四号谷地，进入地区建设管理",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "四号谷地",
+        "threshold": 0.8,
+        "action": "DoNothing",
+        "next": [
+            "EnterDepot",
+            "CheckCurrentArea"
+        ]
+    },
+    "EnterFourthValleyFromWuling": {
+        "doc": "直接在武陵，进入四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            25,
+            174,
+            178,
+            48
+        ],
+        "expected": "武陵",
+        "threshold": 0.8,
+        "action": "DoNothing",
+        "next": [
+            "DeliveryJobsWuling2FourthValley",
+            "CheckCurrentArea"
+        ]
+    },
+    "EnterDepot": {
+        "doc": "进入仓储节点",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterDepot.png",
+        "roi": [
+            1016,
+            343,
+            22,
+            19
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EnterCargoContainer",
+            "ContainerNotReadyGoWuling",
+            "EnterDepot"
+        ]
+    },
+    "ContainerNotReadyGoWuling": {
+        "doc": "货物集装箱未就绪，去武陵",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotNotReady.png",
+        "roi": [
+            109,
+            515,
+            940,
+            30
+        ],
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "DeliveryJobsChangeNextRegion",
+            "ContainerNotReadyGoWuling"
+        ]
+    },
+    "EnterCargoContainer": {
+        "doc": "进入货物集装箱",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotReady.png",
+                "roi": [
+                    109,
+                    515,
+                    940,
+                    30
+                ],
+                "threshold": 0.8
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotReadyWuLing.png",
+                "roi": [
+                    109,
+                    515,
+                    940,
+                    30
+                ],
+                "threshold": 0.8
+            }
+        ],
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ProceedToNextStep": {
+        "doc": "进入下一步",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/NextStep.png",
+        "roi": [
+            1209,
+            649,
+            29,
+            28
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "FillCargoToMax",
+            "ClickScreenToContinue",
+            "ProceedToNextStep"
+        ]
+    },
+    "FillCargoToMax": {
+        "doc": "装满货物",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/FillToMax.png",
+        "roi": [
+            1174,
+            172,
+            34,
+            19
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ClickScreenToContinue": {
+        "doc": "单击屏幕继续",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ClickToContinue.png",
+        "roi": [
+            578,
+            670,
+            122,
+            24
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EnterDeliveryJob",
+            "DeliveryJobsMain"
+        ]
+    },
+    "EnterDeliveryJob": {
+        "doc": "进入送货任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterDeliveryJob.png",
+        "roi": [
+            58,
+            176,
+            68,
+            23
+        ],
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 74,
+        "next": [
+            "ClickTransferJob",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ClickTransferJob": {
+        "doc": "单击转交任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/TransferTask.png",
+        "roi": [
+            436,
+            653,
+            88,
+            15
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ConfirmTaskTransfer",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ConfirmTaskTransfer": {
+        "doc": "确认转交任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ConfirmTransfer.png",
+        "roi": [
+            818,
+            450,
+            27,
+            27
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "DeliveryJobsMain"
+        ]
+    }
+}
