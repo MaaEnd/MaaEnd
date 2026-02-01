@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import json
 import sys
-import re
 import tempfile
 from pathlib import Path
 from jsonschema import Draft7Validator, Draft202012Validator
