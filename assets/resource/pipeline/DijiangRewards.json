@@ -368,6 +368,7 @@
         "recognition": {
             "type": "And",
             "param": {
+                "box_index": 2,
                 "all_of": [
                     {
                         "recognition": {
@@ -436,7 +437,8 @@
         },
         "next": [
             "SendClues",
-            "Collect"
+            "Collect",
+            "CollectClues"
         ]
     },
     "SendClues": {
@@ -682,7 +684,8 @@
             "type": "Click"
         },
         "next": [
-            "Receive"
+            "Receive",
+            "ReceiveClues"
         ]
     },
     "Receive": {
