@@ -1,0 +1,139 @@
+{
+    "task": [
+        {
+            "name": "CreditShopping",
+            "label": "$task.CreditShopping.label",
+            "entry": "CreditShoppingMain",
+            "description": "$task.CreditShopping.description",
+            "option": [
+                "CreditShoppingBuyFirst",
+                "CreditShoppingBlacklist",
+                "CreditShoppingForce",
+                "CreditShoppingOnlyDiscount",
+                "CreditShoppingReserve"
+            ]
+        }
+    ],
+    "option": {
+        "CreditShoppingBuyFirst": {
+            "type": "input",
+            "label": "$option.CreditShoppingBuyFirst.label",
+            "inputs": [
+                {
+                    "name": "buy_first",
+                    "label": "$option.CreditShoppingBuyFirst.inputs.buy_first.label",
+                    "description": "$option.CreditShoppingBuyFirst.inputs.buy_first.description",
+                    "pipeline_type": "string",
+                    "default": "嵌晶玉;武库配额"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingShopping": {
+                    "attach": {
+                        "buy_first": "{buy_first}"
+                    }
+                }
+            }
+        },
+        "CreditShoppingBlacklist": {
+            "type": "input",
+            "label": "$option.CreditShoppingBlacklist.label",
+            "inputs": [
+                {
+                    "name": "blacklist",
+                    "label": "$option.CreditShoppingBlacklist.inputs.blacklist.label",
+                    "description": "$option.CreditShoppingBlacklist.inputs.blacklist.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingShopping": {
+                    "attach": {
+                        "blacklist": "{blacklist}"
+                    }
+                }
+            }
+        },
+        "CreditShoppingForce": {
+            "type": "switch",
+            "label": "$option.CreditShoppingForce.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "force_shopping_if_credit_full": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "force_shopping_if_credit_full": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingOnlyDiscount": {
+            "type": "switch",
+            "label": "$option.CreditShoppingOnlyDiscount.label",
+            "description": "$option.CreditShoppingOnlyDiscount.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "only_buy_discount": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "only_buy_discount": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CreditShoppingReserve": {
+            "type": "switch",
+            "label": "$option.CreditShoppingReserve.label",
+            "description": "$option.CreditShoppingReserve.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "reserve_max_credit": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CreditShoppingShopping": {
+                            "attach": {
+                                "reserve_max_credit": false
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
