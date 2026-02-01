@@ -103,7 +103,7 @@ jobs:
 
   build_and_install:
     needs: [meta, prepare_mxu_icon]
-    runs-on: ubuntu-latest
+    runs-on:  macos-latest
     strategy:
       matrix:
         os: [win, macos, linux]
@@ -184,6 +184,77 @@ jobs:
           mv install/interface.json.tmp install/interface.json
 
           cat install/interface.json
+
+      - name: Package DMG (MacOS)
+        if: matrix.os == 'macos'
+        shell: bash
+        run: |
+          brew install create-dmg
+
+          # Prepare Icon
+          mkdir MaaEnd.iconset
+          sips -z 16 16     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16.png
+          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32.png
+          sips -z 64 64     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128.png
+          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256.png
+          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512@2x.png
+          iconutil -c icns MaaEnd.iconset -o maaend.icns
+
+          # Prepare App Bundle
+          APP_NAME="MaaEnd.app"
+          mkdir -p "$APP_NAME/Contents/MacOS"
+          mkdir -p "$APP_NAME/Contents/Resources"
+          cp maaend.icns "$APP_NAME/Contents/Resources/"
+
+          # Move install contents
+          cp -r install/* "$APP_NAME/Contents/MacOS/"
+
+          # Create Info.plist
+          cat > "$APP_NAME/Contents/Info.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleExecutable</key>
+              <string>MaaEnd</string>
+              <key>CFBundleIconFile</key>
+              <string>maaend.icns</string>
+              <key>CFBundleIdentifier</key>
+              <string>com.maaend.app</string>
+              <key>CFBundleName</key>
+              <string>MaaEnd</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+              <key>CFBundleShortVersionString</key>
+              <string>${{ needs.meta.outputs.tag }}</string>
+              <key>LSMinimumSystemVersion</key>
+              <string>10.13</string>
+          </dict>
+          </plist>
+          EOF
+
+          # Create DMG
+          create-dmg \
+            --volname "MaaEnd Installer" \
+            --volicon "maaend.icns" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "$APP_NAME" 200 190 \
+            --hide-extension "$APP_NAME" \
+            --app-drop-link 600 185 \
+            "MaaEnd.dmg" \
+            "$APP_NAME"
+
+          # Replace install dir content with DMG
+          rm -rf install
+          mkdir install
+          mv MaaEnd.dmg install/
 
       - uses: actions/upload-artifact@v4
         with:
