@@ -1,5 +1,6 @@
 {
     "Transfer": {
+        "recognition": "DirectHit",
         "next": [
             "TransferStart",
             "OpenBag"
@@ -8,6 +9,7 @@
     "OpenBag": {
         "action": "ClickKey",
         "key": 66,
+        "post_wait_freezes": 1,
         "next": [
             "TransferStart"
         ]
@@ -15,24 +17,22 @@
     "TransferStart": {
         "recognition": "OCR",
         "expected": "仓库",
+        "post_wait_freezes": 1,
         "next": [
             "SwitchRepoToNo4"
         ]
     },
     "SwitchRepoToNo4": {
+        "post_wait_freezes": 1,
         "next": [
             "ClickSwitchRepoNo4"
-        ]
-    },
-    "SwitchRepoTo50": {
-        "next": [
-            "ClickSwitchRepo50"
         ]
     },
     "ClickSwitchRepoNo4": {
         "recognition": "OCR",
         "expected": "仓库切换",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
             "ClickNo4"
         ]
@@ -41,14 +41,17 @@
         "recognition": "OCR",
         "expected": "四号谷地",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
-            "ClickConfirmNo4"
+            "ClickConfirmNo4",
+            "RepoConnectedNo4"
         ]
     },
     "ClickConfirmNo4": {
         "recognition": "OCR",
         "expected": "确认",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
             "RepoConnectedNo4"
         ]
@@ -56,6 +59,7 @@
     "RepoConnectedNo4": {
         "recognition": "OCR",
         "expected": "已连接",
+        "post_wait_freezes": 1,
         "next": [
             "ClickEscNo4"
         ]
@@ -63,11 +67,13 @@
     "ClickEscNo4": {
         "action": "ClickKey",
         "key": 27,
+        "post_wait_freezes": 1,
         "next": [
             "RepoToBag"
         ]
     },
     "RepoToBag": {
+        "post_wait_freezes": 1,
         "next": [
             "CtrlKeyDown"
         ]
@@ -75,6 +81,7 @@
     "CtrlKeyDown": {
         "action": "KeyDown",
         "key": 17,
+        "post_wait_freezes": 1,
         "next": [
             "ClickTarget"
         ]
@@ -83,6 +90,7 @@
         "recognition": "FeatureMatch",
         "template": "Transfer/Target.png",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
             "CtrlKeyUp"
         ]
@@ -90,14 +98,22 @@
     "CtrlKeyUp": {
         "action": "KeyUp",
         "key": 17,
+        "post_wait_freezes": 1,
         "next": [
             "SwitchRepoTo50"
+        ]
+    },
+    "SwitchRepoTo50": {
+        "post_wait_freezes": 1,
+        "next": [
+            "ClickSwitchRepo50"
         ]
     },
     "ClickSwitchRepo50": {
         "recognition": "OCR",
         "expected": "仓库切换",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
             "Click50"
         ]
@@ -106,14 +122,17 @@
         "recognition": "OCR",
         "expected": "武陵",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
-            "ClickConfirm50"
+            "ClickConfirm50",
+            "RepoConnected50"
         ]
     },
     "ClickConfirm50": {
         "recognition": "OCR",
         "expected": "确认",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
             "RepoConnected50"
         ]
@@ -121,6 +140,7 @@
     "RepoConnected50": {
         "recognition": "OCR",
         "expected": "已连接",
+        "post_wait_freezes": 1,
         "next": [
             "ClickEsc50"
         ]
@@ -128,6 +148,7 @@
     "ClickEsc50": {
         "action": "ClickKey",
         "key": 27,
+        "post_wait_freezes": 1,
         "next": [
             "BagToRepo"
         ]
@@ -136,8 +157,14 @@
         "recognition": "OCR",
         "expected": "一键存放",
         "action": "Click",
+        "post_wait_freezes": 1,
         "next": [
+            "CheckIfFull",
             "TransferStart"
         ]
+    },
+    "CheckIfFull": {
+        "recognition": "OCR",
+        "expected": "已满"
     }
 }
