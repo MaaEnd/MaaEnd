@@ -1,0 +1,410 @@
+// 跨区域物资搬运，于帝江号协议传送点打开仓库后使用
+// Iat(InterAreaTransporter) 
+{
+    // 入口
+    "IatMain": {
+        "next": "Iat2MapScoll"
+    },
+    // 滑动至地图露出
+    "Iat2MapScoll": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1100,
+                    400
+                ],
+                "end": [
+                    1100,
+                    150
+                ]
+            }
+        },
+        "next": "Iat2MapClick"
+    },
+    // 点击地图按钮
+    "Iat2MapClick": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/map.png",
+                "roi": [
+                    954,
+                    492,
+                    247,
+                    175
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "Iat2OMV",
+            "Iat2Piont"
+        ]
+    },
+    // 切换帝江号视图
+    "Iat2OMV": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/OMV.png",
+                "roi": [
+                    1036,
+                    34,
+                    234,
+                    88
+                ],
+                "threshold": 0.90
+            }
+        },
+        "action": "Click",
+        "next": "Iat2Piont"
+    },
+    // 移动至赐福点
+    "Iat2Piont": {
+        "recognition": "DirectHit",
+        "next": "Iat2PiontScoll"
+    },
+    // 滑动地图，确保位置可控
+    "Iat2PiontScoll": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    400,
+                    500
+                ],
+                "end": [
+                    1000,
+                    150
+                ]
+            }
+        },
+        "next": "Iat2PiontClick1"
+    },
+    // 点击赐福点
+    "Iat2PiontClick1": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/point.png",
+                "roi": [
+                    517,
+                    239,
+                    456,
+                    120
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "Iat2PiontClick2"
+    },
+    // 点击传送
+    "Iat2PiontClick2": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/pointButton.png",
+                "roi": [
+                    1017,
+                    615,
+                    255,
+                    94
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatOpenBackpack"
+    },
+    "IatOpenBackpack": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/backpack.png",
+                "roi": [
+                    1092,
+                    0,
+                    86,
+                    77
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "ClickKey",
+        "key": 66,
+        "post_delay": 700,
+        "next": [
+            "IatChange24H",
+            "IatSearchLoop"
+        ]
+    },
+    // 切换至谷底仓库
+    "IatChange24H": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/50feature.png",
+                "roi": [
+                    143,
+                    120,
+                    167,
+                    41
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    440,
+                    0
+                ]
+            }
+        },
+        "next": "IatChangeDepot"
+    },
+    "IatChangeDepot": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    720,
+                    350
+                ],
+                "end": [
+                    720,
+                    280
+                ],
+                "end_hold": 20
+            }
+        },
+        "next": "IatChangeDepot2"
+    },
+    "IatChangeDepot2": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/confirm.png",
+                "roi": [
+                    884,
+                    534,
+                    255,
+                    94
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatChangeDepot3"
+    },
+    "IatChangeDepot3": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/confirmComplete.png",
+                "roi": [
+                    884,
+                    534,
+                    255,
+                    94
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "ClickKey",
+        "key": 27,
+        "next": "IatSearchLoop"
+    },
+    // 检索目标物品
+    "IatSearchLoop": {
+        "next": [
+            "IatSearchTarget",
+            "IatSearchScoll"
+        ]
+    },
+    "IatSearchTarget": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/itemTarget.png",
+                "roi": [
+                    143,
+                    203,
+                    590,
+                    291
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatMoveTarget",
+        "target_offset": [
+            400,
+            0
+        ]
+    },
+    "IatSearchScoll": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    709,
+                    480
+                ],
+                "end": [
+                    709,
+                    240
+                ],
+                "end_hold": 200
+            }
+        },
+        "next": "IatSearchLoop"
+    },
+    // 移动开始
+    "IatMoveTarget": {
+        "recognition": "DirectHit",
+        "action": "KeyDown",
+        "key": 17,
+        "next": "IatMoveTarget1"
+    },
+    "IatMoveTarget1": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/itemTarget.png",
+                "roi": [
+                    143,
+                    203,
+                    590,
+                    291
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatMoveTarget2"
+    },
+    "IatMoveTarget2": {
+        "recognition": "DirectHit",
+        "action": "KeyUp",
+        "key": 17,
+        "next": "IatChange250"
+    },
+    // 切换至武陵仓库
+    "IatChange250": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/4Hfeature.png",
+                "roi": [
+                    143,
+                    120,
+                    167,
+                    41
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    440,
+                    0
+                ]
+            }
+        },
+        "next": "IatChangeDepot4H"
+    },
+    "IatChangeDepot4H": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    720,
+                    280
+                ],
+                "end": [
+                    720,
+                    350
+                ],
+                "end_hold": 20
+            }
+        },
+        "next": "IatChangeDepot4H2"
+    },
+    "IatChangeDepot4H2": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/confirm.png",
+                "roi": [
+                    884,
+                    534,
+                    255,
+                    94
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatChangeDepot4H3"
+    },
+    "IatChangeDepot4H3": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/confirmComplete.png",
+                "roi": [
+                    884,
+                    534,
+                    255,
+                    94
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "ClickKey",
+        "key": 27,
+        "next": "IatMoveTarget50"
+    },
+    "IatMoveTarget50": {
+        "recognition": "DirectHit",
+        "action": "KeyDown",
+        "key": 17,
+        "next": "IatMoveTarget501"
+    },
+    "IatMoveTarget501": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "InterAreaTransporter/itemTarget.png",
+                "roi": [
+                    765,
+                    206,
+                    351,
+                    273
+                ],
+                "threshold": 0.80
+            }
+        },
+        "action": "Click",
+        "next": "IatMoveTarget502"
+    },
+    "IatMoveTarget502": {
+        "recognition": "DirectHit",
+        "action": "KeyUp",
+        "key": 17,
+        // "next": "IatChange250"
+    },
+}
