@@ -1,0 +1,50 @@
+{
+    "task": [
+        {
+            "name": "Transfer",
+            "label": "$task.Transfer.label",
+            "entry": "Transfer",
+            "default_check": false,
+            "description": "$task.Transfer.description",
+            "option": [
+                "TransferDirection"
+            ]
+        }
+    ],
+    "option": {
+        "TransferDirection": {
+            "type": "select",
+            "label": "$option.TransferDirection.label",
+            "cases": [
+                {
+                    "name": "4To50",
+                    "label": "$option.TransferDirection.cases.4To50.label",
+                    "pipeline_override": {
+                        "TransferStart": {
+                            "next": [
+                                "SwitchRepoTo50",
+                                "RepoToBag",
+                                "SwitchRepoToNo4",
+                                "BagToRepo"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "50To4",
+                    "label": "$option.TransferDirection.cases.50To4.label",
+                    "pipeline_override": {
+                        "TransferStart": {
+                            "next": [
+                                "SwitchRepoTo50",
+                                "RepoToBag",
+                                "SwitchRepoToNo4",
+                                "BagToRepo"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

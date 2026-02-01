@@ -1,0 +1,102 @@
+{
+    "Transfer": {
+        "next": [
+            "TransferStart",
+            "OpenBag"
+        ]
+    },
+    "OpenBag": {
+        "action": "ClickKey",
+        "key": 66,
+        "next": [
+            "TransferStart"
+        ]
+    },
+    "TransferStart": {
+        "recognition": "OCR",
+        "expected": "仓库",
+        "next": [
+            "SwitchRepoToNo4",
+            "RepoToBag",
+            "SwitchRepoTo50",
+            "BagToRepo"
+        ]
+    },
+    "SwitchRepoToNo4": {
+        "next": [
+            "ClickSwitchRepo",
+            "ClickNo4",
+            "ClickConfirm",
+            "RepoConnected",
+            "ClickESC"
+        ]
+    },
+    "RepoToBag": {
+        "next": [
+            "CtrlKeyDown",
+            "ClickTarget",
+            "CtrlKeyUp"
+        ]
+    },
+    "SwitchRepoTo50": {
+        "next": [
+            "ClickSwitchRepo",
+            "Click50",
+            "ClickConfirm",
+            "RepoConnected",
+            "ClickESC"
+        ]
+    },
+    "BagToRepo": {
+        "recognition": "OCR",
+        "expected": "一键存放",
+        "action": "Click",
+        "next": [
+            "TransferStart"
+        ]
+    },
+    "ClickSwitchRepo": {
+        "recognition": "OCR",
+        "expected": "仓库切换",
+        "action": "Click"
+    },
+    "ClickNo4": {
+        "recognition": "OCR",
+        "expected": "四号谷地",
+        "action": "Click"
+    },
+    "ClickConfirm": {
+        "recognition": "OCR",
+        "expected": "确认",
+        "action": "Click"
+    },
+    "Click50": {
+        "recognition": "OCR",
+        "expected": "武陵",
+        "action": "Click"
+    },
+    "RepoConnected": {
+        "recognition": "OCR",
+        "expected": "已连接",
+        "next": [
+            "ClickESC"
+        ]
+    },
+    "ClickESC": {
+        "action": "ClickKey",
+        "key": 27
+    },
+    "CtrlKeyDown": {
+        "action": "KeyDown",
+        "key": 17
+    },
+    "ClickTarget": {
+        "recognition": "FeatureMatch",
+        "template": "Transfer/Target.png",
+        "action": "Click"
+    },
+    "CtrlKeyUp": {
+        "action": "KeyUp",
+        "key": 17
+    }
+}
