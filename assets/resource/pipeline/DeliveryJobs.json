@@ -131,10 +131,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/DepotNotReady.png",
         "roi": [
-            820,
-            520,
-            207,
-            21
+            109,
+            515,
+            940,
+            30
         ],
         "threshold": 0.8,
         "action": "ClickKey",
