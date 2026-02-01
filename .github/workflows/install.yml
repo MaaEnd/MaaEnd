@@ -103,7 +103,7 @@ jobs:
 
   build_and_install:
     needs: [meta, prepare_mxu_icon]
-    runs-on:  macos-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         os: [win, macos, linux]
