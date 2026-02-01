@@ -1,12 +1,14 @@
 {
-    "开始自动转交委托": {
+    "AutoTransferJobsStart": {
+        "doc": "开始自动转交委托",
         "next": [
-            "检查当前地区",
-            "进入地区建设",
-            "回到大世界"
+            "CheckCurrentArea",
+            "EnterRegionalConstruction",
+            "ReturnToWorld"
         ]
     },
-    "进入地区建设": {
+    "EnterRegionalConstruction": {
+        "doc": "进入地区建设",
         "recognition": "Or",
         "any_of": [
             {
@@ -35,10 +37,10 @@
         "action": "ClickKey",
         "key": 89,
         "next": [
-            "检查当前地区"
+            "CheckCurrentArea"
         ]
     },
-    "回到大世界": {
+    "ReturnToWorld": {
         "doc": "不在在大世界，不断按ESC进入大世界",
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -46,10 +48,10 @@
         "action": "ClickKey",
         "key": 27,
         "next": [
-            "开始自动转交委托"
+            "AutoTransferJobsStart"
         ]
     },
-    "检查当前地区": {
+    "CheckCurrentArea": {
         "doc": "检查当前地区",
         "recognition": "TemplateMatch",
         "template": "Resell/inManagement.png",
@@ -62,12 +64,12 @@
         ],
         "action": "DoNothing",
         "next": [
-            "在四号谷地，进入地区建设管理",
-            "直接在武陵，进入四号谷地",
-            "开始自动转交委托"
+            "EnterMgmtInFourthValley",
+            "EnterFourthValleyFromWuling",
+            "AutoTransferJobsStart"
         ]
     },
-    "在四号谷地，进入地区建设管理": {
+    "EnterMgmtInFourthValley": {
         "doc": "在四号谷地，进入地区建设管理",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -83,11 +85,11 @@
         "post_delay": 500,
         "action": "DoNothing",
         "next": [
-            "进入仓储节点",
-            "检查当前地区"
+            "EnterDepot",
+            "CheckCurrentArea"
         ]
     },
-    "直接在武陵，进入四号谷地": {
+    "EnterFourthValleyFromWuling": {
         "doc": "直接在武陵，进入四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -104,10 +106,11 @@
         "action": "DoNothing",
         "next": [
             "DeliveryJobsWuling2FourthValley",
-            "检查当前地区"
+            "CheckCurrentArea"
         ]
     },
-    "进入仓储节点": {
+    "EnterDepot": {
+        "doc": "进入仓储节点",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/EnterDepot.png",
         "roi": [
@@ -119,11 +122,12 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "进入货物集装箱",
-            "货物集装箱未就绪，去武陵"
+            "EnterCargoContainer",
+            "ContainerNotReadyGoWuling"
         ]
     },
-    "货物集装箱未就绪，去武陵": {
+    "ContainerNotReadyGoWuling": {
+        "doc": "货物集装箱未就绪，去武陵",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/DepotNotReady.png",
         "roi": [
@@ -139,7 +143,8 @@
             "DeliveryJobsChangeNextRegion"
         ]
     },
-    "进入货物集装箱": {
+    "EnterCargoContainer": {
+        "doc": "进入货物集装箱",
         "recognition": "Or",
         "any_of": [
             {
@@ -167,10 +172,11 @@
         ],
         "action": "Click",
         "next": [
-            "进入下一步"
+            "ProceedToNextStep"
         ]
     },
-    "进入下一步": {
+    "ProceedToNextStep": {
+        "doc": "进入下一步",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/NextStep.png",
         "roi": [
@@ -182,12 +188,13 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "进入下一步",
-            "装满货物",
-            "单击屏幕继续"
+            "ProceedToNextStep",
+            "FillCargoToMax",
+            "ClickScreenToContinue"
         ]
     },
-    "单击屏幕继续": {
+    "ClickScreenToContinue": {
+        "doc": "单击屏幕继续",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/ClickToContinue.png",
         "roi": [
@@ -199,10 +206,11 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "进入送货任务"
+            "EnterDeliveryJob"
         ]
     },
-    "装满货物": {
+    "FillCargoToMax": {
+        "doc": "装满货物",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/FillToMax.png",
         "roi": [
@@ -214,10 +222,11 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "进入下一步"
+            "ProceedToNextStep"
         ]
     },
-    "进入送货任务": {
+    "EnterDeliveryJob": {
+        "doc": "进入送货任务",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/EnterDeliveryJob.png",
         "roi": [
@@ -230,10 +239,11 @@
         "action": "ClickKey",
         "key": 74,
         "next": [
-            "单击转交任务"
+            "ClickTransferJob"
         ]
     },
-    "单击转交任务": {
+    "ClickTransferJob": {
+        "doc": "单击转交任务",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/TransferTask.png",
         "roi": [
@@ -245,10 +255,11 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "确认转交任务"
+            "ConfirmTaskTransfer"
         ]
     },
-    "确认转交任务": {
+    "ConfirmTaskTransfer": {
+        "doc": "确认转交任务",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/ConfirmTransfer.png",
         "roi": [
@@ -260,7 +271,7 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "开始自动转交委托"
+            "AutoTransferJobsStart"
         ]
     }
 }

@@ -51,8 +51,8 @@
         "post_wait_freezes": 200,
         "action": "Click",
         "next": [
-            "进入仓储节点",
-            "检查当前地区"
+            "EnterDepot",
+            "CheckCurrentArea"
         ]
     },
     "DeliveryJobsChangeNextRegion": {
