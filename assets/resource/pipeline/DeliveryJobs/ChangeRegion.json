@@ -51,9 +51,27 @@
         "post_wait_freezes": 200,
         "action": "Click",
         "next": [
+            "CheckDepotLocked",
             "EnterDepot",
             "CheckCurrentArea"
         ]
+    },
+    "CheckDepotLocked": {
+        "doc": "检查仓库是否解锁",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ],
+        "pre_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "武陵仓储节点未解锁,所有地区均已完成"
+        },
+        "next": []
     },
     "DeliveryJobsChangeNextRegion": {
         "doc": "更换到下一个地区",
