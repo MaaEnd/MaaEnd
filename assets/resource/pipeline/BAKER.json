@@ -253,6 +253,7 @@
         "order_by": "Vertical",
         "index": -1,
         "action": "Click",
+        "repeat": 3, // 这里进行一下重复点击，如果遇到无法识别的表情会在这里点击第一个表情
         "next": [
             "CheckChatPage"
         ]
