@@ -2,6 +2,11 @@
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
         "next": [
+            "ClickScreenToContinue",
+            "FillCargoToMax",
+            "ClickTransferJob",
+            "EnterDeliveryJob",
+            "EnterCargoContainer",
             "CheckCurrentArea",
             "EnterRegionalConstruction",
             "ReturnToWorld"
@@ -37,7 +42,8 @@
         "action": "ClickKey",
         "key": 89,
         "next": [
-            "CheckCurrentArea"
+            "CheckCurrentArea",
+            "DeliveryJobsMain"
         ]
     },
     "ReturnToWorld": {
@@ -117,7 +123,9 @@
         "action": "Click",
         "next": [
             "EnterCargoContainer",
-            "ContainerNotReadyGoWuling"
+            "ContainerNotReadyGoWuling",
+            "EnterDepot",
+            "DeliveryJobsMain"
         ]
     },
     "ContainerNotReadyGoWuling": {
@@ -134,7 +142,8 @@
         "action": "ClickKey",
         "key": 27,
         "next": [
-            "DeliveryJobsChangeNextRegion"
+            "DeliveryJobsChangeNextRegion",
+            "ContainerNotReadyGoWuling"
         ]
     },
     "EnterCargoContainer": {
@@ -166,7 +175,8 @@
         ],
         "action": "Click",
         "next": [
-            "ProceedToNextStep"
+            "ProceedToNextStep",
+            "DeliveryJobsMain"
         ]
     },
     "ProceedToNextStep": {
@@ -182,25 +192,10 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
             "FillCargoToMax",
-            "ClickScreenToContinue"
-        ]
-    },
-    "ClickScreenToContinue": {
-        "doc": "单击屏幕继续",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/ClickToContinue.png",
-        "roi": [
-            578,
-            670,
-            122,
-            24
-        ],
-        "threshold": 0.8,
-        "action": "Click",
-        "next": [
-            "EnterDeliveryJob"
+            "ProceedToNextStep",
+            "ClickScreenToContinue",
+            "DeliveryJobsMain"
         ]
     },
     "FillCargoToMax": {
@@ -216,7 +211,25 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "ProceedToNextStep"
+            "ProceedToNextStep",
+            "DeliveryJobsMain"
+        ]
+    },
+    "ClickScreenToContinue": {
+        "doc": "单击屏幕继续",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ClickToContinue.png",
+        "roi": [
+            578,
+            670,
+            122,
+            24
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EnterDeliveryJob",
+            "DeliveryJobsMain"
         ]
     },
     "EnterDeliveryJob": {
@@ -233,7 +246,8 @@
         "action": "ClickKey",
         "key": 74,
         "next": [
-            "ClickTransferJob"
+            "ClickTransferJob",
+            "DeliveryJobsMain"
         ]
     },
     "ClickTransferJob": {
@@ -249,7 +263,8 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "ConfirmTaskTransfer"
+            "ConfirmTaskTransfer",
+            "DeliveryJobsMain"
         ]
     },
     "ConfirmTaskTransfer": {
