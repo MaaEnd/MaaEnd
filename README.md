@@ -58,7 +58,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 来和大家一起玩耍吧！
 
-- 💬 **用户 QQ 群**: [1082597011](https://qm.qq.com/q/9IMcuQ55ny)  
+- 💬 **用户 QQ 群**: [1082597011](https://qm.qq.com/q/SMko3OzTWK)  
   使用问题、功能建议、闲聊摸鱼，欢迎来撩~
   
 - 👨‍💻 **开发 QQ 群**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
