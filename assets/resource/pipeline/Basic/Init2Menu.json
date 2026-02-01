@@ -1,0 +1,80 @@
+// 初始化至菜单，我觉得可以在这里写一套通用的基本代码，这样大家在写代码的时候就不用重新造轮子了
+// I2m(Init2Menu)
+{
+    "Init2Menu": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 1,
+        "next": [
+            "I2mIsInMenu",
+            "I2mIsActionableUI",
+            "I2mEscLoop"
+        ]
+    },
+    // 是否存在menu界面
+    "I2mIsInMenu": {
+        "recognition": "TemplateMatch",
+        "template": "Init2Menu/MenuFeature.png",
+        "roi": [
+            232,
+            33,
+            96,
+            85
+        ],
+        "threshold": 0.85,
+        "focus": {
+            "Node.Recognition.Succeeded": "Init2Menu:初始化成功"
+        },
+        "action": "Stop",
+        "target": {
+            "I2m_result": true
+        }
+    },
+    // 是否在可操作玩家界面
+    "I2mIsActionableUI": {
+        "recognition": "TemplateMatch",
+        "template": "Init2Menu/ActionableUIFeature.png",
+        "roi": [
+            1070,
+            0,
+            210,
+            22
+        ],
+        "threshold": 0.75,
+        "action": "DoNothing",
+        "next": "I2mEscClick_ActionableUI"
+    },
+    "I2mEscClick_ActionableUI": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 800,
+        "next": [
+            "I2mIsInMenu",
+            "I2mCantInit"
+        ]
+    },
+    // 若于可操作界面点击esc后未唤出菜单，则说明现状态无法打开菜单
+    "I2mCantInit": {
+        "recognition": "DirectHit",
+        "focus": {
+            "Node.Recognition.Failed": "Init2Menu:初始化失败"
+        },
+        "action": "Stop",
+        "target": {
+            "I2m_result": false
+        }
+    },
+    // 重复点击esc、检测环境
+    "I2mEscLoop": {
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 200,
+        "next": [
+            "I2mIsInMenu",
+            "I2mIsActionableUI",
+            "I2mEscLoop"
+        ]
+    }
+}
