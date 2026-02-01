@@ -76,5 +76,10 @@
     "task.ClaimSimulationRewards.label": "📦自动领取模拟空间奖励",
     "task.ClaimSimulationRewards.description": "请在模拟空间菜单内启动",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
-    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕"
+    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
+    "task.Transfer.label": "搬运",
+    "task.Transfer.description": "帝江号搬谷地武陵货物",
+    "option.TransferDirection.label": "搬运方向",
+    "option.TransferDirection.cases.4To50.label": "四号谷地→武陵",
+    "option.TransferDirection.cases.50To4.label": "武陵→四号谷地"
 }
