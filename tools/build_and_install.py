@@ -192,6 +192,7 @@ def build_go_agent(
         cwd=go_service_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
         env=env,
     )
     if result.returncode != 0:
@@ -216,6 +217,7 @@ def build_go_agent(
         cwd=go_service_dir,
         capture_output=True,
         text=True,
+        encoding="utf-8",
         env=env,
     )
     if result.returncode != 0:
