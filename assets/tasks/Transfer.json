@@ -22,10 +22,7 @@
                     "pipeline_override": {
                         "TransferStart": {
                             "next": [
-                                "SwitchRepoTo50",
-                                "RepoToBag",
-                                "SwitchRepoToNo4",
-                                "BagToRepo"
+                                "SwitchRepoToNo4"
                             ]
                         }
                     }
@@ -36,10 +33,22 @@
                     "pipeline_override": {
                         "TransferStart": {
                             "next": [
-                                "SwitchRepoTo50",
-                                "RepoToBag",
-                                "SwitchRepoToNo4",
+                                "SwitchRepoTo50"
+                            ]
+                        },
+                        "CtrlKeyUp": {
+                            "next": [
+                                "SwitchRepoToNo4"
+                            ]
+                        },
+                        "ClickEscNo4": {
+                            "next": [
                                 "BagToRepo"
+                            ]
+                        },
+                        "ClickEsc50": {
+                            "next": [
+                                "RepoToBag"
                             ]
                         }
                     }

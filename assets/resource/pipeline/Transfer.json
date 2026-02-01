@@ -16,35 +16,120 @@
         "recognition": "OCR",
         "expected": "仓库",
         "next": [
-            "SwitchRepoToNo4",
-            "RepoToBag",
-            "SwitchRepoTo50",
-            "BagToRepo"
+            "SwitchRepoToNo4"
         ]
     },
     "SwitchRepoToNo4": {
         "next": [
-            "ClickSwitchRepo",
-            "ClickNo4",
-            "ClickConfirm",
-            "RepoConnected",
-            "ClickESC"
-        ]
-    },
-    "RepoToBag": {
-        "next": [
-            "CtrlKeyDown",
-            "ClickTarget",
-            "CtrlKeyUp"
+            "ClickSwitchRepoNo4"
         ]
     },
     "SwitchRepoTo50": {
         "next": [
-            "ClickSwitchRepo",
-            "Click50",
-            "ClickConfirm",
-            "RepoConnected",
-            "ClickESC"
+            "ClickSwitchRepo50"
+        ]
+    },
+    "ClickSwitchRepoNo4": {
+        "recognition": "OCR",
+        "expected": "仓库切换",
+        "action": "Click",
+        "next": [
+            "ClickNo4"
+        ]
+    },
+    "ClickNo4": {
+        "recognition": "OCR",
+        "expected": "四号谷地",
+        "action": "Click",
+        "next": [
+            "ClickConfirmNo4"
+        ]
+    },
+    "ClickConfirmNo4": {
+        "recognition": "OCR",
+        "expected": "确认",
+        "action": "Click",
+        "next": [
+            "RepoConnectedNo4"
+        ]
+    },
+    "RepoConnectedNo4": {
+        "recognition": "OCR",
+        "expected": "已连接",
+        "next": [
+            "ClickEscNo4"
+        ]
+    },
+    "ClickEscNo4": {
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "RepoToBag"
+        ]
+    },
+    "RepoToBag": {
+        "next": [
+            "CtrlKeyDown"
+        ]
+    },
+    "CtrlKeyDown": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "ClickTarget"
+        ]
+    },
+    "ClickTarget": {
+        "recognition": "FeatureMatch",
+        "template": "Transfer/Target.png",
+        "action": "Click",
+        "next": [
+            "CtrlKeyUp"
+        ]
+    },
+    "CtrlKeyUp": {
+        "action": "KeyUp",
+        "key": 17,
+        "next": [
+            "SwitchRepoTo50"
+        ]
+    },
+    "ClickSwitchRepo50": {
+        "recognition": "OCR",
+        "expected": "仓库切换",
+        "action": "Click",
+        "next": [
+            "Click50"
+        ]
+    },
+    "Click50": {
+        "recognition": "OCR",
+        "expected": "武陵",
+        "action": "Click",
+        "next": [
+            "ClickConfirm50"
+        ]
+    },
+    "ClickConfirm50": {
+        "recognition": "OCR",
+        "expected": "确认",
+        "action": "Click",
+        "next": [
+            "RepoConnected50"
+        ]
+    },
+    "RepoConnected50": {
+        "recognition": "OCR",
+        "expected": "已连接",
+        "next": [
+            "ClickEsc50"
+        ]
+    },
+    "ClickEsc50": {
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "BagToRepo"
         ]
     },
     "BagToRepo": {
@@ -54,49 +139,5 @@
         "next": [
             "TransferStart"
         ]
-    },
-    "ClickSwitchRepo": {
-        "recognition": "OCR",
-        "expected": "仓库切换",
-        "action": "Click"
-    },
-    "ClickNo4": {
-        "recognition": "OCR",
-        "expected": "四号谷地",
-        "action": "Click"
-    },
-    "ClickConfirm": {
-        "recognition": "OCR",
-        "expected": "确认",
-        "action": "Click"
-    },
-    "Click50": {
-        "recognition": "OCR",
-        "expected": "武陵",
-        "action": "Click"
-    },
-    "RepoConnected": {
-        "recognition": "OCR",
-        "expected": "已连接",
-        "next": [
-            "ClickESC"
-        ]
-    },
-    "ClickESC": {
-        "action": "ClickKey",
-        "key": 27
-    },
-    "CtrlKeyDown": {
-        "action": "KeyDown",
-        "key": 17
-    },
-    "ClickTarget": {
-        "recognition": "FeatureMatch",
-        "template": "Transfer/Target.png",
-        "action": "Click"
-    },
-    "CtrlKeyUp": {
-        "action": "KeyUp",
-        "key": 17
     }
 }
