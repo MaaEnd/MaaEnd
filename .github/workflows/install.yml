@@ -374,7 +374,7 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, build_and_install, package_macos, changelog]
+    needs: [meta, build_and_install, build_and_install_macos, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
