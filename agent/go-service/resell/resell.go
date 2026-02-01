@@ -118,13 +118,14 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				currentROIX += 150
 				continue
 			}
-			//商品详情页右下角识别的成本价格为准
-			controller.PostScreencap().Wait()
-			ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27)
+		//商品详情页右下角识别的成本价格为准
+		controller.PostScreencap().Wait()
+		ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27)
+		if success {
 			costPrice = ConfirmcostPrice
-			if !success {
-				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
-			}
+		} else {
+			log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+		}
 			log.Info().Int("No.", stepCounter).Int("Cost", costPrice).Msg("[Resell]商品售价")
 			// 单击“查看好友价格”按钮
 			controller.PostClick(944+98/2, 446+26/2)
