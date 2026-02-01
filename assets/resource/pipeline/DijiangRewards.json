@@ -17,7 +17,7 @@
         //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
         "next": [
             "InMainWindow_NeedCredit",
-            "[JumpBack]CloseButtonDijiang",
+            "[JumpBack]CloseButtonDijiang"
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -769,7 +769,8 @@
         "next": [
             "[JumpBack]CloseDijiangRewards",
             "[JumpBack]TakeRewards",
-            "GrowAgain",
+            "[JumpBack]DijiangConfirm",
+            "[JumpBack]GrowAgain",
             "ExitGrowthChamber"
         ]
     },
