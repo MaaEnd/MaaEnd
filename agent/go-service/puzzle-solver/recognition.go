@@ -270,22 +270,17 @@ func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	thumbs := getAllPuzzleThumbLoc(img)
 	log.Info().Interface("thumbs", thumbs).Msg("Puzzle thumbnail positions")
 
-	roiOverride := map[string]any{
-		"PuzzleSolverPuzzlePreviewWaitStable": map[string]any{
-			"post_wait_freezes": map[string]any{
-				"target": []int{
-					int(PUZZLE_THUMB_START_X),
-					int(PUZZLE_THUMB_START_Y),
-					int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
-					int(float64(PUZZLE_THUMB_MAX_ROWS+1) * PUZZLE_THUMB_H),
-				},
-			},
-		},
-	}
-
 	var puzzleList []*PuzzleDesc
 	for _, thumb := range thumbs {
-		ctx.RunTask("PuzzleSolverPuzzlePreviewWaitStable", roiOverride)
+		// Wait for dragging CD
+		ctx.WaitFreezes(100*time.Millisecond, (*maa.Rect)(&[4]int{
+			int(PUZZLE_THUMB_START_X),
+			int(PUZZLE_THUMB_START_Y),
+			int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
+			int(float64(PUZZLE_THUMB_MAX_ROWS) * PUZZLE_THUMB_H),
+		}))
+
+		// Preview this puzzle
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])
 		if desc != nil {
 			puzzleList = append(puzzleList, desc)
