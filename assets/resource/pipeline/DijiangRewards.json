@@ -16,6 +16,49 @@
         //帝江号的日常收取中不会开启
         //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
         "next": [
+            "InMainWindow_NeedCredit",
+            "[JumpBack]CloseButtonDijiang",
+        ]
+    },
+    "InMainWindow_NeedCredit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    133,
+                                    118
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
             "EntryReceptionRoom_NeedCredit", //单独运行一次会客室
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
