@@ -210,11 +210,10 @@ jobs:
           mkdir -p "$APP_NAME/Contents/MacOS"
           mkdir -p "$APP_NAME/Contents/Resources"
           cp maaend.icns "$APP_NAME/Contents/Resources/"
-
-          # Move install contents
           cp -r install/* "$APP_NAME/Contents/MacOS/"
+          FULL_VERSION="${{ needs.meta.outputs.tag }}"
+          SHORT_VERSION=$(echo "$FULL_VERSION" | sed -E 's/-.*//')
 
-          # Create Info.plist
           cat > "$APP_NAME/Contents/Info.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -231,14 +230,21 @@ jobs:
               <key>CFBundlePackageType</key>
               <string>APPL</string>
               <key>CFBundleShortVersionString</key>
-              <string>${{ needs.meta.outputs.tag }}</string>
+              <string>$SHORT_VERSION</string>
+              <key>CFBundleVersion</key>
+              <string>$FULL_VERSION</string>
               <key>LSMinimumSystemVersion</key>
               <string>10.13</string>
           </dict>
           </plist>
           EOF
 
-          # Create DMG
+          chmod +x "$APP_NAME/Contents/MacOS/MaaEnd"
+          if [[ -f "$APP_NAME/Contents/MacOS/agent/go-service" ]]; then
+            chmod +x "$APP_NAME/Contents/MacOS/agent/go-service"
+          fi
+          codesign --force --deep --sign - "$APP_NAME"
+
           create-dmg \
             --volname "MaaEnd Installer" \
             --volicon "maaend.icns" \
