@@ -25,6 +25,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run maa-checker
+        run: |
+          npx @nekosu/maa-checker@latest ./assets/interface.json
+
       # pip install maafw
       - name: Install maafw
         run: |
