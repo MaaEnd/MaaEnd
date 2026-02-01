@@ -103,10 +103,10 @@ jobs:
 
   build_and_install:
     needs: [meta, prepare_mxu_icon]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [win, macos, linux]
+        os: [win, linux]
         arch: [aarch64, x86_64]
       fail-fast: false
 
@@ -185,8 +185,85 @@ jobs:
 
           cat install/interface.json
 
-      - name: Package DMG (MacOS)
-        if: matrix.os == 'macos'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}
+          path: "install"
+
+  build_and_install_macos:
+    needs: [meta]
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "agent/go-service/go.mod"
+
+      - id: latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download MaaFramework
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-macos-${{ matrix.arch }}*"
+          tag: ${{ steps.latest-release.outputs.release }}
+          out-file-path: "downloads/MaaFramework"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download MXU
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MistEO/MXU
+          fileName: "*macos-${{ matrix.arch }}*"
+          latest: true
+          out-file-path: "downloads/MXU"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install
+        shell: bash
+        run: |
+          # 运行安装脚本（构建 Go Agent + 复制资源）
+          python tools/build_and_install.py --ci --os macos --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+
+          # 安装 MaaFramework
+          echo "Install MaaFramework"
+          cp -r downloads/MaaFramework/bin/* install/maafw/
+          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
+          rm -rf install/maafw/MaaNode*
+
+          # 安装 MXU 并重命名为 MaaEnd
+          echo "Install MXU"
+          if [[ -d downloads/MXU ]]; then
+            rm -rf downloads/MXU*.zip downloads/MXU*.tgz
+            if [[ -f downloads/MXU/mxu ]]; then
+              cp downloads/MXU/mxu install/MaaEnd
+            fi
+          fi
+
+          # 更新 interface.json 中的版本号
+          echo "Update interface version to ${{ needs.meta.outputs.tag }}"
+          sed -E '/^[[:space:]]*\/\//d' install/interface.json | jq --indent 4 --arg version "${{ needs.meta.outputs.tag }}" '.version=$version' > install/interface.json.tmp
+          mv install/interface.json.tmp install/interface.json
+
+          cat install/interface.json
+
+      - name: Package DMG
         shell: bash
         run: |
           brew install create-dmg
@@ -219,6 +296,8 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
+              <key>CFBundleInfoDictionaryVersion</key>
+              <string>6.0</string>
               <key>CFBundleExecutable</key>
               <string>MaaEnd</string>
               <key>CFBundleIconFile</key>
@@ -264,7 +343,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}
+          name: MaaEnd-macos-${{ matrix.arch }}
           path: "install"
 
   changelog:
@@ -295,7 +374,7 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, build_and_install, changelog]
+    needs: [meta, build_and_install, package_macos, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
