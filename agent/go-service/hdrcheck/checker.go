@@ -2,7 +2,6 @@ package hdrcheck
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
@@ -13,7 +12,6 @@ type HDRChecker struct {
 	// warned tracks whether we've already warned in this session
 	// to avoid spamming the user with repeated warnings
 	warned bool
-	mu     sync.Mutex
 }
 
 // OnTaskerTask handles tasker task events
@@ -23,13 +21,10 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 		return
 	}
 
-	// Check if we've already warned
-	c.mu.Lock()
+	// Skip if we've already warned
 	if c.warned {
-		c.mu.Unlock()
 		return
 	}
-	c.mu.Unlock()
 
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
@@ -54,9 +49,7 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 			`<br/><br/><span style="font-size: 1.1em; color: #888;">ℹ️ 任务将继续执行，但可能出现识别问题</span>`)
 
 		// Mark as warned to avoid repeated warnings
-		c.mu.Lock()
 		c.warned = true
-		c.mu.Unlock()
 	} else {
 		log.Debug().Msg("HDR check passed: HDR is not enabled")
 	}
