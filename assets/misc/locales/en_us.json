@@ -19,6 +19,8 @@
     "option.AutoPick.label": "Auto Pick Up",
     "option.QuickTeleport.label": "Quick Teleport",
     "option.QuickTeleport.description": "When selecting a teleport point on the world map (or from a list), automatically click Teleport.",
+    "option.AutoPuzzleSolving.label": "Auto Solve Puzzle",
+    "option.AutoPuzzleSolving.description": "Automatically clears the puzzle minigame for you (equivalent to enabling the ⌈🧩 Auto Solve Puzzle⌋ task in Loop mode).",
     "option.AutoTaskInterval.label": "Real-time Assist Interval",
     "option.AutoTaskInterval.inputs.CheckInterval.label": "Interval (ms)",
     "option.AutoTaskInterval.inputs.CheckInterval.description": "Too small an interval may cause lag. Adjust as needed; recommended to be at least 50ms.",

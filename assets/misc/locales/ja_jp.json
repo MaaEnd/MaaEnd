@@ -19,6 +19,8 @@
     "option.AutoPick.label": "自動拾取",
     "option.QuickTeleport.label": "クイックテレポート",
     "option.QuickTeleport.description": "ワールドマップ（または一覧）で転送地点を選択した時に、転送を自動でクリックします。",
+    "option.AutoPuzzleSolving.label": "パズル自動解決",
+    "option.AutoPuzzleSolving.description": "パズルミニゲームを自動でクリアします（⌈🧩 パズル自動解決⌋タスクの繰り返し実行を有効にするのと同等）。",
     "option.AutoTaskInterval.label": "リアルタイム支援間隔",
     "option.AutoTaskInterval.inputs.CheckInterval.label": "間隔（ms）",
     "option.AutoTaskInterval.inputs.CheckInterval.description": "間隔が小さすぎるとカクつく可能性があります。状況に応じて調整してください（推奨：50ms以上）。",

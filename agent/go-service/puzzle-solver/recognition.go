@@ -66,7 +66,7 @@ func getPossibleHues(puzzles []*PuzzleDesc) []int {
 func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	maxExtent := BOARD_MAX_EXTENT_ONE_SIDE
 	biasFactor := 0.075
-	cropFactor := 0.8 // important
+	cropFactor := 0.75 // important
 	bestW, bestH := 0, 0
 
 	// Convert to SVGB format

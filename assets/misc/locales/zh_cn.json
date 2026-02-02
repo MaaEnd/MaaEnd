@@ -19,6 +19,8 @@
     "option.AutoPick.label": "自动拾取",
     "option.QuickTeleport.label": "快速传送",
     "option.QuickTeleport.description": "在大地图上点击传送点（或列表中有传送点）时，自动点击传送",
+    "option.AutoPuzzleSolving.label": "自动解拼图",
+    "option.AutoPuzzleSolving.description": "自动帮你通关拼图小游戏（等价于开启⌈🧩自动解拼图⌋任务的循环执行）",
     "option.AutoTaskInterval.label": "实时辅助间隔",
     "option.AutoTaskInterval.inputs.CheckInterval.label": "检测间隔(ms)",
     "option.AutoTaskInterval.inputs.CheckInterval.description": "过小的检测间隔可能会导致卡顿，请根据实际情况调整，建议至少大于 50ms",

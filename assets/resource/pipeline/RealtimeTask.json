@@ -17,6 +17,8 @@
             "HandleTutorialPaging",
             "HandleTutorialConfirm",
             "CheckSpecialInfoPanel",
+            "PuzzleSolverOnScenePrepare",
+            "PuzzleSolverOnSceneMain",
             "RealTimeAutoPat",
             "RealTimeTaskMainDelay"
         ]

@@ -19,6 +19,8 @@
     "option.AutoPick.label": "자동 줍기",
     "option.QuickTeleport.label": "빠른 텔레포트",
     "option.QuickTeleport.description": "월드맵(또는 목록)에서 텔레포트 지점을 선택할 때 텔레포트를 자동으로 클릭합니다.",
+    "option.AutoPuzzleSolving.label": "퍼즐 자동 해결",
+    "option.AutoPuzzleSolving.description": "퍼즐 미니게임을 자동으로 클리어합니다(⌈🧩 퍼즐 자동 해결⌋ 작업을 반복 실행으로 켜는 것과 동일).",
     "option.AutoTaskInterval.label": "실시간 지원 간격",
     "option.AutoTaskInterval.inputs.CheckInterval.label": "간격(ms)",
     "option.AutoTaskInterval.inputs.CheckInterval.description": "간격이 너무 작으면 끊김이 발생할 수 있습니다. 상황에 맞게 조정해 주세요(권장: 50ms 이상).",
