@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -38,7 +38,13 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	}
 
 	// Get the cached image
-	img := controller.CacheImage()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to get cached image")
+		return
+	}
 	if img == nil {
 		log.Error().Msg("Failed to get cached image")
 		return
