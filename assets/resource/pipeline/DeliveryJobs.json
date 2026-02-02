@@ -2,10 +2,6 @@
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
         "next": [
-            "FillCargoToMax",
-            "ClickTransferJob",
-            "EnterDeliveryJob",
-            "EnterCargoContainer",
             "CheckCurrentArea",
             "EnterRegionalConstruction",
             "ReturnToWorld"
@@ -312,16 +308,6 @@
             27
         ],
         "threshold": 0.8,
-        // 任务转交之后，回到主界面任务还需要时间才会消失
-        "post_wait_freezes": {
-            "time": 1000,
-            "target": [
-                21,
-                174,
-                231,
-                81
-            ]
-        },
         "action": "Click",
         "next": [
             "ConfirmTaskTransfer",
