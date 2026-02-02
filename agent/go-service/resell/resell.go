@@ -72,63 +72,59 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msg("Failed to parse quota or no quota found, proceeding with normal flow")
 	}
 
-	// Define three rows with different Y coordinates
-	roiRows := []int{360, 484, 567}
+	// Define product positions using predefined Pipeline names
 	rowNames := []string{"第一行", "第二行", "第三行"}
+	maxCols := 8 // Maximum 8 columns per row
 
 	// Process multiple items by scanning across ROI
 	records := make([]ProfitRecord, 0)
 	maxProfit := 0
 
 	// For each row
-	for rowIdx, roiY := range roiRows {
+	for rowIdx := 0; rowIdx < 3; rowIdx++ {
 		log.Info().Str("行", rowNames[rowIdx]).Msg("[Resell]当前处理")
-		// Start with base ROI x coordinate
-		currentROIX := 72
-		maxROIX := 1200 // Reasonable upper limit to prevent infinite loops
-		stepCounter := 0
 
-		for currentROIX < maxROIX {
-			log.Info().Int("roiX", currentROIX).Int("roiY", roiY).Msg("[Resell]商品位置")
+		// For each column
+		for col := 1; col <= maxCols; col++ {
+			log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]商品位置")
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
-			stepCounter++
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 40)
+			// 构建Pipeline名称
+			pricePipelineName := fmt.Sprintf("[Resell]ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
+			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
-				log.Info().Int("roiX", currentROIX).Int("roiY", roiY).Msg("[Resell]位置无数字，说明无商品，下一行")
+				log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
 				break
 			}
 
-			// Click on region 1
-			centerX := currentROIX + 141/2
-			centerY := roiY + 31/2
-			controller.PostClick(int32(centerX), int32(centerY))
+			// Click on product
+			controller.PostClick(int32(clickX), int32(clickY))
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
+			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
 			if !success {
 				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
-				currentROIX += 150
+
 				continue
 			}
-		//商品详情页右下角识别的成本价格为准
-		controller.PostScreencap().Wait()
-		ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27)
-		if success {
-			costPrice = ConfirmcostPrice
-		} else {
-			log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
-		}
-			log.Info().Int("No.", stepCounter).Int("Cost", costPrice).Msg("[Resell]商品售价")
-			// 单击“查看好友价格”按钮
-			controller.PostClick(944+98/2, 446+26/2)
+			//商品详情页右下角识别的成本价格为准
+			controller.PostScreencap().Wait()
+			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_DetailCostPrice")
+			if success {
+				costPrice = ConfirmcostPrice
+			} else {
+				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+			}
+			log.Info().Int("行", rowIdx+1).Int("列", col).Int("Cost", costPrice).Msg("[Resell]商品售价")
+			// 单击"查看好友价格"按钮
+			controller.PostClick(int32(friendBtnX), int32(friendBtnY))
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
@@ -136,19 +132,15 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 600)
 			controller.PostScreencap().Wait()
 
-			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28)
+			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_FriendSalePrice")
 			if !success {
 				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
-				currentROIX += 150
 				continue
 			}
 			log.Info().Int("Price", salePrice).Msg("[Resell]好友出售价")
 			// 计算利润
 			profit := salePrice - costPrice
 			log.Info().Int("Profit", profit).Msg("[Resell]当前商品利润")
-
-			// 根据当前roiX位置计算列
-			col := (currentROIX-72)/150 + 1
 
 			// Save record with row and column information
 			record := ProfitRecord{
@@ -169,7 +161,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 1039, 135, 47, 21, "返回")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ReturnButton", "返回")
 			if success {
 				log.Info().Msg("[Resell]第四步：发现返回按钮，按ESC返回")
 				controller.PostClickKey(27)
@@ -180,14 +172,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
 			if success {
 				log.Info().Msg("[Resell]第五步：关闭页面")
 				controller.PostClickKey(27)
 			}
-
-			// 移动到下一列（ROI X增加150）
-			currentROIX += 150
 		}
 	}
 
@@ -268,120 +257,71 @@ func extractNumbersFromText(text string) (int, bool) {
 	return 0, false
 }
 
-// ocrExtractNumber - OCR region and extract first number found
-func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width, height int) (int, bool) {
+// ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
+func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
 		log.Info().Msg("[OCR] 截图失败")
-		return 0, false
+		return 0, 0, 0, false
 	}
 
-	ocrParam := &maa.NodeOCRParam{
-		ROI:       maa.NewTargetRect(maa.Rect{x, y, width, height}),
-		OrderBy:   "Expected",
-		Expected:  []string{"[0-9]+"},
-		Threshold: 0.3,
+	// 使用 RunRecognition 调用预定义的 pipeline 节点
+	detail := ctx.RunRecognition(pipelineName, img, nil)
+	if detail == nil || detail.Results == nil {
+		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
+		return 0, 0, 0, false
 	}
 
-	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
-	if detail == nil || detail.DetailJson == "" {
-		log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Msg("[OCR] 区域无结果")
-		return 0, false
-	}
-
-	var rawResults map[string]interface{}
-	err := json.Unmarshal([]byte(detail.DetailJson), &rawResults)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to parse OCR DetailJson")
-		return 0, false
-	}
-
-	// Extract from "best" results first, then "all"
-	for _, key := range []string{"best", "all"} {
-		if data, ok := rawResults[key]; ok {
-			switch v := data.(type) {
-			case []interface{}:
-				if len(v) > 0 {
-					if result, ok := v[0].(map[string]interface{}); ok {
-						if text, ok := result["text"].(string); ok {
-							// Try to extract numbers from the text
-							if num, success := extractNumbersFromText(text); success {
-								log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", text).Int("num", num).Msg("[OCR] 区域找到数字")
-								return num, true
-							}
-						}
-					}
-				}
-			case map[string]interface{}:
-				if text, ok := v["text"].(string); ok {
-					// Try to extract numbers from the text
-					if num, success := extractNumbersFromText(text); success {
-						log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", text).Int("num", num).Msg("[OCR] 区域找到数字")
-						return num, true
-					}
+	// 优先从 Best 结果中提取，然后是 All
+	for _, results := range [][]*maa.RecognitionResult{detail.Results.Best, detail.Results.All} {
+		if len(results) > 0 {
+			if ocrResult, ok := results[0].AsOCR(); ok {
+				if num, success := extractNumbersFromText(ocrResult.Text); success {
+					// 计算中心坐标
+					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
+					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
+					return num, centerX, centerY, true
 				}
 			}
 		}
 	}
 
-	return 0, false
+	return 0, 0, 0, false
 }
 
-// ocrExtractText - OCR region and check if recognized text contains keyword
-func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, height int, keyword string) bool {
+// ocrExtractTextWithCenter - OCR region using pipeline name and check if recognized text contains keyword, return center coordinates
+func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, keyword string) (bool, int, int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
 		log.Info().Msg("[OCR] 未能获取截图")
-		return false
+		return false, 0, 0, false
 	}
 
-	ocrParam := &maa.NodeOCRParam{
-		ROI:       maa.NewTargetRect(maa.Rect{x, y, width, height}),
-		OrderBy:   "Expected",
-		Expected:  []string{".*"},
-		Threshold: 0.8,
+	// 使用 RunRecognition 调用预定义的 pipeline 节点
+	detail := ctx.RunRecognition(pipelineName, img, nil)
+	if detail == nil || detail.Results == nil {
+		log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+		return false, 0, 0, false
 	}
 
-	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
-	if detail == nil || detail.DetailJson == "" {
-		log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-		return false
-	}
-
-	var rawResults map[string]interface{}
-	err := json.Unmarshal([]byte(detail.DetailJson), &rawResults)
-	if err != nil {
-		return false
-	}
-
-	// Check filtered results first, then best results
-	for _, key := range []string{"filtered", "best", "all"} {
-		if data, ok := rawResults[key]; ok {
-			switch v := data.(type) {
-			case []interface{}:
-				if len(v) > 0 {
-					if result, ok := v[0].(map[string]interface{}); ok {
-						if text, ok := result["text"].(string); ok {
-							if containsKeyword(text, keyword) {
-								log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
-								return true
-							}
-						}
-					}
-				}
-			case map[string]interface{}:
-				if text, ok := v["text"].(string); ok {
-					if containsKeyword(text, keyword) {
-						log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
-						return true
-					}
+	// 优先从 Filtered 结果中提取，然后是 Best、All
+	for _, results := range [][]*maa.RecognitionResult{detail.Results.Filtered, detail.Results.Best, detail.Results.All} {
+		if len(results) > 0 {
+			if ocrResult, ok := results[0].AsOCR(); ok {
+				if containsKeyword(ocrResult.Text, keyword) {
+					// 计算中心坐标
+					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
+					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
+					return true, centerX, centerY, true
 				}
 			}
 		}
 	}
 
-	log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-	return false
+	log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+	return false, 0, 0, false
 }
 
 // containsKeyword - Check if text contains keyword
@@ -438,102 +378,63 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 
-	// OCR region 1: [180, 135, 75, 30] to get "x/y"
-	ocrParam1 := &maa.NodeOCRParam{
-		ROI:       maa.NewTargetRect(maa.Rect{180, 135, 75, 30}),
-		OrderBy:   "Expected",
-		Expected:  []string{".*"},
-		Threshold: 0.3,
-	}
-
-	detail1 := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam1, img)
-	if detail1 != nil && detail1.DetailJson != "" {
-		var rawResults1 map[string]interface{}
-		if err := json.Unmarshal([]byte(detail1.DetailJson), &rawResults1); err == nil {
-			for _, key := range []string{"best", "all"} {
-				if data, ok := rawResults1[key]; ok {
-					if text := extractTextFromOCRResult(data); text != "" {
-						log.Info().Msgf("Quota region 1 OCR: %s", text)
-						// Parse "x/y" format
-						re := regexp.MustCompile(`(\d+)/(\d+)`)
-						if matches := re.FindStringSubmatch(text); len(matches) >= 3 {
-							x, _ = strconv.Atoi(matches[1])
-							y, _ = strconv.Atoi(matches[2])
-							log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
-						}
-						break
+	// OCR region 1: 使用预定义的配额当前值Pipeline
+	detail1 := ctx.RunRecognition("[Resell]ROI_Quota_Current", img, nil)
+	if detail1 != nil && detail1.Results != nil {
+		for _, results := range [][]*maa.RecognitionResult{detail1.Results.Best, detail1.Results.All} {
+			if len(results) > 0 {
+				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+					log.Info().Msgf("Quota region 1 OCR: %s", ocrResult.Text)
+					// Parse "x/y" format
+					re := regexp.MustCompile(`(\d+)/(\d+)`)
+					if matches := re.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
+						x, _ = strconv.Atoi(matches[1])
+						y, _ = strconv.Atoi(matches[2])
+						log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
 					}
+					break
 				}
 			}
 		}
 	}
 
-	// OCR region 2: [250, 130, 110, 30] to get "a小时后+b" or "a分钟后+b"
-	ocrParam2 := &maa.NodeOCRParam{
-		ROI:       maa.NewTargetRect(maa.Rect{250, 130, 110, 30}),
-		OrderBy:   "Expected",
-		Expected:  []string{".*"},
-		Threshold: 0.3,
-	}
-
-	detail2 := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam2, img)
-	if detail2 != nil && detail2.DetailJson != "" {
-		var rawResults2 map[string]interface{}
-		if err := json.Unmarshal([]byte(detail2.DetailJson), &rawResults2); err == nil {
-			for _, key := range []string{"best", "all"} {
-				if data, ok := rawResults2[key]; ok {
-					if text := extractTextFromOCRResult(data); text != "" {
-						log.Info().Msgf("Quota region 2 OCR: %s", text)
-						// Try pattern with hours
-						reHours := regexp.MustCompile(`(\d+)\s*小时.*?[+]\s*(\d+)`)
-						if matches := reHours.FindStringSubmatch(text); len(matches) >= 3 {
-							hoursLater, _ = strconv.Atoi(matches[1])
-							b, _ = strconv.Atoi(matches[2])
-							log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
-							break
-						}
-						// Try pattern with minutes
-						reMinutes := regexp.MustCompile(`(\d+)\s*分钟.*?[+]\s*(\d+)`)
-						if matches := reMinutes.FindStringSubmatch(text); len(matches) >= 3 {
-							b, _ = strconv.Atoi(matches[2])
-							hoursLater = 0
-							log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
-							break
-						}
-						// Fallback: just find "+b"
-						reFallback := regexp.MustCompile(`[+]\s*(\d+)`)
-						if matches := reFallback.FindStringSubmatch(text); len(matches) >= 2 {
-							b, _ = strconv.Atoi(matches[1])
-							hoursLater = 0
-							log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
-						}
+	// OCR region 2: 使用预定义的配额下次增加Pipeline
+	detail2 := ctx.RunRecognition("[Resell]ROI_Quota_NextAdd", img, nil)
+	if detail2 != nil && detail2.Results != nil {
+		for _, results := range [][]*maa.RecognitionResult{detail2.Results.Best, detail2.Results.All} {
+			if len(results) > 0 {
+				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+					log.Info().Msgf("Quota region 2 OCR: %s", ocrResult.Text)
+					// Try pattern with hours
+					reHours := regexp.MustCompile(`(\d+)\s*小时.*?[+]\s*(\d+)`)
+					if matches := reHours.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
+						hoursLater, _ = strconv.Atoi(matches[1])
+						b, _ = strconv.Atoi(matches[2])
+						log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
 						break
 					}
+					// Try pattern with minutes
+					reMinutes := regexp.MustCompile(`(\d+)\s*分钟.*?[+]\s*(\d+)`)
+					if matches := reMinutes.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
+						b, _ = strconv.Atoi(matches[2])
+						hoursLater = 0
+						log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
+						break
+					}
+					// Fallback: just find "+b"
+					reFallback := regexp.MustCompile(`[+]\s*(\d+)`)
+					if matches := reFallback.FindStringSubmatch(ocrResult.Text); len(matches) >= 2 {
+						b, _ = strconv.Atoi(matches[1])
+						hoursLater = 0
+						log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
+					}
+					break
 				}
 			}
 		}
 	}
 
 	return x, y, hoursLater, b
-}
-
-// extractTextFromOCRResult - Extract text string from OCR result data
-func extractTextFromOCRResult(data interface{}) string {
-	switch v := data.(type) {
-	case []interface{}:
-		if len(v) > 0 {
-			if result, ok := v[0].(map[string]interface{}); ok {
-				if text, ok := result["text"].(string); ok {
-					return text
-				}
-			}
-		}
-	case map[string]interface{}:
-		if text, ok := v["text"].(string); ok {
-			return text
-		}
-	}
-	return ""
 }
 
 // ResellShowMessage - Show message to user with focus
