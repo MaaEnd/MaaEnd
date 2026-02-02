@@ -3,26 +3,199 @@
     "$__mpe_code": {
       "prefix": "",
       "savedViewport": {
-        "x": -2360,
-        "y": -653,
-        "zoom": 1.35
+        "x": -1226,
+        "y": -178,
+        "zoom": 1
       },
       "filename": "SellProduct",
-      "version": "v1.0.1"
+      "version": "v1.0.2"
     }
+  },
+  "SellProductZeroMoney": {
+    "doc": "调度券余量为0",
+    "recognition": {
+      "type": "OCR",
+      "param": {
+        "expected": [
+          "不足"
+        ],
+        "roi": [
+          950,
+          630,
+          300,
+          60
+        ]
+      }
+    },
+    "$__mpe_code": {
+      "position": {
+        "x": 2434,
+        "y": 120
+      }
+    },
+    "next": [
+      "SellProductNext"
+    ]
+  },
+  "SellProductNext": {
+    "doc": "下一个据点",
+    "recognition": {
+      "type": "OCR",
+      "param": {
+        "expected": [
+          "交易",
+          "不足",
+          "上限"
+        ],
+        "roi": [
+          1000,
+          640,
+          250,
+          100
+        ]
+      }
+    },
+    "action": {
+      "type": "ClickKey",
+      "param": {
+        "key": [
+          69
+        ]
+      }
+    },
+    "$__mpe_code": {
+      "position": {
+        "x": 3135,
+        "y": 383
+      }
+    },
+    "next": [
+      "SellProductCheckLocalDone"
+    ]
+  },
+  "SellProductLocalDone": {
+    "doc": "选择据点回到第一个，即完成了该地区所有据点",
+    "recognition": {
+      "type": "ColorMatch",
+      "param": {
+        "lower": [
+          [
+            250,
+            250,
+            0
+          ]
+        ],
+        "upper": [
+          [
+            255,
+            255,
+            20
+          ]
+        ],
+        "roi": [
+          140,
+          60,
+          200,
+          60
+        ]
+      }
+    },
+    "action": {
+      "type": "ClickKey",
+      "param": {
+        "key": [
+          27
+        ]
+      }
+    },
+    "$__mpe_code": {
+      "position": {
+        "x": 3806,
+        "y": 371
+      }
+    },
+    "next": [
+      "SellProductLocalChange0"
+    ]
+  },
+  "SellProductCheckLocalDone": {
+    "doc": "判断该地区是否结束",
+    "recognition": {
+      "type": "OCR",
+      "param": {
+        "expected": [
+          "交易",
+          "不足",
+          "上限"
+        ],
+        "roi": [
+          1000,
+          640,
+          250,
+          100
+        ]
+      }
+    },
+    "$__mpe_code": {
+      "position": {
+        "x": 3444,
+        "y": 126
+      }
+    },
+    "next": [
+      "SellProductLocalDone",
+      "SellProductCanSell"
+    ]
+  },
+  "SellProductClickBarRight": {
+    "doc": "点击进度条最右侧",
+    "recognition": {
+      "type": "TemplateMatch",
+      "param": {
+        "template": [
+          "SellProduct/SellProductBarRight.png"
+        ],
+        "roi": [
+          1125,
+          537,
+          78,
+          73
+        ]
+      }
+    },
+    "action": {
+      "type": "Click",
+      "param": {
+        "target_offset": [
+          0,
+          25,
+          -20,
+          -40
+        ]
+      }
+    },
+    "$__mpe_code": {
+      "position": {
+        "x": 2130,
+        "y": 396
+      }
+    },
+    "next": [
+      "SellProductSell"
+    ]
   },
   "SellProductMain": {
     "post_delay": 500,
     "doc": "脚本入口",
     "$__mpe_code": {
       "position": {
-        "x": 300,
-        "y": 72
+        "x": 301,
+        "y": 61
       }
     },
     "next": [
       "SellProductEnterDevelopment",
-      "SellProductEsc2Home"
+      "[JumpBack]SellProductEsc2Home"
     ]
   },
   "SellProductEnterDevelopment": {
@@ -53,7 +226,7 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 600,
+        "x": 648,
         "y": 0
       }
     },
@@ -75,21 +248,24 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 293,
-        "y": 468
+        "x": 489,
+        "y": 423
       }
-    },
-    "next": [
-      "SellProductMain"
-    ]
+    }
   },
   "SellProductEnterManagement": {
     "doc": "进入据点管理",
     "recognition": {
-      "type": "TemplateMatch",
+      "type": "OCR",
       "param": {
-        "template": [
-          "SellProduct/SellProductManagementEntry.png"
+        "roi": [
+          700,
+          100,
+          550,
+          500
+        ],
+        "expected": [
+          "据点管理"
         ]
       }
     },
@@ -99,112 +275,16 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 820,
-        "y": 389
+        "x": 924,
+        "y": 348
       }
     },
     "next": [
       "SellProductSwitch"
     ]
   },
-  "SellProduct11": {
-    "max_hit": 1,
-    "doc": "难民暂居处",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "难民",
-          "暂居处"
-        ],
-        "roi": [
-          50,
-          50,
-          1500,
-          100
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {}
-    },
-    "$__mpe_code": {
-      "position": {
-        "x": 1463,
-        "y": 64
-      }
-    },
-    "next": [
-      "SellProductFindBar"
-    ]
-  },
-  "SellProduct12": {
-    "max_hit": 1,
-    "doc": "基地前站",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "基地",
-          "前站"
-        ],
-        "roi": [
-          50,
-          50,
-          1500,
-          100
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {}
-    },
-    "$__mpe_code": {
-      "position": {
-        "x": 1607,
-        "y": 202
-      }
-    },
-    "next": [
-      "SellProductFindBar"
-    ]
-  },
-  "SellProduct21": {
-    "max_hit": 1,
-    "doc": "天王坪援建点",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "天王",
-          "援建点"
-        ],
-        "roi": [
-          50,
-          50,
-          1500,
-          100
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {}
-    },
-    "$__mpe_code": {
-      "position": {
-        "x": 1531,
-        "y": 617
-      }
-    },
-    "next": [
-      "SellProductFindBar"
-    ]
-  },
-  "SellProductFindBar": {
-    "doc": "滑动滑动条",
+  "SellProductDragBar": {
+    "doc": "备选方案-滑动滑动条",
     "recognition": {
       "type": "TemplateMatch",
       "param": {
@@ -237,8 +317,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2068,
-        "y": 603
+        "x": 1978,
+        "y": 546
       }
     },
     "next": [
@@ -265,16 +345,12 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 1136,
-        "y": 484
+        "x": 1269,
+        "y": 415
       }
     },
     "next": [
-      "SellProduct11",
-      "SellProduct12",
-      "SellProduct13",
-      "SellProduct21",
-      "SellProducctLocalDone"
+      "SellProductCanSell"
     ]
   },
   "SellProductForthValley": {
@@ -296,8 +372,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2065,
-        "y": 933
+        "x": 2345,
+        "y": 800
       }
     },
     "next": [
@@ -322,8 +398,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2073,
-        "y": 1212
+        "x": 2353,
+        "y": 1039
       }
     },
     "next": [
@@ -342,8 +418,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 1668,
-        "y": 1561
+        "x": 1930,
+        "y": 1248
       }
     }
   },
@@ -369,8 +445,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2447,
-        "y": 944
+        "x": 2786,
+        "y": 809
       }
     },
     "next": [
@@ -399,8 +475,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2452,
-        "y": 1205
+        "x": 2792,
+        "y": 1033
       }
     },
     "next": [
@@ -429,8 +505,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2807,
-        "y": 949
+        "x": 3203,
+        "y": 813
       }
     },
     "next": [
@@ -459,8 +535,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2819,
-        "y": 1204
+        "x": 3217,
+        "y": 1032
       }
     },
     "next": [
@@ -489,8 +565,8 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 452,
-        "y": 1550
+        "x": 1194,
+        "y": 1150
       }
     },
     "next": [
@@ -515,13 +591,27 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 1363,
-        "y": 953
+        "x": 1676,
+        "y": 860
       }
     },
     "next": [
       "SellProductLocalCounter",
       "SellProductEnd"
+    ]
+  },
+  "SellProductLocalCounter": {
+    "max_hit": 1,
+    "doc": "max_hit为地区数-1",
+    "$__mpe_code": {
+      "position": {
+        "x": 1954,
+        "y": 864
+      }
+    },
+    "next": [
+      "SellProductForthValley",
+      "SellProductWuling"
     ]
   },
   "SellProductSell": {
@@ -546,15 +636,15 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2411,
-        "y": 617
+        "x": 2453,
+        "y": 423
       }
     },
     "next": [
-      "SellProductCheck"
+      "SellProductSellCheck"
     ]
   },
-  "SellProductCheck": {
+  "SellProductSellCheck": {
     "doc": "交易后确认",
     "recognition": {
       "type": "TemplateMatch",
@@ -576,78 +666,65 @@
     },
     "$__mpe_code": {
       "position": {
-        "x": 2754,
-        "y": 622
+        "x": 2791,
+        "y": 417
       }
     },
     "next": [
-      "SellProductSwitch"
+      "SellProductNext"
     ]
   },
-  "SellProduct13": {
-    "max_hit": 1,
-    "doc": "重建指挥部",
+  "SellProductCanSell": {
+    "doc": "判断当前能不能出售的虚节点",
+    "$__mpe_code": {
+      "position": {
+        "x": 1674,
+        "y": 392
+      }
+    },
+    "next": [
+      "SellProductZeroProduct",
+      "SellProductZeroMoney",
+      "SellProductClickBarRight",
+      "SellProductDragBar"
+    ]
+  },
+  "SellProductZeroProduct": {
+    "doc": "货物数量是0",
     "recognition": {
-      "type": "OCR",
+      "type": "ColorMatch",
       "param": {
-        "expected": [
-          "重建",
-          "指挥部"
+        "lower": [
+          [
+            255,
+            110,
+            110
+          ]
+        ],
+        "upper": [
+          [
+            255,
+            130,
+            130
+          ]
         ],
         "roi": [
-          50,
-          50,
-          1500,
-          100
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {}
-    },
-    "$__mpe_code": {
-      "position": {
-        "x": 1745,
-        "y": 301
-      }
-    },
-    "next": [
-      "SellProductFindBar"
-    ]
-  },
-  "SellProducctLocalDone": {
-    "doc": "未识别",
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": [
-          27
-        ]
+          1118,
+          286,
+          75,
+          86
+        ],
+        "count": 10
       }
     },
     "$__mpe_code": {
       "position": {
-        "x": 1055,
-        "y": 854
+        "x": 2453,
+        "y": -244
       }
     },
     "next": [
-      "SellProductLocalChange0"
-    ]
-  },
-  "SellProductLocalCounter": {
-    "max_hit": 1,
-    "doc": "max_hit为地区数-1",
-    "$__mpe_code": {
-      "position": {
-        "x": 1728,
-        "y": 1008
-      }
-    },
-    "next": [
-      "SellProductForthValley",
-      "SellProductWuling"
+      "SellProductNext"
     ]
   }
 }
