@@ -13,7 +13,8 @@
                 "QuickTeleport",
                 "AutoZipline",
                 "AutoPat",
-                "AutoTaskInterval"
+                "AutoTaskInterval",
+                "123"
             ],
             "controller": [
                 "Win32",
