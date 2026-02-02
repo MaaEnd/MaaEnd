@@ -66,7 +66,7 @@ func getPossibleHues(puzzles []*PuzzleDesc) []int {
 func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	maxExtent := BOARD_MAX_EXTENT_ONE_SIDE
 	biasFactor := 0.075
-	cropFactor := 0.8 // important
+	cropFactor := 0.75 // important
 	bestW, bestH := 0, 0
 
 	// Convert to SVGB format
@@ -499,6 +499,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 2. Ensure tab state and determine board size (moved from step 4)
 	img = doEnsureTab(ctx, img)
+	if img == nil {
+		log.Error().Msg("Failed to ensure tab state: screenshot capture failed")
+		return nil, false
+	}
 
 	boardSize := getPossibleBoardSize(ctx, img)
 	if boardSize[0] == 0 || boardSize[1] == 0 {

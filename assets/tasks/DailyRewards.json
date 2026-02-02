@@ -4,7 +4,6 @@
             "name": "DailyRewards",
             "label": "$task.DailyRewards.label",
             "entry": "DailyRewardStart",
-            "default_check": true,
             "description": "$task.DailyRewards.description",
             "option": [
                 "DailyEmailRewards",
