@@ -266,5 +266,31 @@
         "post_delay": 500,
         "action": "Custom",
         "custom_action": "ResellInitAction"
+    },
+    "[Resell]OCRExtractNumber": {
+        "doc": "OCR识别数字的基础模板，ROI和only_rec通过override动态传递",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "expected": "[0-9]+",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ]
+    },
+    "[Resell]OCRExtractText": {
+        "doc": "OCR识别文本的基础模板，ROI通过override动态传递",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "expected": ".*",
+        "threshold": 0.8,
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ]
     }
 }
