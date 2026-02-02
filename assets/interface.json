@@ -101,6 +101,7 @@
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",
         "tasks/AndroidOpenGame.json",
-        "tasks/DeliveryJobs.json"
+        "tasks/DeliveryJobs.json",
+        "tasks/DijiangRewards.json"
     ]
 }
