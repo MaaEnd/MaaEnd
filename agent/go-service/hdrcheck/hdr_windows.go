@@ -105,6 +105,14 @@ type DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO struct {
 	BitsPerColorChannel       uint32
 }
 
+// Windows error codes
+const (
+	ERROR_INSUFFICIENT_BUFFER = 122
+)
+
+// Maximum retry attempts for display config query
+const maxRetries = 3
+
 // IsHDREnabled checks if HDR is enabled on any display
 func IsHDREnabled() (bool, error) {
 	// Check if required APIs are available (may not exist on older Windows)
@@ -118,48 +126,19 @@ func IsHDREnabled() (bool, error) {
 		return false, err
 	}
 
-	var numPathArrayElements, numModeInfoArrayElements uint32
-
-	// Get buffer sizes
-	ret, _, _ := procGetDisplayConfigBufferSizes.Call(
-		uintptr(QDC_ONLY_ACTIVE_PATHS),
-		uintptr(unsafe.Pointer(&numPathArrayElements)),
-		uintptr(unsafe.Pointer(&numModeInfoArrayElements)),
-	)
-	if ret != 0 {
-		return false, windows.Errno(ret)
+	// Query display config with retry logic for topology changes
+	pathArray, err := queryDisplayConfigWithRetry()
+	if err != nil {
+		return false, err
 	}
 
-	if numPathArrayElements == 0 {
+	if len(pathArray) == 0 {
 		return false, nil
 	}
 
-	// Allocate arrays
-	pathArray := make([]DISPLAYCONFIG_PATH_INFO, numPathArrayElements)
-
-	// Prepare pointers for QueryDisplayConfig
-	// modeInfoArray can be empty, need to handle nil case to avoid panic
-	var modeInfoPtr unsafe.Pointer
-	if numModeInfoArrayElements > 0 {
-		modeInfoArray := make([]DISPLAYCONFIG_MODE_INFO, numModeInfoArrayElements)
-		modeInfoPtr = unsafe.Pointer(&modeInfoArray[0])
-	}
-
-	// Query display config
-	ret, _, _ = procQueryDisplayConfig.Call(
-		uintptr(QDC_ONLY_ACTIVE_PATHS),
-		uintptr(unsafe.Pointer(&numPathArrayElements)),
-		uintptr(unsafe.Pointer(&pathArray[0])),
-		uintptr(unsafe.Pointer(&numModeInfoArrayElements)),
-		uintptr(modeInfoPtr),
-		0,
-	)
-	if ret != 0 {
-		return false, windows.Errno(ret)
-	}
-
 	// Check each active path for HDR
-	for i := uint32(0); i < numPathArrayElements; i++ {
+	var successCount int
+	for i := range pathArray {
 		colorInfo := DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO{
 			Header: DISPLAYCONFIG_DEVICE_INFO_HEADER{
 				Type:      DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO,
@@ -169,13 +148,14 @@ func IsHDREnabled() (bool, error) {
 			},
 		}
 
-		ret, _, _ = procDisplayConfigGetDeviceInfo.Call(
+		ret, _, _ := procDisplayConfigGetDeviceInfo.Call(
 			uintptr(unsafe.Pointer(&colorInfo)),
 		)
 		if ret != 0 {
 			// Skip this display if we can't get info
 			continue
 		}
+		successCount++
 
 		// Check if HDR is enabled (bit 1 of Value field)
 		// Bit 0: advancedColorSupported
@@ -188,5 +168,62 @@ func IsHDREnabled() (bool, error) {
 		}
 	}
 
+	// If we couldn't query any display successfully, return error
+	if successCount == 0 {
+		return false, windows.ERROR_GEN_FAILURE
+	}
+
 	return false, nil
+}
+
+// queryDisplayConfigWithRetry queries display config with retry on ERROR_INSUFFICIENT_BUFFER
+func queryDisplayConfigWithRetry() ([]DISPLAYCONFIG_PATH_INFO, error) {
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		var numPathArrayElements, numModeInfoArrayElements uint32
+
+		// Get buffer sizes
+		ret, _, _ := procGetDisplayConfigBufferSizes.Call(
+			uintptr(QDC_ONLY_ACTIVE_PATHS),
+			uintptr(unsafe.Pointer(&numPathArrayElements)),
+			uintptr(unsafe.Pointer(&numModeInfoArrayElements)),
+		)
+		if ret != 0 {
+			return nil, windows.Errno(ret)
+		}
+
+		if numPathArrayElements == 0 {
+			return nil, nil
+		}
+
+		// Allocate arrays
+		pathArray := make([]DISPLAYCONFIG_PATH_INFO, numPathArrayElements)
+
+		// Prepare pointers for QueryDisplayConfig
+		// modeInfoArray can be empty, need to handle nil case to avoid panic
+		var modeInfoPtr unsafe.Pointer
+		if numModeInfoArrayElements > 0 {
+			modeInfoArray := make([]DISPLAYCONFIG_MODE_INFO, numModeInfoArrayElements)
+			modeInfoPtr = unsafe.Pointer(&modeInfoArray[0])
+		}
+
+		// Query display config
+		ret, _, _ = procQueryDisplayConfig.Call(
+			uintptr(QDC_ONLY_ACTIVE_PATHS),
+			uintptr(unsafe.Pointer(&numPathArrayElements)),
+			uintptr(unsafe.Pointer(&pathArray[0])),
+			uintptr(unsafe.Pointer(&numModeInfoArrayElements)),
+			uintptr(modeInfoPtr),
+			0,
+		)
+		if ret == 0 {
+			// Trim pathArray to actual count (may be less than allocated)
+			return pathArray[:numPathArrayElements], nil
+		}
+		if ret != ERROR_INSUFFICIENT_BUFFER {
+			return nil, windows.Errno(ret)
+		}
+		// Topology changed, retry with new buffer sizes
+	}
+
+	return nil, windows.ERROR_INSUFFICIENT_BUFFER
 }
