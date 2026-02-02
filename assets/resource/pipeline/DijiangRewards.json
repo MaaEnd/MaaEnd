@@ -1504,9 +1504,10 @@
         },
         "next": [
             "AlreadyInCarbin",
-            "ControlNexusClickTips",
             "[JumpBack]ConfirmRestock",
-            "[JumpBack]ConfirmExchangeEnd"
+            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]Receive",
+            "ControlNexusClickTips"
         ]
     },
     "AlreadyInCarbin": {
