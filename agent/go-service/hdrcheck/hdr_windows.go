@@ -107,6 +107,17 @@ type DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO struct {
 
 // IsHDREnabled checks if HDR is enabled on any display
 func IsHDREnabled() (bool, error) {
+	// Check if required APIs are available (may not exist on older Windows)
+	if err := procGetDisplayConfigBufferSizes.Find(); err != nil {
+		return false, err
+	}
+	if err := procQueryDisplayConfig.Find(); err != nil {
+		return false, err
+	}
+	if err := procDisplayConfigGetDeviceInfo.Find(); err != nil {
+		return false, err
+	}
+
 	var numPathArrayElements, numModeInfoArrayElements uint32
 
 	// Get buffer sizes
@@ -125,7 +136,14 @@ func IsHDREnabled() (bool, error) {
 
 	// Allocate arrays
 	pathArray := make([]DISPLAYCONFIG_PATH_INFO, numPathArrayElements)
-	modeInfoArray := make([]DISPLAYCONFIG_MODE_INFO, numModeInfoArrayElements)
+
+	// Prepare pointers for QueryDisplayConfig
+	// modeInfoArray can be empty, need to handle nil case to avoid panic
+	var modeInfoPtr unsafe.Pointer
+	if numModeInfoArrayElements > 0 {
+		modeInfoArray := make([]DISPLAYCONFIG_MODE_INFO, numModeInfoArrayElements)
+		modeInfoPtr = unsafe.Pointer(&modeInfoArray[0])
+	}
 
 	// Query display config
 	ret, _, _ = procQueryDisplayConfig.Call(
@@ -133,7 +151,7 @@ func IsHDREnabled() (bool, error) {
 		uintptr(unsafe.Pointer(&numPathArrayElements)),
 		uintptr(unsafe.Pointer(&pathArray[0])),
 		uintptr(unsafe.Pointer(&numModeInfoArrayElements)),
-		uintptr(unsafe.Pointer(&modeInfoArray[0])),
+		uintptr(modeInfoPtr),
 		0,
 	)
 	if ret != 0 {
