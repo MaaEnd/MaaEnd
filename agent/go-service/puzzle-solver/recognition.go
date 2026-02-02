@@ -482,7 +482,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	img := arg.Img // 1280x720 for MaaEnd
 	if img == nil {
-		log.Error().Msg("Prepared image is nil")
+		log.Error().
+			Str("recognition", arg.CustomRecognitionName).
+			Str("task", arg.CurrentTaskName).
+			Msg("Prepared image is nil")
 		return nil, false
 	}
 
@@ -500,13 +503,19 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 	// 2. Ensure tab state and determine board size (moved from step 4)
 	img = doEnsureTab(ctx, img)
 	if img == nil {
-		log.Error().Msg("Failed to ensure tab state (screenshot failed)")
+		log.Error().
+			Str("recognition", arg.CustomRecognitionName).
+			Str("task", arg.CurrentTaskName).
+			Msg("Failed to ensure tab state: screenshot capture failed")
 		return nil, false
 	}
 
 	boardSize := getPossibleBoardSize(ctx, img)
 	if boardSize[0] == 0 || boardSize[1] == 0 {
-		log.Error().Msg("Failed to determine board size")
+		log.Error().
+			Str("recognition", arg.CustomRecognitionName).
+			Str("task", arg.CurrentTaskName).
+			Msg("Failed to determine board size")
 		return nil, false
 	}
 	log.Info().Int("boardW", boardSize[0]).Int("boardH", boardSize[1]).Msg("Determined possible board size")
@@ -531,6 +540,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		// Validate projection list dimensions match board size
 		if len(projDesc.XProjList) != boardSize[0] || len(projDesc.YProjList) != boardSize[1] {
 			log.Error().
+				Str("recognition", arg.CustomRecognitionName).
+				Str("task", arg.CurrentTaskName).
 				Int("hue", hue).
 				Int("XProjLen", len(projDesc.XProjList)).Int("YProjLen", len(projDesc.YProjList)).
 				Int("boardW", boardSize[0]).Int("boardH", boardSize[1]).
