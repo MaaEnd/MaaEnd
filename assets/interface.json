@@ -90,18 +90,18 @@
     "import": [
         "tasks/RealTimeTask.json",
         "tasks/PuzzleSolver.json",
-        "tasks/ClaimSimulationRewards.json",
+        "tasks/DijiangRewards.json",
+        "tasks/DailyRewards.json",
         "tasks/AutoResell.json",
         "tasks/ImportBluePrints.json",
-        "tasks/DailyRewards.json",
+        "tasks/DeliveryJobs.json",
+        "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
-        "tasks/ReadAllWiki.json",
         "tasks/ReceiveProdManual.json",
+        "tasks/ReadAllWiki.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",
-        "tasks/AndroidOpenGame.json",
-        "tasks/DeliveryJobs.json",
-        "tasks/DijiangRewards.json"
+        "tasks/AndroidOpenGame.json"
     ]
 }
