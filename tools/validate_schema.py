@@ -149,7 +149,7 @@ def validate_file(file_path, validator):
             print(f"   Found {len(errors)} error(s):")
             for idx, error in enumerate(errors[:10], 1):
                 path = "/" + "/".join(str(p) for p in error.path) if error.path else "/"
-                print(f"   {idx}. {path}: {error.message}")
+                # print(f"   {idx}. {path}: {error.message}")
 
                 # 尝试找到行号并输出GitHub Actions格式的错误注解
                 line_num = find_line_number(file_path, path)
