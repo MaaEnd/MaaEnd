@@ -103,6 +103,41 @@ def get_validator_class(schema):
         return Draft202012Validator
 
 
+def find_line_number(file_path, json_path):
+    """在文件中查找JSON路径对应的行号
+
+    为了避免找到错误的子字段，只返回顶层对象的行号
+    例如：/NoSmallGlobe/recognition -> 返回 NoSmallGlobe 的行号
+    """
+    if not json_path or json_path == "/":
+        return None
+
+    parts = [p for p in json_path.split("/") if p]
+    if not parts:
+        return None
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # 只查找第一层（顶层对象）
+        # 确保找到的是键名（后面跟着冒号），而不是注释或字符串值
+        key = parts[0]
+        import re
+
+        # 匹配 "key": 或 "key" : 的模式
+        pattern = re.compile(rf'"{re.escape(key)}"\s*:')
+
+        for i, line in enumerate(lines):
+            if pattern.search(line):
+                return i + 1  # 行号从1开始
+
+    except:
+        pass
+
+    return None
+
+
 def validate_file(file_path, validator):
     """验证单个文件"""
     try:
@@ -115,12 +150,25 @@ def validate_file(file_path, validator):
             for idx, error in enumerate(errors[:10], 1):
                 path = "/" + "/".join(str(p) for p in error.path) if error.path else "/"
                 print(f"   {idx}. {path}: {error.message}")
+
+                # 尝试找到行号并输出GitHub Actions格式的错误注解
+                line_num = find_line_number(file_path, path)
+                if line_num:
+                    print(
+                        f"::error file={file_path},line={line_num},title=Schema Validation Error::{path}: {error.message}"
+                    )
+                else:
+                    print(
+                        f"::error file={file_path},title=Schema Validation Error::{path}: {error.message}"
+                    )
             return False
 
         print(f"✓ {file_path}")
         return True
     except Exception as e:
         print(f"\n❌ Error validating {file_path}: {e}")
+        # 输出GitHub Actions格式的错误注解
+        print(f"::error file={file_path},title=Validation Error::{e}")
         return False
 
 
