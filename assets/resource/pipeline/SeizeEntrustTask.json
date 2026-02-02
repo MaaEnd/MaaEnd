@@ -121,7 +121,7 @@
         ]
     },
     "依旧刷新": {
-        "post_delay": 400,
+        "post_delay": 1000,
         "rate_limit": 100,
         "doc": "依旧刷新动作",
         "recognition": {
@@ -148,7 +148,7 @@
     },
     "刷新": {
         "post_delay": 400,
-        "rate_limit": 100,
+        "rate_limit": 1000,
         "doc": "刷新动作",
         "recognition": {
             "type": "OCR",
