@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "SeizeEntrustTask",
+            "label": "🌆自动抢委托",
+            "entry": "SeizeEntrustTaskMain",
+            "description": "庄天师的地盘才接单～🌆只接7.31万的武陵订单~（请在运送委托列表启动此任务）",
+            "option": [],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {}
+}

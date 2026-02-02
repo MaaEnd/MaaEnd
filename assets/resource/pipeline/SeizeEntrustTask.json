@@ -1,0 +1,242 @@
+{
+    "SeizeEntrustTaskInDownSwipeUp": {
+        "inverse": true,
+        "doc": "没找到武陵城就往下翻一页",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        213,
+                        212,
+                        212
+                    ]
+                ],
+                "roi": [
+                    1252,
+                    631,
+                    10,
+                    7
+                ],
+                "upper": [
+                    [
+                        213,
+                        212,
+                        212
+                    ]
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": -240,
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ]
+            }
+        }
+    },
+    "SeizeEntrustTaskInUpSwipeDown": {
+        "inverse": true,
+        "doc": "没找到武陵城就往上翻一页",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        227,
+                        225,
+                        225
+                    ]
+                ],
+                "roi": [
+                    1250,
+                    163,
+                    14,
+                    14
+                ],
+                "upper": [
+                    [
+                        227,
+                        225,
+                        225
+                    ]
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": 240,
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ]
+            }
+        }
+    },
+    "SeizeEntrustTaskMain": {
+        "focus": {
+            "Node.Recognition.Succeeded": "现在开始抢武陵城委托"
+        },
+        "timeout": 2000,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    136,
+                    130,
+                    87,
+                    34
+                ]
+            }
+        },
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "on_error": [
+            "新建节点2"
+        ]
+    },
+    "SeizeEntrustTaskStopTask": {
+        "action": {
+            "type": "StopTask",
+            "param": {}
+        }
+    },
+    "isSeizeEntrustTaskDestinationWulingCity": {
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
+            "[JumpBack]刷新"
+        ]
+    },
+    "依旧刷新": {
+        "post_delay": 1000,
+        "rate_limit": 100,
+        "doc": "依旧刷新动作",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1075,
+                    652,
+                    98,
+                    34
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ]
+    },
+    "刷新": {
+        "post_delay": 400,
+        "rate_limit": 1000,
+        "doc": "刷新动作",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1075,
+                    652,
+                    98,
+                    34
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]依旧刷新"
+        ]
+    },
+    "新建节点2": {
+        "focus": {
+            "Node.Recognition.Succeeded": "没有在运送委托列表界面哦"
+        },
+        "action": {
+            "type": "StopTask",
+            "param": {}
+        }
+    },
+    "SeizeEntrustTaskFound7.31wMoneyF1": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.31wMoney.png"
+                ],
+                "threshold": [
+                    0.95
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskFound7.31wMoney"
+        ]
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": "SeizeEntrustTaskFound7.31wMoney",
+                "roi_offset": [
+                    169,
+                    17,
+                    188,
+                    -3
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ]
+    },
+    "SeizeEntrustTaskFound7.31wMoney": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.31wMoney.png"
+                ],
+                "threshold": [
+                    0.95
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskPostEntrust3"
+        ]
+    }
+}
