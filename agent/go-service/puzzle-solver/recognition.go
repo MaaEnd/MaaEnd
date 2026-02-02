@@ -499,6 +499,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 2. Ensure tab state and determine board size (moved from step 4)
 	img = doEnsureTab(ctx, img)
+	if img == nil {
+		log.Error().Msg("Failed to ensure tab state (screenshot failed)")
+		return nil, false
+	}
 
 	boardSize := getPossibleBoardSize(ctx, img)
 	if boardSize[0] == 0 || boardSize[1] == 0 {
