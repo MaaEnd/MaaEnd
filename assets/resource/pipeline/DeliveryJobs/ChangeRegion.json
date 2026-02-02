@@ -1,6 +1,15 @@
 {
     "DeliveryJobsGoToFourthValley": {
         "doc": "前往四号谷地",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
+        "roi": [
+            1139,
+            63,
+            135,
+            127
+        ],
         "next": [
             "DeliveryJobsCheckFourthValley",
             "[JumpBack]DeliveryJobsChangeToFourthValley",
@@ -9,6 +18,15 @@
     },
     "DeliveryJobsGoToWuLing": {
         "doc": "前往武陵",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
+        "roi": [
+            1139,
+            63,
+            135,
+            127
+        ],
         "next": [
             "DeliveryJobsCheckWuLing",
             "[JumpBack]DeliveryJobsChangeToWuLing",

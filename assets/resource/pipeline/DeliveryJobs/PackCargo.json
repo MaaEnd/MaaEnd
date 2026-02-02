@@ -28,11 +28,7 @@
             }
         ],
         "action": "Click",
-        "next": [
-            "ContainerHasOffer",
-            "EnterCargoContainer",
-            "ContainerNotReady"
-        ]
+        "next": []
     },
     "EnterWuLingDepot": {
         "doc": "进入武陵仓储节点",
@@ -63,11 +59,7 @@
             }
         ],
         "action": "Click",
-        "next": [
-            "ContainerHasOffer",
-            "EnterCargoContainer",
-            "ContainerNotReady"
-        ]
+        "next": []
     },
     "CheckFourthValleyDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁",
