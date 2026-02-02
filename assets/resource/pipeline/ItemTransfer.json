@@ -288,17 +288,14 @@
             "param": {
                 "custom_recognition": "CheckTransferLimit", // 调用 Go 的检查函数
                 "custom_recognition_param": {
-                    "MaxTimes": -3 // 🔥 核心：默认是 -1，代表“无效/未配置”
+                    "MaxTimes": -3 // 核心：默认是负数，代表“无效/未配置”
                 }
             }
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "$ItemTransfer.focus.SuccessMsg"
         }
     },
     // --- 切换到：素材 ---
     "ItemTransferSwitchToMaterial": {
-        "doc": "识别并点击[素材]分类标签",
+        "doc": "识别并点击[矿物]分类标签",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

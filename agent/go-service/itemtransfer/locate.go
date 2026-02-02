@@ -2,7 +2,6 @@ package itemtransfer
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
@@ -159,8 +158,6 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 		}
 	}
 
-	log.Warn().
-		Msg("No item with given name found. Please check input")
 	return nil, false
 	//todo: switch to next page
 
@@ -194,7 +191,6 @@ func (*TransferLimitChecker) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 	var taskParam map[string]any
 	json.Unmarshal([]byte(arg.CustomRecognitionParam), &taskParam)
 	inputMax := -1
-	log.Debug().Interface("RawParams", taskParam).Msg("Debug: Check Param Content")
 	if v, ok := taskParam["MaxTimes"].(float64); ok {
 		inputMax = int(v)
 		log.Debug().
@@ -203,27 +199,12 @@ func (*TransferLimitChecker) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 	if inputMax >= 0 {
 		currentSession.MaxTimes = inputMax
 	}
-
-	log.Debug().
-		Int("Count", currentSession.CurrentCount).
-		Int("Max", currentSession.MaxTimes).Msg("GoService: Limit Checker Running")
 	if currentSession.MaxTimes > 0 && currentSession.CurrentCount >= currentSession.MaxTimes {
 		log.Info().
 			Int("Count", currentSession.CurrentCount).
 			Int("Max", currentSession.MaxTimes).
 			Msg("GoService: Transfer limit reached. Signaling pipeline to stop.")
-		msgTemplate := "任务完成：已成功搬运 %d 次 %s"
-		finalMsg := fmt.Sprintf(msgTemplate, currentSession.CurrentCount, currentSession.ItemName)
 
-		overrideObj := map[string]interface{}{
-			"ItemTransferTaskSuccess": map[string]interface{}{
-				"focus": finalMsg,
-			},
-		}
-		overrideJson, _ := json.Marshal(overrideObj)
-		ctx.OverridePipeline(string(overrideJson))
-
-		log.Info().Str("Msg", finalMsg).Msg("GoService: Task limit reached, message prepared")
 		return &maa.CustomRecognitionResult{}, true
 
 	}
