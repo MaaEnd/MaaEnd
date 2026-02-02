@@ -69,20 +69,73 @@
             "ContainerNotReady"
         ]
     },
-    "CheckDepotLocked": {
-        "doc": "检查仓库是否解锁",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/DepotLocked.png",
-        "threshold": 0.8,
-        "roi": [
-            1179,
-            347,
-            36,
-            47
+    "CheckFourthValleyDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotLocked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1179,
+                    347,
+                    36,
+                    47
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "四号谷地"
+            }
         ],
         "pre_delay": 0,
         "focus": {
-            "Node.Action.Starting": "仓储节点未解锁"
+            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CheckWuLingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotLocked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1179,
+                    347,
+                    36,
+                    47
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "武陵"
+            }
+        ],
+        "pre_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "武陵仓储节点未解锁"
         },
         "next": [
             "CheckCurrentArea"

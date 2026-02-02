@@ -62,7 +62,7 @@
         "doc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
-            "CheckDepotLocked",
+            "CheckFourthValleyDepotLocked",
             "[JumpBack]EnterFourthValleyDepot",
             "[JumpBack]EnterDeliveryJob",
             "[JumpBack]DeliveryJobsGoToFourthValley",
@@ -73,8 +73,8 @@
         "doc": "武陵运送委托",
         "max_hit": 1,
         "next": [
-            "EnterWuLingDepot",
-            "[JumpBack]CheckDepotLocked",
+            "CheckWuLingDepotLocked",
+            "[JumpBack]EnterWuLingDepot",
             "[JumpBack]EnterDeliveryJob",
             "[JumpBack]DeliveryJobsGoToWuLing",
             "[JumpBack]EnterRegionalConstruction"
