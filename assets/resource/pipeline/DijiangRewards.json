@@ -897,8 +897,28 @@
             "[JumpBack]ReceiveClues",
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
-            "[JumpBack]ExitReceptionRoom"
+            "[JumpBack]ExitReceptionRoom",
+            "[JumpBack]ConfirmExchangeEnd"
         ]
+    },
+    "ConfirmExchangeEnd": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    685,
+                    616,
+                    73,
+                    70
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ConfirmRestock.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "InControlNexus": {
         "recognition": {
