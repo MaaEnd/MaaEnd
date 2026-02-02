@@ -19,6 +19,8 @@
     "option.AutoPick.label": "自動拾取",
     "option.QuickTeleport.label": "快速傳送",
     "option.QuickTeleport.description": "在大地圖上點擊傳送點（或列表中有傳送點）時，自動點擊傳送",
+    "option.AutoPuzzleSolving.label": "自動解拼圖",
+    "option.AutoPuzzleSolving.description": "自動幫你通關拼圖小遊戲（等價於開啟⌈🧩自動解拼圖⌋任務的重複執行）",
     "option.AutoTaskInterval.label": "即時輔助間隔",
     "option.AutoTaskInterval.inputs.CheckInterval.label": "檢測間隔(ms)",
     "option.AutoTaskInterval.inputs.CheckInterval.description": "過小的檢測間隔可能會導致卡頓，請根據實際情況調整，建議至少大於 50ms",
