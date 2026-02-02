@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
