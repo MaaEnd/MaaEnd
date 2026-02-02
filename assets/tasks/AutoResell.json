@@ -11,7 +11,8 @@
                 "Win32-Front"
             ],
             "option": [
-                "ImportMinimumProfit"
+                "ImportMinimumProfit",
+                "DisableChangeRegion"
             ]
         }
     ],
@@ -40,6 +41,35 @@
                     }
                 }
             }
+        },
+        "DisableChangeRegion": {
+            "type": "switch",
+            "label": "$option.DisableChangeRegion.label",
+            "default": false,
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ResellFristAreaInWuLing": {
+                            "enable": false
+                        },
+                        "ChangeNextRegion": {
+                            "enable": false
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ResellFristAreaInWuLing": {
+                            "enable": true
+                        },
+                        "ChangeNextRegion": {
+                            "enable": true
+                        }
+                    }
+                }
+            ]
         }
     }
 }

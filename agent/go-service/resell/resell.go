@@ -11,6 +11,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	is_only_rec  = true
+	not_only_rec = false
+)
+
 // ProfitRecord stores profit information for each friend
 type ProfitRecord struct {
 	Row       int
@@ -96,7 +101,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 40)
+			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 40, not_only_rec)
 			if !success {
 				log.Info().Int("roiX", currentROIX).Int("roiY", roiY).Msg("[Resell]位置无数字，说明无商品，下一行")
 				break
@@ -118,14 +123,14 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				currentROIX += 150
 				continue
 			}
-		//商品详情页右下角识别的成本价格为准
-		controller.PostScreencap().Wait()
-		ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27)
-		if success {
-			costPrice = ConfirmcostPrice
-		} else {
-			log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
-		}
+			//商品详情页右下角识别的成本价格为准
+			controller.PostScreencap().Wait()
+			ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27, is_only_rec)
+			if success {
+				costPrice = ConfirmcostPrice
+			} else {
+				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+			}
 			log.Info().Int("No.", stepCounter).Int("Cost", costPrice).Msg("[Resell]商品售价")
 			// 单击“查看好友价格”按钮
 			controller.PostClick(944+98/2, 446+26/2)
@@ -136,7 +141,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 600)
 			controller.PostScreencap().Wait()
 
-			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28)
+			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28, is_only_rec)
 			if !success {
 				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
 				currentROIX += 150
@@ -269,7 +274,7 @@ func extractNumbersFromText(text string) (int, bool) {
 }
 
 // ocrExtractNumber - OCR region and extract first number found
-func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width, height int) (int, bool) {
+func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width, height int, only_rec bool) (int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
 		log.Info().Msg("[OCR] 截图失败")
@@ -281,6 +286,7 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 		OrderBy:   "Expected",
 		Expected:  []string{"[0-9]+"},
 		Threshold: 0.3,
+		OnlyRec:   only_rec,
 	}
 
 	detail := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeOCR, ocrParam, img)
