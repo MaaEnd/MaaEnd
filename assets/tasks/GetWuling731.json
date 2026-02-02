@@ -1,0 +1,11 @@
+{
+    "task": [
+        {
+            "name": "GetWuling731",
+            "label": "$task.GetWuling731.label",
+            "entry": "GetWuling731",
+            "default_check": false,
+            "description": "$task.GetWuling731.description"
+        }
+    ]
+}
