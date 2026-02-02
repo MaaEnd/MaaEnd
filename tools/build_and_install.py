@@ -229,7 +229,9 @@ def build_go_agent(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="MaaEnd 构建工具：处理构建所需资源并创建安装目录")
+    parser = argparse.ArgumentParser(
+        description="MaaEnd 构建工具：处理构建所需资源并创建安装目录"
+    )
     parser.add_argument("--ci", action="store_true", help="CI 模式：复制文件而非链接")
     parser.add_argument("--os", dest="target_os", help="目标操作系统 (win/macos/linux)")
     parser.add_argument("--arch", dest="target_arch", help="目标架构 (x86_64/aarch64)")
@@ -303,7 +305,10 @@ def main():
             print("为了使用 MaaFramework，您还需要：")
             print("  下载 MaaFramework 并解压 bin 内容到 install/maafw/")
             print("  https://github.com/MaaXYZ/MaaFramework/releases")
-        if not (install_dir / "mxu").exists() and not (install_dir / "mxu.exe").exists():
+        if (
+            not (install_dir / "mxu").exists()
+            and not (install_dir / "mxu.exe").exists()
+        ):
             print()
             print("为了使用 MXU，您还需要：")
             print("  下载 MXU 并解压到 install/")

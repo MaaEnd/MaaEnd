@@ -140,11 +140,14 @@ def update_png_with_oxipng(file_path: str, perfect_pngs: dict, quiet: bool):
     oxipng_cmd_base = ["oxipng", "-o", "max", "--fast", "-Z", "-s"]
     if quiet:
         oxipng_cmd_base.append("-q")
-    
+
     # First pass
     subprocess.run(oxipng_cmd_base + [file_path], check=True)
     # Second pass
-    subprocess.run(["oxipng", "-o", "2", "-s"] + (["-q"] if quiet else []) + [file_path], check=True)
+    subprocess.run(
+        ["oxipng", "-o", "2", "-s"] + (["-q"] if quiet else []) + [file_path],
+        check=True,
+    )
 
     sz_after = os.stat(file_path).st_size
 
@@ -207,7 +210,7 @@ if __name__ == "__main__":
 
     if len(paths) == 0:
         docs_dir = cur_dir.parent.parent / "docs"
-        resource_dir = cur_dir.parent.parent/ "assets" / "resource"
+        resource_dir = cur_dir.parent.parent / "assets" / "resource"
         paths = [
             str(resource_dir),
             str(docs_dir),
