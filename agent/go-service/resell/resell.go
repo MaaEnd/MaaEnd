@@ -11,11 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	is_only_rec  = true
-	not_only_rec = false
-)
-
 // ProfitRecord stores profit information for each friend
 type ProfitRecord struct {
 	Row       int
@@ -77,63 +72,59 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msg("Failed to parse quota or no quota found, proceeding with normal flow")
 	}
 
-	// Define three rows with different Y coordinates
-	roiRows := []int{360, 484, 567}
+	// Define product positions using predefined Pipeline names
 	rowNames := []string{"第一行", "第二行", "第三行"}
+	maxCols := 8 // Maximum 8 columns per row
 
 	// Process multiple items by scanning across ROI
 	records := make([]ProfitRecord, 0)
 	maxProfit := 0
 
 	// For each row
-	for rowIdx, roiY := range roiRows {
+	for rowIdx := 0; rowIdx < 3; rowIdx++ {
 		log.Info().Str("行", rowNames[rowIdx]).Msg("[Resell]当前处理")
-		// Start with base ROI x coordinate
-		currentROIX := 72
-		maxROIX := 1200 // Reasonable upper limit to prevent infinite loops
-		stepCounter := 0
 
-		for currentROIX < maxROIX {
-			log.Info().Int("roiX", currentROIX).Int("roiY", roiY).Msg("[Resell]商品位置")
+		// For each column
+		for col := 1; col <= maxCols; col++ {
+			log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]商品位置")
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
-			stepCounter++
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			costPrice, success := ocrExtractNumber(ctx, controller, currentROIX, roiY, 141, 40, not_only_rec)
+			// 构建Pipeline名称
+			pricePipelineName := fmt.Sprintf("[Resell]ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
+			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
-				log.Info().Int("roiX", currentROIX).Int("roiY", roiY).Msg("[Resell]位置无数字，说明无商品，下一行")
+				log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
 				break
 			}
 
-			// Click on region 1
-			centerX := currentROIX + 141/2
-			centerY := roiY + 31/2
-			controller.PostClick(int32(centerX), int32(centerY))
+			// Click on product
+			controller.PostClick(int32(clickX), int32(clickY))
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
+			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
 			if !success {
 				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
-				currentROIX += 150
+
 				continue
 			}
 			//商品详情页右下角识别的成本价格为准
 			controller.PostScreencap().Wait()
-			ConfirmcostPrice, success := ocrExtractNumber(ctx, controller, 990, 490, 57, 27, is_only_rec)
+			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_DetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
 			}
-			log.Info().Int("No.", stepCounter).Int("Cost", costPrice).Msg("[Resell]商品售价")
-			// 单击“查看好友价格”按钮
-			controller.PostClick(944+98/2, 446+26/2)
+			log.Info().Int("行", rowIdx+1).Int("列", col).Int("Cost", costPrice).Msg("[Resell]商品售价")
+			// 单击"查看好友价格"按钮
+			controller.PostClick(int32(friendBtnX), int32(friendBtnY))
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
@@ -141,19 +132,15 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 600)
 			controller.PostScreencap().Wait()
 
-			salePrice, success := ocrExtractNumber(ctx, controller, 797, 294, 45, 28, is_only_rec)
+			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_FriendSalePrice")
 			if !success {
 				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
-				currentROIX += 150
 				continue
 			}
 			log.Info().Int("Price", salePrice).Msg("[Resell]好友出售价")
 			// 计算利润
 			profit := salePrice - costPrice
 			log.Info().Int("Profit", profit).Msg("[Resell]当前商品利润")
-
-			// 根据当前roiX位置计算列
-			col := (currentROIX-72)/150 + 1
 
 			// Save record with row and column information
 			record := ProfitRecord{
@@ -174,7 +161,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 1039, 135, 47, 21, "返回")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ReturnButton", "返回")
 			if success {
 				log.Info().Msg("[Resell]第四步：发现返回按钮，按ESC返回")
 				controller.PostClickKey(27)
@@ -185,14 +172,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			success = ocrExtractText(ctx, controller, 944, 446, 98, 26, "好友")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
 			if success {
 				log.Info().Msg("[Resell]第五步：关闭页面")
 				controller.PostClickKey(27)
 			}
-
-			// 移动到下一列（ROI X增加150）
-			currentROIX += 150
 		}
 	}
 
@@ -273,25 +257,19 @@ func extractNumbersFromText(text string) (int, bool) {
 	return 0, false
 }
 
-// ocrExtractNumber - OCR region and extract first number found
-// 使用 pipeline 中定义的 [Resell]OCRExtractNumber 节点，通过 override 动态传递 ROI 和 only_rec
-func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width, height int, only_rec bool) (int, bool) {
+// ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
+func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
 		log.Info().Msg("[OCR] 截图失败")
-		return 0, false
+		return 0, 0, 0, false
 	}
 
-	// 使用 RunRecognition 调用 pipeline 中定义的节点，通过 override 动态传递参数
-	detail := ctx.RunRecognition("[Resell]OCRExtractNumber", img, map[string]interface{}{
-		"[Resell]OCRExtractNumber": map[string]interface{}{
-			"roi":      []int{x, y, width, height},
-			"only_rec": only_rec,
-		},
-	})
+	// 使用 RunRecognition 调用预定义的 pipeline 节点
+	detail := ctx.RunRecognition(pipelineName, img, nil)
 	if detail == nil || detail.Results == nil {
-		log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Msg("[OCR] 区域无结果")
-		return 0, false
+		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
+		return 0, 0, 0, false
 	}
 
 	// 优先从 Best 结果中提取，然后是 All
@@ -299,34 +277,32 @@ func ocrExtractNumber(ctx *maa.Context, controller *maa.Controller, x, y, width,
 		if len(results) > 0 {
 			if ocrResult, ok := results[0].AsOCR(); ok {
 				if num, success := extractNumbersFromText(ocrResult.Text); success {
-					log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					return num, true
+					// 计算中心坐标
+					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
+					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
+					return num, centerX, centerY, true
 				}
 			}
 		}
 	}
 
-	return 0, false
+	return 0, 0, 0, false
 }
 
-// ocrExtractText - OCR region and check if recognized text contains keyword
-// 使用 pipeline 中定义的 [Resell]OCRExtractText 节点，通过 override 动态传递 ROI
-func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, height int, keyword string) bool {
+// ocrExtractTextWithCenter - OCR region using pipeline name and check if recognized text contains keyword, return center coordinates
+func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, keyword string) (bool, int, int, bool) {
 	img := controller.CacheImage()
 	if img == nil {
 		log.Info().Msg("[OCR] 未能获取截图")
-		return false
+		return false, 0, 0, false
 	}
 
-	// 使用 RunRecognition 调用 pipeline 中定义的节点，通过 override 动态传递参数
-	detail := ctx.RunRecognition("[Resell]OCRExtractText", img, map[string]interface{}{
-		"[Resell]OCRExtractText": map[string]interface{}{
-			"roi": []int{x, y, width, height},
-		},
-	})
+	// 使用 RunRecognition 调用预定义的 pipeline 节点
+	detail := ctx.RunRecognition(pipelineName, img, nil)
 	if detail == nil || detail.Results == nil {
-		log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-		return false
+		log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+		return false, 0, 0, false
 	}
 
 	// 优先从 Filtered 结果中提取，然后是 Best、All
@@ -334,15 +310,18 @@ func ocrExtractText(ctx *maa.Context, controller *maa.Controller, x, y, width, h
 		if len(results) > 0 {
 			if ocrResult, ok := results[0].AsOCR(); ok {
 				if containsKeyword(ocrResult.Text, keyword) {
-					log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("originText", ocrResult.Text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
-					return true
+					// 计算中心坐标
+					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
+					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
+					return true, centerX, centerY, true
 				}
 			}
 		}
 	}
 
-	log.Info().Int("x", x).Int("y", y).Int("width", width).Int("height", height).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-	return false
+	log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+	return false, 0, 0, false
 }
 
 // containsKeyword - Check if text contains keyword
@@ -399,13 +378,8 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 
-	// OCR region 1: [180, 135, 75, 30] to get "x/y"
-	detail1 := ctx.RunRecognition("[Resell]OCRExtractText", img, map[string]interface{}{
-		"[Resell]OCRExtractText": map[string]interface{}{
-			"roi":       []int{180, 135, 75, 30},
-			"threshold": 0.3,
-		},
-	})
+	// OCR region 1: 使用预定义的配额当前值Pipeline
+	detail1 := ctx.RunRecognition("[Resell]ROI_Quota_Current", img, nil)
 	if detail1 != nil && detail1.Results != nil {
 		for _, results := range [][]*maa.RecognitionResult{detail1.Results.Best, detail1.Results.All} {
 			if len(results) > 0 {
@@ -424,13 +398,8 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		}
 	}
 
-	// OCR region 2: [250, 130, 110, 30] to get "a小时后+b" or "a分钟后+b"
-	detail2 := ctx.RunRecognition("[Resell]OCRExtractText", img, map[string]interface{}{
-		"[Resell]OCRExtractText": map[string]interface{}{
-			"roi":       []int{250, 130, 110, 30},
-			"threshold": 0.3,
-		},
-	})
+	// OCR region 2: 使用预定义的配额下次增加Pipeline
+	detail2 := ctx.RunRecognition("[Resell]ROI_Quota_NextAdd", img, nil)
 	if detail2 != nil && detail2.Results != nil {
 		for _, results := range [][]*maa.RecognitionResult{detail2.Results.Best, detail2.Results.All} {
 			if len(results) > 0 {
