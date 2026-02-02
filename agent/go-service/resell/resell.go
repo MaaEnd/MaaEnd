@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	maa "github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -259,14 +259,26 @@ func extractNumbersFromText(text string) (int, bool) {
 
 // ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
 func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
-	img := controller.CacheImage()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("[OCR] 截图失败")
+		return 0, 0, 0, false
+	}
 	if img == nil {
 		log.Info().Msg("[OCR] 截图失败")
 		return 0, 0, 0, false
 	}
 
 	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail := ctx.RunRecognition(pipelineName, img, nil)
+	detail, err := ctx.RunRecognition(pipelineName, img, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("[OCR] 识别失败")
+		return 0, 0, 0, false
+	}
 	if detail == nil || detail.Results == nil {
 		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
 		return 0, 0, 0, false
@@ -292,14 +304,26 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 
 // ocrExtractTextWithCenter - OCR region using pipeline name and check if recognized text contains keyword, return center coordinates
 func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, keyword string) (bool, int, int, bool) {
-	img := controller.CacheImage()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("[OCR] 未能获取截图")
+		return false, 0, 0, false
+	}
 	if img == nil {
 		log.Info().Msg("[OCR] 未能获取截图")
 		return false, 0, 0, false
 	}
 
 	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail := ctx.RunRecognition(pipelineName, img, nil)
+	detail, err := ctx.RunRecognition(pipelineName, img, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("[OCR] 识别失败")
+		return false, 0, 0, false
+	}
 	if detail == nil || detail.Results == nil {
 		log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
 		return false, 0, 0, false
@@ -372,14 +396,26 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	hoursLater = -1
 	b = -1
 
-	img := controller.CacheImage()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to get screenshot for quota OCR")
+		return x, y, hoursLater, b
+	}
 	if img == nil {
 		log.Error().Msg("Failed to get screenshot for quota OCR")
 		return x, y, hoursLater, b
 	}
 
 	// OCR region 1: 使用预定义的配额当前值Pipeline
-	detail1 := ctx.RunRecognition("[Resell]ROI_Quota_Current", img, nil)
+	detail1, err := ctx.RunRecognition("[Resell]ROI_Quota_Current", img, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to run recognition for region 1")
+		return x, y, hoursLater, b
+	}
 	if detail1 != nil && detail1.Results != nil {
 		for _, results := range [][]*maa.RecognitionResult{detail1.Results.Best, detail1.Results.All} {
 			if len(results) > 0 {
@@ -399,7 +435,13 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2 := ctx.RunRecognition("[Resell]ROI_Quota_NextAdd", img, nil)
+	detail2, err := ctx.RunRecognition("[Resell]ROI_Quota_NextAdd", img, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to run recognition for region 2")
+		return x, y, hoursLater, b
+	}
 	if detail2 != nil && detail2.Results != nil {
 		for _, results := range [][]*maa.RecognitionResult{detail2.Results.Best, detail2.Results.All} {
 			if len(results) > 0 {

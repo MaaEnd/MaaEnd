@@ -9,7 +9,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -37,7 +37,13 @@ func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []
 		},
 	}
 
-	res := ctx.RunRecognition(nodeName, img, config)
+	res, err := ctx.RunRecognition(nodeName, img, config)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to run recognition for TemplateMatch")
+		return make([]TemplateMatchDTO, 0)
+	}
 	if res == nil || !res.Hit {
 		return make([]TemplateMatchDTO, 0)
 	}
