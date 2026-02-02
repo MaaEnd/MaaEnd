@@ -2,6 +2,7 @@
 import json
 import sys
 import tempfile
+import argparse
 from pathlib import Path
 from jsonschema import Draft7Validator, Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -9,11 +10,15 @@ from jsonschema.exceptions import ValidationError
 try:
     from referencing import Registry, Resource
     from referencing.jsonschema import DRAFT202012, DRAFT7
+    import referencing.retrieval
+
     HAS_REFERENCING = True
 except ImportError:
     # 如果没有 referencing 库，回退到旧的 RefResolver
     from jsonschema import RefResolver
+
     HAS_REFERENCING = False
+
 
 def strip_jsonc_comments(text):
     """
@@ -32,19 +37,19 @@ def strip_jsonc_comments(text):
                 result.append(char)
                 state = 1
                 i += 1
-            elif i + 1 < len(text) and text[i:i+2] == '//':
+            elif i + 1 < len(text) and text[i : i + 2] == "//":
                 # 单行注释，跳到行尾
-                while i < len(text) and text[i] != '\n':
+                while i < len(text) and text[i] != "\n":
                     i += 1
                 if i < len(text):
-                    result.append('\n')  # 保留换行
+                    result.append("\n")  # 保留换行
                     i += 1
-            elif i + 1 < len(text) and text[i:i+2] == '/*':
+            elif i + 1 < len(text) and text[i : i + 2] == "/*":
                 # 多行注释，跳到 */
                 i += 2
-                while i + 1 < len(text) and text[i:i+2] != '*/':
-                    if text[i] == '\n':
-                        result.append('\n')  # 保留换行以维持行号
+                while i + 1 < len(text) and text[i : i + 2] != "*/":
+                    if text[i] == "\n":
+                        result.append("\n")  # 保留换行以维持行号
                     i += 1
                 i += 2  # 跳过 */
             else:
@@ -52,7 +57,7 @@ def strip_jsonc_comments(text):
                 i += 1
         elif state == 1:  # 字符串中
             result.append(char)
-            if char == '\\':
+            if char == "\\":
                 state = 2
             elif char == '"':
                 state = 0
@@ -62,11 +67,12 @@ def strip_jsonc_comments(text):
             state = 1
             i += 1
 
-    return ''.join(result)
+    return "".join(result)
+
 
 def load_jsonc(file_path):
     """加载 JSONC 文件"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # 移除注释
@@ -78,22 +84,24 @@ def load_jsonc(file_path):
         print(f"JSON decode error in {file_path}: {e}")
         # 调试：保存清理后的内容
         debug_file = Path(tempfile.gettempdir()) / f"debug_{Path(file_path).name}"
-        with open(debug_file, 'w') as f:
+        with open(debug_file, "w") as f:
             f.write(clean_content)
         print(f"Cleaned content saved to {debug_file}")
         raise
 
+
 def get_validator_class(schema):
     """根据 schema 的 $schema 字段选择合适的验证器"""
-    schema_uri = schema.get('$schema', '')
+    schema_uri = schema.get("$schema", "")
 
-    if 'draft-07' in schema_uri or 'draft/07' in schema_uri:
+    if "draft-07" in schema_uri or "draft/07" in schema_uri:
         return Draft7Validator
-    elif '2020-12' in schema_uri:
+    elif "2020-12" in schema_uri:
         return Draft202012Validator
     else:
         # 默认使用 2020-12
         return Draft202012Validator
+
 
 def validate_file(file_path, validator):
     """验证单个文件"""
@@ -105,7 +113,7 @@ def validate_file(file_path, validator):
             print(f"\n❌ Validation failed for {file_path}:")
             print(f"   Found {len(errors)} error(s):")
             for idx, error in enumerate(errors[:10], 1):
-                path = '/' + '/'.join(str(p) for p in error.path) if error.path else '/'
+                path = "/" + "/".join(str(p) for p in error.path) if error.path else "/"
                 print(f"   {idx}. {path}: {error.message}")
             return False
 
@@ -114,6 +122,7 @@ def validate_file(file_path, validator):
     except Exception as e:
         print(f"\n❌ Error validating {file_path}: {e}")
         return False
+
 
 def create_validator(schema, schema_store):
     """创建 validator，使用新的 referencing API 或回退到 RefResolver"""
@@ -128,7 +137,9 @@ def create_validator(schema, schema_store):
 
         # 添加所有 schema 到 registry
         for uri, schema_content in schema_store.items():
-            resource = Resource.from_contents(schema_content, default_specification=spec)
+            resource = Resource.from_contents(
+                schema_content, default_specification=spec
+            )
             registry = registry.with_resource(uri, resource)
 
         return ValidatorClass(schema, registry=registry)
@@ -147,11 +158,45 @@ def create_validator(schema, schema_store):
         resolver = RefResolver(base_uri=schema_uri, referrer=schema, store=schema_store)
         return ValidatorClass(schema, resolver=resolver)
 
+
 def main():
+    parser = argparse.ArgumentParser(
+        description="Validate JSON/JSONC files against JSON Schema"
+    )
+    parser.add_argument(
+        "--schema-dir",
+        type=str,
+        default="tools/schema",
+        help="Directory containing schema files (default: tools/schema)",
+    )
+    parser.add_argument(
+        "--resource-dirs",
+        type=str,
+        nargs="+",
+        default=["assets/resource"],
+        help="Directories containing resource files to validate (default: assets/resource)",
+    )
+    parser.add_argument(
+        "--exclude-dirs",
+        type=str,
+        nargs="*",
+        default=[],
+        help="Directories to exclude from validation (default: none)",
+    )
+    parser.add_argument(
+        "--interface-files",
+        type=str,
+        nargs="+",
+        default=["assets/interface.json"],
+        help="Path to interface.json files (default: assets/interface.json)",
+    )
+
+    args = parser.parse_args()
+
     all_valid = True
 
     # 加载所有 schema 文件
-    schema_dir = Path("tools/schema").resolve()
+    schema_dir = Path(args.schema_dir).resolve()
     schema_store = {}
 
     print("Loading schemas...")
@@ -170,32 +215,68 @@ def main():
             print(f"Warning: Failed to load schema {schema_file}: {e}")
 
     # 加载并创建 pipeline validator
-    pipeline_schema = load_jsonc("tools/schema/pipeline.schema.json")
-    pipeline_schema_uri = (schema_dir / "pipeline.schema.json").as_uri()
+    pipeline_schema_path = schema_dir / "pipeline.schema.json"
+    pipeline_schema = load_jsonc(pipeline_schema_path)
+    pipeline_schema_uri = pipeline_schema_path.as_uri()
     schema_store[pipeline_schema_uri] = pipeline_schema
 
     pipeline_validator = create_validator(pipeline_schema, schema_store)
 
+    # 准备排除目录列表
+    exclude_paths = [Path(d).resolve() for d in args.exclude_dirs]
+
+    def is_excluded(file_path):
+        """检查文件是否在排除目录中"""
+        file_path = Path(file_path).resolve()
+        for exclude_path in exclude_paths:
+            try:
+                file_path.relative_to(exclude_path)
+                return True
+            except ValueError:
+                continue
+        return False
+
     print("Validating pipeline resources...")
     # 验证 pipeline 资源文件
-    for file_path in Path("assets/resource").rglob("*.json"):
-        if not validate_file(file_path, pipeline_validator):
-            all_valid = False
+    for resource_dir in args.resource_dirs:
+        resource_path = Path(resource_dir)
+        if not resource_path.exists():
+            print(
+                f"Warning: Resource directory {resource_dir} does not exist, skipping..."
+            )
+            continue
 
-    for file_path in Path("assets/resource").rglob("*.jsonc"):
-        if not validate_file(file_path, pipeline_validator):
-            all_valid = False
+        for file_path in resource_path.rglob("*.json"):
+            if is_excluded(file_path):
+                continue
+            if not validate_file(file_path, pipeline_validator):
+                all_valid = False
+
+        for file_path in resource_path.rglob("*.jsonc"):
+            if is_excluded(file_path):
+                continue
+            if not validate_file(file_path, pipeline_validator):
+                all_valid = False
 
     print("\nValidating interface files...")
     # 验证 interface 文件
-    if Path("assets/interface.json").exists():
-        interface_schema = load_jsonc("tools/schema/interface.schema.json")
-        interface_schema_uri = (schema_dir / "interface.schema.json").as_uri()
+    interface_schema_path = schema_dir / "interface.schema.json"
+    if interface_schema_path.exists():
+        interface_schema = load_jsonc(interface_schema_path)
+        interface_schema_uri = interface_schema_path.as_uri()
         schema_store[interface_schema_uri] = interface_schema
 
         interface_validator = create_validator(interface_schema, schema_store)
-        if not validate_file("assets/interface.json", interface_validator):
-            all_valid = False
+
+        for interface_file in args.interface_files:
+            interface_path = Path(interface_file)
+            if interface_path.exists():
+                if not validate_file(interface_path, interface_validator):
+                    all_valid = False
+            else:
+                print(
+                    f"Warning: Interface file {interface_file} does not exist, skipping..."
+                )
 
     if all_valid:
         print("\n✅ All validations passed!")
@@ -203,6 +284,7 @@ def main():
     else:
         print("\n❌ Some validations failed!")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
