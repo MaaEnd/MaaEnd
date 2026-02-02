@@ -1,6 +1,7 @@
 package aspectratio
 
 import (
+	_ "embed"
 	"fmt"
 	"math"
 
@@ -14,6 +15,9 @@ const (
 	// Tolerance for aspect ratio comparison (±2%)
 	tolerance = 0.02
 )
+
+//go:embed warning_message.html
+var aspectRatioWarningHTML string
 
 // AspectRatioChecker checks if the device resolution is 16:9 before task execution
 type AspectRatioChecker struct{}
@@ -69,12 +73,7 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
 			Msg("Resolution is not 16:9! Task will be stopped.")
-		fmt.Println(`<span style="color: #ff0000; font-size: 1.8em; font-weight: 900;">🚨 警告：分辨率比例不匹配！🚨</span>` +
-			`<br/><span style="color: #ff4500; font-size: 1.6em; font-weight: 800;">🚫 任务已强制停止</span>` +
-			`<br/><span style="color: #faad14; font-size: 1.4em; font-weight: bold;">💡 MaaEnd 目前 <span style="text-decoration: underline; font-size: 1.1em;">仅支持 16:9</span> 比例。</span>` +
-			`<br/><span style="font-size: 1.3em; font-weight: bold;">👇 请将分辨率调整为：</span>` +
-			`<br/><span style="color: #00bfff; font-size: 1.5em; font-weight: 900;">✅ 3840x2160, 2560x1440, 1920x1080, 1280x720</span>` +
-			`<br/><br/><span style="font-size: 1.2em; color: #32cd32; font-weight: bold;">🚀 未来将适配更多比例，敬请期待！</span>`)
+		fmt.Println(aspectRatioWarningHTML)
 
 		// Stop the task
 		tasker.PostStop()
