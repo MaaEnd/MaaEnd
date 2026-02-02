@@ -62,9 +62,9 @@
         "doc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
-            "ContainerHasOffer",
-            "EnterCargoContainer",
-            "ContainerNotReady",
+            "[JumpBack]ContainerHasOffer",
+            "[JumpBack]EnterCargoContainer",
+            "ContainerNotReady", // 在包裹全部都没有准备好的时候退出循环
             "CheckFourthValleyDepotLocked",
             "[JumpBack]EnterFourthValleyDepot",
             "[JumpBack]EnterDeliveryJob",
@@ -76,8 +76,8 @@
         "doc": "武陵运送委托",
         "max_hit": 1,
         "next": [
-            "ContainerHasOffer",
-            "EnterCargoContainer",
+            "[JumpBack]ContainerHasOffer",
+            "[JumpBack]EnterCargoContainer",
             "ContainerNotReady",
             "CheckWuLingDepotLocked",
             "[JumpBack]EnterWuLingDepot",
