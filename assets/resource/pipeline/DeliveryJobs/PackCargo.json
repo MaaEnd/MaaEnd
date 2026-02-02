@@ -138,10 +138,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/ContainerHasOffer.png",
         "roi": [
-            97,
-            518,
-            964,
-            24
+            96,
+            574,
+            936,
+            37
         ],
         "threshold": 0.8,
         "action": "Click",

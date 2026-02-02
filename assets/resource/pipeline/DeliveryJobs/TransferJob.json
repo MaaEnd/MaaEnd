@@ -4,14 +4,13 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/EnterDeliveryJob.png",
         "roi": [
-            58,
-            176,
-            68,
-            23
+            96,
+            574,
+            936,
+            37
         ],
         "threshold": 0.8,
-        "action": "ClickKey",
-        "key": 74,
+        "action": "Click",
         "next": [
             "ClickTransferJob",
             "EnterDeliveryJob"
