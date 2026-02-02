@@ -25,8 +25,8 @@
     "task.AutoResell.label": "💰半自動倒賣",
     "task.AutoResell.description": "半自動倒賣彈性需求物資，自行識別最高利潤貨物並進行購買，進入對應好友的飛船，目前仍需手動進行地區切換和售賣",
     "controller.Win32.label": "電腦端",
-    "controller.Win32-Window.label": "電腦端（備選-視窗）",
-    "controller.Win32-Front.label": "電腦端（備選-前台）",
+    "controller.Win32-Window.label": "電腦端-備選",
+    "controller.Win32-Front.label": "電腦端-前台",
     "controller.ADB.label": "安卓端",
     "option.AutoSkip.label": "自動劇情",
     "option.AutoSkipAll.label": "跳過所有劇情",
@@ -59,6 +59,8 @@
     "option.ImportMinimumProfit.label": "最低利潤",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利潤值",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "當前最高利潤低於該值時，不進行購買，僅支援整數",
+    "task.Resell.label": "💰一鍵倒賣",
+    "task.Resell.description": "在彈性需求物資商店頁面，自動識別最高利潤貨物並進行購買。**請在彈性需求物資商店頁面開始任務**",
     "task.PuzzleSolver.label": "🧩自動解拼圖",
     "task.PuzzleSolver.description": "自動幫你通關拼圖小遊戲，太好了不用自己動腦子了.jpg",
     "option.PuzzleSolverMode.label": "模式",
@@ -74,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦自動領取模擬空間獎勵",
     "task.ClaimSimulationRewards.description": "請在模擬空間選單內啟動",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
-    "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢"
+    "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",
+    "task.DeliveryJobs.label": "🚚自動轉交送貨任務",
+    "task.DeliveryJobs.description": "自動接取並轉交送貨任務"
 }

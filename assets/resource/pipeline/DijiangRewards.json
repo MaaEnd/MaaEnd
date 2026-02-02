@@ -132,16 +132,16 @@
     },
     "ReceptionRoom_NeedCredit": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "会客室"
+                "template": [
+                    "ClaimDijiangRewards/InReceptionRoom.png"
                 ]
             }
         },
@@ -298,16 +298,16 @@
     },
     "ExitReceptionRoom": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "会客室"
+                "template": [
+                    "ClaimDijiangRewards/InReceptionRoom.png"
                 ]
             }
         },
@@ -354,16 +354,16 @@
                     },
                     {
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
-                                    43,
-                                    0,
-                                    96,
-                                    64
+                                    17,
+                                    134,
+                                    128,
+                                    72
                                 ],
-                                "expected": [
-                                    "会客室"
+                                "template": [
+                                    "ClaimDijiangRewards/InReceptionRoom.png"
                                 ]
                             }
                         }
@@ -415,16 +415,16 @@
                 "all_of": [
                     {
                         "recognition": {
-                            "type": "OCR",
+                            "type": "TemplateMatch",
                             "param": {
                                 "roi": [
-                                    43,
-                                    0,
-                                    96,
-                                    64
+                                    17,
+                                    134,
+                                    128,
+                                    72
                                 ],
-                                "expected": [
-                                    "会客室"
+                                "template": [
+                                    "ClaimDijiangRewards/InReceptionRoom.png"
                                 ]
                             }
                         }
@@ -753,16 +753,16 @@
     "GrowthChamber": {
         // 培养舱任务
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "培养舱"
+                "template": [
+                    "ClaimDijiangRewards/InGrowthChamber.png"
                 ]
             }
         },
@@ -877,16 +877,16 @@
     },
     "ReceptionRoom": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "会客室"
+                "template": [
+                    "ClaimDijiangRewards/InReceptionRoom.png"
                 ]
             }
         },
@@ -1148,16 +1148,16 @@
     "MFG_ReceiveRewards": {
         //制造舱任务
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "制造舱"
+                "template": [
+                    "ClaimDijiangRewards/InMFG_Carbin.png"
                 ]
             }
         },
@@ -1215,16 +1215,16 @@
     },
     "Exit_MFG_Cabin": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "制造舱"
+                "template": [
+                    "ClaimDijiangRewards/InMFG_Carbin.png"
                 ]
             }
         },
@@ -1663,16 +1663,16 @@
     },
     "ExitCollect": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "会客室"
+                "template": [
+                    "ClaimDijiangRewards/InReceptionRoom.png"
                 ]
             }
         },
@@ -1685,16 +1685,16 @@
     },
     "ExitGrowthChamber": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    43,
-                    0,
-                    96,
-                    64
+                    17,
+                    134,
+                    128,
+                    72
                 ],
-                "expected": [
-                    "培养舱"
+                "template": [
+                    "ClaimDijiangRewards/InGrowthChamber.png"
                 ]
             }
         },

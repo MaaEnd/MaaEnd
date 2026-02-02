@@ -25,8 +25,8 @@
     "task.AutoResell.label": "💰 반자동 재판매",
     "task.AutoResell.description": "불안정 수요 물자를 반자동으로 재판매합니다. 최고 수익 상품을 자동으로 식별하여 구매하고, 해당 친구의 우주선에 진입합니다. 현재는 지역 전환과 판매는 수동으로 진행해야 합니다.",
     "controller.Win32.label": "PC",
-    "controller.Win32-Window.label": "PC(대체 - 창)",
-    "controller.Win32-Front.label": "PC(대체 - 포그라운드)",
+    "controller.Win32-Window.label": "PC-대체",
+    "controller.Win32-Front.label": "PC-포그라운드",
     "controller.ADB.label": "Android",
     "option.AutoSkip.label": "스토리 자동",
     "option.AutoSkipAll.label": "스토리 전체 스킵",
@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦시뮬레이션 공간 보상 자동 수령",
     "task.ClaimSimulationRewards.description": "시뮬레이션 공간 메뉴 내에서 실행해 주세요",
     "task.ClaimSimulationRewards.error_not_found": "[시뮬레이션 공간] 화면을 찾을 수 없습니다. 수동으로 전환해 주세요.",
-    "task.ClaimSimulationRewards.success_finished": "시뮬레이션 공간 보상 수령 완료."
+    "task.ClaimSimulationRewards.success_finished": "시뮬레이션 공간 보상 수령 완료.",
+    "task.DeliveryJobs.label": "🚚배달 임무 자동 전달",
+    "task.DeliveryJobs.description": "배달 임무를 자동으로 수락하고 전달합니다"
 }

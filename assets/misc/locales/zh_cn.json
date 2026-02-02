@@ -25,8 +25,8 @@
     "task.AutoResell.label": "💰半自动倒卖",
     "task.AutoResell.description": "半自动倒卖弹性需求物资，自行识别最高利润货物并进行购买，进入对应好友的飞船，目前仍需手动进行地区切换和售卖",
     "controller.Win32.label": "电脑端",
-    "controller.Win32-Window.label": "电脑端（备选-窗口）",
-    "controller.Win32-Front.label": "电脑端（备选-前台）",
+    "controller.Win32-Window.label": "电脑端-备选",
+    "controller.Win32-Front.label": "电脑端-前台",
     "controller.ADB.label": "安卓端",
     "option.AutoSkip.label": "自动剧情",
     "option.AutoSkipAll.label": "跳过所有剧情",
@@ -76,5 +76,7 @@
     "task.ClaimSimulationRewards.label": "📦自动领取模拟空间奖励",
     "task.ClaimSimulationRewards.description": "请在模拟空间菜单内启动",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
-    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕"
+    "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
+    "task.DeliveryJobs.label": "🚚自动转交送货任务",
+    "task.DeliveryJobs.description": "自动接取并转交送货任务"
 }

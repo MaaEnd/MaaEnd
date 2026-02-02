@@ -1,0 +1,16 @@
+{
+    "task": [
+        {
+            "name": "DeliveryJobs",
+            "label": "$task.DeliveryJobs.label",
+            "entry": "DeliveryJobsMain",
+            "description": "$task.DeliveryJobs.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {}
+}
