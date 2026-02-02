@@ -1,8 +1,8 @@
 package aspectratio
 
 import (
-	"math"
 	"fmt"
+	"math"
 
 	"github.com/MaaXYZ/maa-framework-go/v3"
 	"github.com/rs/zerolog/log"
