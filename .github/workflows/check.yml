@@ -32,7 +32,7 @@ jobs:
 
       - name: Run maa-checker
         run: |
-          npx @nekosu/maa-checker@latest ./assets/interface.json
+          npx @nekosu/maa-checker@latest ./assets/interface.json --github=.
 
       # pip install maafw
       - name: Install maafw
