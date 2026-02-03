@@ -742,7 +742,8 @@
                     145
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png"
+                    "ClaimDijiangRewards/ReceiveAll.png",
+                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
                 ]
             }
         },
