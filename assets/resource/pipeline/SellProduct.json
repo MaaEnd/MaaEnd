@@ -374,7 +374,9 @@
             "param": {}
         },
         "next": [
-            "SellProductSellCheck"
+            "SellProductSellCheck",
+            "SellProductSellPressed",
+            "SellProductSell"
         ]
     },
     "SellProductSellCheck": {
@@ -730,6 +732,38 @@
         "next": [
             "SellProductAtDevelopment",
             "SellProductAtFriendBack"
+        ]
+    },
+    "SellProductSellPressed": {
+        "doc": "交易按钮已经成功按下",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        141,
+                        141,
+                        141
+                    ]
+                ],
+                "upper": [
+                    [
+                        148,
+                        148,
+                        148
+                    ]
+                ],
+                "roi": [
+                    1059,
+                    646,
+                    106,
+                    31
+                ],
+                "count": 100
+            }
+        },
+        "next": [
+            "SellProductSellCheck"
         ]
     }
 }
