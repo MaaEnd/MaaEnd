@@ -33,7 +33,7 @@ try:
         "x86_64": "x86_64",
         "aarch64": "aarch64",
         "arm64": "aarch64",
-    }.get(platform.machine().lower())
+    }[platform.machine().lower()]
 except KeyError as e:
     raise RuntimeError(
         f"Unrecognized architecture: {platform.machine().lower()}"
