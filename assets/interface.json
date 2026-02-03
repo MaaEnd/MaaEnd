@@ -92,6 +92,7 @@
         "tasks/PuzzleSolver.json",
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
+        "tasks/SellProduct.json",
         "tasks/AutoResell.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",

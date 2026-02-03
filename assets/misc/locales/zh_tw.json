@@ -64,6 +64,8 @@
     "task.ClaimSimulationRewards.description": "請在模擬空間選單內啟動",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
     "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",
+    "task.SellProduct.label": "🛒一鍵售賣產品",
+    "task.SellProduct.description": "使用產品在各個據點兌換對應調度券",
     "task.VisitFriends.label": "🤝 自動拜訪好友",
     "task.VisitFriends.description": "自動拜訪好友，執行生產助力流程與情報交流",
     "task.ReceiveProdManual.label": "🌾簡製手冊一鍵領取",

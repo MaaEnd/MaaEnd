@@ -64,6 +64,8 @@
     "task.ClaimSimulationRewards.description": "시뮬레이션 공간 메뉴 내에서 실행해 주세요",
     "task.ClaimSimulationRewards.error_not_found": "[시뮬레이션 공간] 화면을 찾을 수 없습니다. 수동으로 전환해 주세요.",
     "task.ClaimSimulationRewards.success_finished": "시뮬레이션 공간 보상 수령 완료.",
+    "task.SellProduct.label": "🛒 원클릭 제품 판매",
+    "task.SellProduct.description": "각 거점에서 제품을 사용하여 해당 조달권을 교환합니다.",
     "task.VisitFriends.label": "🤝 친구 자동 방문",
     "task.VisitFriends.description": "친구 방문을 자동화하여 지원 및 정보 교환을 수행합니다.",
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 일괄 수령",

@@ -64,6 +64,8 @@
     "task.ClaimSimulationRewards.description": "模擬空間メニュー内で起動してください",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
     "task.ClaimSimulationRewards.success_finished": "模擬空間報酬の受取が完了しました。",
+    "task.SellProduct.label": "🛒 ワンクリック製品販売",
+    "task.SellProduct.description": "各拠点で製品を使用し、対応する調達券と交換します。",
     "task.VisitFriends.label": "🤝 フレンド訪問",
     "task.VisitFriends.description": "フレンド訪問を自動化し、支援と情報交換を実行します。",
     "task.ReceiveProdManual.label": "🌾 簡易製作手帳報酬一括受取",

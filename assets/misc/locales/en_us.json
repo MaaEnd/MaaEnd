@@ -64,6 +64,8 @@
     "task.ClaimSimulationRewards.description": "Please start within the Simulation Space menu",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
     "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
+    "task.SellProduct.label": "🛒 One-click Sell Products",
+    "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers.",
     "task.VisitFriends.label": "🤝 Auto Visit Friends",
     "task.VisitFriends.description": "Automatically visit friends to perform support and intel exchange.",
     "task.ReceiveProdManual.label": "🌾 Claim All Simple Crafting Manual Rewards",

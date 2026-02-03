@@ -1,0 +1,599 @@
+{
+    "SellProductAtHome": {
+        "doc": "已回到大世界",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "探索",
+                    "工业"
+                ],
+                "roi": [
+                    0,
+                    0,
+                    150,
+                    60
+                ]
+            }
+        },
+        "next": [
+            "SellProductEnterDevelopment"
+        ]
+    },
+    "SellProductBegin": {
+        "doc": "虚节点",
+        "next": [
+            "SellProductAtHome",
+            "[JumpBack]SellProductBack2Home"
+        ]
+    },
+    "SellProductMain": {
+        "focus": {
+            "Node.Recognition.Starting": "开始一件售卖"
+        },
+        "doc": "脚本入口",
+        "next": [
+            "SellProductBegin"
+        ]
+    },
+    "SellProductEnterDevelopment": {
+        "doc": "进入地区建设",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductDevelopmentEntry.png"
+                ],
+                "green_mask": true,
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    89
+                ]
+            }
+        },
+        "next": [
+            "SellProductEnterManagement"
+        ]
+    },
+    "SellProductBack2Home": {
+        "max_hit": 5,
+        "doc": "返回主界面",
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1,
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "SellProductEnterManagement": {
+        "doc": "进入据点管理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    700,
+                    100,
+                    550,
+                    500
+                ],
+                "expected": [
+                    "据点管理"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSwitch"
+        ]
+    },
+    "SellProductDragBar": {
+        "doc": "备选方案-滑动滑动条",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBar.png"
+                ],
+                "roi": [
+                    1000,
+                    500,
+                    200,
+                    150
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end_offset": [
+                    [
+                        0,
+                        0,
+                        400,
+                        0
+                    ]
+                ],
+                "duration": [
+                    500
+                ]
+            }
+        },
+        "next": [
+            "SellProductSell"
+        ]
+    },
+    "SellProductSwitch": {
+        "doc": "用来分支的节点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "交易",
+                    "不足",
+                    "上限"
+                ],
+                "roi": [
+                    1000,
+                    600,
+                    250,
+                    100
+                ]
+            }
+        },
+        "next": [
+            "SellProductCanSell"
+        ]
+    },
+    "SellProductForthValley": {
+        "doc": "处理完成四号谷地",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "四号",
+                    "谷地"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalChange1"
+        ]
+    },
+    "SellProductWuling": {
+        "doc": "处理完成武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "武陵"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalChange2"
+        ]
+    },
+    "SellProductEnd": {
+        "doc": "结束",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    27
+                ]
+            }
+        }
+    },
+    "SellProductLocalChange1": {
+        "doc": "点击更换",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "更换"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProduct2Wuling"
+        ]
+    },
+    "SellProductLocalChange2": {
+        "doc": "点击更换",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "更换"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProduct2FourthValley"
+        ]
+    },
+    "SellProduct2Wuling": {
+        "doc": "点武陵小图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductWuling.png"
+                ],
+                "roi": [
+                    200,
+                    100,
+                    800,
+                    200
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductLocalChangeConfirm"
+        ]
+    },
+    "SellProduct2FourthValley": {
+        "doc": "点四号谷地小图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductFourthValley.png"
+                ],
+                "roi": [
+                    200,
+                    100,
+                    800,
+                    200
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductLocalChangeConfirm"
+        ]
+    },
+    "SellProductLocalChangeConfirm": {
+        "doc": "点击确认切换地区",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "确认"
+                ],
+                "roi": [
+                    655,
+                    400,
+                    200,
+                    70
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductEnterManagement"
+        ]
+    },
+    "SellProductLocalChange0": {
+        "doc": "等待更换出现",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "更换"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalCounter",
+            "SellProductEnd"
+        ]
+    },
+    "SellProductLocalCounter": {
+        "max_hit": 1,
+        "doc": "max_hit为地区数-1",
+        "next": [
+            "SellProductForthValley",
+            "SellProductWuling"
+        ]
+    },
+    "SellProductSell": {
+        "doc": "交易",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "交易"
+                ],
+                "roi": [
+                    1000,
+                    640,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSellCheck"
+        ]
+    },
+    "SellProductSellCheck": {
+        "doc": "交易后确认",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductCheck.png"
+                ],
+                "roi": [
+                    600,
+                    600,
+                    100,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductNext"
+        ]
+    },
+    "SellProductCanSell": {
+        "doc": "判断当前能不能出售的虚节点",
+        "next": [
+            "SellProductZeroProduct",
+            "SellProductZeroMoney",
+            "SellProductClickBarRight",
+            "SellProductDragBar"
+        ]
+    },
+    "SellProductZeroProduct": {
+        "doc": "货物数量是0",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        255,
+                        110,
+                        110
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        130,
+                        130
+                    ]
+                ],
+                "roi": [
+                    1118,
+                    286,
+                    75,
+                    86
+                ],
+                "count": 10
+            }
+        },
+        "next": [
+            "SellProductNext"
+        ]
+    },
+    "SellProductZeroMoney": {
+        "doc": "调度券余量为0",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "不足"
+                ],
+                "roi": [
+                    950,
+                    630,
+                    300,
+                    60
+                ]
+            }
+        },
+        "next": [
+            "SellProductNext"
+        ]
+    },
+    "SellProductNext": {
+        "doc": "下一个据点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "交易",
+                    "不足",
+                    "上限"
+                ],
+                "roi": [
+                    1000,
+                    640,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    69
+                ]
+            }
+        },
+        "next": [
+            "SellProductCheckLocalDone"
+        ]
+    },
+    "SellProductLocalDone": {
+        "doc": "选择据点回到第一个，即完成了该地区所有据点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        250,
+                        250,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        255,
+                        20
+                    ]
+                ],
+                "roi": [
+                    140,
+                    60,
+                    200,
+                    60
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    27
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalChange0"
+        ]
+    },
+    "SellProductCheckLocalDone": {
+        "doc": "判断该地区是否结束",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "交易",
+                    "不足",
+                    "上限"
+                ],
+                "roi": [
+                    1000,
+                    640,
+                    250,
+                    100
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalDone",
+            "SellProductCanSell"
+        ]
+    },
+    "SellProductClickBarRight": {
+        "doc": "点击进度条最右侧",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBarRight.png"
+                ],
+                "roi": [
+                    1125,
+                    537,
+                    78,
+                    73
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    25,
+                    -20,
+                    -40
+                ]
+            }
+        },
+        "next": [
+            "SellProductSell"
+        ]
+    }
+}
