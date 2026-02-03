@@ -133,10 +133,10 @@
             "CheckCurrentArea"
         ]
     },
-    "ContainerHasOffer": {
-        "doc": "货物集装箱有人报价",
+    "CargoHasOffer": {
+        "doc": "货物有人报价",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/ContainerHasOffer.png",
+        "template": "DeliveryJobs/CargoHasOffer.png",
         "roi": [
             96,
             574,
@@ -147,13 +147,13 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "ContainerHasOffer"
+            "CargoHasOffer"
         ]
     },
-    "ContainerNotReady": {
-        "doc": "货物集装箱未就绪，返回上一级界面",
+    "CargoNotReady": {
+        "doc": "货物未就绪，返回上一级界面",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/DepotNotReady.png",
+        "template": "DeliveryJobs/CargoNotReady.png",
         "roi": [
             109,
             515,
@@ -165,16 +165,16 @@
         "key": 27,
         "next": [
             "CheckCurrentArea",
-            "ContainerNotReady"
+            "CargoNotReady"
         ]
     },
-    "EnterCargoContainer": {
-        "doc": "进入货物集装箱",
+    "EnterCargo": {
+        "doc": "进入货物",
         "recognition": "Or",
         "any_of": [
             {
                 "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/DepotReady.png",
+                "template": "DeliveryJobs/CargoReady.png",
                 "roi": [
                     109,
                     515,
@@ -185,7 +185,7 @@
             },
             {
                 "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/DepotReadyWuLing.png",
+                "template": "DeliveryJobs/CargoReadyWuLing.png",
                 "roi": [
                     109,
                     515,
@@ -198,7 +198,7 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "EnterCargoContainer"
+            "EnterCargo"
         ]
     },
     "ProceedToNextStep": {
@@ -214,16 +214,16 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "CargoContainerBid",
-            "FillCargoToMax",
+            "CargoBid",
+            "CargoFillToMax",
             "ClickScreenToContinue",
             "ProceedToNextStep"
         ]
     },
-    "FillCargoToMax": {
+    "CargoFillToMax": {
         "doc": "装满货物",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/FillToMax.png",
+        "template": "DeliveryJobs/CargoFillToMax.png",
         "roi": [
             1174,
             172,
@@ -234,13 +234,13 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "FillCargoToMax"
+            "CargoFillToMax"
         ]
     },
-    "CargoContainerBid": {
-        "doc": "货物集装箱竞价",
+    "CargoBid": {
+        "doc": "货物竞价",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/BidCargoContainer.png",
+        "template": "DeliveryJobs/CargoBid.png",
         "roi": [
             906,
             589,
@@ -251,7 +251,7 @@
         "action": "Click",
         "next": [
             "ProceedToNextStep",
-            "CargoContainerBid"
+            "CargoBid"
         ]
     },
     "ClickScreenToContinue": {

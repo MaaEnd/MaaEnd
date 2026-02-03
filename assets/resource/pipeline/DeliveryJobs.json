@@ -62,9 +62,9 @@
         "max_hit": 1,
         "next": [
             "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]ContainerHasOffer",
-            "[JumpBack]EnterCargoContainer",
-            "ContainerNotReady", // 在包裹全部都没有准备好的时候退出循环
+            "[JumpBack]CargoHasOffer",
+            "[JumpBack]EnterCargo",
+            "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
             "CheckFourthValleyDepotLocked",
             "[JumpBack]EnterFourthValleyDepot",
             "[JumpBack]DeliveryJobsGoToFourthValley",
@@ -76,9 +76,9 @@
         "max_hit": 1,
         "next": [
             "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]ContainerHasOffer",
-            "[JumpBack]EnterCargoContainer",
-            "ContainerNotReady",
+            "[JumpBack]CargoHasOffer",
+            "[JumpBack]EnterCargo",
+            "CargoNotReady",
             "CheckWuLingDepotLocked",
             "[JumpBack]EnterWuLingDepot",
             "[JumpBack]DeliveryJobsGoToWuLing",
