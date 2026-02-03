@@ -5,8 +5,7 @@
             "type": "StopTask"
         },
         "focus": {
-            "Node.Action.Starting": "用户退出委托列表",
-            "Node.Recognition.Succeeded": ""
+            "Node.Action.Starting": "用户退出委托列表"
         },
         "inverse": true,
         "recognition": {
@@ -154,7 +153,7 @@
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskNews2"
         ],
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 100,
         "rate_limit": 1000,
         "recognition": {
             "param": {
@@ -180,7 +179,7 @@
         "next": [
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
-        "post_wait_freezes": 300,
+        "post_wait_freezes": 100,
         "rate_limit": 100,
         "recognition": {
             "param": {
