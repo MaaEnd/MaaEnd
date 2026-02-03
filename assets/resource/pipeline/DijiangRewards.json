@@ -742,7 +742,8 @@
                     145
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png"
+                    "ClaimDijiangRewards/ReceiveAll.png",
+                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
                 ]
             }
         },
@@ -776,16 +777,16 @@
     },
     "GrowAgain": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    792,
-                    461,
-                    198,
-                    151
+                    793,
+                    504,
+                    127,
+                    78
                 ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthAgain.png"
+                "expected": [
+                    "再次培养"
                 ]
             }
         },
@@ -1566,7 +1567,8 @@
                     82
                 ],
                 "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
+                    "ClaimDijiangRewards/TakeRewards.png",
+                    "ClaimDijiangRewards/TakeRewards_Hover.png"
                 ]
             }
         },

@@ -92,9 +92,11 @@
         "tasks/PuzzleSolver.json",
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
+        "tasks/SellProduct.json",
         "tasks/AutoResell.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
+        "tasks/GetWuling731.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
         "tasks/ReceiveProdManual.json",
@@ -102,7 +104,6 @@
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",
-        "tasks/AndroidOpenGame.json",
-        "tasks/SellProduct.json"
+        "tasks/AndroidOpenGame.json"
     ]
 }

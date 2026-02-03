@@ -7,7 +7,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -309,7 +309,13 @@ func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
 
 	// Then refresh screenshot
 	ctrl.PostScreencap().Wait()
-	newImg := ctrl.CacheImage()
+	newImg, err := ctrl.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to capture image")
+		return nil
+	}
 	if newImg == nil {
 		log.Error().Msg("Failed to capture image")
 		return nil
@@ -423,7 +429,14 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 2. Screenshot
 	ctrl.PostScreencap().Wait()
-	previewImg := ctrl.CacheImage()
+	previewImg, err := ctrl.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to capture preview image")
+		aw.TouchUpSync(100)
+		return nil
+	}
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
 		aw.TouchUpSync(100)

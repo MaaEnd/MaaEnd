@@ -1,6 +1,6 @@
 package hdrcheck
 
-import "github.com/MaaXYZ/maa-framework-go/v3"
+import "github.com/MaaXYZ/maa-framework-go/v4"
 
 var (
 	_ maa.TaskerEventSink = &HDRChecker{}

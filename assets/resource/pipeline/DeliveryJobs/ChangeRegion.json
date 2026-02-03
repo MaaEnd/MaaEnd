@@ -1,22 +1,66 @@
 {
-    "DeliveryJobsWuling2FourthValley": {
-        "doc": "武陵回四号谷地",
+    "DeliveryJobsGoToFourthValley": {
+        "doc": "前往四号谷地",
         "recognition": "TemplateMatch",
-        "template": "Resell/ChangeRegion.png",
+        "template": "Resell/inManagement.png",
         "threshold": 0.8,
         "roi": [
-            114,
-            232,
-            122,
-            122
+            1139,
+            63,
+            135,
+            127
         ],
-        "action": "Click",
         "next": [
-            "DeliveryJobsGotoFourthValley"
+            "DeliveryJobsCheckFourthValley",
+            "[JumpBack]DeliveryJobsChangeToFourthValley",
+            "[JumpBack]DeliveryJobsChangeRegion"
         ]
     },
-    "DeliveryJobsGotoFourthValley": {
-        "doc": "前往四号谷地",
+    "DeliveryJobsGoToWuLing": {
+        "doc": "前往武陵",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
+        "roi": [
+            1139,
+            63,
+            135,
+            127
+        ],
+        "next": [
+            "DeliveryJobsCheckWuLing",
+            "[JumpBack]DeliveryJobsChangeToWuLing",
+            "[JumpBack]DeliveryJobsChangeRegion"
+        ]
+    },
+    "DeliveryJobsCheckFourthValley": {
+        "doc": "检查是否是四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": "四号谷地"
+    },
+    "DeliveryJobsCheckWuLing": {
+        "doc": "检查是否是武陵",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": "武陵"
+    },
+    "DeliveryJobsChangeToFourthValley": {
+        "doc": "更改至四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
         "threshold": 0.8,
@@ -29,65 +73,12 @@
         "expected": "四号谷地",
         "action": "Click",
         "next": [
-            "DeliveryJobsConfirmChangeRegion"
+            "DeliveryJobsConfirmChangeRegion",
+            "[JumpBack]DeliveryJobsChangeRegion"
         ]
     },
-    "DeliveryJobsConfirmChangeRegion": {
-        "doc": "确认更换地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ConfirmChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            763,
-            371,
-            122,
-            121
-        ],
-        "pre_delay": 0,
-        "post_wait_freezes": 200,
-        "action": "Click",
-        "next": [
-            "CheckDepotLocked",
-            "EnterDepot",
-            "CheckCurrentArea"
-        ]
-    },
-    "CheckDepotLocked": {
-        "doc": "检查仓库是否解锁",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/DepotLocked.png",
-        "threshold": 0.8,
-        "roi": [
-            1179,
-            347,
-            36,
-            47
-        ],
-        "pre_delay": 0,
-        "focus": {
-            "Node.Action.Starting": "武陵仓储节点未解锁,所有地区均已完成"
-        },
-        "next": []
-    },
-    "DeliveryJobsChangeNextRegion": {
-        "doc": "更换到下一个地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            114,
-            232,
-            122,
-            122
-        ],
-        "action": "Click",
-        "next": [
-            "DeliveryJobsCheckChangeRegionToWuLing",
-            "DeliveryJobsLastAreaFinished"
-        ]
-    },
-    "DeliveryJobsCheckChangeRegionToWuLing": {
-        "doc": "更换到武陵",
+    "DeliveryJobsChangeToWuLing": {
+        "doc": "更改至武陵",
         "recognition": "And",
         "all_of": [
             {
@@ -116,39 +107,35 @@
         "box_index": 0,
         "action": "Click",
         "next": [
-            "DeliveryJobsConfirmChangeRegion"
+            "DeliveryJobsConfirmChangeRegion",
+            "[JumpBack]DeliveryJobsChangeRegion"
         ]
     },
-    "DeliveryJobsLastAreaFinished": {
-        "doc": "所有地区均已完成，结束运送任务流程",
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "武陵字样的位置",
-                "recognition": "OCR",
-                "threshold": 0.8,
-                "roi": [
-                    714,
-                    218,
-                    36,
-                    21
-                ]
-            },
-            {
-                "sub_name": "当前查看地区字样的位置",
-                "recognition": "OCR",
-                "roi": [
-                    648,
-                    149,
-                    83,
-                    19
-                ]
-            }
+    "DeliveryJobsChangeRegion": {
+        "doc": "更换地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            114,
+            232,
+            122,
+            122
         ],
-        "focus": {
-            "Node.Action.Starting": "所有地区均已完成"
-        },
-        "action": "DoNothing",
-        "next": []
+        "method": 10001,
+        "action": "Click"
+    },
+    "DeliveryJobsConfirmChangeRegion": {
+        "doc": "确认更换地区",
+        "recognition": "TemplateMatch",
+        "template": "Resell/ConfirmChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            763,
+            371,
+            122,
+            121
+        ],
+        "action": "Click"
     }
 }

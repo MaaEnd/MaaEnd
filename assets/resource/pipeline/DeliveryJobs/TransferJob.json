@@ -1,0 +1,50 @@
+{
+    "EnterDeliveryJob": {
+        "doc": "进入送货任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterDeliveryJob.png",
+        "roi": [
+            96,
+            574,
+            936,
+            37
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ClickTransferJob",
+            "EnterDeliveryJob"
+        ]
+    },
+    "ClickTransferJob": {
+        "doc": "单击转交任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/TransferTask.png",
+        "roi": [
+            436,
+            653,
+            88,
+            15
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ConfirmTaskTransfer",
+            "ClickTransferJob"
+        ]
+    },
+    "ConfirmTaskTransfer": {
+        "doc": "确认转交任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ConfirmTransfer.png",
+        "roi": [
+            818,
+            450,
+            27,
+            27
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": []
+    }
+}
