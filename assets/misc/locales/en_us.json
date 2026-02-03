@@ -1,4 +1,6 @@
 {
+    "common.in-game.region.FourthValley": "Fourth Valley",
+    "common.in-game.region.WuLing": "Wuling",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.AutoSkip.label": "Auto Story",
@@ -57,7 +59,7 @@
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "Blueprint Text",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "Enter text (any characters allowed). Blueprint share codes will be extracted intelligently.",
     "task.DeliveryJobs.label": "🚚Auto Delivery Jobs",
-    "task.DeliveryJobs.description": "Automatically accept and hand over delivery jobs",
+    "task.DeliveryJobs.description": "Automatically accept and hand over delivery jobs. **Can be started from the main interface and region construction page.**\nPlease select the regions to enable:",
     "task.ClaimSimulationRewards.label": "📦Claim Simulation Rewards",
     "task.ClaimSimulationRewards.description": "Please start within the Simulation Space menu",
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",

@@ -1,4 +1,6 @@
 {
+    "common.in-game.region.FourthValley": "四号谷地",
+    "common.in-game.region.WuLing": "武陵",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
     "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
     "option.AutoSkip.label": "ストーリー自動",
@@ -57,7 +59,7 @@
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "設計図テキスト",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。",
     "task.DeliveryJobs.label": "🚚配達任務の自動転送",
-    "task.DeliveryJobs.description": "配達任務を自動で受注・転送します",
+    "task.DeliveryJobs.description": "配達任務を自動で受注・転送します。**メイン画面と地域建設ページから開始できます。**\n有効にする地域を選択してください：",
     "task.ClaimSimulationRewards.label": "📦模擬空間報酬自動受取",
     "task.ClaimSimulationRewards.description": "模擬空間メニュー内で起動してください",
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
