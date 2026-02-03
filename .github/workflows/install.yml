@@ -151,16 +151,10 @@ jobs:
 
           cat install/interface.json
 
-      - name: Zip artifact
-        shell: bash
-        run: |
-          cd install
-          zip -r ../MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate.zip .
-
       - uses: actions/upload-artifact@v4
         with:
           name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate
-          path: "MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate.zip"
+          path: install
 
   package_linux_tarball:
     needs: [meta, build_and_install]
@@ -175,14 +169,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: MaaEnd-linux-${{ matrix.arch }}-intermediate
-          path: "downloads"
+          path: "install"
 
-      - name: Extract and repackage as tar.gz
+      - name: Repackage as tar.gz
         shell: bash
         run: |
-          mkdir -p install
-          unzip downloads/MaaEnd-linux-${{ matrix.arch }}-intermediate.zip -d install
-
           # 给可执行文件添加执行权限
           if [[ -f install/MaaEnd ]]; then
             chmod +x install/MaaEnd
@@ -217,13 +208,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: MaaEnd-macos-${{ matrix.arch }}-intermediate
-          path: "downloads"
-
-      - name: Extract artifact
-        shell: bash
-        run: |
-          mkdir -p install
-          unzip downloads/MaaEnd-macos-${{ matrix.arch }}-intermediate.zip -d install
+          path: "install"
 
       - name: Update mirrorchyan_rid for macOS
         shell: bash
@@ -327,13 +312,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: MaaEnd-win-${{ matrix.arch }}-intermediate
-          path: "downloads"
-
-      - name: Extract artifact
-        shell: bash
-        run: |
-          mkdir -p install
-          unzip downloads/MaaEnd-win-${{ matrix.arch }}-intermediate.zip -d install
+          path: "install"
 
       - name: Convert PNG to ICO
         if: matrix.arch == 'x86_64'
@@ -355,10 +334,9 @@ jobs:
           echo "MaaEnd.exe icon modified successfully"
 
       - name: Package ZIP
-        shell: bash
+        shell: pwsh
         run: |
-          cd install
-          zip -r ../MaaEnd-win-${{ matrix.arch }}.zip .
+          Compress-Archive -Path install/* -DestinationPath MaaEnd-win-${{ matrix.arch }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
@@ -399,21 +377,21 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: MaaEnd-*-zip
-          path: assets
+          path: artifacts
 
       - uses: actions/download-artifact@v4
         with:
           pattern: MaaEnd-*-tarball
-          path: assets
+          path: artifacts
 
       - uses: actions/download-artifact@v4
         with:
           pattern: MaaEnd-*-dmg
-          path: assets
+          path: artifacts
 
-      - name: Prepare release assets
+      - name: Prepare release artifacts
         run: |
-          cd assets
+          cd artifacts
           # 重命名 win zip 文件，添加版本号
           for f in MaaEnd-win-*-zip/MaaEnd-win-*.zip; do
             if [[ -f "$f" ]]; then
@@ -443,7 +421,7 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: assets/*
+          files: artifacts/*
           tag_name: ${{ needs.meta.outputs.tag }}
           body: ${{ needs.changelog.outputs.release_body }}
           draft: false
