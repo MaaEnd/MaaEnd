@@ -14,8 +14,8 @@ type Point struct {
 }
 
 type TransferSession struct {
-	ItemName string
-	Category string
+	ItemName     string
+	CategoryNode string
 	// 分别记录两个区域的最后位置
 	LastPosRepo     Point
 	LastPosBackpack Point
@@ -34,7 +34,7 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 	json.Unmarshal([]byte(arg.CustomRecognitionParam), &taskParam)
 
 	rawName, _ := taskParam["ItemName"].(string)
-	rawCat, _ := taskParam["Category"].(string)
+	rawCat, _ := taskParam["CategoryNode"].(string)
 
 	// 判断是否为新任务（有效参数传入）
 	isValidNewParams := rawName != "" && !strings.Contains(rawName, "{") && !strings.Contains(rawName, "ItemParName")
@@ -43,7 +43,7 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 		// 如果名字变了，才重置坐标；如果名字没变（比如暂停后继续），保留坐标
 		if currentSession.ItemName != rawName {
 			currentSession.ItemName = rawName
-			currentSession.Category = rawCat
+			currentSession.CategoryNode = rawCat
 			currentSession.LastPosRepo = Point{0, 0}     // 重置回起点
 			currentSession.LastPosBackpack = Point{0, 0} // 重置回起点
 			currentSession.CurrentCount = 0
@@ -66,7 +66,7 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 	}
 
 	finalItemName := currentSession.ItemName
-	finalCategory := currentSession.Category
+	finalCategoryNode := currentSession.CategoryNode
 
 	var startRow, startCol int
 	if targetInv == REPOSITORY {
@@ -80,23 +80,11 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 		startRow, startCol = 0, 0
 	}
 
-	var taskName string
-
-	// 简单的映射逻辑
-	switch finalCategory {
-	case "Material":
-		taskName = "ItemTransferSwitchToMaterial"
-	case "Plant":
-		taskName = "ItemTransferSwitchToPlant"
-	case "Product":
-		taskName = "ItemTransferSwitchToProduct"
-		// case "All": ...
-	}
-	if taskName != "" && targetInv == REPOSITORY {
-		status := ctx.RunTask(taskName).Status
+	if finalCategoryNode != "" && targetInv == REPOSITORY {
+		status := ctx.RunTask(finalCategoryNode).Status
 
 		if !status.Success() {
-			log.Warn().Str("task", taskName).Msg("Failed to switch category tab, trying scan anyway...")
+			log.Warn().Str("task", finalCategoryNode).Msg("Failed to switch category tab, trying scan anyway...")
 		} else {
 			log.Debug().Msg("Category switch successful.")
 		}

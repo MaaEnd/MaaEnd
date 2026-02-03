@@ -3,7 +3,7 @@
         {
             "name": "ItemTransfer",
             "label": "$task.ItemTransfer.label",
-            "entry": "ItemTransferMain",
+            "entry": "ItemTransferConfigLoader",
             "default_check": true,
             "description": "$task.ItemTransfer.description",
             "option": [
@@ -66,7 +66,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "中容谷地电池|SC Valley Battery|中容量谷地電池",
-                                        "Category": "Product"
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
                                     }
                                 }
                             }
@@ -76,7 +76,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "中容谷地电池|SC Valley Battery|中容量谷地電池",
-                                        "Category": "Product"
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
                                     }
                                 }
                             }
@@ -92,7 +92,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "高容谷地电池|HC Valley Battery|高容量谷地電池",
-                                        "Category": "Product"
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
                                     }
                                 }
                             }
@@ -102,7 +102,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "高容谷地电池|HC Valley Battery|高容量谷地電池",
-                                        "Category": "Product"
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
                                     }
                                 }
                             }
@@ -118,7 +118,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "蓝铁矿|Ferrium Ore|藍鐵礦",
-                                        "Category": "Material"
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
                                     }
                                 }
                             }
@@ -128,7 +128,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "蓝铁矿|Ferrium Ore|藍鐵礦",
-                                        "Category": "Material"
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
                                     }
                                 }
                             }
@@ -144,7 +144,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "源矿|Originium Ore|源礦",
-                                        "Category": "Material"
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
                                     }
                                 }
                             }
@@ -154,7 +154,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "源矿|Originium Ore|源礦",
-                                        "Category": "Material"
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
                                     }
                                 }
                             }
@@ -170,7 +170,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "砂叶|Sandleaf|砂葉",
-                                        "Category": "Plant"
+                                        "CategoryNode": "ItemTransferSwitchToPlant"
                                     }
                                 }
                             }
@@ -180,7 +180,7 @@
                                 "param": {
                                     "custom_recognition_param": {
                                         "ItemName": "砂叶|Sandleaf|砂葉",
-                                        "Category": "Plant"
+                                        "CategoryNode": "ItemTransferSwitchToPlant"
                                     }
                                 }
                             }

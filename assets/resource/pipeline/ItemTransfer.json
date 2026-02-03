@@ -1,13 +1,49 @@
 {
+    "ItemTransferConfigLoader": {
+        "doc": "加载所有UI布局参数，替代硬编码常量。数值对应1280x720分辨率。",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ConfigLoader",
+                "custom_recognition_param": {
+                    // 对应 var Repo...
+                    "Repo": {
+                        "FirstX": 161,
+                        "FirstY": 217,
+                        "Columns": 8
+                    },
+                    // 对应 var Backpack...
+                    "Backpack": {
+                        "FirstX": 771,
+                        "FirstY": 217,
+                        "Columns": 5,
+                        "Rows": 7
+                    },
+                    // 对应 var BoxSize, ToolTip... 等通用网格参数
+                    "Grid": {
+                        "RowsPerPage": 4,
+                        "BoxSize": 64,
+                        "GridInterval": 5,
+                        "ToolTipCursorOffset": 32,
+                        "TooltipRoiScaleX": 275,
+                        "TooltipRoiScaleY": 130
+                    },
+                    // 对应 var ResetInv...
+                    "Action": {
+                        "ResetInvViewScrollDistance": 1200,
+                        "ResetInvViewSwipeTimes": 5
+                    }
+                }
+            }
+        },
+        // 加载完配置后，进入初始化序列
+        "next": [
+            "ItemTransferMain"
+        ]
+    },
     "ItemTransferMain": {
         "doc": "【主入口】调度中心。循环检测当前是在起点还是终点，并分发任务。",
         "recognition": "DirectHit",
-        "$__mpe_code": {
-            "position": {
-                "x": -34,
-                "y": 128
-            }
-        },
         "next": [
             "ItemTransferTaskSuccess",
             "ItemTransferAtOrigin",
@@ -30,13 +66,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "LeftClickWithCtrlDown"
-            }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 600,
-                "y": 1
+                "custom_action": "SequenceAction",
+                "custom_action_param": {
+                    "sequence": [
+                        "Action_Atom_KeyDown_Ctrl",
+                        "Action_Atom_Click",
+                        "Action_Atom_KeyUp_Ctrl"
+                    ]
+                }
             }
         },
         "next": [
@@ -62,12 +99,6 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 2004,
-                "y": 629
-            }
         }
     },
     "ItemTransferRegionSwitcherConfirm": {
@@ -98,12 +129,6 @@
             "type": "Click",
             "param": {}
         },
-        "$__mpe_code": {
-            "position": {
-                "x": 1232,
-                "y": 506
-            }
-        },
         "next": [
             "ItemTransferCloseRegionSwitcher"
         ]
@@ -128,12 +153,6 @@
             "param": {
                 "key": 27
             }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 1534,
-                "y": 482
-            }
         }
     },
     "ItemTransferClickDestination": {
@@ -154,12 +173,6 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 900,
-                "y": 519
-            }
         },
         "next": [
             "[JumpBack]ItemTransferRegionSwitcherConfirm",
@@ -185,12 +198,6 @@
             "type": "Click",
             "param": {}
         },
-        "$__mpe_code": {
-            "position": {
-                "x": 2014,
-                "y": 1129
-            }
-        },
         "next": [
             "[JumpBack]ItemTransferRegionSwitcherConfirm",
             "ItemTransferAtOrigin"
@@ -210,12 +217,6 @@
                 "expected": "[PLACEHOLDER]"
             }
         },
-        "$__mpe_code": {
-            "position": {
-                "x": 1200,
-                "y": 1117
-            }
-        },
         "next": [
             "ItemTransferToRepository"
         ]
@@ -232,12 +233,6 @@
                 ],
                 "order_by": "Expected",
                 "expected": "[PLACEHOLDER]"
-            }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 300,
-                "y": 72
             }
         },
         "next": [
@@ -259,13 +254,14 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "LeftClickWithCtrlDown"
-            }
-        },
-        "$__mpe_code": {
-            "position": {
-                "x": 1500,
-                "y": 1053
+                "custom_action": "SequenceAction",
+                "custom_action_param": {
+                    "sequence": [
+                        "Action_Atom_KeyDown_Ctrl",
+                        "Action_Atom_Click",
+                        "Action_Atom_KeyUp_Ctrl"
+                    ]
+                }
             }
         },
         "next": [
@@ -351,5 +347,36 @@
         },
         "action": "Click",
         "post_wait_freezes": 100
+    },
+    "Action_Atom_KeyDown_Ctrl": {
+        "action": {
+            "param": {
+                "key": 17
+            },
+            "type": "KeyDown"
+        }
+    },
+    "Action_Atom_Click": {
+        "action": "Click",
+        "post_wait_freezes": 10
+    },
+    "Action_Atom_KeyUp_Ctrl": {
+        "action": {
+            "param": {
+                "key": 17
+            },
+            "type": "KeyUp"
+        }
+    },
+    "Action_Hover_Item": {
+        "doc": "物品交互动作：PC端默认悬停以显示Tooltip",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "only_hover": true,
+                "duration": 200 // 稍微停顿一下
+            }
+        },
+        "post_wait_freezes": 10
     }
 }
