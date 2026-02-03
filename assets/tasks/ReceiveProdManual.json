@@ -4,7 +4,6 @@
             "name": "ReceiveProdManual",
             "label": "$task.ReceiveProdManual.label",
             "entry": "ProdManualStart",
-            "default_check": true,
             "description": "$task.ReceiveProdManual.description"
         }
     ],

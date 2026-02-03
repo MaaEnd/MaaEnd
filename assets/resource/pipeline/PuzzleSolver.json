@@ -5,8 +5,10 @@
         "recognition": "DirectHit",
         "next": [
             "PuzzleSolverOnScenePrepare",
-            "PuzzleSolverOnSceneMain",
-            "PuzzleSolverMain" // 循环检测
+            "PuzzleSolverOnSceneMain"
+        ],
+        "on_error": [
+            "PuzzleSolverOnMiss"
         ]
     },
     "PuzzleSolverOnScenePrepare": {
@@ -20,8 +22,10 @@
             296
         ],
         "next": [
-            "PuzzleSolverFindStartButton",
-            "PuzzleSolverMain" // 找不到按钮，返回入口点
+            "PuzzleSolverFindStartButton"
+        ],
+        "on_error": [
+            "PuzzleSolverOnMiss"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "💡 检测到拼图准备界面"
@@ -41,6 +45,9 @@
         "post_wait_freezes": 100, // 点击后，等待界面加载
         "next": [
             "PuzzleSolverOnSceneMain"
+        ],
+        "on_error": [
+            "PuzzleSolverOnMiss"
         ]
     },
     "PuzzleSolverOnSceneMain": {
@@ -72,7 +79,7 @@
         ],
         "post_delay": 5000,
         "next": [
-            "PuzzleSolverMain" // 无需操作，返回入口点
+            "PuzzleSolverOnPass"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "❌ 检测到未满足拼图所需条件（请先去获取新元件）"
@@ -90,7 +97,7 @@
         ],
         "post_delay": 5000,
         "next": [
-            "PuzzleSolverMain" // 无需操作，返回入口点
+            "PuzzleSolverOnPass"
         ]
     },
     "PuzzleSolverSolvePuzzleReady": {
@@ -100,8 +107,7 @@
         "pre_delay": 0, // 此节点为守卫节点，无需延迟
         "post_delay": 0, // 此节点为守卫节点，无需延迟
         "next": [
-            "PuzzleSolverSolvePuzzle",
-            "PuzzleSolverMain" // 执行失败，返回入口点
+            "PuzzleSolverSolvePuzzle"
         ]
     },
     "PuzzleSolverSolvePuzzle": {
@@ -117,14 +123,16 @@
             "PuzzleSolverOnSuccess"
         ],
         "focus": {
-            "Node.Recognition.Starting": "👀 开始识别拼图局面",
-            "Node.Recognition.Succeeded": "🧐 成功识别拼图局面，我寻思可以拼...",
-            "Node.Recognition.Failed": "❌ 未能识别拼图局面",
+            "Node.Recognition.Starting": "👀 开始识别拼图题目",
+            "Node.Recognition.Succeeded": "🧐 成功识别拼图题目，我寻思可以拼...",
+            "Node.Recognition.Failed": "❌ 未能识别拼图题目",
             "Node.Action.Starting": "🫳 开始执行拼图操作",
             "Node.Action.Succeeded": "⭐ 结束执行拼图操作，哼哼，拼完了~",
             "Node.Action.Failed": "❌ 未能执行拼图操作"
         }
     },
+    // 下面是一些回调节点的定义
+    // 向回调节点的 next 列表中添加 "PuzzleSolverMain" 即可实现自动重试
     "PuzzleSolverOnSuccess": {
         // 解谜成功后触发，关闭拼图界面
         "recognition": "DirectHit",
@@ -137,13 +145,30 @@
         "post_delay": 2000,
         "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
-            "PuzzleSolverMain" // 准备下一轮检测，返回入口点
-        ]
+            // 默认情况下，任务到这里就结束了
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "👌 已完成一轮拼图任务"
+        }
     },
-    // 动态节点（仅在自定义识别和操作中调用）：
-    "PuzzleSolverPuzzlePreviewWaitStable": {
-        // 等待游戏状态稳定
+    "PuzzleSolverOnMiss": {
+        // 未能按预期识别时触发
         "recognition": "DirectHit",
-        "pre_wait_freezes": 100
+        "next": [
+            // 默认情况下，任务到这里就结束了
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "❓ 未能按预期识别到拼图界面的UI元素"
+        }
+    },
+    "PuzzleSolverOnPass": {
+        // 无需执行操作时触发
+        "recognition": "DirectHit",
+        "next": [
+            // 默认情况下，任务到这里就结束了
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "❔ 未检测到需要操作的拼图界面"
+        }
     }
 }

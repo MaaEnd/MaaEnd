@@ -11,6 +11,7 @@
                 "AutoFight",
                 "AutoPick",
                 "QuickTeleport",
+                "AutoPuzzleSolving",
                 "AutoZipline",
                 "AutoPat",
                 "AutoTaskInterval"
@@ -491,6 +492,47 @@
                         },
                         "RealTimeQuickTeleportDirect": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoPuzzleSolving": {
+            "type": "switch",
+            "label": "$option.AutoPuzzleSolving.label",
+            "description": "$option.AutoPuzzleSolving.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "PuzzleSolverOnSuccess": {
+                            "next": [
+                                "RealTimeTaskMain"
+                            ]
+                        },
+                        "PuzzleSolverOnMiss": {
+                            "next": [
+                                "RealTimeTaskMain"
+                            ]
+                        },
+                        "PuzzleSolverOnPass": {
+                            "next": [
+                                "RealTimeTaskMain"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "PuzzleSolverMain": {
+                            "enabled": false
+                        },
+                        "PuzzleSolverOnScenePrepare": {
+                            "enabled": false
+                        },
+                        "PuzzleSolverOnSceneMain": {
+                            "enabled": false
                         }
                     }
                 }

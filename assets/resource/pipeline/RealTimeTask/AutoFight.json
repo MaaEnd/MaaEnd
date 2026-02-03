@@ -51,7 +51,6 @@
         "doc": "自动触发连携技能",
         // 找连携技能提示头像上方图标
         "recognition": "TemplateMatch",
-        "sub_name": "AutoFightCombo",
         "threshold": 0.9,
         "template": "RealTimeTask/AutoFightCombo.png",
         "roi": [
@@ -91,7 +90,6 @@
     },
     "RealTimeAutoFightEndSkill": {
         "doc": "自动释放终结技",
-        "sub_name": "AutoFightEndSkill",
         "recognition": {
             "type": "Custom",
             "param": {
