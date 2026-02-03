@@ -16,6 +16,88 @@
         //帝江号的日常收取中不会开启
         //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
         "next": [
+            "InMainWindow_NeedCredit",
+            "[JumpBack]CloseButtonDijiang"
+        ]
+    },
+    //主流程
+    "DijiangRewards": {
+        "next": [
+            "ControlNexus", //主流程内收集所有奖励
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "ControlNexus": {
+        //任务主流程
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    143,
+                    467,
+                    77,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
+        ]
+    },
+    "InMainWindow_NeedCredit": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    133,
+                                    118
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
             "EntryReceptionRoom_NeedCredit", //单独运行一次会客室
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
@@ -131,61 +213,22 @@
     },
     "InControlNexus_NeedCredit": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    161,
-                    462,
-                    171,
-                    82
+                    143,
+                    467,
+                    77,
+                    77
                 ],
-                "expected": [
-                    "总控中枢"
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
         },
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonDijiang"
-        ]
-    },
-    //主流程
-    "DijiangRewards": {
-        "next": [
-            "ControlNexus", //主流程内收集所有奖励
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
-        ]
-    },
-    "ControlNexus": {
-        //任务主流程
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    161,
-                    462,
-                    171,
-                    82
-                ],
-                "expected": [
-                    "总控中枢"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssistInDijiang",
-            "[JumpBack]MFG_ReceiveRewards",
-            "[JumpBack]GrowthChamber",
-            "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
         ]
     },
     "InLastCarbin": {
@@ -354,7 +397,7 @@
                     500
                 ],
                 "expected": [
-                    "线索"
+                    "线索" //#I18N
                 ],
                 "order_by": "Vertical"
             }
@@ -368,6 +411,7 @@
         "recognition": {
             "type": "And",
             "param": {
+                "box_index": 2,
                 "all_of": [
                     {
                         "recognition": {
@@ -436,7 +480,8 @@
         },
         "next": [
             "SendClues",
-            "Collect"
+            "Collect",
+            "CollectClues"
         ]
     },
     "SendClues": {
@@ -472,7 +517,7 @@
                                     276
                                 ],
                                 "expected": [
-                                    "线索已满"
+                                    "线索已满" //#不确定
                                 ]
                             }
                         }
@@ -682,7 +727,8 @@
             "type": "Click"
         },
         "next": [
-            "Receive"
+            "Receive",
+            "ReceiveClues"
         ]
     },
     "Receive": {
@@ -696,7 +742,8 @@
                     145
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png"
+                    "ClaimDijiangRewards/ReceiveAll.png",
+                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
                 ]
             }
         },
@@ -723,22 +770,23 @@
         "next": [
             "[JumpBack]CloseDijiangRewards",
             "[JumpBack]TakeRewards",
-            "GrowAgain",
+            "[JumpBack]DijiangConfirm",
+            "[JumpBack]GrowAgain",
             "ExitGrowthChamber"
         ]
     },
     "GrowAgain": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    792,
-                    461,
-                    198,
-                    151
+                    793,
+                    504,
+                    127,
+                    78
                 ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthAgain.png"
+                "expected": [
+                    "再次培养"
                 ]
             }
         },
@@ -850,21 +898,41 @@
             "[JumpBack]ReceiveClues",
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
-            "[JumpBack]ExitReceptionRoom"
+            "[JumpBack]ExitReceptionRoom",
+            "[JumpBack]ConfirmExchangeEnd"
         ]
+    },
+    "ConfirmExchangeEnd": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    685,
+                    616,
+                    73,
+                    70
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ConfirmRestock.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "InControlNexus": {
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    161,
-                    462,
-                    171,
-                    82
+                    143,
+                    467,
+                    77,
+                    77
                 ],
-                "expected": [
-                    "总控中枢"
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
         }
@@ -1052,16 +1120,16 @@
             "timeout": 2000
         },
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    161,
-                    462,
-                    171,
-                    82
+                    143,
+                    467,
+                    77,
+                    77
                 ],
-                "expected": [
-                    "总控中枢"
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
         },
@@ -1268,7 +1336,7 @@
                     196
                 ],
                 "expected": [
-                    "(O|o|0)(M|m|N|n)(V|v)"
+                    "[Oo].?[Mm].?[Vv]"
                 ]
             }
         },
@@ -1401,18 +1469,14 @@
     },
     "ControlNexusClickTips": {
         //点击任务提示(红点)
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    434,
-                    462,
-                    846,
-                    69
+                    697,
+                    463,
+                    459,
+                    62
                 ],
                 "lower": [
                     224,
@@ -1438,6 +1502,56 @@
                     0
                 ]
             }
+        },
+        "next": [
+            "AlreadyInCarbin",
+            "[JumpBack]ConfirmRestock",
+            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]CloseDijiangRewards",
+            "ControlNexusClickTips"
+        ]
+    },
+    "AlreadyInCarbin": {
+        //已经在舱室内部或者好友助力界面,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱",
+                                    "培养舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    170,
+                                    104,
+                                    121,
+                                    77
+                                ],
+                                "expected": [
+                                    "生产助力"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
         }
     },
     "TakeRewards": {
@@ -1452,7 +1566,8 @@
                     82
                 ],
                 "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
+                    "ClaimDijiangRewards/TakeRewards.png",
+                    "ClaimDijiangRewards/TakeRewards_Hover.png"
                 ]
             }
         },

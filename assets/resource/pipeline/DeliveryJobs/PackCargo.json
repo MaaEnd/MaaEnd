@@ -1,0 +1,271 @@
+{
+    "EnterFourthValleyDepot": {
+        "doc": "进入四号谷地仓储节点",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/EnterDepot.png",
+                "roi": [
+                    1016,
+                    343,
+                    22,
+                    19
+                ],
+                "threshold": 0.8
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "四号谷地"
+            }
+        ],
+        "action": "Click",
+        "next": []
+    },
+    "EnterWuLingDepot": {
+        "doc": "进入武陵仓储节点",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/EnterDepot.png",
+                "roi": [
+                    1016,
+                    343,
+                    22,
+                    19
+                ],
+                "threshold": 0.8
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "武陵"
+            }
+        ],
+        "action": "Click",
+        "next": []
+    },
+    "CheckFourthValleyDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotLocked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1179,
+                    347,
+                    36,
+                    47
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "四号谷地"
+            }
+        ],
+        "pre_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CheckWuLingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/DepotLocked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1179,
+                    347,
+                    36,
+                    47
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "threshold": 0.8,
+                "roi": [
+                    23,
+                    155,
+                    183,
+                    93
+                ],
+                "expected": "武陵"
+            }
+        ],
+        "pre_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "武陵仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CargoHasOffer": {
+        "doc": "货物有人报价",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoHasOffer.png",
+        "roi": [
+            96,
+            574,
+            936,
+            37
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "CargoHasOffer"
+        ]
+    },
+    "CargoNotReady": {
+        "doc": "货物未就绪，返回上一级界面",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoNotReady.png",
+        "roi": [
+            109,
+            515,
+            940,
+            30
+        ],
+        "threshold": 0.8,
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "CheckCurrentArea",
+            "CargoNotReady"
+        ]
+    },
+    "EnterCargo": {
+        "doc": "进入货物",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/CargoReady.png",
+                "roi": [
+                    109,
+                    515,
+                    940,
+                    30
+                ],
+                "threshold": 0.8
+            },
+            {
+                "recognition": "TemplateMatch",
+                "template": "DeliveryJobs/CargoReadyWuLing.png",
+                "roi": [
+                    109,
+                    515,
+                    940,
+                    30
+                ],
+                "threshold": 0.8
+            }
+        ],
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterCargo"
+        ]
+    },
+    "ProceedToNextStep": {
+        "doc": "进入下一步",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/NextStep.png",
+        "roi": [
+            1209,
+            649,
+            29,
+            28
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "CargoBid",
+            "CargoFillToMax",
+            "ClickScreenToContinue",
+            "ProceedToNextStep"
+        ]
+    },
+    "CargoFillToMax": {
+        "doc": "装满货物",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoFillToMax.png",
+        "roi": [
+            1174,
+            172,
+            34,
+            19
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "CargoFillToMax"
+        ]
+    },
+    "CargoBid": {
+        "doc": "货物竞价",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoBid.png",
+        "roi": [
+            906,
+            589,
+            42,
+            45
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "CargoBid"
+        ]
+    },
+    "ClickScreenToContinue": {
+        "doc": "单击屏幕继续",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ClickToContinue.png",
+        "roi": [
+            578,
+            670,
+            122,
+            24
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": []
+    }
+}

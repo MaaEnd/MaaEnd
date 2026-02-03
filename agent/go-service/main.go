@@ -4,12 +4,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -41,8 +43,11 @@ func main() {
 
 	// Initialize toolkit config option
 	userPath := getCwd()
-	if ok := maa.ConfigInitOption(userPath, "{}"); !ok {
-		log.Warn().Str("userPath", userPath).Msg("Failed to init toolkit config option")
+	if err := maa.ConfigInitOption(userPath, "{}"); err != nil {
+		log.Warn().
+			Str("userPath", userPath).
+			Err(err).
+			Msg("Failed to init toolkit config option")
 	} else {
 		log.Info().Str("userPath", userPath).Msg("Toolkit config option initialized")
 	}
@@ -51,8 +56,10 @@ func main() {
 	registerAll()
 
 	// Start the agent server
-	if !maa.AgentServerStartUp(identifier) {
-		log.Fatal().Msg("Failed to start agent server")
+	if err := maa.AgentServerStartUp(identifier); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start agent server")
 	}
 	log.Info().Msg("Agent server started")
 
@@ -71,6 +78,12 @@ func registerAll() {
 	resell.Register()
 	puzzle.Register()
 	itemtransfer.Register()
+
+	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
+	aspectratio.Register()
+
+	// Register HDR checker (uses TaskerSink, warns if HDR is enabled but doesn't stop task)
+	hdrcheck.Register()
 
 	log.Info().Msg("Registered custom recognition and actions")
 }

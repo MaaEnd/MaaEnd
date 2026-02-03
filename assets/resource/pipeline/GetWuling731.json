@@ -1,0 +1,40 @@
+{
+    "GetWuling731": {
+        "recognition": "DirectHit",
+        "next": [
+            "ClickRefresh"
+        ]
+    },
+    "ClickRefresh": {
+        "recognition": "OCR",
+        "expected": "^刷新$",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "FindWuling731",
+            "ClickRefresh"
+        ]
+    },
+    "FindWuling731": {
+        "recognition": "TemplateMatch",
+        "template": "GetWuling731/731.png",
+        "next": [
+            "ClickWuling731"
+        ]
+    },
+    "ClickWuling731": {
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "FindWuling731",
+                "target_offset": [
+                    262,
+                    12,
+                    0,
+                    0
+                ]
+            }
+        }
+    }
+}

@@ -4,7 +4,6 @@
             "name": "SimpleProductionBatchStart",
             "label": "$task.SimpleProductionBatch.label",
             "entry": "SimpleProductionBatchStart",
-            "default_check": false,
             "description": "$task.SimpleProductionBatch.description"
         }
     ],
