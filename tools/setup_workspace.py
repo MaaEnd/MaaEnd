@@ -12,27 +12,44 @@ import tempfile
 from pathlib import Path
 
 
-project_base: Path = Path(__file__).parent.parent.resolve()
-MAA_FW_REPO: str = "MaaXYZ/MaaFramework"
+PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
+MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 
-_system = platform.system().lower()
-_machine = platform.machine().lower()
-OS_KEYWORD: str = {"windows": "win", "linux": "linux", "darwin": "macos"}.get(
-    _system, _system
-)
-ARCH_KEYWORD: str = {
-    "amd64": "x86_64",
-    "x86_64": "x86_64",
-    "aarch64": "aarch64",
-    "arm64": "aarch64",
-}.get(_machine, _machine)
-MXU_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
-MAAFW_LIB: str = {
-    "win": "MaaFramework.dll",
-    "linux": "libMaaFramework.so",
-    "macos": "libMaaFramework.dylib",
-}.get(OS_KEYWORD, "libMaaFramework.so")
+try:
+    OS_KEYWORD: str = {
+        "windows": "win",
+        "linux": "linux",
+        "darwin": "macos",
+    }[platform.system().lower()]
+except KeyError as e:
+    raise RuntimeError(
+        f"Unrecognized operating system: {platform.system().lower()}"
+    ) from e
+
+try:
+    ARCH_KEYWORD: str = {
+        "amd64": "x86_64",
+        "x86_64": "x86_64",
+        "aarch64": "aarch64",
+        "arm64": "aarch64",
+    }.get(platform.machine().lower())
+except KeyError as e:
+    raise RuntimeError(
+        f"Unrecognized architecture: {platform.machine().lower()}"
+    ) from e
+
+try:
+    MFW_DIST_NAME: str = {
+        "win": "MaaFramework.dll",
+        "linux": "libMaaFramework.so",
+        "macos": "libMaaFramework.dylib",
+    }[OS_KEYWORD]
+except KeyError as e:
+    raise RuntimeError(f"Unsupported OS for MaaFramework: {OS_KEYWORD}") from e
+
+MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
+TIMEOUT: int = 30
 
 
 def configure_token() -> None:
@@ -46,11 +63,6 @@ def configure_token() -> None:
     print("-" * 40)
 
 
-def get_platform_keywords() -> tuple[str, str]:
-    """获取当前平台的操作系统和架构关键字"""
-    return OS_KEYWORD, ARCH_KEYWORD
-
-
 def run_command(
     cmd: list[str] | str, cwd: Path | str | None = None, shell: bool = False
 ) -> bool:
@@ -58,7 +70,7 @@ def run_command(
     cmd_str = " ".join(cmd) if isinstance(cmd, list) else str(cmd)
     print(f"[CMD] {cmd_str}")
     try:
-        subprocess.check_call(cmd, cwd=cwd or project_base, shell=shell)
+        subprocess.check_call(cmd, cwd=cwd or PROJECT_BASE, shell=shell)
         print(f"[INF] 命令执行成功: {cmd_str}")
         return True
     except subprocess.CalledProcessError as e:
@@ -70,7 +82,7 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     print("[INF] 检查子模块...")
     if (
         not skip_if_exist
-        or not (project_base / "assets" / "MaaCommonAssets" / "LICENSE").exists()
+        or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
     ):
         print("[INF] 正在更新子模块...")
         return run_command(["git", "submodule", "update", "--init", "--recursive"])
@@ -80,7 +92,7 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
 
 def run_build_script() -> bool:
     print("[INF] 执行 build_and_install.py ...")
-    script_path = project_base / "tools" / "build_and_install.py"
+    script_path = PROJECT_BASE / "tools" / "build_and_install.py"
     return run_command([sys.executable, str(script_path)])
 
 
@@ -100,7 +112,7 @@ def get_latest_release_url(
         req.add_header("User-Agent", "MaaEnd-setup")
         req.add_header("Accept", "application/vnd.github+json")
 
-        with urllib.request.urlopen(req, timeout=30) as response:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
             data = json.loads(response.read().decode())
         assets = data.get("assets", [])
         for asset in assets:
@@ -116,11 +128,11 @@ def get_latest_release_url(
     return None, None
 
 
-def download_file(url: str, dest_path: Path, timeout: int = 60) -> bool:
+def download_file(url: str, dest_path: Path) -> bool:
     """下载文件"""
     try:
         print(f"[INF] 下载: {url}")
-        with urllib.request.urlopen(url, timeout=timeout) as response, open(
+        with urllib.request.urlopen(url, timeout=TIMEOUT) as response, open(
             dest_path, "wb"
         ) as out_file:
             shutil.copyfileobj(response, out_file)
@@ -137,13 +149,12 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
     """安装 MaaFramework，成功返回 True，失败返回 False"""
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
-    if skip_if_exist and (maafw_dest / MAAFW_LIB).exists():
+    if skip_if_exist and (maafw_dest / MFW_DIST_NAME).exists():
         print("[INF] MaaFramework 已安装，跳过")
         return True
 
     print("[INF] 联网查询 MaaFramework 最新版本...")
-    os_kw, arch_kw = get_platform_keywords()
-    url, filename = get_latest_release_url(MAA_FW_REPO, [os_kw, arch_kw])
+    url, filename = get_latest_release_url(MFW_REPO, ["maa", OS_KEYWORD, ARCH_KEYWORD])
     if not url or not filename:
         print("[ERR] 未找到 MaaFramework 下载链接，请手动安装或咨询开发者")
         return False
@@ -195,14 +206,13 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
 def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
     """安装 MXU，成功返回 True，失败返回 False"""
     real_install_root = install_root.resolve()
-    os_kw, arch_kw = get_platform_keywords()
-    mxu_path = real_install_root / MXU_NAME
+    mxu_path = real_install_root / MXU_DIST_NAME
     if skip_if_exist and mxu_path.exists():
         print("[INF] MXU 已安装，跳过")
         return True
 
     print("[INF] 联网查询 MXU 最新版本...")
-    url, filename = get_latest_release_url(MXU_REPO, ["mxu", os_kw, arch_kw])
+    url, filename = get_latest_release_url(MXU_REPO, ["mxu", OS_KEYWORD, ARCH_KEYWORD])
     if not url or not filename:
         print("[ERR] 未找到 MXU 下载链接，请手动安装或咨询开发者")
         return False
@@ -226,7 +236,7 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
             with zipfile.ZipFile(download_path, "r") as zip_ref:
                 zip_ref.extractall(extract_root)
             real_install_root.mkdir(parents=True, exist_ok=True)
-            target_files = [MXU_NAME]
+            target_files = [MXU_DIST_NAME]
             if OS_KEYWORD == "win":
                 target_files.append("mxu.pdb")
             copied = False
@@ -235,10 +245,10 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
                     dest = real_install_root / item.name
                     shutil.copy2(item, dest)
                     print(f"[INF] 复制 {item.name} 到 {real_install_root}")
-                    if item.name.lower() == MXU_NAME.lower():
+                    if item.name.lower() == MXU_DIST_NAME.lower():
                         copied = True
             if not copied:
-                print(f"[ERR] 解压后未找到 {MXU_NAME}，请手动安装或咨询开发者")
+                print(f"[ERR] 解压后未找到 {MXU_DIST_NAME}，请手动安装或咨询开发者")
                 return False
             print("[INF] MXU 安装完成")
             return True
@@ -254,7 +264,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    install_dir = project_base / "install"
+    install_dir = PROJECT_BASE / "install"
     print("========== MaaEnd Workspace 初始化 ==========")
     configure_token()
     if not update_submodules(skip_if_exist=not args.update):
@@ -272,7 +282,7 @@ def main() -> None:
         print("[FATAL] MXU 安装失败，退出")
         sys.exit(1)
     print("\n========== 设置完成 ==========")
-    print(f"[INF] 恭喜！请运行 {install_dir / MXU_NAME} 来验证安装结果")
+    print(f"[INF] 恭喜！请运行 {install_dir / MXU_DIST_NAME} 来验证安装结果")
     print(f"[INF] 后续使用相关工具编辑、调试等，都基于 {install_dir} 文件夹")
 
 
