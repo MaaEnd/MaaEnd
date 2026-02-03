@@ -308,7 +308,8 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 					// 计算中心坐标
 					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
 					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					if num >= 7000 {
+					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
+					if num >= 7000 || num <= 100 {
 						//数字不合理，抛弃
 						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
 						success = false
@@ -320,7 +321,6 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 							success = true
 						}
 					}
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
 					return num, centerX, centerY, success
 				}
 			}
