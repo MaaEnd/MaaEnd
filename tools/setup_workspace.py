@@ -10,6 +10,7 @@ import urllib.error
 import json
 import tempfile
 from pathlib import Path
+import time
 
 
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
@@ -155,13 +156,33 @@ def download_file(url: str, dest_path: Path) -> bool:
         return f"{(current / total) * 100:.1f}%" if total > 0 else ""
 
     def to_file_size(size: int) -> str:
-        if size < 0:
+        if size is None or size < 0:
             return "--"
-        for unit in ["B", "KB", "MB", "GB"]:
-            if size < 1024:
-                return f"{size:.1f} {unit}"
-            size //= 1024
-        return f"{size:.1f} TB"
+        s = float(size)
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
+            if s < 1024.0 or unit == "TB":
+                return f"{s:.1f} {unit}"
+            s /= 1024.0
+        return "--"
+
+    def to_speed(bps: float) -> str:
+        if bps is None or bps <= 0:
+            return "--/s"
+        s = float(bps)
+        for unit in ["B/s", "KB/s", "MB/s", "GB/s"]:
+            if s < 1024.0 or unit == "GB/s":
+                return f"{s:.1f} {unit}"
+            s /= 1024.0
+        return "--/s"
+
+    def seconds_to_hms(sec: float | None) -> str:
+        if sec is None or sec < 0:
+            return "--:--:--"
+        sec = int(sec)
+        h = sec // 3600
+        m = (sec % 3600) // 60
+        s = sec % 60
+        return f"{h:02d}:{m:02d}:{s:02d}"
 
     try:
         print(f"[INF] 开始下载: {url}")
@@ -170,19 +191,30 @@ def download_file(url: str, dest_path: Path) -> bool:
             urllib.request.urlopen(url, timeout=TIMEOUT) as res,
             open(dest_path, "wb") as out_file,
         ):
-            size_total = int(res.headers.get("Content-Length", 0))
+            size_total = int(res.headers.get("Content-Length", 0) or 0)
             size_received = 0
             cached_progress_str = ""
+            start_ts = time.time()
+            # read loop
             while True:
-                chunk = res.read(4096)
+                chunk = res.read(8192)
                 if not chunk:
                     break
                 out_file.write(chunk)
                 size_received += len(chunk)
+
+                elapsed = max(1e-6, time.time() - start_ts)
+                speed = size_received / elapsed
+                eta = None
+                if size_total > 0 and speed > 0:
+                    eta = (size_total - size_received) / speed
+
                 progress_str = (
                     f"{to_file_size(size_received)}/{to_file_size(size_total)} "
-                    f"({to_percentage(size_received, size_total)})"
+                    f"({to_percentage(size_received, size_total)}) | "
+                    f"{to_speed(speed)} | ETA {seconds_to_hms(eta)}"
                 )
+
                 if progress_str != cached_progress_str:
                     print(f"\r[INF] 正在下载... {progress_str}   ", end="", flush=True)
                     cached_progress_str = progress_str
