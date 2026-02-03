@@ -785,7 +785,8 @@
                     151
                 ],
                 "template": [
-                    "ClaimDijiangRewards/GrowthAgain.png"
+                    "ClaimDijiangRewards/GrowthAgain.png",
+                    "ClaimDijiangRewards/GrowthAgain_1.png"
                 ]
             }
         },
