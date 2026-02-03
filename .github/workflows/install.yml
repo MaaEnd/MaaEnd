@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [win, linux]
+        os: [win, linux, macos]
         arch: [aarch64, x86_64]
       fail-fast: false
 
@@ -143,7 +143,6 @@ jobs:
         with:
           repository: MistEO/MXU
           fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
-          prerelease: true
           latest: true
           out-file-path: "downloads/MXU"
           extract: true
@@ -186,13 +185,59 @@ jobs:
 
           cat install/interface.json
 
+      - name: Zip artifact
+        shell: bash
+        run: |
+          cd install
+          zip -r ../MaaEnd-${{ matrix.os }}-${{ matrix.arch }}.zip .
+
       - uses: actions/upload-artifact@v4
         with:
           name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}
-          path: "install"
+          path: "MaaEnd-${{ matrix.os }}-${{ matrix.arch }}.zip"
 
-  build_and_install_macos:
-    needs: [meta]
+  package_linux_tarball:
+    needs: [meta, build_and_install]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MaaEnd-linux-${{ matrix.arch }}
+          path: "downloads"
+
+      - name: Extract and repackage as tar.gz
+        shell: bash
+        run: |
+          mkdir -p install
+          unzip downloads/MaaEnd-linux-${{ matrix.arch }}.zip -d install
+
+          # 给可执行文件添加执行权限
+          if [[ -f install/MaaEnd ]]; then
+            chmod +x install/MaaEnd
+          fi
+          if [[ -f install/agent/go-service ]]; then
+            chmod +x install/agent/go-service
+          fi
+          # 给 maafw 目录下的可执行文件添加权限
+          find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
+
+          # 打包为 tar.gz
+          cd install
+          tar -czvf ../MaaEnd-linux-${{ matrix.arch }}.tar.gz .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-linux-${{ matrix.arch }}-tarball
+          path: "MaaEnd-linux-${{ matrix.arch }}.tar.gz"
+
+  package_macos_dmg:
+    needs: [meta, build_and_install]
     runs-on: macos-latest
     strategy:
       matrix:
@@ -201,68 +246,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: true
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
         with:
-          go-version-file: "agent/go-service/go.mod"
+          name: MaaEnd-macos-${{ matrix.arch }}
+          path: "downloads"
 
-      - id: latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: MaaXYZ/MaaFramework
-          excludes: "draft"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download MaaFramework
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: MaaXYZ/MaaFramework
-          fileName: "MAA-macos-${{ matrix.arch }}*"
-          tag: ${{ steps.latest-release.outputs.release }}
-          out-file-path: "downloads/MaaFramework"
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download MXU
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: MistEO/MXU
-          fileName: "*macos-${{ matrix.arch }}*"
-          latest: true
-          out-file-path: "downloads/MXU"
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install
+      - name: Extract artifact
         shell: bash
         run: |
-          # 运行安装脚本（构建 Go Agent + 复制资源）
-          python tools/build_and_install.py --ci --os macos --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
-
-          # 安装 MaaFramework
-          echo "Install MaaFramework"
-          cp -r downloads/MaaFramework/bin/* install/maafw/
-          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
-          rm -rf install/maafw/MaaNode*
-
-          # 安装 MXU 并重命名为 MaaEnd
-          echo "Install MXU"
-          if [[ -d downloads/MXU ]]; then
-            rm -rf downloads/MXU*.zip downloads/MXU*.tgz
-            if [[ -f downloads/MXU/mxu ]]; then
-              cp downloads/MXU/mxu install/MaaEnd
-            fi
-          fi
-
-          # 更新 interface.json 中的版本号
-          echo "Update interface version to ${{ needs.meta.outputs.tag }}"
-          sed -E '/^[[:space:]]*\/\//d' install/interface.json | jq --indent 4 --arg version "${{ needs.meta.outputs.tag }}" '.version=$version' > install/interface.json.tmp
-          mv install/interface.json.tmp install/interface.json
-
-          cat install/interface.json
+          mkdir -p install
+          unzip downloads/MaaEnd-macos-${{ matrix.arch }}.zip -d install
 
       - name: Package DMG
         shell: bash
@@ -337,15 +332,10 @@ jobs:
             "MaaEnd.dmg" \
             "$APP_NAME"
 
-          # Replace install dir content with DMG
-          rm -rf install
-          mkdir install
-          mv MaaEnd.dmg install/
-
       - uses: actions/upload-artifact@v4
         with:
-          name: MaaEnd-macos-${{ matrix.arch }}
-          path: "install"
+          name: MaaEnd-macos-${{ matrix.arch }}-dmg
+          path: "MaaEnd.dmg"
 
   changelog:
     name: Generate changelog
@@ -375,7 +365,7 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, build_and_install, build_and_install_macos, changelog]
+    needs: [meta, build_and_install, package_linux_tarball, package_macos_dmg, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -383,11 +373,35 @@ jobs:
           pattern: MaaEnd-*
           path: assets
 
-      - run: |
+      - name: Prepare release assets
+        run: |
           cd assets
-          for f in MaaEnd-*; do
-            (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
+          # 重命名 win zip 文件，添加版本号
+          for f in MaaEnd-win-*/MaaEnd-win-*.zip; do
+            if [[ -f "$f" ]]; then
+              name=$(basename "$f" .zip)
+              mv "$f" "${name}-${{ needs.meta.outputs.tag }}.zip"
+            fi
           done
+          # 重命名 linux tar.gz 文件，添加版本号
+          for f in MaaEnd-linux-*-tarball/MaaEnd-linux-*.tar.gz; do
+            if [[ -f "$f" ]]; then
+              name=$(basename "$f" .tar.gz)
+              mv "$f" "${name}-${{ needs.meta.outputs.tag }}.tar.gz"
+            fi
+          done
+          # 重命名 dmg 文件，添加版本号
+          for f in MaaEnd-*-dmg/MaaEnd.dmg; do
+            if [[ -f "$f" ]]; then
+              dir=$(dirname "$f")
+              # 从目录名提取 arch (例如 MaaEnd-macos-aarch64-dmg -> macos-aarch64)
+              arch=$(echo "$dir" | sed 's/MaaEnd-//' | sed 's/-dmg//')
+              mv "$f" "MaaEnd-${arch}-${{ needs.meta.outputs.tag }}.dmg"
+            fi
+          done
+          # 清理空目录
+          rm -rf MaaEnd-*/
+          ls -la
 
       - uses: softprops/action-gh-release@v2
         with:
