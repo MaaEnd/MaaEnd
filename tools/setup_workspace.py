@@ -9,15 +9,12 @@ import urllib.request
 import urllib.error
 import json
 import tempfile
-import time
 from pathlib import Path
 
 
 project_base: Path = Path(__file__).parent.parent.resolve()
 MAA_FW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
-MAX_RETRIES: int = 3
-RETRY_DELAY: int = 2  # 秒
 
 _system = platform.system().lower()
 _machine = platform.machine().lower()
@@ -88,69 +85,51 @@ def run_build_script() -> bool:
 
 
 def get_latest_release_url(
-    repo: str, keywords: list[str], retries: int = MAX_RETRIES
+    repo: str, keywords: list[str]
 ) -> tuple[str | None, str | None]:
-    """获取指定 GitHub 仓库最新 release 中匹配关键字的资源下载链接和文件名，支持自动重试"""
+    """获取指定 GitHub 仓库最新 release 中匹配关键字的资源下载链接和文件名"""
     api_url = f"https://api.github.com/repos/{repo}/releases/latest"
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
-    for attempt in range(1, retries + 1):
-        try:
-            if attempt > 1:
-                print(f"[INF] 重试获取 {repo} 发布信息 ({attempt}/{retries})...")
-            else:
-                print(f"[INF] 获取 {repo} 的最新发布信息...")
+    try:
+        print(f"[INF] 获取 {repo} 的最新发布信息...")
 
-            req = urllib.request.Request(api_url)
-            if token:
-                req.add_header("Authorization", f"Bearer {token}")
-            req.add_header("User-Agent", "MaaEnd-setup")
-            req.add_header("Accept", "application/vnd.github+json")
+        req = urllib.request.Request(api_url)
+        if token:
+            req.add_header("Authorization", f"Bearer {token}")
+        req.add_header("User-Agent", "MaaEnd-setup")
+        req.add_header("Accept", "application/vnd.github+json")
 
-            with urllib.request.urlopen(req, timeout=30) as response:
-                data = json.loads(response.read().decode())
-            assets = data.get("assets", [])
-            for asset in assets:
-                name = asset["name"].lower()
-                if all(k.lower() in name for k in keywords):
-                    print(f"[INF] 匹配到资源: {asset['name']}")
-                    return asset["browser_download_url"], asset["name"]
-            print(f"[WRN] 未找到包含关键词 {keywords} 的资源")
-            return None, None
-        except Exception as e:
-            print(f"[ERR] 获取发布信息失败: {e}")
-            if attempt < retries:
-                print(f"[INF] {RETRY_DELAY} 秒后重试...")
-                time.sleep(RETRY_DELAY)
+        with urllib.request.urlopen(req, timeout=30) as response:
+            data = json.loads(response.read().decode())
+        assets = data.get("assets", [])
+        for asset in assets:
+            name = asset["name"].lower()
+            if all(k.lower() in name for k in keywords):
+                print(f"[INF] 匹配到资源: {asset['name']}")
+                return asset["browser_download_url"], asset["name"]
+        print(f"[WRN] 未找到包含关键词 {keywords} 的资源")
+        return None, None
+    except Exception as e:
+        print(f"[ERR] 获取发布信息失败: {e}")
 
-    print(f"[ERR] 获取发布信息失败，已重试 {retries} 次")
     return None, None
 
 
-def download_file(
-    url: str, dest_path: Path, timeout: int = 60, retries: int = MAX_RETRIES
-) -> bool:
-    """下载文件，支持自动重试"""
-    for attempt in range(1, retries + 1):
-        try:
-            if attempt > 1:
-                print(f"[INF] 重试下载 ({attempt}/{retries}): {url}")
-            else:
-                print(f"[INF] 下载: {url}")
-            with urllib.request.urlopen(url, timeout=timeout) as response, open(
-                dest_path, "wb"
-            ) as out_file:
-                shutil.copyfileobj(response, out_file)
-            print(f"[INF] 下载完成: {dest_path}")
-            return True
-        except urllib.error.URLError as e:
-            print(f"[ERR] 网络错误: {e.reason}")
-        except Exception as e:
-            print(f"[ERR] 下载失败: {e}")
-        if attempt < retries:
-            print(f"[INF] {RETRY_DELAY} 秒后重试...")
-            time.sleep(RETRY_DELAY)
-    print(f"[ERR] 下载失败，已重试 {retries} 次")
+def download_file(url: str, dest_path: Path, timeout: int = 60) -> bool:
+    """下载文件"""
+    try:
+        print(f"[INF] 下载: {url}")
+        with urllib.request.urlopen(url, timeout=timeout) as response, open(
+            dest_path, "wb"
+        ) as out_file:
+            shutil.copyfileobj(response, out_file)
+        print(f"[INF] 下载完成: {dest_path}")
+        return True
+    except urllib.error.URLError as e:
+        print(f"[ERR] 网络错误: {e.reason}")
+    except Exception as e:
+        print(f"[ERR] 下载失败: {e}")
     return False
 
 
