@@ -59,12 +59,30 @@ jobs:
           echo tag=$tag | tee -a $GITHUB_OUTPUT
           echo is_release=$is_release | tee -a $GITHUB_OUTPUT
           echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
+
+      - id: maafw-latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: mxu-latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MistEO/MXU
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
+      maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
+      mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
 
   prepare_mxu_icon:
+    needs: meta
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +92,7 @@ jobs:
         with:
           repository: MistEO/MXU
           fileName: "*win-x86_64*"
-          latest: true
+          tag: ${{ needs.meta.outputs.mxu_version }}
           out-file-path: "downloads/MXU"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -106,7 +124,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [win, linux, macos]
+        os: [win, macos, linux]
         arch: [aarch64, x86_64]
       fail-fast: false
 
@@ -120,19 +138,12 @@ jobs:
         with:
           go-version-file: "agent/go-service/go.mod"
 
-      - id: latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: MaaXYZ/MaaFramework
-          excludes: "draft"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
-          tag: ${{ steps.latest-release.outputs.release }}
+          tag: ${{ needs.meta.outputs.maafw_version }}
           out-file-path: "downloads/MaaFramework"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -143,7 +154,7 @@ jobs:
         with:
           repository: MistEO/MXU
           fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
-          latest: true
+          tag: ${{ needs.meta.outputs.mxu_version }}
           out-file-path: "downloads/MXU"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -258,6 +269,15 @@ jobs:
         run: |
           mkdir -p install
           unzip downloads/MaaEnd-macos-${{ matrix.arch }}.zip -d install
+
+      - name: Update mirrorchyan_rid for macOS
+        shell: bash
+        run: |
+          # 更新 interface.json 中的 mirrorchyan_rid 为 MaaEnd_exec
+          jq --indent 4 '.mirrorchyan_rid = "MaaEnd_exec"' install/interface.json > install/interface.json.tmp
+          mv install/interface.json.tmp install/interface.json
+          echo "Updated mirrorchyan_rid to MaaEnd_exec"
+          cat install/interface.json | grep mirrorchyan_rid
 
       - name: Package DMG
         shell: bash
