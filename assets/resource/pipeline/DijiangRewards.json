@@ -1566,7 +1566,8 @@
                     82
                 ],
                 "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
+                    "ClaimDijiangRewards/TakeRewards.png",
+                    "ClaimDijiangRewards/TakeRewards_Hover.png"
                 ]
             }
         },
