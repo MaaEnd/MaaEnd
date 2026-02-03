@@ -1507,7 +1507,7 @@
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
             "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]Receive",
+            "[JumpBack]CloseDijiangRewards",
             "ControlNexusClickTips"
         ]
     },
