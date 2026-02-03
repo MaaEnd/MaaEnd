@@ -79,6 +79,8 @@
     "task.PCOpenGame.description": "PCでゲームに入ります。事前にゲームを手動で起動してください。",
     "task.AndroidOpenGame.label": "🎮 ゲーム起動（Android）",
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
+    "task.GetWuling731.label": "📦武陵配送依頼を取得",
+    "task.GetWuling731.description": "7.31wの依頼のみを取得します。**配送依頼リスト**画面を開き、数回リフレッシュして、5.54wと10.1wの境界を見つけてスクロールしてください。時には中央、時には最下部にあります",
     "controller.Win32.label": "PC",
     "controller.Win32-Window.label": "PC-代替",
     "controller.Win32-Front.label": "PC-前面",

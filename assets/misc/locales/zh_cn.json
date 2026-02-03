@@ -79,6 +79,8 @@
     "task.PCOpenGame.description": "PC端进入游戏，需先手动打开游戏",
     "task.AndroidOpenGame.label": "🎮打开游戏",
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
+    "task.GetWuling731.label": "📦武陵抢送货委托",
+    "task.GetWuling731.description": "只抢7.31w的委托，需要打开**运送委托列表**界面，刷几次，找到并拖到5.54w与10.1w交界的地方，有时是中间，有时是最底下",
     "controller.Win32.label": "电脑端",
     "controller.Win32-Window.label": "电脑端-备选",
     "controller.Win32-Front.label": "电脑端-前台",

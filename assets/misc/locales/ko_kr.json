@@ -79,6 +79,8 @@
     "task.PCOpenGame.description": "PC에서 게임에 진입합니다. 먼저 게임을 수동으로 실행해 주세요.",
     "task.AndroidOpenGame.label": "🎮 게임 실행 (Android)",
     "task.AndroidOpenGame.description": "Android에서 게임을 실행합니다. 먼저 에뮬레이터를 수동으로 실행해 주세요.",
+    "task.GetWuling731.label": "📦무릉 배송 위탁 획득",
+    "task.GetWuling731.description": "7.31w 위탁만 획득합니다. **배송 위탁 목록** 화면을 열고 몇 번 새로고침한 후, 5.54w와 10.1w의 경계를 찾아 스크롤하세요. 때로는 중간에, 때로는 맨 아래에 있습니다",
     "controller.Win32.label": "PC",
     "controller.Win32-Window.label": "PC-대체",
     "controller.Win32-Front.label": "PC-포그라운드",

@@ -79,6 +79,8 @@
     "task.PCOpenGame.description": "Enter the game on PC. Please launch the game manually first.",
     "task.AndroidOpenGame.label": "🎮 Launch Game (Android)",
     "task.AndroidOpenGame.description": "Launch the game on Android. Please open the emulator manually first.",
+    "task.GetWuling731.label": "📦Grab 7.31w Delivery Commission (Wuling)",
+    "task.GetWuling731.description": "Only grab 7.31w commissions. Need to open the **Delivery Commission List** interface, refresh a few times, find and scroll to the junction between 55.4k and 101k, sometimes in the middle, sometimes at the bottom",
     "controller.Win32.label": "PC",
     "controller.Win32-Window.label": "PC-Fallback",
     "controller.Win32-Front.label": "PC-Foreground",
