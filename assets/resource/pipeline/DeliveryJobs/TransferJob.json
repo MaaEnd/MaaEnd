@@ -1,15 +1,16 @@
 {
     "EnterDeliveryJob": {
         "doc": "进入送货任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterDeliveryJob.png",
-        "roi": [
-            96,
-            574,
-            936,
-            37
-        ],
+        "recognition": "OCR",
+        "order_by": "Expected",
         "threshold": 0.8,
+        "roi": [
+            78,
+            561,
+            985,
+            58
+        ],
+        "expected": "查看任务",
         "action": "Click",
         "next": [
             "ClickTransferJob",
@@ -18,15 +19,16 @@
     },
     "ClickTransferJob": {
         "doc": "单击转交任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/TransferTask.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
         "roi": [
             436,
             653,
             88,
             15
         ],
-        "threshold": 0.8,
+        "expected": "转交运送委托",
         "action": "Click",
         "next": [
             "ConfirmTaskTransfer",

@@ -135,15 +135,16 @@
     },
     "CargoHasOffer": {
         "doc": "货物有人报价",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoHasOffer.png",
-        "roi": [
-            96,
-            574,
-            936,
-            37
-        ],
+        "recognition": "OCR",
+        "order_by": "Expected",
         "threshold": 0.8,
+        "roi": [
+            78,
+            561,
+            985,
+            58
+        ],
+        "expected": "查看报价",
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -152,15 +153,16 @@
     },
     "CargoNotReady": {
         "doc": "货物未就绪，返回上一级界面",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoNotReady.png",
-        "roi": [
-            109,
-            515,
-            940,
-            30
-        ],
+        "recognition": "OCR",
+        "order_by": "Expected",
         "threshold": 0.8,
+        "roi": [
+            78,
+            561,
+            985,
+            58
+        ],
+        "expected": "^(\\d+小时)?\\d+分钟后就绪$",
         "action": "ClickKey",
         "key": 27,
         "next": [
@@ -170,31 +172,16 @@
     },
     "EnterCargo": {
         "doc": "进入货物",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/CargoReady.png",
-                "roi": [
-                    109,
-                    515,
-                    940,
-                    30
-                ],
-                "threshold": 0.8
-            },
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/CargoReadyWuLing.png",
-                "roi": [
-                    109,
-                    515,
-                    940,
-                    30
-                ],
-                "threshold": 0.8
-            }
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
+        "roi": [
+            78,
+            561,
+            985,
+            58
         ],
+        "expected": "货物装箱",
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -256,15 +243,16 @@
     },
     "ClickScreenToContinue": {
         "doc": "单击屏幕继续",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/ClickToContinue.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "threshold": 0.8,
         "roi": [
             578,
             670,
             122,
             24
         ],
-        "threshold": 0.8,
+        "expected": "点击屏幕继续",
         "action": "Click",
         "next": []
     }
