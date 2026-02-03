@@ -776,17 +776,16 @@
     },
     "GrowAgain": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    792,
-                    461,
-                    198,
-                    151
+                    793,
+                    504,
+                    127,
+                    78
                 ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthAgain.png",
-                    "ClaimDijiangRewards/GrowthAgain_1.png"
+                "expected": [
+                    "再次培养"
                 ]
             }
         },
