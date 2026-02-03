@@ -5,7 +5,7 @@ import (
 	"errors"
 	"image"
 
-	maa "github.com/MaaXYZ/maa-framework-go/v3"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -136,8 +136,9 @@ func (*SequenceAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// 🔥 核心：调用 Pipeline 里的节点，并把 targetBox 塞给它
 		// 如果那个节点是 Click，它就会点这个 Box
 		// 如果那个节点是 KeyDown，它会忽略 Box 直接按键
-		if !ctx.RunAction(nodeName, targetBox, "").Success {
-			log.Error().Str("Node", nodeName).Msg("Step failed")
+		_, err := ctx.RunAction(nodeName, targetBox, "")
+		if err != nil {
+			log.Error().Err(err).Str("Node", nodeName).Msg("Step failed")
 			return false
 		}
 	}
@@ -214,7 +215,10 @@ func HoverOnto(ctx *maa.Context, inv Inventory, gridRowY, gridColX int) error {
 	// 获取物品的完整区域 (Rect)
 	screenshotArea := TooltipRoi(inv, gridRowY, gridColX)
 	interactionPoint := Pointize(screenshotArea)
-	if !ctx.RunAction("Action_Hover_Item", interactionPoint, "").Success {
+	_, err := ctx.RunAction("Action_Hover_Item", interactionPoint, "")
+	if err != nil {
+		// 如果 err 不为 nil，说明动作执行失败
+		log.Error().Err(err).Msg("HoverOnto: RunAction failed")
 		return errors.New("interaction with item failed")
 	}
 
@@ -234,5 +238,10 @@ func MoveAndShot(ctx *maa.Context, inv Inventory, gridRowY, gridColX int) (img i
 	// Step 2 - Make screenshot
 	controller := ctx.GetTasker().GetController()
 	controller.PostScreencap().Wait()
-	return controller.CacheImage()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to cache image")
+		return nil
+	}
+	return img
 }

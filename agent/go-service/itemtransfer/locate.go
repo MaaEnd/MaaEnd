@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -81,12 +81,18 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 	}
 
 	if finalCategoryNode != "" && targetInv == REPOSITORY {
-		status := ctx.RunTask(finalCategoryNode).Status
+		// 🔥 修正：接收 (*TaskDetail, error)
+		_, err := ctx.RunTask(finalCategoryNode)
 
-		if !status.Success() {
-			log.Warn().Str("task", finalCategoryNode).Msg("Failed to switch category tab, trying scan anyway...")
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Str("task", finalCategoryNode).
+				Msg("Failed to switch category tab, trying scan anyway...")
 		} else {
-			log.Debug().Msg("Category switch successful.")
+			log.Debug().
+				Str("task", finalCategoryNode).
+				Msg("Category switch successful.")
 		}
 	}
 
@@ -103,17 +109,27 @@ func runLocate(ctx *maa.Context, arg *maa.CustomRecognitionArg, targetInv Invent
 		}
 
 		roi := TooltipRoi(targetInv, row, col)
-		detail := ctx.RunRecognitionDirect(
-			maa.NodeRecognitionTypeOCR,
-			maa.NodeOCRParam{
-				ROI:      maa.NewTargetRect(roi),
-				OrderBy:  "Expected",
-				Expected: []string{finalItemName},
+		nodeName := "ItemTransferOCR"
+		overrideParam := map[string]interface{}{
+			nodeName: map[string]interface{}{
+				"recognition": map[string]interface{}{
+					"param": map[string]interface{}{
+						// 必须传数组 [x, y, w, h]
+						"roi": []int{roi.X(), roi.Y(), roi.Width(), roi.Height()},
+						// 我们要找的文字
+						"expected": []string{finalItemName},
+					},
+				},
 			},
-			img,
-		)
+		}
+		detail, err := ctx.RunRecognition(nodeName, img, overrideParam)
 
-		if detail.Hit {
+		if err != nil {
+			log.Error().Err(err).Str("node", nodeName).Msg("RunRecognition execution error")
+			return nil, false
+		}
+
+		if detail != nil && detail.Hit {
 			log.Info().Str("target", targetInv.String()).Int("r", row).Int("c", col).Msg("Item Found!")
 
 			//  更新缓存：记录这次找到的位置

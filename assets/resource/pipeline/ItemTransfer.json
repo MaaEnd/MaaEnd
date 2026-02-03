@@ -449,5 +449,17 @@
             }
         },
         "post_wait_freezes": 10
+    },
+    // 🔥 新增：通用 OCR 识别节点
+    // 这个节点专门给 Go 代码动态调用使用
+    "ItemTransferOCR": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                // expected 和 roi 我们会在 Go 代码里动态覆盖
+                "expected": []
+            }
+        }
     }
 }
