@@ -54,12 +54,12 @@ TIMEOUT: int = 30
 
 def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
-    print("[TIP] 如遇 API 速率限制，请设置环境变量 GITHUB_TOKEN/GH_TOKEN")
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:
         print("[INF] 已配置 GitHub Token，将用于 API 请求")
     else:
         print("[WRN] 未配置 GitHub Token，将使用匿名 API 请求（可能限流）")
+        print("[INF] 如遇 API 速率限制，请设置环境变量 GITHUB_TOKEN/GH_TOKEN")
     print("-" * 40)
 
 
@@ -97,10 +97,14 @@ def run_build_script() -> bool:
 
 
 def get_latest_release_url(
-    repo: str, keywords: list[str]
+    repo: str, keywords: list[str], prerelease: bool = True
 ) -> tuple[str | None, str | None]:
-    """获取指定 GitHub 仓库最新 release 中匹配关键字的资源下载链接和文件名"""
-    api_url = f"https://api.github.com/repos/{repo}/releases/latest"
+    """
+    获取指定 GitHub 仓库 Release 中首个符合是否预发布要求，且匹配所有关键字的资源下载链接和文件名。
+
+    https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#list-releases
+    """
+    api_url = f"https://api.github.com/repos/{repo}/releases"
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     try:
@@ -109,39 +113,86 @@ def get_latest_release_url(
         req = urllib.request.Request(api_url)
         if token:
             req.add_header("Authorization", f"Bearer {token}")
-        req.add_header("User-Agent", "MaaEnd-setup")
         req.add_header("Accept", "application/vnd.github+json")
+        req.add_header("User-Agent", "MaaEnd-setup")
+        req.add_header("X-GitHub-Api-Version", "2022-11-28")
 
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
-            data = json.loads(response.read().decode())
-        assets = data.get("assets", [])
-        for asset in assets:
-            name = asset["name"].lower()
-            if all(k.lower() in name for k in keywords):
-                print(f"[INF] 匹配到资源: {asset['name']}")
-                return asset["browser_download_url"], asset["name"]
-        print(f"[WRN] 未找到包含关键词 {keywords} 的资源")
-        return None, None
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
+            tags = json.loads(res.read().decode())
+            assert isinstance(tags, list)
+            if not tags:
+                raise ValueError("No releases found (GitHub API)")
+
+        for tag in tags:
+            assert isinstance(tag, dict)
+            if (
+                not prerelease
+                and tag.get("prerelease", False)
+                or tag.get("draft", False)
+            ):
+                continue
+            assets = tag.get("assets", [])
+            assert isinstance(assets, list)
+
+            for asset in assets:
+                assert isinstance(asset, dict)
+                name = asset["name"].lower()
+                if all(k.lower() in name for k in keywords):
+                    print(f"[INF] 匹配到资源: {asset['name']}")
+                    return asset["browser_download_url"], asset["name"]
+
+        raise ValueError("No matching asset found in the latest release (GitHub API)")
     except Exception as e:
-        print(f"[ERR] 获取发布信息失败: {e}")
+        print(f"[ERR] 获取发布信息失败: {type(e).__name__} - {e}")
 
     return None, None
 
 
 def download_file(url: str, dest_path: Path) -> bool:
-    """下载文件"""
+    """下载文件到指定路径。"""
+
+    def to_percentage(current: float, total: float) -> str:
+        return f"{(current / total) * 100:.1f}%" if total > 0 else ""
+
+    def to_file_size(size: int) -> str:
+        if size < 0:
+            return "--"
+        for unit in ["B", "KB", "MB", "GB"]:
+            if size < 1024:
+                return f"{size:.1f} {unit}"
+            size /= 1024
+        return f"{size:.1f} TB"
+
     try:
-        print(f"[INF] 下载: {url}")
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as response, open(
-            dest_path, "wb"
-        ) as out_file:
-            shutil.copyfileobj(response, out_file)
+        print(f"[INF] 开始下载: {url}")
+        print(f"[INF] 正在连接...", end="", flush=True)
+        with (
+            urllib.request.urlopen(url, timeout=TIMEOUT) as res,
+            open(dest_path, "wb") as out_file,
+        ):
+            size_total = int(res.headers.get("Content-Length", 0))
+            size_received = 0
+            cached_progress_str = ""
+            while True:
+                chunk = res.read(4096)
+                if not chunk:
+                    break
+                out_file.write(chunk)
+                size_received += len(chunk)
+                progress_str = (
+                    f"{to_file_size(size_received)}/{to_file_size(size_total)} "
+                    f"({to_percentage(size_received, size_total)})"
+                )
+                if progress_str != cached_progress_str:
+                    print(f"\r[INF] 正在下载... {progress_str}   ", end="", flush=True)
+                    cached_progress_str = progress_str
+            print()
         print(f"[INF] 下载完成: {dest_path}")
         return True
     except urllib.error.URLError as e:
         print(f"[ERR] 网络错误: {e.reason}")
     except Exception as e:
-        print(f"[ERR] 下载失败: {e}")
+        print(f"[ERR] 下载失败: {type(e).__name__} - {e}")
     return False
 
 
@@ -150,10 +201,9 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
     if skip_if_exist and (maafw_dest / MFW_DIST_NAME).exists():
-        print("[INF] MaaFramework 已安装，跳过")
+        print("[INF] MaaFramework 已安装，跳过（如需更新，请使用 --update 参数）")
         return True
 
-    print("[INF] 联网查询 MaaFramework 最新版本...")
     url, filename = get_latest_release_url(MFW_REPO, ["maa", OS_KEYWORD, ARCH_KEYWORD])
     if not url or not filename:
         print("[ERR] 未找到 MaaFramework 下载链接，请手动安装或咨询开发者")
@@ -162,12 +212,10 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         download_path = tmp_path / filename
-        print("[INF] 下载 MaaFramework...")
         if not download_file(url, download_path):
-            print("[ERR] MaaFramework 下载失败")
+            print("[ERR] 未能下载 MaaFramework，请手动安装或咨询开发者")
             return False
 
-        print("[INF] 下载成功，准备安装 MaaFramework...")
         if maafw_dest.exists():
             print(f"[INF] 删除已存在的 MaaFramework 目录: {maafw_dest}")
             shutil.rmtree(maafw_dest)
@@ -199,7 +247,7 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
             print("[INF] MaaFramework 安装完成")
             return True
         except Exception as e:
-            print(f"[ERR] MaaFramework 安装失败: {e}")
+            print(f"[ERR] MaaFramework 安装失败: {type(e).__name__} - {e}")
             return False
 
 
@@ -208,10 +256,9 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
     real_install_root = install_root.resolve()
     mxu_path = real_install_root / MXU_DIST_NAME
     if skip_if_exist and mxu_path.exists():
-        print("[INF] MXU 已安装，跳过")
+        print("[INF] MXU 已安装，跳过（如需更新，请使用 --update 参数）")
         return True
 
-    print("[INF] 联网查询 MXU 最新版本...")
     url, filename = get_latest_release_url(MXU_REPO, ["mxu", OS_KEYWORD, ARCH_KEYWORD])
     if not url or not filename:
         print("[ERR] 未找到 MXU 下载链接，请手动安装或咨询开发者")
@@ -220,12 +267,10 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         download_path = tmp_path / filename
-        print("[INF] 下载 MXU...")
         if not download_file(url, download_path):
-            print("[ERR] MXU 下载失败")
+            print("[ERR] 未能下载 MXU，请手动安装或咨询开发者")
             return False
 
-        print("[INF] 下载成功，准备安装 MXU...")
         if mxu_path.exists():
             print(f"[INF] 删除已存在的 MXU: {mxu_path}")
             mxu_path.unlink()
@@ -253,14 +298,14 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
             print("[INF] MXU 安装完成")
             return True
         except Exception as e:
-            print(f"[ERR] MXU 安装失败: {e}")
+            print(f"[ERR] MXU 安装失败: {type(e).__name__} - {e}")
             return False
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="MaaEnd 构建工具：初始化并安装依赖项")
     parser.add_argument(
-        "--update", action="store_true", help="当依赖性已存在时，是否进行更新操作"
+        "--update", action="store_true", help="当依赖项已存在时，是否进行更新操作"
     )
     args = parser.parse_args()
 
