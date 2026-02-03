@@ -67,9 +67,6 @@
         }
     },
     "SellProductAtDevelopment": {
-        "focus": {
-            "Node.Recognition.Succeeded": "已进入地区建设"
-        },
         "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
@@ -131,6 +128,9 @@
         ]
     },
     "SellProductAtSell": {
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入售卖界面"
+        },
         "doc": "位于出售页面",
         "recognition": {
             "type": "OCR",
@@ -173,27 +173,10 @@
             "SellProductLocalChange1"
         ]
     },
-    "SellProductWuling": {
-        "doc": "处理完成武陵",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "武陵"
-                ],
-                "roi": [
-                    0,
-                    140,
-                    400,
-                    140
-                ]
-            }
-        },
-        "next": [
-            "SellProductLocalChange2"
-        ]
-    },
     "SellProductEnd": {
+        "focus": {
+            "Node.Recognition.Succeeded": "所有区域任务已完成"
+        },
         "doc": "结束",
         "action": {
             "type": "ClickKey",
@@ -347,6 +330,9 @@
     },
     "SellProductLocalCounter": {
         "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
+        },
         "doc": "max_hit为地区数-1",
         "next": [
             "SellProductForthValley",
@@ -380,6 +366,9 @@
         ]
     },
     "SellProductSellCheck": {
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        },
         "doc": "交易后确认",
         "recognition": {
             "type": "TemplateMatch",
@@ -414,6 +403,9 @@
         ]
     },
     "SellProductZeroProduct": {
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        },
         "doc": "货物数量是0",
         "recognition": {
             "type": "ColorMatch",
@@ -446,6 +438,9 @@
         ]
     },
     "SellProductZeroMoney": {
+        "focus": {
+            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+        },
         "doc": "调度券余量为0",
         "recognition": {
             "type": "OCR",
@@ -519,7 +514,8 @@
                     60,
                     200,
                     60
-                ]
+                ],
+                "count": 50
             }
         },
         "action": {
@@ -764,6 +760,26 @@
         },
         "next": [
             "SellProductSellCheck"
+        ]
+    },
+    "SellProductWuling": {
+        "doc": "处理完成武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "武陵"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalChange2"
         ]
     }
 }
