@@ -143,6 +143,7 @@ jobs:
         with:
           repository: MistEO/MXU
           fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
+          prerelease: true
           latest: true
           out-file-path: "downloads/MXU"
           extract: true
