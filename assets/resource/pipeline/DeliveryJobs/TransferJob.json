@@ -3,7 +3,6 @@
         "doc": "进入送货任务",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             78,
             561,
@@ -21,7 +20,6 @@
         "doc": "单击转交任务",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             436,
             653,

@@ -17,7 +17,6 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
@@ -48,7 +47,6 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
@@ -79,7 +77,6 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
@@ -115,7 +112,6 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
@@ -137,7 +133,6 @@
         "doc": "货物有人报价",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             78,
             561,
@@ -155,7 +150,6 @@
         "doc": "货物未就绪，返回上一级界面",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             78,
             561,
@@ -174,7 +168,6 @@
         "doc": "进入货物",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             78,
             561,
@@ -245,7 +238,6 @@
         "doc": "单击屏幕继续",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             578,
             670,

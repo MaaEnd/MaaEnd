@@ -37,7 +37,6 @@
         "doc": "检查是否是四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             23,
             155,
@@ -50,7 +49,6 @@
         "doc": "检查是否是武陵",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             23,
             155,
@@ -63,7 +61,6 @@
         "doc": "更改至四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             479,
             147,
@@ -84,7 +81,6 @@
             {
                 "sub_name": "武陵字样的位置",
                 "recognition": "OCR",
-                "threshold": 0.8,
                 "roi": [
                     714,
                     218,
