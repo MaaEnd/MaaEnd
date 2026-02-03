@@ -96,8 +96,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			pricePipelineName := fmt.Sprintf("[Resell]ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
 			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
-				log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
-				break
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
+				if !success {
+					log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
+					break
+				}
 			}
 
 			// Click on product
@@ -111,7 +116,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
 			if !success {
 				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
-
 				continue
 			}
 			//商品详情页右下角识别的成本价格为准
@@ -120,7 +124,14 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
-				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_DetailCostPrice")
+				if success {
+					costPrice = ConfirmcostPrice
+				} else {
+					log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+				}
 			}
 			log.Info().Int("行", rowIdx+1).Int("列", col).Int("Cost", costPrice).Msg("[Resell]商品售价")
 			// 单击"查看好友价格"按钮
@@ -134,8 +145,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_FriendSalePrice")
 			if !success {
-				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
-				continue
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_FriendSalePrice")
+				if !success {
+					log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
+					continue
+				}
 			}
 			log.Info().Int("Price", salePrice).Msg("[Resell]好友出售价")
 			// 计算利润
@@ -293,7 +309,19 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
 					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
 					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					return num, centerX, centerY, true
+					if num >= 7000 || num <= 100 {
+						//数字不合理，抛弃
+						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
+						success = false
+						// 如果数字>=10000，则是误识别票券为1，只保留后四位，数据仍然可用
+						if num >= 10000 {
+							adjustedNum := num % 10000
+							log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("originalNum", num).Int("adjustedNum", adjustedNum).Msg("[OCR] 数字>=10000，已截取后四位")
+							num = adjustedNum
+							success = true
+						}
+					}
+					return num, centerX, centerY, success
 				}
 			}
 		}
