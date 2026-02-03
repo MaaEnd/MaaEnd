@@ -18,6 +18,7 @@
     "FindWuling731": {
         "recognition": "TemplateMatch",
         "template": "GetWuling731/731.png",
+        "threshold": 0.9,
         "next": [
             "ClickWuling731"
         ]
