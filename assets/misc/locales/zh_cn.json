@@ -64,6 +64,8 @@
     "task.ClaimSimulationRewards.description": "请在模拟空间菜单内启动",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
     "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
+    "task.SellProduct.label": "🛒一键售卖产品",
+    "task.SellProduct.description": "使用产品在各个据点兑换对应调度券",
     "task.VisitFriends.label": "🤝自动拜访好友",
     "task.VisitFriends.description": "自动拜访好友，执行生产助力与情报交流",
     "task.ReceiveProdManual.label": "🌾简制手册一键领取",
