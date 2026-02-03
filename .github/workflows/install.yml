@@ -81,46 +81,8 @@ jobs:
       maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
       mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
 
-  prepare_mxu_icon:
-    needs: meta
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download MXU
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: MistEO/MXU
-          fileName: "*win-x86_64*"
-          tag: ${{ needs.meta.outputs.mxu_version }}
-          out-file-path: "downloads/MXU"
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Convert PNG to ICO
-        shell: bash
-        run: |
-          choco install imagemagick -y
-          # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
-          for size in 512 256 128 64 48 32 24 16; do
-            magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
-          done
-          magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
-
-      - name: Modify MXU exe icon
-        shell: bash
-        run: |
-          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
-          ./rcedit.exe "downloads/MXU/mxu.exe" --set-icon "maaend.ico"
-          echo "MXU icon modified successfully"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mxu-win-x86_64-with-icon
-          path: "downloads/MXU/mxu.exe"
-
   build_and_install:
-    needs: [meta, prepare_mxu_icon]
+    needs: meta
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -149,7 +111,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MXU
-        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') && !(matrix.os == 'win' && matrix.arch == 'x86_64') }}
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
         uses: robinraju/release-downloader@v1
         with:
           repository: MistEO/MXU
@@ -158,13 +120,6 @@ jobs:
           out-file-path: "downloads/MXU"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download MXU with icon (Windows x64)
-        if: matrix.os == 'win' && matrix.arch == 'x86_64'
-        uses: actions/download-artifact@v4
-        with:
-          name: mxu-win-x86_64-with-icon
-          path: "downloads/MXU"
 
       - name: Install
         shell: bash
@@ -200,12 +155,12 @@ jobs:
         shell: bash
         run: |
           cd install
-          zip -r ../MaaEnd-${{ matrix.os }}-${{ matrix.arch }}.zip .
+          zip -r ../MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate.zip .
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}
-          path: "MaaEnd-${{ matrix.os }}-${{ matrix.arch }}.zip"
+          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate
+          path: "MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate.zip"
 
   package_linux_tarball:
     needs: [meta, build_and_install]
@@ -219,14 +174,14 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: MaaEnd-linux-${{ matrix.arch }}
+          name: MaaEnd-linux-${{ matrix.arch }}-intermediate
           path: "downloads"
 
       - name: Extract and repackage as tar.gz
         shell: bash
         run: |
           mkdir -p install
-          unzip downloads/MaaEnd-linux-${{ matrix.arch }}.zip -d install
+          unzip downloads/MaaEnd-linux-${{ matrix.arch }}-intermediate.zip -d install
 
           # 给可执行文件添加执行权限
           if [[ -f install/MaaEnd ]]; then
@@ -261,14 +216,14 @@ jobs:
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: MaaEnd-macos-${{ matrix.arch }}
+          name: MaaEnd-macos-${{ matrix.arch }}-intermediate
           path: "downloads"
 
       - name: Extract artifact
         shell: bash
         run: |
           mkdir -p install
-          unzip downloads/MaaEnd-macos-${{ matrix.arch }}.zip -d install
+          unzip downloads/MaaEnd-macos-${{ matrix.arch }}-intermediate.zip -d install
 
       - name: Update mirrorchyan_rid for macOS
         shell: bash
@@ -357,6 +312,59 @@ jobs:
           name: MaaEnd-macos-${{ matrix.arch }}-dmg
           path: "MaaEnd.dmg"
 
+  package_win_zip:
+    needs: [meta, build_and_install]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MaaEnd-win-${{ matrix.arch }}-intermediate
+          path: "downloads"
+
+      - name: Extract artifact
+        shell: bash
+        run: |
+          mkdir -p install
+          unzip downloads/MaaEnd-win-${{ matrix.arch }}-intermediate.zip -d install
+
+      - name: Convert PNG to ICO
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          choco install imagemagick -y
+          # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
+          for size in 512 256 128 64 48 32 24 16; do
+            magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
+          done
+          magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
+
+      - name: Modify MaaEnd.exe icon
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
+          ./rcedit.exe "install/MaaEnd.exe" --set-icon "maaend.ico"
+          echo "MaaEnd.exe icon modified successfully"
+
+      - name: Package ZIP
+        shell: bash
+        run: |
+          cd install
+          zip -r ../MaaEnd-win-${{ matrix.arch }}.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-win-${{ matrix.arch }}-zip
+          path: "MaaEnd-win-${{ matrix.arch }}.zip"
+
   changelog:
     name: Generate changelog
     needs: meta
@@ -385,19 +393,29 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, build_and_install, package_linux_tarball, package_macos_dmg, changelog]
+    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: MaaEnd-*
+          pattern: MaaEnd-*-zip
+          path: assets
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MaaEnd-*-tarball
+          path: assets
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MaaEnd-*-dmg
           path: assets
 
       - name: Prepare release assets
         run: |
           cd assets
           # 重命名 win zip 文件，添加版本号
-          for f in MaaEnd-win-*/MaaEnd-win-*.zip; do
+          for f in MaaEnd-win-*-zip/MaaEnd-win-*.zip; do
             if [[ -f "$f" ]]; then
               name=$(basename "$f" .zip)
               mv "$f" "${name}-${{ needs.meta.outputs.tag }}.zip"
