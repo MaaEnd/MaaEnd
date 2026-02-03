@@ -1,21 +1,27 @@
 {
     "SellProductBegin": {
+        "post_delay": 500,
         "doc": "虚节点",
         "next": [
             "SellProductAtHome1",
             "SellProductAtHome2",
             "SellProductAtDevelopment",
-            "SellProductAtSell",
             "SellProductAtFriend",
             "SellProductAtFriendExit",
-            "[JumpBack]SellProductBack2Home"
+            "[JumpBack]SellProductBack2Home",
+            "SellProductBack2HomeFailed"
         ]
     },
     "SellProductMain": {
-        "focus": {
-            "Node.Recognition.Starting": "开始一件售卖"
-        },
         "doc": "脚本入口",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    89
+                ]
+            }
+        },
         "next": [
             "SellProductBegin"
         ]
@@ -55,14 +61,11 @@
         "focus": {
             "Node.Action.Starting": "当前位置不在主界面或据点管理界面，正在尝试返回"
         },
-        "post_delay": 400,
-        "doc": "按esc返回主界面",
+        "doc": "按右键返回主界面",
         "action": {
-            "type": "ClickKey",
+            "type": "Click",
             "param": {
-                "key": [
-                    27
-                ]
+                "contact": 1
             }
         }
     },
@@ -174,9 +177,6 @@
         ]
     },
     "SellProductEnd": {
-        "focus": {
-            "Node.Recognition.Succeeded": "所有区域任务已完成"
-        },
         "doc": "结束",
         "action": {
             "type": "ClickKey",
@@ -253,7 +253,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
         },
         "next": [
             "SellProductLocalChangeConfirm"
@@ -277,7 +284,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
         },
         "next": [
             "SellProductLocalChangeConfirm"
@@ -574,7 +588,7 @@
             "param": {
                 "target_offset": [
                     0,
-                    25,
+                    20,
                     -20,
                     -40
                 ]
@@ -760,6 +774,15 @@
         },
         "next": [
             "SellProductSellCheck"
+        ]
+    },
+    "SellProductBack2HomeFailed": {
+        "focus": {
+            "Node.Recognition.Succeeded": "抱歉，未能成功回到大世界，请回到大世界后重新启动本任务"
+        },
+        "doc": "回到大世界，失败了",
+        "next": [
+            "SellProductEnd"
         ]
     },
     "SellProductWuling": {
