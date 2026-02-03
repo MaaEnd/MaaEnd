@@ -39,10 +39,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    15,
+                    437,
+                    225,
+                    153
                 ],
                 "template": [
                     "ClaimDijiangRewards/InControlNexus.png"
@@ -73,8 +73,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -239,8 +239,8 @@
                 "roi": [
                     895,
                     464,
-                    56,
-                    95
+                    138,
+                    134
                 ],
                 "template": [
                     "ClaimDijiangRewards/GrowthChamber.png"
@@ -271,8 +271,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -332,10 +332,10 @@
                             "type": "ColorMatch",
                             "param": {
                                 "roi": [
-                                    61,
-                                    122,
-                                    1099,
-                                    446
+                                    43,
+                                    79,
+                                    1116,
+                                    485
                                 ],
                                 "lower": [
                                     224,
@@ -926,10 +926,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    15,
+                    437,
+                    225,
+                    153
                 ],
                 "template": [
                     "ClaimDijiangRewards/InControlNexus.png"
@@ -1176,8 +1176,8 @@
                 "roi": [
                     892,
                     437,
-                    82,
-                    82
+                    154,
+                    118
                 ],
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
@@ -1243,7 +1243,7 @@
                 "roi": [
                     247,
                     0,
-                    80,
+                    172,
                     77
                 ],
                 "template": [
@@ -1279,6 +1279,10 @@
         }
     },
     "SelectDijiangTeleport": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "And",
             "param": {
@@ -1307,10 +1311,10 @@
                             "param": {
                                 "roi": "_DijiangBridge",
                                 "roi_offset": [
-                                    133,
-                                    -6,
-                                    21,
-                                    16
+                                    130,
+                                    -10,
+                                    60,
+                                    20
                                 ],
                                 "template": [
                                     "ClaimDijiangRewards/DijiangTeleport.png"
@@ -1358,8 +1362,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -1561,9 +1565,9 @@
             "param": {
                 "roi": [
                     860,
-                    513,
-                    85,
-                    82
+                    512,
+                    156,
+                    130
                 ],
                 "template": [
                     "ClaimDijiangRewards/TakeRewards.png",

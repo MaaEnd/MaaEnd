@@ -1,0 +1,114 @@
+{
+    "OpenMap": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    141,
+                    125,
+                    1,
+                    1
+                ]
+            }
+        }
+    },
+    "WaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    0
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    253,
+                                    253
+                                ],
+                                "lower": [
+                                    0,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    255,
+                                    0,
+                                    253
+                                ],
+                                "lower": [
+                                    255,
+                                    0,
+                                    253
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "OpenDijiangControlNexus": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitReceptionRoom": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "Exit_MFG_Cabin": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}
