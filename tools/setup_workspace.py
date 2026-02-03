@@ -160,7 +160,7 @@ def download_file(url: str, dest_path: Path) -> bool:
         for unit in ["B", "KB", "MB", "GB"]:
             if size < 1024:
                 return f"{size:.1f} {unit}"
-            size /= 1024
+            size //= 1024
         return f"{size:.1f} TB"
 
     try:
