@@ -1,4 +1,29 @@
 {
+    "SeizeEntrustTaskErrorTaskStop": {
+        "action": {
+            "param": {},
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "用户退出委托列表",
+            "Node.Recognition.Succeeded": ""
+        },
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    136,
+                    130,
+                    87,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
     "SeizeEntrustTaskFound7.31wMoney": {
         "next": [
             "SeizeEntrustTaskPostEntrust3"
@@ -125,10 +150,11 @@
         "doc": "刷新动作",
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskNews2"
         ],
-        "post_delay": 400,
+        "post_wait_freezes": 200,
         "rate_limit": 1000,
         "recognition": {
             "param": {
@@ -154,7 +180,7 @@
         "next": [
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
-        "post_delay": 1000,
+        "post_wait_freezes": 300,
         "rate_limit": 100,
         "recognition": {
             "param": {
@@ -213,6 +239,7 @@
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
             "[JumpBack]SeizeEntrustTaskNews"
         ]
