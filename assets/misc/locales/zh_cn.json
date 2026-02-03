@@ -64,7 +64,7 @@
     "task.ClaimSimulationRewards.description": "请在模拟空间菜单内启动",
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
     "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
-    "task.VisitFriends.label": "🤝 自动拜访好友",
+    "task.VisitFriends.label": "🤝自动拜访好友",
     "task.VisitFriends.description": "自动拜访好友，执行生产助力与情报交流",
     "task.ReceiveProdManual.label": "🌾简制手册一键领取",
     "task.ReceiveProdManual.description": "领取所有简制手册奖励，**可在手册进度/手册列表/背包界面/导航菜单/主界面开始任务**",
