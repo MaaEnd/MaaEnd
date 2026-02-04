@@ -7,10 +7,10 @@
                 "recognition": "TemplateMatch",
                 "template": "DeliveryJobs/EnterDepot.png",
                 "roi": [
-                    1016,
-                    343,
-                    22,
-                    19
+                    1007,
+                    331,
+                    40,
+                    52
                 ],
                 "threshold": 0.8
             },
@@ -37,10 +37,10 @@
                 "recognition": "TemplateMatch",
                 "template": "DeliveryJobs/EnterDepot.png",
                 "roi": [
-                    1016,
-                    343,
-                    22,
-                    19
+                    1007,
+                    331,
+                    40,
+                    52
                 ],
                 "threshold": 0.8
             },

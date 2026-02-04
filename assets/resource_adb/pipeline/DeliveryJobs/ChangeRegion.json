@@ -1,0 +1,15 @@
+{
+    "DeliveryJobsConfirmChangeRegion": {
+        "doc": "确认更换地区",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/ConfirmChangeRegion.png",
+        "threshold": 0.8,
+        "roi": [
+            840,
+            428,
+            58,
+            49
+        ],
+        "action": "Click"
+    }
+}
