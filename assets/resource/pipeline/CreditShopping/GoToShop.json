@@ -1,0 +1,58 @@
+{
+    "CreditShoppingMain": {
+        "doc": "信用点购物主入口",
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "CreditShoppingCheckMainUI",
+            "CreditShoppingNotInGame"
+        ]
+    },
+    "CreditShoppingNotInGame": {
+        "doc": "不在大世界，不断按ESC进入大世界",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 500,
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "CreditShoppingCheckMainUI"
+        ]
+    },
+    "CreditShoppingCheckMainUI": {
+        "doc": "检测主界面（未展开），点击 F5 展开",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/Expand.png",
+        "threshold": 0.8,
+        "green_mask": true,
+        "roi": [
+            832,
+            33,
+            371,
+            23
+        ],
+        "action": "ClickKey",
+        "key": 116,
+        "next": [
+            "CreditShoppingCheckShopPage",
+            "CreditShoppingCheckMainUI"
+        ]
+    },
+    "CreditShoppingCheckShopPage": {
+        "doc": "检测商店页面，点击信用交易所 Tab",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/CreditShoppingTab.png",
+        "threshold": 0.8,
+        "roi": [
+            834,
+            58,
+            24,
+            22
+        ],
+        "action": "Click",
+        "next": [
+            "CreditShoppingClaimCredit",
+            "CreditShoppingNoCreditClaim"
+        ]
+    }
+}

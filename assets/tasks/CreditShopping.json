@@ -6,8 +6,7 @@
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
             "option": [
-                "CreditShoppingBuyFirst",
-                "CreditShoppingBlacklist",
+                "CreditShoppingOptions",
                 "CreditShoppingForce",
                 "CreditShoppingOnlyDiscount",
                 "CreditShoppingReserve"
@@ -15,42 +14,34 @@
         }
     ],
     "option": {
-        "CreditShoppingBuyFirst": {
+        "CreditShoppingOptions": {
             "type": "input",
-            "label": "$option.CreditShoppingBuyFirst.label",
+            "label": "$option.CreditShoppingOptions.label",
             "inputs": [
                 {
                     "name": "buy_first",
-                    "label": "$option.CreditShoppingBuyFirst.inputs.buy_first.label",
-                    "description": "$option.CreditShoppingBuyFirst.inputs.buy_first.description",
+                    "label": "$option.CreditShoppingOptions.inputs.buy_first.label",
+                    "description": "$option.CreditShoppingOptions.inputs.buy_first.description",
                     "pipeline_type": "string",
                     "default": "嵌晶玉;武库配额"
-                }
-            ],
-            "pipeline_override": {
-                "CreditShoppingShopping": {
-                    "attach": {
-                        "buy_first": "{buy_first}"
-                    }
-                }
-            }
-        },
-        "CreditShoppingBlacklist": {
-            "type": "input",
-            "label": "$option.CreditShoppingBlacklist.label",
-            "inputs": [
+                },
                 {
                     "name": "blacklist",
-                    "label": "$option.CreditShoppingBlacklist.inputs.blacklist.label",
-                    "description": "$option.CreditShoppingBlacklist.inputs.blacklist.description",
+                    "label": "$option.CreditShoppingOptions.inputs.blacklist.label",
+                    "description": "$option.CreditShoppingOptions.inputs.blacklist.description",
                     "pipeline_type": "string",
                     "default": ""
                 }
             ],
             "pipeline_override": {
                 "CreditShoppingShopping": {
-                    "attach": {
-                        "blacklist": "{blacklist}"
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "buy_first": "{buy_first}",
+                                "blacklist": "{blacklist}"
+                            }
+                        }
                     }
                 }
             }
@@ -62,20 +53,16 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
-                            "attach": {
-                                "force_shopping_if_credit_full": true
-                            }
+                        "CreditShoppingBuyBlacklistItem": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
-                            "attach": {
-                                "force_shopping_if_credit_full": false
-                            }
+                        "CreditShoppingBuyBlacklistItem": {
+                            "enabled": false
                         }
                     }
                 }
