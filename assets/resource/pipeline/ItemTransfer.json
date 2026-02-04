@@ -1,0 +1,465 @@
+{
+    "ItemTransferConfigLoader": {
+        "doc": "加载所有UI布局参数，替代硬编码常量。数值对应1280x720分辨率。",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ConfigLoader",
+                "custom_recognition_param": {
+                    // 对应 var Repo...
+                    "Repo": {
+                        "FirstX": 161,
+                        "FirstY": 217,
+                        "Columns": 8
+                    },
+                    // 对应 var Backpack...
+                    "Backpack": {
+                        "FirstX": 771,
+                        "FirstY": 217,
+                        "Columns": 5,
+                        "Rows": 7
+                    },
+                    // 对应 var BoxSize, ToolTip... 等通用网格参数
+                    "Grid": {
+                        "RowsPerPage": 4,
+                        "BoxSize": 64,
+                        "GridInterval": 5,
+                        "ToolTipCursorOffset": 32,
+                        "TooltipRoiScaleX": 275,
+                        "TooltipRoiScaleY": 130
+                    },
+                    // 对应 var ResetInv...
+                    "Action": {
+                        "ResetInvViewScrollDistance": 1200,
+                        "ResetInvViewSwipeTimes": 5
+                    }
+                }
+            }
+        },
+        // 加载完配置后，进入初始化序列
+        "next": [
+            "ItemTransferMain"
+        ]
+    },
+    "ItemTransferMain": {
+        "doc": "【主入口】调度中心。循环检测当前是在起点还是终点，并分发任务。",
+        "recognition": "DirectHit",
+        "next": [
+            "ItemTransferTaskSuccess",
+            "ItemTransferAtOrigin",
+            "[JumpBack]ItemTransferEnterRegionSwitcher",
+            "ItemTransferClickOrigin"
+        ]
+    },
+    "ItemTransferToBackpack": {
+        "post_wait_freezes": 100,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "LocateItemInRepository",
+                "custom_recognition_param": {
+                    "ItemName": "{ItemParName}",
+                    "Category": "{CategoryParName}"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SequenceAction",
+                "custom_action_param": {
+                    "sequence": [
+                        "Action_Atom_KeyDown_Ctrl",
+                        "Action_Atom_Click",
+                        "Action_Atom_KeyUp_Ctrl"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "[JumpBack]ItemTransferEnterRegionSwitcher",
+            "ItemTransferClickDestination"
+        ]
+    },
+    "ItemTransferEnterRegionSwitcher": {
+        "doc": " 进入物品转移区域切换界面。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    545,
+                    97,
+                    199,
+                    87
+                ],
+                "template": "ItemTransfer/SwitcherEntry.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "ItemTransferRegionSwitcherConfirm": {
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                153,
+                548,
+                969,
+                64
+            ]
+        },
+        "doc": "确认区域切换。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    905,
+                    536,
+                    219,
+                    88
+                ],
+                "template": "ItemTransfer/Switcher.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ItemTransferCloseRegionSwitcher"
+        ]
+    },
+    "ItemTransferCloseRegionSwitcher": {
+        "doc": "关闭区域切换界面。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    905,
+                    536,
+                    219,
+                    88
+                ],
+                "template": "ItemTransfer/RepoConnected.png",
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        }
+    },
+    "ItemTransferClickDestination": {
+        "doc": "点击目标区域。",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    200,
+                    500,
+                    300
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "[JumpBack]ItemTransferRegionSwitcherConfirm",
+            "ItemTransferAtDestination",
+            "ItemTransferClickDestination"
+        ]
+    },
+    "ItemTransferClickOrigin": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    200,
+                    500,
+                    300
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "[JumpBack]ItemTransferRegionSwitcherConfirm",
+            "ItemTransferAtOrigin"
+        ]
+    },
+    "ItemTransferAtDestination": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    184,
+                    102,
+                    131,
+                    71
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "next": [
+            "ItemTransferToRepository"
+        ]
+    },
+    "ItemTransferAtOrigin": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    184,
+                    102,
+                    131,
+                    71
+                ],
+                "order_by": "Expected",
+                "expected": "[PLACEHOLDER]"
+            }
+        },
+        "next": [
+            "ItemTransferToBackpack"
+        ]
+    },
+    "ItemTransferToRepository": {
+        "post_wait_freezes": 10,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "LocateItemInBackpack",
+                "custom_recognition_param": {
+                    "ItemName": "{ItemParName}",
+                    "Category": "{CategoryParName}"
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SequenceAction",
+                "custom_action_param": {
+                    "sequence": [
+                        "Action_Atom_KeyDown_Ctrl",
+                        "Action_Atom_Click",
+                        "Action_Atom_KeyUp_Ctrl"
+                    ]
+                }
+            }
+        },
+        "next": [
+            "ItemTransferLimitSentinel"
+        ]
+    },
+    "ItemTransferLimitSentinel": {
+        "doc": "哨兵节点：检查是否达到搬运次数上限。",
+        // 逻辑分流
+        "next": [
+            "ItemTransferTaskSuccess", // 命中(Hit) -> 达到上限 -> 成功结束
+            "[JumpBack]ItemTransferEnterRegionSwitcher", // 未命中(Miss) -> 没够 -> 回主循环
+            "ItemTransferClickOrigin"
+        ]
+    },
+    "ItemTransferTaskSuccess": {
+        "doc": "任务成功结束节点",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CheckTransferLimit", // 调用 Go 的检查函数
+                "custom_recognition_param": {
+                    "MaxTimes": -3 // 核心：默认是负数，代表“无效/未配置”
+                }
+            }
+        }
+    },
+    // --- 切换到：素材 ---
+    // === 总入口：切换到矿物 ===
+    "ItemTransferSwitchToMaterial": {
+        "doc": "切换到矿物分类（组合逻辑）",
+        "next": [
+            "ItemTransferStatusMaterialSelected", // 1. 先看是不是已经选中了
+            "ItemTransferActionSwitchToMaterial" // 2. 没选中就找灰色图标点一下
+        ]
+    },
+    // 子节点 1：检查是否已选中 (高亮图标)
+    "ItemTransferStatusMaterialSelected": {
+        "doc": "检查矿物是否已高亮，如果是则跳过后续",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/SelectedMaterialIcon.png", // 高亮图标
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "DoNothing" // 识别到了说明已经在该页面，啥都不用干
+    },
+    // 子节点 2：执行切换 (灰色图标)
+    "ItemTransferActionSwitchToMaterial": {
+        "doc": "识别灰色矿物图标并点击",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/MaterialIcon.png", // 灰色图标
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 100 // 点击后等UI刷新
+    },
+    // --- 切换到：植物 ---
+    // === 总入口：切换到植物 ===
+    "ItemTransferSwitchToPlant": {
+        "doc": "切换到植物分类（组合逻辑）",
+        "next": [
+            "ItemTransferStatusPlantSelected",
+            "ItemTransferActionSwitchToPlant"
+        ]
+    },
+    "ItemTransferStatusPlantSelected": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/SelectedPlantIcon.png",
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "DoNothing"
+    },
+    "ItemTransferActionSwitchToPlant": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/PlantIcon.png",
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 100
+    },
+    // --- 切换到：产物 ---
+    // === 总入口：切换到产物 ===
+    "ItemTransferSwitchToProduct": {
+        "doc": "切换到产物分类（组合逻辑）",
+        "next": [
+            "ItemTransferStatusProductSelected",
+            "ItemTransferActionSwitchToProduct"
+        ]
+    },
+    "ItemTransferStatusProductSelected": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/SelectedProductIcon.png",
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "DoNothing"
+    },
+    "ItemTransferActionSwitchToProduct": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ItemTransfer/ProductIcon.png",
+                "roi": [
+                    261,
+                    167,
+                    400,
+                    41
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 100
+    },
+    "Action_Atom_KeyDown_Ctrl": {
+        "action": {
+            "param": {
+                "key": 17
+            },
+            "type": "KeyDown"
+        }
+    },
+    "Action_Atom_Click": {
+        "action": "Click",
+        "post_wait_freezes": 10
+    },
+    "Action_Atom_KeyUp_Ctrl": {
+        "action": {
+            "param": {
+                "key": 17
+            },
+            "type": "KeyUp"
+        }
+    },
+    "Action_Hover_Item": {
+        "doc": "物品交互动作：PC端默认悬停以显示Tooltip",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "only_hover": true,
+                "duration": 200 // 稍微停顿一下
+            }
+        },
+        "post_wait_freezes": 10
+    },
+    // 🔥 新增：通用 OCR 识别节点
+    // 这个节点专门给 Go 代码动态调用使用
+    "ItemTransferOCR": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                // expected 和 roi 我们会在 Go 代码里动态覆盖
+                "expected": []
+            }
+        }
+    }
+}
