@@ -173,7 +173,7 @@
     },
     "VisitorTerminalAssist": {
         "recognition": "TemplateMatch",
-        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"],
         "threshold": 0.8,
         "action": {
             "type": "Click",
@@ -338,7 +338,7 @@
     },
     "VisitorTerminalExchange": {
         "recognition": "TemplateMatch",
-        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"],
         "threshold": 0.8,
         "action": {
             "type": "Click",
