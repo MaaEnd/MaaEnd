@@ -62,7 +62,7 @@
             "label": "$controller.ADB.label",
             "type": "Adb",
             "attach_resource_path": [
-                "resource_adb"
+                "./resource_adb"
             ]
         },
         {
