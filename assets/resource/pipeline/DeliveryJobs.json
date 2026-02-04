@@ -87,6 +87,8 @@
     },
     "DeliveryJobsFinished": {
         "doc": "运送委托完成",
+        "action": "ClickKey",
+        "key": 27,
         "next": []
     }
 }
