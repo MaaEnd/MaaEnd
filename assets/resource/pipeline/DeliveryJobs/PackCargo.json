@@ -23,7 +23,14 @@
                     183,
                     93
                 ],
-                "expected": "四号谷地"
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley IV",
+                    "Valley",
+                    "四号谷地",
+                    "4번 협곡"
+                ]
             }
         ],
         "action": "Click"
@@ -52,7 +59,13 @@
                     183,
                     93
                 ],
-                "expected": "武陵"
+                "expected": [
+                    "武陵",
+                    "武陵",
+                    "Wuling",
+                    "武陵",
+                    "무릉"
+                ]
             }
         ],
         "action": "Click"
@@ -81,7 +94,14 @@
                     183,
                     93
                 ],
-                "expected": "四号谷地"
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley IV",
+                    "Valley",
+                    "四号谷地",
+                    "4번 협곡"
+                ]
             }
         ],
         "pre_delay": 0,
@@ -116,7 +136,13 @@
                     183,
                     93
                 ],
-                "expected": "武陵"
+                "expected": [
+                    "武陵",
+                    "武陵",
+                    "Wuling",
+                    "武陵",
+                    "무릉"
+                ]
             }
         ],
         "pre_delay": 0,
@@ -137,7 +163,13 @@
             985,
             58
         ],
-        "expected": "查看报价",
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -154,7 +186,13 @@
             985,
             58
         ],
-        "expected": "^(\\d+小时)?\\d+分钟后就绪$",
+        "expected": [
+            "^\\d+小时\\d+分钟后就绪$",
+            "^\\d+小時\\d+分鐘後就緒$",
+            "^\\d+h \\d+min to activation$",
+            "^\\d+時間\\d+分後使用可能$",
+            "^\\d+시 \\d+분 후 준비 완료$"
+        ],
         "action": "ClickKey",
         "key": 27,
         "next": [
@@ -172,7 +210,13 @@
             985,
             58
         ],
-        "expected": "货物装箱",
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장"
+        ],
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -242,7 +286,13 @@
             122,
             24
         ],
-        "expected": "点击屏幕继续",
+        "expected": [
+            "点击屏幕继续",
+            "按任意處繼續",
+            "Click to continue",
+            "クリックして続行",
+            "화면을 눌러 계속하기"
+        ],
         "action": "Click"
     }
 }

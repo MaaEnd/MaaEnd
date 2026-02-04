@@ -9,7 +9,13 @@
             985,
             58
         ],
-        "expected": "查看任务",
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "Check Mission",
+            "任務確認",
+            "임무 확인"
+        ],
         "action": "Click",
         "next": [
             "ClickTransferJob",
@@ -26,7 +32,13 @@
             88,
             15
         ],
-        "expected": "转交运送委托",
+        "expected": [
+            "转交运送委托",
+            "轉交運送委託",
+            "Transfer Delivery Job",
+            "外部委託",
+            "운송 의뢰 위탁"
+        ],
         "action": "Click",
         "next": [
             "ConfirmTaskTransfer",

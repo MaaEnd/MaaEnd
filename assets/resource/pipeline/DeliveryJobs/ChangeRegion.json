@@ -43,7 +43,14 @@
             183,
             93
         ],
-        "expected": "四号谷地"
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "Valley",
+            "四号谷地",
+            "4번 협곡"
+        ]
     },
     "DeliveryJobsCheckWuLing": {
         "doc": "检查是否是武陵",
@@ -55,7 +62,13 @@
             183,
             93
         ],
-        "expected": "武陵"
+        "expected": [
+            "武陵",
+            "武陵",
+            "Wuling",
+            "武陵",
+            "무릉"
+        ]
     },
     "DeliveryJobsChangeToFourthValley": {
         "doc": "更改至四号谷地",
@@ -67,7 +80,14 @@
             431,
             165
         ],
-        "expected": "四号谷地",
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "Valley",
+            "四号谷地",
+            "4번 협곡"
+        ],
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion",
@@ -84,7 +104,13 @@
             431,
             165
         ],
-        "expected": "武陵",
+        "expected": [
+            "武陵",
+            "武陵",
+            "Wuling",
+            "武陵",
+            "무릉"
+        ],
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion",
