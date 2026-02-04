@@ -26,8 +26,7 @@
                 "expected": "四号谷地"
             }
         ],
-        "action": "Click",
-        "next": []
+        "action": "Click"
     },
     "EnterWuLingDepot": {
         "doc": "进入武陵仓储节点",
@@ -56,8 +55,7 @@
                 "expected": "武陵"
             }
         ],
-        "action": "Click",
-        "next": []
+        "action": "Click"
     },
     "CheckFourthValleyDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁",
@@ -245,7 +243,6 @@
             24
         ],
         "expected": "点击屏幕继续",
-        "action": "Click",
-        "next": []
+        "action": "Click"
     }
 }
