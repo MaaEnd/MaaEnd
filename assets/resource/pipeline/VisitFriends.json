@@ -172,19 +172,9 @@
         ]
     },
     "VisitorTerminalAssist": {
-        "recognition": "Or",
-        "any_of": [
-            {
-              "recognition": "TemplateMatch",
-              "template": "VisitFriends/ProductionAssist.png",
-              "threshold": 0.8
-            },
-            {
-              "recognition": "TemplateMatch",
-              "template": "VisitFriends/ClueExchange.png",
-              "threshold": 0.8
-            }
-        ],
+        "recognition": "TemplateMatch",
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "threshold": 0.8,
         "action": {
             "type": "Click",
             "param": {}
@@ -347,19 +337,9 @@
         ]
     },
     "VisitorTerminalExchange": {
-        "recognition": "Or",
-        "any_of": [
-            {
-              "recognition": "TemplateMatch",
-              "template": "VisitFriends/ProductionAssist.png",
-              "threshold": 0.8
-            },
-            {
-              "recognition": "TemplateMatch",
-              "template": "VisitFriends/ClueExchange.png",
-              "threshold": 0.8
-            }
-        ],
+        "recognition": "TemplateMatch",
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "threshold": 0.8,
         "action": {
             "type": "Click",
             "param": {}
