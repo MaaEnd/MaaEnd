@@ -181,7 +181,7 @@
             },
             {
               "recognition": "TemplateMatch",
-              "template": "VisitFriends/CLueExchange.png",
+              "template": "VisitFriends/ClueExchange.png",
               "threshold": 0.8
             }
         ],
@@ -356,7 +356,7 @@
             },
             {
               "recognition": "TemplateMatch",
-              "template": "VisitFriends/CLueExchange.png",
+              "template": "VisitFriends/ClueExchange.png",
               "threshold": 0.8
             }
         ],
