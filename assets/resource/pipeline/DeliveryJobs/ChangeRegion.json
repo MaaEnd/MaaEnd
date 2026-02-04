@@ -97,10 +97,10 @@
         "template": "Resell/ChangeRegion.png",
         "threshold": 0.8,
         "roi": [
-            114,
-            232,
-            122,
-            122
+            159,
+            281,
+            38,
+            29
         ],
         "method": 10001,
         "action": "Click"
