@@ -101,6 +101,7 @@
         "tasks/VisitFriends.json",
         "tasks/ReceiveProdManual.json",
         "tasks/ReadAllWiki.json",
+        "tasks/ItemTransfer.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",

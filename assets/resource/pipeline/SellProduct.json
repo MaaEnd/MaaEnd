@@ -1,43 +1,33 @@
 {
-    "SellProductAtHome": {
-        "doc": "已回到大世界",
-        "recognition": {
-            "type": "OCR",
+    "SellProductBegin": {
+        "post_delay": 500,
+        "doc": "虚节点",
+        "next": [
+            "SellProductAtHome1",
+            "SellProductAtHome2",
+            "SellProductAtDevelopment",
+            "SellProductAtFriend",
+            "SellProductAtFriendExit",
+            "[JumpBack]SellProductBack2Home",
+            "SellProductBack2HomeFailed"
+        ]
+    },
+    "SellProductMain": {
+        "doc": "脚本入口",
+        "action": {
+            "type": "ClickKey",
             "param": {
-                "expected": [
-                    "探索",
-                    "工业"
-                ],
-                "roi": [
-                    0,
-                    0,
-                    150,
-                    60
+                "key": [
+                    89
                 ]
             }
         },
         "next": [
-            "SellProductEnterDevelopment"
-        ]
-    },
-    "SellProductBegin": {
-        "doc": "虚节点",
-        "next": [
-            "SellProductAtHome",
-            "[JumpBack]SellProductBack2Home"
-        ]
-    },
-    "SellProductMain": {
-        "focus": {
-            "Node.Recognition.Starting": "开始一件售卖"
-        },
-        "doc": "脚本入口",
-        "next": [
             "SellProductBegin"
         ]
     },
-    "SellProductEnterDevelopment": {
-        "doc": "进入地区建设",
+    "SellProductAtHome1": {
+        "doc": "根据标志得知在大世界，进入地区建设",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -62,27 +52,25 @@
             }
         },
         "next": [
-            "SellProductEnterManagement"
+            "SellProductAtDevelopment",
+            "SellProductAtHome1"
         ]
     },
     "SellProductBack2Home": {
         "max_hit": 5,
-        "doc": "返回主界面",
+        "focus": {
+            "Node.Action.Starting": "当前位置不在主界面或据点管理界面，正在尝试返回"
+        },
+        "doc": "按右键返回主界面",
         "action": {
             "type": "Click",
             "param": {
-                "contact": 1,
-                "target": [
-                    0,
-                    0,
-                    0,
-                    0
-                ]
+                "contact": 1
             }
         }
     },
-    "SellProductEnterManagement": {
-        "doc": "进入据点管理",
+    "SellProductAtDevelopment": {
+        "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -102,7 +90,8 @@
             "param": {}
         },
         "next": [
-            "SellProductSwitch"
+            "SellProductAtSell",
+            "SellProductAtDevelopment"
         ]
     },
     "SellProductDragBar": {
@@ -141,8 +130,11 @@
             "SellProductSell"
         ]
     },
-    "SellProductSwitch": {
-        "doc": "用来分支的节点",
+    "SellProductAtSell": {
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入售卖界面"
+        },
+        "doc": "位于出售页面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -182,26 +174,6 @@
         },
         "next": [
             "SellProductLocalChange1"
-        ]
-    },
-    "SellProductWuling": {
-        "doc": "处理完成武陵",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "武陵"
-                ],
-                "roi": [
-                    0,
-                    140,
-                    400,
-                    140
-                ]
-            }
-        },
-        "next": [
-            "SellProductLocalChange2"
         ]
     },
     "SellProductEnd": {
@@ -281,7 +253,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
         },
         "next": [
             "SellProductLocalChangeConfirm"
@@ -305,7 +284,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
         },
         "next": [
             "SellProductLocalChangeConfirm"
@@ -332,7 +318,7 @@
             "param": {}
         },
         "next": [
-            "SellProductEnterManagement"
+            "SellProductAtDevelopment"
         ]
     },
     "SellProductLocalChange0": {
@@ -358,6 +344,9 @@
     },
     "SellProductLocalCounter": {
         "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
+        },
         "doc": "max_hit为地区数-1",
         "next": [
             "SellProductForthValley",
@@ -385,10 +374,15 @@
             "param": {}
         },
         "next": [
-            "SellProductSellCheck"
+            "SellProductSellCheck",
+            "SellProductSellPressed",
+            "SellProductSell"
         ]
     },
     "SellProductSellCheck": {
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        },
         "doc": "交易后确认",
         "recognition": {
             "type": "TemplateMatch",
@@ -409,7 +403,8 @@
             "param": {}
         },
         "next": [
-            "SellProductNext"
+            "SellProductNext",
+            "SellProductSellCheck"
         ]
     },
     "SellProductCanSell": {
@@ -422,6 +417,9 @@
         ]
     },
     "SellProductZeroProduct": {
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        },
         "doc": "货物数量是0",
         "recognition": {
             "type": "ColorMatch",
@@ -454,6 +452,9 @@
         ]
     },
     "SellProductZeroMoney": {
+        "focus": {
+            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+        },
         "doc": "调度券余量为0",
         "recognition": {
             "type": "OCR",
@@ -527,7 +528,8 @@
                     60,
                     200,
                     60
-                ]
+                ],
+                "count": 50
             }
         },
         "action": {
@@ -586,7 +588,7 @@
             "param": {
                 "target_offset": [
                     0,
-                    25,
+                    20,
                     -20,
                     -40
                 ]
@@ -594,6 +596,213 @@
         },
         "next": [
             "SellProductSell"
+        ]
+    },
+    "SellProductAtHome2": {
+        "doc": "根据左上tab得知在大世界，进入地区建设",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "工业",
+                    "探索"
+                ],
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    89
+                ]
+            }
+        },
+        "next": [
+            "SellProductAtDevelopment",
+            "SellProductAtHome2"
+        ]
+    },
+    "SellProductAtFriend": {
+        "focus": {
+            "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
+        },
+        "doc": "在好友家，特殊处理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "离开"
+                ],
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    27
+                ]
+            }
+        },
+        "next": [
+            "SellProductAtFriendExit",
+            "SellProductAtFriend"
+        ]
+    },
+    "SellProductAtFriendExit": {
+        "focus": {
+            "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
+        },
+        "doc": "在好友家返回界面，特殊处理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "结束",
+                    "拜访"
+                ],
+                "roi": [
+                    1029,
+                    629,
+                    245,
+                    87
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductAtFriendExitConfirm",
+            "SellProductAtFriendExit"
+        ]
+    },
+    "SellProductAtFriendExitConfirm": {
+        "doc": "返回自己家的确认",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "确认"
+                ],
+                "roi": [
+                    621,
+                    416,
+                    282,
+                    105
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductAtFriendBack",
+            "SellProductAtFriendExitConfirm"
+        ]
+    },
+    "SellProductAtFriendBack": {
+        "doc": "111",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "拜访",
+                    "好友"
+                ],
+                "roi": [
+                    800,
+                    429,
+                    268,
+                    109
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    89
+                ]
+            }
+        },
+        "next": [
+            "SellProductAtDevelopment",
+            "SellProductAtFriendBack"
+        ]
+    },
+    "SellProductSellPressed": {
+        "doc": "交易按钮已经成功按下",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        141,
+                        141,
+                        141
+                    ]
+                ],
+                "upper": [
+                    [
+                        148,
+                        148,
+                        148
+                    ]
+                ],
+                "roi": [
+                    1059,
+                    646,
+                    106,
+                    31
+                ],
+                "count": 100
+            }
+        },
+        "next": [
+            "SellProductSellCheck"
+        ]
+    },
+    "SellProductBack2HomeFailed": {
+        "focus": {
+            "Node.Recognition.Succeeded": "抱歉，未能成功回到大世界，请回到大世界后重新启动本任务"
+        },
+        "doc": "回到大世界，失败了",
+        "next": [
+            "SellProductEnd"
+        ]
+    },
+    "SellProductWuling": {
+        "doc": "处理完成武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "武陵"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductLocalChange2"
         ]
     }
 }

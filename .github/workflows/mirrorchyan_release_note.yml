@@ -25,3 +25,19 @@ jobs:
           repo: MaaEnd
           github_token: ${{ secrets.GITHUB_TOKEN }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
+
+  mirrorchyan_exec:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+
+    steps:
+      - id: uploading
+        uses: MirrorChyan/release-note-action@v1
+        with:
+          mirrorchyan_rid: MaaEnd_exec
+          version_name: ${{ inputs.tag }}
+
+          owner: MaaEnd
+          repo: MaaEnd
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
