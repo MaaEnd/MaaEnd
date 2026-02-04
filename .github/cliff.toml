@@ -78,7 +78,7 @@ commit_parsers = [
     { message = "^fix", group = "<!-- 1 -->🐛 Bug修复" },
     { message = "^docs", group = "<!-- 4 -->📚 文档" },
     { message = "^perf", group = "<!-- 3 -->🚀 性能优化" },
-    { message = "^refactor", group = "<!-- 2 -->🚜 代码重构" },
+    { message = "^(refactor|rft)", group = "<!-- 2 -->🚜 代码重构" },
     { message = "^style", group = "<!-- 5 -->🎨 样式" },
     { message = "^test", group = "<!-- 6 -->🧪 测试" },
     { message = "^chore\\(deps\\)", group = "📦 依赖更新" },
