@@ -1,10 +1,12 @@
 {
     "FriendVisitMain": {
         "next": [
+            "OpenFriendList",
             "OpenMenu"
         ]
     },
     "OpenMenu": {
+        "max_hit": 5,
         "action": {
             "type": "ClickKey",
             "param": {
@@ -12,7 +14,7 @@
             }
         },
         "next": [
-            "OpenFriendList"
+            "FriendVisitMain"
         ]
     },
     "OpenFriendList": {
@@ -170,13 +172,9 @@
         ]
     },
     "VisitorTerminalAssist": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ProductionAssist.png",
-                "threshold": 0.8
-            }
-        },
+        "recognition": "TemplateMatch",
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "threshold": 0.8,
         "action": {
             "type": "Click",
             "param": {}
@@ -339,13 +337,9 @@
         ]
     },
     "VisitorTerminalExchange": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ClueExchange.png",
-                "threshold": 0.8
-            }
-        },
+        "recognition": "TemplateMatch",
+        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"]
+        "threshold": 0.8,
         "action": {
             "type": "Click",
             "param": {}
@@ -363,10 +357,10 @@
             }
         },
         "next": [
-            "ExitExchange"
+            "ExitFriendHome"
         ]
     },
-    "ExitExchange": {
+    "ExitFriendHome": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
