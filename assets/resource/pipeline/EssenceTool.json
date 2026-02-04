@@ -1,0 +1,147 @@
+{
+    // 基质小工具 - Tooltip OCR（基于 1280x720）
+    // 说明：ROI 均基于示例截图估算，首次使用建议通过 Maa 开发工具微调。
+    "EssenceToolMain": {
+        "doc": "基质小工具主入口（对当前选中的基质执行一次判断与锁定/解锁）",
+        "recognition": "DirectHit",
+        "next": [
+            "EssenceJudge_Treasure",
+            "EssenceJudge_Material"
+        ]
+    },
+    "EssenceTooltip_S1": {
+        "doc": "基质属性行 1（s1）OCR",
+        "only_rec": true,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    240,
+                    100,
+                    20
+                ]
+            }
+        }
+    },
+    "EssenceTooltip_S2": {
+        "doc": "基质属性行 2（s2）OCR",
+        "only_rec": true,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    275,
+                    90,
+                    20
+                ]
+            }
+        }
+    },
+    "EssenceTooltip_S3": {
+        "doc": "基质属性行 3（s3）OCR",
+        "only_rec": true,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    315,
+                    100,
+                    20
+                ]
+            }
+        }
+    },
+    "EssenceTooltipJudge": {
+        "doc": "调用 Go 端基质判定（读取 s1/s2/s3 OCR 结果）",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceTooltipJudge",
+                "custom_recognition_param": {
+                    "s1_node": "EssenceTooltip_S1",
+                    "s2_node": "EssenceTooltip_S2",
+                    "s3_node": "EssenceTooltip_S3"
+                }
+            }
+        }
+    },
+    "EssenceJudge_Treasure": {
+        "doc": "只在判定为宝藏时命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceTooltipJudge",
+                "custom_recognition_param": {
+                    "s1_node": "EssenceTooltip_S1",
+                    "s2_node": "EssenceTooltip_S2",
+                    "s3_node": "EssenceTooltip_S3",
+                    "only_decision": "Treasure"
+                }
+            }
+        },
+        "next": [
+            "EssenceLockStateUnlocked_Lock"
+        ]
+    },
+    "EssenceJudge_Material": {
+        "doc": "只在判定为养成材料时命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceTooltipJudge",
+                "custom_recognition_param": {
+                    "s1_node": "EssenceTooltip_S1",
+                    "s2_node": "EssenceTooltip_S2",
+                    "s3_node": "EssenceTooltip_S3",
+                    "only_decision": "Material"
+                }
+            }
+        },
+        "next": [
+            "EssenceLockStateLocked_Unlock"
+        ]
+    },
+    "EssenceLockStateLocked_Unlock": {
+        "doc": "已锁定时点击解锁（需放置锁定图标模板）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceTool/locked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1194,
+                    178,
+                    48,
+                    26
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "EssenceLockStateUnlocked_Lock": {
+        "doc": "未锁定时点击上锁（需放置锁定图标模板）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceTool/unlocked.png",
+                "threshold": 0.8,
+                "roi": [
+                    1194,
+                    178,
+                    48,
+                    26
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    }
+}

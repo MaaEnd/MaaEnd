@@ -87,6 +87,8 @@
     "task.SeizeEntrustTask.description": "荘天師の勢力圏でのみ受注～🌆 7 万 3100 円の武陵注文のみ対応～（配達依頼リストより本タスクを起動してください）",
     "task.ItemTransfer.label": "アイテム搬送",
     "task.ItemTransfer.description": "異なるエリアの倉庫間で指定された資材を自動的に搬送します。",
+    "task.EssenceTool.label": "🔒 基質ツール",
+    "task.EssenceTool.description": "基質のロック/解除を支援します。**基質を選択した状態で起動してください。**",
     "ItemTransfer.option.WhatToTransfer.label": "搬送するアイテム",
     "ItemTransfer.option.WhatToTransfer.input.label": "アイテム名",
     "ItemTransfer.option.WhatToTransfer.input.description": "アイテムの正式名称を入力してください。",

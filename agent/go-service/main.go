@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
@@ -76,6 +77,7 @@ func registerAll() {
 	realtime.Register()
 	importtask.Register()
 	resell.Register()
+	essence.Register()
 	puzzle.Register()
 	itemtransfer.Register()
 

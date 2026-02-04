@@ -68,6 +68,8 @@
     "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
     "task.ItemTransfer.label": "Item Transfer",
     "task.ItemTransfer.description": "Automatically transfer specific resources between different warehouse regions.",
+    "task.EssenceTool.label": "🔒 Essence Tool",
+    "task.EssenceTool.description": "Lock/unlock essences. **Start after selecting an essence in the inventory.**",
     "ItemTransfer.option.WhatToTransfer.label": "Item to Transfer",
     "ItemTransfer.option.WhatToTransfer.input.label": "Item Name",
     "ItemTransfer.option.WhatToTransfer.input.description": "Please enter the full name of the item.",

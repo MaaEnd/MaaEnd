@@ -1,0 +1,15 @@
+{
+    "task": [
+        {
+            "name": "EssenceTool",
+            "label": "$task.EssenceTool.label",
+            "entry": "EssenceToolMain",
+            "description": "$task.EssenceTool.description",
+            "controller": [
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
+            ]
+        }
+    ]
+}

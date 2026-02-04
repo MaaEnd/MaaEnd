@@ -91,6 +91,8 @@
     "controller.ADB.label": "安卓端",
     "task.ItemTransfer.label": "物品搬運",
     "task.ItemTransfer.description": "自動在不同區域的倉庫之間搬運指定資源。",
+    "task.EssenceTool.label": "🔒基質小工具",
+    "task.EssenceTool.description": "基質鎖定/解鎖輔助，**請在基質倉庫介面選中基質後啟動**",
     "ItemTransfer.option.WhatToTransfer.label": "要搬運的物品",
     "ItemTransfer.option.WhatToTransfer.input.label": "物品名稱",
     "ItemTransfer.option.WhatToTransfer.input.description": "請輸入物品的完整名稱。",

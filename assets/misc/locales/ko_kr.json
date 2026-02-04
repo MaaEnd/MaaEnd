@@ -87,6 +87,8 @@
     "task.SeizeEntrustTask.description": "장천사 영역에서만 주문 수락～🌆 7만3100원의 무릉 주문만 받습니다～（배달 의뢰 리스트에서 본 작업을 실행해 주세요）",
     "task.ItemTransfer.label": "아이템 운송",
     "task.ItemTransfer.description": "서로 다른 구역의 창고 간에 지정된 자원을 자동으로 운송합니다.",
+    "task.EssenceTool.label": "🔒 기질 도구",
+    "task.EssenceTool.description": "기질 잠금/해제 보조. **인벤토리에서 기질을 선택한 후 시작하세요.**",
     "ItemTransfer.option.WhatToTransfer.label": "운송할 아이템",
     "ItemTransfer.option.WhatToTransfer.input.label": "아이템 이름",
     "ItemTransfer.option.WhatToTransfer.input.description": "아이템의 전체 이름을 입력하세요.",
