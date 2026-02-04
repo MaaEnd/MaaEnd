@@ -1,5 +1,5 @@
 {
-    "[Resell]ROI_Product_Row1_Col1_Price": {
+    "Resell_ROI_Product_Row1_Col1_Price": {
         //当商品有两行时，可以用这个区域识别第一行价格，标记为第一行
         "doc": "第一行第一列商品价格区域",
         "recognition": "OCR",
@@ -13,7 +13,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col2_Price": {
+    "Resell_ROI_Product_Row1_Col2_Price": {
         "doc": "第一行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -26,7 +26,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col3_Price": {
+    "Resell_ROI_Product_Row1_Col3_Price": {
         "doc": "第一行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -39,7 +39,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col4_Price": {
+    "Resell_ROI_Product_Row1_Col4_Price": {
         "doc": "第一行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -52,7 +52,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col5_Price": {
+    "Resell_ROI_Product_Row1_Col5_Price": {
         "doc": "第一行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -65,7 +65,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col6_Price": {
+    "Resell_ROI_Product_Row1_Col6_Price": {
         "doc": "第一行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -78,7 +78,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col7_Price": {
+    "Resell_ROI_Product_Row1_Col7_Price": {
         "doc": "第一行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -91,7 +91,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row1_Col8_Price": {
+    "Resell_ROI_Product_Row1_Col8_Price": {
         "doc": "第一行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -104,7 +104,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col1_Price": {
+    "Resell_ROI_Product_Row2_Col1_Price": {
         //当商品只有一行时，可以用这个区域识别第一行价格，标记为第二行
         "doc": "第二行第一列商品价格区域",
         "recognition": "OCR",
@@ -118,7 +118,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col2_Price": {
+    "Resell_ROI_Product_Row2_Col2_Price": {
         "doc": "第二行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -131,7 +131,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col3_Price": {
+    "Resell_ROI_Product_Row2_Col3_Price": {
         "doc": "第二行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -144,7 +144,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col4_Price": {
+    "Resell_ROI_Product_Row2_Col4_Price": {
         "doc": "第二行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -157,7 +157,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col5_Price": {
+    "Resell_ROI_Product_Row2_Col5_Price": {
         "doc": "第二行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -170,7 +170,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col6_Price": {
+    "Resell_ROI_Product_Row2_Col6_Price": {
         "doc": "第二行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -183,7 +183,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col7_Price": {
+    "Resell_ROI_Product_Row2_Col7_Price": {
         "doc": "第二行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -196,7 +196,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row2_Col8_Price": {
+    "Resell_ROI_Product_Row2_Col8_Price": {
         "doc": "第二行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -209,7 +209,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col1_Price": {
+    "Resell_ROI_Product_Row3_Col1_Price": {
         //当商品有两行时，可以用这个区域识别第二行价格，标记为第三行
         "doc": "第三行第一列商品价格区域",
         "recognition": "OCR",
@@ -223,7 +223,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col2_Price": {
+    "Resell_ROI_Product_Row3_Col2_Price": {
         "doc": "第三行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -236,7 +236,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col3_Price": {
+    "Resell_ROI_Product_Row3_Col3_Price": {
         "doc": "第三行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -249,7 +249,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col4_Price": {
+    "Resell_ROI_Product_Row3_Col4_Price": {
         "doc": "第三行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -262,7 +262,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col5_Price": {
+    "Resell_ROI_Product_Row3_Col5_Price": {
         "doc": "第三行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -275,7 +275,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col6_Price": {
+    "Resell_ROI_Product_Row3_Col6_Price": {
         "doc": "第三行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -288,7 +288,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col7_Price": {
+    "Resell_ROI_Product_Row3_Col7_Price": {
         "doc": "第三行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -301,7 +301,7 @@
             40
         ]
     },
-    "[Resell]ROI_Product_Row3_Col8_Price": {
+    "Resell_ROI_Product_Row3_Col8_Price": {
         "doc": "第三行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -314,7 +314,7 @@
             40
         ]
     },
-    "[Resell]ROI_ViewFriendPrice": {
+    "Resell_ROI_ViewFriendPrice": {
         "doc": "查看好友价格按钮区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -327,7 +327,7 @@
             26
         ]
     },
-    "[Resell]ROI_DetailCostPrice": {
+    "Resell_ROI_DetailCostPrice": {
         "doc": "商品详情页成本价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -341,7 +341,7 @@
         ],
         "only_rec": true
     },
-    "[Resell]ROI_FriendSalePrice": {
+    "Resell_ROI_FriendSalePrice": {
         "doc": "好友出售价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -355,7 +355,7 @@
         ],
         "only_rec": true
     },
-    "[Resell]ROI_ReturnButton": {
+    "Resell_ROI_ReturnButton": {
         "doc": "返回按钮区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -368,7 +368,7 @@
             21
         ]
     },
-    "[Resell]ROI_Quota_Current": {
+    "Resell_ROI_Quota_Current": {
         "doc": "当前配额区域 (x/y格式)",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -381,7 +381,7 @@
             30
         ]
     },
-    "[Resell]ROI_Quota_NextAdd": {
+    "Resell_ROI_Quota_NextAdd": {
         "doc": "下次增加配额区域 (a小时后+b 或 a分钟后+b)",
         "recognition": "OCR",
         "order_by": "Expected",
