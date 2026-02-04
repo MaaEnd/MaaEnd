@@ -7,7 +7,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -66,7 +66,7 @@ func getPossibleHues(puzzles []*PuzzleDesc) []int {
 func getPossibleBoardSize(ctx *maa.Context, img image.Image) [2]int {
 	maxExtent := BOARD_MAX_EXTENT_ONE_SIDE
 	biasFactor := 0.075
-	cropFactor := 0.8 // important
+	cropFactor := 0.75 // important
 	bestW, bestH := 0, 0
 
 	// Convert to SVGB format
@@ -270,22 +270,17 @@ func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 	thumbs := getAllPuzzleThumbLoc(img)
 	log.Info().Interface("thumbs", thumbs).Msg("Puzzle thumbnail positions")
 
-	roiOverride := map[string]any{
-		"PuzzleSolverPuzzlePreviewWaitStable": map[string]any{
-			"post_wait_freezes": map[string]any{
-				"target": []int{
-					int(PUZZLE_THUMB_START_X),
-					int(PUZZLE_THUMB_START_Y),
-					int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
-					int(float64(PUZZLE_THUMB_MAX_ROWS+1) * PUZZLE_THUMB_H),
-				},
-			},
-		},
-	}
-
 	var puzzleList []*PuzzleDesc
 	for _, thumb := range thumbs {
-		ctx.RunTask("PuzzleSolverPuzzlePreviewWaitStable", roiOverride)
+		// Wait for dragging CD
+		ctx.WaitFreezes(100*time.Millisecond, (*maa.Rect)(&[4]int{
+			int(PUZZLE_THUMB_START_X),
+			int(PUZZLE_THUMB_START_Y),
+			int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
+			int(float64(PUZZLE_THUMB_MAX_ROWS) * PUZZLE_THUMB_H),
+		}))
+
+		// Preview this puzzle
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])
 		if desc != nil {
 			puzzleList = append(puzzleList, desc)
@@ -314,7 +309,13 @@ func doEnsureTab(ctx *maa.Context, img image.Image) image.Image {
 
 	// Then refresh screenshot
 	ctrl.PostScreencap().Wait()
-	newImg := ctrl.CacheImage()
+	newImg, err := ctrl.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to capture image")
+		return nil
+	}
 	if newImg == nil {
 		log.Error().Msg("Failed to capture image")
 		return nil
@@ -428,7 +429,14 @@ func doPreviewPuzzle(ctx *maa.Context, thumbX, thumbY int) *PuzzleDesc {
 
 	// 2. Screenshot
 	ctrl.PostScreencap().Wait()
-	previewImg := ctrl.CacheImage()
+	previewImg, err := ctrl.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to capture preview image")
+		aw.TouchUpSync(100)
+		return nil
+	}
 	if previewImg == nil {
 		log.Error().Msg("Failed to capture preview image")
 		aw.TouchUpSync(100)
@@ -504,6 +512,10 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 
 	// 2. Ensure tab state and determine board size (moved from step 4)
 	img = doEnsureTab(ctx, img)
+	if img == nil {
+		log.Error().Msg("Failed to ensure tab state: screenshot capture failed")
+		return nil, false
+	}
 
 	boardSize := getPossibleBoardSize(ctx, img)
 	if boardSize[0] == 0 || boardSize[1] == 0 {

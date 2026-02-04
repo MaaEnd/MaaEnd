@@ -4,7 +4,6 @@
             "name": "ReadAllWiki",
             "label": "$task.ReadAllWiki.label",
             "entry": "ReadAllWiki",
-            "default_check": true,
             "description": "$task.ReadAllWiki.description"
         }
     ],

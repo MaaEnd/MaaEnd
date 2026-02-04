@@ -1,0 +1,333 @@
+{
+    "task": [
+        {
+            "name": "ItemTransfer",
+            "label": "$task.ItemTransfer.label",
+            "entry": "ItemTransferConfigLoader",
+            "default_check": true,
+            "description": "$task.ItemTransfer.description",
+            "option": [
+                "WhatToTransfer",
+                "TransferAll",
+                "OriginRegion",
+                "DestinationRegion"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ],
+            "pipeline_override": {
+                // 1. 默认起点：武陵 (对应 OriginRegion 的 default: Wuling)
+                "ItemTransferClickOrigin": {
+                    "recognition": {
+                        "param": {
+                            "expected": "武陵|Wuling"
+                        }
+                    }
+                },
+                "ItemTransferAtOrigin": {
+                    "recognition": {
+                        "param": {
+                            "expected": "武陵|Wuling"
+                        }
+                    }
+                },
+                // 2. 默认终点：四号谷地 (对应 DestinationRegion 的 default: ValleyIV)
+                "ItemTransferClickDestination": {
+                    "recognition": {
+                        "param": {
+                            "expected": "四号谷地|四號谷地|Valley IV|Valley 4"
+                        }
+                    }
+                },
+                "ItemTransferAtDestination": {
+                    "recognition": {
+                        "param": {
+                            "expected": "四号谷地|四號谷地|Valley IV|Valley 4"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "option": {
+        "WhatToTransfer": {
+            "type": "select",
+            "label": "$ItemTransfer.option.WhatToTransfer.label",
+            "default": "MidBattery",
+            "cases": [
+                {
+                    "name": "MidBattery",
+                    "label": "$ItemTransfer.item.MidBattery",
+                    "pipeline_override": {
+                        "ItemTransferToBackpack": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "中容谷地电池|SC Valley Battery|中容量谷地電池",
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferToRepository": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "中容谷地电池|SC Valley Battery|中容量谷地電池",
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HighBattery",
+                    "label": "$ItemTransfer.item.HighBattery",
+                    "pipeline_override": {
+                        "ItemTransferToBackpack": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "高容谷地电池|HC Valley Battery|高容量谷地電池",
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferToRepository": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "高容谷地电池|HC Valley Battery|高容量谷地電池",
+                                        "CategoryNode": "ItemTransferSwitchToProduct"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "BlueIronOre",
+                    "label": "$ItemTransfer.item.BlueIronOre",
+                    "pipeline_override": {
+                        "ItemTransferToBackpack": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "蓝铁矿|Ferrium Ore|藍鐵礦",
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferToRepository": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "蓝铁矿|Ferrium Ore|藍鐵礦",
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "OriginOre",
+                    "label": "$ItemTransfer.item.OriginOre",
+                    "pipeline_override": {
+                        "ItemTransferToBackpack": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "源矿|Originium Ore|源礦",
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferToRepository": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "源矿|Originium Ore|源礦",
+                                        "CategoryNode": "ItemTransferSwitchToMaterial"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "SandLeaf",
+                    "label": "$ItemTransfer.item.SandLeaf",
+                    "pipeline_override": {
+                        "ItemTransferToBackpack": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "砂叶|Sandleaf|砂葉",
+                                        "CategoryNode": "ItemTransferSwitchToPlant"
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferToRepository": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "ItemName": "砂叶|Sandleaf|砂葉",
+                                        "CategoryNode": "ItemTransferSwitchToPlant"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "TransferAll": {
+            "type": "switch",
+            "label": "$ItemTransfer.option.TransferAll.label",
+            "description": "$ItemTransfer.option.TransferAll.description",
+            "cases": [
+                {
+                    "name": "Yes"
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "TransferTimes"
+                    ]
+                }
+            ],
+            "default_case": "No"
+        },
+        "OriginRegion": {
+            "type": "select",
+            "label": "$ItemTransfer.option.OriginRegion.label",
+            "description": "$ItemTransfer.option.OriginRegion.description",
+            "cases": [
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "ItemTransferClickOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
+                                }
+                            }
+                        },
+                        "ItemTransferAtOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "ItemTransferClickOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地|四號谷地|Valley IV"
+                                }
+                            }
+                        },
+                        "ItemTransferAtOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地|四號谷地|Valley IV"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default": "ValleyIV"
+        },
+        // 3. 新增：目标区域选择 (Destination)
+        "DestinationRegion": {
+            "type": "select",
+            "label": "$ItemTransfer.option.DestinationRegion.label",
+            "description": "$ItemTransfer.option.DestinationRegion.description",
+            "cases": [
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "ItemTransferClickDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
+                                }
+                            }
+                        },
+                        "ItemTransferAtDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "ItemTransferClickDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地|四號谷地|Valley IV"
+                                }
+                            }
+                        },
+                        "ItemTransferAtDestination": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "四号谷地|四號谷地|Valley IV"
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "default": "Wuling"
+        },
+        "TransferTimes": {
+            "type": "input",
+            "label": "$ItemTransfer.option.TransferTimes.label",
+            "inputs": [
+                {
+                    "name": "Times",
+                    "label": "$ItemTransfer.option.TransferTimes.input.label",
+                    "description": "$ItemTransfer.option.TransferTimes.input.description",
+                    "default": "1",
+                    "pipeline_type": "int",
+                    "verify": "^((?!0)\\d+|0)$",
+                    "pattern_msg": "$ItemTransfer.option.TransferTimes.input.error"
+                }
+            ],
+            "pipeline_override": {
+                "ItemTransferTaskSuccess": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "MaxTimes": "{Times}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

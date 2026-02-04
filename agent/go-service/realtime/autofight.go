@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/MaaXYZ/maa-framework-go/v3"
+	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
@@ -20,11 +20,17 @@ type RealTimeAutoFightEntryRecognition struct{}
 func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	// 先找左下角角色上方选中图标，表示进入操控状态
 	{
-		detail := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
+		detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
 			Threshold: []float64{0.7},
 			Template:  []string{"RealTimeTask/AutoFightBar.png"},
 			ROI:       maa.NewTargetRect(maa.Rect{0, 580, 360, 60}),
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for TemplateMatch")
+			return nil, false
+		}
 		if detail == nil || !detail.Hit {
 			return nil, false
 		}
@@ -32,20 +38,32 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 
 	{
 		// 第一格能量满（黄色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
-		detail_yellow := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+		detail_yellow, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:   maa.NewTargetRect(maa.Rect{533, 645, 70, 15}),
 			Lower: [][]int{{220, 190, 0}},
 			Upper: [][]int{{255, 255, 30}},
 			Count: 100,
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for ColorMatch yellow")
+			return nil, false
+		}
 
 		// 第一格能量空（白色 [255, 255, 255]）
-		detail_white := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+		detail_white, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:   maa.NewTargetRect(maa.Rect{533, 645, 70, 15}),
 			Lower: [][]int{{240, 240, 240}},
 			Upper: [][]int{{255, 255, 255}},
 			Count: 10,
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for ColorMatch white")
+			return nil, false
+		}
 		if (detail_yellow == nil || !detail_yellow.Hit) && (detail_white == nil || !detail_white.Hit) {
 			return nil, false
 		}
@@ -54,13 +72,19 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 	var validEnemy int
 	{
 		// 找敌人血条 [255, 68, 101]
-		detail := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+		detail, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:       maa.NewTargetRect(maa.Rect{280, 150, 750, 370}),
 			Lower:     [][]int{{240, 40, 80}},
 			Upper:     [][]int{{255, 80, 120}},
 			Count:     100,
 			Connected: true, // 血条区域必须相邻
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for ColorMatch enemy")
+			return nil, false
+		}
 		if detail == nil || !detail.Hit {
 			return nil, false
 		}
@@ -92,11 +116,17 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 
 	{
 		// 判断有几个角色
-		detail := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
+		detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
 			ROI:       maa.NewTargetRect(maa.Rect{1010, 615, 265, 20}),
 			Template:  []string{"RealTimeTask/AutoFightSkill.png"},
 			Threshold: []float64{0.4},
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for TemplateMatch character count")
+			return nil, false
+		}
 		if detail == nil || !detail.Hit {
 			return nil, false
 		}
@@ -145,11 +175,17 @@ func (r *RealTimeAutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.Custom
 	exit := false
 	{
 		// 找不到角色选中条，退出战斗界面
-		detail := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
+		detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
 			Threshold: []float64{0.7},
 			Template:  []string{"RealTimeTask/AutoFightBar.png"},
 			ROI:       maa.NewTargetRect(maa.Rect{0, 580, 360, 60}),
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for TemplateMatch exit")
+			return nil, false
+		}
 		if detail == nil || !detail.Hit {
 			exit = true
 		}
@@ -157,20 +193,32 @@ func (r *RealTimeAutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.Custom
 
 	{
 		// 第一格能量满（黄色 [255, 255, 0] - [255, 220, 0] 交替闪烁）
-		detail_yellow := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+		detail_yellow, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:   maa.NewTargetRect(maa.Rect{533, 645, 70, 15}),
 			Lower: [][]int{{220, 190, 0}},
 			Upper: [][]int{{255, 255, 30}},
 			Count: 100,
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for ColorMatch yellow")
+			return nil, false
+		}
 
 		// 第一格能量空（白色 [255, 255, 255]）
-		detail_white := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+		detail_white, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:   maa.NewTargetRect(maa.Rect{533, 645, 70, 15}),
 			Lower: [][]int{{240, 240, 240}},
 			Upper: [][]int{{255, 255, 255}},
 			Count: 10,
 		}, arg.Img)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Failed to run recognition for ColorMatch white")
+			return nil, false
+		}
 		if (detail_yellow == nil || !detail_yellow.Hit) && (detail_white == nil || !detail_white.Hit) {
 			exit = true
 		}
@@ -190,12 +238,18 @@ type RealTimeAutoFightSkillRecognition struct{}
 func (r *RealTimeAutoFightSkillRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 
 	// 第二格能量满才会用技能，留一格用于兼容性识别，第一格刚用完恢复可能会误判
-	detail := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
+	detail, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 		ROI:   maa.NewTargetRect(maa.Rect{600, 640, 80, 20}),
 		Lower: [][]int{{220, 190, 0}},
 		Upper: [][]int{{255, 255, 30}},
 		Count: 100,
 	}, arg.Img)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to run recognition for ColorMatch skill")
+		return nil, false
+	}
 	if detail == nil || !detail.Hit {
 		return nil, false
 	}
@@ -239,12 +293,18 @@ func (r *RealTimeAutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.Cu
 	const roiX = 1010
 	const roiWidth = 270
 
-	detail := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
+	detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
 		Threshold: []float64{0.7},
 		Template:  []string{"RealTimeTask/AutoFightEndSkill.png"},
 		ROI:       maa.NewTargetRect(maa.Rect{roiX, 535, roiWidth, 65}),
 		GreenMask: true,
 	}, arg.Img)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to run recognition for TemplateMatch end skill")
+		return nil, false
+	}
 	if detail == nil || !detail.Hit {
 		return nil, false
 	}
