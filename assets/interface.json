@@ -96,7 +96,7 @@
         "tasks/AutoResell.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
-        "tasks/GetWuling731.json",
+        "tasks/SeizeEntrustTask.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
         "tasks/ReceiveProdManual.json",
