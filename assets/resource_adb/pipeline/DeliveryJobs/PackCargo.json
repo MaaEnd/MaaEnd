@@ -1,5 +1,20 @@
 {
+    "CargoHasOffer": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ]
+    },
     "CargoNotReady": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ],
+        "action": "DoNothing",
         "next": [
             "BackToRegionalConstruction",
             "CargoNotReady"
@@ -20,6 +35,14 @@
         "next": [
             "CheckCurrentArea",
             "BackToRegionalConstruction"
+        ]
+    },
+    "EnterCargo": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
         ]
     }
 }
