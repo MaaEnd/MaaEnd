@@ -271,8 +271,10 @@ def install_maafw(install_root: Path, skip_if_exist: bool = True) -> bool:
         print("[INF] 解压 MaaFramework...")
         try:
             extract_root = tmp_path / "extracted"
-            with zipfile.ZipFile(download_path, "r") as zip_ref:
-                zip_ref.extractall(extract_root)
+            extract_root.mkdir(parents=True, exist_ok=True)
+
+            # 使用 shutil.unpack_archive 自动识别格式进行解压
+            shutil.unpack_archive(str(download_path), extract_root)
 
             maafw_dest.mkdir(parents=True, exist_ok=True)
             bin_found = False
@@ -344,8 +346,10 @@ def install_mxu(install_root: Path, skip_if_exist: bool = True) -> bool:
         print("[INF] 解压并安装 MXU...")
         try:
             extract_root = tmp_path / "extracted"
-            with zipfile.ZipFile(download_path, "r") as zip_ref:
-                zip_ref.extractall(extract_root)
+            extract_root.mkdir(parents=True, exist_ok=True)
+
+            # 使用 shutil.unpack_archive 自动识别格式进行解压
+            shutil.unpack_archive(str(download_path), extract_root)
 
             real_install_root.mkdir(parents=True, exist_ok=True)
             target_files = [MXU_DIST_NAME]
