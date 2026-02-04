@@ -1,0 +1,11 @@
+{
+    "task": [
+        {
+            "name": "SellProduct",
+            "label": "$task.SellProduct.label",
+            "entry": "SellProductMain",
+            "description": "$task.SellProduct.description"
+        }
+    ],
+    "option": {}
+}

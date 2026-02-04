@@ -20,6 +20,45 @@
             "[JumpBack]CloseButtonDijiang"
         ]
     },
+    //主流程
+    "DijiangRewards": {
+        "next": [
+            "ControlNexus", //主流程内收集所有奖励
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "ControlNexus": {
+        //任务主流程
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    143,
+                    467,
+                    77,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
+        ]
+    },
     "InMainWindow_NeedCredit": {
         "recognition": {
             "type": "Or",
@@ -190,45 +229,6 @@
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonDijiang"
-        ]
-    },
-    //主流程
-    "DijiangRewards": {
-        "next": [
-            "ControlNexus", //主流程内收集所有奖励
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
-        ]
-    },
-    "ControlNexus": {
-        //任务主流程
-        "max_hit": 1,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    143,
-                    467,
-                    77,
-                    77
-                ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssistInDijiang",
-            "[JumpBack]MFG_ReceiveRewards",
-            "[JumpBack]GrowthChamber",
-            "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
         ]
     },
     "InLastCarbin": {
@@ -1473,10 +1473,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    434,
-                    462,
-                    846,
-                    69
+                    697,
+                    463,
+                    459,
+                    62
                 ],
                 "lower": [
                     224,
@@ -1507,7 +1507,7 @@
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
             "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]Receive",
+            "[JumpBack]CloseDijiangRewards",
             "ControlNexusClickTips"
         ]
     },
@@ -1528,7 +1528,6 @@
                                     64
                                 ],
                                 "expected": [
-                                    "会客室",
                                     "制造舱",
                                     "培养舱"
                                 ]
