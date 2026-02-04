@@ -70,6 +70,8 @@
     "task.SellProduct.description": "각 거점에서 제품을 사용하여 해당 조달권을 교환합니다.",
     "task.VisitFriends.label": "🤝 친구 자동 방문",
     "task.VisitFriends.description": "친구 방문을 자동화하여 지원 및 정보 교환을 수행합니다.",
+    "option.PriorStealVegetables.label": "수확 우선",
+    "option.PriorStealVegetables.description": "활성화 시 친구 함선으로 이동하기 전에 해당 성장실 지원 가능 여부를 확인하고, 도착 후 지원하며 성장실만 지원합니다.",
     "task.ReceiveProdManual.label": "🌾 간단 제작 매뉴얼 보상 일괄 수령",
     "task.ReceiveProdManual.description": "모든 간단 제작 매뉴얼 보상을 수령합니다. **매뉴얼 진행도 / 매뉴얼 목록 / 가방 화면 / 내비게이션 메뉴 / 메인 화면에서 작업을 시작할 수 있습니다.**",
     "task.ReadAllWiki.label": "📖 도감 일괄 읽음 처리",
