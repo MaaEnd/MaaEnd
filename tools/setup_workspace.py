@@ -155,7 +155,7 @@ def download_file(url: str, dest_path: Path) -> bool:
     def to_percentage(current: float, total: float) -> str:
         return f"{(current / total) * 100:.1f}%" if total > 0 else ""
 
-    def to_file_size(size: int) -> str:
+    def to_file_size(size: int | None) -> str:
         if size is None or size < 0:
             return "--"
         s = float(size)
