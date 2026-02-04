@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "launch-agent",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "program": "${workspaceFolder}/install/agent/go-service",
+            "args": [
+                "{AGENT_ID}"
+            ],
+            "cwd": "${workspaceFolder}/install"
+        }
+    ]
+    
+}
