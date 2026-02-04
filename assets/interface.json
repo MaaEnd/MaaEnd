@@ -84,9 +84,7 @@
     ],
     "agent": {
         "child_exec": "agent/go-service",
-        "child_args": [],
-
-        "debug_session": "launch-agent"
+        "child_args": []
     },
     "task": [],
     "import": [
