@@ -285,11 +285,16 @@
         ]
     },
     "VisitorTerminalCloseSeedDialog": {
-        "action": {
-            "type": "ClickKey",
+        "recognition": {
+            "type": "TemplateMatch",
             "param": {
-                "key": 27
+                "template": "VisitFriends/StealVegetableSuccess.png",
+                "threshold": 0.8
             }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
         },
         "next": [
             "ExitTerminalAssist"

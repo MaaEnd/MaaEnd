@@ -71,7 +71,7 @@
     "task.VisitFriends.label": "🤝 自動拜訪好友",
     "task.VisitFriends.description": "自動拜訪好友，執行生產助力流程與情報交流",
     "option.PriorStealVegetables.label": "優先偷菜",
-    "option.PriorStealVegetables.description": "開啟後，在前往好友飛船前先檢查其培養艙是否可助力，並在前往後助力且只助力其培養艙",
+    "option.PriorStealVegetables.description": "開啟後，在前往好友飛船前先檢查其培養艙是否可助力，並在前往後助力且只助力其培養艙。**此功能尚未完成。**已知問題：若在已偷過該好友菜後再次進入其飛船，腳本可能會助力所有可助力的設施而非僅培養艙。",
     "task.ReceiveProdManual.label": "🌾簡製手冊一鍵領取",
     "task.ReceiveProdManual.description": "領取所有簡製手冊獎勵，**可在手冊進度/手冊列表/背包介面/導航選單/主介面開始任務**",
     "task.ReadAllWiki.label": "📖百科一鍵已讀",
