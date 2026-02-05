@@ -5,7 +5,9 @@
             "label": "$task.SeizeEntrustTask.label",
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
-            "option": [],
+            "option": [
+                "SeizeEntrustTaskisSwipeMiddle"
+            ],
             "controller": [
                 "Win32",
                 "Win32-Window",
@@ -13,5 +15,73 @@
             ]
         }
     ],
-    "option": {}
+    "option": {
+        "SeizeEntrustTaskisSwipeMiddle": {
+            "type": "switch",
+            "label": "滑动中下位置查找武陵订单",
+            "description": "开启此选项后，只会滑动到中间，不会滑动到最顶部\n不开启需要手动滑动到武陵订单可能出现的位置，一般在5万的谷地订单上面，或者在列表最底部",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeEntrustTaskisSwipeALL"
+                    ],
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": true
+                        },
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": false
+                        },
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeEntrustTaskisSwipeALL": {
+            "type": "switch",
+            "label": "滑动遍历全部订单",
+            "description": "开启此选项后会从头到尾找一遍订单，开启后能在5s内遍历完所有订单才建议开启可以 ~~用来消耗时间()~~",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "roi": [
+                                1246,
+                                388,
+                                23,
+                                40
+                            ],
+                            "template": "SeizeEntrustTask/InMiddle.png"
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "roi": [
+                                1245,
+                                154,
+                                24,
+                                37
+                            ],
+                            "template": "SeizeEntrustTask/InUp.png"
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }
