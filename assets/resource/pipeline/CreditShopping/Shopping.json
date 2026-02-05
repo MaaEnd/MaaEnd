@@ -197,10 +197,10 @@
     "CreditShoppingBuyBlacklist": {
         "doc": "信用点溢出时购买黑名单物品",
         "recognition": "And",
-        //TODO: 和上面两个方案对齐
         "all_of": [
             {
                 "sub_name": "CreditNum",
+                "doc": "信用点溢出（>300）",
                 "recognition": "OCR",
                 "roi": [
                     1083,
@@ -224,6 +224,7 @@
             },
             {
                 "doc": "非售罄",
+                "sub_name": "NotSoldOut",
                 "recognition": "ColorMatch",
                 "method": 6,
                 "roi": "CreditIcon",
@@ -234,37 +235,12 @@
                     160
                 ],
                 "lower": [
-                    0
-                ],
-                "upper": [
                     120
                 ],
-                "count": 10000
-            },
-
-            {
-                "doc": "买得起（价格不是红色）",
-                "sub_name": "Affordable",
-                "recognition": "ColorMatch",
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    10,
-                    8,
-                    40,
-                    20
-                ],
-                "lower": [
-                    255,
-                    131,
-                    131
-                ],
                 "upper": [
-                    255,
-                    131,
-                    131
+                    255
                 ],
-                "count": 10,
-                "inverse": true
+                "count": 20000
             }
         ],
         "next": [
