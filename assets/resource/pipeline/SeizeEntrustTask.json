@@ -69,7 +69,7 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往下翻一页",
-        "enabled": true,
+        "enabled": false,
         "inverse": true,
         "recognition": {
             "param": {
@@ -100,7 +100,7 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往上翻一页",
-        "enabled": true,
+        "enabled": false,
         "inverse": true,
         "recognition": {
             "param": {
