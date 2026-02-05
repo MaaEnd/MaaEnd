@@ -1,0 +1,27 @@
+{
+    "EnterRegionalConstruction": {
+        "doc": "进入地区建设",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterRegionalConstruction.png",
+        "threshold": 0.8,
+        "roi": [
+            164,
+            3,
+            232,
+            84
+        ],
+        "action": "Click"
+    },
+    "DeliveryJobsFinished": {
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/BackToRegionalConstruction.png",
+        "roi": [
+            1195,
+            14,
+            52,
+            43
+        ],
+        "threshold": 0.8,
+        "action": "Click"
+    }
+}

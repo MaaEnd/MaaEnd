@@ -36,8 +36,7 @@
             }
         ],
         "action": "ClickKey",
-        "key": 89,
-        "next": []
+        "key": 89
     },
     "CheckCurrentArea": {
         "doc": "检查当前地区",
@@ -87,6 +86,7 @@
     },
     "DeliveryJobsFinished": {
         "doc": "运送委托完成",
-        "next": []
+        "action": "ClickKey",
+        "key": 27
     }
 }

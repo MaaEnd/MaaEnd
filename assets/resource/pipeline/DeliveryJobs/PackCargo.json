@@ -7,28 +7,33 @@
                 "recognition": "TemplateMatch",
                 "template": "DeliveryJobs/EnterDepot.png",
                 "roi": [
-                    1016,
-                    343,
-                    22,
-                    19
+                    1007,
+                    331,
+                    40,
+                    52
                 ],
                 "threshold": 0.8
             },
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
                     183,
                     93
                 ],
-                "expected": "四号谷地"
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley IV",
+                    "Valley",
+                    "四号谷地",
+                    "4번 협곡"
+                ]
             }
         ],
-        "action": "Click",
-        "next": []
+        "action": "Click"
     },
     "EnterWuLingDepot": {
         "doc": "进入武陵仓储节点",
@@ -38,28 +43,32 @@
                 "recognition": "TemplateMatch",
                 "template": "DeliveryJobs/EnterDepot.png",
                 "roi": [
-                    1016,
-                    343,
-                    22,
-                    19
+                    1007,
+                    331,
+                    40,
+                    52
                 ],
                 "threshold": 0.8
             },
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
                     183,
                     93
                 ],
-                "expected": "武陵"
+                "expected": [
+                    "武陵",
+                    "武陵",
+                    "Wuling",
+                    "武陵",
+                    "무릉"
+                ]
             }
         ],
-        "action": "Click",
-        "next": []
+        "action": "Click"
     },
     "CheckFourthValleyDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁",
@@ -79,14 +88,20 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
                     183,
                     93
                 ],
-                "expected": "四号谷地"
+                "expected": [
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley IV",
+                    "Valley",
+                    "四号谷地",
+                    "4번 협곡"
+                ]
             }
         ],
         "pre_delay": 0,
@@ -115,14 +130,19 @@
             {
                 "recognition": "OCR",
                 "order_by": "Expected",
-                "threshold": 0.8,
                 "roi": [
                     23,
                     155,
                     183,
                     93
                 ],
-                "expected": "武陵"
+                "expected": [
+                    "武陵",
+                    "武陵",
+                    "Wuling",
+                    "武陵",
+                    "무릉"
+                ]
             }
         ],
         "pre_delay": 0,
@@ -135,15 +155,21 @@
     },
     "CargoHasOffer": {
         "doc": "货物有人报价",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoHasOffer.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            96,
-            574,
-            936,
-            37
+            78,
+            561,
+            985,
+            58
         ],
-        "threshold": 0.8,
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -152,15 +178,21 @@
     },
     "CargoNotReady": {
         "doc": "货物未就绪，返回上一级界面",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoNotReady.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            109,
-            515,
-            940,
-            30
+            78,
+            561,
+            985,
+            58
         ],
-        "threshold": 0.8,
+        "expected": [
+            "^\\d+小时\\d+分钟后就绪$",
+            "^\\d+小時\\d+分鐘後就緒$",
+            "^\\d+h \\d+min to activation$",
+            "^\\d+時間\\d+分後使用可能$",
+            "^\\d+시 \\d+분 후 준비 완료$"
+        ],
         "action": "ClickKey",
         "key": 27,
         "next": [
@@ -170,30 +202,20 @@
     },
     "EnterCargo": {
         "doc": "进入货物",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/CargoReady.png",
-                "roi": [
-                    109,
-                    515,
-                    940,
-                    30
-                ],
-                "threshold": 0.8
-            },
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/CargoReadyWuLing.png",
-                "roi": [
-                    109,
-                    515,
-                    940,
-                    30
-                ],
-                "threshold": 0.8
-            }
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            78,
+            561,
+            985,
+            58
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장"
         ],
         "action": "Click",
         "next": [
@@ -217,6 +239,7 @@
             "CargoBid",
             "CargoFillToMax",
             "ClickScreenToContinue",
+            "HasDeliveryJob",
             "ProceedToNextStep"
         ]
     },
@@ -242,10 +265,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoBid.png",
         "roi": [
-            906,
-            589,
-            42,
-            45
+            911,
+            593,
+            36,
+            33
         ],
         "threshold": 0.8,
         "action": "Click",
@@ -256,16 +279,33 @@
     },
     "ClickScreenToContinue": {
         "doc": "单击屏幕继续",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/ClickToContinue.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            578,
-            670,
-            122,
-            24
+            527,
+            646,
+            222,
+            48
         ],
-        "threshold": 0.8,
-        "action": "Click",
-        "next": []
+        "expected": [
+            "点击屏幕继续",
+            "按任意處繼續",
+            "Click to continue",
+            "クリックして続行",
+            "화면을 눌러 계속하기"
+        ],
+        "action": "Click"
+    },
+    "HasDeliveryJob": {
+        "doc": "有可用的配送任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DeliveryJob.png",
+        "roi": [
+            56,
+            174,
+            74,
+            26
+        ],
+        "threshold": 0.8
     }
 }

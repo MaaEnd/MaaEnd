@@ -1,15 +1,21 @@
 {
     "EnterDeliveryJob": {
         "doc": "进入送货任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterDeliveryJob.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            96,
-            574,
-            936,
-            37
+            78,
+            561,
+            985,
+            58
         ],
-        "threshold": 0.8,
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "Check Mission",
+            "任務確認",
+            "임무 확인"
+        ],
         "action": "Click",
         "next": [
             "ClickTransferJob",
@@ -18,15 +24,21 @@
     },
     "ClickTransferJob": {
         "doc": "单击转交任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/TransferTask.png",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            436,
-            653,
-            88,
-            15
+            366,
+            620,
+            372,
+            63
         ],
-        "threshold": 0.8,
+        "expected": [
+            "转交运送委托",
+            "轉交運送委託",
+            "Transfer Delivery Job",
+            "外部委託",
+            "운송 의뢰 위탁"
+        ],
         "action": "Click",
         "next": [
             "ConfirmTaskTransfer",
@@ -44,7 +56,6 @@
             27
         ],
         "threshold": 0.8,
-        "action": "Click",
-        "next": []
+        "action": "Click"
     }
 }
