@@ -75,12 +75,12 @@
             ]
         },
         {
-            "name": "ADB",
+            "name": "安卓官服",
             "controller": [
                 "ADB"
             ],
             "path": [
-                "./resource-ADB"
+                "./resource_adb"
             ]
         },
         {

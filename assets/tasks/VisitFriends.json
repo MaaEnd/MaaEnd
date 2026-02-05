@@ -4,6 +4,12 @@
             "name": "VisitFriends",
             "label": "$task.VisitFriends.label",
             "entry": "FriendVisitMain",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front",
+                "ADB"
+            ],
             "description": "$task.VisitFriends.description"
         }
     ],
