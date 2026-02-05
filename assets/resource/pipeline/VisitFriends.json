@@ -42,9 +42,59 @@
             }
         },
         "next": [
+            "PriorStealGate",
             "ProductionAssistOCR",
             "ClueExchangeOCR",
             "VisitEnd"
+        ]
+    },
+    "PriorStealGate": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1221,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "[1-5]"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "PriorStealGateClueCheck",
+            "VisitEnd"
+        ]
+    },
+    "PriorStealGateClueCheck": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1167,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "[1-5]"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "ProductionAssist"
         ]
     },
     "ProductionAssistOCR": {
@@ -85,20 +135,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ProductionAssistAvailable.png",
+                "template": "VisitFriends/PreStoleCheckAvailable.png",
                 "threshold": 0.95
             }
         },
         "action": {
             "type": "Click",
-            "param": {
-                "target_offset": [
-                    -20,
-                    0,
-                    0,
-                    0
-                ]
-            }
+            "param": {}
         },
         "next": [
             "GrowthChamberCheck",
@@ -133,7 +176,7 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "VisitFriends/GrowthChamberOpen.png",
-                "threshold": 0.9
+                "threshold": 0.95
             }
         },
         "action": {
@@ -141,7 +184,8 @@
             "param": {}
         },
         "next": [
-            "ConfirmVisitToAssist"
+            "ConfirmVisitToAssist",
+            "SkipConfirmBackToFriendList"
         ]
     },
     "SkipConfirmBackToFriendList": {
@@ -201,7 +245,24 @@
             }
         },
         "next": [
+            "VisitorTerminalMeetingRoomCheck",
             "VisitorTerminalAssistGrowthChamber"
+        ]
+    },
+    "VisitorTerminalMeetingRoomCheck": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/MeetingRoom.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalSwipeFacilityList"
         ]
     },
     "ConfirmVisitToAssist": {
@@ -235,7 +296,21 @@
             }
         },
         "next": [
+            "WaitOpenTerminalAssistStealVeg",
             "WaitOpenTerminalAssist"
+        ]
+    },
+    "WaitOpenTerminalAssistStealVeg": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/TerminalIsOpen.png",
+                "threshold": 0.8
+            }
+        },
+        "next": [
+            "VisitorTerminalClueExchangeFirst",
+            "ExitTerminalExchange"
         ]
     },
     "WaitOpenTerminalAssist": {
@@ -247,9 +322,25 @@
             }
         },
         "next": [
-            "VisitorTerminalSwipeFacilityList",
             "VisitorTerminalAssist",
             "ExitTerminalExchange"
+        ]
+    },
+    "VisitorTerminalClueExchangeFirst": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ClueExchange.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 2000,
+        "next": [
+            "VisitorTerminalSwipeFacilityList"
         ]
     },
     "VisitorTerminalAssistGrowthChamber": {
@@ -267,13 +358,15 @@
             "param": {}
         },
         "next": [
-            "VisitorTerminalAssistGrowthChamber",
             "VisitorTerminalCloseSeedDialog"
         ]
     },
     "VisitorTerminalAssist": {
         "recognition": "TemplateMatch",
-        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"],
+        "template": [
+            "VisitFriends/ProductionAssist.png",
+            "VisitFriends/ClueExchange.png"
+        ],
         "threshold": 0.8,
         "action": {
             "type": "Click",
@@ -454,7 +547,10 @@
     },
     "VisitorTerminalExchange": {
         "recognition": "TemplateMatch",
-        "template": ["VisitFriends/ProductionAssist.png", "VisitFriends/ClueExchange.png"],
+        "template": [
+            "VisitFriends/ProductionAssist.png",
+            "VisitFriends/ClueExchange.png"
+        ],
         "threshold": 0.8,
         "action": {
             "type": "Click",
