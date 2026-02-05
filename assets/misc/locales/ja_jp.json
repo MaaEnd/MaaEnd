@@ -93,6 +93,8 @@
     "task.SeizeEntrustTaskisSwipeALL.description": "このオプションを有効にすると、最初から最後まですべての注文を検索します。すべての注文を 5 秒以内にトラバースできる場合のみ、有効にすることをおすすめします。~~時間つぶしに使用可能です ()~~",
     "task.ItemTransfer.label": "アイテム搬送",
     "task.ItemTransfer.description": "異なるエリアの倉庫間で指定された資材を自動的に搬送します。",
+    "task.EssenceTool.label": "🔒 基質ツール",
+    "task.EssenceTool.description": "基質のロック/解除を支援します。**基質を選択した状態で起動してください。**",
     "ItemTransfer.option.WhatToTransfer.label": "搬送するアイテム",
     "ItemTransfer.option.WhatToTransfer.input.label": "アイテム名",
     "ItemTransfer.option.WhatToTransfer.input.description": "アイテムの正式名称を入力してください。",
