@@ -1,4 +1,10 @@
 {
+    "task.EssenceFilter.label": "🔒基质筛选锁定",
+    "task.EssenceFilter.description": "根据武器选择自动识别并锁定匹配的基质",
+    "option.EssenceFilterPreset.label": "预设方案",
+    "option.EssenceFilterPreset.description": "选择一个预设的武器过滤方案",
+    "option.EssenceFilterPreset.cases.Rarity6Weapons.label": "所有6星武器",
+    "option.EssenceFilterPreset.cases.Rarity5Weapons.label": "所有5星武器",
     "task.RealTimeTask.label": "🤖实时开荒辅助",
     "task.RealTimeTask.description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
     "option.AutoSkip.label": "自动剧情",

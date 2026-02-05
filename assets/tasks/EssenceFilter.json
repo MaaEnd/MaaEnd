@@ -1,0 +1,73 @@
+{
+    "task": [
+        {
+            "name": "EssenceFilter",
+            "label": "$task.EssenceFilter.label",
+            "entry": "EssenceFilterMain",
+            "description": "$task.EssenceFilter.description",
+            "option": [
+                "EssenceFilterPreset"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "EssenceFilterPreset": {
+            "type": "select",
+            "label": "筛选预设",
+            "description": "选择一个预设来决定筛选哪些武器。",
+            "default": "Rarity6_and_5",
+            "cases": [
+                {
+                    "name": "Rarity6",
+                    "label": "仅筛选6星武器",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity6"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Rarity5",
+                    "label": "仅筛选5星武器",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity5"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Rarity6_and_5",
+                    "label": "筛选6星和5星武器",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity6_and_5"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
