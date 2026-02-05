@@ -69,7 +69,7 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往下翻一页",
-        "enabled": false,
+        "enabled": true,
         "inverse": true,
         "recognition": {
             "param": {
@@ -100,7 +100,7 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往上翻一页",
-        "enabled": false,
+        "enabled": true,
         "inverse": true,
         "recognition": {
             "param": {
@@ -150,12 +150,8 @@
         },
         "doc": "刷新动作",
         "next": [
-            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
-            "[JumpBack]SeizeEntrustTaskNews2"
+            "SeizeEntrustTaskNewsStatus1"
         ],
-        "post_wait_freezes": 400,
         "rate_limit": 1000,
         "recognition": {
             "param": {
@@ -179,9 +175,8 @@
         },
         "doc": "依旧刷新动作",
         "next": [
-            "isSeizeEntrustTaskDestinationWulingCity"
+            "SeizeEntrustTaskNewsStatus2"
         ],
-        "post_wait_freezes": 600,
         "rate_limit": 100,
         "recognition": {
             "param": {
@@ -193,6 +188,47 @@
                     652,
                     98,
                     34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]SeizeEntrustTaskNews2"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1006,
+                    525,
+                    244,
+                    121
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1006,
+                    525,
+                    244,
+                    121
                 ]
             },
             "type": "OCR"
