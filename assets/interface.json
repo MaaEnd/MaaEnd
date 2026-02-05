@@ -60,7 +60,10 @@
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
-            "type": "Adb"
+            "type": "Adb",
+            "attach_resource_path": [
+                "./resource_adb"
+            ]
         },
         {
             "name": "PlayCover",

@@ -1,0 +1,80 @@
+{
+    "CargoHasOffer": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ]
+    },
+    "CargoNotReady": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ],
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "CargoNotReady"
+        ]
+    },
+    "BackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/BackToRegionalConstruction.png",
+        "roi": [
+            1195,
+            14,
+            52,
+            43
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "CheckCurrentArea",
+            "BackToRegionalConstruction"
+        ]
+    },
+    "EnterCargo": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ]
+    },
+    "ProceedToNextStep": {
+        "roi": [
+            1193,
+            634,
+            29,
+            28
+        ]
+    },
+    "CargoFillToMax": {
+        "roi": [
+            1151,
+            218,
+            36,
+            19
+        ]
+    },
+    "CargoBid": {
+        "roi": [
+            817,
+            561,
+            48,
+            44
+        ]
+    },
+    "HasDeliveryJob": {
+        "roi": [
+            70,
+            210,
+            91,
+            30
+        ]
+    }
+}

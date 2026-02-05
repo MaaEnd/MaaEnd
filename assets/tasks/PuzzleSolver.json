@@ -25,6 +25,9 @@
                     "name": "Single",
                     "label": "$option.PuzzleSolverMode.cases.Single.label",
                     "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": []
+                        },
                         "PuzzleSolverOnSuccess": {
                             "next": []
                         },
@@ -44,6 +47,11 @@
                     "name": "Loop",
                     "label": "$option.PuzzleSolverMode.cases.Loop.label",
                     "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": [
+                                "PuzzleSolverMain"
+                            ]
+                        },
                         "PuzzleSolverOnSuccess": {
                             "next": [
                                 "PuzzleSolverMain"
@@ -65,6 +73,9 @@
                     "name": "DryRun",
                     "label": "$option.PuzzleSolverMode.cases.DryRun.label",
                     "pipeline_override": {
+                        "PuzzleSolverMaybeLoop": {
+                            "next": []
+                        },
                         "PuzzleSolverOnSuccess": {
                             "action": "DoNothing",
                             "next": []
