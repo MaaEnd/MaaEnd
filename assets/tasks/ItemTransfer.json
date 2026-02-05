@@ -233,7 +233,7 @@
                     "description": "$option.ItemTransferTransferTimes.input.description",
                     "default": "1",
                     "pipeline_type": "int",
-                    "verify": "^((?!0)\\d+|0)$",
+                    "verify": "^[1-9]\\d*$",
                     "pattern_msg": "$option.ItemTransferTransferTimes.input.error"
                 }
             ],
