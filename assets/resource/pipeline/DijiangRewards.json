@@ -500,6 +500,7 @@
                                     116,
                                     96
                                 ],
+                                "only_rec": true,
                                 "expected": [
                                     "20/20"
                                 ]
@@ -736,10 +737,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1124,
-                    575,
-                    156,
-                    145
+                    1121,
+                    551,
+                    159,
+                    169
                 ],
                 "template": [
                     "ClaimDijiangRewards/ReceiveAll.png",
@@ -781,9 +782,9 @@
             "param": {
                 "roi": [
                     793,
-                    504,
-                    127,
-                    78
+                    505,
+                    222,
+                    121
                 ],
                 "expected": [
                     "再次培养"
@@ -989,9 +990,9 @@
             "param": {
                 "roi": [
                     1064,
-                    104,
-                    74,
-                    74
+                    23,
+                    216,
+                    158
                 ],
                 "template": [
                     "ClaimDijiangRewards/ExitProductionAssist.png"
@@ -1100,9 +1101,9 @@
             "param": {
                 "roi": [
                     991,
-                    527,
-                    160,
-                    141
+                    529,
+                    258,
+                    168
                 ],
                 "template": [
                     "ClaimDijiangRewards/TakeRewards.png"
@@ -1123,10 +1124,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    15,
+                    437,
+                    225,
+                    153
                 ],
                 "template": [
                     "ClaimDijiangRewards/InControlNexus.png"
@@ -1477,10 +1478,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    697,
+                    759,
                     463,
-                    459,
-                    62
+                    521,
+                    117
                 ],
                 "lower": [
                     224,
@@ -1560,6 +1561,10 @@
     },
     "TakeRewards": {
         //领取奖励
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1586,10 +1591,10 @@
             "param": {
                 "template": "DailyRewards/CloseReward.png",
                 "roi": [
-                    622,
-                    645,
-                    37,
-                    38
+                    571,
+                    594,
+                    139,
+                    126
                 ],
                 "threshold": 0.9
             }
@@ -1650,10 +1655,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1155,
-                    416,
-                    122,
-                    112
+                    1129,
+                    406,
+                    151,
+                    227
                 ],
                 "template": [
                     "ClaimDijiangRewards/Confirm.png"
