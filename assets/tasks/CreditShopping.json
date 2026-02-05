@@ -49,11 +49,12 @@
         "CreditShoppingForce": {
             "type": "switch",
             "label": "$option.CreditShoppingForce.label",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingBuyBlacklistItem": {
+                        "CreditShoppingBuyBlacklist": {
                             "enabled": true
                         }
                     }
@@ -61,7 +62,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingBuyBlacklistItem": {
+                        "CreditShoppingBuyBlacklist": {
                             "enabled": false
                         }
                     }
@@ -72,11 +73,12 @@
             "type": "switch",
             "label": "$option.CreditShoppingOnlyDiscount.label",
             "description": "$option.CreditShoppingOnlyDiscount.description",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
+                        "CreditShoppingBuyNormal": {
                             "attach": {
                                 "only_buy_discount": true
                             }
@@ -86,7 +88,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
+                        "CreditShoppingBuyNormal": {
                             "attach": {
                                 "only_buy_discount": false
                             }
@@ -99,24 +101,21 @@
             "type": "switch",
             "label": "$option.CreditShoppingReserve.label",
             "description": "$option.CreditShoppingReserve.description",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
-                            "attach": {
-                                "reserve_max_credit": true
-                            }
+                        "CreditShoppingReserveCredit": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingShopping": {
-                            "attach": {
-                                "reserve_max_credit": false
-                            }
+                        "CreditShoppingReserveCredit": {
+                            "enabled": false
                         }
                     }
                 }

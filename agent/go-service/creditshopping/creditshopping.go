@@ -59,34 +59,82 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 	log.Info().Interface("blacklist", blacklistExpected).Msg("CreditShoppingParseParams blacklist")
 
-	// 3. Get all_of from attach, replace expected, and write back to override all_of
-	overrideMap := map[string]interface{}{}
+	nodeAttachCache := make(map[string]map[string]interface{})
+	getNodeAttach := func(nodeName string) map[string]interface{} {
+		if attach, ok := nodeAttachCache[nodeName]; ok {
+			return attach
+		}
 
-	// Helper: get attach.all_of from node json
-	getAllOfFromAttach := func(nodeName string) ([]interface{}, bool) {
 		raw, err := ctx.GetNodeJSON(nodeName)
 		if err != nil {
-			log.Error().Err(err).Str("node", nodeName).Msg("Failed to get node json")
-			return nil, false
+			log.Error().Err(err).Str("node", nodeName).Msg("Failed to get node json for attach")
+			return nil
 		}
 		if raw == "" {
-			log.Error().Str("node", nodeName).Msg("Node json is empty")
-			return nil, false
+			log.Error().Str("node", nodeName).Msg("Node json is empty for attach")
+			return nil
 		}
 
 		var nodeData map[string]interface{}
 		if err := json.Unmarshal([]byte(raw), &nodeData); err != nil {
-			log.Error().Err(err).Str("node", nodeName).Msg("Failed to unmarshal node json")
-			return nil, false
+			log.Error().Err(err).Str("node", nodeName).Msg("Failed to unmarshal node json for attach")
+			return nil
 		}
 
 		attachRaw, ok := nodeData["attach"].(map[string]interface{})
 		if !ok {
 			log.Error().Str("node", nodeName).Msg("attach field not found or invalid")
+			return nil
+		}
+
+		nodeAttachCache[nodeName] = attachRaw
+		return attachRaw
+	}
+
+	onlyBuyDiscount := false
+	var discount2OCROffset []int
+	if attach := getNodeAttach("CreditShoppingBuyNormal"); attach != nil {
+		if v, ok := attach["only_buy_discount"]; ok {
+			if b, ok := v.(bool); ok {
+				onlyBuyDiscount = b
+			}
+		}
+		if v, ok := attach["offset"]; ok {
+			if arr, ok := v.([]interface{}); ok && len(arr) == 4 {
+				tmp := make([]int, 4)
+				valid := true
+				for i, val := range arr {
+					switch n := val.(type) {
+					case float64:
+						tmp[i] = int(n)
+					case int:
+						tmp[i] = n
+					default:
+						log.Error().Interface("offset", v).Msg("invalid offset element type, expect number")
+						valid = false
+					}
+				}
+				if valid {
+					discount2OCROffset = tmp
+				}
+			} else {
+				log.Error().Interface("offset", v).Msg("offset field not valid, expect [x,y,w,h]")
+			}
+		}
+	}
+	log.Info().Bool("only_buy_discount", onlyBuyDiscount).Msg("CreditShoppingParseParams flag")
+
+	// 3. Get all_of from attach, replace expected, and write back to override all_of
+	overrideMap := map[string]interface{}{}
+
+	// Helper: get attach.all_of from node json（所有节点统一通过 getNodeAttach）
+	getAllOfFromAttach := func(nodeName string) ([]interface{}, bool) {
+		attach := getNodeAttach(nodeName)
+		if attach == nil {
 			return nil, false
 		}
 
-		allOf, ok := attachRaw["all_of"].([]interface{})
+		allOf, ok := attach["all_of"].([]interface{})
 		if !ok {
 			log.Error().Str("node", nodeName).Msg("attach.all_of field not found or invalid")
 			return nil, false
@@ -95,9 +143,8 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		return allOf, true
 	}
 
-	if len(buyFirstExpected) > 0 {
-		allOf, ok := getAllOfFromAttach("CreditShoppingBuyFirst")
-		if ok {
+	if allOf, ok := getAllOfFromAttach("CreditShoppingBuyFirst"); ok {
+		if len(buyFirstExpected) > 0 {
 			for _, item := range allOf {
 				itemMap, ok := item.(map[string]interface{})
 				if !ok {
@@ -105,38 +152,63 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 				}
 				subName, _ := itemMap["sub_name"].(string)
 				if subName == "BuyFirstOCR" {
-					// expected is a regex array
 					itemMap["expected"] = buyFirstExpected
 					break
 				}
 			}
+		}
 
-			overrideMap["CreditShoppingBuyFirst"] = map[string]interface{}{
-				"all_of":    allOf,
-				"box_index": len(allOf) - 1,
-			}
+		overrideMap["CreditShoppingBuyFirst"] = map[string]interface{}{
+			"all_of":    allOf,
+			"box_index": len(allOf) - 1,
 		}
 	}
 
-	if len(blacklistExpected) > 0 {
-		allOf, ok := getAllOfFromAttach("CreditShoppingBuyNormal")
-		if ok {
-			for _, item := range allOf {
-				itemMap, ok := item.(map[string]interface{})
-				if !ok {
-					continue
-				}
-				subName, _ := itemMap["sub_name"].(string)
-				if subName == "BlacklistOCR" {
-					itemMap["expected"] = blacklistExpected
-					break
-				}
-			}
+	if allOf, ok := getAllOfFromAttach("CreditShoppingBuyNormal"); ok {
+		// Track position after NotSoldOut for potential discount subrec insertion
+		insertIdx := -1
 
-			overrideMap["CreditShoppingBuyNormal"] = map[string]interface{}{
-				"all_of":    allOf,
-				"box_index": len(allOf) - 1,
+		for idx, item := range allOf {
+			itemMap, ok := item.(map[string]interface{})
+			if !ok {
+				continue
 			}
+			subName, _ := itemMap["sub_name"].(string)
+			if subName == "NotSoldOut" {
+				insertIdx = idx + 1
+			}
+			if subName == "BlacklistOCR" {
+				if len(blacklistExpected) > 0 {
+					itemMap["expected"] = blacklistExpected
+				}
+				if onlyBuyDiscount {
+					itemMap["roi"] = "IsDiscount"
+					// 若配置了 offset，则同时调整 BlacklistOCR 的 roi_offset
+					if len(discount2OCROffset) == 4 {
+						itemMap["roi_offset"] = discount2OCROffset
+					}
+				}
+			}
+		}
+
+		// If only_buy_discount is enabled, insert discount sub-recognition after NotSoldOut
+		if onlyBuyDiscount && insertIdx >= 0 {
+			if attach := getNodeAttach("CreditShoppingBuyNormal"); attach != nil {
+				if subrec, ok := attach["only_buy_discount_subrec"].(map[string]interface{}); ok {
+					newAllOf := make([]interface{}, 0, len(allOf)+1)
+					newAllOf = append(newAllOf, allOf[:insertIdx]...)
+					newAllOf = append(newAllOf, subrec)
+					newAllOf = append(newAllOf, allOf[insertIdx:]...)
+					allOf = newAllOf
+				} else {
+					log.Error().Str("node", "CreditShoppingBuyNormal").Msg("only_buy_discount_subrec field not found or invalid")
+				}
+			}
+		}
+
+		overrideMap["CreditShoppingBuyNormal"] = map[string]interface{}{
+			"all_of":    allOf,
+			"box_index": len(allOf) - 1,
 		}
 	}
 
