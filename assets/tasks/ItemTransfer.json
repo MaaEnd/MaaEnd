@@ -31,7 +31,6 @@
         "WhatToTransfer": {
             "type": "select",
             "label": "$option.ItemTransferWhatToTransfer.label",
-            "description": "$option.ItemTransferWhatToTransfer.description",
             "cases": [
                 {
                     "name": "蓝铁矿",
@@ -66,6 +65,141 @@
                     "pipeline_override": {
                         "FindItem": {
                             "template": "ItemTransfer/砂叶.png"
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$低容武陵电池",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/低容武陵电池.png"
+                        }
+                    }
+                },
+                {
+                    "name": "密制晶体",
+                    "label": "$密制晶体",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/密制晶体.png"
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$息壤",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/息壤.png"
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "label": "$晶体外壳",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/晶体外壳.png"
+                        }
+                    }
+                },
+                {
+                    "name": "稳定碳块",
+                    "label": "$稳定碳块",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/稳定碳块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "致密晶体粉末",
+                    "label": "$致密晶体粉末",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/致密晶体粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "致密源石粉末",
+                    "label": "$致密源石粉末",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/致密源石粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "致密碳粉末",
+                    "label": "$致密碳粉末",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/致密碳粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "芽针",
+                    "label": "$芽针",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/芽针.png"
+                        }
+                    }
+                },
+                {
+                    "name": "芽针种子",
+                    "label": "$芽针种子",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/芽针种子.png"
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$芽针粉末",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/芽针粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$锦草",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/锦草.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草种子",
+                    "label": "$锦草种子",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/锦草种子.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$锦草粉末",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/锦草粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶纤维",
+                    "label": "$高晶纤维",
+                    "pipeline_override": {
+                        "FindItem": {
+                            "template": "ItemTransfer/高晶纤维.png"
                         }
                     }
                 }

@@ -66,6 +66,7 @@
     "FindItem": {
         "recognition": "TemplateMatch",
         "template": "ItemTransfer/{ItemName}.png",
+        "threshold": 0.85,
         "next": [
             "CtrlKeyDown"
         ]
