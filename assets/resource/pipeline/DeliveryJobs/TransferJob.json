@@ -27,10 +27,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            436,
-            653,
-            88,
-            15
+            366,
+            620,
+            372,
+            63
         ],
         "expected": [
             "转交运送委托",

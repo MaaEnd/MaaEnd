@@ -239,6 +239,7 @@
             "CargoBid",
             "CargoFillToMax",
             "ClickScreenToContinue",
+            "HasDeliveryJob",
             "ProceedToNextStep"
         ]
     },
@@ -281,10 +282,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            578,
-            670,
-            122,
-            24
+            527,
+            646,
+            222,
+            48
         ],
         "expected": [
             "点击屏幕继续",
@@ -294,5 +295,17 @@
             "화면을 눌러 계속하기"
         ],
         "action": "Click"
+    },
+    "HasDeliveryJob": {
+        "doc": "有可用的配送任务",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DeliveryJob.png",
+        "roi": [
+            56,
+            174,
+            74,
+            26
+        ],
+        "threshold": 0.8
     }
 }
