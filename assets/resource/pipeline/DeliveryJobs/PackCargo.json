@@ -297,15 +297,21 @@
         "action": "Click"
     },
     "HasDeliveryJob": {
-        "doc": "有可用的配送任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/DeliveryJob.png",
+        "doc": "有可用的送货任务",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            56,
-            174,
-            74,
-            26
+            57,
+            173,
+            132,
+            27
         ],
-        "threshold": 0.8
+        "expected": [
+            "送货任务",
+            "送貨任務",
+            "Delivery Job",
+            "配達任務",
+            "배송 임무"
+        ]
     }
 }
