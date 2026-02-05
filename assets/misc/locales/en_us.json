@@ -68,6 +68,7 @@
     "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
     "task.ItemTransfer.label": "🐌 Inventory Transfer",
     "task.ItemTransfer.description": "Batch transfer specified items between different regions. **Start this task from the Dijiang warehouse page.**",
+    "task.ItemTransfer.recognition_failed": "Failed to find target item, scrolled back to top but recognition failed",
     "option.ItemTransferWhatToTransfer.label": "Item to Transfer",
     "蓝铁矿": "Blue Iron Ore",
     "高容谷地电池": "High-capacity Valley Battery",

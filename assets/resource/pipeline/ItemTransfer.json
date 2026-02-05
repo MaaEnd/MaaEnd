@@ -107,7 +107,10 @@
         "next": [
             "FindItem",
             "ScrollUpward"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.ItemTransfer.recognition_failed"
+        }
     },
     "CtrlKeyDown": {
         "action": "KeyDown",

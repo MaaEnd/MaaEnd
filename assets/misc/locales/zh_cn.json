@@ -80,6 +80,7 @@
     "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
     "task.ItemTransfer.label": "🐌库存转移",
     "task.ItemTransfer.description": "将指定物品在不同地区之间批量切换。**请在帝江号仓库页面开始任务**",
+    "task.ItemTransfer.recognition_failed": "未能找到目标物品，已回顶但识别失败",
     "option.ItemTransferWhatToTransfer.label": "要搬运的物品",
     "蓝铁矿": "蓝铁矿",
     "高容谷地电池": "高容谷地电池",

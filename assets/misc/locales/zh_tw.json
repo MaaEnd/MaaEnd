@@ -97,6 +97,7 @@
     "controller.ADB.label": "安卓端",
     "task.ItemTransfer.label": "🐌庫存轉移",
     "task.ItemTransfer.description": "將指定物品在不同地區之間批量切換。**請在帝江號倉庫頁面開始任務**",
+    "task.ItemTransfer.recognition_failed": "未能找到目標物品，已回頂但識別失敗",
     "option.ItemTransferWhatToTransfer.label": "要搬運的物品",
     "蓝铁矿": "藍鐵礦",
     "高容谷地电池": "高容谷地電池",
