@@ -1,4 +1,14 @@
 {
+    // 自动阅读 Baker 信息.
+    // BakerEntry
+    // 1. 进入 Baker 页面
+    // 2. 点击左下角筛选未读信息
+    // 3. 寻找下拉图标点击下拉联系人聊天
+    // 4. 找到未读聊天记录, 点击进入
+    // 5. 点击右下角加速对话, 出现表情 or 选项的时候进行点击
+    // 6. 检测到聊天结束, 进入下一个聊天 (回到 2. 继续筛选出未读聊天)
+    // 7. 当找不到可下拉的聊天时, 说明已经大概率没有聊天了. 检测无未读聊天的条件后退出
+    // 其中 [ 2. 3. 4. 5. 6. ] 循环进行
     "BakerEntry": {
         "next": [
             "CheckBakerHome",
@@ -29,6 +39,7 @@
         "next": [
             "OpenBakerFilter",
             "BakerExpend",
+            "CheckTopHint",
             "BakerOver"
         ]
     },
@@ -82,8 +93,31 @@
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
+            "Baker_SwipeFilter",
             "BakerFilterUnread",
             "SaveBakerFilter"
+        ]
+    },
+    "Baker_SwipeFilter": {
+        "doc": "下拉菜单（防止选项在下面）",
+        // 这是一个动作节点，不需要识别，直接执行滑动手势
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    960,
+                    441
+                ],
+                "end": [
+                    960,
+                    398
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 200, //降低延迟
+        "next": [
+            "BakerFilterUnread"
         ]
     },
     "BakerFilterUnread": {
@@ -136,7 +170,10 @@
     },
     "BakerExpend": {
         "recognition": "TemplateMatch",
-        "template": "Baker/Expend.png",
+        "template": [
+            "Baker/Expend.png",
+            "Baker/hint2.png"
+        ],
         "threshold": 0.95,
         "roi": [
             286,
@@ -147,6 +184,7 @@
         "action": "Click",
         "next": [
             "TalkWith",
+            "TalkWith2",
             "BakerExpend"
         ]
     },
@@ -169,6 +207,14 @@
             "TalkOver2",
             "CheckChatPage",
             "TalkWith"
+        ]
+    },
+    "TalkWith2": {
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage"
         ]
     },
     "CheckChatPage": {
@@ -275,6 +321,47 @@
             "RefreshBakerFilter"
         ]
     },
+    // "CheckTopHint": {
+    //     "recognition": "TemplateMatch",
+    //     "template": [
+    //         "Baker/hint.png"
+    //     ],
+    //     "roi": [
+    //         520,
+    //         0,
+    //         240,
+    //         104
+    //     ],
+    //     "action": "Click",
+    //     "next": [
+    //         "OpenBakerFilter"
+    //     ]
+    // },
+    "CheckTopHint": { // 没有红点情况的测试点击
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    637,
+                    28
+                ]
+            }
+        },
+        "next": [
+            "ClearOpenBakerFilterHit",
+            "OpenBakerFilter"
+        ]
+    },
+    "ClearOpenBakerFilterHit": {
+        "action": "Custom",
+        "custom_action": "NodeClearHitCountAction",
+        "custom_action_param": {
+            "node_name": "OpenBakerFilter"
+        },
+        "next": [
+            "OpenBakerFilter"
+        ]
+    },
     "TalkOver2": {
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
         "recognition": "TemplateMatch",
@@ -287,6 +374,25 @@
             77,
             78,
             574
+        ],
+        "action": "DoNothing",
+        "next": [
+            "TalkWith",
+            "RefreshBakerFilter"
+        ]
+    },
+    "TalkOver3": {
+        // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver3 中图片进行增强
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/taskshow.png"
+        ],
+        "threshold": 0.95,
+        "roi": [
+            389,
+            54,
+            104,
+            586
         ],
         "action": "DoNothing",
         "next": [
