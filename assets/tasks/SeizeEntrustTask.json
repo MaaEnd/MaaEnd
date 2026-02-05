@@ -5,7 +5,9 @@
             "label": "$task.SeizeEntrustTask.label",
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
-            "option": [],
+            "option": [
+                "SeizeEntrustTaskisSwipeMiddle"
+            ],
             "controller": [
                 "Win32",
                 "Win32-Window",
@@ -13,5 +15,73 @@
             ]
         }
     ],
-    "option": {}
+    "option": {
+        "SeizeEntrustTaskisSwipeMiddle": {
+            "type": "switch",
+            "label": "$task.SeizeEntrustTaskisSwipeMiddle.label",
+            "description": "$task.SeizeEntrustTaskisSwipeMiddle.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeEntrustTaskisSwipeALL"
+                    ],
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": true
+                        },
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": false
+                        },
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeEntrustTaskisSwipeALL": {
+            "type": "switch",
+            "label": "$task.SeizeEntrustTaskisSwipeALL.label",
+            "description": "$task.SeizeEntrustTaskisSwipeALL.description",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "roi": [
+                                1246,
+                                388,
+                                23,
+                                40
+                            ],
+                            "template": "SeizeEntrustTask/InMiddle.png"
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskInUpSwipeDown": {
+                            "roi": [
+                                1245,
+                                154,
+                                24,
+                                37
+                            ],
+                            "template": "SeizeEntrustTask/InUp.png"
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }
