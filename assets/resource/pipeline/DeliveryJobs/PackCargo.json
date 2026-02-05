@@ -265,10 +265,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoBid.png",
         "roi": [
-            906,
-            589,
-            42,
-            45
+            911,
+            593,
+            36,
+            33
         ],
         "threshold": 0.8,
         "action": "Click",
