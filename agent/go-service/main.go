@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
@@ -78,6 +79,7 @@ func registerAll() {
 	resell.Register()
 	puzzle.Register()
 	itemtransfer.Register()
+	creditshopping.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()

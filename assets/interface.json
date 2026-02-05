@@ -97,6 +97,7 @@
         "tasks/DailyRewards.json",
         "tasks/SellProduct.json",
         "tasks/AutoResell.json",
+        "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
         "tasks/SeizeEntrustTask.json",
