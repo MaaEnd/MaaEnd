@@ -1,4 +1,4 @@
-﻿{
+{
   "EssenceFilterMain": {
     "doc": "入口点",
     "next": ["EssenceFilterCheckInInventory"]
