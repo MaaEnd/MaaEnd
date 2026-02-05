@@ -181,11 +181,15 @@
         "post_wait_freezes": 1,
         "next": [
             "CheckIfFull",
-            "ItemTransferStart"
+            "ItemTransferStart",
+            "Stop"
         ]
     },
     "CheckIfFull": {
         "recognition": "OCR",
         "expected": "已满"
+    },
+    "Stop": {
+        "action": "StopTask"
     }
 }
