@@ -57,7 +57,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	log.Info().Str("preset_name", params.PresetName).Msg("[EssenceFilter] Step1 ok")
 
 	// 2. load DB
-	if err := LoadWeaponDatabase(weaponDataPath + "/weapons_data_final."); err != nil {
+	if err := LoadWeaponDatabase(weaponDataPath + "/weapons_data_final"); err != nil {
 		log.Error().Err(err).Msg("[EssenceFilter] Step2 failed: load DB")
 		return false
 	}
