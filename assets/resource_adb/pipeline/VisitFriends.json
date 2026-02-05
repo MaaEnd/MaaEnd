@@ -1,23 +1,22 @@
 {
   "$__mpe_config_工程": {
     "$__mpe_code": {
-      "filePath": "/Users/nan/MAAEnd/assets/resource-ADB/pipeline/VisitFriends.json",
+      "filePath": "/Users/nan/MaaEnd/assets/resource_adb/pipeline/VisitFriends.json",
       "filename": "工程",
-      "lastSyncTime": 1770115485554,
       "prefix": "",
       "savedViewport": {
-        "x": -3732,
-        "y": 164,
-        "zoom": 1.51
+        "x": -1459,
+        "y": -259,
+        "zoom": 1
       },
-      "version": "v1.0.2"
+      "version": "v1.0.3"
     }
   },
   "ClickVisitEnd": {
     "$__mpe_code": {
       "position": {
-        "x": 2780,
-        "y": 516
+        "x": 3600,
+        "y": 441
       }
     },
     "action": {
@@ -38,8 +37,8 @@
   "ClueExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 2180,
-        "y": 533
+        "x": 3000,
+        "y": 1117
       }
     },
     "next": [
@@ -51,8 +50,8 @@
   "ClueExchangeCheck": {
     "$__mpe_code": {
       "position": {
-        "x": 2480,
-        "y": 1417
+        "x": 3300,
+        "y": 1349
       }
     },
     "action": {
@@ -80,8 +79,8 @@
   "ClueExchangeOCR": {
     "$__mpe_code": {
       "position": {
-        "x": 1880,
-        "y": 485
+        "x": 2700,
+        "y": 1069
       }
     },
     "next": [
@@ -106,8 +105,8 @@
   "ClueExchangeSwipe": {
     "$__mpe_code": {
       "position": {
-        "x": 2480,
-        "y": 477
+        "x": 3300,
+        "y": 1041
       }
     },
     "action": {
@@ -129,11 +128,34 @@
       "ClueExchange"
     ]
   },
+  "ConfirmTick": {
+    "$__mpe_code": {
+      "position": {
+        "x": 900,
+        "y": 453
+      }
+    },
+    "action": {
+      "param": {},
+      "type": "Click"
+    },
+    "next": [
+      "ExitTerminalAssist"
+    ],
+    "recognition": {
+      "param": {
+        "template": [
+          "VisitFriends/ConfirmTick.png"
+        ]
+      },
+      "type": "TemplateMatch"
+    }
+  },
   "ConfirmVisitEnd": {
     "$__mpe_code": {
       "position": {
-        "x": 3080,
-        "y": 519
+        "x": 3900,
+        "y": 444
       }
     },
     "action": {
@@ -154,8 +176,8 @@
   "ConfirmVisitToAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 2180,
-        "y": 1141
+        "x": 3000,
+        "y": 1657
       }
     },
     "action": {
@@ -167,7 +189,9 @@
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/Confirm.png",
+        "template": [
+          "VisitFriends/Confirm.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -176,8 +200,8 @@
   "ConfirmVisitToExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 2780,
-        "y": 1426
+        "x": 3600,
+        "y": 1358
       }
     },
     "action": {
@@ -198,8 +222,8 @@
   "ExitAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 3680,
-        "y": 661
+        "x": 1500,
+        "y": 441
       }
     },
     "action": {
@@ -211,7 +235,9 @@
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/Leave.png",
+        "template": [
+          "VisitFriends/Leave.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -220,8 +246,8 @@
   "ExitExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 4280,
-        "y": 976
+        "x": 5100,
+        "y": 1820
       }
     },
     "action": {
@@ -233,7 +259,15 @@
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/Leave.png",
+        "roi": [
+          2,
+          7,
+          190,
+          73
+        ],
+        "template": [
+          "VisitFriends/Leave.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -242,8 +276,8 @@
   "ExitMenu": {
     "$__mpe_code": {
       "position": {
-        "x": 3080,
-        "y": 0
+        "x": 3900,
+        "y": 1046
       }
     },
     "action": {
@@ -271,8 +305,8 @@
   "ExitTerminalAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 3380,
-        "y": 844
+        "x": 1200,
+        "y": 482
       }
     },
     "action": {
@@ -287,14 +321,15 @@
       "type": "Click"
     },
     "next": [
-      "ExitAssist"
+      "ExitAssist",
+      "ConfirmTick"
     ]
   },
   "ExitTerminalExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 3980,
-        "y": 1171
+        "x": 4800,
+        "y": 1869
       }
     },
     "action": {
@@ -316,7 +351,7 @@
     "$__mpe_code": {
       "position": {
         "x": 0,
-        "y": 74
+        "y": 16
       }
     },
     "next": [
@@ -326,17 +361,17 @@
   "OnAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 2480,
-        "y": 1127
+        "x": 3300,
+        "y": 1643
       }
     },
     "action": {
       "param": {
         "target": [
-          52,
-          284,
-          107,
-          20
+          54,
+          286,
+          117,
+          16
         ]
       },
       "type": "Click"
@@ -346,7 +381,9 @@
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/ArriveShip.png",
+        "template": [
+          "VisitFriends/ArriveShip.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -355,8 +392,8 @@
   "OnExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 3080,
-        "y": 1419
+        "x": 3900,
+        "y": 1351
       }
     },
     "action": {
@@ -384,8 +421,8 @@
   "OnFriendList": {
     "$__mpe_code": {
       "position": {
-        "x": 980,
-        "y": 16
+        "x": 1800,
+        "y": 423
       }
     },
     "next": [
@@ -395,11 +432,17 @@
     ],
     "recognition": {
       "param": {
+        "roi": [
+          -1,
+          11,
+          543,
+          121
+        ],
         "template": [
-          "VisitFriends/OnFriendList-Big.png"
+          "VisitFriends/OnFriendList.png"
         ],
         "threshold": [
-          0.9
+          0.8
         ]
       },
       "type": "TemplateMatch"
@@ -409,7 +452,7 @@
     "$__mpe_code": {
       "position": {
         "x": 600,
-        "y": 14
+        "y": 437
       }
     },
     "action": {
@@ -417,7 +460,8 @@
       "type": "Click"
     },
     "next": [
-      "OnFriendList"
+      "OnFriendList",
+      "ConfirmTick"
     ],
     "recognition": {
       "param": {
@@ -431,7 +475,7 @@
     "$__mpe_code": {
       "position": {
         "x": 300,
-        "y": 59
+        "y": 0
       }
     },
     "action": {
@@ -452,8 +496,8 @@
   "ProductionAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 1580,
-        "y": 245
+        "x": 2400,
+        "y": 658
       }
     },
     "next": [
@@ -466,8 +510,8 @@
   "ProductionAssistCheck": {
     "$__mpe_code": {
       "position": {
-        "x": 1880,
-        "y": 1120
+        "x": 2700,
+        "y": 1636
       }
     },
     "action": {
@@ -497,8 +541,8 @@
   "ProductionAssistOCR": {
     "$__mpe_code": {
       "position": {
-        "x": 1280,
-        "y": 190
+        "x": 2100,
+        "y": 586
       }
     },
     "next": [
@@ -506,36 +550,44 @@
     ],
     "recognition": {
       "param": {
-        "expected": [
-          "5/5"
-        ],
         "roi": [
-          1221,
-          71,
-          10,
-          16
+          1129,
+          73,
+          146,
+          61
         ],
-        "threshold": 0.6
+        "template": [
+          "VisitFriends/ProductionAssistOCR.png"
+        ],
+        "threshold": [
+          0.9
+        ]
       },
-      "type": "OCR"
+      "type": "TemplateMatch"
     }
   },
   "ProductionAssistSwipe": {
     "$__mpe_code": {
       "position": {
-        "x": 1880,
-        "y": 163
+        "x": 2700,
+        "y": 747
       }
     },
     "action": {
       "param": {
         "begin": [
-          670,
-          560
+          533,
+          545,
+          0,
+          0
         ],
         "end": [
-          "670",
-          "200"
+          [
+            536,
+            169,
+            0,
+            0
+          ]
         ],
         "end_hold": 200
       },
@@ -549,8 +601,8 @@
   "ReturnToMenu": {
     "$__mpe_code": {
       "position": {
-        "x": 2780,
-        "y": 5
+        "x": 3600,
+        "y": 1051
       }
     },
     "action": {
@@ -578,19 +630,50 @@
       "type": "TemplateMatch"
     }
   },
+  "SwipeTerminalBar": {
+    "$__mpe_code": {
+      "position": {
+        "x": 300,
+        "y": 188
+      }
+    },
+    "action": {
+      "param": {
+        "begin": [
+          1148,
+          584,
+          0,
+          0
+        ],
+        "end": [
+          [
+            532,
+            576,
+            0,
+            0
+          ]
+        ]
+      },
+      "type": "Swipe"
+    },
+    "next": [
+      "VisitorTerminalAssistAgain",
+      "ExitTerminalAssist"
+    ]
+  },
   "VisitComplete": {
     "$__mpe_code": {
       "position": {
-        "x": 3380,
-        "y": 74
+        "x": 4200,
+        "y": 497
       }
     }
   },
   "VisitEnd": {
     "$__mpe_code": {
       "position": {
-        "x": 2480,
-        "y": 74
+        "x": 3300,
+        "y": 497
       }
     },
     "next": [
@@ -601,8 +684,8 @@
   "VisitorTerminalAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 3080,
-        "y": 805
+        "x": 981,
+        "y": -215
       }
     },
     "action": {
@@ -611,11 +694,38 @@
     },
     "next": [
       "VisitorTerminalAssist",
+      "SwipeTerminalBar"
+    ],
+    "recognition": {
+      "param": {
+        "template": [
+          "VisitFriends/VisitorTerminalAssist.png"
+        ],
+        "threshold": 0.8
+      },
+      "type": "TemplateMatch"
+    }
+  },
+  "VisitorTerminalAssistAgain": {
+    "$__mpe_code": {
+      "position": {
+        "x": 654,
+        "y": 157
+      }
+    },
+    "action": {
+      "param": {},
+      "type": "Click"
+    },
+    "next": [
+      "ConfirmTick",
       "ExitTerminalAssist"
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/ProductionAssist.png",
+        "template": [
+          "VisitFriends/VisitorTerminalAssist.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -624,8 +734,8 @@
   "VisitorTerminalExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 3680,
-        "y": 1427
+        "x": 4500,
+        "y": 1359
       }
     },
     "action": {
@@ -647,8 +757,8 @@
   "WaitOpenTerminalAssist": {
     "$__mpe_code": {
       "position": {
-        "x": 2780,
-        "y": 1128
+        "x": 3600,
+        "y": 1644
       }
     },
     "next": [
@@ -657,7 +767,9 @@
     ],
     "recognition": {
       "param": {
-        "template": "VisitFriends/TerminalIsOpen.png",
+        "template": [
+          "VisitFriends/WaitOpenTerminalAssist.png"
+        ],
         "threshold": 0.8
       },
       "type": "TemplateMatch"
@@ -666,8 +778,8 @@
   "WaitOpenTerminalExchange": {
     "$__mpe_code": {
       "position": {
-        "x": 3380,
-        "y": 1420
+        "x": 4200,
+        "y": 1352
       }
     },
     "next": [
