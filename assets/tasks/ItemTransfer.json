@@ -4,7 +4,6 @@
             "name": "ItemTransfer",
             "label": "$task.ItemTransfer.label",
             "entry": "ItemTransfer",
-            "default_check": true,
             "description": "$task.ItemTransfer.description",
             "option": [
                 "WhatToTransfer",
