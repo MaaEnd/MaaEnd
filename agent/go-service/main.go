@@ -9,6 +9,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/mapservice"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
@@ -75,6 +76,7 @@ func main() {
 func registerAll() {
 	// Register all custom components from each package
 	realtime.Register()
+  mapservice.Register()
 	importtask.Register()
 	resell.Register()
 	puzzle.Register()
