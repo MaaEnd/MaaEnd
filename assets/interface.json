@@ -75,6 +75,15 @@
             ]
         },
         {
+            "name": "ADB",
+            "controller": [
+                "ADB"
+            ],
+            "path": [
+                "./resource-ADB"
+            ]
+        },
+        {
             "name": "B 服",
             "path": [
                 "./resource",
