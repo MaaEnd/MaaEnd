@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "SeizeEntrustTask",
+            "label": "$task.SeizeEntrustTask.label",
+            "entry": "SeizeEntrustTaskMain",
+            "description": "$task.SeizeEntrustTask.description",
+            "option": [],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {}
+}

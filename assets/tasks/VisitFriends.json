@@ -4,8 +4,72 @@
             "name": "VisitFriends",
             "label": "$task.VisitFriends.label",
             "entry": "FriendVisitMain",
-            "description": "$task.VisitFriends.description"
+            "description": "$task.VisitFriends.description",
+            "option": [
+                "PriorStealVegetables"
+            ]
         }
     ],
-    "option": {}
+    "option": {
+        "PriorStealVegetables": {
+            "type": "switch",
+            "label": "$option.PriorStealVegetables.label",
+            "description": "$option.PriorStealVegetables.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ProductionAssistCheckPriorSteal": {
+                            "enabled": true
+                        },
+                        "ProductionAssistCheck": {
+                            "enabled": false
+                        },
+                        "GrowthChamberCheck": {
+                            "enabled": true
+                        },
+                        "SkipConfirmBackToFriendList": {
+                            "enabled": true
+                        },
+                        "VisitorTerminalSwipeFacilityList": {
+                            "enabled": true
+                        },
+                        "VisitorTerminalAssistGrowthChamber": {
+                            "enabled": true
+                        },
+                        "VisitorTerminalAssist": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ProductionAssistCheckPriorSteal": {
+                            "enabled": false
+                        },
+                        "ProductionAssistCheck": {
+                            "enabled": true
+                        },
+                        "GrowthChamberCheck": {
+                            "enabled": false
+                        },
+                        "SkipConfirmBackToFriendList": {
+                            "enabled": false
+                        },
+                        "VisitorTerminalSwipeFacilityList": {
+                            "enabled": false
+                        },
+                        "VisitorTerminalAssistGrowthChamber": {
+                            "enabled": false
+                        },
+                        "VisitorTerminalAssist": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

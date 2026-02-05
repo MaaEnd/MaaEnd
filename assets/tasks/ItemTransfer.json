@@ -212,26 +212,6 @@
             "description": "$ItemTransfer.option.OriginRegion.description",
             "cases": [
                 {
-                    "name": "Wuling",
-                    "label": "$global.region.Wuling",
-                    "pipeline_override": {
-                        "ItemTransferClickOrigin": {
-                            "recognition": {
-                                "param": {
-                                    "expected": "武陵|Wuling"
-                                }
-                            }
-                        },
-                        "ItemTransferAtOrigin": {
-                            "recognition": {
-                                "param": {
-                                    "expected": "武陵|Wuling"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "ValleyIV",
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
@@ -246,6 +226,26 @@
                             "recognition": {
                                 "param": {
                                     "expected": "四号谷地|四號谷地|Valley IV"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "ItemTransferClickOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
+                                }
+                            }
+                        },
+                        "ItemTransferAtOrigin": {
+                            "recognition": {
+                                "param": {
+                                    "expected": "武陵|Wuling"
                                 }
                             }
                         }

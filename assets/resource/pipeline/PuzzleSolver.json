@@ -1,18 +1,16 @@
 {
     // 终末地电路拼图游戏的自动化 Pipeline
     "PuzzleSolverMain": {
-        // 主入口节点
+        "doc": "主入口节点（终末地电路拼图游戏的自动化任务）",
         "recognition": "DirectHit",
         "next": [
             "PuzzleSolverOnScenePrepare",
-            "PuzzleSolverOnSceneMain"
-        ],
-        "on_error": [
-            "PuzzleSolverOnMiss"
+            "PuzzleSolverOnSceneMain",
+            "PuzzleSolverMaybeLoop"
         ]
     },
     "PuzzleSolverOnScenePrepare": {
-        // 解谜的准备界面，匹配左侧的特征性图案
+        "doc": "解谜的准备界面（匹配屏幕左侧的特征性图案）",
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ScenePrepare.png",
         "roi": [
@@ -32,7 +30,7 @@
         }
     },
     "PuzzleSolverFindStartButton": {
-        // 点击右下角的“修复”按钮开始拼图游戏
+        "doc": "查找并点击“修复”按钮以开始拼图解谜",
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/ButtonStart.png",
         "roi": [
@@ -51,7 +49,7 @@
         ]
     },
     "PuzzleSolverOnSceneMain": {
-        // 解谜的主界面，匹配右上角的特征性图案
+        "doc": "解谜的主界面（匹配屏幕右上角的特征性图案）",
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/SceneMain.png",
         "roi": [
@@ -68,7 +66,7 @@
         ]
     },
     "PuzzleSolverFindUnavailableTip": {
-        // 查找是否存在“有尚未了解的元件样式”的提示
+        "doc": "查找是否存在“有尚未了解的元件样式”的提示",
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipUnavailable.png",
         "roi": [
@@ -86,7 +84,7 @@
         }
     },
     "PuzzleSolverFindCompleteTip": {
-        // 查找是否存在“拼图已完成”的提示
+        "doc": "查找是否存在“拼图已完成”的提示",
         "recognition": "TemplateMatch",
         "template": "PuzzleSolver/TipComplete.png",
         "roi": [
@@ -101,7 +99,7 @@
         ]
     },
     "PuzzleSolverSolvePuzzleReady": {
-        // 准备执行拼图解决方案
+        "doc": "准备执行拼图解决方案（守卫节点）",
         "recognition": "DirectHit",
         "timeout": 10000, // 缩小超时阈值（默认 20000）
         "pre_delay": 0, // 此节点为守卫节点，无需延迟
@@ -111,7 +109,7 @@
         ]
     },
     "PuzzleSolverSolvePuzzle": {
-        // 执行拼图解决方案（识别+计算+自动化操作）
+        "doc": "执行拼图解决方案（识别+计算+自动化操作）",
         "recognition": "Custom",
         "custom_recognition": "PuzzleRecognition",
         "action": "Custom",
@@ -133,8 +131,17 @@
     },
     // 下面是一些回调节点的定义
     // 向回调节点的 next 列表中添加 "PuzzleSolverMain" 即可实现自动重试
+    "PuzzleSolverMaybeLoop": {
+        "doc": "回调：决定自循环（守卫节点）",
+        "recognition": "DirectHit",
+        "pre_delay": 0, // 此节点为守卫节点，无需延迟
+        "post_delay": 0, // 此节点为守卫节点，无需延迟
+        "next": [
+            // 默认情况下不会自循环
+        ]
+    },
     "PuzzleSolverOnSuccess": {
-        // 解谜成功后触发，关闭拼图界面
+        "doc": "回调：解谜成功后触发，关闭拼图界面",
         "recognition": "DirectHit",
         "action": "LongPress",
         "target": [
@@ -152,7 +159,7 @@
         }
     },
     "PuzzleSolverOnMiss": {
-        // 未能按预期识别时触发
+        "doc": "回调：未能按预期识别界面时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
@@ -162,7 +169,7 @@
         }
     },
     "PuzzleSolverOnPass": {
-        // 无需执行操作时触发
+        "doc": "回调：无需执行下一步操作时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了

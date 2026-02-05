@@ -1,0 +1,18 @@
+{
+    "EnterDeliveryJob": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ]
+    },
+    "ConfirmTaskTransfer": {
+        "roi": [
+            868,
+            474,
+            29,
+            31
+        ]
+    }
+}
