@@ -245,7 +245,24 @@
             }
         },
         "next": [
+            "VisitorTerminalMeetingRoomCheck",
             "VisitorTerminalAssistGrowthChamber"
+        ]
+    },
+    "VisitorTerminalMeetingRoomCheck": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/MeetingRoom.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalSwipeFacilityList"
         ]
     },
     "ConfirmVisitToAssist": {
@@ -340,7 +357,6 @@
             "type": "Click",
             "param": {}
         },
-        "post_delay": 2000,
         "next": [
             "VisitorTerminalCloseSeedDialog"
         ]
