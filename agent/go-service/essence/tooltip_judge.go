@@ -15,6 +15,9 @@ type tooltipJudgeParam struct {
 	S2Node string `json:"s2_node"`
 	S3Node string `json:"s3_node"`
 	OnlyDecision string `json:"only_decision"`
+	PreferredWeapons string `json:"preferred_weapons"`
+	MatchMode string `json:"match_mode"`
+	PreferredWeaponFlags map[string]string `json:"preferred_weapon_flags"`
 }
 
 var attrCleanupRe = regexp.MustCompile(`[0-9+\-%.]`)
@@ -61,7 +64,11 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 		}, false
 	}
 
-	result := JudgeEssence(s1, s2, s3)
+	preferred := extractPreferredWeaponsFromFlags(param.PreferredWeaponFlags)
+	if len(preferred) == 0 {
+		preferred = splitWeaponTokens(param.PreferredWeapons)
+	}
+	result := JudgeEssenceWithPreferredWeapons(s1, s2, s3, preferred, param.MatchMode)
 	if param.OnlyDecision != "" && result.Decision != param.OnlyDecision {
 		log.Info().
 			Str("decision", result.Decision).
@@ -126,6 +133,30 @@ func normalizeAttrText(text string) string {
 	clean := attrCleanupRe.ReplaceAllString(text, "")
 	clean = strings.TrimSpace(clean)
 	clean = strings.TrimLeft(clean, "·•* ")
+	clean = strings.TrimRight(clean, "_-— ")
 	return strings.TrimSpace(clean)
 }
+
+func splitWeaponTokens(raw string) []string {
+	if raw == "" {
+		return nil
+	}
+	parts := strings.FieldsFunc(raw, func(r rune) bool {
+		switch r {
+		case ',', '，', ';', '；', '\n', '\r', '\t', ' ':
+			return true
+		default:
+			return false
+		}
+	})
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
+}
+
 

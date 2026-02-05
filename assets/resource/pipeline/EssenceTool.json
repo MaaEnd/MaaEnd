@@ -2,16 +2,48 @@
     // 基质小工具 - Tooltip OCR（基于 1280x720）
     // 说明：ROI 均基于示例截图估算，首次使用建议通过 Maa 开发工具微调。
     "EssenceToolMain": {
-        "doc": "基质小工具主入口（对当前选中的基质执行一次判断与锁定/解锁）",
+        "doc": "基质小工具主入口",
         "recognition": "DirectHit",
-        "next": [
-            "EssenceJudge_Treasure",
-            "EssenceJudge_Material"
-        ]
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceScanGridAction",
+                "custom_action_param": {
+                    "start_x": 35,
+                    "start_y": 85,
+                    "end_x": 863,
+                    "end_y": 500,
+                    "width": 100,
+                    "height": 100,
+                    "rows": 5,
+                    "cols": 9,
+                    "click_delay_ms": 120,
+                    "tooltip_delay_ms": 200,
+                    "ocr_retry_count": 1,
+                    "ocr_retry_delay_ms": 200,
+                    "use_color_bars": true,
+                    "bar_templates": [
+                        "EssenceTool/blueessence.png",
+                        "EssenceTool/greenessence.png",
+                        "EssenceTool/purpleessence.png",
+                        "EssenceTool/yellowessence.png"
+                    ],
+                    "bar_threshold": 0.9,
+                    "bar_roi": [
+                        35,
+                        85,
+                        928,
+                        515
+                    ],
+                    "bar_click_offset_x": 0,
+                    "bar_click_offset_y": -10,
+                    "bar_row_tolerance": 12
+                }
+            }
+        }
     },
     "EssenceTooltip_S1": {
         "doc": "基质属性行 1（s1）OCR",
-        "only_rec": true,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -20,13 +52,13 @@
                     240,
                     100,
                     20
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "EssenceTooltip_S2": {
         "doc": "基质属性行 2（s2）OCR",
-        "only_rec": true,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -35,13 +67,13 @@
                     275,
                     90,
                     20
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "EssenceTooltip_S3": {
         "doc": "基质属性行 3（s3）OCR",
-        "only_rec": true,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -50,7 +82,8 @@
                     315,
                     100,
                     20
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
@@ -78,7 +111,56 @@
                     "s1_node": "EssenceTooltip_S1",
                     "s2_node": "EssenceTooltip_S2",
                     "s3_node": "EssenceTooltip_S3",
-                    "only_decision": "Treasure"
+                    "only_decision": "Treasure",
+                    "preferred_weapon_flags": {
+                        "不知归": "{EssenceWeapon_01}",
+                        "热熔切割器": "{EssenceWeapon_02}",
+                        "使命必达": "{EssenceWeapon_03}",
+                        "作品：蚀迹": "{EssenceWeapon_04}",
+                        "爆破单元": "{EssenceWeapon_05}",
+                        "赫拉芬格": "{EssenceWeapon_06}",
+                        "典范": "{EssenceWeapon_07}",
+                        "J.E.T.": "{EssenceWeapon_08}",
+                        "宏愿": "{EssenceWeapon_09}",
+                        "艺术暴君": "{EssenceWeapon_10}",
+                        "领航者": "{EssenceWeapon_11}",
+                        "楔子": "{EssenceWeapon_12}",
+                        "同类相食": "{EssenceWeapon_13}",
+                        "负山": "{EssenceWeapon_14}",
+                        "骁勇": "{EssenceWeapon_15}",
+                        "黯色火炬": "{EssenceWeapon_16}",
+                        "显赫声名": "{EssenceWeapon_17}",
+                        "白夜新星": "{EssenceWeapon_18}",
+                        "沧溟星梦": "{EssenceWeapon_19}",
+                        "骑士精神": "{EssenceWeapon_20}",
+                        "大雷斑": "{EssenceWeapon_21}",
+                        "破碎君王": "{EssenceWeapon_22}",
+                        "扶摇": "{EssenceWeapon_23}",
+                        "昔日精品": "{EssenceWeapon_24}",
+                        "熔铸火焰": "{EssenceWeapon_25}",
+                        "遗忘": "{EssenceWeapon_26}",
+                        "逐鳞3.0": "{EssenceWeapon_27}",
+                        "O.B.J.轻芒": "{EssenceWeapon_28}",
+                        "O.B.J.术识": "{EssenceWeapon_29}",
+                        "O.B.J.迅极": "{EssenceWeapon_30}",
+                        "理性告别": "{EssenceWeapon_31}",
+                        "探骊": "{EssenceWeapon_32}",
+                        "向心之引": "{EssenceWeapon_33}",
+                        "钢铁余音": "{EssenceWeapon_34}",
+                        "坚城铸造者": "{EssenceWeapon_35}",
+                        "十二问": "{EssenceWeapon_36}",
+                        "莫奈何": "{EssenceWeapon_37}",
+                        "迷失荒野": "{EssenceWeapon_38}",
+                        "作品：众生": "{EssenceWeapon_39}",
+                        "O.B.J.尖峰": "{EssenceWeapon_40}",
+                        "布道自由": "{EssenceWeapon_41}",
+                        "古渠": "{EssenceWeapon_42}",
+                        "终点之声": "{EssenceWeapon_43}",
+                        "仰止": "{EssenceWeapon_44}",
+                        "O.B.J.重荷": "{EssenceWeapon_45}",
+                        "悼亡诗": "{EssenceWeapon_46}",
+                        "嵌合正义": "{EssenceWeapon_47}"
+                    }
                 }
             }
         },
@@ -96,7 +178,56 @@
                     "s1_node": "EssenceTooltip_S1",
                     "s2_node": "EssenceTooltip_S2",
                     "s3_node": "EssenceTooltip_S3",
-                    "only_decision": "Material"
+                    "only_decision": "Material",
+                    "preferred_weapon_flags": {
+                        "不知归": "{EssenceWeapon_01}",
+                        "热熔切割器": "{EssenceWeapon_02}",
+                        "使命必达": "{EssenceWeapon_03}",
+                        "作品：蚀迹": "{EssenceWeapon_04}",
+                        "爆破单元": "{EssenceWeapon_05}",
+                        "赫拉芬格": "{EssenceWeapon_06}",
+                        "典范": "{EssenceWeapon_07}",
+                        "J.E.T.": "{EssenceWeapon_08}",
+                        "宏愿": "{EssenceWeapon_09}",
+                        "艺术暴君": "{EssenceWeapon_10}",
+                        "领航者": "{EssenceWeapon_11}",
+                        "楔子": "{EssenceWeapon_12}",
+                        "同类相食": "{EssenceWeapon_13}",
+                        "负山": "{EssenceWeapon_14}",
+                        "骁勇": "{EssenceWeapon_15}",
+                        "黯色火炬": "{EssenceWeapon_16}",
+                        "显赫声名": "{EssenceWeapon_17}",
+                        "白夜新星": "{EssenceWeapon_18}",
+                        "沧溟星梦": "{EssenceWeapon_19}",
+                        "骑士精神": "{EssenceWeapon_20}",
+                        "大雷斑": "{EssenceWeapon_21}",
+                        "破碎君王": "{EssenceWeapon_22}",
+                        "扶摇": "{EssenceWeapon_23}",
+                        "昔日精品": "{EssenceWeapon_24}",
+                        "熔铸火焰": "{EssenceWeapon_25}",
+                        "遗忘": "{EssenceWeapon_26}",
+                        "逐鳞3.0": "{EssenceWeapon_27}",
+                        "O.B.J.轻芒": "{EssenceWeapon_28}",
+                        "O.B.J.术识": "{EssenceWeapon_29}",
+                        "O.B.J.迅极": "{EssenceWeapon_30}",
+                        "理性告别": "{EssenceWeapon_31}",
+                        "探骊": "{EssenceWeapon_32}",
+                        "向心之引": "{EssenceWeapon_33}",
+                        "钢铁余音": "{EssenceWeapon_34}",
+                        "坚城铸造者": "{EssenceWeapon_35}",
+                        "十二问": "{EssenceWeapon_36}",
+                        "莫奈何": "{EssenceWeapon_37}",
+                        "迷失荒野": "{EssenceWeapon_38}",
+                        "作品：众生": "{EssenceWeapon_39}",
+                        "O.B.J.尖峰": "{EssenceWeapon_40}",
+                        "布道自由": "{EssenceWeapon_41}",
+                        "古渠": "{EssenceWeapon_42}",
+                        "终点之声": "{EssenceWeapon_43}",
+                        "仰止": "{EssenceWeapon_44}",
+                        "O.B.J.重荷": "{EssenceWeapon_45}",
+                        "悼亡诗": "{EssenceWeapon_46}",
+                        "嵌合正义": "{EssenceWeapon_47}"
+                    }
                 }
             }
         },
@@ -106,42 +237,46 @@
     },
     "EssenceLockStateLocked_Unlock": {
         "doc": "已锁定时点击解锁（需放置锁定图标模板）",
+        "pre_delay": 400,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceTool/locked.png",
-                "threshold": 0.8,
+                "threshold": 0.85,
                 "roi": [
-                    1194,
-                    178,
-                    48,
-                    26
+                    1216,
+                    175,
+                    24,
+                    31
                 ]
             }
         },
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "post_delay": 400
     },
     "EssenceLockStateUnlocked_Lock": {
         "doc": "未锁定时点击上锁（需放置锁定图标模板）",
+        "pre_delay": 400,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceTool/unlocked.png",
-                "threshold": 0.8,
+                "threshold": 0.85,
                 "roi": [
-                    1194,
-                    178,
-                    48,
-                    26
+                    1216,
+                    175,
+                    24,
+                    31
                 ]
             }
         },
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "post_delay": 400
     }
 }

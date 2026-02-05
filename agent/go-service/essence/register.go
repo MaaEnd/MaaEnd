@@ -12,6 +12,7 @@ var (
 	_ maa.CustomRecognitionRunner = &EssenceJudgeRecognition{}
 	_ maa.CustomRecognitionRunner = &EssenceTooltipJudgeRecognition{}
 	_ maa.CustomActionRunner      = &EssenceApplyLockAction{}
+	_ maa.CustomActionRunner      = &EssenceScanGridAction{}
 )
 
 // EssenceJudgeRecognition 是一个简单的自定义识别器：
@@ -42,6 +43,7 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("EssenceJudge", &EssenceJudgeRecognition{})
 	maa.AgentServerRegisterCustomRecognition("EssenceTooltipJudge", &EssenceTooltipJudgeRecognition{})
 	maa.AgentServerRegisterCustomAction("EssenceApplyLockAction", &EssenceApplyLockAction{})
+	maa.AgentServerRegisterCustomAction("EssenceScanGridAction", &EssenceScanGridAction{})
 	log.Info().Msg("essence: registered essence custom recognition/actions")
 }
 

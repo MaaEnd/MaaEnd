@@ -5,11 +5,1284 @@
             "label": "$task.EssenceTool.label",
             "entry": "EssenceToolMain",
             "description": "$task.EssenceTool.description",
+            "option": [
+                "EssenceWeapon_01",
+                "EssenceWeapon_02",
+                "EssenceWeapon_03",
+                "EssenceWeapon_04",
+                "EssenceWeapon_05",
+                "EssenceWeapon_06",
+                "EssenceWeapon_07",
+                "EssenceWeapon_08",
+                "EssenceWeapon_09",
+                "EssenceWeapon_10",
+                "EssenceWeapon_11",
+                "EssenceWeapon_12",
+                "EssenceWeapon_13",
+                "EssenceWeapon_14",
+                "EssenceWeapon_15",
+                "EssenceWeapon_16",
+                "EssenceWeapon_17",
+                "EssenceWeapon_18",
+                "EssenceWeapon_19",
+                "EssenceWeapon_20",
+                "EssenceWeapon_21",
+                "EssenceWeapon_22",
+                "EssenceWeapon_23",
+                "EssenceWeapon_24",
+                "EssenceWeapon_25",
+                "EssenceWeapon_26",
+                "EssenceWeapon_27",
+                "EssenceWeapon_28",
+                "EssenceWeapon_29",
+                "EssenceWeapon_30",
+                "EssenceWeapon_31",
+                "EssenceWeapon_32",
+                "EssenceWeapon_33",
+                "EssenceWeapon_34",
+                "EssenceWeapon_35",
+                "EssenceWeapon_36",
+                "EssenceWeapon_37",
+                "EssenceWeapon_38",
+                "EssenceWeapon_39",
+                "EssenceWeapon_40",
+                "EssenceWeapon_41",
+                "EssenceWeapon_42",
+                "EssenceWeapon_43",
+                "EssenceWeapon_44",
+                "EssenceWeapon_45",
+                "EssenceWeapon_46",
+                "EssenceWeapon_47"
+            ],
             "controller": [
                 "Win32",
                 "Win32-Front",
                 "Win32-Window"
             ]
         }
-    ]
+    ],
+    "option": {
+        "EssenceWeapon_01": {
+            "type": "switch",
+            "label": "不知归",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "不知归": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_02": {
+            "type": "switch",
+            "label": "热熔切割器",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "热熔切割器": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_03": {
+            "type": "switch",
+            "label": "使命必达",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "使命必达": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_04": {
+            "type": "switch",
+            "label": "作品：蚀迹",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "作品：蚀迹": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_05": {
+            "type": "switch",
+            "label": "爆破单元",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "爆破单元": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_06": {
+            "type": "switch",
+            "label": "赫拉芬格",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "赫拉芬格": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_07": {
+            "type": "switch",
+            "label": "典范",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "典范": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_08": {
+            "type": "switch",
+            "label": "J.E.T.",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "J.E.T.": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_09": {
+            "type": "switch",
+            "label": "宏愿",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "宏愿": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_10": {
+            "type": "switch",
+            "label": "艺术暴君",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "艺术暴君": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_11": {
+            "type": "switch",
+            "label": "领航者",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "领航者": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_12": {
+            "type": "switch",
+            "label": "楔子",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "楔子": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_13": {
+            "type": "switch",
+            "label": "同类相食",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "同类相食": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_14": {
+            "type": "switch",
+            "label": "负山",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "负山": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_15": {
+            "type": "switch",
+            "label": "骁勇",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "骁勇": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_16": {
+            "type": "switch",
+            "label": "黯色火炬",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "黯色火炬": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_17": {
+            "type": "switch",
+            "label": "显赫声名",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "显赫声名": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_18": {
+            "type": "switch",
+            "label": "白夜新星",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "白夜新星": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_19": {
+            "type": "switch",
+            "label": "沧溟星梦",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "沧溟星梦": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_20": {
+            "type": "switch",
+            "label": "骑士精神",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "骑士精神": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_21": {
+            "type": "switch",
+            "label": "大雷斑",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "大雷斑": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_22": {
+            "type": "switch",
+            "label": "破碎君王",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "破碎君王": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_23": {
+            "type": "switch",
+            "label": "扶摇",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "扶摇": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_24": {
+            "type": "switch",
+            "label": "昔日精品",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "昔日精品": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_25": {
+            "type": "switch",
+            "label": "熔铸火焰",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "熔铸火焰": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "Yes"
+        },
+        "EssenceWeapon_26": {
+            "type": "switch",
+            "label": "遗忘",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "遗忘": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_27": {
+            "type": "switch",
+            "label": "逐鳞3.0",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "逐鳞3.0": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_28": {
+            "type": "switch",
+            "label": "O.B.J.轻芒",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "O.B.J.轻芒": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_29": {
+            "type": "switch",
+            "label": "O.B.J.术识",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "O.B.J.术识": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_30": {
+            "type": "switch",
+            "label": "O.B.J.迅极",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "O.B.J.迅极": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_31": {
+            "type": "switch",
+            "label": "理性告别",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "理性告别": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_32": {
+            "type": "switch",
+            "label": "探骊",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "探骊": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_33": {
+            "type": "switch",
+            "label": "向心之引",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "向心之引": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_34": {
+            "type": "switch",
+            "label": "钢铁余音",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "钢铁余音": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_35": {
+            "type": "switch",
+            "label": "坚城铸造者",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "坚城铸造者": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_36": {
+            "type": "switch",
+            "label": "十二问",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "十二问": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_37": {
+            "type": "switch",
+            "label": "莫奈何",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "莫奈何": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_38": {
+            "type": "switch",
+            "label": "迷失荒野",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "迷失荒野": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_39": {
+            "type": "switch",
+            "label": "作品：众生",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "作品：众生": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_40": {
+            "type": "switch",
+            "label": "O.B.J.尖峰",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "O.B.J.尖峰": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_41": {
+            "type": "switch",
+            "label": "布道自由",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "布道自由": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_42": {
+            "type": "switch",
+            "label": "古渠",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "古渠": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_43": {
+            "type": "switch",
+            "label": "终点之声",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "终点之声": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_44": {
+            "type": "switch",
+            "label": "仰止",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "仰止": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_45": {
+            "type": "switch",
+            "label": "O.B.J.重荷",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "O.B.J.重荷": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_46": {
+            "type": "switch",
+            "label": "悼亡诗",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "悼亡诗": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "EssenceWeapon_47": {
+            "type": "switch",
+            "label": "嵌合正义",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceToolMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preferred_weapon_flags": {
+                                            "嵌合正义": "Yes"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        }
+    }
 }
