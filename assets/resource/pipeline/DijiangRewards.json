@@ -104,7 +104,8 @@
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
+            "[JumpBack]OpenMap",
+            "[JumpBack]CancelExit"
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -228,8 +229,32 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CloseButtonDijiang",
+            "[JumpBack]CancelExit"
         ]
+    },
+    "CancelExit": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    308,
+                    282,
+                    370,
+                    306
+                ],
+                "expected": [
+                    "取消"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "InLastCarbin": {
         // 最后一个培养舱
@@ -1096,6 +1121,10 @@
         }
     },
     "UseAssist": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
