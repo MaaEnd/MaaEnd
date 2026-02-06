@@ -6,21 +6,21 @@
             "entry": "DeliveryJobsMain",
             "description": "$task.DeliveryJobs.description",
             "option": [
-                "FourthValley",
+                "ValleyIV",
                 "Wuling"
             ]
         }
     ],
     "option": {
-        "FourthValley": {
+        "ValleyIV": {
             "type": "switch",
-            "label": "$common.in-game.region.FourthValley",
+            "label": "$global.region.ValleyIV",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DeliveryJobsFourthValley": {
+                        "DeliveryJobsValleyIV": {
                             "enabled": true
                         }
                     }
@@ -28,7 +28,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DeliveryJobsFourthValley": {
+                        "DeliveryJobsValleyIV": {
                             "enabled": false
                         }
                     }
@@ -37,7 +37,7 @@
         },
         "Wuling": {
             "type": "switch",
-            "label": "$common.in-game.region.WuLing",
+            "label": "$global.region.Wuling",
             "default_case": "Yes",
             "cases": [
                 {

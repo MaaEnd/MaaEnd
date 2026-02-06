@@ -5,22 +5,8 @@
         "doc": "开始自动转交运送委托",
         "next": [
             "CheckCurrentArea",
-            "[JumpBack]EnterRegionalConstruction"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
-    },
-    "EnterRegionalConstruction": {
-        "doc": "进入地区建设",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterRegionalConstruction.png",
-        "threshold": 0.8,
-        "roi": [
-            164,
-            3,
-            232,
-            84
-        ],
-        "action": "ClickKey",
-        "key": 89
     },
     "CheckCurrentArea": {
         "doc": "检查当前地区",
@@ -35,12 +21,12 @@
         ],
         "action": "DoNothing",
         "next": [
-            "DeliveryJobsFourthValley",
+            "DeliveryJobsValleyIV",
             "DeliveryJobsWuling",
             "DeliveryJobsFinished"
         ]
     },
-    "DeliveryJobsFourthValley": {
+    "DeliveryJobsValleyIV": {
         "doc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
@@ -48,10 +34,10 @@
             "[JumpBack]CargoHasOffer",
             "[JumpBack]EnterCargo",
             "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
-            "CheckFourthValleyDepotLocked",
-            "[JumpBack]EnterFourthValleyDepot",
-            "[JumpBack]DeliveryJobsGoToFourthValley",
-            "[JumpBack]EnterRegionalConstruction"
+            "CheckValleyIVDepotLocked",
+            "[JumpBack]EnterValleyIVDepot",
+            "[JumpBack]GoToValleyIV",
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsWuling": {
@@ -62,10 +48,10 @@
             "[JumpBack]CargoHasOffer",
             "[JumpBack]EnterCargo",
             "CargoNotReady",
-            "CheckWuLingDepotLocked",
-            "[JumpBack]EnterWuLingDepot",
-            "[JumpBack]DeliveryJobsGoToWuLing",
-            "[JumpBack]EnterRegionalConstruction"
+            "CheckWulingDepotLocked",
+            "[JumpBack]EnterWulingDepot",
+            "[JumpBack]GoToWuling",
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsFinished": {

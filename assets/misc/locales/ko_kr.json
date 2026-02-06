@@ -1,8 +1,6 @@
 {
     "global.region.ValleyIV": "제4 계곡 (Valley IV)",
     "global.region.Wuling": "무릉 (Wuling)",
-    "common.in-game.region.FourthValley": "사호곡지",
-    "common.in-game.region.WuLing": "무릉",
     "task.RealTimeTask.label": "🤖 실시간 지원",
     "task.RealTimeTask.description": "항상 실행되며 게임 화면을 실시간으로 모니터링하고 필요한 키 입력을 자동으로 수행합니다.",
     "option.AutoSkip.label": "스토리 자동",

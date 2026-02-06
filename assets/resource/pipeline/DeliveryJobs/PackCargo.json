@@ -1,110 +1,41 @@
 {
-    "EnterFourthValleyDepot": {
+    "EnterValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/EnterDepot.png",
-                "roi": [
-                    1007,
-                    331,
-                    40,
-                    52
-                ],
-                "threshold": 0.8
-            },
-            {
-                "recognition": "OCR",
-                "order_by": "Expected",
-                "roi": [
-                    23,
-                    155,
-                    183,
-                    93
-                ],
-                "expected": [
-                    "四号谷地",
-                    "四號谷地",
-                    "Valley IV",
-                    "Valley",
-                    "四号谷地",
-                    "4번 협곡"
-                ]
-            }
+            "DepotButton",
+            "CheckValleyIV"
         ],
         "action": "Click"
     },
-    "EnterWuLingDepot": {
+    "EnterWulingDepot": {
         "doc": "进入武陵仓储节点",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/EnterDepot.png",
-                "roi": [
-                    1007,
-                    331,
-                    40,
-                    52
-                ],
-                "threshold": 0.8
-            },
-            {
-                "recognition": "OCR",
-                "order_by": "Expected",
-                "roi": [
-                    23,
-                    155,
-                    183,
-                    93
-                ],
-                "expected": [
-                    "武陵",
-                    "武陵",
-                    "Wuling",
-                    "武陵",
-                    "무릉"
-                ]
-            }
+            "DepotButton",
+            "CheckWuling"
         ],
         "action": "Click"
     },
-    "CheckFourthValleyDepotLocked": {
+    "DepotLocked": {
+        "doc": "仓储节点未解锁",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ]
+    },
+    "CheckValleyIVDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/DepotLocked.png",
-                "threshold": 0.8,
-                "roi": [
-                    1179,
-                    347,
-                    36,
-                    47
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "order_by": "Expected",
-                "roi": [
-                    23,
-                    155,
-                    183,
-                    93
-                ],
-                "expected": [
-                    "四号谷地",
-                    "四號谷地",
-                    "Valley IV",
-                    "Valley",
-                    "四号谷地",
-                    "4번 협곡"
-                ]
-            }
+            "DepotLocked",
+            "CheckValleyIV"
         ],
-        "pre_delay": 0,
         "focus": {
             "Node.Action.Starting": "四号谷地仓储节点未解锁"
         },
@@ -112,40 +43,13 @@
             "CheckCurrentArea"
         ]
     },
-    "CheckWuLingDepotLocked": {
+    "CheckWulingDepotLocked": {
         "doc": "检查武陵仓储节点是否解锁",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "DeliveryJobs/DepotLocked.png",
-                "threshold": 0.8,
-                "roi": [
-                    1179,
-                    347,
-                    36,
-                    47
-                ]
-            },
-            {
-                "recognition": "OCR",
-                "order_by": "Expected",
-                "roi": [
-                    23,
-                    155,
-                    183,
-                    93
-                ],
-                "expected": [
-                    "武陵",
-                    "武陵",
-                    "Wuling",
-                    "武陵",
-                    "무릉"
-                ]
-            }
+            "DepotLocked",
+            "CheckWuling"
         ],
-        "pre_delay": 0,
         "focus": {
             "Node.Action.Starting": "武陵仓储节点未解锁"
         },
@@ -298,14 +202,9 @@
     },
     "BackToHome": {
         "doc": "已回到大世界（左上角出现地区建设入口），用于跳出循环",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterRegionalConstruction.png",
-        "threshold": 0.8,
-        "roi": [
-            164,
-            3,
-            232,
-            84
+        "recognition": "Or",
+        "any_of": [
+            "RegionalDevelopmentButton"
         ]
     }
 }

@@ -1,0 +1,69 @@
+{
+    "RegionalDevelopmentButton": {
+        "doc": "主页中的地区建设按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/RegionalDevelopmentButton.png",
+        "threshold": 0.8,
+        "roi": [
+            164,
+            3,
+            232,
+            84
+        ],
+        "action": "ClickKey",
+        "key": 89
+    },
+    "IncomeReportButton": {
+        "doc": "地区建设中的收支简报按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/IncomeReportButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1173,
+            91,
+            68,
+            87
+        ],
+        "action": "Click"
+    },
+    "DepotButton": {
+        "doc": "地区建设中的仓储节点按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/DepotButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1007,
+            331,
+            40,
+            52
+        ],
+        "action": "Click"
+    },
+    "ChangeRegionButton": {
+        "doc": "地区建设中的更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionButton.png",
+        "threshold": 0.8,
+        "roi": [
+            139,
+            263,
+            87,
+            100
+        ],
+        "method": 10001,
+        "action": "Click"
+    },
+    "ChangeRegionConfirmButton": {
+        "doc": "地区建设中的确认更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionConfirmButton.png",
+        "threshold": 0.8,
+        "roi": [
+            784,
+            371,
+            118,
+            115
+        ],
+        "action": "Click"
+    }
+}

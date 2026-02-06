@@ -1,7 +1,4 @@
 {
-    "EnterRegionalConstruction": {
-        "action": "Click"
-    },
     "DeliveryJobsFinished": {
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/BackToRegionalConstruction.png",
