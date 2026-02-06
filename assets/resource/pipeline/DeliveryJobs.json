@@ -5,22 +5,8 @@
         "doc": "开始自动转交运送委托",
         "next": [
             "CheckCurrentArea",
-            "[JumpBack]EnterRegionalConstruction"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
-    },
-    "EnterRegionalConstruction": {
-        "doc": "进入地区建设",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterRegionalConstruction.png",
-        "threshold": 0.8,
-        "roi": [
-            164,
-            3,
-            232,
-            84
-        ],
-        "action": "ClickKey",
-        "key": 89
     },
     "CheckCurrentArea": {
         "doc": "检查当前地区",
@@ -51,7 +37,7 @@
             "CheckFourthValleyDepotLocked",
             "[JumpBack]EnterFourthValleyDepot",
             "[JumpBack]DeliveryJobsGoToFourthValley",
-            "[JumpBack]EnterRegionalConstruction"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsWuling": {
@@ -65,7 +51,7 @@
             "CheckWuLingDepotLocked",
             "[JumpBack]EnterWuLingDepot",
             "[JumpBack]DeliveryJobsGoToWuLing",
-            "[JumpBack]EnterRegionalConstruction"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsFinished": {

@@ -1,0 +1,16 @@
+{
+    "RegionalDevelopmentButton": {
+        "doc": "主页中的地区建设按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/RegionalDevelopmentButton.png",
+        "threshold": 0.8,
+        "roi": [
+            164,
+            3,
+            232,
+            84
+        ],
+        "action": "ClickKey",
+        "key": 89
+    }
+}
