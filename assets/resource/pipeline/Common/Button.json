@@ -12,5 +12,32 @@
         ],
         "action": "ClickKey",
         "key": 89
+    },
+    "IncomeReportButton": {
+        "doc": "地区建设中的收支简报按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/IncomeReportButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1173,
+            91,
+            68,
+            87
+        ],
+        "action": "Click"
+    },
+    "ChangeRegionButton": {
+        "doc": "地区建设中的更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionButton.png",
+        "threshold": 0.8,
+        "roi": [
+            159,
+            281,
+            38,
+            29
+        ],
+        "method": 10001,
+        "action": "Click"
     }
 }

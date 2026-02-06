@@ -1,36 +1,26 @@
 {
     "DeliveryJobsGoToFourthValley": {
         "doc": "前往四号谷地",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inManagement.png",
-        "threshold": 0.8,
-        "roi": [
-            1139,
-            63,
-            135,
-            127
+        "recognition": "Or",
+        "any_of": [
+            "IncomeReportButton"
         ],
         "next": [
             "DeliveryJobsCheckFourthValley",
             "[JumpBack]DeliveryJobsChangeToFourthValley",
-            "[JumpBack]DeliveryJobsChangeRegion"
+            "[JumpBack]ChangeRegionButton"
         ]
     },
     "DeliveryJobsGoToWuLing": {
         "doc": "前往武陵",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inManagement.png",
-        "threshold": 0.8,
-        "roi": [
-            1139,
-            63,
-            135,
-            127
+        "recognition": "Or",
+        "any_of": [
+            "IncomeReportButton"
         ],
         "next": [
             "DeliveryJobsCheckWuLing",
             "[JumpBack]DeliveryJobsChangeToWuLing",
-            "[JumpBack]DeliveryJobsChangeRegion"
+            "[JumpBack]ChangeRegionButton"
         ]
     },
     "DeliveryJobsCheckFourthValley": {
@@ -91,7 +81,7 @@
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion",
-            "[JumpBack]DeliveryJobsChangeRegion"
+            "[JumpBack]ChangeRegionButton"
         ]
     },
     "DeliveryJobsChangeToWuLing": {
@@ -114,22 +104,8 @@
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmChangeRegion",
-            "[JumpBack]DeliveryJobsChangeRegion"
+            "[JumpBack]ChangeRegionButton"
         ]
-    },
-    "DeliveryJobsChangeRegion": {
-        "doc": "更换地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            159,
-            281,
-            38,
-            29
-        ],
-        "method": 10001,
-        "action": "Click"
     },
     "DeliveryJobsConfirmChangeRegion": {
         "doc": "确认更换地区",

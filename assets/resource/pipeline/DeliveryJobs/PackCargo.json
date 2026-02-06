@@ -298,14 +298,9 @@
     },
     "BackToHome": {
         "doc": "已回到大世界（左上角出现地区建设入口），用于跳出循环",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/EnterRegionalConstruction.png",
-        "threshold": 0.8,
-        "roi": [
-            164,
-            3,
-            232,
-            84
+        "recognition": "Or",
+        "any_of": [
+            "RegionalDevelopmentButton"
         ]
     }
 }
