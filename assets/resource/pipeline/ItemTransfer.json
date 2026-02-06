@@ -340,7 +340,44 @@
     "BagToOriginRepo": {
         "post_wait_freezes": 1,
         "next": [
+            "FindItemInBagReturn",
+            "ScrollDownwardBagReturn"
+        ]
+    },
+    "FindItemInBagReturn": {
+        "recognition": "TemplateMatch",
+        "roi": [768, 209, 349, 285],
+        "template": "ItemTransfer/{ItemName}.png",
+        "threshold": 0.85,
+        "order_by": "Score",
+        "next": [
             "CtrlKeyDownBagReturn"
+        ]
+    },
+    "ScrollDownwardBagReturn": {
+        "action": "Swipe",
+        "begin": [837, 472],
+        "end": [837, 228],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBagReturn",
+            "ScrollDownwardBagReturn",
+            "ScrollUpwardBagReturn"
+        ]
+    },
+    "ScrollUpwardBagReturn": {
+        "doc": "触底后回顶",
+        "action": "Swipe",
+        "begin": [837, 228],
+        "end": [837, 472],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBagReturn",
+            "ScrollUpwardBagReturn"
         ]
     },
     "CtrlKeyDownBagReturn": {
@@ -351,7 +388,7 @@
         ]
     },
     "TransferToRepoReturn": {
-        "target": "FindItemInBag",
+        "target": "FindItemInBagReturn",
         "action": "Click",
         "next": [
             "CtrlKeyUpBagReturn"
