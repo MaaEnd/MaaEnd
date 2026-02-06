@@ -26,18 +26,44 @@
         ],
         "action": "Click"
     },
+    "DepotButton": {
+        "doc": "地区建设中的仓储节点按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/DepotButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1173,
+            91,
+            68,
+            87
+        ],
+        "action": "Click"
+    },
     "ChangeRegionButton": {
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
         "template": "Common/ChangeRegionButton.png",
         "threshold": 0.8,
         "roi": [
-            159,
-            281,
-            38,
-            29
+            139,
+            263,
+            87,
+            100
         ],
         "method": 10001,
+        "action": "Click"
+    },
+    "ChangeRegionConfirmButton": {
+        "doc": "地区建设中的确认更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionConfirmButton.png",
+        "threshold": 0.8,
+        "roi": [
+            784,
+            371,
+            118,
+            115
+        ],
         "action": "Click"
     }
 }

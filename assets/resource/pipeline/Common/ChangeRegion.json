@@ -1,29 +1,29 @@
 {
-    "DeliveryJobsGoToFourthValley": {
+    "GoToValleyIV": {
         "doc": "前往四号谷地",
         "recognition": "Or",
         "any_of": [
             "IncomeReportButton"
         ],
         "next": [
-            "DeliveryJobsCheckFourthValley",
-            "[JumpBack]DeliveryJobsChangeToFourthValley",
+            "CheckValleyIV",
+            "[JumpBack]ChangeToValleyIV",
             "[JumpBack]ChangeRegionButton"
         ]
     },
-    "DeliveryJobsGoToWuLing": {
+    "GoToWuling": {
         "doc": "前往武陵",
         "recognition": "Or",
         "any_of": [
             "IncomeReportButton"
         ],
         "next": [
-            "DeliveryJobsCheckWuLing",
-            "[JumpBack]DeliveryJobsChangeToWuLing",
+            "CheckWuling",
+            "[JumpBack]ChangeToWuling",
             "[JumpBack]ChangeRegionButton"
         ]
     },
-    "DeliveryJobsCheckFourthValley": {
+    "CheckValleyIV": {
         "doc": "检查是否是四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -42,7 +42,7 @@
             "4번 협곡"
         ]
     },
-    "DeliveryJobsCheckWuLing": {
+    "CheckWuling": {
         "doc": "检查是否是武陵",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -60,7 +60,7 @@
             "무릉"
         ]
     },
-    "DeliveryJobsChangeToFourthValley": {
+    "ChangeToValleyIV": {
         "doc": "更改至四号谷地",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -80,11 +80,11 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsConfirmChangeRegion",
+            "ChangeRegionConfirmButton",
             "[JumpBack]ChangeRegionButton"
         ]
     },
-    "DeliveryJobsChangeToWuLing": {
+    "ChangeToWuling": {
         "doc": "更改至武陵",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -103,21 +103,8 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsConfirmChangeRegion",
+            "ChangeRegionConfirmButton",
             "[JumpBack]ChangeRegionButton"
         ]
-    },
-    "DeliveryJobsConfirmChangeRegion": {
-        "doc": "确认更换地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ConfirmChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            763,
-            371,
-            122,
-            121
-        ],
-        "action": "Click"
     }
 }

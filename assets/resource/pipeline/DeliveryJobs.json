@@ -36,7 +36,7 @@
             "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
             "CheckFourthValleyDepotLocked",
             "[JumpBack]EnterFourthValleyDepot",
-            "[JumpBack]DeliveryJobsGoToFourthValley",
+            "[JumpBack]GoToValleyIV",
             "[JumpBack]RegionalDevelopmentButton"
         ]
     },
@@ -50,7 +50,7 @@
             "CargoNotReady",
             "CheckWuLingDepotLocked",
             "[JumpBack]EnterWuLingDepot",
-            "[JumpBack]DeliveryJobsGoToWuLing",
+            "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]
     },
