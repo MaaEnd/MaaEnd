@@ -57,4 +57,4 @@
 
 - [MaaFramework Pipeline 协议规范](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.1-PipelineProtocol.md)
 - [MaaFramework 项目接口 V2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/en_us/3.3-ProjectInterfaceV2.md)
-- [MaaEnd 开发手册](docs/developers/development.md:1)
+- [MaaEnd 开发手册](docs/developers/development.md)
