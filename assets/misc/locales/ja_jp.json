@@ -1,8 +1,6 @@
 {
     "global.region.ValleyIV": "第4谷地 (Valley IV)",
     "global.region.Wuling": "武陵 (Wuling)",
-    "common.in-game.region.FourthValley": "四号谷地",
-    "common.in-game.region.WuLing": "武陵",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
     "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
     "option.AutoSkip.label": "ストーリー自動",

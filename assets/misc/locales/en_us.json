@@ -1,8 +1,6 @@
 {
     "global.region.ValleyIV": "Valley IV",
     "global.region.Wuling": "Wuling",
-    "common.in-game.region.FourthValley": "Fourth Valley",
-    "common.in-game.region.WuLing": "Wuling",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.AutoSkip.label": "Auto Story",

@@ -1,8 +1,6 @@
 {
     "global.region.ValleyIV": "四號谷地",
     "global.region.Wuling": "武陵",
-    "common.in-game.region.FourthValley": "四號谷地",
-    "common.in-game.region.WuLing": "武陵",
     "task.RealTimeTask.label": "🤖即時開荒輔助",
     "task.RealTimeTask.description": "該任務會一直執行，即時監控識別遊戲畫面，自動按下需要的按鍵",
     "option.AutoSkip.label": "自動劇情",

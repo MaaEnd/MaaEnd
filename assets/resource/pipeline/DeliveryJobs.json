@@ -21,12 +21,12 @@
         ],
         "action": "DoNothing",
         "next": [
-            "DeliveryJobsFourthValley",
+            "DeliveryJobsValleyIV",
             "DeliveryJobsWuling",
             "DeliveryJobsFinished"
         ]
     },
-    "DeliveryJobsFourthValley": {
+    "DeliveryJobsValleyIV": {
         "doc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
@@ -34,8 +34,8 @@
             "[JumpBack]CargoHasOffer",
             "[JumpBack]EnterCargo",
             "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
-            "CheckFourthValleyDepotLocked",
-            "[JumpBack]EnterFourthValleyDepot",
+            "CheckValleyIVDepotLocked",
+            "[JumpBack]EnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
             "[JumpBack]RegionalDevelopmentButton"
         ]
@@ -48,8 +48,8 @@
             "[JumpBack]CargoHasOffer",
             "[JumpBack]EnterCargo",
             "CargoNotReady",
-            "CheckWuLingDepotLocked",
-            "[JumpBack]EnterWuLingDepot",
+            "CheckWulingDepotLocked",
+            "[JumpBack]EnterWulingDepot",
             "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]

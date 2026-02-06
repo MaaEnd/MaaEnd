@@ -1,5 +1,5 @@
 {
-    "EnterFourthValleyDepot": {
+    "EnterValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
         "recognition": "And",
         "all_of": [
@@ -8,7 +8,7 @@
         ],
         "action": "Click"
     },
-    "EnterWuLingDepot": {
+    "EnterWulingDepot": {
         "doc": "进入武陵仓储节点",
         "recognition": "And",
         "all_of": [
@@ -29,7 +29,7 @@
             47
         ]
     },
-    "CheckFourthValleyDepotLocked": {
+    "CheckValleyIVDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁",
         "recognition": "And",
         "all_of": [
@@ -43,7 +43,7 @@
             "CheckCurrentArea"
         ]
     },
-    "CheckWuLingDepotLocked": {
+    "CheckWulingDepotLocked": {
         "doc": "检查武陵仓储节点是否解锁",
         "recognition": "And",
         "all_of": [
