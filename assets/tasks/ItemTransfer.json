@@ -150,6 +150,60 @@
                     }
                 },
                 {
+                    "name": "柑实",
+                    "label": "$柑实",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/柑实.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/柑实.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/柑实.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花",
+                    "label": "$荞花",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/荞花.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/荞花.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/荞花.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木",
+                    "label": "$酮化灌木",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/酮化灌木.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/酮化灌木.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/酮化灌木.png"
+                        }
+                    }
+                },
+                {
                     "name": "高容谷地电池",
                     "label": "$高容谷地电池",
                     "pipeline_override": {
