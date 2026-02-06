@@ -32,10 +32,10 @@
         "template": "Common/DepotButton.png",
         "threshold": 0.8,
         "roi": [
-            1173,
-            91,
-            68,
-            87
+            1007,
+            331,
+            40,
+            52
         ],
         "action": "Click"
     },
