@@ -87,6 +87,7 @@
         "roi": [168, 171, 531, 35],
         "template": "ItemTransfer/全部.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
@@ -99,6 +100,7 @@
         "roi": [158, 203, 551, 292],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
+        "order_by": "Score",
         "next": [
             "CtrlKeyDownRepo"
         ]
@@ -225,6 +227,7 @@
         "roi": [768, 209, 349, 285],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
+        "order_by": "Score",
         "next": [
             "CtrlKeyDownBag"
         ]
