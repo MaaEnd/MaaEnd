@@ -10,30 +10,14 @@
     },
     "EnterRegionalConstruction": {
         "doc": "进入地区建设",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "Resell/inGame1.png",
-                "threshold": 0.8,
-                "roi": [
-                    172,
-                    0,
-                    133,
-                    118
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "template": "Resell/inGame2.png",
-                "threshold": 0.8,
-                "roi": [
-                    1182,
-                    0,
-                    98,
-                    128
-                ]
-            }
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterRegionalConstruction.png",
+        "threshold": 0.8,
+        "roi": [
+            164,
+            3,
+            232,
+            84
         ],
         "action": "ClickKey",
         "key": 89

@@ -239,7 +239,7 @@
             "CargoBid",
             "CargoFillToMax",
             "ClickScreenToContinue",
-            "HasDeliveryJob",
+            "BackToHome",
             "ProceedToNextStep"
         ]
     },
@@ -296,22 +296,16 @@
         ],
         "action": "Click"
     },
-    "HasDeliveryJob": {
-        "doc": "有可用的送货任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
+    "BackToHome": {
+        "doc": "已回到大世界（左上角出现地区建设入口），用于跳出循环",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/EnterRegionalConstruction.png",
+        "threshold": 0.8,
         "roi": [
-            57,
-            173,
-            132,
-            27
-        ],
-        "expected": [
-            "送货任务",
-            "送貨任務",
-            "Delivery Job",
-            "配達任務",
-            "배송 임무"
+            164,
+            3,
+            232,
+            84
         ]
     }
 }

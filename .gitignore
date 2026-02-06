@@ -36,6 +36,7 @@ build-*
 *.exe
 *.out
 *.app
+__debug_bin.exe*
 
 Debug
 Release
