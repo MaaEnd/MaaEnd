@@ -538,6 +538,9 @@ def main() -> None:
         f"[INF] 工作区已经初始化/更新完毕，请运行 {install_dir / MXU_DIST_NAME} 来验证安装结果"
     )
     print(f"[INF] 后续使用相关工具编辑、调试等，都基于 {install_dir} 文件夹")
+    print(
+        f"[INF] 请阅读开发手册 (docs/developers/development.md) 中的「开发技巧」和「代码规范」后，再进行相关开发工作"
+    )
 
 
 if __name__ == "__main__":
