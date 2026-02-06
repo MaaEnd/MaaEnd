@@ -241,7 +241,9 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msgf("利润达标，准备购买第%d行第%d列商品（利润：%d）",
 			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 		taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
-		ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: taskName},
+		})
 		return true
 	} else {
 		// No profitable item, show recommendation
