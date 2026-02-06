@@ -7,18 +7,10 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "EssenceScanGridAction",
-                "custom_action_param": {}
+                "custom_action": "EssenceScanGridAction"
             }
-        }
-    },
-    "EssenceTileClick": {
-        "doc": "基质点击（由 Go 传入目标坐标）",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Click",
-            "param": {}
-        }
+        },
+        "attach": {}
     },
     "EssenceTileMatch": {
         "doc": "基质识别",
@@ -41,8 +33,7 @@
                     577
                 ]
             }
-        },
-        "post_wait_freezes": 1000
+        }
     },
     "EssenceTooltip_S1": {
         "doc": "基质属性行 1（s1）OCR",
@@ -95,150 +86,12 @@
             "type": "Custom",
             "param": {
                 "custom_recognition": "EssenceTooltipJudge",
-                "custom_recognition_param": {
-                    "s1_node": "EssenceTooltip_S1",
-                    "s2_node": "EssenceTooltip_S2",
-                    "s3_node": "EssenceTooltip_S3"
-                }
+                "custom_recognition_param": {}
             }
         }
     },
-    "EssenceJudge_Treasure": {
-        "doc": "只在判定为宝藏时命中",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "EssenceTooltipJudge",
-                "custom_recognition_param": {
-                    "s1_node": "EssenceTooltip_S1",
-                    "s2_node": "EssenceTooltip_S2",
-                    "s3_node": "EssenceTooltip_S3",
-                    "only_decision": "Treasure",
-                    "preferred_weapon_flags": {
-                        "不知归": "{EssenceWeapon_01}",
-                        "热熔切割器": "{EssenceWeapon_02}",
-                        "使命必达": "{EssenceWeapon_03}",
-                        "作品：蚀迹": "{EssenceWeapon_04}",
-                        "爆破单元": "{EssenceWeapon_05}",
-                        "赫拉芬格": "{EssenceWeapon_06}",
-                        "典范": "{EssenceWeapon_07}",
-                        "J.E.T.": "{EssenceWeapon_08}",
-                        "宏愿": "{EssenceWeapon_09}",
-                        "艺术暴君": "{EssenceWeapon_10}",
-                        "领航者": "{EssenceWeapon_11}",
-                        "楔子": "{EssenceWeapon_12}",
-                        "同类相食": "{EssenceWeapon_13}",
-                        "负山": "{EssenceWeapon_14}",
-                        "骁勇": "{EssenceWeapon_15}",
-                        "黯色火炬": "{EssenceWeapon_16}",
-                        "显赫声名": "{EssenceWeapon_17}",
-                        "白夜新星": "{EssenceWeapon_18}",
-                        "沧溟星梦": "{EssenceWeapon_19}",
-                        "骑士精神": "{EssenceWeapon_20}",
-                        "大雷斑": "{EssenceWeapon_21}",
-                        "破碎君王": "{EssenceWeapon_22}",
-                        "扶摇": "{EssenceWeapon_23}",
-                        "昔日精品": "{EssenceWeapon_24}",
-                        "熔铸火焰": "{EssenceWeapon_25}",
-                        "遗忘": "{EssenceWeapon_26}",
-                        "逐鳞3.0": "{EssenceWeapon_27}",
-                        "O.B.J.轻芒": "{EssenceWeapon_28}",
-                        "O.B.J.术识": "{EssenceWeapon_29}",
-                        "O.B.J.迅极": "{EssenceWeapon_30}",
-                        "理性告别": "{EssenceWeapon_31}",
-                        "探骊": "{EssenceWeapon_32}",
-                        "向心之引": "{EssenceWeapon_33}",
-                        "钢铁余音": "{EssenceWeapon_34}",
-                        "坚城铸造者": "{EssenceWeapon_35}",
-                        "十二问": "{EssenceWeapon_36}",
-                        "莫奈何": "{EssenceWeapon_37}",
-                        "迷失荒野": "{EssenceWeapon_38}",
-                        "作品：众生": "{EssenceWeapon_39}",
-                        "O.B.J.尖峰": "{EssenceWeapon_40}",
-                        "布道自由": "{EssenceWeapon_41}",
-                        "古渠": "{EssenceWeapon_42}",
-                        "终点之声": "{EssenceWeapon_43}",
-                        "仰止": "{EssenceWeapon_44}",
-                        "O.B.J.重荷": "{EssenceWeapon_45}",
-                        "悼亡诗": "{EssenceWeapon_46}",
-                        "嵌合正义": "{EssenceWeapon_47}"
-                    }
-                }
-            }
-        },
-        "next": [
-            "EssenceLockStateUnlocked_Lock"
-        ]
-    },
-    "EssenceJudge_Material": {
-        "doc": "只在判定为养成材料时命中",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "EssenceTooltipJudge",
-                "custom_recognition_param": {
-                    "s1_node": "EssenceTooltip_S1",
-                    "s2_node": "EssenceTooltip_S2",
-                    "s3_node": "EssenceTooltip_S3",
-                    "only_decision": "Material",
-                    "preferred_weapon_flags": {
-                        "不知归": "{EssenceWeapon_01}",
-                        "热熔切割器": "{EssenceWeapon_02}",
-                        "使命必达": "{EssenceWeapon_03}",
-                        "作品：蚀迹": "{EssenceWeapon_04}",
-                        "爆破单元": "{EssenceWeapon_05}",
-                        "赫拉芬格": "{EssenceWeapon_06}",
-                        "典范": "{EssenceWeapon_07}",
-                        "J.E.T.": "{EssenceWeapon_08}",
-                        "宏愿": "{EssenceWeapon_09}",
-                        "艺术暴君": "{EssenceWeapon_10}",
-                        "领航者": "{EssenceWeapon_11}",
-                        "楔子": "{EssenceWeapon_12}",
-                        "同类相食": "{EssenceWeapon_13}",
-                        "负山": "{EssenceWeapon_14}",
-                        "骁勇": "{EssenceWeapon_15}",
-                        "黯色火炬": "{EssenceWeapon_16}",
-                        "显赫声名": "{EssenceWeapon_17}",
-                        "白夜新星": "{EssenceWeapon_18}",
-                        "沧溟星梦": "{EssenceWeapon_19}",
-                        "骑士精神": "{EssenceWeapon_20}",
-                        "大雷斑": "{EssenceWeapon_21}",
-                        "破碎君王": "{EssenceWeapon_22}",
-                        "扶摇": "{EssenceWeapon_23}",
-                        "昔日精品": "{EssenceWeapon_24}",
-                        "熔铸火焰": "{EssenceWeapon_25}",
-                        "遗忘": "{EssenceWeapon_26}",
-                        "逐鳞3.0": "{EssenceWeapon_27}",
-                        "O.B.J.轻芒": "{EssenceWeapon_28}",
-                        "O.B.J.术识": "{EssenceWeapon_29}",
-                        "O.B.J.迅极": "{EssenceWeapon_30}",
-                        "理性告别": "{EssenceWeapon_31}",
-                        "探骊": "{EssenceWeapon_32}",
-                        "向心之引": "{EssenceWeapon_33}",
-                        "钢铁余音": "{EssenceWeapon_34}",
-                        "坚城铸造者": "{EssenceWeapon_35}",
-                        "十二问": "{EssenceWeapon_36}",
-                        "莫奈何": "{EssenceWeapon_37}",
-                        "迷失荒野": "{EssenceWeapon_38}",
-                        "作品：众生": "{EssenceWeapon_39}",
-                        "O.B.J.尖峰": "{EssenceWeapon_40}",
-                        "布道自由": "{EssenceWeapon_41}",
-                        "古渠": "{EssenceWeapon_42}",
-                        "终点之声": "{EssenceWeapon_43}",
-                        "仰止": "{EssenceWeapon_44}",
-                        "O.B.J.重荷": "{EssenceWeapon_45}",
-                        "悼亡诗": "{EssenceWeapon_46}",
-                        "嵌合正义": "{EssenceWeapon_47}"
-                    }
-                }
-            }
-        },
-        "next": [
-            "EssenceLockStateLocked_Unlock"
-        ]
-    },
     "EssenceLockStateLocked_Unlock": {
-        "doc": "已锁定时点击解锁（需放置锁定图标模板）",
+        "doc": "已锁定时点击解锁",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -258,7 +111,7 @@
         }
     },
     "EssenceLockStateUnlocked_Lock": {
-        "doc": "未锁定时点击上锁（需放置锁定图标模板）",
+        "doc": "未锁定时点击上锁",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

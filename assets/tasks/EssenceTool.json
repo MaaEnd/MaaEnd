@@ -70,14 +70,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "不知归": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "不知归": "Yes"
                             }
                         }
                     }
@@ -96,14 +90,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "热熔切割器": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "热熔切割器": "Yes"
                             }
                         }
                     }
@@ -122,14 +110,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "使命必达": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "使命必达": "Yes"
                             }
                         }
                     }
@@ -148,14 +130,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "作品：蚀迹": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "作品：蚀迹": "Yes"
                             }
                         }
                     }
@@ -174,14 +150,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "爆破单元": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "爆破单元": "Yes"
                             }
                         }
                     }
@@ -200,14 +170,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "赫拉芬格": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "赫拉芬格": "Yes"
                             }
                         }
                     }
@@ -226,14 +190,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "典范": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "典范": "Yes"
                             }
                         }
                     }
@@ -252,14 +210,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "J.E.T.": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "J.E.T.": "Yes"
                             }
                         }
                     }
@@ -278,14 +230,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "宏愿": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "宏愿": "Yes"
                             }
                         }
                     }
@@ -304,14 +250,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "艺术暴君": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "艺术暴君": "Yes"
                             }
                         }
                     }
@@ -330,14 +270,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "领航者": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "领航者": "Yes"
                             }
                         }
                     }
@@ -356,14 +290,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "楔子": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "楔子": "Yes"
                             }
                         }
                     }
@@ -382,14 +310,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "同类相食": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "同类相食": "Yes"
                             }
                         }
                     }
@@ -408,14 +330,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "负山": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "负山": "Yes"
                             }
                         }
                     }
@@ -434,14 +350,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "骁勇": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "骁勇": "Yes"
                             }
                         }
                     }
@@ -460,14 +370,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "黯色火炬": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "黯色火炬": "Yes"
                             }
                         }
                     }
@@ -486,14 +390,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "显赫声名": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "显赫声名": "Yes"
                             }
                         }
                     }
@@ -512,14 +410,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "白夜新星": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "白夜新星": "Yes"
                             }
                         }
                     }
@@ -538,14 +430,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "沧溟星梦": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "沧溟星梦": "Yes"
                             }
                         }
                     }
@@ -564,14 +450,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "骑士精神": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "骑士精神": "Yes"
                             }
                         }
                     }
@@ -590,14 +470,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "大雷斑": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "大雷斑": "Yes"
                             }
                         }
                     }
@@ -616,14 +490,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "破碎君王": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "破碎君王": "Yes"
                             }
                         }
                     }
@@ -642,14 +510,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "扶摇": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "扶摇": "Yes"
                             }
                         }
                     }
@@ -668,14 +530,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "昔日精品": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "昔日精品": "Yes"
                             }
                         }
                     }
@@ -694,14 +550,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "熔铸火焰": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "熔铸火焰": "Yes"
                             }
                         }
                     }
@@ -720,14 +570,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "遗忘": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "遗忘": "Yes"
                             }
                         }
                     }
@@ -746,14 +590,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "逐鳞3.0": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "逐鳞3.0": "Yes"
                             }
                         }
                     }
@@ -772,14 +610,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "O.B.J.轻芒": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "O.B.J.轻芒": "Yes"
                             }
                         }
                     }
@@ -798,14 +630,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "O.B.J.术识": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "O.B.J.术识": "Yes"
                             }
                         }
                     }
@@ -824,14 +650,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "O.B.J.迅极": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "O.B.J.迅极": "Yes"
                             }
                         }
                     }
@@ -850,14 +670,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "理性告别": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "理性告别": "Yes"
                             }
                         }
                     }
@@ -876,14 +690,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "探骊": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "探骊": "Yes"
                             }
                         }
                     }
@@ -902,14 +710,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "向心之引": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "向心之引": "Yes"
                             }
                         }
                     }
@@ -928,14 +730,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "钢铁余音": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "钢铁余音": "Yes"
                             }
                         }
                     }
@@ -954,14 +750,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "坚城铸造者": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "坚城铸造者": "Yes"
                             }
                         }
                     }
@@ -980,14 +770,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "十二问": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "十二问": "Yes"
                             }
                         }
                     }
@@ -1006,14 +790,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "莫奈何": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "莫奈何": "Yes"
                             }
                         }
                     }
@@ -1032,14 +810,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "迷失荒野": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "迷失荒野": "Yes"
                             }
                         }
                     }
@@ -1058,14 +830,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "作品：众生": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "作品：众生": "Yes"
                             }
                         }
                     }
@@ -1084,14 +850,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "O.B.J.尖峰": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "O.B.J.尖峰": "Yes"
                             }
                         }
                     }
@@ -1110,14 +870,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "布道自由": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "布道自由": "Yes"
                             }
                         }
                     }
@@ -1136,14 +890,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "古渠": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "古渠": "Yes"
                             }
                         }
                     }
@@ -1162,14 +910,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "终点之声": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "终点之声": "Yes"
                             }
                         }
                     }
@@ -1188,14 +930,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "仰止": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "仰止": "Yes"
                             }
                         }
                     }
@@ -1214,14 +950,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "O.B.J.重荷": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "O.B.J.重荷": "Yes"
                             }
                         }
                     }
@@ -1240,14 +970,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "悼亡诗": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "悼亡诗": "Yes"
                             }
                         }
                     }
@@ -1266,14 +990,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceToolMain": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preferred_weapon_flags": {
-                                            "嵌合正义": "Yes"
-                                        }
-                                    }
-                                }
+                            "attach": {
+                                "嵌合正义": "Yes"
                             }
                         }
                     }

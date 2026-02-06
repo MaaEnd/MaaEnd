@@ -13,10 +13,10 @@ import (
 // tooltipJudgeParam defines OCR node names and preferred weapons input.
 // tooltipJudgeParam 定义 OCR 节点名与偏好武器输入。
 type tooltipJudgeParam struct {
-	S1Node string `json:"s1_node"`
-	S2Node string `json:"s2_node"`
-	S3Node string `json:"s3_node"`
-	OnlyDecision string `json:"only_decision"`
+	S1Node               string            `json:"s1_node"`
+	S2Node               string            `json:"s2_node"`
+	S3Node               string            `json:"s3_node"`
+	OnlyDecision         string            `json:"only_decision"`
 	PreferredWeaponFlags map[string]string `json:"preferred_weapon_flags"`
 }
 
@@ -139,5 +139,3 @@ func normalizeAttrText(text string) string {
 	clean = strings.TrimRight(clean, "_-— ")
 	return strings.TrimSpace(clean)
 }
-
-

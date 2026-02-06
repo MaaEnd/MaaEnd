@@ -3,212 +3,167 @@ package essence
 import (
 	"encoding/json"
 	"image"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// scanGridParam controls click timing and OCR retry behavior.
-// scanGridParam 控制点击节奏与 OCR 重试。
-type scanGridParam struct {
-	ClickDelayMs int `json:"click_delay_ms"`
-	TooltipDelayMs int `json:"tooltip_delay_ms"`
-	OcrRetryCount int `json:"ocr_retry_count"`
-	OcrRetryDelayMs int `json:"ocr_retry_delay_ms"`
+// ---------- 常量 / Constants ----------
 
-	PreferredWeaponFlags map[string]string `json:"preferred_weapon_flags"`
-}
+// clickDelay 点击基质后等待 tooltip 出现的时间。
+// clickDelay is the pause after clicking an item, allowing the tooltip to appear.
+const clickDelay = 200 * time.Millisecond
 
-// EssenceScanGridAction scans visible items and toggles lock state.
-// EssenceScanGridAction 扫描可见基质并执行锁/解锁。
+// ---------- 主结构 / Main Action ----------
+
+// EssenceScanGridAction 扫描当前页面的基质并逐个判定 + 锁/解锁。
+// EssenceScanGridAction scans visible essences and toggles lock per judgment.
 type EssenceScanGridAction struct{}
 
-// Run 实现 CustomActionRunner 接口。
+// Run 实现 maa.CustomActionRunner 接口，由 pipeline EssenceToolMain 触发。
+// Run implements maa.CustomActionRunner; triggered by pipeline EssenceToolMain.
 func (a *EssenceScanGridAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if taskerStopping(ctx) {
-		log.Info().Msg("essence: task stopping before scan start")
+	if stopping(ctx) {
 		return true
 	}
-	// Defaults are tuned for 1280x720 UI timing.
-	// 默认参数按 1280x720 UI 调整。
-	param := scanGridParam{
-		ClickDelayMs: 120,
-		TooltipDelayMs: 200,
-		OcrRetryCount: 1,
-		OcrRetryDelayMs: 200,
-	}
-	if arg.CustomActionParam != "" {
-		log.Info().Str("param", arg.CustomActionParam).Msg("essence: scan grid action param raw")
-		if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
-			log.Warn().Err(err).Msg("essence: failed to parse scan grid param, using defaults")
-		}
-	}
-	log.Info().Msg("essence: scan grid config")
 
-	if taskerStopping(ctx) {
-		log.Info().Msg("essence: task stopping before showing tips")
+	// ---- 1. 读取武器开关 / Read weapon flags from node attach ----
+	// attach 第一层 key = 武器名, value = "Yes"；dict merge 保证多选不互相覆盖。
+	// Top-level attach keys are weapon names; dict merge keeps all keys.
+	flags := readWeaponFlagsFromAttach(ctx, arg.CurrentTaskName)
+	selected := extractPreferredWeaponsFromFlags(flags)
+	log.Info().Int("selectedWeapons", len(selected)).Msg("essence: scan start")
+
+	// ---- 2. 显示选中武器摘要 / Show selected weapon summary ----
+	showSelectedWeaponTips(ctx, flags)
+	if stopping(ctx) {
 		return true
 	}
-	// Capture once, then locate all items via template match.
-	// 截图一次后用模板匹配定位所有基质。
+
+	// ---- 3. 截图 + 模板匹配定位基质 / Screenshot + locate items ----
 	ctrl := ctx.GetTasker().GetController()
-	centers := []point{}
-	barHits := []barHit{}
-	if taskerStopping(ctx) {
-		log.Info().Msg("essence: task stopping before tile scan")
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil || img == nil {
+		log.Warn().Err(err).Msg("essence: screenshot failed")
 		return true
+	}
+	tiles := findTiles(ctx, img)
+	if len(tiles) == 0 {
+		log.Info().Msg("essence: no tiles found")
+		return true
+	}
+	log.Info().Int("count", len(tiles)).Msg("essence: tiles detected")
+
+	// ---- 4. 逐个点击 → OCR → 锁/解锁 / Click each tile → OCR → lock/unlock ----
+	for i, pt := range tiles {
+		if stopping(ctx) {
+			return true
+		}
+		log.Debug().Int("index", i).Int("x", pt.x).Int("y", pt.y).Msg("essence: clicking tile")
+		ctrl.PostClick(int32(pt.x), int32(pt.y))
+		time.Sleep(clickDelay)
+		if stopping(ctx) {
+			return true
+		}
+		handleTile(ctx, ctrl, flags)
+	}
+
+	return true
+}
+
+// ---------- 子流程 / Sub-routines ----------
+
+// handleTile 截图 → 判定 → 按结果锁/解锁。
+// handleTile captures screen, judges the essence, then locks or unlocks.
+func handleTile(ctx *maa.Context, ctrl *maa.Controller, flags map[string]string) {
+	if stopping(ctx) {
+		return
 	}
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
-	if err == nil && img != nil {
-		barHits = append(barHits, findBarHits(ctx, img, param)...)
+	if err != nil || img == nil {
+		log.Warn().Err(err).Msg("essence: capture failed")
+		return
 	}
 
-	if len(barHits) > 0 {
-		for _, hit := range barHits {
-			centers = append(centers, hit.point)
-		}
+	// 调用 Go 自定义识别判定宝藏/材料
+	// Run custom recognition to judge Treasure vs Material
+	override := buildJudgeOverride(flags)
+	detail, err := ctx.RunRecognition("EssenceTooltipJudge", img, override)
+	if err != nil || detail == nil || !detail.Hit {
+		return
 	}
-
-	if len(centers) == 0 {
-		log.Info().Msg("essence: no tiles found, skip grid clicks")
-		return true
-	}
-
-	// Click each detected item and run tooltip/lock logic.
-	// 逐个点击并进行 OCR/锁定逻辑。
-	for _, center := range centers {
-		if taskerStopping(ctx) {
-			log.Info().Msg("essence: task stopping during scan loop")
-			return true
-		}
-		runTileClickTask(ctx, center.x, center.y)
-		if param.ClickDelayMs > 0 {
-			time.Sleep(time.Duration(param.ClickDelayMs) * time.Millisecond)
-		}
-		if taskerStopping(ctx) {
-			log.Info().Msg("essence: task stopping after click delay")
-			return true
-		}
-		if !handleEssenceSelection(ctx, ctrl, param) {
-			if taskerStopping(ctx) {
-				log.Info().Msg("essence: task stopping after selection handling")
-				return true
-			}
-			continue
-		}
-	}
-
-	return true
-}
-
-type point struct {
-	x int
-	y int
-}
-
-type barHit struct {
-	point
-	box  [4]int // absolute [x, y, w, h]
-}
-
-// handleEssenceSelection OCRs the tooltip and applies lock/unlock if needed.
-// handleEssenceSelection OCR 读取词条并按结果锁/解锁。
-func handleEssenceSelection(ctx *maa.Context, ctrl *maa.Controller, param scanGridParam) bool {
-	if taskerStopping(ctx) {
-		return false
-	}
-	if param.TooltipDelayMs > 0 {
-		time.Sleep(time.Duration(param.TooltipDelayMs) * time.Millisecond)
-	}
-	if taskerStopping(ctx) {
-		return false
-	}
-
-	var judgeDetail *maa.RecognitionDetail
-	var judgeErr error
-	var imgUsed image.Image
-	// Retry OCR briefly in case tooltip animation is late.
-	// Tooltip 可能延迟出现，因此做短暂重试。
-	for attempt := 0; attempt <= param.OcrRetryCount; attempt++ {
-		if taskerStopping(ctx) {
-			return false
-		}
-		if taskerStopping(ctx) {
-			return false
-		}
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err != nil || img == nil {
-			log.Warn().Err(err).Msg("essence: failed to capture image")
-			break
-		}
-		imgUsed = img
-		if taskerStopping(ctx) {
-			return false
-		}
-		judgeDetail, judgeErr = ctx.RunRecognition("EssenceTooltipJudge", img, buildTooltipOverride(param.PreferredWeaponFlags))
-		if taskerStopping(ctx) {
-			return false
-		}
-		if judgeErr == nil && judgeDetail != nil && judgeDetail.Hit {
-			break
-		}
-		if attempt < param.OcrRetryCount && param.OcrRetryDelayMs > 0 {
-			time.Sleep(time.Duration(param.OcrRetryDelayMs) * time.Millisecond)
-		}
-	}
-	if judgeErr != nil || judgeDetail == nil || !judgeDetail.Hit {
-		return false
-	}
-
-	result, ok := parseJudgeResult(judgeDetail.DetailJson)
+	result, ok := parseJudgeResult(detail.DetailJson)
 	if !ok {
-		log.Warn().Str("detail", judgeDetail.DetailJson).Msg("essence: failed to parse judge detail")
-		return false
+		return
 	}
 
+	// 根据判定结果执行锁/解锁
+	// Lock or unlock based on judgment
 	if result.Decision == "Treasure" {
-		if taskerStopping(ctx) {
-			return false
-		}
-		if imgUsed != nil {
-			if taskerStopping(ctx) {
-				return false
-			}
-			unlockedDetail, _ := ctx.RunRecognition("EssenceLockStateUnlocked_Lock", imgUsed, nil)
-			if unlockedDetail != nil && unlockedDetail.Hit {
-				if taskerStopping(ctx) {
-					return false
-				}
-				_, _ = ctx.RunTask("EssenceLockStateUnlocked_Lock")
-			}
-		}
+		// 宝藏 → 确保锁定 / Treasure → ensure locked
+		tryToggleLock(ctx, img, "EssenceLockStateUnlocked_Lock")
 	} else {
-		if taskerStopping(ctx) {
-			return false
-		}
-		if imgUsed != nil {
-			if taskerStopping(ctx) {
-				return false
-			}
-			lockedDetail, _ := ctx.RunRecognition("EssenceLockStateLocked_Unlock", imgUsed, nil)
-			if lockedDetail != nil && lockedDetail.Hit {
-				if taskerStopping(ctx) {
-					return false
-				}
-				_, _ = ctx.RunTask("EssenceLockStateLocked_Unlock")
-			}
-		}
+		// 材料 → 确保解锁 / Material → ensure unlocked
+		tryToggleLock(ctx, img, "EssenceLockStateLocked_Unlock")
 	}
-	return true
 }
 
-// buildTooltipOverride injects preferred weapon flags into tooltip judge.
-// buildTooltipOverride 注入偏好武器开关到判定节点。
-func buildTooltipOverride(flags map[string]string) map[string]interface{} {
+// tryToggleLock 先识别是否需要切换锁状态，再执行点击。
+// tryToggleLock checks if a lock toggle is needed, then clicks if so.
+func tryToggleLock(ctx *maa.Context, img image.Image, nodeName string) {
+	if stopping(ctx) {
+		return
+	}
+	det, _ := ctx.RunRecognition(nodeName, img, nil)
+	if det != nil && det.Hit {
+		ctx.RunTask(nodeName)
+	}
+}
+
+// ---------- 基质定位 / Tile Detection ----------
+
+// point 表示屏幕上一个坐标点。
+// point represents a screen coordinate.
+type point struct{ x, y int }
+
+// findTiles 通过 EssenceTileMatch 模板匹配找到所有基质位置。
+// findTiles locates all essence tiles via EssenceTileMatch template matching.
+func findTiles(ctx *maa.Context, img image.Image) []point {
+	if stopping(ctx) {
+		return nil
+	}
+	detail, err := ctx.RunRecognition("EssenceTileMatch", img, nil)
+	if err != nil || detail == nil || !detail.Hit || detail.DetailJson == "" {
+		return nil
+	}
+
+	var tm struct {
+		Filtered []struct {
+			Box [4]int `json:"box"`
+		} `json:"filtered"`
+	}
+	if err := json.Unmarshal([]byte(detail.DetailJson), &tm); err != nil {
+		return nil
+	}
+
+	pts := make([]point, 0, len(tm.Filtered))
+	for _, item := range tm.Filtered {
+		// box = [x, y, w, h]，取左上角作为点击坐标
+		// box = [x, y, w, h]; use top-left as click target
+		pts = append(pts, point{x: item.Box[0], y: item.Box[1]})
+	}
+	return pts
+}
+
+// ---------- 判定结果解析 / Judge Result Parsing ----------
+
+// buildJudgeOverride 构造 RunRecognition 的 override，注入 OCR 节点名和武器开关。
+// buildJudgeOverride builds the override map for EssenceTooltipJudge recognition.
+func buildJudgeOverride(flags map[string]string) map[string]interface{} {
 	return map[string]interface{}{
 		"EssenceTooltipJudge": map[string]interface{}{
 			"recognition": map[string]interface{}{
@@ -227,126 +182,134 @@ func buildTooltipOverride(flags map[string]string) map[string]interface{} {
 	}
 }
 
-// findBarHits resolves item positions from EssenceTileMatch.
-// findBarHits 从 EssenceTileMatch 得到基质位置。
-func findBarHits(ctx *maa.Context, img image.Image, param scanGridParam) []barHit {
-	if taskerStopping(ctx) {
-		return nil
-	}
-
-	hits := make([]barHit, 0)
-	if taskerStopping(ctx) {
-		return hits
-	}
-	detail, err := ctx.RunRecognition("EssenceTileMatch", img, nil)
-	if taskerStopping(ctx) {
-		return hits
-	}
-	if err != nil || detail == nil || !detail.Hit || detail.DetailJson == "" {
-		return hits
-	}
-	if taskerStopping(ctx) {
-		return hits
-	}
-	for _, box := range extractTemplateBoxes(detail.DetailJson) {
-		x := box[0]
-		y := box[1]
-		hits = append(hits, barHit{point: point{x: x, y: y}, box: box})
-	}
-
-	return hits
-}
-
-// extractTemplateBoxes parses filtered boxes from TemplateMatch detail JSON.
-// extractTemplateBoxes 解析模板匹配的 filtered box。
-func extractTemplateBoxes(detail string) [][4]int {
-	var tm struct {
-		Filtered []struct {
-			Box [4]int `json:"box"`
-		} `json:"filtered"`
-	}
-	if err := json.Unmarshal([]byte(detail), &tm); err != nil {
-		return nil
-	}
-	boxes := make([][4]int, 0, len(tm.Filtered))
-	for _, item := range tm.Filtered {
-		boxes = append(boxes, item.Box)
-	}
-	return boxes
-}
-
-// parseJudgeResult handles different JSON wrappers from recognition detail.
-// parseJudgeResult 兼容不同识别返回格式。
+// parseJudgeResult 解析自定义识别返回的 JSON，提取判定结果。
+// parseJudgeResult extracts JudgeResult from the recognition detail JSON.
 func parseJudgeResult(detail string) (JudgeResult, bool) {
 	if detail == "" {
 		return JudgeResult{}, false
 	}
+	// 直接解析 / Direct parse
 	var result JudgeResult
 	if err := json.Unmarshal([]byte(detail), &result); err == nil && result.Decision != "" {
 		return result, true
 	}
-
-	var wrappedRaw struct {
+	// 兼容 best.detail 包裹格式 / Fallback: wrapped in best.detail
+	var wrapped struct {
 		Best struct {
 			Detail json.RawMessage `json:"detail"`
 		} `json:"best"`
 	}
-	if err := json.Unmarshal([]byte(detail), &wrappedRaw); err == nil && len(wrappedRaw.Best.Detail) > 0 {
-		if err := json.Unmarshal(wrappedRaw.Best.Detail, &result); err == nil && result.Decision != "" {
+	if err := json.Unmarshal([]byte(detail), &wrapped); err == nil && len(wrapped.Best.Detail) > 0 {
+		if err := json.Unmarshal(wrapped.Best.Detail, &result); err == nil && result.Decision != "" {
 			return result, true
 		}
 	}
-
-	var wrappedString struct {
-		Best struct {
-			Detail string `json:"detail"`
-		} `json:"best"`
-	}
-	if err := json.Unmarshal([]byte(detail), &wrappedString); err == nil && wrappedString.Best.Detail != "" {
-		if err := json.Unmarshal([]byte(wrappedString.Best.Detail), &result); err == nil && result.Decision != "" {
-			return result, true
-		}
-		if unquoted, err := strconv.Unquote(wrappedString.Best.Detail); err == nil {
-			if err := json.Unmarshal([]byte(unquoted), &result); err == nil && result.Decision != "" {
-				return result, true
-			}
-		}
-	}
-
 	return JudgeResult{}, false
 }
 
-// showSelectedWeaponTips prints selected weapons and derived attributes.
-// showSelectedWeaponTips 输出选中武器与词条提示。
-// runTileClickTask clicks a single tile via pipeline action override.
-// runTileClickTask 通过 pipeline 点击一个基质坐标。
-func runTileClickTask(ctx *maa.Context, x, y int) {
-	if taskerStopping(ctx) {
+// ---------- attach 读取 / Attach Reader ----------
+
+// readWeaponFlagsFromAttach 从节点 attach 的第一层 key 读取武器开关。
+// 每个 GUI switch 在 attach 第一层写一个 key（武器名 → "Yes"），
+// dict merge 保证多选时所有 key 并存。
+//
+// readWeaponFlagsFromAttach reads weapon flags from attach top-level keys.
+// Each GUI switch sets one key (weapon name → "Yes") in attach;
+// dict merge preserves all keys across multiple overrides.
+func readWeaponFlagsFromAttach(ctx *maa.Context, nodeName string) map[string]string {
+	nodeJSON, err := ctx.GetNodeJSON(nodeName)
+	if err != nil || nodeJSON == "" {
+		log.Warn().Err(err).Str("node", nodeName).Msg("essence: failed to get node JSON")
+		return nil
+	}
+	var parsed struct {
+		Attach map[string]string `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(nodeJSON), &parsed); err != nil {
+		log.Warn().Err(err).Msg("essence: failed to parse attach")
+		return nil
+	}
+	log.Info().Int("totalFlags", len(parsed.Attach)).Msg("essence: weapon flags from attach")
+	return parsed.Attach
+}
+
+// ---------- UI 提示 / UI Tips ----------
+
+// showSelectedWeaponTips 在 GUI 显示选中武器及所需词条。
+// showSelectedWeaponTips displays selected weapons and required attributes in the GUI.
+func showSelectedWeaponTips(ctx *maa.Context, flags map[string]string) {
+	if stopping(ctx) {
 		return
 	}
-	_, _ = ctx.RunTask("EssenceTileClick", map[string]interface{}{
-		"EssenceTileClick": map[string]interface{}{
+	selected := extractPreferredWeaponsFromFlags(flags)
+	if len(selected) == 0 {
+		showMessage(ctx, "未选择武器，按默认规则判定宝藏/养成材料")
+		return
+	}
+
+	if err := EnsureDataReady(); err != nil {
+		showMessage(ctx, "选中武器: "+joinShort(selected)+"\n武器数据加载失败")
+		return
+	}
+
+	// 收集选中武器涉及的所有词条
+	// Collect all attributes from selected weapons
+	attrSet := map[string]struct{}{}
+	for _, w := range allWeapons() {
+		if isTruthy(flags[w.Name]) {
+			for _, a := range []string{w.S1, w.S2, w.S3} {
+				if n := normalizeAttr(a); n != "" {
+					attrSet[n] = struct{}{}
+				}
+			}
+		}
+	}
+	attrs := make([]string, 0, len(attrSet))
+	for a := range attrSet {
+		attrs = append(attrs, a)
+	}
+
+	showMessage(ctx, "选中武器: "+joinShort(selected)+"\n需要词条: "+joinShort(attrs))
+}
+
+// showMessage 通过轻量 pipeline 任务在 GUI 显示文本。
+// showMessage displays text in the GUI via a lightweight pipeline task.
+func showMessage(ctx *maa.Context, text string) {
+	if stopping(ctx) {
+		return
+	}
+	ctx.RunTask("[Essence]TaskShowMessage", map[string]interface{}{
+		"[Essence]TaskShowMessage": map[string]interface{}{
 			"recognition": "DirectHit",
-			"action": map[string]interface{}{
-				"type": "Click",
-				"param": map[string]interface{}{
-					"target": []int{x, y},
-				},
-			},
+			"action":      "DoNothing",
+			"focus":       map[string]interface{}{"Node.Action.Starting": text},
 		},
 	})
 }
 
-// taskerStopping checks if the task is stopping or already stopped.
-// taskerStopping 判断任务是否停止/将停止。
-func taskerStopping(ctx *maa.Context) bool {
+// ---------- 工具函数 / Utilities ----------
+
+// stopping 检查任务是否正在停止或已停止。
+// stopping checks whether the task is stopping or already stopped.
+func stopping(ctx *maa.Context) bool {
 	if ctx == nil {
 		return true
 	}
-	tasker := ctx.GetTasker()
-	if tasker == nil {
+	t := ctx.GetTasker()
+	if t == nil {
 		return true
 	}
-	return tasker.Stopping() || !tasker.Running()
+	return t.Stopping() || !t.Running()
 }
 
+// joinShort 将字符串列表缩略展示（超过 10 个截断）。
+// joinShort abbreviates a string slice for display (truncated after 10).
+func joinShort(items []string) string {
+	if len(items) == 0 {
+		return "-"
+	}
+	if len(items) > 10 {
+		return strings.Join(items[:10], "、") + "…"
+	}
+	return strings.Join(items, "、")
+}

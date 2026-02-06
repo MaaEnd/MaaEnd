@@ -4,12 +4,12 @@ import "strings"
 
 // JudgeResult 表示一次基质判定的结果。
 type JudgeResult struct {
-	Decision          string   `json:"decision"`            // "Treasure" / "Material"
+	Decision           string   `json:"decision"`           // "Treasure" / "Material"
 	MatchedWeaponNames []string `json:"matchedWeaponNames"` // 命中的武器名称
 }
 
 // JudgeEssence 根据基质的三条属性（s1/s2/s3）进行简单判定。
-// 这里使用 endfield-essence-planner 中的 WEAPONS / DUNGEONS 作为规则基础：
+// 这里使用 endfield-essence-planner 中的 WEAPONS 作为规则基础：
 // - 若存在武器 (S1,S2,S3) 完全匹配，则视作 "Treasure"
 // - 否则视作 "Material"
 func JudgeEssence(s1, s2, s3 string) JudgeResult {
@@ -36,7 +36,7 @@ func JudgeEssence(s1, s2, s3 string) JudgeResult {
 	}
 
 	return JudgeResult{
-		Decision:          decision,
+		Decision:           decision,
 		MatchedWeaponNames: matchedNames,
 	}
 }
@@ -57,15 +57,27 @@ func JudgeEssenceWithPreferredWeapons(s1, s2, s3 string, preferredWeapons []stri
 		normalizeAttr(s3),
 	}
 
-	weaponSet := normalizeWeaponTokens(preferredWeapons)
+	// 构建选中武器名的精确匹配集合
+	// Build exact-match set from selected weapon names
+	weaponNameSet := make(map[string]struct{}, len(preferredWeapons))
+	for _, name := range preferredWeapons {
+		trimmed := strings.TrimSpace(name)
+		if trimmed != "" {
+			weaponNameSet[trimmed] = struct{}{}
+		}
+	}
+
 	var matchedNames []string
 	for _, w := range allWeapons() {
-		if weaponMatchToken(w, weaponSet) {
-			if normalizeAttr(w.S1) == attrs[0] &&
-				normalizeAttr(w.S2) == attrs[1] &&
-				normalizeAttr(w.S3) == attrs[2] {
-				matchedNames = append(matchedNames, w.Name)
-			}
+		// 精确匹配武器名
+		// Exact match on weapon name
+		if _, ok := weaponNameSet[w.Name]; !ok {
+			continue
+		}
+		if normalizeAttr(w.S1) == attrs[0] &&
+			normalizeAttr(w.S2) == attrs[1] &&
+			normalizeAttr(w.S3) == attrs[2] {
+			matchedNames = append(matchedNames, w.Name)
 		}
 	}
 
@@ -75,20 +87,9 @@ func JudgeEssenceWithPreferredWeapons(s1, s2, s3 string, preferredWeapons []stri
 	}
 
 	return JudgeResult{
-		Decision:          decision,
+		Decision:           decision,
 		MatchedWeaponNames: matchedNames,
 	}
-}
-
-// containsAttr matches normalized attribute text.
-// containsAttr 使用归一化后的词条进行匹配。
-func containsAttr(list []string, target string) bool {
-	for _, v := range list {
-		if normalizeAttr(v) == target {
-			return true
-		}
-	}
-	return false
 }
 
 // normalizeAttr trims whitespace for stable comparisons.
@@ -96,36 +97,3 @@ func containsAttr(list []string, target string) bool {
 func normalizeAttr(s string) string {
 	return strings.TrimSpace(s)
 }
-
-// normalizeWeaponTokens converts selected tokens to a lookup set.
-// normalizeWeaponTokens 将武器 token 生成查找集合。
-func normalizeWeaponTokens(tokens []string) map[string]struct{} {
-	result := map[string]struct{}{}
-	for _, t := range tokens {
-		val := strings.TrimSpace(t)
-		if val != "" {
-			result[val] = struct{}{}
-		}
-	}
-	return result
-}
-
-// weaponMatchToken matches weapon name/short/char list against tokens.
-// weaponMatchToken 按名称/别名/干员名匹配 token。
-func weaponMatchToken(w Weapon, tokens map[string]struct{}) bool {
-	for token := range tokens {
-		if token == "" {
-			continue
-		}
-		if strings.Contains(w.Name, token) || (w.Short != "" && strings.Contains(w.Short, token)) {
-			return true
-		}
-		for _, c := range w.Chars {
-			if c == token || strings.Contains(c, token) {
-				return true
-			}
-		}
-	}
-	return false
-}
-

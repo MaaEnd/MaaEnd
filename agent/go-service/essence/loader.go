@@ -14,15 +14,14 @@ import (
 
 var (
 	weapons  []Weapon
-
 	loadOnce sync.Once
 	loadErr  error
 )
 
 // 默认数据文件相对路径（基于 install 根目录）
 const (
-	defaultDataDir     = "resource/data/essence-planner"
-	defaultWeaponsJSN  = "weapons.js"
+	defaultDataDir    = "resource/data/essence-planner"
+	defaultWeaponsJSN = "weapons.js"
 )
 
 // InitData 在首次调用时加载武器数据。
@@ -106,16 +105,8 @@ func resolveDataDir() (string, error) {
 	return installPath, nil
 }
 
-// dirExists is a lightweight existence check for directories.
-// dirExists 用于判断目录是否存在。
-func dirExists(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return info.IsDir()
-}
-
+// fileExists checks if a regular file exists at path.
+// fileExists 判断文件是否存在。
 func fileExists(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -258,6 +249,6 @@ func EnsureDataReady() error {
 	return nil
 }
 
-// exposed helpers for other files in this package
+// allWeapons returns the loaded weapon list.
+// allWeapons 返回已加载的武器列表。
 func allWeapons() []Weapon { return weapons }
-
