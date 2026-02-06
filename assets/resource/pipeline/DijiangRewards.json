@@ -899,8 +899,53 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoom"
+            "ReceptionRoom",
+            "[JumpBack]EndExchange"
         ]
+    },
+    "EndExchange": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    528,
+                                    562,
+                                    256,
+                                    151
+                                ],
+                                "expected": [
+                                    "确认"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    498,
+                                    83,
+                                    321,
+                                    129
+                                ],
+                                "expected": [
+                                    "结束情报交流"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "ReceptionRoom": {
         "recognition": {
