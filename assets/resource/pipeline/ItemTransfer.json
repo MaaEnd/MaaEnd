@@ -79,6 +79,7 @@
     "ClickItemCategory": {
         "recognition": "TemplateMatch",
         "template": "ItemTransfer/全部.png",
+        "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
