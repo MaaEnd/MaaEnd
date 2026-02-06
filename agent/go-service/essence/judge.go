@@ -6,14 +6,12 @@ import "strings"
 type JudgeResult struct {
 	Decision          string   `json:"decision"`            // "Treasure" / "Material"
 	MatchedWeaponNames []string `json:"matchedWeaponNames"` // 命中的武器名称
-	BestDungeonIDs    []string `json:"bestDungeonIds"`      // 推荐副本 ID
 }
 
 // JudgeEssence 根据基质的三条属性（s1/s2/s3）进行简单判定。
 // 这里使用 endfield-essence-planner 中的 WEAPONS / DUNGEONS 作为规则基础：
 // - 若存在武器 (S1,S2,S3) 完全匹配，则视作 "Treasure"
 // - 否则视作 "Material"
-// - 同时根据 s2/s3 推荐可刷副本（其池中同时包含该 s2/s3）
 func JudgeEssence(s1, s2, s3 string) JudgeResult {
 	_ = EnsureDataReady() // 若失败会在日志中体现，这里仍按空数据继续
 
@@ -37,27 +35,16 @@ func JudgeEssence(s1, s2, s3 string) JudgeResult {
 		decision = "Treasure"
 	}
 
-	// 推荐副本：s2/s3 同时在池中出现即可
-	var bestDungeonIDs []string
-	s2Norm := attrs[1]
-	s3Norm := attrs[2]
-	for _, d := range allDungeons() {
-		if containsAttr(d.S2Pool, s2Norm) && containsAttr(d.S3Pool, s3Norm) {
-			bestDungeonIDs = append(bestDungeonIDs, d.ID)
-		}
-	}
-
 	return JudgeResult{
 		Decision:          decision,
 		MatchedWeaponNames: matchedNames,
-		BestDungeonIDs:    bestDungeonIDs,
 	}
 }
 
 // JudgeEssenceWithPreferredWeapons 根据指定武器名单进行判定：
 // - 若基质 (S1,S2,S3) 与任一选中武器完全一致，则视作 "Treasure"
 // - 否则视作 "Material"
-func JudgeEssenceWithPreferredWeapons(s1, s2, s3 string, preferredWeapons []string, matchMode string) JudgeResult {
+func JudgeEssenceWithPreferredWeapons(s1, s2, s3 string, preferredWeapons []string) JudgeResult {
 	if len(preferredWeapons) == 0 {
 		return JudgeEssence(s1, s2, s3)
 	}
@@ -87,23 +74,14 @@ func JudgeEssenceWithPreferredWeapons(s1, s2, s3 string, preferredWeapons []stri
 		decision = "Treasure"
 	}
 
-	// 推荐副本：s2/s3 同时在池中出现即可
-	var bestDungeonIDs []string
-	s2Norm := attrs[1]
-	s3Norm := attrs[2]
-	for _, d := range allDungeons() {
-		if containsAttr(d.S2Pool, s2Norm) && containsAttr(d.S3Pool, s3Norm) {
-			bestDungeonIDs = append(bestDungeonIDs, d.ID)
-		}
-	}
-
 	return JudgeResult{
 		Decision:          decision,
 		MatchedWeaponNames: matchedNames,
-		BestDungeonIDs:    bestDungeonIDs,
 	}
 }
 
+// containsAttr matches normalized attribute text.
+// containsAttr 使用归一化后的词条进行匹配。
 func containsAttr(list []string, target string) bool {
 	for _, v := range list {
 		if normalizeAttr(v) == target {
@@ -113,10 +91,14 @@ func containsAttr(list []string, target string) bool {
 	return false
 }
 
+// normalizeAttr trims whitespace for stable comparisons.
+// normalizeAttr 去除前后空白，保证稳定比较。
 func normalizeAttr(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// normalizeWeaponTokens converts selected tokens to a lookup set.
+// normalizeWeaponTokens 将武器 token 生成查找集合。
 func normalizeWeaponTokens(tokens []string) map[string]struct{} {
 	result := map[string]struct{}{}
 	for _, t := range tokens {
@@ -128,6 +110,8 @@ func normalizeWeaponTokens(tokens []string) map[string]struct{} {
 	return result
 }
 
+// weaponMatchToken matches weapon name/short/char list against tokens.
+// weaponMatchToken 按名称/别名/干员名匹配 token。
 func weaponMatchToken(w Weapon, tokens map[string]struct{}) bool {
 	for token := range tokens {
 		if token == "" {

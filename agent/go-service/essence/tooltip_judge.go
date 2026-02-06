@@ -10,16 +10,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// tooltipJudgeParam defines OCR node names and preferred weapons input.
+// tooltipJudgeParam 定义 OCR 节点名与偏好武器输入。
 type tooltipJudgeParam struct {
 	S1Node string `json:"s1_node"`
 	S2Node string `json:"s2_node"`
 	S3Node string `json:"s3_node"`
 	OnlyDecision string `json:"only_decision"`
-	PreferredWeapons string `json:"preferred_weapons"`
-	MatchMode string `json:"match_mode"`
 	PreferredWeaponFlags map[string]string `json:"preferred_weapon_flags"`
 }
 
+// attrCleanupRe strips noise like numbers and symbols from OCR output.
+// attrCleanupRe 去除 OCR 噪声（数字/符号）。
 var attrCleanupRe = regexp.MustCompile(`[0-9+\-%.]`)
 
 // EssenceTooltipJudgeRecognition 从 Tooltip OCR 读取三条属性并判定。
@@ -65,10 +67,7 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	}
 
 	preferred := extractPreferredWeaponsFromFlags(param.PreferredWeaponFlags)
-	if len(preferred) == 0 {
-		preferred = splitWeaponTokens(param.PreferredWeapons)
-	}
-	result := JudgeEssenceWithPreferredWeapons(s1, s2, s3, preferred, param.MatchMode)
+	result := JudgeEssenceWithPreferredWeapons(s1, s2, s3, preferred)
 	if param.OnlyDecision != "" && result.Decision != param.OnlyDecision {
 		log.Info().
 			Str("decision", result.Decision).
@@ -101,6 +100,8 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	}, true
 }
 
+// ocrAttrFromNode reads OCR text from a pipeline node.
+// ocrAttrFromNode 从指定 OCR 节点读取文本。
 func ocrAttrFromNode(ctx *maa.Context, img image.Image, nodeName string) (string, bool) {
 	detail, err := ctx.RunRecognition(nodeName, img, nil)
 	if err != nil {
@@ -126,6 +127,8 @@ func ocrAttrFromNode(ctx *maa.Context, img image.Image, nodeName string) (string
 	return "", false
 }
 
+// normalizeAttrText removes digits/symbols and trims extra marks.
+// normalizeAttrText 清理数字/符号并去除装饰字符。
 func normalizeAttrText(text string) string {
 	if text == "" {
 		return ""
@@ -135,28 +138,6 @@ func normalizeAttrText(text string) string {
 	clean = strings.TrimLeft(clean, "·•* ")
 	clean = strings.TrimRight(clean, "_-— ")
 	return strings.TrimSpace(clean)
-}
-
-func splitWeaponTokens(raw string) []string {
-	if raw == "" {
-		return nil
-	}
-	parts := strings.FieldsFunc(raw, func(r rune) bool {
-		switch r {
-		case ',', '，', ';', '；', '\n', '\r', '\t', ' ':
-			return true
-		default:
-			return false
-		}
-	})
-	result := make([]string, 0, len(parts))
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if p != "" {
-			result = append(result, p)
-		}
-	}
-	return result
 }
 
 

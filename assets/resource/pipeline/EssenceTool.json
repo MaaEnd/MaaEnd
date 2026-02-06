@@ -8,39 +8,41 @@
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceScanGridAction",
-                "custom_action_param": {
-                    "start_x": 35,
-                    "start_y": 85,
-                    "end_x": 863,
-                    "end_y": 500,
-                    "width": 100,
-                    "height": 100,
-                    "rows": 5,
-                    "cols": 9,
-                    "click_delay_ms": 120,
-                    "tooltip_delay_ms": 200,
-                    "ocr_retry_count": 1,
-                    "ocr_retry_delay_ms": 200,
-                    "use_color_bars": true,
-                    "bar_templates": [
-                        "EssenceTool/blueessence.png",
-                        "EssenceTool/greenessence.png",
-                        "EssenceTool/purpleessence.png",
-                        "EssenceTool/yellowessence.png"
-                    ],
-                    "bar_threshold": 0.9,
-                    "bar_roi": [
-                        35,
-                        85,
-                        928,
-                        515
-                    ],
-                    "bar_click_offset_x": 0,
-                    "bar_click_offset_y": -10,
-                    "bar_row_tolerance": 12
-                }
+                "custom_action_param": {}
             }
         }
+    },
+    "EssenceTileClick": {
+        "doc": "基质点击（由 Go 传入目标坐标）",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "EssenceTileMatch": {
+        "doc": "基质识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "EssenceTool/blueessence.png",
+                    "EssenceTool/greenessence.png",
+                    "EssenceTool/purpleessence.png",
+                    "EssenceTool/yellowessence.png"
+                ],
+                "threshold": 0.9,
+                "order_by": "Vertical",
+                "method": 5,
+                "roi": [
+                    27,
+                    75,
+                    944,
+                    577
+                ]
+            }
+        },
+        "post_wait_freezes": 1000
     },
     "EssenceTooltip_S1": {
         "doc": "基质属性行 1（s1）OCR",
@@ -237,7 +239,6 @@
     },
     "EssenceLockStateLocked_Unlock": {
         "doc": "已锁定时点击解锁（需放置锁定图标模板）",
-        "pre_delay": 400,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -254,12 +255,10 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "post_delay": 400
+        }
     },
     "EssenceLockStateUnlocked_Lock": {
         "doc": "未锁定时点击上锁（需放置锁定图标模板）",
-        "pre_delay": 400,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -276,7 +275,6 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "post_delay": 400
+        }
     }
 }

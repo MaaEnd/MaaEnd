@@ -7,11 +7,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// 保证实现接口
+// Ensure interface compliance at compile time.
+// 编译期保证接口实现。
 var (
 	_ maa.CustomRecognitionRunner = &EssenceJudgeRecognition{}
 	_ maa.CustomRecognitionRunner = &EssenceTooltipJudgeRecognition{}
-	_ maa.CustomActionRunner      = &EssenceApplyLockAction{}
 	_ maa.CustomActionRunner      = &EssenceScanGridAction{}
 )
 
@@ -33,7 +33,8 @@ type essenceJudgeInput struct {
 	S3 string `json:"s3"`
 }
 
-// Register 由 main.go 调用，用于注册到 Maa AgentServer。
+// Register is called from main.go to register custom components.
+// Register 在 main.go 中调用，用于注册组件。
 func Register() {
 	if err := EnsureDataReady(); err != nil {
 		// 这里只记录日志，不阻止注册；避免因为数据缺失直接崩溃。
@@ -42,7 +43,6 @@ func Register() {
 
 	maa.AgentServerRegisterCustomRecognition("EssenceJudge", &EssenceJudgeRecognition{})
 	maa.AgentServerRegisterCustomRecognition("EssenceTooltipJudge", &EssenceTooltipJudgeRecognition{})
-	maa.AgentServerRegisterCustomAction("EssenceApplyLockAction", &EssenceApplyLockAction{})
 	maa.AgentServerRegisterCustomAction("EssenceScanGridAction", &EssenceScanGridAction{})
 	log.Info().Msg("essence: registered essence custom recognition/actions")
 }
@@ -86,7 +86,6 @@ func (r *EssenceJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	log.Info().
 		Str("decision", result.Decision).
 		Int("matchedWeaponCount", len(result.MatchedWeaponNames)).
-		Int("bestDungeonCount", len(result.BestDungeonIDs)).
 		Msg("essence: finished EssenceJudge recognition")
 
 	return &maa.CustomRecognitionResult{

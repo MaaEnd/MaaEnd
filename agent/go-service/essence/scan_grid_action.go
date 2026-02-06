@@ -3,77 +3,41 @@ package essence
 import (
 	"encoding/json"
 	"image"
-	"math"
-	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
+// scanGridParam controls click timing and OCR retry behavior.
+// scanGridParam 控制点击节奏与 OCR 重试。
 type scanGridParam struct {
-	StartX int `json:"start_x"`
-	StartY int `json:"start_y"`
-	EndX   int `json:"end_x"`
-	EndY   int `json:"end_y"`
-	Width  int `json:"width"`
-	Height int `json:"height"`
-	Rows   int `json:"rows"`
-	Cols   int `json:"cols"`
-
-	LockCenterX int `json:"lock_center_x"`
-	LockCenterY int `json:"lock_center_y"`
-
 	ClickDelayMs int `json:"click_delay_ms"`
 	TooltipDelayMs int `json:"tooltip_delay_ms"`
 	OcrRetryCount int `json:"ocr_retry_count"`
 	OcrRetryDelayMs int `json:"ocr_retry_delay_ms"`
-	UseColorBars bool `json:"use_color_bars"`
-	BarTemplates []string `json:"bar_templates"`
-	BarThreshold float64 `json:"bar_threshold"`
-	BarRoi []int `json:"bar_roi"`
-	BarClickOffsetX int `json:"bar_click_offset_x"`
-	BarClickOffsetY int `json:"bar_click_offset_y"`
-	BarRowTolerance int `json:"bar_row_tolerance"`
 
 	PreferredWeaponFlags map[string]string `json:"preferred_weapon_flags"`
 }
 
-// EssenceScanGridAction 扫描多格基质并执行锁定/解锁。
+// EssenceScanGridAction scans visible items and toggles lock state.
+// EssenceScanGridAction 扫描可见基质并执行锁/解锁。
 type EssenceScanGridAction struct{}
 
 // Run 实现 CustomActionRunner 接口。
 func (a *EssenceScanGridAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if taskerStopping(ctx) {
+		log.Info().Msg("essence: task stopping before scan start")
+		return true
+	}
+	// Defaults are tuned for 1280x720 UI timing.
+	// 默认参数按 1280x720 UI 调整。
 	param := scanGridParam{
-		StartX: 35,
-		StartY: 85,
-		EndX:   863,
-		EndY:   500,
-		Width:  100,
-		Height: 100,
-		Rows:   5,
-		Cols:   9,
-
-		LockCenterX: 1218,
-		LockCenterY: 191,
-
 		ClickDelayMs: 120,
 		TooltipDelayMs: 200,
 		OcrRetryCount: 1,
 		OcrRetryDelayMs: 200,
-		UseColorBars: true,
-		BarTemplates: []string{
-			"EssenceTool/blueessence.png",
-			"EssenceTool/greenessence.png",
-			"EssenceTool/purpleessence.png",
-			"EssenceTool/yellowessence.png",
-		},
-		BarThreshold: 0.9,
-		BarClickOffsetX: 0,
-		BarClickOffsetY: -30,
-		BarRowTolerance: 12,
 	}
 	if arg.CustomActionParam != "" {
 		log.Info().Str("param", arg.CustomActionParam).Msg("essence: scan grid action param raw")
@@ -81,56 +45,58 @@ func (a *EssenceScanGridAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			log.Warn().Err(err).Msg("essence: failed to parse scan grid param, using defaults")
 		}
 	}
-	log.Info().
-		Bool("useColorBars", param.UseColorBars).
-		Msg("essence: scan grid config")
+	log.Info().Msg("essence: scan grid config")
 
-	if param.Rows <= 0 || param.Cols <= 0 {
-		log.Warn().Msg("essence: invalid grid size")
-		return false
+	if taskerStopping(ctx) {
+		log.Info().Msg("essence: task stopping before showing tips")
+		return true
 	}
-
-	showSelectedWeaponTips(ctx, param.PreferredWeaponFlags)
-
-	stepX := float64(param.EndX-param.StartX) / float64(max(param.Cols-1, 1))
-	stepY := float64(param.EndY-param.StartY) / float64(max(param.Rows-1, 1))
-
+	// Capture once, then locate all items via template match.
+	// 截图一次后用模板匹配定位所有基质。
 	ctrl := ctx.GetTasker().GetController()
 	centers := []point{}
 	barHits := []barHit{}
-	if param.UseColorBars {
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err == nil && img != nil {
-			barHits = append(barHits, findBarHits(ctx, img, param)...)
-		}
+	if taskerStopping(ctx) {
+		log.Info().Msg("essence: task stopping before tile scan")
+		return true
+	}
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err == nil && img != nil {
+		barHits = append(barHits, findBarHits(ctx, img, param)...)
 	}
 
-	if param.UseColorBars && len(barHits) > 0 {
-		rowGroups := groupBarHitsByRow(barHits, param.BarRowTolerance)
-		for _, row := range rowGroups {
-			for _, hit := range row {
-				centers = append(centers, barClickPoint(hit, param))
-			}
+	if len(barHits) > 0 {
+		for _, hit := range barHits {
+			centers = append(centers, hit.point)
 		}
 	}
 
 	if len(centers) == 0 {
-		for r := 0; r < param.Rows; r++ {
-			for c := 0; c < param.Cols; c++ {
-				x := int(math.Round(float64(param.StartX) + float64(c)*stepX))
-				y := int(math.Round(float64(param.StartY) + float64(r)*stepY))
-				centers = append(centers, point{x: x + param.Width/2, y: y + param.Height/2})
-			}
-		}
+		log.Info().Msg("essence: no tiles found, skip grid clicks")
+		return true
 	}
 
+	// Click each detected item and run tooltip/lock logic.
+	// 逐个点击并进行 OCR/锁定逻辑。
 	for _, center := range centers {
-		ctrl.PostClick(int32(center.x), int32(center.y))
+		if taskerStopping(ctx) {
+			log.Info().Msg("essence: task stopping during scan loop")
+			return true
+		}
+		runTileClickTask(ctx, center.x, center.y)
 		if param.ClickDelayMs > 0 {
 			time.Sleep(time.Duration(param.ClickDelayMs) * time.Millisecond)
 		}
+		if taskerStopping(ctx) {
+			log.Info().Msg("essence: task stopping after click delay")
+			return true
+		}
 		if !handleEssenceSelection(ctx, ctrl, param) {
+			if taskerStopping(ctx) {
+				log.Info().Msg("essence: task stopping after selection handling")
+				return true
+			}
 			continue
 		}
 	}
@@ -148,15 +114,31 @@ type barHit struct {
 	box  [4]int // absolute [x, y, w, h]
 }
 
+// handleEssenceSelection OCRs the tooltip and applies lock/unlock if needed.
+// handleEssenceSelection OCR 读取词条并按结果锁/解锁。
 func handleEssenceSelection(ctx *maa.Context, ctrl *maa.Controller, param scanGridParam) bool {
+	if taskerStopping(ctx) {
+		return false
+	}
 	if param.TooltipDelayMs > 0 {
 		time.Sleep(time.Duration(param.TooltipDelayMs) * time.Millisecond)
+	}
+	if taskerStopping(ctx) {
+		return false
 	}
 
 	var judgeDetail *maa.RecognitionDetail
 	var judgeErr error
 	var imgUsed image.Image
+	// Retry OCR briefly in case tooltip animation is late.
+	// Tooltip 可能延迟出现，因此做短暂重试。
 	for attempt := 0; attempt <= param.OcrRetryCount; attempt++ {
+		if taskerStopping(ctx) {
+			return false
+		}
+		if taskerStopping(ctx) {
+			return false
+		}
 		ctrl.PostScreencap().Wait()
 		img, err := ctrl.CacheImage()
 		if err != nil || img == nil {
@@ -164,7 +146,13 @@ func handleEssenceSelection(ctx *maa.Context, ctrl *maa.Controller, param scanGr
 			break
 		}
 		imgUsed = img
+		if taskerStopping(ctx) {
+			return false
+		}
 		judgeDetail, judgeErr = ctx.RunRecognition("EssenceTooltipJudge", img, buildTooltipOverride(param.PreferredWeaponFlags))
+		if taskerStopping(ctx) {
+			return false
+		}
 		if judgeErr == nil && judgeDetail != nil && judgeDetail.Hit {
 			break
 		}
@@ -183,16 +171,34 @@ func handleEssenceSelection(ctx *maa.Context, ctrl *maa.Controller, param scanGr
 	}
 
 	if result.Decision == "Treasure" {
+		if taskerStopping(ctx) {
+			return false
+		}
 		if imgUsed != nil {
+			if taskerStopping(ctx) {
+				return false
+			}
 			unlockedDetail, _ := ctx.RunRecognition("EssenceLockStateUnlocked_Lock", imgUsed, nil)
 			if unlockedDetail != nil && unlockedDetail.Hit {
+				if taskerStopping(ctx) {
+					return false
+				}
 				_, _ = ctx.RunTask("EssenceLockStateUnlocked_Lock")
 			}
 		}
 	} else {
+		if taskerStopping(ctx) {
+			return false
+		}
 		if imgUsed != nil {
+			if taskerStopping(ctx) {
+				return false
+			}
 			lockedDetail, _ := ctx.RunRecognition("EssenceLockStateLocked_Unlock", imgUsed, nil)
 			if lockedDetail != nil && lockedDetail.Hit {
+				if taskerStopping(ctx) {
+					return false
+				}
 				_, _ = ctx.RunTask("EssenceLockStateLocked_Unlock")
 			}
 		}
@@ -200,6 +206,8 @@ func handleEssenceSelection(ctx *maa.Context, ctrl *maa.Controller, param scanGr
 	return true
 }
 
+// buildTooltipOverride injects preferred weapon flags into tooltip judge.
+// buildTooltipOverride 注入偏好武器开关到判定节点。
 func buildTooltipOverride(flags map[string]string) map[string]interface{} {
 	return map[string]interface{}{
 		"EssenceTooltipJudge": map[string]interface{}{
@@ -219,57 +227,38 @@ func buildTooltipOverride(flags map[string]string) map[string]interface{} {
 	}
 }
 
+// findBarHits resolves item positions from EssenceTileMatch.
+// findBarHits 从 EssenceTileMatch 得到基质位置。
 func findBarHits(ctx *maa.Context, img image.Image, param scanGridParam) []barHit {
-	roiX, roiY, roiW, roiH := resolveBarRoi(param)
-	if roiW <= 0 || roiH <= 0 {
+	if taskerStopping(ctx) {
 		return nil
 	}
 
-	threshold := param.BarThreshold
-	if threshold <= 0 {
-		threshold = 0.9
-	}
-
 	hits := make([]barHit, 0)
-	seen := map[int64]struct{}{}
-	for _, tmpl := range param.BarTemplates {
-		detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
-			Threshold: []float64{threshold},
-			Template:  []string{tmpl},
-			ROI:       maa.NewTargetRect(maa.Rect{roiX, roiY, roiW, roiH}),
-		}, img)
-		if err != nil || detail == nil || !detail.Hit || detail.DetailJson == "" {
-			continue
-		}
-		for _, box := range extractTemplateBoxes(detail.DetailJson) {
-			absBox := [4]int{roiX + box[0], roiY + box[1], box[2], box[3]}
-			x := absBox[0] + absBox[2]/2
-			y := absBox[1] + absBox[3]/2
-			key := (int64(x) << 32) | int64(uint32(y))
-			if _, ok := seen[key]; ok {
-				continue
-			}
-			seen[key] = struct{}{}
-			hits = append(hits, barHit{point: point{x: x, y: y}, box: absBox})
-		}
+	if taskerStopping(ctx) {
+		return hits
+	}
+	detail, err := ctx.RunRecognition("EssenceTileMatch", img, nil)
+	if taskerStopping(ctx) {
+		return hits
+	}
+	if err != nil || detail == nil || !detail.Hit || detail.DetailJson == "" {
+		return hits
+	}
+	if taskerStopping(ctx) {
+		return hits
+	}
+	for _, box := range extractTemplateBoxes(detail.DetailJson) {
+		x := box[0]
+		y := box[1]
+		hits = append(hits, barHit{point: point{x: x, y: y}, box: box})
 	}
 
-	sort.Slice(hits, func(i, j int) bool {
-		if hits[i].y == hits[j].y {
-			return hits[i].x < hits[j].x
-		}
-		return hits[i].y < hits[j].y
-	})
 	return hits
 }
 
-func resolveBarRoi(param scanGridParam) (int, int, int, int) {
-	if len(param.BarRoi) >= 4 {
-		return param.BarRoi[0], param.BarRoi[1], param.BarRoi[2], param.BarRoi[3]
-	}
-	return param.StartX, param.StartY, param.EndX - param.StartX + param.Width, param.EndY - param.StartY + param.Height
-}
-
+// extractTemplateBoxes parses filtered boxes from TemplateMatch detail JSON.
+// extractTemplateBoxes 解析模板匹配的 filtered box。
 func extractTemplateBoxes(detail string) [][4]int {
 	var tm struct {
 		Filtered []struct {
@@ -286,56 +275,8 @@ func extractTemplateBoxes(detail string) [][4]int {
 	return boxes
 }
 
-func barClickPoint(hit barHit, param scanGridParam) point {
-	x := hit.box[0] + hit.box[2]/2
-	y := hit.box[1] + hit.box[3]/2
-	if param.Height > 0 {
-		// Click above the color bar, roughly item center.
-		y = hit.box[1] - param.Height/2 + hit.box[3]
-	}
-	return point{
-		x: x + param.BarClickOffsetX,
-		y: y + param.BarClickOffsetY,
-	}
-}
-
-func groupBarHitsByRow(hits []barHit, tolerance int) [][]barHit {
-	if len(hits) == 0 {
-		return nil
-	}
-	if tolerance <= 0 {
-		tolerance = 12
-	}
-	rows := make([][]barHit, 0)
-	current := []barHit{hits[0]}
-	rowY := hits[0].y
-	for i := 1; i < len(hits); i++ {
-		if abs(hits[i].y-rowY) <= tolerance {
-			current = append(current, hits[i])
-		} else {
-			rows = append(rows, current)
-			current = []barHit{hits[i]}
-			rowY = hits[i].y
-		}
-	}
-	rows = append(rows, current)
-	return rows
-}
-
-func abs(n int) int {
-	if n < 0 {
-		return -n
-	}
-	return n
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
+// parseJudgeResult handles different JSON wrappers from recognition detail.
+// parseJudgeResult 兼容不同识别返回格式。
 func parseJudgeResult(detail string) (JudgeResult, bool) {
 	if detail == "" {
 		return JudgeResult{}, false
@@ -375,54 +316,37 @@ func parseJudgeResult(detail string) (JudgeResult, bool) {
 	return JudgeResult{}, false
 }
 
-func showSelectedWeaponTips(ctx *maa.Context, flags map[string]string) {
-	selected := extractPreferredWeaponsFromFlags(flags)
-	if len(selected) == 0 {
-		runMessageTask(ctx, "未选择武器，按默认规则判定宝藏/养成材料")
+// showSelectedWeaponTips prints selected weapons and derived attributes.
+// showSelectedWeaponTips 输出选中武器与词条提示。
+// runTileClickTask clicks a single tile via pipeline action override.
+// runTileClickTask 通过 pipeline 点击一个基质坐标。
+func runTileClickTask(ctx *maa.Context, x, y int) {
+	if taskerStopping(ctx) {
 		return
 	}
-
-	_ = EnsureDataReady()
-
-	attrSet := map[string]struct{}{}
-	for _, w := range allWeapons() {
-		if _, ok := flags[w.Name]; ok && isTruthy(flags[w.Name]) {
-			attrSet[normalizeAttr(w.S1)] = struct{}{}
-			attrSet[normalizeAttr(w.S2)] = struct{}{}
-			attrSet[normalizeAttr(w.S3)] = struct{}{}
-		}
-	}
-
-	attrs := make([]string, 0, len(attrSet))
-	for attr := range attrSet {
-		if attr != "" {
-			attrs = append(attrs, attr)
-		}
-	}
-
-	msg := "选中武器: " + joinShort(selected) + "\n需要词条: " + joinShort(attrs)
-	runMessageTask(ctx, msg)
-}
-
-func runMessageTask(ctx *maa.Context, text string) {
-	ctx.RunTask("[Essence]TaskShowMessage", map[string]interface{}{
-		"[Essence]TaskShowMessage": map[string]interface{}{
+	_, _ = ctx.RunTask("EssenceTileClick", map[string]interface{}{
+		"EssenceTileClick": map[string]interface{}{
 			"recognition": "DirectHit",
-			"action":      "DoNothing",
-			"focus": map[string]interface{}{
-				"Node.Action.Starting": text,
+			"action": map[string]interface{}{
+				"type": "Click",
+				"param": map[string]interface{}{
+					"target": []int{x, y},
+				},
 			},
 		},
 	})
 }
 
-
-func joinShort(items []string) string {
-	if len(items) == 0 {
-		return "-"
+// taskerStopping checks if the task is stopping or already stopped.
+// taskerStopping 判断任务是否停止/将停止。
+func taskerStopping(ctx *maa.Context) bool {
+	if ctx == nil {
+		return true
 	}
-	if len(items) > 10 {
-		return strings.Join(items[:10], "、") + "…"
+	tasker := ctx.GetTasker()
+	if tasker == nil {
+		return true
 	}
-	return strings.Join(items, "、")
+	return tasker.Stopping() || !tasker.Running()
 }
+
