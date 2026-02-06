@@ -16,24 +16,14 @@
     },
     "CreditShoppingNoCreditClaim": {
         "doc": "没有信用点可领取",
-        "recognition": "ColorMatch",
-        "lower": [
-            111,
-            109,
-            111
-        ],
-        "upper": [
-            111,
-            109,
-            111
-        ],
-        "count": 500,
+        "recognition": "OCR",
         "roi": [
-            81,
-            664,
-            100,
-            19
+            26,
+            583,
+            254,
+            137
         ],
+        "expected": "无待领取信用",
         "action": "DoNothing",
         "next": [
             "CreditShoppingShopping"

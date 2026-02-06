@@ -59,6 +59,29 @@
     "RepoToBag": {
         "post_wait_freezes": 1,
         "next": [
+            "ClickSortDescending",
+            "ClickItemCategory",
+            "FindItem",
+            "ScrollDownward"
+        ]
+    },
+    "ClickSortDescending": {
+        "recognition": "OCR",
+        "expected": "降序",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ClickItemCategory",
+            "FindItem",
+            "ScrollDownward"
+        ]
+    },
+    "ClickItemCategory": {
+        "recognition": "TemplateMatch",
+        "template": "ItemTransfer/全部.png",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
             "FindItem",
             "ScrollDownward"
         ]
@@ -82,7 +105,7 @@
             248
         ],
         "end_hold": 500,
-        "max_hit": 6,
+        "max_hit": 3,
         "post_wait_freezes": 1,
         "next": [
             "FindItem",
@@ -102,7 +125,7 @@
             455
         ],
         "end_hold": 500,
-        "max_hit": 6,
+        "max_hit": 3,
         "post_wait_freezes": 1,
         "next": [
             "FindItem",
