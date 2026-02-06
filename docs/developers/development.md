@@ -27,6 +27,7 @@ python tools/setup_workspace.py
     **不要漏了 `--recursive`**
 
     如果你已经 clone 了项目，但没有使用 `--recursive` 参数，现在你可以在项目的根目录执行
+
     ```bash
     git submodule update --init --recursive
     ```
