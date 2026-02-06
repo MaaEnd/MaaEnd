@@ -283,7 +283,7 @@
                     "label": "$芽针粉末",
                     "pipeline_override": {
                         "ClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/可用道具.png"
                         },
                         "FindItemInRepo": {
                             "template": "ItemTransfer/芽针粉末.png"
@@ -298,7 +298,7 @@
                     "label": "$锦草粉末",
                     "pipeline_override": {
                         "ClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/可用道具.png"
                         },
                         "FindItemInRepo": {
                             "template": "ItemTransfer/锦草粉末.png"
