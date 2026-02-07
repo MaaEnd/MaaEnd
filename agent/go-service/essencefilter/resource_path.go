@@ -15,17 +15,17 @@ var (
 	registerSinkOnce sync.Once
 )
 
-func registerResourcePathSink() {
-	fmt.Println("[EssenceFilter] Calling registerResourcePathSink")
-	registerSinkOnce.Do(func() {
-		maa.AgentServerAddResourceSink(&resourcePathSink{})
-		fmt.Println("[EssenceFilter] Resource path sink registered")
-	})
-}
+// func registerResourcePathSink() {
+// 	fmt.Println("[EssenceFilter] Calling registerResourcePathSink")
+// 	registerSinkOnce.Do(func() {
+// 		maa.AgentServerAddResourceSink(&resourcePathSink{})
+// 		fmt.Println("[EssenceFilter] Resource path sink registered")
+// 	})
+// }
 
 type resourcePathSink struct{}
 
-func (resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.EventStatus, detail maa.ResourceLoadingDetail) {
+func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.EventStatus, detail maa.ResourceLoadingDetail) {
 	fmt.Println("[EssenceFilter] Resource loading event: status=%s, path=%s\n", status, detail.Path)
 	if status != maa.EventStatusSucceeded || detail.Path == "" {
 		return

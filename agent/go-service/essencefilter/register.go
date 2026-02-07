@@ -7,7 +7,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	_ maa.ResourceEventSink = &resourcePathSink{}
+)
+
 func Register() {
+	fmt.Println("[EssenceFilter] Registering Sink...")
+	maa.AgentServerAddResourceSink(&resourcePathSink{})
+
 	fmt.Println("========== [EssenceFilter] Register() called ==========")
 	log.Info().Msg("[EssenceFilter] 开始注册 Custom Actions")
 

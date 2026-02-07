@@ -46,9 +46,10 @@ type EssenceFilterInitAction struct{}
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[EssenceFilter] ========== Init ==========")
 
-	base := "resource" // default resource path
-
-	// Add OnResourceLoading for base after sorting it out.
+	base := getResourceBase()
+	if base == "" {
+		base = "resource" // fallback to current relative default
+	}
 
 	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
 	weaponDataPath = filepath.Join(gameDataDir, "weapons_data")
