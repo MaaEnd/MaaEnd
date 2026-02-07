@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
@@ -76,6 +77,7 @@ func registerAll() {
 	importtask.Register()
 	resell.Register()
 	puzzle.Register()
+	essencefilter.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
