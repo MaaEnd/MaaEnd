@@ -237,7 +237,7 @@
   },
 
   "EssenceFilterSwipeFirst": {
-    "doc": "首行滑动（已调参）",
+    "doc": "首行滑动",
     "action": {
       "type": "Swipe",
       "param": {
@@ -251,7 +251,7 @@
     "next": ["EssenceRowDetect"]
   },
   "EssenceFilterSwipeNext": {
-    "doc": "后续滑动（已调参）",
+    "doc": "后续滑动",
     "action": {
       "type": "Swipe",
       "param": {
