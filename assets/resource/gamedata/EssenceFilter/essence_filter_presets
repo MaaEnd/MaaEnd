@@ -1,0 +1,28 @@
+{
+    "presets": [
+        {
+            "name": "Rarity6",
+            "label": "仅筛选6星武器",
+            "filter": {
+                "min_rarity": 6,
+                "max_rarity": 6
+            }
+        },
+        {
+            "name": "Rarity5",
+            "label": "仅筛选5星武器",
+            "filter": {
+                "min_rarity": 5,
+                "max_rarity": 5
+            }
+        },
+        {
+            "name": "Rarity6_and_5",
+            "label": "筛选6星和5星武器",
+            "filter": {
+                "min_rarity": 5,
+                "max_rarity": 6
+            }
+        }
+    ]
+}

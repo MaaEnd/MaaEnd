@@ -1,0 +1,1739 @@
+{
+    "weapon_types": [
+        {
+            "id": 1,
+            "english": "Sword",
+            "chinese": "单手剑"
+        },
+        {
+            "id": 2,
+            "english": "Great Sword",
+            "chinese": "双手剑"
+        },
+        {
+            "id": 3,
+            "english": "Polearm",
+            "chinese": "长柄武器"
+        },
+        {
+            "id": 4,
+            "english": "Handcannon",
+            "chinese": "手铳"
+        },
+        {
+            "id": 5,
+            "english": "Arts Unit",
+            "chinese": "施术单元"
+        }
+    ],
+    "skill_pools": {
+        "slot1": [
+            {
+                "id": 1,
+                "english": "Agility Boost",
+                "chinese": "敏捷提升"
+            },
+            {
+                "id": 2,
+                "english": "Intellect Boost",
+                "chinese": "智识提升"
+            },
+            {
+                "id": 3,
+                "english": "Main Attribute Boost",
+                "chinese": "主能力提升"
+            },
+            {
+                "id": 4,
+                "english": "Strength Boost",
+                "chinese": "力量提升"
+            },
+            {
+                "id": 5,
+                "english": "Will Boost",
+                "chinese": "意志提升"
+            }
+        ],
+        "slot2": [
+            {
+                "id": 1,
+                "english": "Arts Boost",
+                "chinese": "法术提升"
+            },
+            {
+                "id": 2,
+                "english": "Arts Intensity Boost",
+                "chinese": "源石技艺强度提升"
+            },
+            {
+                "id": 3,
+                "english": "Attack Boost",
+                "chinese": "攻击提升"
+            },
+            {
+                "id": 4,
+                "english": "Critical Rate Boost",
+                "chinese": "暴击率提升"
+            },
+            {
+                "id": 5,
+                "english": "Cryo DMG Boost",
+                "chinese": "寒冷伤害提升"
+            },
+            {
+                "id": 6,
+                "english": "Electric DMG Boost",
+                "chinese": "电磁伤害提升"
+            },
+            {
+                "id": 7,
+                "english": "HP Boost",
+                "chinese": "生命提升"
+            },
+            {
+                "id": 8,
+                "english": "Heat DMG Boost",
+                "chinese": "灼热伤害提升"
+            },
+            {
+                "id": 9,
+                "english": "Nature DMG Boost",
+                "chinese": "自然伤害提升"
+            },
+            {
+                "id": 10,
+                "english": "Physical DMG Boost",
+                "chinese": "物理伤害提升"
+            },
+            {
+                "id": 11,
+                "english": "Treatment Efficiency Boost",
+                "chinese": "治疗效率提升"
+            },
+            {
+                "id": 12,
+                "english": "Ultimate Gain Efficiency Boost",
+                "chinese": "终结技充能效率提升"
+            }
+        ],
+        "slot3": [
+            {
+                "id": 1,
+                "english": "Assault",
+                "chinese": "强攻"
+            },
+            {
+                "id": 2,
+                "english": "Brutality",
+                "chinese": "残暴"
+            },
+            {
+                "id": 3,
+                "english": "Combative",
+                "chinese": "巧技"
+            },
+            {
+                "id": 4,
+                "english": "Crusher",
+                "chinese": "粉碎"
+            },
+            {
+                "id": 5,
+                "english": "Detonate",
+                "chinese": "迸发"
+            },
+            {
+                "id": 6,
+                "english": "Efficacy",
+                "chinese": "效益"
+            },
+            {
+                "id": 7,
+                "english": "Flow",
+                "chinese": "流转"
+            },
+            {
+                "id": 8,
+                "english": "Fracture",
+                "chinese": "切骨"
+            },
+            {
+                "id": 9,
+                "english": "Infliction",
+                "chinese": "附术"
+            },
+            {
+                "id": 10,
+                "english": "Inspiring",
+                "chinese": "昂扬"
+            },
+            {
+                "id": 11,
+                "english": "Medicant",
+                "chinese": "医疗"
+            },
+            {
+                "id": 12,
+                "english": "Pursuit",
+                "chinese": "追袭"
+            },
+            {
+                "id": 13,
+                "english": "Suppression",
+                "chinese": "压制"
+            },
+            {
+                "id": 14,
+                "english": "Twilight",
+                "chinese": "夜幕"
+            }
+        ]
+    },
+    "weapons": [
+        {
+            "internal_id": "wpn_lance_0008",
+            "english_name": "Aggeloslayer",
+            "chinese_name": "天使杀手",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Aggeloslayer_icon.png",
+            "skill_ids": [
+                5,
+                1,
+                13
+            ],
+            "skills_english": [
+                "Will Boost [S]",
+                "Arts Boost [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "skills_chinese": [
+                "意志提升·小",
+                "法术提升·小",
+                "压制·应急强化"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0014",
+            "english_name": "Ancient Canal",
+            "chinese_name": "古渠",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Ancient_Canal_icon.png",
+            "skill_ids": [
+                4,
+                2,
+                2
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "Arts Intensity Boost [M]",
+                "Brutality: Lands of Yore"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "源石技艺强度提升·中",
+                "残暴·千秋旧土"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0010",
+            "english_name": "Artzy Tyrannical",
+            "chinese_name": "艺术暴君",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Artzy_Tyrannical_icon.png",
+            "skill_ids": [
+                2,
+                4,
+                8
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Critical Rate Boost [L]",
+                "Fracture: Artzy Exaggeration"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "暴击率提升·大",
+                "切骨·艺术暴论"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0015",
+            "english_name": "Aspirant",
+            "chinese_name": "仰止",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Aspirant_icon.png",
+            "skill_ids": [
+                1,
+                10,
+                14
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "Physical DMG Boost [M]",
+                "Twilight: Imposing Peak"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "夜幕·高山仰止"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0004",
+            "english_name": "Chimeric Justice",
+            "chinese_name": "嵌合正义",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Chimeric_Justice_icon.png",
+            "skill_ids": [
+                4,
+                12,
+                2
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "Ultimate Gain Efficiency Boost [M]",
+                "Brutality: Cemented Fury"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "终结技充能效率提升·中",
+                "残暴·愤怒接合"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0010",
+            "english_name": "Chivalric Virtues",
+            "chinese_name": "骑士精神",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Chivalric_Virtues_icon.png",
+            "skill_ids": [
+                5,
+                7,
+                11
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "HP Boost [L]",
+                "Medicant: Blight Fervor"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "生命提升·大",
+                "医疗·侵蚀性狂热"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0009",
+            "english_name": "Clannibal",
+            "chinese_name": "同类相食",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Clannibal_icon.png",
+            "skill_ids": [
+                3,
+                1,
+                9
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Arts Boost [L]",
+                "Infliction: Vicious Purge"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "法术提升·大",
+                "附术·残酷清洗"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0006",
+            "english_name": "Cohesive Traction",
+            "chinese_name": "向心之引",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Cohesive_Traction_icon.png",
+            "skill_ids": [
+                5,
+                6,
+                13
+            ],
+            "skills_english": [
+                "Will Boost [M]",
+                "Electric DMG Boost [M]",
+                "Suppression: Concentric Circles"
+            ],
+            "skills_chinese": [
+                "意志提升·中",
+                "电磁伤害提升·中",
+                "压制·同心圆"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0008",
+            "english_name": "Contingent Measure",
+            "chinese_name": "应急手段",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Contingent_Measure_icon.png",
+            "skill_ids": [
+                1,
+                10,
+                13
+            ],
+            "skills_english": [
+                "Agility Boost [S]",
+                "Physical DMG Boost [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "skills_chinese": [
+                "敏捷提升·小",
+                "物理伤害提升·小",
+                "压制·应急强化"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0010",
+            "english_name": "Darhoff 7",
+            "chinese_name": "达尔霍夫7",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 3,
+            "icon_path": "weapon_images_endfield\\Darhoff_7_icon.png",
+            "skill_ids": [
+                3,
+                null,
+                1
+            ],
+            "skills_english": [
+                "Main Attribute Boost [S]",
+                "Assault: Armament Prep"
+            ],
+            "skills_chinese": [
+                "主能力提升·小",
+                "",
+                "强攻·武装整备"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0011",
+            "english_name": "Delivery Guaranteed",
+            "chinese_name": "使命必达",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Delivery_Guaranteed_icon.png",
+            "skill_ids": [
+                5,
+                12,
+                12
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "Ultimate Gain Efficiency Boost [L]",
+                "Pursuit: Duty Fulfilled"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "终结技充能效率提升·大",
+                "追袭·不辱使命"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0008",
+            "english_name": "Detonation Unit",
+            "chinese_name": "爆破单元",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Detonation_Unit_icon.png",
+            "skill_ids": [
+                3,
+                2,
+                5
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Arts Intensity Boost [L]",
+                "Detonate: Imposing Champion"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "迸发·冠军威赫"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0013",
+            "english_name": "Dreams of the Starry Beach",
+            "chinese_name": "沧溟星梦",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Dreams_of_the_Starry_Beach_icon.png",
+            "skill_ids": [
+                2,
+                11,
+                9
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Treatment Efficiency Boost [L]",
+                "Infliction: Tidal Murmurs"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "治疗效率提升·大",
+                "附术·潮汐低语"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0013",
+            "english_name": "Eminent Repute",
+            "chinese_name": "显赫声名",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Eminent_Repute_icon.png",
+            "skill_ids": [
+                3,
+                10,
+                2
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Physical DMG Boost [L]",
+                "Brutality: Disciplinarian"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "物理伤害提升·大",
+                "残暴·规行矩止"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0004",
+            "english_name": "Exemplar",
+            "chinese_name": "典范",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Exemplar_icon.png",
+            "skill_ids": [
+                3,
+                3,
+                13
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Attack Boost [L]",
+                "Suppression: Stacked Hew"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "攻击提升·大",
+                "压制·多层斩断"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0020",
+            "english_name": "Finchaser 3.0",
+            "chinese_name": "逐鳞3.0",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Finchaser_3.0_icon.png",
+            "skill_ids": [
+                4,
+                5,
+                13
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "Cryo DMG Boost [M]",
+                "Suppression: Fin Chaser's Intent"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "寒冷伤害提升·中",
+                "压制·逐鳞意"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0012",
+            "english_name": "Finishing Call",
+            "chinese_name": "终点之声",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Finishing_Call_icon.png",
+            "skill_ids": [
+                4,
+                7,
+                11
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "HP Boost [M]",
+                "Medicant: Glory of Knighthood"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "生命提升·中",
+                "医疗·骑士荣光"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0003",
+            "english_name": "Fluorescent Roc",
+            "chinese_name": "荧光雷羽",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Fluorescent_Roc_icon.png",
+            "skill_ids": [
+                5,
+                3,
+                13
+            ],
+            "skills_english": [
+                "Will Boost [S]",
+                "ATK Boost [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "skills_chinese": [
+                "意志提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0006",
+            "english_name": "Forgeborn Scathe",
+            "chinese_name": "熔铸火焰",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Forgeborn_Scathe_icon.png",
+            "skill_ids": [
+                2,
+                3,
+                14
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Attack Boost [L]",
+                "Twilight: Blazing Wail"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "攻击提升·大",
+                "夜幕·嘶鸣烈火"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0006",
+            "english_name": "Former Finery",
+            "chinese_name": "昔日精品",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Former_Finery_icon.png",
+            "skill_ids": [
+                5,
+                7,
+                6
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "HP Boost [L]",
+                "Efficacy: Mincing Therapy"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "生命提升·大",
+                "效益·切碎疗法"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0007",
+            "english_name": "Fortmaker",
+            "chinese_name": "坚城铸造者",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Fortmaker_icon.png",
+            "skill_ids": [
+                2,
+                12,
+                10
+            ],
+            "skills_english": [
+                "Intellect Boost [M]",
+                "Ultimate Gain Efficiency Boost [M]",
+                "Inspiring: Back to the Broken City"
+            ],
+            "skills_chinese": [
+                "智识提升·中",
+                "终结技充能效率提升·中",
+                "昂扬·残城归途"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0012",
+            "english_name": "Freedom to Proselytize",
+            "chinese_name": "布道自由",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Freedom_to_Proselytize_icon.png",
+            "skill_ids": [
+                5,
+                11,
+                11
+            ],
+            "skills_english": [
+                "Will Boost [M]",
+                "Treatment Efficiency Boost [M]",
+                "Medicant: Redemption of Faith"
+            ],
+            "skills_chinese": [
+                "意志提升·中",
+                "治疗效率提升·中",
+                "医疗·信仰救赎"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0021",
+            "english_name": "Grand Vision",
+            "chinese_name": "宏愿",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Grand_Vision_icon.png",
+            "skill_ids": [
+                1,
+                3,
+                9
+            ],
+            "skills_english": [
+                "Agility Boost [L]",
+                "Attack Boost [L]",
+                "Infliction: Long Time Wish"
+            ],
+            "skills_chinese": [
+                "敏捷提升·大",
+                "攻击提升·大",
+                "附术·长愿"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0002",
+            "english_name": "Howling Guard",
+            "chinese_name": "呼啸守卫",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Howling_Guard_icon.png",
+            "skill_ids": [
+                2,
+                3,
+                13
+            ],
+            "skills_english": [
+                "Intellect Boost [S]",
+                "ATK Boost [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "skills_chinese": [
+                "智识提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0001",
+            "english_name": "Hypernova Auto",
+            "chinese_name": "全自动骇新星",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Hypernova_Auto_icon.png",
+            "skill_ids": [
+                2,
+                1,
+                10
+            ],
+            "skills_english": [
+                "Intellect Boost [S]",
+                "Arts Boost [S]",
+                "Inspiring: Start of a Saga"
+            ],
+            "skills_chinese": [
+                "智识提升·小",
+                "法术提升·小",
+                "昂扬·远途起始"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0003",
+            "english_name": "Industry 0.1",
+            "chinese_name": "工业零点一",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Industry_0.1_icon.png",
+            "skill_ids": [
+                4,
+                3,
+                13
+            ],
+            "skills_english": [
+                "Strength Boost [S]",
+                "ATK Boost [S]",
+                "Suppression: Emergency Boost"
+            ],
+            "skills_chinese": [
+                "力量提升·小",
+                "攻击提升·小",
+                "压制·应急强化"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0011",
+            "english_name": "JET",
+            "chinese_name": "J.E.T.",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\JET_icon.png",
+            "skill_ids": [
+                3,
+                3,
+                13
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Attack Boost [L]",
+                "Suppression: Astrophysics"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "攻击提升·大",
+                "压制·太空物理学"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0002",
+            "english_name": "Jiminy 12",
+            "chinese_name": "吉米尼12",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 3,
+            "icon_path": "weapon_images_endfield\\Jiminy_12_icon.png",
+            "skill_ids": [
+                3,
+                null,
+                1
+            ],
+            "skills_english": [
+                "Main Attribute Boost [S]",
+                "Assault: Armament Prep"
+            ],
+            "skills_chinese": [
+                "主能力提升·小",
+                "",
+                "强攻·武装整备"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0013",
+            "english_name": "Khravengger",
+            "chinese_name": "赫拉芬格",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Khravengger_icon.png",
+            "skill_ids": [
+                4,
+                3,
+                5
+            ],
+            "skills_english": [
+                "Strength Boost [L]",
+                "Attack Boost [L]",
+                "Detonate: Bonechilling"
+            ],
+            "skills_chinese": [
+                "力量提升·大",
+                "攻击提升·大",
+                "迸发·切骨之寒"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0003",
+            "english_name": "Long Road",
+            "chinese_name": "长路",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Long_Road_icon.png",
+            "skill_ids": [
+                4,
+                1,
+                12
+            ],
+            "skills_english": [
+                "Strength Boost [S]",
+                "Arts Boost [S]",
+                "Pursuit: Unending Cycle"
+            ],
+            "skills_chinese": [
+                "力量提升·小",
+                "法术提升·小",
+                "追袭·生生不息"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0007",
+            "english_name": "Monaihe",
+            "chinese_name": "莫奈何",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Monaihe_icon.png",
+            "skill_ids": [
+                5,
+                12,
+                10
+            ],
+            "skills_english": [
+                "Will Boost [M]",
+                "Ultimate Gain Efficiency Boost [M]",
+                "Inspiring: Mortise-and-Tenon Analysis"
+            ],
+            "skills_chinese": [
+                "意志提升·中",
+                "终结技充能效率提升·中",
+                "昂扬·榫卯分析法"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0012",
+            "english_name": "Mountain Bearer",
+            "chinese_name": "负山",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Mountain_Bearer_icon.png",
+            "skill_ids": [
+                1,
+                10,
+                6
+            ],
+            "skills_english": [
+                "Agility Boost [L]",
+                "Physical DMG Boost [L]",
+                "Efficacy: Weight of Mountain"
+            ],
+            "skills_chinese": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "效益·山川在我"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0005",
+            "english_name": "Navigator",
+            "chinese_name": "领航者",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Navigator_icon.png",
+            "skill_ids": [
+                2,
+                5,
+                9
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Cryo DMG Boost [L]",
+                "Infliction: Lone and Distant Sail"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "寒冷伤害提升·大",
+                "附术·远影孤帆"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0016",
+            "english_name": "Never Rest",
+            "chinese_name": "不知归",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Never_Rest_icon.png",
+            "skill_ids": [
+                5,
+                3,
+                7
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "Attack Boost [L]",
+                "Flow: Reincarnation"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·轮回"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0014",
+            "english_name": "OBJ Arts Identifier",
+            "chinese_name": "O.B.J.术识",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\OBJ_Arts_Identifier_icon.png",
+            "skill_ids": [
+                2,
+                2,
+                12
+            ],
+            "skills_english": [
+                "Intellect Boost [M]",
+                "Arts Intensity Boost [M]",
+                "Pursuit: Transcendent Arts"
+            ],
+            "skills_chinese": [
+                "智识提升·中",
+                "源石技艺强度提升·中",
+                "追袭·术法升华"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0019",
+            "english_name": "OBJ Edge of Lightness",
+            "chinese_name": "O.B.J.轻芒",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\OBJ_Edge_of_Lightness_icon.png",
+            "skill_ids": [
+                1,
+                3,
+                7
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "ATK Boost [M]",
+                "Flow: Unbridled Edge"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "攻击提升·中",
+                "流转·不羁锋芒"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0015",
+            "english_name": "OBJ Heavy Burden",
+            "chinese_name": "O.B.J.重荷",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\OBJ_Heavy_Burden_icon.png",
+            "skill_ids": [
+                4,
+                7,
+                6
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "HP Boost [M]",
+                "Efficacy: Tenacious Will"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "生命提升·中",
+                "效益·坚韧心性"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0013",
+            "english_name": "OBJ Razorhorn",
+            "chinese_name": "O.B.J.尖峰",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\OBJ_Razorhorn_icon.png",
+            "skill_ids": [
+                5,
+                10,
+                9
+            ],
+            "skills_english": [
+                "Will Boost [M]",
+                "Physical DMG Boost [M]",
+                "Infliction: Conquest of Icy Peaks"
+            ],
+            "skills_chinese": [
+                "意志提升·中",
+                "物理伤害提升·中",
+                "附术·攀越冰峰"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0012",
+            "english_name": "OBJ Velocitous",
+            "chinese_name": "O.B.J.迅极",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\OBJ_Velocitous_icon.png",
+            "skill_ids": [
+                1,
+                12,
+                5
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "Ultimate Gain Efficiency Boost [M]",
+                "Detonate: Rapid Strike"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "终结技充能效率提升·中",
+                "迸发·迅击"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0009",
+            "english_name": "Oblivion",
+            "chinese_name": "遗忘",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Oblivion_icon.png",
+            "skill_ids": [
+                2,
+                1,
+                14
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Arts Boost [L]",
+                "Twilight: Humiliation"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "法术提升·大",
+                "夜幕·耻辱"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0009",
+            "english_name": "Opero 77",
+            "chinese_name": "奥佩罗77",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 3,
+            "icon_path": "weapon_images_endfield\\Opero_77_icon.png",
+            "skill_ids": [
+                3,
+                null,
+                1
+            ],
+            "skills_english": [
+                "Main Attribute Boost [S]",
+                "Assault: Armament Prep"
+            ],
+            "skills_chinese": [
+                "主能力提升·小",
+                "",
+                "强攻·武装整备"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0006",
+            "english_name": "Opus: Etch Figure",
+            "chinese_name": "作品：蚀迹",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Opus_Etch_Figure_icon.png",
+            "skill_ids": [
+                5,
+                9,
+                13
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "Nature DMG Boost [L]",
+                "Suppression: Tillite Etchings"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "自然伤害提升·大",
+                "压制·碛岩蚀痕"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0006",
+            "english_name": "Opus: The Living",
+            "chinese_name": "作品：众生",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Opus_The_Living_icon.png",
+            "skill_ids": [
+                1,
+                1,
+                9
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "Arts Boost [M]",
+                "Infliction: Road Home for All Life"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "法术提升·中",
+                "附术·众生的归途"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0003",
+            "english_name": "Pathfinder's Beacon",
+            "chinese_name": "寻路者道标",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Pathfinder%27s_Beacon_icon.png",
+            "skill_ids": [
+                1,
+                3,
+                10
+            ],
+            "skills_english": [
+                "Agility Boost [S]",
+                "ATK Boost [S]",
+                "Inspiring: Start of a Saga"
+            ],
+            "skills_chinese": [
+                "敏捷提升·小",
+                "攻击提升·小",
+                "昂扬·远途起始"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0001",
+            "english_name": "Peco 5",
+            "chinese_name": "佩科5",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 3,
+            "icon_path": "weapon_images_endfield\\Peco_5_icon.png",
+            "skill_ids": [
+                3,
+                null,
+                1
+            ],
+            "skills_english": [
+                "Main Attribute Boost [S]",
+                "Assault: Armament Prep"
+            ],
+            "skills_chinese": [
+                "主能力提升·小",
+                "",
+                "强攻·武装整备"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0009",
+            "english_name": "Quencher",
+            "chinese_name": "淬火者",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Quencher_icon.png",
+            "skill_ids": [
+                5,
+                7,
+                4
+            ],
+            "skills_english": [
+                "Will Boost [S]",
+                "HP Boost [S]",
+                "Crusher: Honed into Legion"
+            ],
+            "skills_chinese": [
+                "意志提升·小",
+                "生命提升·小",
+                "粉碎·淬砺成兵"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0011",
+            "english_name": "Rapid Ascent",
+            "chinese_name": "扶摇",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Rapid_Ascent_icon.png",
+            "skill_ids": [
+                3,
+                4,
+                14
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Critical Rate Boost [L]",
+                "Twilight: Azure Clouds"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "暴击率提升·大",
+                "夜幕·青云"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0004",
+            "english_name": "Rational Farewell",
+            "chinese_name": "理性告别",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Rational_Farewell_icon.png",
+            "skill_ids": [
+                4,
+                8,
+                12
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "Heat DMG Boost [M]",
+                "Pursuit: Aid from the Past"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "灼热伤害提升·中",
+                "追袭·旧时之援"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0011",
+            "english_name": "Seeker of Dark Lung",
+            "chinese_name": "探骊",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Seeker_of_Dark_Lung_icon.png",
+            "skill_ids": [
+                4,
+                12,
+                5
+            ],
+            "skills_english": [
+                "Strength Boost [M]",
+                "Ultimate Gain Efficiency Boost [M]",
+                "Detonate: Seeker of the Esoteric"
+            ],
+            "skills_chinese": [
+                "力量提升·中",
+                "终结技充能效率提升·中",
+                "迸发·钩玄猎秘"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0005",
+            "english_name": "Stanza of Memorials",
+            "chinese_name": "悼亡诗",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Stanza_of_Memorials_icon.png",
+            "skill_ids": [
+                2,
+                3,
+                14
+            ],
+            "skills_english": [
+                "Intellect Boost [M]",
+                "ATK Boost [M]",
+                "Twilight: Lustrous Pyre"
+            ],
+            "skills_chinese": [
+                "智识提升·中",
+                "攻击提升·中",
+                "夜幕·冢火成莹"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0008",
+            "english_name": "Sundered Prince",
+            "chinese_name": "破碎君王",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Sundered_Prince_icon.png",
+            "skill_ids": [
+                4,
+                4,
+                4
+            ],
+            "skills_english": [
+                "Strength Boost [L]",
+                "Critical Rate Boost [L]",
+                "Crusher: Princely Deterrence"
+            ],
+            "skills_chinese": [
+                "力量提升·大",
+                "暴击率提升·大",
+                "粉碎·君王威慑"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0005",
+            "english_name": "Sundering Steel",
+            "chinese_name": "钢铁余音",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Sundering_Steel_icon.png",
+            "skill_ids": [
+                1,
+                10,
+                3
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "Physical DMG Boost [M]",
+                "Combative: Anthem of Cinder"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "物理伤害提升·中",
+                "巧技·旧火余音"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0003",
+            "english_name": "Tarr 11",
+            "chinese_name": "塔尔11",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 3,
+            "icon_path": "weapon_images_endfield\\Tarr_11_icon.png",
+            "skill_ids": [
+                3,
+                null,
+                1
+            ],
+            "skills_english": [
+                "Main Attribute Boost [S]",
+                "Assault: Armament Prep"
+            ],
+            "skills_chinese": [
+                "主能力提升·小",
+                "",
+                "强攻·武装整备"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0012",
+            "english_name": "Thermite Cutter",
+            "chinese_name": "热熔切割器",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Thermite_Cutter_icon.png",
+            "skill_ids": [
+                5,
+                3,
+                7
+            ],
+            "skills_english": [
+                "Will Boost [L]",
+                "Attack Boost [L]",
+                "Flow: Thermal Release"
+            ],
+            "skills_chinese": [
+                "意志提升·大",
+                "攻击提升·大",
+                "流转·高热解放"
+            ]
+        },
+        {
+            "internal_id": "wpn_claym_0007",
+            "english_name": "Thunderberge",
+            "chinese_name": "大雷斑",
+            "type_id": 2,
+            "type_english": "Great Sword",
+            "type_chinese": "双手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Thunderberge_icon.png",
+            "skill_ids": [
+                4,
+                7,
+                11
+            ],
+            "skills_english": [
+                "Strength Boost [L]",
+                "HP Boost [L]",
+                "Medicant: Eye of Talos"
+            ],
+            "skills_chinese": [
+                "力量提升·大",
+                "生命提升·大",
+                "医疗·塔罗斯之眼"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0018",
+            "english_name": "Twelve Questions",
+            "chinese_name": "十二问",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Twelve_Questions_icon.png",
+            "skill_ids": [
+                1,
+                3,
+                9
+            ],
+            "skills_english": [
+                "Agility Boost [M]",
+                "ATK Boost [M]",
+                "Infliction: Sincere Interrogation"
+            ],
+            "skills_chinese": [
+                "敏捷提升·中",
+                "攻击提升·中",
+                "附术·竭心诘问"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0010",
+            "english_name": "Umbral Torch",
+            "chinese_name": "黯色火炬",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Umbral_Torch_icon.png",
+            "skill_ids": [
+                2,
+                8,
+                9
+            ],
+            "skills_english": [
+                "Intellect Boost [L]",
+                "Heat DMG Boost [L]",
+                "Infliction: Covetous Buildup"
+            ],
+            "skills_chinese": [
+                "智识提升·大",
+                "灼热伤害提升·大",
+                "附术·觊觎堆叠"
+            ]
+        },
+        {
+            "internal_id": "wpn_lance_0010",
+            "english_name": "Valiant",
+            "chinese_name": "骁勇",
+            "type_id": 3,
+            "type_english": "Polearm",
+            "type_chinese": "长柄武器",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Valiant_icon.png",
+            "skill_ids": [
+                1,
+                10,
+                3
+            ],
+            "skills_english": [
+                "Agility Boost [L]",
+                "Physical DMG Boost [L]",
+                "Combative: Virtuous Gain"
+            ],
+            "skills_chinese": [
+                "敏捷提升·大",
+                "物理伤害提升·大",
+                "巧技·美德盈利"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0009",
+            "english_name": "Wave Tide",
+            "chinese_name": "浪潮",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 4,
+            "icon_path": "weapon_images_endfield\\Wave_Tide_icon.png",
+            "skill_ids": [
+                2,
+                3,
+                12
+            ],
+            "skills_english": [
+                "Intellect Boost [S]",
+                "ATK Boost [S]",
+                "Pursuit: Unending Cycle"
+            ],
+            "skills_chinese": [
+                "智识提升·小",
+                "攻击提升·小",
+                "追袭·生生不息"
+            ]
+        },
+        {
+            "internal_id": "wpn_pistol_0008",
+            "english_name": "Wedge",
+            "chinese_name": "楔子",
+            "type_id": 4,
+            "type_english": "Handcannon",
+            "type_chinese": "手铳",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\Wedge_icon.png",
+            "skill_ids": [
+                3,
+                4,
+                9
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Critical Rate Boost [L]",
+                "Infliction: Wedge of Civilization"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "暴击率提升·大",
+                "附术·文明楔子"
+            ]
+        },
+        {
+            "internal_id": "wpn_sword_0014",
+            "english_name": "White Night Nova",
+            "chinese_name": "白夜新星",
+            "type_id": 1,
+            "type_english": "Sword",
+            "type_chinese": "单手剑",
+            "rarity": 6,
+            "icon_path": "weapon_images_endfield\\White_Night_Nova_icon.png",
+            "skill_ids": [
+                3,
+                2,
+                9
+            ],
+            "skills_english": [
+                "Main Attribute Boost [L]",
+                "Arts Intensity Boost [L]",
+                "Infliction: White Night Nova"
+            ],
+            "skills_chinese": [
+                "主能力提升·大",
+                "源石技艺强度提升·大",
+                "附术·白夜新星"
+            ]
+        },
+        {
+            "internal_id": "wpn_funnel_0004",
+            "english_name": "Wild Wanderer",
+            "chinese_name": "迷失荒野",
+            "type_id": 5,
+            "type_english": "Arts Unit",
+            "type_chinese": "施术单元",
+            "rarity": 5,
+            "icon_path": "weapon_images_endfield\\Wild_Wanderer_icon.png",
+            "skill_ids": [
+                2,
+                6,
+                9
+            ],
+            "skills_english": [
+                "Intellect Boost [M]",
+                "Electric DMG Boost [M]",
+                "Infliction: Wilderness Cluster"
+            ],
+            "skills_chinese": [
+                "智识提升·中",
+                "电磁伤害提升·中",
+                "附术·荒芜集簇"
+            ]
+        }
+    ]
+}
