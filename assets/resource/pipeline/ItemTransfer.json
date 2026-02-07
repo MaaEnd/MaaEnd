@@ -7,6 +7,7 @@
     },
     "ItemTransferStart": {
         "recognition": "OCR",
+        "roi": [182, 125, 160, 39],
         "expected": "仓库",
         "next": [
             "SwitchRepoToOrigin"
@@ -14,6 +15,7 @@
     },
     "SwitchRepoToOrigin": {
         "recognition": "OCR",
+        "roi": [607, 128, 65, 24],
         "expected": "仓库切换",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -24,6 +26,7 @@
     },
     "ClickOrigin": {
         "recognition": "OCR",
+        "roi": [515, 158, 481, 393],
         "expected": "ORIGIN_REGION",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -34,6 +37,7 @@
     },
     "ClickConfirmOrigin": {
         "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
         "expected": "确认",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -43,6 +47,7 @@
     },
     "AtOrigin": {
         "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
         "expected": "已连接",
         "next": [
             "ClickEscOrigin"
@@ -61,82 +66,75 @@
         "next": [
             "ClickSortDescending",
             "ClickItemCategory",
-            "FindItem",
-            "ScrollDownward"
+            "FindItemInRepo",
+            "ScrollDownwardRepo"
         ]
     },
     "ClickSortDescending": {
         "recognition": "OCR",
+        "roi": [371, 505, 48, 26],
         "expected": "降序",
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
             "ClickItemCategory",
-            "FindItem",
-            "ScrollDownward"
+            "FindItemInRepo",
+            "ScrollDownwardRepo"
         ]
     },
     "ClickItemCategory": {
         "recognition": "TemplateMatch",
+        "roi": [168, 171, 531, 35],
         "template": "ItemTransfer/全部.png",
         "threshold": 0.8,
+        "order_by": "Score",
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
-            "FindItem",
-            "ScrollDownward"
+            "FindItemInRepo",
+            "ScrollDownwardRepo"
         ]
     },
-    "FindItem": {
+    "FindItemInRepo": {
         "recognition": "TemplateMatch",
+        "roi": [158, 203, 551, 292],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
+        "order_by": "Score",
         "next": [
-            "CtrlKeyDown"
+            "CtrlKeyDownRepo"
         ]
     },
-    "ScrollDownward": {
+    "ScrollDownwardRepo": {
         "action": "Swipe",
-        "begin": [
-            640,
-            455
-        ],
-        "end": [
-            640,
-            248
-        ],
+        "begin": [640, 455],
+        "end": [640, 248],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
         "next": [
-            "FindItem",
-            "ScrollDownward",
-            "ScrollUpward"
+            "FindItemInRepo",
+            "ScrollDownwardRepo",
+            "ScrollUpwardRepo"
         ]
     },
-    "ScrollUpward": {
+    "ScrollUpwardRepo": {
         "doc": "触底后回顶",
         "action": "Swipe",
-        "begin": [
-            640,
-            248
-        ],
-        "end": [
-            640,
-            455
-        ],
+        "begin": [640, 248],
+        "end": [640, 455],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
         "next": [
-            "FindItem",
-            "ScrollUpward"
+            "FindItemInRepo",
+            "ScrollUpwardRepo"
         ],
         "focus": {
-            "Node.Recognition.Failed": "$task.ItemTransfer.recognition_failed"
+            "Node.NextList.Failed": "$task.ItemTransfer.item_not_found"
         }
     },
-    "CtrlKeyDown": {
+    "CtrlKeyDownRepo": {
         "action": "KeyDown",
         "key": 17,
         "next": [
@@ -144,13 +142,13 @@
         ]
     },
     "TransferToBag": {
-        "target": "FindItem",
+        "target": "FindItemInRepo",
         "action": "Click",
         "next": [
-            "CtrlKeyUp"
+            "CtrlKeyUpRepo"
         ]
     },
-    "CtrlKeyUp": {
+    "CtrlKeyUpRepo": {
         "action": "KeyUp",
         "key": 17,
         "next": [
@@ -159,6 +157,7 @@
     },
     "SwitchRepoToDestination": {
         "recognition": "OCR",
+        "roi": [607, 128, 65, 24],
         "expected": "仓库切换",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -169,6 +168,7 @@
     },
     "ClickDestination": {
         "recognition": "OCR",
+        "roi": [515, 158, 481, 393],
         "expected": "DESTINATION_REGION",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -179,6 +179,7 @@
     },
     "ClickConfirmDestination": {
         "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
         "expected": "确认",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -188,6 +189,7 @@
     },
     "AtDestination": {
         "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
         "expected": "已连接",
         "next": [
             "ClickEscDestination"
@@ -202,10 +204,65 @@
         ]
     },
     "BagToRepo": {
-        "recognition": "OCR",
-        "expected": "一键存放",
-        "action": "Click",
         "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBag",
+            "ScrollDownwardBag"
+        ]
+    },
+    "FindItemInBag": {
+        "recognition": "TemplateMatch",
+        "roi": [768, 209, 349, 285],
+        "template": "ItemTransfer/{ItemName}.png",
+        "threshold": 0.85,
+        "order_by": "Score",
+        "next": [
+            "CtrlKeyDownBag"
+        ]
+    },
+    "ScrollDownwardBag": {
+        "action": "Swipe",
+        "begin": [837, 472],
+        "end": [837, 228],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBag",
+            "ScrollDownwardBag",
+            "ScrollUpwardBag"
+        ]
+    },
+    "ScrollUpwardBag": {
+        "doc": "触底后回顶",
+        "action": "Swipe",
+        "begin": [837, 228],
+        "end": [837, 472],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBag",
+            "ScrollUpwardBag"
+        ]
+    },
+    "CtrlKeyDownBag": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "TransferToRepo"
+        ]
+    },
+    "TransferToRepo": {
+        "target": "FindItemInBag",
+        "action": "Click",
+        "next": [
+            "CtrlKeyUpBag"
+        ]
+    },
+    "CtrlKeyUpBag": {
+        "action": "KeyUp",
+        "key": 17,
         "next": [
             "CheckIfFull",
             "ItemTransferStart",
@@ -214,7 +271,123 @@
     },
     "CheckIfFull": {
         "recognition": "OCR",
-        "expected": "已满"
+        "roi": [493, 112, 291, 20],
+        "expected": "已满",
+        "next": [
+            "SwitchRepoToOriginReturn"
+        ]
+    },
+    "SwitchRepoToOriginReturn": {
+        "recognition": "OCR",
+        "roi": [607, 128, 65, 24],
+        "expected": "仓库切换",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ClickOriginReturn",
+            "SwitchRepoToOriginReturn"
+        ]
+    },
+    "ClickOriginReturn": {
+        "recognition": "OCR",
+        "roi": [515, 158, 481, 393],
+        "expected": "ORIGIN_REGION",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ClickConfirmOriginReturn",
+            "AtOriginReturn"
+        ]
+    },
+    "ClickConfirmOriginReturn": {
+        "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
+        "expected": "确认",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "AtOriginReturn"
+        ]
+    },
+    "AtOriginReturn": {
+        "recognition": "OCR",
+        "roi": [991, 560, 117, 41],
+        "expected": "已连接",
+        "next": [
+            "ClickEscOriginReturn"
+        ]
+    },
+    "ClickEscOriginReturn": {
+        "action": "ClickKey",
+        "key": 27,
+        "post_wait_freezes": 1,
+        "next": [
+            "BagToOriginRepo"
+        ]
+    },
+    "BagToOriginRepo": {
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBagReturn",
+            "ScrollDownwardBagReturn"
+        ]
+    },
+    "FindItemInBagReturn": {
+        "recognition": "TemplateMatch",
+        "roi": [768, 209, 349, 285],
+        "template": "ItemTransfer/{ItemName}.png",
+        "threshold": 0.85,
+        "order_by": "Score",
+        "next": [
+            "CtrlKeyDownBagReturn"
+        ]
+    },
+    "ScrollDownwardBagReturn": {
+        "action": "Swipe",
+        "begin": [837, 472],
+        "end": [837, 228],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBagReturn",
+            "ScrollDownwardBagReturn",
+            "ScrollUpwardBagReturn"
+        ]
+    },
+    "ScrollUpwardBagReturn": {
+        "doc": "触底后回顶",
+        "action": "Swipe",
+        "begin": [837, 228],
+        "end": [837, 472],
+        "end_hold": 500,
+        "max_hit": 3,
+        "post_wait_freezes": 1,
+        "next": [
+            "FindItemInBagReturn",
+            "ScrollUpwardBagReturn"
+        ]
+    },
+    "CtrlKeyDownBagReturn": {
+        "action": "KeyDown",
+        "key": 17,
+        "next": [
+            "TransferToRepoReturn"
+        ]
+    },
+    "TransferToRepoReturn": {
+        "target": "FindItemInBagReturn",
+        "action": "Click",
+        "next": [
+            "CtrlKeyUpBagReturn"
+        ]
+    },
+    "CtrlKeyUpBagReturn": {
+        "action": "KeyUp",
+        "key": 17,
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
     },
     "Stop": {
         "action": "StopTask"
