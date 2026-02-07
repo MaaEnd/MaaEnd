@@ -49,7 +49,6 @@ type FilterConfig struct {
 // SkillCombination - target skill combination
 type SkillCombination struct {
 	Weapon        WeaponData
-	// WeaponName    string   // for logs
 	SkillsChinese []string // [slot1_cn, slot2_cn, slot3_cn]
 	SkillIDs      []int    // [slot1_id, slot2_id, slot3_id]
 }
@@ -64,25 +63,25 @@ type MatcherConfig struct {
 var (
 	weaponDB                WeaponDatabase
 	targetSkillCombinations []SkillCombination
-	visitedCount		  	int
+	visitedCount            int
 	matchedCount            int
 	filteredSkillStats      [3]map[int]int
 	statsLogged             bool
 
 	// Grid traversal state
-	currentCol int // 1~9
-	currentRow int // row index
-	maxItemsPerRow int
+	currentCol        int // 1~9
+	currentRow        int // row index
+	maxItemsPerRow    int
 	firstRowSwipeDone bool // true after first row swipe is used
 
 	// Current item's three skills cache
 	currentSkills [3]string
 
 	// Row processing: collected boxes and index
-	rowBoxes [][4]int
-	rowIndex int
+	rowBoxes       [][4]int
+	rowIndex       int
 	weaponDataPath string
 
-	// Matcher config - 从 JSON 文件加载
+	// Matcher config - loaded from JSON config file, used for skill name matching
 	matcherConfig MatcherConfig
 )

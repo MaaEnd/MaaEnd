@@ -46,12 +46,14 @@ type EssenceFilterInitAction struct{}
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[EssenceFilter] ========== Init ==========")
 
-	gameDataDir := filepath.Join("resource", "gamedata", "EssenceFilter")
-	weaponDataPath = filepath.Join(gameDataDir, "weapons_data_final.json")
+	base := "resource" // default resource path
+
+	// Add OnResourceLoading for base after sorting it out.
+
+	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
+	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
 	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
 	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
-
-	// 1. parse params
 	var params struct {
 		PresetName string `json:"preset_name"`
 	}
