@@ -315,17 +315,26 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	if len(rowBoxes) > maxItemsPerRow {
 		log.Error().Int("count", len(rowBoxes)).Msg("[EssenceFilter] RowCollect: boxes > maxItemsPerRow, abort")
-		ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
 		return true
 	}
 	if len(rowBoxes) == 0 {
 		log.Info().Msg("[EssenceFilter] RowCollect: no valid boxes, finish")
-		ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
 		return true
 	}
 
 	rowIndex = 0
-	ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterRowNextItem"})
+	// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterRowNextItem"})
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		{Name: "EssenceFilterRowNextItem"},
+	})
 	return true
 }
 
@@ -348,10 +357,16 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", currentRow+1))
 			currentRow++
 
-			ctx.OverrideNext(arg.CurrentTaskName, []string{nextSwipe})
+			// ctx.OverrideNext(arg.CurrentTaskName, []string{nextSwipe})
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+				{Name: nextSwipe},
+			})
 			return true
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterFinish"})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
 		return true
 	}
 
@@ -374,7 +389,10 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 
 	visitedCount++
 	rowIndex++
-	ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterCheckItemSlot1"})
+	// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterCheckItemSlot1"})
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		{Name: "EssenceFilterCheckItemSlot1"},
+	})
 	return true
 }
 
@@ -398,11 +416,18 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		MatchedMessage := fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：<span style="color: %s;">%s</span></div>`, weaponcolor, combination.Weapon.ChineseName)
 		LogMXUInterfaceHTML(ctx, MatchedMessage)
 
-		ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterLockItemLog"})
+		// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterLockItemLog"})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterLockItemLog"},
+		})
 	} else {
 		log.Info().Strs("skills", skills).Msg("[EssenceFilter] not matched, skip to next item")
 		LogMXUInterfaceSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
-		ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterRowNextItem"})
+		// ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterRowNextItem"})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterRowNextItem"},
+		})
+
 	}
 
 	currentSkills = [3]string{}
