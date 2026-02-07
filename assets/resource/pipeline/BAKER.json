@@ -9,6 +9,8 @@
     // 6. 检测到聊天结束, 进入下一个聊天 (回到 2. 继续筛选出未读聊天)
     // 7. 当找不到可下拉的聊天时, 说明已经大概率没有聊天了. 检测无未读聊天的条件后退出
     // 其中 [ 2. 3. 4. 5. 6. ] 循环进行
+    //
+    // 新增事务通讯流程, 在会话信息流程结束的时候会切过去执行
     "BakerEntry": {
         "next": [
             "CheckBakerHome",
@@ -21,13 +23,47 @@
         "key": 72, // H 键
         "post_wait_freezes": 1,
         "next": [
+            "ClickTopTak"
+        ]
+    },
+    "ClickTopTak": {
+        "doc": "开局先点一下会话信息图标,保证处于会话信息页面",
+        "max_hit": 1,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    584,
+                    28
+                ]
+            }
+        },
+        "next": [
             "BakerEntry"
         ]
     },
     "CheckBakerHome": {
+        "doc": "检测左上角是否是 Baker 页面, 后续根据次级目录执行不同的点击操作",
         "recognition": "OCR",
         "expected": [
-            "BAKER",
+            "BAKER"
+        ],
+        "roi": [
+            0,
+            0,
+            263,
+            117
+        ],
+        "next": [
+            "CheckBakerMsg", // Baker 会话信息
+            "CheckBakerTask", // Baker 事务通讯
+            "BakerOverCheck" // Baker 任务结束
+        ]
+    },
+    "CheckBakerMsg": {
+        "doc": "会话信息流程: 筛选已读条件后下拉检测联系人是否可以互动",
+        "recognition": "OCR",
+        "expected": [
             "会话消息"
         ],
         "roi": [
@@ -37,13 +73,58 @@
             117
         ],
         "next": [
-            "OpenBakerFilter",
+            "OpenBakerFilter", // 只会执行一次, 后续走打开确认流程可以少一步
             "BakerExpend",
-            "CheckTopHint",
-            "BakerOver"
+            "BakerOverCheck" // Baker 任务结束
         ]
     },
+    "CheckBakerTask": {
+        "doc": "事务通讯流程: 筛选已读条件后检测任务联系人是否可以互动",
+        "recognition": "OCR",
+        "expected": [
+            "事务通讯"
+        ],
+        "roi": [
+            0,
+            0,
+            263,
+            117
+        ],
+        "next": [
+            "OpenBakerFilter2", // 只会执行一次, 后续走打开确认流程可以少一步
+            "TalkWith", // 和会话信息流程相比不需要进行下拉
+            "BakerOverCheck" // Baker 任务结束
+        ]
+    },
+    "BakerOverCheck": {
+        "doc": "检测到当前会话已经结束,尝试进入事务通讯流程。如果已经进入过了则直接退出",
+        "recognition": "OCR",
+        "expected": [
+            "当前无",
+            "无该类型会话"
+        ],
+        "roi": [
+            41,
+            251,
+            317,
+            235
+        ],
+        "next": [
+            "CheckTopHint",
+            "BakerOverEnd"
+        ]
+    },
+    "BakerOverEnd": {
+        "action": {
+            "type": "ClickKey", // 点击一下 ESC
+            "param": {
+                "key": 27
+            }
+        },
+        "doc": "真正的退出节点,在上面两种类型的会话都没有之后退出任务"
+    },
     "OpenBakerFilter": {
+        "doc": "执行未读筛选操作, 只会执行一次执行过了条件会固定",
         "recognition": "OCR",
         "max_hit": 1,
         "expected": [
@@ -64,6 +145,7 @@
         ]
     },
     "RefreshBakerFilter": {
+        "doc": "刷新 Baker 联系人的循环流程, 点击筛选框之后直接点击保存可以省一步",
         "recognition": "OCR",
         "expected": [
             "筛选生效中"
@@ -81,6 +163,7 @@
         ]
     },
     "ResetBakerFilter": {
+        "doc": "用于点击筛选栏目中的刷新",
         "recognition": "TemplateMatch",
         "template": "Baker/ResetBakerFilter.png",
         "max_hit": 1,
@@ -93,44 +176,21 @@
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
-            "Baker_SwipeFilter",
             "BakerFilterUnread",
             "SaveBakerFilter"
         ]
     },
-    "Baker_SwipeFilter": {
-        "doc": "下拉菜单（防止选项在下面）",
-        // 这是一个动作节点，不需要识别，直接执行滑动手势
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    960,
-                    441
-                ],
-                "end": [
-                    960,
-                    398
-                ],
-                "end_hold": 200
-            }
-        },
-        "post_wait_freezes": 200, //降低延迟
-        "next": [
-            "BakerFilterUnread"
-        ]
-    },
     "BakerFilterUnread": {
+        "doc": "筛选页面中点击未读选项, 需要已经点过清空选项之后再进行选择未读",
         "recognition": "OCR",
         "expected": [
             "未读"
         ],
-        "max_hit": 1,
         "roi": [
             219,
             296,
             153,
-            117
+            220
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -139,6 +199,7 @@
         ]
     },
     "SaveBakerFilter": {
+        "doc": "点击筛选中的保存",
         "recognition": "OCR",
         "expected": [
             "保存"
@@ -155,25 +216,10 @@
             "CheckBakerHome"
         ]
     },
-    "BakerOver": {
-        "recognition": "OCR",
-        "expected": [
-            "当前无",
-            "无该类型会话"
-        ],
-        "roi": [
-            41,
-            251,
-            317,
-            235
-        ]
-    },
     "BakerExpend": {
+        "doc": "会话信息流程: 检测 Baker 联系人是否可以下拉,展开选项之后进行后续点击流程",
         "recognition": "TemplateMatch",
-        "template": [
-            "Baker/Expend.png",
-            "Baker/hint2.png"
-        ],
+        "template": "Baker/Expend.png",
         "threshold": 0.95,
         "roi": [
             286,
@@ -184,42 +230,50 @@
         "action": "Click",
         "next": [
             "TalkWith",
-            "TalkWith2",
             "BakerExpend"
         ]
     },
     "TalkWith": {
+        "doc": "通用聊天点击流程: 根据 Baker 联系人列表尝试进入未聊天的信息",
         "recognition": "TemplateMatch",
         "template": [
             "Baker/TalkWith.png",
-            "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+            "Baker/DialogWith.png", // 部分群组聊天框 TalkWith.png 检测不到
+            "Baker/hint.png"
         ],
         "threshold": 0.95,
         "roi": [
             31,
-            77,
-            78,
-            574
+            61,
+            320,
+            590
         ],
-        "action": "Click",
-        "next": [
-            "TalkOver",
-            "TalkOver2",
-            "CheckChatPage",
-            "TalkWith"
-        ]
-    },
-    "TalkWith2": {
+        "action": {
+            "param": {
+                "target_offset": [ // 事务通讯的小红点，进行一点偏移就可以点到任务了
+                    -10,
+                    10,
+                    0,
+                    0
+                ]
+            },
+            "type": "Click"
+        },
         "next": [
             "TalkOver",
             "TalkOver2",
             "TalkOver3",
-            "CheckChatPage"
+            "CheckChatPage",
+            "TalkWith"
         ]
     },
     "CheckChatPage": {
+        "doc": "通用聊天点击流程: 检测右边的任务栏是否处于聊天页面",
         "recognition": "TemplateMatch",
-        "template": "Baker/ChatPage.png",
+        "template": [
+            "Baker/ChatPage.png",
+            "Baker/ChatPageTask.png"
+        ],
         "roi": [
             930,
             16,
@@ -231,6 +285,7 @@
         "next": [
             "TalkOver",
             "TalkOver2",
+            "TalkOver3",
             "Say",
             "Say2",
             "SaySmile",
@@ -238,9 +293,9 @@
         ]
     },
     "ClickChat": {
+        "doc": "通用聊天点击流程: 点击聊天框右下角固定的一块区域",
         "action": "Click",
         "target": [
-            // 聊天框右下角固定的一块区域
             937,
             556,
             203,
@@ -253,6 +308,7 @@
         ]
     },
     "Say": {
+        "doc": "通用聊天点击流程: 点击聊天框中的选项",
         "recognition": "TemplateMatch",
         "template": "Baker/Say.png",
         "roi": [
@@ -267,6 +323,7 @@
         ]
     },
     "Say2": {
+        "doc": "通用聊天点击流程: 点击聊天框中的选项 (匹配方式2)",
         "recognition": "TemplateMatch",
         "template": "Baker/Say2.png",
         "roi": [
@@ -287,6 +344,7 @@
         ]
     },
     "SaySmile": {
+        "doc": "通用聊天点击流程: 点击聊天框中的表情包",
         "recognition": "TemplateMatch",
         "template": "Baker/SaySmile.png",
         "threshold": 0.7, // 表情包太多了.jpg
@@ -305,6 +363,7 @@
         ]
     },
     "TalkOver": {
+        "doc": "通用聊天点击流程: 用于检测当前会话是否结束",
         "recognition": "OCR",
         "expected": [
             "话题结束",
@@ -321,48 +380,8 @@
             "RefreshBakerFilter"
         ]
     },
-    // "CheckTopHint": {
-    //     "recognition": "TemplateMatch",
-    //     "template": [
-    //         "Baker/hint.png"
-    //     ],
-    //     "roi": [
-    //         520,
-    //         0,
-    //         240,
-    //         104
-    //     ],
-    //     "action": "Click",
-    //     "next": [
-    //         "OpenBakerFilter"
-    //     ]
-    // },
-    "CheckTopHint": { // 没有红点情况的测试点击
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    637,
-                    28
-                ]
-            }
-        },
-        "next": [
-            "ClearOpenBakerFilterHit",
-            "OpenBakerFilter"
-        ]
-    },
-    "ClearOpenBakerFilterHit": {
-        "action": "Custom",
-        "custom_action": "NodeClearHitCountAction",
-        "custom_action_param": {
-            "node_name": "OpenBakerFilter"
-        },
-        "next": [
-            "OpenBakerFilter"
-        ]
-    },
     "TalkOver2": {
+        "doc": "通用聊天点击流程: 用于检测当前会话是否结束 (匹配方式2)",
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
         "recognition": "TemplateMatch",
         "template": [
@@ -381,7 +400,87 @@
             "RefreshBakerFilter"
         ]
     },
+    /*      从这里开始，是事务通讯的逻辑     */
+    "CheckTopHint": {
+        "doc": "点击 Baker 页面顶部的图标进行事务通讯页面切换",
+        "max_hit": 1,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    637,
+                    28
+                ]
+            }
+        },
+        "next": [
+            "CheckBakerHome"
+        ]
+    },
+    "OpenBakerFilter2": {
+        "doc": "执行未读筛选操作, 只会执行一次执行过了条件会固定 (事务通讯需要同样的操作)",
+        "recognition": "OCR",
+        "max_hit": 1,
+        "expected": [
+            "全部显示",
+            "筛选生效中"
+        ],
+        "roi": [
+            17,
+            603,
+            190,
+            103
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ResetBakerFilter2",
+            "SaveBakerFilter"
+        ]
+    },
+    "ResetBakerFilter2": {
+        "doc": "用于点击筛选栏目中的刷新 (事务通讯需要同样的操作), 在事务通讯中的筛选点击刷新之后会重新回到顶部所以需要先点刷新再下拉",
+        "recognition": "TemplateMatch",
+        "template": "Baker/ResetBakerFilter.png",
+        "max_hit": 1,
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSwipeFilter",
+            "BakerFilterUnread",
+            "SaveBakerFilter"
+        ]
+    },
+    "BakerSwipeFilter": {
+        "doc": "下拉菜单（防止选项在下面）",
+        // 这是一个动作节点，不需要识别，直接执行滑动手势
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    960,
+                    441
+                ],
+                "end": [
+                    960,
+                    380
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 200, //降低延迟
+        "next": [
+            "BakerFilterUnread"
+        ]
+    },
     "TalkOver3": {
+        "doc": "事务通讯: 用于检测当前会话是否结束 (匹配方式3)",
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver3 中图片进行增强
         "recognition": "TemplateMatch",
         "template": [
