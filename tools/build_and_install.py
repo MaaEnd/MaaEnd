@@ -113,20 +113,29 @@ TRANSLATIONS = {
 
 def detect_locale() -> str:
     try:
-        # 尝试使用 locale.getlocale()（推荐方式）
+        # 尝试多种方式获取系统语言
         system_locale = None
+
         try:
-            loc = locale.getlocale()[0]
+            loc = locale.getdefaultlocale()[0]
             if loc:
                 system_locale = loc
         except Exception:
             pass
 
+        if not system_locale:
+            try:
+                loc = locale.getlocale()[0]
+                if loc:
+                    system_locale = loc
+            except Exception:
+                pass
+
         if system_locale:
-            # 标准化 locale 格式
+            # 标准化 locale 格式（将 - 替换为 _）
             lang = system_locale.replace("-", "_")
 
-            # 检查是否直接支持
+            # 检查是否直接支持（例如 zh_CN）
             if lang in TRANSLATIONS:
                 return lang
 
@@ -135,10 +144,21 @@ def detect_locale() -> str:
             if base_lang in TRANSLATIONS:
                 return base_lang
 
-            # 尝试主语言匹配（例如 zh_CN -> zh）
-            main_lang = base_lang.split("_")[0]
+            # 尝试主语言匹配（例如 zh_CN -> zh, Chinese_China -> zh）
+            main_lang = base_lang.split("_")[0].lower()
+
+            # 处理 Windows 风格的语言名称（如 Chinese (Simplified)_China -> zh_CN）
+            if "chinese" in main_lang:
+                if (
+                    "traditional" in system_locale.lower()
+                    or "taiwan" in system_locale.lower()
+                ):
+                    return "zh_TW"
+                return "zh_CN"
+
+            # 通过语言代码前缀匹配（例如 zh -> zh_CN）
             for supported_lang in TRANSLATIONS.keys():
-                if supported_lang.startswith(main_lang):
+                if supported_lang.lower().startswith(main_lang + "_"):
                     return supported_lang
     except Exception:
         pass
