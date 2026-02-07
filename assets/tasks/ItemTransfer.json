@@ -276,6 +276,42 @@
                     }
                 },
                 {
+                    "name": "紫晶质瓶",
+                    "label": "$紫晶质瓶",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/紫晶质瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/紫晶质瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/紫晶质瓶.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶",
+                    "label": "$蓝铁瓶",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/蓝铁瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/蓝铁瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/蓝铁瓶.png"
+                        }
+                    }
+                },
+                {
                     "name": "高容谷地电池",
                     "label": "$高容谷地电池",
                     "pipeline_override": {
