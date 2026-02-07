@@ -41,7 +41,7 @@ jobs:
           # 确保目标目录存在
           mkdir -p tools/schema
 
-          # 下载四个JSON schema文件
+          # 下载JSON schema文件
           curl -s -o tools/schema/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || echo "Failed to download interface.schema.json"
           curl -s -o tools/schema/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || echo "Failed to download interface_config.schema.json"
           curl -s -o tools/schema/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || echo "Failed to download pipeline.schema.json"
