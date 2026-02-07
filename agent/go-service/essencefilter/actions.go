@@ -323,7 +323,6 @@ type EssenceFilterRowNextItemAction struct{}
 
 func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// ensure we exit detail before next
-	ctrl := ctx.GetTasker().GetController()
 
 	if rowIndex >= len(rowBoxes) {
 		if len(rowBoxes) == maxItemsPerRow {
@@ -349,7 +348,19 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	cx := box[0] + box[2]/2
 	cy := box[1] + box[3]/2
 	log.Info().Ints("box", box[:]).Int("cx", cx).Int("cy", cy).Msg("[EssenceFilter] RowNextItem: click next box")
-	ctrl.PostClick(int32(cx), int32(cy)).Wait()
+
+	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20} // click center with a small box
+	ctx.RunTask("点击物品", map[string]interface{}{
+		"点击物品": map[string]interface{}{
+			"action": map[string]interface{}{
+				"type": "Click",
+				"param": map[string]interface{}{
+					"target": clickingBox,
+				},
+			},
+		},
+	})
+
 	visitedCount++
 	rowIndex++
 	ctx.OverrideNext(arg.CurrentTaskName, []string{"EssenceFilterCheckItemSlot1"})
