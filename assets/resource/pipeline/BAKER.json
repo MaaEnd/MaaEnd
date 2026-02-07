@@ -23,7 +23,8 @@
         "key": 72, // H 键
         "post_wait_freezes": 1,
         "next": [
-            "ClickTopTak"
+            "ClickTopTak",
+            "BakerEntry" // ClickTopTak 若是没匹配到，则回到 BakerEntry
         ]
     },
     "ClickTopTak": {
