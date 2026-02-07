@@ -484,7 +484,9 @@
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver3 中图片进行增强
         "recognition": "TemplateMatch",
         "template": [
-            "Baker/taskshow.png"
+            "Baker/taskshow.png",
+            "Baker/taskshow2.png",
+            "Baker/taskshow3.png"
         ],
         "threshold": 0.95,
         "roi": [
