@@ -107,14 +107,8 @@
     },
     "ScrollDownwardRepo": {
         "action": "Swipe",
-        "begin": [
-            640,
-            455
-        ],
-        "end": [
-            640,
-            248
-        ],
+        "begin": [640, 455],
+        "end": [640, 248],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -127,14 +121,8 @@
     "ScrollUpwardRepo": {
         "doc": "触底后回顶",
         "action": "Swipe",
-        "begin": [
-            640,
-            248
-        ],
-        "end": [
-            640,
-            455
-        ],
+        "begin": [640, 248],
+        "end": [640, 455],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
