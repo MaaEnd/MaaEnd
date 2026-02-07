@@ -210,19 +210,20 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		currentSkills = [3]string{}
 	}
 
-	// Use pipeline recognition result (no local OCR fallback)
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.DetailJson == "" {
+	// Use pipeline recognition result
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.DetailJson == "" || arg.RecognitionDetail.Hit == false {
 		log.Error().Msg("[EssenceFilter] OCR detail missing from pipeline")
 		return false
 	}
 
-	var raw map[string]interface{}
-	if err := json.Unmarshal([]byte(arg.RecognitionDetail.DetailJson), &raw); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] OCR detail parse fail")
+	if len(arg.RecognitionDetail.Results.Filtered) == 0 {
+		log.Error().Msg("[EssenceFilter] OCR detail has no filtered results")
 		return false
 	}
 
-	text := extractOCRText(raw)
+	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	text := ocr.Text
+
 	if text == "" {
 		log.Error().Int("slot", params.Slot).Msg("[EssenceFilter] OCR empty")
 		return false
@@ -251,26 +252,15 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 type EssenceFilterRowCollectAction struct{}
 
 func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.DetailJson == "" {
-		log.Error().Msg("[EssenceFilter] RowCollect: missing recognition detail")
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Hit == false {
+		log.Error().Msg("[EssenceFilter] RowCollect: 识别详情或结果为空")
 		return false
 	}
 
-	var tmDetail struct {
-		Filtered []struct {
-			Box [4]int `json:"box"`
-		} `json:"filtered"`
-		All []struct {
-			Box [4]int `json:"box"`
-		} `json:"all"`
-	}
-	if err := json.Unmarshal([]byte(arg.RecognitionDetail.DetailJson), &tmDetail); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] RowCollect: parse template detail failed")
-		return false
-	}
-	detectedBoxes := tmDetail.Filtered
-	if len(detectedBoxes) == 0 {
-		detectedBoxes = tmDetail.All
+	// 优先使用 Filtered 结果，如果没有则回退到 All
+	results := arg.RecognitionDetail.Results.Filtered
+	if len(results) == 0 {
+		results = arg.RecognitionDetail.Results.All
 	}
 
 	controller := ctx.GetTasker().GetController()
@@ -280,18 +270,20 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	}
 	controller.PostScreencap().Wait()
 	img, err := controller.CacheImage()
-	// if img == nil {
-	// 	log.Error().Msg("[EssenceFilter] RowCollect: screenshot nil")
-	// 	return false
-	// }
 	if err != nil {
 		log.Error().Err(err).Msg("[EssenceFilter] RowCollect: get screenshot failed")
 		return false
 	}
 
 	rowBoxes = rowBoxes[:0]
-	for _, b := range detectedBoxes {
-		roi := maa.Rect{b.Box[0], b.Box[1] + 90, b.Box[2], b.Box[3] - 90}
+	for _, res := range results {
+		tm, ok := res.AsTemplateMatch()
+		if !ok {
+			continue
+		}
+		b := tm.Box
+		boxArr := [4]int{b.X(), b.Y(), b.Width(), b.Height()}
+		roi := maa.Rect{boxArr[0], boxArr[1] + 90, boxArr[2], boxArr[3] - 90}
 		cDetail, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:       maa.NewTargetRect(roi),
 			Lower:     [][]int{{18, 70, 220}},
@@ -301,12 +293,12 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			Connected: true,
 		}, img)
 		if err != nil {
-			log.Error().Err(err).Ints("box", b.Box[:]).Msg("[EssenceFilter] RowCollect: ColorMatch failed")
+			log.Error().Err(err).Ints("box", boxArr[:]).Msg("[EssenceFilter] RowCollect: ColorMatch failed")
 			continue
 		}
 
 		if cDetail != nil && cDetail.Hit {
-			rowBoxes = append(rowBoxes, b.Box)
+			rowBoxes = append(rowBoxes, boxArr)
 		}
 	}
 
@@ -429,30 +421,6 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	}
 	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("[EssenceFilter] Trace")
 	return true
-}
-
-// extract first text from OCR result map
-func extractOCRText(raw map[string]interface{}) string {
-	keys := []string{"best", "all"}
-	for _, k := range keys {
-		if data, ok := raw[k]; ok {
-			switch v := data.(type) {
-			case []interface{}:
-				if len(v) > 0 {
-					if m, ok := v[0].(map[string]interface{}); ok {
-						if t, ok := m["text"].(string); ok {
-							return t
-						}
-					}
-				}
-			case map[string]interface{}:
-				if t, ok := v["text"].(string); ok {
-					return t
-				}
-			}
-		}
-	}
-	return ""
 }
 
 // logSkillPools - print all pools from DB
