@@ -51,9 +51,9 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	// Add OnResourceLoading for base after sorting it out.
 
 	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
-	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
-	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
-	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
+	weaponDataPath = filepath.Join(gameDataDir, "weapons_data")
+	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets")
+	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config")
 	var params struct {
 		PresetName string `json:"preset_name"`
 	}
