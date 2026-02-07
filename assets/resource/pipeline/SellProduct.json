@@ -422,7 +422,7 @@
                     1000,
                     640,
                     250,
-                    100
+                    75
                 ]
             }
         },
@@ -465,7 +465,398 @@
         ]
     },
     "SellProductCanSell": {
-        "doc": "判断当前能不能出售的虚节点",
+        "doc": "每次进入据点先选最优货品",
+        "next": [
+            "SellProductZeroMoney",
+            "SellProductNoProduct",
+            "SellProductClickChangeProduct"
+        ]
+    },
+    "SellProductNoProduct": {
+        "focus": {
+            "Node.Recognition.Succeeded": "检测到未选择货品，正在自动选择最优货品"
+        },
+        "doc": "没有选中售卖产品，点击选择货品按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 选择货品
+                    "选择货品",
+                    "選擇貨品",
+                    "Select",
+                    "select",
+                    "選択",
+                    "선택"
+                ],
+                "roi": [
+                    1120,
+                    395,
+                    130,
+                    50
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectDialog",
+            "SellProductNoProduct"
+        ]
+    },
+    "SellProductSelectDialog": {
+        "doc": "等待选择交易货品对话框打开",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 选择交易货品
+                    "选择交易货品",
+                    "選擇交易貨品",
+                    "Select",
+                    "select",
+                    "選択",
+                    "선택"
+                ],
+                "roi": [
+                    160,
+                    120,
+                    180,
+                    40
+                ]
+            }
+        },
+        "next": [
+            "SellProductSelectBest1",
+            "SellProductSelectBest2",
+            "SellProductSelectBest3",
+            "SellProductSelectItem1",
+            "SellProductSelectItem2",
+            "SellProductSelectItem3",
+            "SellProductSelectFallback"
+        ]
+    },
+    "SellProductSelectBest1": {
+        "doc": "检查第1个货品是否有最优推荐图标（点赞）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        170,
+                        200,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        30
+                    ]
+                ],
+                "roi": [
+                    240,
+                    175,
+                    35,
+                    35
+                ],
+                "count": 20
+            }
+        },
+        "next": [
+            "SellProductSelectItem1",
+            "SellProductSelectItem2",
+            "SellProductSelectItem3",
+            "SellProductSelectFallback"
+        ]
+    },
+    "SellProductSelectBest2": {
+        "doc": "检查第2个货品是否有最优推荐图标（点赞）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        170,
+                        200,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        30
+                    ]
+                ],
+                "roi": [
+                    550,
+                    175,
+                    35,
+                    35
+                ],
+                "count": 20
+            }
+        },
+        "next": [
+            "SellProductSelectItem2",
+            "SellProductSelectItem1",
+            "SellProductSelectItem3",
+            "SellProductSelectFallback"
+        ]
+    },
+    "SellProductSelectBest3": {
+        "doc": "检查第3个货品是否有最优推荐图标（点赞）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        170,
+                        200,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        210,
+                        255,
+                        30
+                    ]
+                ],
+                "roi": [
+                    860,
+                    175,
+                    35,
+                    35
+                ],
+                "count": 20
+            }
+        },
+        "next": [
+            "SellProductSelectItem3",
+            "SellProductSelectItem1",
+            "SellProductSelectItem2",
+            "SellProductSelectFallback"
+        ]
+    },
+    "SellProductSelectItem1": {
+        "doc": "检查第1个货品（单价最高）是否有库存，有则选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        160,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        140,
+                        140
+                    ]
+                ],
+                "roi": [
+                    285,
+                    235,
+                    65,
+                    30
+                ],
+                "count": 10
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    175,
+                    165,
+                    295,
+                    110
+                ]
+            }
+        },
+        "next": [
+            "SellProductSelectConfirm"
+        ]
+    },
+    "SellProductSelectItem2": {
+        "doc": "检查第2个货品是否有库存，有则选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        160,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        140,
+                        140
+                    ]
+                ],
+                "roi": [
+                    595,
+                    235,
+                    65,
+                    30
+                ],
+                "count": 10
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    485,
+                    165,
+                    295,
+                    110
+                ]
+            }
+        },
+        "next": [
+            "SellProductSelectConfirm"
+        ]
+    },
+    "SellProductSelectItem3": {
+        "doc": "检查第3个货品是否有库存，有则选中",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        160,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        140,
+                        140
+                    ]
+                ],
+                "roi": [
+                    905,
+                    235,
+                    30,
+                    30
+                ],
+                "count": 10
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    795,
+                    165,
+                    295,
+                    110
+                ]
+            }
+        },
+        "next": [
+            "SellProductSelectConfirm"
+        ]
+    },
+    "SellProductSelectFallback": {
+        "doc": "前3个货品均无库存，兜底选第1个",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    175,
+                    165,
+                    295,
+                    110
+                ]
+            }
+        },
+        "next": [
+            "SellProductSelectConfirm"
+        ]
+    },
+    "SellProductSelectConfirm": {
+        "doc": "点击确认选择货品",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 确认
+                    "确认",
+                    "確認",
+                    "Confirm",
+                    "confirm",
+                    "確認",
+                    "확인"
+                ],
+                "roi": [
+                    980,
+                    560,
+                    140,
+                    45
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductReadyToSell",
+            "SellProductSelectConfirm"
+        ]
+    },
+    "SellProductReadyToSell": {
+        "doc": "选品后等待回到售卖界面，进入交易流程",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 交易
+                    "交易",
+                    "交易",
+                    "Trade",
+                    "取引",
+                    "거래",
+                    // 据点上限
+                    "据点上限",
+                    "據點上限",
+                    "current limit",
+                    "上限",
+                    "거점 발전 포인트 현재 거점 최대치 도달",
+                    // 不足
+                    "不足",
+                    "不足",
+                    "Insufficient",
+                    "insufficient",
+                    "不足",
+                    "거점 관리권 보유량 부족"
+                ],
+                "roi": [
+                    900,
+                    550,
+                    350,
+                    150
+                ]
+            }
+        },
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -506,6 +897,37 @@
         },
         "next": [
             "SellProductNext"
+        ]
+    },
+    "SellProductClickChangeProduct": {
+        "doc": "点击更换货品按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换货品
+                    "更换货品",
+                    "更換貨品",
+                    "Switch",
+                    "switch",
+                    "変更",
+                    "교체"
+                ],
+                "roi": [
+                    1120,
+                    395,
+                    130,
+                    50
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectDialog",
+            "SellProductClickChangeProduct"
         ]
     },
     "SellProductZeroMoney": {
