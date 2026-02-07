@@ -44,7 +44,7 @@
 
 - **Prettier 约束**：所有 JSON、YAML 文件必须遵循 `.prettierrc` 的配置。
 - **关键规则**：
-  - 使用 **4 个空格** 缩进。
+  - 缩进宽度以 `.prettierrc` 为唯一准则，通常是 4 个空格。
   - 数组格式受 `prettier-plugin-multiline-arrays` 插件影响，数组元素必须换行排列（阈值为 1）。
   - 提交前请务必执行格式化，确保代码风格统一。
 
