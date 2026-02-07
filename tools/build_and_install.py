@@ -146,6 +146,7 @@ def build_go_agent(
     target_os: str | None = None,
     target_arch: str | None = None,
     version: str | None = None,
+    ci_mode: bool = False,
 ) -> bool:
     """构建 Go Agent"""
     if not check_go_environment():
@@ -200,20 +201,44 @@ def build_go_agent(
         return False
 
     # go build
-    ldflags = "-s -w"
+    # CI 模式：release with debug info（保留 DWARF 调试信息，不使用 -s -w）
+    # 开发模式：debug 构建（保留调试信息 + 禁用优化，便于断点调试）
+    if ci_mode:
+        # Release with debug info: 保留调试信息但启用优化
+        ldflags = ""
+        gcflags = ""
+    else:
+        # Debug 模式: 禁用优化和内联，便于断点调试
+        ldflags = ""
+        gcflags = "all=-N -l"
+
     if version:
         ldflags += f" -X main.Version={version}"
+    ldflags = ldflags.strip()
+
+    build_cmd = [
+        "go",
+        "build",
+    ]
+
+    if ci_mode:
+        build_cmd.append("-trimpath")
+
+    if gcflags:
+        build_cmd.append(f"-gcflags={gcflags}")
+
+    if ldflags:
+        build_cmd.append(f"-ldflags={ldflags}")
+
+    build_cmd.extend(["-o", str(output_path), "."])
+
+    print(
+        f"  构建模式: {'CI (release with debug info)' if ci_mode else '开发 (debug)'}"
+    )
+    print(f"  构建命令: {' '.join(build_cmd)}")
 
     result = subprocess.run(
-        [
-            "go",
-            "build",
-            "-trimpath",
-            f"-ldflags={ldflags}",
-            "-o",
-            str(output_path),
-            ".",
-        ],
+        build_cmd,
         cwd=go_service_dir,
         capture_output=True,
         text=True,
@@ -277,7 +302,7 @@ def main():
     # 3. 构建 Go Agent
     print("[3/4] 构建 Go Agent...")
     if not build_go_agent(
-        root_dir, install_dir, args.target_os, args.target_arch, args.version
+        root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
     ):
         print("  [ERROR] 构建 Go Agent 失败")
         sys.exit(1)

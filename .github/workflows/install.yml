@@ -59,50 +59,30 @@ jobs:
           echo tag=$tag | tee -a $GITHUB_OUTPUT
           echo is_release=$is_release | tee -a $GITHUB_OUTPUT
           echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
+
+      - id: maafw-latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: mxu-latest-release
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: MistEO/MXU
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
-
-  prepare_mxu_icon:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download MXU
-        uses: robinraju/release-downloader@v1
-        with:
-          repository: MistEO/MXU
-          fileName: "*win-x86_64*"
-          latest: true
-          out-file-path: "downloads/MXU"
-          extract: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Convert PNG to ICO
-        shell: bash
-        run: |
-          choco install imagemagick -y
-          # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
-          for size in 512 256 128 64 48 32 24 16; do
-            magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
-          done
-          magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
-
-      - name: Modify MXU exe icon
-        shell: bash
-        run: |
-          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
-          ./rcedit.exe "downloads/MXU/mxu.exe" --set-icon "maaend.ico"
-          echo "MXU icon modified successfully"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mxu-win-x86_64-with-icon
-          path: "downloads/MXU/mxu.exe"
+      maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
+      mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
 
   build_and_install:
-    needs: [meta, prepare_mxu_icon]
+    needs: meta
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -120,40 +100,26 @@ jobs:
         with:
           go-version-file: "agent/go-service/go.mod"
 
-      - id: latest-release
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: MaaXYZ/MaaFramework
-          excludes: "draft"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
-          tag: ${{ steps.latest-release.outputs.release }}
+          tag: ${{ needs.meta.outputs.maafw_version }}
           out-file-path: "downloads/MaaFramework"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download MXU
-        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') && !(matrix.os == 'win' && matrix.arch == 'x86_64') }}
+        if: ${{ !(matrix.os == 'linux' && matrix.arch == 'aarch64') }}
         uses: robinraju/release-downloader@v1
         with:
           repository: MistEO/MXU
           fileName: "*${{ matrix.os }}-${{ matrix.arch }}*"
-          latest: true
+          tag: ${{ needs.meta.outputs.mxu_version }}
           out-file-path: "downloads/MXU"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download MXU with icon (Windows x64)
-        if: matrix.os == 'win' && matrix.arch == 'x86_64'
-        uses: actions/download-artifact@v4
-        with:
-          name: mxu-win-x86_64-with-icon
-          path: "downloads/MXU"
 
       - name: Install
         shell: bash
@@ -187,8 +153,195 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}
+          name: MaaEnd-${{ matrix.os }}-${{ matrix.arch }}-intermediate
+          path: install
+
+  package_linux_tarball:
+    needs: [meta, build_and_install]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MaaEnd-linux-${{ matrix.arch }}-intermediate
           path: "install"
+
+      - name: Repackage as tar.gz
+        shell: bash
+        run: |
+          # 给可执行文件添加执行权限
+          if [[ -f install/MaaEnd ]]; then
+            chmod +x install/MaaEnd
+          fi
+          if [[ -f install/agent/go-service ]]; then
+            chmod +x install/agent/go-service
+          fi
+          # 给 maafw 目录下的可执行文件添加权限
+          find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
+
+          # 打包为 tar.gz
+          cd install
+          tar -czvf ../MaaEnd-linux-${{ matrix.arch }}.tar.gz .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-linux-${{ matrix.arch }}-tarball
+          path: "MaaEnd-linux-${{ matrix.arch }}.tar.gz"
+
+  package_macos_dmg:
+    needs: [meta, build_and_install]
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MaaEnd-macos-${{ matrix.arch }}-intermediate
+          path: "install"
+
+      - name: Update mirrorchyan_rid for macOS
+        shell: bash
+        run: |
+          # 更新 interface.json 中的 mirrorchyan_rid 为 MaaEnd_exec
+          jq --indent 4 '.mirrorchyan_rid = "MaaEnd_exec"' install/interface.json > install/interface.json.tmp
+          mv install/interface.json.tmp install/interface.json
+          echo "Updated mirrorchyan_rid to MaaEnd_exec"
+          cat install/interface.json | grep mirrorchyan_rid
+
+      - name: Package DMG
+        shell: bash
+        run: |
+          brew install create-dmg
+
+          # Prepare Icon
+          mkdir MaaEnd.iconset
+          sips -z 16 16     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16.png
+          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32.png
+          sips -z 64 64     assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128.png
+          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256.png
+          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512.png
+          sips -z 1024 1024 assets/misc/MaaEnd-Tiny.png --out MaaEnd.iconset/icon_512x512@2x.png
+          iconutil -c icns MaaEnd.iconset -o maaend.icns
+
+          # Prepare App Bundle
+          APP_NAME="MaaEnd.app"
+          mkdir -p "$APP_NAME/Contents/MacOS"
+          mkdir -p "$APP_NAME/Contents/Resources"
+          cp maaend.icns "$APP_NAME/Contents/Resources/"
+          cp -r install/* "$APP_NAME/Contents/MacOS/"
+          FULL_VERSION="${{ needs.meta.outputs.tag }}"
+          SHORT_VERSION=$(echo "$FULL_VERSION" | sed -E 's/-.*//')
+
+          cat > "$APP_NAME/Contents/Info.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>CFBundleInfoDictionaryVersion</key>
+              <string>6.0</string>
+              <key>CFBundleExecutable</key>
+              <string>MaaEnd</string>
+              <key>CFBundleIconFile</key>
+              <string>maaend.icns</string>
+              <key>CFBundleIdentifier</key>
+              <string>com.maaend.app</string>
+              <key>CFBundleName</key>
+              <string>MaaEnd</string>
+              <key>CFBundlePackageType</key>
+              <string>APPL</string>
+              <key>CFBundleShortVersionString</key>
+              <string>$SHORT_VERSION</string>
+              <key>CFBundleVersion</key>
+              <string>$FULL_VERSION</string>
+              <key>LSMinimumSystemVersion</key>
+              <string>10.13</string>
+          </dict>
+          </plist>
+          EOF
+
+          chmod +x "$APP_NAME/Contents/MacOS/MaaEnd"
+          if [[ -f "$APP_NAME/Contents/MacOS/agent/go-service" ]]; then
+            chmod +x "$APP_NAME/Contents/MacOS/agent/go-service"
+          fi
+          codesign --force --deep --sign - "$APP_NAME"
+
+          create-dmg \
+            --volname "MaaEnd Installer" \
+            --volicon "maaend.icns" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            --icon-size 100 \
+            --icon "$APP_NAME" 200 190 \
+            --hide-extension "$APP_NAME" \
+            --app-drop-link 600 185 \
+            "MaaEnd.dmg" \
+            "$APP_NAME"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-macos-${{ matrix.arch }}-dmg
+          path: "MaaEnd.dmg"
+
+  package_win_zip:
+    needs: [meta, build_and_install]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [aarch64, x86_64]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MaaEnd-win-${{ matrix.arch }}-intermediate
+          path: "install"
+
+      - name: Convert PNG to ICO
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          choco install imagemagick -y
+          # 为每个尺寸单独生成图像，确保 ICO 中包含独立的各尺寸图层
+          for size in 512 256 128 64 48 32 24 16; do
+            magick assets/misc/MaaEnd-Tiny.png -resize ${size}x${size} icon-${size}.png
+          done
+          magick icon-512.png icon-256.png icon-128.png icon-64.png icon-48.png icon-32.png icon-24.png icon-16.png maaend.ico
+
+      - name: Modify MaaEnd.exe icon
+        if: matrix.arch == 'x86_64'
+        shell: bash
+        run: |
+          curl -L https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe -o rcedit.exe
+          ./rcedit.exe "install/MaaEnd.exe" --set-icon "maaend.ico"
+          echo "MaaEnd.exe icon modified successfully"
+
+      - name: Package ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path install/* -DestinationPath MaaEnd-win-${{ matrix.arch }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MaaEnd-win-${{ matrix.arch }}-zip
+          path: "MaaEnd-win-${{ matrix.arch }}.zip"
 
   changelog:
     name: Generate changelog
@@ -218,23 +371,57 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, build_and_install, changelog]
+    needs: [meta, package_linux_tarball, package_macos_dmg, package_win_zip, changelog]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: MaaEnd-*
-          path: assets
+          pattern: MaaEnd-*-zip
+          path: artifacts
 
-      - run: |
-          cd assets
-          for f in MaaEnd-*; do
-            (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MaaEnd-*-tarball
+          path: artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: MaaEnd-*-dmg
+          path: artifacts
+
+      - name: Prepare release artifacts
+        run: |
+          cd artifacts
+          # 重命名 win zip 文件，添加版本号
+          for f in MaaEnd-win-*-zip/MaaEnd-win-*.zip; do
+            if [[ -f "$f" ]]; then
+              name=$(basename "$f" .zip)
+              mv "$f" "${name}-${{ needs.meta.outputs.tag }}.zip"
+            fi
           done
+          # 重命名 linux tar.gz 文件，添加版本号
+          for f in MaaEnd-linux-*-tarball/MaaEnd-linux-*.tar.gz; do
+            if [[ -f "$f" ]]; then
+              name=$(basename "$f" .tar.gz)
+              mv "$f" "${name}-${{ needs.meta.outputs.tag }}.tar.gz"
+            fi
+          done
+          # 重命名 dmg 文件，添加版本号
+          for f in MaaEnd-*-dmg/MaaEnd.dmg; do
+            if [[ -f "$f" ]]; then
+              dir=$(dirname "$f")
+              # 从目录名提取 arch (例如 MaaEnd-macos-aarch64-dmg -> macos-aarch64)
+              arch=$(echo "$dir" | sed 's/MaaEnd-//' | sed 's/-dmg//')
+              mv "$f" "MaaEnd-${arch}-${{ needs.meta.outputs.tag }}.dmg"
+            fi
+          done
+          # 清理空目录
+          rm -rf MaaEnd-*/
+          ls -la
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: assets/*
+          files: artifacts/*
           tag_name: ${{ needs.meta.outputs.tag }}
           body: ${{ needs.changelog.outputs.release_body }}
           draft: false

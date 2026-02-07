@@ -7,6 +7,11 @@
             "description": "$task.ImportBluePrints.description",
             "option": [
                 "ImportBluePrints"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
             ]
         }
     ],

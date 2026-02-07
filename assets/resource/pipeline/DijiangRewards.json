@@ -20,6 +20,45 @@
             "[JumpBack]CloseButtonDijiang"
         ]
     },
+    //主流程
+    "DijiangRewards": {
+        "next": [
+            "ControlNexus", //主流程内收集所有奖励
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]Teleport",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "ControlNexus": {
+        //任务主流程
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe"
+        ]
+    },
     "InMainWindow_NeedCredit": {
         "recognition": {
             "type": "Or",
@@ -34,8 +73,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -65,7 +104,8 @@
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
+            "[JumpBack]OpenMap",
+            "[JumpBack]CancelExit"
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -189,47 +229,32 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CloseButtonDijiang",
+            "[JumpBack]CancelExit"
         ]
     },
-    //主流程
-    "DijiangRewards": {
-        "next": [
-            "ControlNexus", //主流程内收集所有奖励
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
-        ]
-    },
-    "ControlNexus": {
-        //任务主流程
-        "max_hit": 1,
+    "CancelExit": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    308,
+                    282,
+                    370,
+                    306
                 ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
+                "expected": [
+                    "取消"
                 ]
             }
         },
-        "next": [
-            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]ProductionAssistInDijiang",
-            "[JumpBack]MFG_ReceiveRewards",
-            "[JumpBack]GrowthChamber",
-            "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
-        ]
+        "action": {
+            "type": "Click"
+        }
     },
     "InLastCarbin": {
         // 最后一个培养舱
@@ -239,8 +264,8 @@
                 "roi": [
                     895,
                     464,
-                    56,
-                    95
+                    138,
+                    134
                 ],
                 "template": [
                     "ClaimDijiangRewards/GrowthChamber.png"
@@ -271,8 +296,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -332,10 +357,10 @@
                             "type": "ColorMatch",
                             "param": {
                                 "roi": [
-                                    61,
-                                    122,
-                                    1099,
-                                    446
+                                    43,
+                                    79,
+                                    1116,
+                                    485
                                 ],
                                 "lower": [
                                     224,
@@ -500,6 +525,7 @@
                                     116,
                                     96
                                 ],
+                                "only_rec": true,
                                 "expected": [
                                     "20/20"
                                 ]
@@ -736,13 +762,14 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1124,
-                    575,
-                    156,
-                    145
+                    1121,
+                    551,
+                    159,
+                    169
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png"
+                    "ClaimDijiangRewards/ReceiveAll.png",
+                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
                 ]
             }
         },
@@ -776,16 +803,16 @@
     },
     "GrowAgain": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    792,
-                    461,
-                    198,
-                    151
+                    793,
+                    505,
+                    222,
+                    121
                 ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthAgain.png"
+                "expected": [
+                    "再次培养"
                 ]
             }
         },
@@ -872,8 +899,53 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoom"
+            "ReceptionRoom",
+            "[JumpBack]EndExchange"
         ]
+    },
+    "EndExchange": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    528,
+                                    562,
+                                    256,
+                                    151
+                                ],
+                                "expected": [
+                                    "确认"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    498,
+                                    83,
+                                    321,
+                                    129
+                                ],
+                                "expected": [
+                                    "结束情报交流"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "ReceptionRoom": {
         "recognition": {
@@ -925,10 +997,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    15,
+                    437,
+                    225,
+                    153
                 ],
                 "template": [
                     "ClaimDijiangRewards/InControlNexus.png"
@@ -988,9 +1060,9 @@
             "param": {
                 "roi": [
                     1064,
-                    104,
-                    74,
-                    74
+                    23,
+                    216,
+                    158
                 ],
                 "template": [
                     "ClaimDijiangRewards/ExitProductionAssist.png"
@@ -1094,14 +1166,18 @@
         }
     },
     "UseAssist": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
                     991,
-                    527,
-                    160,
-                    141
+                    529,
+                    258,
+                    168
                 ],
                 "template": [
                     "ClaimDijiangRewards/TakeRewards.png"
@@ -1122,10 +1198,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    15,
+                    437,
+                    225,
+                    153
                 ],
                 "template": [
                     "ClaimDijiangRewards/InControlNexus.png"
@@ -1175,8 +1251,8 @@
                 "roi": [
                     892,
                     437,
-                    82,
-                    82
+                    154,
+                    118
                 ],
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
@@ -1242,7 +1318,7 @@
                 "roi": [
                     247,
                     0,
-                    80,
+                    172,
                     77
                 ],
                 "template": [
@@ -1278,6 +1354,10 @@
         }
     },
     "SelectDijiangTeleport": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "And",
             "param": {
@@ -1306,10 +1386,10 @@
                             "param": {
                                 "roi": "_DijiangBridge",
                                 "roi_offset": [
-                                    133,
-                                    -6,
-                                    21,
-                                    16
+                                    130,
+                                    -10,
+                                    60,
+                                    20
                                 ],
                                 "template": [
                                     "ClaimDijiangRewards/DijiangTeleport.png"
@@ -1357,8 +1437,8 @@
                                 "roi": [
                                     172,
                                     0,
-                                    133,
-                                    118
+                                    183,
+                                    119
                                 ]
                             }
                         }
@@ -1472,10 +1552,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    434,
-                    462,
-                    846,
-                    69
+                    759,
+                    463,
+                    521,
+                    117
                 ],
                 "lower": [
                     224,
@@ -1506,7 +1586,7 @@
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
             "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]Receive",
+            "[JumpBack]CloseDijiangRewards",
             "ControlNexusClickTips"
         ]
     },
@@ -1527,7 +1607,6 @@
                                     64
                                 ],
                                 "expected": [
-                                    "会客室",
                                     "制造舱",
                                     "培养舱"
                                 ]
@@ -1556,17 +1635,22 @@
     },
     "TakeRewards": {
         //领取奖励
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
                     860,
-                    513,
-                    85,
-                    82
+                    512,
+                    156,
+                    130
                 ],
                 "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
+                    "ClaimDijiangRewards/TakeRewards.png",
+                    "ClaimDijiangRewards/TakeRewards_Hover.png"
                 ]
             }
         },
@@ -1581,10 +1665,10 @@
             "param": {
                 "template": "DailyRewards/CloseReward.png",
                 "roi": [
-                    622,
-                    645,
-                    37,
-                    38
+                    571,
+                    594,
+                    139,
+                    126
                 ],
                 "threshold": 0.9
             }
@@ -1645,10 +1729,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1155,
-                    416,
-                    122,
-                    112
+                    1129,
+                    406,
+                    151,
+                    227
                 ],
                 "template": [
                     "ClaimDijiangRewards/Confirm.png"

@@ -1,0 +1,110 @@
+{
+    "GoToValleyIV": {
+        "doc": "前往四号谷地",
+        "recognition": "Or",
+        "any_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
+            "CheckValleyIV",
+            "[JumpBack]ChangeToValleyIV",
+            "[JumpBack]ChangeRegionButton"
+        ]
+    },
+    "GoToWuling": {
+        "doc": "前往武陵",
+        "recognition": "Or",
+        "any_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
+            "CheckWuling",
+            "[JumpBack]ChangeToWuling",
+            "[JumpBack]ChangeRegionButton"
+        ]
+    },
+    "CheckValleyIV": {
+        "doc": "检查是否是四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "Valley",
+            "四号谷地",
+            "4번 협곡"
+        ]
+    },
+    "CheckWuling": {
+        "doc": "检查是否是武陵",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": [
+            "武陵",
+            "武陵",
+            "Wuling",
+            "武陵",
+            "무릉"
+        ]
+    },
+    "ChangeToValleyIV": {
+        "doc": "更改至四号谷地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "Valley",
+            "四号谷地",
+            "4번 협곡"
+        ],
+        "action": "Click",
+        "next": [
+            "ChangeRegionConfirmButton",
+            "[JumpBack]ChangeRegionButton"
+        ]
+    },
+    "ChangeToWuling": {
+        "doc": "更改至武陵",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "武陵",
+            "武陵",
+            "Wuling",
+            "武陵",
+            "무릉"
+        ],
+        "action": "Click",
+        "next": [
+            "ChangeRegionConfirmButton",
+            "[JumpBack]ChangeRegionButton"
+        ]
+    }
+}
