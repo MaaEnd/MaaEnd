@@ -46,9 +46,11 @@ type EssenceFilterInitAction struct{}
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[EssenceFilter] ========== Init ==========")
 
-	weaponDataDir := filepath.Join("resource", "gamedata", "EssenceFilter")
-	weaponDataPath = filepath.Join(weaponDataDir, "weapons_data_final.json")
-	presetsPath := filepath.Join(weaponDataDir, "essence_filter_presets.json")
+	gameDataDir := filepath.Join("resource", "gamedata", "EssenceFilter")
+	weaponDataPath = filepath.Join(gameDataDir, "weapons_data_final.json")
+	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
+	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
+
 	// 1. parse params
 	var params struct {
 		PresetName string `json:"preset_name"`
@@ -59,22 +61,29 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 	log.Info().Str("preset_name", params.PresetName).Msg("[EssenceFilter] Step1 ok")
 
-	// 2. load DB
+	// 2. load matcher config
+	if err := LoadMatcherConfig(matcherConfigPath); err != nil {
+		log.Error().Err(err).Msg("[EssenceFilter] Step2 failed: load matcher config")
+		return false
+	}
+	log.Info().Msg("[EssenceFilter] Step2 ok: matcher config loaded")
+
+	// 3. load DB
 	if err := LoadWeaponDatabase(weaponDataPath); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step2 failed: load DB")
+		log.Error().Err(err).Msg("[EssenceFilter] Step3 failed: load DB")
 		return false
 	}
 	LogMXUInterfaceSimpleHTML(ctx, "武器数据加载完成")
 	logSkillPools()
 
-	// 3. load presets
+	// 4. load presets
 	presets, err := LoadPresets(presetsPath)
 	if err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step3 failed: load presets")
+		log.Error().Err(err).Msg("[EssenceFilter] Step4 failed: load presets")
 		return false
 	}
 
-	// 4. select preset
+	// 5. select preset
 	var selectedPreset *FilterPreset
 	for _, p := range presets {
 		if p.Name == params.PresetName {
@@ -83,18 +92,18 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 	}
 	if selectedPreset == nil {
-		log.Error().Str("preset", params.PresetName).Msg("[EssenceFilter] Step4 failed: preset not found")
+		log.Error().Str("preset", params.PresetName).Msg("[EssenceFilter] Step5 failed: preset not found")
 		return false
 	}
 
 	LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("已选择预设：%s", selectedPreset.Label))
-	// 5. filter weapons
+	// 6. filter weapons
 	filteredWeapons := FilterWeaponsByConfig(selectedPreset.Filter)
 	names := make([]string, 0, len(filteredWeapons))
 	for _, w := range filteredWeapons {
 		names = append(names, w.ChineseName)
 	}
-	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("[EssenceFilter] Step5 ok")
+	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("[EssenceFilter] Step6 ok")
 	buildFilteredSkillStats(filteredWeapons)
 	LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
 	// Construct weapon list in HTML to show
@@ -117,7 +126,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	builder.WriteString("</table>")
 	LogMXUInterfaceHTML(ctx, builder.String())
 
-	// 6. extract combos
+	// 7. extract combos
 	targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
 	visitedCount = 0
 	matchedCount = 0
@@ -126,7 +135,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	maxItemsPerRow = 9
 	firstRowSwipeDone = false
 	statsLogged = false
-	log.Info().Int("combinations", len(targetSkillCombinations)).Msg("[EssenceFilter] Step6 ok")
+	log.Info().Int("combinations", len(targetSkillCombinations)).Msg("[EssenceFilter] Step7 ok")
 	log.Info().Msg("[EssenceFilter] ========== Init Done ==========")
 
 	// 展示目标技能

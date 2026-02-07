@@ -54,6 +54,12 @@ type SkillCombination struct {
 	SkillIDs      []int    // [slot1_id, slot2_id, slot3_id]
 }
 
+// MatcherConfig - 匹配器配置结构
+type MatcherConfig struct {
+	SimilarWordMap  map[string]string `json:"similarWordMap"`
+	SuffixStopwords []string          `json:"suffixStopwords"`
+}
+
 // Global variables
 var (
 	weaponDB                WeaponDatabase
@@ -76,4 +82,7 @@ var (
 	rowBoxes [][4]int
 	rowIndex int
 	weaponDataPath string
+
+	// Matcher config - 从 JSON 文件加载
+	matcherConfig MatcherConfig
 )

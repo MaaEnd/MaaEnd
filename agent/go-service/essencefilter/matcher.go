@@ -158,11 +158,9 @@ func cleanChinese(text string) string {
 	return b.String()
 }
 
-// 停用后缀
-var suffixStopwords = []string{"提升", "提高", "强化", "增幅", "效果", "效率", "伤害", "倍率"}
-
+// trimStopSuffix - 去除停用后缀（从配置文件加载）
 func trimStopSuffix(s string) string {
-	for _, suf := range suffixStopwords {
+	for _, suf := range matcherConfig.SuffixStopwords {
 		if strings.HasSuffix(s, suf) && utf8.RuneCountInString(s) > utf8.RuneCountInString(suf) {
 			return strings.TrimSuffix(s, suf)
 		}
@@ -170,14 +168,9 @@ func trimStopSuffix(s string) string {
 	return s
 }
 
-// 相近/误识替换表（键为误识，值为正确），仅作用于 OCR 文本，不改技能池
-var similarWordMap = map[string]string{
-	"进发": "迸发",
-	"进":  "迸",
-}
-
+// normalizeSimilar - 相近/误识替换（键为误识，值为正确），仅作用于 OCR 文本，不改技能池（从配置文件加载）
 func normalizeSimilar(s string) string {
-	for old, val := range similarWordMap {
+	for old, val := range matcherConfig.SimilarWordMap {
 		s = strings.ReplaceAll(s, old, val)
 	}
 	return s

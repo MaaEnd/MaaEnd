@@ -28,3 +28,13 @@ func LoadPresets(filepath string) ([]FilterPreset, error) {
 	err = json.Unmarshal(data, &config)
 	return config.Presets, err
 }
+
+// LoadMatcherConfig - 加载匹配器配置
+func LoadMatcherConfig(filepath string) error {
+	data, err := os.ReadFile(filepath)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(data, &matcherConfig)
+}
