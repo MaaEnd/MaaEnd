@@ -3,7 +3,7 @@ name: format
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 22 * * *" # CST 06:00
+    - cron: "0 22 * * *" # UTC+8 06:00
 
 jobs:
   format:

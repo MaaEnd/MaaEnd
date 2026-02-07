@@ -6,7 +6,7 @@
 
 **MaaEnd** 是基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 开发的游戏自动化工具。
 
-- **主体流程**：用户可以选择若干 Task 来执行自动化任务，位于 `assets/resource/tasks` 目录。而 Task 会调用 Pipeline 中定义的 Node 来执行。Pipeline 是基于 JSON 的低代码实现，位于 `assets/resource/pipeline`。
+- **主体流程**：用户可以选择若干 Task 来执行自动化任务，位于 `assets/tasks` 目录。而 Task 会调用 Pipeline 中定义的 Node 来执行。Pipeline 是基于 JSON 的低代码实现，位于 `assets/resource/pipeline`。
 - **复杂逻辑**：对于不便进行低代码实现的复杂的识别或操作逻辑，可通过 Go 编写的 `agent/go-service` 来扩展实现。
 - **配置入口**：`assets/interface.json` 定义了任务列表、控制器及 Agent 启动项。
 
