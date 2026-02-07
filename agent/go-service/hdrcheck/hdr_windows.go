@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	user32                       = windows.NewLazySystemDLL("user32.dll")
+	user32                          = windows.NewLazySystemDLL("user32.dll")
 	procGetDisplayConfigBufferSizes = user32.NewProc("GetDisplayConfigBufferSizes")
 	procQueryDisplayConfig          = user32.NewProc("QueryDisplayConfig")
 	procDisplayConfigGetDeviceInfo  = user32.NewProc("DisplayConfigGetDeviceInfo")
@@ -17,27 +17,27 @@ var (
 
 // Display config flags
 const (
-	QDC_ALL_PATHS           = 0x00000001
-	QDC_ONLY_ACTIVE_PATHS   = 0x00000002
-	QDC_DATABASE_CURRENT    = 0x00000004
-	QDC_VIRTUAL_MODE_AWARE  = 0x00000010
-	QDC_INCLUDE_HMD         = 0x00000020
+	QDC_ALL_PATHS                  = 0x00000001
+	QDC_ONLY_ACTIVE_PATHS          = 0x00000002
+	QDC_DATABASE_CURRENT           = 0x00000004
+	QDC_VIRTUAL_MODE_AWARE         = 0x00000010
+	QDC_INCLUDE_HMD                = 0x00000020
 	QDC_VIRTUAL_REFRESH_RATE_AWARE = 0x00000040
 )
 
 // DISPLAYCONFIG_DEVICE_INFO_TYPE
 const (
-	DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME          = 1
-	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME          = 2
-	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_PREFERRED_MODE = 3
-	DISPLAYCONFIG_DEVICE_INFO_GET_ADAPTER_NAME         = 4
-	DISPLAYCONFIG_DEVICE_INFO_SET_TARGET_PERSISTENCE   = 5
-	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_BASE_TYPE     = 6
+	DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME                = 1
+	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME                = 2
+	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_PREFERRED_MODE      = 3
+	DISPLAYCONFIG_DEVICE_INFO_GET_ADAPTER_NAME               = 4
+	DISPLAYCONFIG_DEVICE_INFO_SET_TARGET_PERSISTENCE         = 5
+	DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_BASE_TYPE           = 6
 	DISPLAYCONFIG_DEVICE_INFO_GET_SUPPORT_VIRTUAL_RESOLUTION = 7
 	DISPLAYCONFIG_DEVICE_INFO_SET_SUPPORT_VIRTUAL_RESOLUTION = 8
-	DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO  = 9
-	DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE = 10
-	DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL      = 11
+	DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO        = 9
+	DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE       = 10
+	DISPLAYCONFIG_DEVICE_INFO_GET_SDR_WHITE_LEVEL            = 11
 )
 
 // LUID represents a locally unique identifier
@@ -83,10 +83,10 @@ type DISPLAYCONFIG_PATH_INFO struct {
 
 // DISPLAYCONFIG_MODE_INFO contains mode information
 type DISPLAYCONFIG_MODE_INFO struct {
-	InfoType         uint32
-	Id               uint32
-	AdapterId        LUID
-	ModeInfoData     [64]byte // Union, we don't need to parse this
+	InfoType     uint32
+	Id           uint32
+	AdapterId    LUID
+	ModeInfoData [64]byte // Union, we don't need to parse this
 }
 
 // DISPLAYCONFIG_DEVICE_INFO_HEADER is the header for device info requests
@@ -99,10 +99,10 @@ type DISPLAYCONFIG_DEVICE_INFO_HEADER struct {
 
 // DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO contains advanced color information
 type DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO struct {
-	Header                    DISPLAYCONFIG_DEVICE_INFO_HEADER
-	Value                     uint32 // Bit flags: advancedColorSupported, advancedColorEnabled, wideColorEnforced, advancedColorForceDisabled
-	ColorEncoding             uint32
-	BitsPerColorChannel       uint32
+	Header              DISPLAYCONFIG_DEVICE_INFO_HEADER
+	Value               uint32 // Bit flags: advancedColorSupported, advancedColorEnabled, wideColorEnforced, advancedColorForceDisabled
+	ColorEncoding       uint32
+	BitsPerColorChannel uint32
 }
 
 // Windows error codes
