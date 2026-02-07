@@ -8,8 +8,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -30,35 +28,35 @@ func InitData() error {
 	loadOnce.Do(func() {
 		dataDir, err := resolveDataDir()
 		if err != nil {
-			log.Error().Err(err).Msg("essence: failed to resolve data directory")
+			essLog.Error().Err(err).Msg("failed to resolve data directory")
 			loadErr = err
 			return
 		}
 
 		weaponsPath := filepath.Join(dataDir, defaultWeaponsJSN)
-		log.Info().
+		essLog.Info().
 			Str("dataDir", dataDir).
 			Str("weaponsPath", weaponsPath).
-			Msg("essence: resolved data paths")
-		log.Info().
+			Msg("resolved data paths")
+		essLog.Info().
 			Str("weaponsPath", weaponsPath).
-			Msg("essence: loading data files")
+			Msg("loading data files")
 
 		w, err := loadWeapons(weaponsPath)
 		if err != nil {
-			log.Error().Err(err).Msg("essence: failed to load weapons data")
+			essLog.Error().Err(err).Msg("failed to load weapons data")
 			loadErr = err
 			return
 		}
 
 		if len(w) == 0 {
-			log.Warn().Msg("essence: loaded zero weapons from data file")
+			essLog.Warn().Msg("loaded zero weapons from data file")
 		}
 
 		weapons = w
-		log.Info().
+		essLog.Info().
 			Int("weaponCount", len(weapons)).
-			Msg("essence: data loaded successfully")
+			Msg("data loaded successfully")
 	})
 
 	return loadErr

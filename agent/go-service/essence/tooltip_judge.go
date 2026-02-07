@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 // tooltipJudgeParam defines OCR node names and preferred weapons input.
@@ -29,13 +28,14 @@ var attrCleanupRe = regexp.MustCompile(`[0-9+\-%.]`)
 type EssenceTooltipJudgeRecognition struct{}
 
 // Run 实现 CustomRecognitionRunner 接口。
+// Run implements CustomRecognitionRunner.
 func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	log.Info().
+	essLog.Info().
 		Str("recognition", arg.CustomRecognitionName).
-		Msg("essence: starting EssenceTooltipJudge recognition")
+		Msg("starting EssenceTooltipJudge recognition")
 
 	if arg.Img == nil {
-		log.Warn().Msg("essence: arg image is nil")
+		essLog.Warn().Msg("arg image is nil")
 		return nil, false
 	}
 
@@ -46,7 +46,7 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	}
 	if arg.CustomRecognitionParam != "" {
 		if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &param); err != nil {
-			log.Warn().Err(err).Msg("essence: failed to parse tooltip judge param, using defaults")
+			essLog.Warn().Err(err).Msg("failed to parse tooltip judge param, using defaults")
 		}
 	}
 
@@ -55,11 +55,11 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	s3, ok3 := ocrAttrFromNode(ctx, arg.Img, param.S3Node)
 
 	if !ok1 || !ok2 || !ok3 {
-		log.Warn().
+		essLog.Warn().
 			Bool("s1", ok1).
 			Bool("s2", ok2).
 			Bool("s3", ok3).
-			Msg("essence: failed to OCR all attributes")
+			Msg("failed to OCR all attributes")
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{}`,
@@ -69,10 +69,10 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	preferred := extractPreferredWeaponsFromFlags(param.PreferredWeaponFlags)
 	result := JudgeEssenceWithPreferredWeapons(s1, s2, s3, preferred)
 	if param.OnlyDecision != "" && result.Decision != param.OnlyDecision {
-		log.Info().
+		essLog.Info().
 			Str("decision", result.Decision).
 			Str("onlyDecision", param.OnlyDecision).
-			Msg("essence: decision mismatch, recognition miss")
+			Msg("decision mismatch, recognition miss")
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{}`,
@@ -80,19 +80,19 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 	}
 	data, err := json.Marshal(result)
 	if err != nil {
-		log.Error().Err(err).Interface("result", result).Msg("essence: failed to marshal JudgeResult")
+		essLog.Error().Err(err).Interface("result", result).Msg("failed to marshal JudgeResult")
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{}`,
 		}, false
 	}
 
-	log.Info().
+	essLog.Info().
 		Str("s1", s1).
 		Str("s2", s2).
 		Str("s3", s3).
 		Str("decision", result.Decision).
-		Msg("essence: finished EssenceTooltipJudge recognition")
+		Msg("finished EssenceTooltipJudge recognition")
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
@@ -105,11 +105,11 @@ func (r *EssenceTooltipJudgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRe
 func ocrAttrFromNode(ctx *maa.Context, img image.Image, nodeName string) (string, bool) {
 	detail, err := ctx.RunRecognition(nodeName, img, nil)
 	if err != nil {
-		log.Error().Err(err).Str("node", nodeName).Msg("essence: RunRecognition failed")
+		essLog.Error().Err(err).Str("node", nodeName).Msg("RunRecognition failed")
 		return "", false
 	}
 	if detail == nil || detail.Results == nil {
-		log.Warn().Str("node", nodeName).Msg("essence: no recognition results")
+		essLog.Warn().Str("node", nodeName).Msg("no recognition results")
 		return "", false
 	}
 

@@ -1,8 +1,9 @@
 {
-    // 基质小工具 - Tooltip OCR（基于 1280x720）
-    // 说明：ROI 均基于示例截图估算，首次使用建议通过 Maa 开发工具微调。
+    // 基质小工具（基于 1280x720）
+    // Essence Tool (based on 1280x720)
+    // ---- 入口 / Entry ----
     "EssenceToolMain": {
-        "doc": "基质小工具主入口",
+        "doc": "基质小工具主入口，Go 读取配置后调度 Pipeline 处理",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -12,8 +13,9 @@
         },
         "attach": {}
     },
+    // ---- 基质识别（仅识别一次）/ Tile detection (once) ----
     "EssenceTileMatch": {
-        "doc": "基质识别",
+        "doc": "识别所有基质位置（仅识别不操作，Go 用 box 逐个点击）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -35,6 +37,95 @@
             }
         }
     },
+    // ---- 点击基质 / Click tile ----
+    // Go 通过 RunTask + ROI override 将识别范围缩小到目标 tile 附近，匹配瞬间完成。
+    // post_wait_freezes 等待 tooltip 切换动画结束后再进入判定链。
+    //
+    // Go uses RunTask + ROI override to narrow recognition to target tile area.
+    // post_wait_freezes waits for tooltip transition animation before judge chain.
+    "EssenceClickTile": {
+        "doc": "点击基质（RunTask + ROI override 到目标 tile）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "EssenceTool/blueessence.png",
+                    "EssenceTool/greenessence.png",
+                    "EssenceTool/purpleessence.png",
+                    "EssenceTool/yellowessence.png"
+                ],
+                "threshold": 0.7,
+                "method": 5,
+                "roi": [
+                    27,
+                    75,
+                    944,
+                    577
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                976,
+                208,
+                267,
+                155
+            ],
+            "threshold": 0.8
+        }
+    },
+    // ---- 翻页滑动 / Swipe to next page ----
+    // Go 调用 RunTask 执行滑动，post_wait_freezes 等滚动动画结束。
+    // Go calls RunTask to swipe; post_wait_freezes waits for scroll animation.
+    "EssenceSwipeDown": {
+        "doc": "向下翻页滑动",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    480,
+                    500
+                ],
+                "end": [
+                    480,
+                    150
+                ],
+                "duration": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                31,
+                72,
+                931,
+                347
+            ],
+            "threshold": 0.9
+        }
+    },
+    // ---- 判定链 / Judge chain ----
+    "EssenceJudgeChain": {
+        "doc": "判定链入口：截图 → Treasure/Material 分支",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceJudge_Treasure",
+            "EssenceJudge_Material"
+        ]
+    },
+    // ---- OCR 节点 / OCR nodes ----
     "EssenceTooltip_S1": {
         "doc": "基质属性行 1（s1）OCR",
         "recognition": {
@@ -80,8 +171,9 @@
             }
         }
     },
+    // ---- Go 端判定基础节点 / Go-side judge base node ----
     "EssenceTooltipJudge": {
-        "doc": "调用 Go 端基质判定（读取 s1/s2/s3 OCR 结果）",
+        "doc": "Go 端基质判定（读取 s1/s2/s3 OCR 结果）",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -90,8 +182,50 @@
             }
         }
     },
+    // ---- 判定分支 / Judge branches ----
+    "EssenceJudge_Treasure": {
+        "doc": "宝藏 → 确保锁定",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceTooltipJudge",
+                "custom_recognition_param": {
+                    "only_decision": "Treasure"
+                }
+            }
+        },
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceLockStateUnlocked_Lock",
+            "EssenceLockStateLocked_Noop"
+        ],
+        "timeout": 5000
+    },
+    "EssenceJudge_Material": {
+        "doc": "材料 → 确保解锁",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "EssenceTooltipJudge",
+                "custom_recognition_param": {
+                    "only_decision": "Material"
+                }
+            }
+        },
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceLockStateLocked_Unlock",
+            "EssenceLockStateUnlocked_Noop"
+        ],
+        "timeout": 5000
+    },
+    // ---- 锁定/解锁 / Lock/Unlock ----
     "EssenceLockStateLocked_Unlock": {
-        "doc": "已锁定时点击解锁",
+        "doc": "已锁定 → 点击解锁",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -106,12 +240,55 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
-        }
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 1000
+    },
+    // ---- 已正确状态（空操作）/ Already correct state (noop) ----
+    "EssenceLockStateLocked_Noop": {
+        "doc": "已锁定 → 无需操作（宝藏已正确上锁）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceTool/locked.png",
+                "threshold": 0.85,
+                "roi": [
+                    1216,
+                    175,
+                    24,
+                    31
+                ]
+            }
+        },
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 1000
+    },
+    "EssenceLockStateUnlocked_Noop": {
+        "doc": "未锁定 → 无需操作（材料已正确解锁）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceTool/unlocked.png",
+                "threshold": 0.85,
+                "roi": [
+                    1216,
+                    175,
+                    24,
+                    31
+                ]
+            }
+        },
+        "action": "DoNothing",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 1000
     },
     "EssenceLockStateUnlocked_Lock": {
-        "doc": "未锁定时点击上锁",
+        "doc": "未锁定 → 点击上锁",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -126,8 +303,10 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {}
-        }
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 1000
     }
 }
