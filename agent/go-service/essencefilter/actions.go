@@ -11,9 +11,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func LogMXUInterface(ctx *maa.Context, content string) bool {
-	ctx.RunTask("[EssenceFilter]LogMXUInterface", map[string]interface{}{
-		"[EssenceFilter]LogMXUInterface": map[string]interface{}{
+func LogMXU(ctx *maa.Context, content string) bool {
+	ctx.RunTask("LogMXU", map[string]interface{}{
+		"LogMXU": map[string]interface{}{
 			"action": "DoNothing",
 			"focus": map[string]interface{}{
 				"Node.Action.Starting": content,
@@ -23,28 +23,28 @@ func LogMXUInterface(ctx *maa.Context, content string) bool {
 	return true
 }
 
-func LogMXUInterfaceHTML(ctx *maa.Context, htmlText string) bool {
+func LogMXUHTML(ctx *maa.Context, htmlText string) bool {
 	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
-	return LogMXUInterface(ctx, htmlText)
+	return LogMXU(ctx, htmlText)
 }
 
-// LogMXUInterfaceSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
-func LogMXUInterfaceSimpleHTMLWithColor(ctx *maa.Context, text string, color string) bool {
+// LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
+func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) bool {
 	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
-	return LogMXUInterfaceHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
+	return LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
 }
 
-// LogMXUInterfaceSimpleHTML logs a simple styled span with a default color.
-func LogMXUInterfaceSimpleHTML(ctx *maa.Context, text string) bool {
+// LogMXUSimpleHTML logs a simple styled span with a default color.
+func LogMXUSimpleHTML(ctx *maa.Context, text string) bool {
 	// Call the more specific function with the default color "#00bfff".
-	return LogMXUInterfaceSimpleHTMLWithColor(ctx, text, "#00bfff")
+	return LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
 }
 
 // EssenceFilterInitAction - initialize filter
 type EssenceFilterInitAction struct{}
 
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("[EssenceFilter] ========== Init ==========")
+	log.Info().Msg("<EssenceFilter> ========== Init ==========")
 
 	base := getResourceBase()
 	if base == "" {
@@ -59,30 +59,30 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		PresetName string `json:"preset_name"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step1 failed: param parse")
+		log.Error().Err(err).Msg("<EssenceFilter> Step1 failed: param parse")
 		return false
 	}
-	log.Info().Str("preset_name", params.PresetName).Msg("[EssenceFilter] Step1 ok")
+	log.Info().Str("preset_name", params.PresetName).Msg("<EssenceFilter> Step1 ok")
 
 	// 2. load matcher config
 	if err := LoadMatcherConfig(matcherConfigPath); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step2 failed: load matcher config")
+		log.Error().Err(err).Msg("<EssenceFilter> Step2 failed: load matcher config")
 		return false
 	}
-	log.Info().Msg("[EssenceFilter] Step2 ok: matcher config loaded")
+	log.Info().Msg("<EssenceFilter> Step2 ok: matcher config loaded")
 
 	// 3. load DB
 	if err := LoadWeaponDatabase(weaponDataPath); err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step3 failed: load DB")
+		log.Error().Err(err).Msg("<EssenceFilter> Step3 failed: load DB")
 		return false
 	}
-	LogMXUInterfaceSimpleHTML(ctx, "武器数据加载完成")
+	LogMXUSimpleHTML(ctx, "武器数据加载完成")
 	logSkillPools()
 
 	// 4. load presets
 	presets, err := LoadPresets(presetsPath)
 	if err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] Step4 failed: load presets")
+		log.Error().Err(err).Msg("<EssenceFilter> Step4 failed: load presets")
 		return false
 	}
 
@@ -95,20 +95,20 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 	}
 	if selectedPreset == nil {
-		log.Error().Str("preset", params.PresetName).Msg("[EssenceFilter] Step5 failed: preset not found")
+		log.Error().Str("preset", params.PresetName).Msg("<EssenceFilter> Step5 failed: preset not found")
 		return false
 	}
 
-	LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("已选择预设：%s", selectedPreset.Label))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择预设：%s", selectedPreset.Label))
 	// 6. filter weapons
 	filteredWeapons := FilterWeaponsByConfig(selectedPreset.Filter)
 	names := make([]string, 0, len(filteredWeapons))
 	for _, w := range filteredWeapons {
 		names = append(names, w.ChineseName)
 	}
-	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("[EssenceFilter] Step6 ok")
+	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("<EssenceFilter> Step6 ok")
 	buildFilteredSkillStats(filteredWeapons)
-	LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
 	// Construct weapon list in HTML to show
 	sort.Slice(filteredWeapons, func(i, j int) bool {
 		return filteredWeapons[i].Rarity > filteredWeapons[j].Rarity
@@ -127,7 +127,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 	}
 	builder.WriteString("</table>")
-	LogMXUInterfaceHTML(ctx, builder.String())
+	LogMXUHTML(ctx, builder.String())
 
 	// 7. extract combos
 	targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
@@ -138,8 +138,8 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	maxItemsPerRow = 9
 	firstRowSwipeDone = false
 	statsLogged = false
-	log.Info().Int("combinations", len(targetSkillCombinations)).Msg("[EssenceFilter] Step7 ok")
-	log.Info().Msg("[EssenceFilter] ========== Init Done ==========")
+	log.Info().Int("combinations", len(targetSkillCombinations)).Msg("<EssenceFilter> Step7 ok")
+	log.Info().Msg("<EssenceFilter> ========== Init Done ==========")
 
 	// 展示目标技能
 	var skillIdSlots [3][]int
@@ -190,7 +190,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 		skillBuilder.WriteString("</table>")
 	}
-	LogMXUInterfaceHTML(ctx, skillBuilder.String())
+	LogMXUHTML(ctx, skillBuilder.String())
 
 	return true
 }
@@ -199,7 +199,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 type EssenceFilterCheckItemAction struct{}
 
 func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("[EssenceFilter] ---- CheckItem ----")
+	log.Info().Msg("<EssenceFilter> ---- CheckItem ----")
 
 	if !statsLogged {
 		logFilteredSkillStats()
@@ -215,7 +215,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
 	}
 	if params.Slot < 1 || params.Slot > 3 {
-		log.Error().Int("slot", params.Slot).Msg("[EssenceFilter] invalid slot param")
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> invalid slot param")
 		return false
 	}
 	if params.Slot == 1 {
@@ -224,12 +224,12 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 
 	// Use pipeline recognition result
 	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.DetailJson == "" || arg.RecognitionDetail.Hit == false {
-		log.Error().Msg("[EssenceFilter] OCR detail missing from pipeline")
+		log.Error().Msg("<EssenceFilter> OCR detail missing from pipeline")
 		return false
 	}
 
 	if len(arg.RecognitionDetail.Results.Filtered) == 0 {
-		log.Error().Msg("[EssenceFilter] OCR detail has no filtered results")
+		log.Error().Msg("<EssenceFilter> OCR detail has no filtered results")
 		return false
 	}
 
@@ -237,11 +237,11 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	text := ocr.Text
 
 	if text == "" {
-		log.Error().Int("slot", params.Slot).Msg("[EssenceFilter] OCR empty")
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> OCR empty")
 		return false
 	}
 	currentSkills[params.Slot-1] = text
-	log.Info().Int("slot", params.Slot).Str("skill", text).Bool("is_last", params.IsLast).Msg("[EssenceFilter] OCR ok")
+	log.Info().Int("slot", params.Slot).Str("skill", text).Bool("is_last", params.IsLast).Msg("<EssenceFilter> OCR ok")
 
 	if !params.IsLast {
 		// wait for next slot
@@ -251,7 +251,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	// last slot: ensure all slots filled
 	for i, s := range currentSkills {
 		if s == "" {
-			log.Error().Int("slot", i+1).Msg("[EssenceFilter] missing skill for slot")
+			log.Error().Int("slot", i+1).Msg("<EssenceFilter> missing skill for slot")
 			return false
 		}
 	}
@@ -265,7 +265,7 @@ type EssenceFilterRowCollectAction struct{}
 
 func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Hit == false {
-		log.Error().Msg("[EssenceFilter] RowCollect: 识别详情或结果为空")
+		log.Error().Msg("<EssenceFilter> RowCollect: 识别详情或结果为空")
 		return false
 	}
 
@@ -277,13 +277,13 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
-		log.Error().Msg("[EssenceFilter] RowCollect: controller nil")
+		log.Error().Msg("<EssenceFilter> RowCollect: controller nil")
 		return false
 	}
 	controller.PostScreencap().Wait()
 	img, err := controller.CacheImage()
 	if err != nil {
-		log.Error().Err(err).Msg("[EssenceFilter] RowCollect: get screenshot failed")
+		log.Error().Err(err).Msg("<EssenceFilter> RowCollect: get screenshot failed")
 		return false
 	}
 
@@ -305,7 +305,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			Connected: true,
 		}, img)
 		if err != nil {
-			log.Error().Err(err).Ints("box", boxArr[:]).Msg("[EssenceFilter] RowCollect: ColorMatch failed")
+			log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
 			continue
 		}
 
@@ -315,14 +315,14 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	}
 
 	if len(rowBoxes) > maxItemsPerRow {
-		log.Error().Int("count", len(rowBoxes)).Msg("[EssenceFilter] RowCollect: boxes > maxItemsPerRow, abort")
+		log.Error().Int("count", len(rowBoxes)).Msg("<EssenceFilter> RowCollect: boxes > maxItemsPerRow, abort")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterFinish"},
 		})
 		return true
 	}
 	if len(rowBoxes) == 0 {
-		log.Info().Msg("[EssenceFilter] RowCollect: no valid boxes, finish")
+		log.Info().Msg("<EssenceFilter> RowCollect: no valid boxes, finish")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterFinish"},
 		})
@@ -352,7 +352,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				nextSwipe = "EssenceFilterSwipeNext"
 			}
 
-			LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", currentRow+1))
+			LogMXUSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", currentRow+1))
 			currentRow++
 
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -369,7 +369,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	box := rowBoxes[rowIndex]
 	cx := box[0] + box[2]/2
 	cy := box[1] + box[3]/2
-	log.Info().Ints("box", box[:]).Int("cx", cx).Int("cy", cy).Msg("[EssenceFilter] RowNextItem: click next box")
+	log.Info().Ints("box", box[:]).Int("cx", cx).Int("cy", cy).Msg("<EssenceFilter> RowNextItem: click next box")
 
 	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20} // click center with a small box
 	ctx.RunTask("点击物品", map[string]interface{}{
@@ -403,20 +403,20 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		MatchedMessageColor = "#064d7c"
 	}
 
-	LogMXUInterfaceSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]), MatchedMessageColor)
+	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]), MatchedMessageColor)
 	if matched {
 		matchedCount++
-		log.Info().Str("weapon", combination.Weapon.ChineseName).Strs("skills", skills).Ints("skill_ids", combination.SkillIDs).Int("matched_count", matchedCount).Msg("[EssenceFilter] match ok, lock next")
+		log.Info().Str("weapon", combination.Weapon.ChineseName).Strs("skills", skills).Ints("skill_ids", combination.SkillIDs).Int("matched_count", matchedCount).Msg("<EssenceFilter> match ok, lock next")
 		weaponcolor := getColorForRarity(combination.Weapon.Rarity)
 		MatchedMessage := fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：<span style="color: %s;">%s</span></div>`, weaponcolor, combination.Weapon.ChineseName)
-		LogMXUInterfaceHTML(ctx, MatchedMessage)
+		LogMXUHTML(ctx, MatchedMessage)
 
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterLockItemLog"},
 		})
 	} else {
-		log.Info().Strs("skills", skills).Msg("[EssenceFilter] not matched, skip to next item")
-		LogMXUInterfaceSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
+		log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
+		LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterRowNextItem"},
 		})
@@ -431,10 +431,10 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 type EssenceFilterFinishAction struct{}
 
 func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("[EssenceFilter] ========== Finish ==========")
-	log.Info().Int("matched_total", matchedCount).Msg("[EssenceFilter] locked items")
+	log.Info().Msg("<EssenceFilter> ========== Finish ==========")
+	log.Info().Int("matched_total", matchedCount).Msg("<EssenceFilter> locked items")
 
-	LogMXUInterfaceSimpleHTML(ctx, fmt.Sprintf("筛选完成！共历遍物品：%d，确认锁定物品：%d", visitedCount, matchedCount))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("筛选完成！共历遍物品：%d，确认锁定物品：%d", visitedCount, matchedCount))
 
 	targetSkillCombinations = nil
 	matchedCount = 0
@@ -459,7 +459,7 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	if params.Step == "" {
 		params.Step = arg.CurrentTaskName
 	}
-	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("[EssenceFilter] Trace")
+	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("<EssenceFilter> Trace")
 	return true
 }
 
@@ -474,7 +474,7 @@ func logSkillPools() {
 		{"Slot3", weaponDB.SkillPools.Slot3},
 	} {
 		for _, s := range entry.pool {
-			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("[EssenceFilter] SkillPool")
+			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
 		}
 	}
 }
@@ -503,7 +503,7 @@ func logFilteredSkillStats() {
 		sort.Ints(ids)
 		for _, id := range ids {
 			name := skillNameByID(id, pool)
-			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("[EssenceFilter] FilteredSkillStats")
+			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
 		}
 	}
 }
