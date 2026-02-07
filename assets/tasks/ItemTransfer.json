@@ -384,6 +384,42 @@
                     }
                 },
                 {
+                    "name": "细磨柑实粉末",
+                    "label": "$细磨柑实粉末",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/细磨柑实粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/细磨柑实粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/细磨柑实粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "细磨荞花粉末",
+                    "label": "$细磨荞花粉末",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/细磨荞花粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/细磨荞花粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/细磨荞花粉末.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针粉末",
                     "label": "$芽针粉末",
                     "pipeline_override": {

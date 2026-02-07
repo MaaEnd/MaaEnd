@@ -103,6 +103,8 @@
     "锦草种子": "Brocade Grass Seed",
     "锦草粉末": "Brocade Grass Powder",
     "高晶纤维": "High Crystal Fiber",
+    "细磨柑实粉末": "Fine Citrus Powder",
+    "细磨荞花粉末": "Fine Buckwheat Flower Powder",
     "option.ItemTransferOriginRegion.label": "Source Region (Starting Point)",
     "option.ItemTransferOriginRegion.description": "The warehouse region where the item is currently located.",
     "option.ItemTransferDestinationRegion.label": "Destination Region (End Point)",

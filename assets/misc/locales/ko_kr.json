@@ -128,6 +128,8 @@
     "锦草种子": "금초 씨앗",
     "锦草粉末": "금초 가루",
     "高晶纤维": "고결정 섬유",
+    "细磨柑实粉末": "세밀 귤 가루",
+    "细磨荞花粉末": "세밀 메밀꽃 가루",
     "option.ItemTransferOriginRegion.label": "출발 구역 (기점)",
     "option.ItemTransferOriginRegion.description": "현재 아이템이 보관된 창고 구역입니다.",
     "option.ItemTransferDestinationRegion.label": "도착 구역 (종점)",
