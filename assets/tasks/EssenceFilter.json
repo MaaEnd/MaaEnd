@@ -18,13 +18,13 @@
     "option": {
         "EssenceFilterPreset": {
             "type": "select",
-            "label": "筛选预设",
-            "description": "选择一个预设来决定筛选哪些武器。",
+            "label": "$option.EssenceFilterPreset.label",
+            "description": "$option.EssenceFilterPreset.description",
             "default": "Rarity6_and_5",
             "cases": [
                 {
                     "name": "Rarity6",
-                    "label": "仅筛选6星武器",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity6.label",
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "action": {
@@ -39,7 +39,7 @@
                 },
                 {
                     "name": "Rarity5",
-                    "label": "仅筛选5星武器",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity5.label",
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "action": {
@@ -54,7 +54,7 @@
                 },
                 {
                     "name": "Rarity6_and_5",
-                    "label": "筛选6星和5星武器",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity6_and_5.label",
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "action": {
