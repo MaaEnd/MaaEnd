@@ -28,24 +28,10 @@
     },
     "SellProductAtHome1": {
         "doc": "根据标志得知在大世界，进入地区建设",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": [
-                    "SellProduct/SellProductDevelopmentEntry.png"
-                ],
-                "green_mask": true,
-                "roi": [
-                    0,
-                    0,
-                    400,
-                    100
-                ],
-                "threshold": [ //1280*720分辨率时的阈值,如果其他分辨率出问题再改
-                    0.55
-                ]
-            }
-        },
+        "recognition": "Or",
+        "any_of": [
+            "RegionalDevelopmentButton"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
