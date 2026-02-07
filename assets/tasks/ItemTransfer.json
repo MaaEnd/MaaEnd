@@ -204,6 +204,78 @@
                     }
                 },
                 {
+                    "name": "钢制零件",
+                    "label": "$钢制零件",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/钢制零件.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/钢制零件.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/钢制零件.png"
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "label": "$铁制零件",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/铁制零件.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/铁制零件.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/铁制零件.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶零件",
+                    "label": "$高晶零件",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/高晶零件.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/高晶零件.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/高晶零件.png"
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "label": "$紫晶零件",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/紫晶零件.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/紫晶零件.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/紫晶零件.png"
+                        }
+                    }
+                },
+                {
                     "name": "高容谷地电池",
                     "label": "$高容谷地电池",
                     "pipeline_override": {
