@@ -3,6 +3,7 @@ package essencefilter
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -45,7 +46,9 @@ type EssenceFilterInitAction struct{}
 func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msg("[EssenceFilter] ========== Init ==========")
 
-	weaponDataPath = "resource/pipeline/EssenceFilter"
+	weaponDataDir := filepath.Join("resource", "gamedata", "EssenceFilter")
+	weaponDataPath = filepath.Join(weaponDataDir, "weapons_data_final.json")
+	presetsPath := filepath.Join(weaponDataDir, "essence_filter_presets.json")
 	// 1. parse params
 	var params struct {
 		PresetName string `json:"preset_name"`
@@ -57,7 +60,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	log.Info().Str("preset_name", params.PresetName).Msg("[EssenceFilter] Step1 ok")
 
 	// 2. load DB
-	if err := LoadWeaponDatabase(weaponDataPath + "/weapons_data_final"); err != nil {
+	if err := LoadWeaponDatabase(weaponDataPath); err != nil {
 		log.Error().Err(err).Msg("[EssenceFilter] Step2 failed: load DB")
 		return false
 	}
@@ -65,7 +68,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	logSkillPools()
 
 	// 3. load presets
-	presets, err := LoadPresets(weaponDataPath + "/essence_filter_presets")
+	presets, err := LoadPresets(presetsPath)
 	if err != nil {
 		log.Error().Err(err).Msg("[EssenceFilter] Step3 failed: load presets")
 		return false
@@ -291,7 +294,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		roi := maa.Rect{b.Box[0], b.Box[1] + 90, b.Box[2], b.Box[3] - 90}
 		cDetail, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
 			ROI:       maa.NewTargetRect(roi),
-			Lower:     [][]int{{18, 70, 220}}, // TODO tune
+			Lower:     [][]int{{18, 70, 220}},
 			Upper:     [][]int{{26, 255, 255}},
 			Count:     100,
 			Method:    40,
@@ -500,13 +503,13 @@ func logFilteredSkillStats() {
 func getColorForRarity(rarity int) string {
 	switch rarity {
 	case 6:
-		return "#ff7000" // Amber
+		return "#ff7000" // rarity 6
 	case 5:
-		return "#ffba03" // Purple
+		return "#ffba03" // rarity 5
 	case 4:
-		return "#9451f8" // DodgerBlue
+		return "#9451f8" // rarity 4
 	case 3:
-		return "#26bafb" // White
+		return "#26bafb" // rarity 3
 	default:
 		return "#493a3a" // Default color
 	}
