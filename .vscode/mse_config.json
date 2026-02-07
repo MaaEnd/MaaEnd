@@ -1,0 +1,5 @@
+{
+    "agent.debug": {
+        "agent/go-service": "launch-agent"
+    }
+}

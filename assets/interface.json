@@ -60,7 +60,10 @@
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
-            "type": "Adb"
+            "type": "Adb",
+            "attach_resource_path": [
+                "./resource_adb"
+            ]
         },
         {
             "name": "PlayCover",
@@ -92,13 +95,17 @@
         "tasks/PuzzleSolver.json",
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
+        "tasks/SellProduct.json",
         "tasks/AutoResell.json",
+        "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
+        "tasks/SeizeEntrustTask.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
         "tasks/ReceiveProdManual.json",
         "tasks/ReadAllWiki.json",
+        "tasks/ItemTransfer.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",

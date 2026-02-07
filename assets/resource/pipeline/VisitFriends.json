@@ -1,10 +1,12 @@
 {
     "FriendVisitMain": {
         "next": [
+            "OpenFriendList",
             "OpenMenu"
         ]
     },
     "OpenMenu": {
+        "max_hit": 5,
         "action": {
             "type": "ClickKey",
             "param": {
@@ -12,7 +14,7 @@
             }
         },
         "next": [
-            "OpenFriendList"
+            "FriendVisitMain"
         ]
     },
     "OpenFriendList": {
@@ -40,9 +42,59 @@
             }
         },
         "next": [
+            "PriorStealGate",
             "ProductionAssistOCR",
             "ClueExchangeOCR",
             "VisitEnd"
+        ]
+    },
+    "PriorStealGate": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1221,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "[1-5]"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "PriorStealGateClueCheck",
+            "VisitEnd"
+        ]
+    },
+    "PriorStealGateClueCheck": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1167,
+                    71,
+                    10,
+                    16
+                ],
+                "expected": [
+                    "[1-5]"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "ProductionAssist"
         ]
     },
     "ProductionAssistOCR": {
@@ -72,10 +124,28 @@
     "ProductionAssist": {
         "recognition": "DirectHit",
         "next": [
+            "ProductionAssistCheckPriorSteal",
             "ProductionAssistCheck",
             "ProductionAssistSwipe",
             "ClueExchangeOCR",
             "VisitEnd"
+        ]
+    },
+    "ProductionAssistCheckPriorSteal": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/PreStoleCheckAvailable.png",
+                "threshold": 0.95
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GrowthChamberCheck",
+            "SkipConfirmBackToFriendList"
         ]
     },
     "ProductionAssistCheck": {
@@ -101,6 +171,41 @@
             "ConfirmVisitToAssist"
         ]
     },
+    "GrowthChamberCheck": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/GrowthChamberOpen.png",
+                "threshold": 0.95
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "ConfirmVisitToAssist",
+            "SkipConfirmBackToFriendList"
+        ]
+    },
+    "SkipConfirmBackToFriendList": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Confirm.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "next": [
+            "ProductionAssistSwipe"
+        ]
+    },
     "ProductionAssistSwipe": {
         "recognition": "DirectHit",
         "max_hit": 12,
@@ -120,6 +225,44 @@
         },
         "next": [
             "ProductionAssist"
+        ]
+    },
+    "VisitorTerminalSwipeFacilityList": {
+        "recognition": "DirectHit",
+        "max_hit": 12,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    550
+                ],
+                "end": [
+                    550,
+                    550
+                ],
+                "end_hold": 200
+            }
+        },
+        "next": [
+            "VisitorTerminalMeetingRoomCheck",
+            "VisitorTerminalAssistGrowthChamber"
+        ]
+    },
+    "VisitorTerminalMeetingRoomCheck": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/MeetingRoom.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalSwipeFacilityList"
         ]
     },
     "ConfirmVisitToAssist": {
@@ -153,7 +296,21 @@
             }
         },
         "next": [
+            "WaitOpenTerminalAssistStealVeg",
             "WaitOpenTerminalAssist"
+        ]
+    },
+    "WaitOpenTerminalAssistStealVeg": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/TerminalIsOpen.png",
+                "threshold": 0.8
+            }
+        },
+        "next": [
+            "VisitorTerminalClueExchangeFirst",
+            "ExitTerminalExchange"
         ]
     },
     "WaitOpenTerminalAssist": {
@@ -169,11 +326,62 @@
             "ExitTerminalExchange"
         ]
     },
-    "VisitorTerminalAssist": {
+    "VisitorTerminalClueExchangeFirst": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ClueExchange.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_delay": 2000,
+        "next": [
+            "VisitorTerminalSwipeFacilityList"
+        ]
+    },
+    "VisitorTerminalAssistGrowthChamber": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.8,
+                "order_by": "Horizontal",
+                "index": -1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalCloseSeedDialog"
+        ]
+    },
+    "VisitorTerminalAssist": {
+        "recognition": "TemplateMatch",
+        "template": [
+            "VisitFriends/ProductionAssist.png",
+            "VisitFriends/ClueExchange.png"
+        ],
+        "threshold": 0.8,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalAssist",
+            "ExitTerminalAssist"
+        ]
+    },
+    "VisitorTerminalCloseSeedDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/StealVegetableSuccess.png",
                 "threshold": 0.8
             }
         },
@@ -182,7 +390,6 @@
             "param": {}
         },
         "next": [
-            "VisitorTerminalAssist",
             "ExitTerminalAssist"
         ]
     },
@@ -339,13 +546,12 @@
         ]
     },
     "VisitorTerminalExchange": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/ClueExchange.png",
-                "threshold": 0.8
-            }
-        },
+        "recognition": "TemplateMatch",
+        "template": [
+            "VisitFriends/ProductionAssist.png",
+            "VisitFriends/ClueExchange.png"
+        ],
+        "threshold": 0.8,
         "action": {
             "type": "Click",
             "param": {}
@@ -363,10 +569,10 @@
             }
         },
         "next": [
-            "ExitExchange"
+            "ExitFriendHome"
         ]
     },
-    "ExitExchange": {
+    "ExitFriendHome": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {

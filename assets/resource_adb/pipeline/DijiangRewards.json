@@ -1,0 +1,267 @@
+{
+    "OpenMap": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    141,
+                    125,
+                    1,
+                    1
+                ]
+            }
+        }
+    },
+    "WaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    0
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    253,
+                                    253
+                                ],
+                                "lower": [
+                                    0,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    255,
+                                    0,
+                                    253
+                                ],
+                                "lower": [
+                                    255,
+                                    0,
+                                    253
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "OpenDijiangControlNexus": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitReceptionRoom": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "Exit_MFG_Cabin": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "ExitGrowthChamber": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "CloseButtonDijiang": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "SendClues": {
+        //线索过多,发送一个
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    1183,
+                                    646,
+                                    64,
+                                    31
+                                ],
+                                "only_rec": true,
+                                "expected": [
+                                    "20/20"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    286,
+                                    174,
+                                    849,
+                                    276
+                                ],
+                                "expected": [
+                                    "线索已满" //#不确定
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "CarbinSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin_offset": [
+                    500,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "SelectLowEmotion": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 2,
+                "all_of": [
+                    {
+                        "sub_name": "_EmotionIcon",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    499,
+                                    203,
+                                    700,
+                                    365
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/LowEmotion.png",
+                                    "ClaimDijiangRewards/NormalEmotion.png",
+                                    "ClaimDijiangRewards/HighEmotion.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_EmotionBar",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionIcon",
+                                "roi_offset": [
+                                    22,
+                                    8,
+                                    59,
+                                    -16
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    253
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_EmotionBar_Empty",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionBar",
+                                "roi_offset": [
+                                    0,
+                                    0,
+                                    10,
+                                    0
+                                ],
+                                "lower": [
+                                    26,
+                                    26,
+                                    24
+                                ],
+                                "upper": [
+                                    27,
+                                    27,
+                                    25
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

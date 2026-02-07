@@ -93,11 +93,16 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
-			pricePipelineName := fmt.Sprintf("[Resell]ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
+			pricePipelineName := fmt.Sprintf("Resell_ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
 			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
-				log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
-				break
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
+				if !success {
+					log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
+					break
+				}
 			}
 
 			// Click on product
@@ -108,19 +113,25 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
+			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
 			if !success {
 				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
-
 				continue
 			}
 			//商品详情页右下角识别的成本价格为准
 			controller.PostScreencap().Wait()
-			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_DetailCostPrice")
+			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
-				log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
+				if success {
+					costPrice = ConfirmcostPrice
+				} else {
+					log.Info().Msg("[Resell]第二步：未能识别商品详情页成本价格，继续使用列表页识别的价格")
+				}
 			}
 			log.Info().Int("行", rowIdx+1).Int("列", col).Int("Cost", costPrice).Msg("[Resell]商品售价")
 			// 单击"查看好友价格"按钮
@@ -132,10 +143,15 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 600)
 			controller.PostScreencap().Wait()
 
-			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "[Resell]ROI_FriendSalePrice")
+			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
 			if !success {
-				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
-				continue
+				//失败就重试一遍
+				controller.PostScreencap().Wait()
+				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
+				if !success {
+					log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
+					continue
+				}
 			}
 			log.Info().Int("Price", salePrice).Msg("[Resell]好友出售价")
 			// 计算利润
@@ -161,7 +177,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ReturnButton", "返回")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ReturnButton", "返回")
 			if success {
 				log.Info().Msg("[Resell]第四步：发现返回按钮，按ESC返回")
 				controller.PostClickKey(27)
@@ -172,7 +188,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "[Resell]ROI_ViewFriendPrice", "好友")
+			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
 			if success {
 				log.Info().Msg("[Resell]第五步：关闭页面")
 				controller.PostClickKey(27)
@@ -225,7 +241,9 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msgf("利润达标，准备购买第%d行第%d列商品（利润：%d）",
 			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
 		taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
-		ctx.OverrideNext(arg.CurrentTaskName, []string{taskName})
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: taskName},
+		})
 		return true
 	} else {
 		// No profitable item, show recommendation
@@ -293,7 +311,19 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
 					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
 					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					return num, centerX, centerY, true
+					if num >= 7000 || num <= 100 {
+						//数字不合理，抛弃
+						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
+						success = false
+						// 如果数字>=10000，则是误识别票券为1，只保留后四位，数据仍然可用
+						if num >= 10000 {
+							adjustedNum := num % 10000
+							log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("originalNum", num).Int("adjustedNum", adjustedNum).Msg("[OCR] 数字>=10000，已截取后四位")
+							num = adjustedNum
+							success = true
+						}
+					}
+					return num, centerX, centerY, success
 				}
 			}
 		}
@@ -377,8 +407,8 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 }
 
 func Resell_delay_freezes_time(ctx *maa.Context, time int) bool {
-	ctx.RunTask("[Resell]TaskDelay", map[string]interface{}{
-		"[Resell]TaskDelay": map[string]interface{}{
+	ctx.RunTask("Resell_TaskDelay", map[string]interface{}{
+		"Resell_TaskDelay": map[string]interface{}{
 			"pre_wait_freezes": time,
 		},
 	},
@@ -409,7 +439,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 1: 使用预定义的配额当前值Pipeline
-	detail1, err := ctx.RunRecognition("[Resell]ROI_Quota_Current", img, nil)
+	detail1, err := ctx.RunRecognition("Resell_ROI_Quota_Current", img, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -435,7 +465,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2, err := ctx.RunRecognition("[Resell]ROI_Quota_NextAdd", img, nil)
+	detail2, err := ctx.RunRecognition("Resell_ROI_Quota_NextAdd", img, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -481,8 +511,8 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 
 // ResellShowMessage - Show message to user with focus
 func ResellShowMessage(ctx *maa.Context, text string) bool {
-	ctx.RunTask("[Resell]TaskShowMessage", map[string]interface{}{
-		"[Resell]TaskShowMessage": map[string]interface{}{
+	ctx.RunTask("Resell_TaskShowMessage", map[string]interface{}{
+		"Resell_TaskShowMessage": map[string]interface{}{
 			"recognition": "DirectHit",
 			"action":      "DoNothing",
 			"focus": map[string]interface{}{

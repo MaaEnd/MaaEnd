@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [win, macos, linux]
+        os: [win, linux]
         arch: [aarch64, x86_64]
     steps:
       - uses: MirrorChyan/uploading-action@v1
@@ -24,6 +24,30 @@ jobs:
           filetype: latest-release
           filename: ${{ format('MaaEnd-{0}-{1}-*', matrix.os, matrix.arch) }}
           mirrorchyan_rid: MaaEnd
+          tag: ${{ inputs.tag }}
+
+          os: ${{ matrix.os }}
+          arch: ${{ matrix.arch }}
+
+          owner: MaaEnd
+          repo: MaaEnd
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upload_token: ${{ secrets.MirrorChyanUploadToken }}
+
+  mirrorchyan_exec:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'MaaEnd' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos]
+        arch: [aarch64, x86_64]
+    steps:
+      - uses: MirrorChyan/uploading-action@v1
+        with:
+          filetype: latest-release
+          filename: ${{ format('MaaEnd-{0}-{1}-*', matrix.os, matrix.arch) }}
+          mirrorchyan_rid: MaaEnd_exec
           tag: ${{ inputs.tag }}
 
           os: ${{ matrix.os }}

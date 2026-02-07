@@ -27,7 +27,8 @@
         },
         "next": [
             "NextPM",
-            "ConfirmUpdate"
+            "ConfirmUpdate",
+            "ConfirmPMReward"
         ],
         "recognition": {
             "param": {

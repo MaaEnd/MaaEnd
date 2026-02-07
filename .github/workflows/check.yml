@@ -47,4 +47,4 @@ jobs:
       - name: Validate JSON Schema
         run: |
           python -m pip install jsonschema==4.26.0 referencing==0.37.0
-          python tools/validate_schema.py --resource-dirs assets/resource assets/resource_bilibili
+          python tools/validate_schema.py --resource-dirs assets/resource assets/resource_bilibili --exclude-dirs assets/resource/data

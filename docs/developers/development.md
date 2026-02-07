@@ -27,6 +27,7 @@ python tools/setup_workspace.py
     **不要漏了 `--recursive`**
 
     如果你已经 clone 了项目，但没有使用 `--recursive` 参数，现在你可以在项目的根目录执行
+
     ```bash
     git submodule update --init --recursive
     ```
@@ -55,7 +56,8 @@ python tools/setup_workspace.py
 
 - 尽可能少的使用 pre_delay, post_delay, timeout, on_error 字段。增加中间节点识别流程，避免盲目 sleep 等待。
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
-- 所有操作通过识别进行，禁止硬编码坐标进行点击等操作。
+- 每一步操作都需要基于识别进行，请勿 “整体识别一次 -> 点击 A -> 点击 B -> 点击 C”，而是 “识别 A -> 点击 A -> 识别 B -> 点击 B”。  
+  _你没法保证点完 A 之后画面是否还和之前一样，极端情况下此时游戏弹出新池子公告，直接点击 B 有没有可能点到抽卡里去乱操作了？_
 
 > [!NOTE]
 >

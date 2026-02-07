@@ -1,11 +1,15 @@
 package hdrcheck
 
 import (
+	_ "embed"
 	"fmt"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
+
+//go:embed warning_message.html
+var hdrWarningHTML string
 
 // HDRChecker checks if HDR is enabled on any display before task execution
 type HDRChecker struct {
@@ -41,12 +45,7 @@ func (c *HDRChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, det
 		log.Warn().Msg("HDR is enabled! This may cause issues with image recognition.")
 
 		// Print warning message (HTML formatted for MXU display)
-		fmt.Println(`<span style="color: #ff9800; font-size: 1.6em; font-weight: 900;">⚠️ 警告：检测到 HDR 已开启</span>` +
-			`<br/><span style="color: #faad14; font-size: 1.3em; font-weight: bold;">🖥️ HDR 可能导致截图颜色异常，影响图像识别准确性</span>` +
-			`<br/><span style="font-size: 1.2em; font-weight: bold;">💡 建议：</span>` +
-			`<br/><span style="color: #00bfff; font-size: 1.2em;">  • Windows 设置 → 显示 → 关闭 "使用 HDR"</span>` +
-			`<br/><span style="color: #00bfff; font-size: 1.2em;">  • 或在图形驱动设置中关闭 HDR</span>` +
-			`<br/><br/><span style="font-size: 1.1em; color: #888;">ℹ️ 任务将继续执行，但可能出现识别问题</span>`)
+		fmt.Println(hdrWarningHTML)
 
 		// Mark as warned to avoid repeated warnings
 		c.warned = true

@@ -1,0 +1,86 @@
+{
+    // 在商店中购买物品的节点
+    "CreditShoppingBuyFistItem": {
+        "doc": "点击购买商品",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": "CreditShoppingBuyFirst",
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ]
+    },
+    "CreditShoppingBuyNormalItem": {
+        "doc": "点击购买商品",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": "CreditShoppingBuyNormal",
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ]
+    },
+    "CreditShoppingBuyBlacklistItem": {
+        "doc": "点击购买商品",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": "CreditShoppingBuyBlacklist",
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
+        ]
+    },
+    "CreditShoppingBuyFailed": {
+        "doc": "购买失败（已售罄/信用点不足）",
+        "recognition": "ColorMatch",
+        "lower": [
+            210,
+            94,
+            104
+        ],
+        "upper": [
+            210,
+            94,
+            104
+        ],
+        "roi": [
+            573,
+            498,
+            132,
+            43
+        ],
+        "action": "DoNothing",
+        "next": [
+            "CreditShoppingCloseDialog"
+        ]
+    },
+    "CreditShoppingCloseDialog": {
+        "doc": "关闭对话框",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/CloseBuyItemDialog.png",
+        "roi": [
+            1071,
+            129,
+            23,
+            23
+        ],
+        "action": "Click"
+    },
+    "CreditShoppingBuyConfirm": {
+        "doc": "购买确认",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/BuyConfirm.png",
+        "roi": [
+            1060,
+            569,
+            21,
+            21
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "CreditShoppingClaimConfirm",
+            "CreditShoppingBuyFailed"
+        ]
+    }
+}
