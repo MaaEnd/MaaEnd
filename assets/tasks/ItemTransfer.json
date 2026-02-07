@@ -204,7 +204,7 @@
                     }
                 },
                 {
-                    "name": "钢制零件   ",
+                    "name": "钢制零件",
                     "label": "$钢制零件",
                     "pipeline_override": {
                         "ClickItemCategory": {
