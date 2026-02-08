@@ -78,15 +78,6 @@
             ]
         },
         {
-            "name": "安卓官服",
-            "controller": [
-                "ADB"
-            ],
-            "path": [
-                "./resource_adb"
-            ]
-        },
-        {
             "name": "B 服",
             "path": [
                 "./resource",
