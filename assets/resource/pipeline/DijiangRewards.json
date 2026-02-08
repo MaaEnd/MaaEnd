@@ -30,6 +30,7 @@
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
+
         ]
     },
     "ControlNexus": {
@@ -57,6 +58,7 @@
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe"
+
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -106,6 +108,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -423,6 +426,7 @@
                 ],
                 "expected": [
                     "线索" //#I18N
+
                 ],
                 "order_by": "Vertical"
             }
@@ -544,6 +548,7 @@
                                 ],
                                 "expected": [
                                     "线索已满" //#不确定
+
                                 ]
                             }
                         }

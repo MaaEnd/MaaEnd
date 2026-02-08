@@ -2,14 +2,14 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "/assets/resource/**/*.json",
-                "/assets/resource_*/**/*.json",
-                "/install/resource/**/*.json",
-                "/install/resource_*/**/*.json",
-                "/assets/resource/**/*.jsonc",
-                "/assets/resource_*/**/*.jsonc",
-                "/install/resource/**/*.jsonc",
-                "/install/resource_*/**/*.jsonc"
+                "/assets/resource/pipeline/*.json",
+                "/assets/resource_*/pipeline/*.json",
+                "/install/resource/pipeline/*.json",
+                "/install/resource_*/pipeline/*.json",
+                "/assets/resource/pipeline/*.jsonc",
+                "/assets/resource_*/pipeline/*.jsonc",
+                "/install/resource/pipeline/*.jsonc",
+                "/install/resource_*/pipeline/*.jsonc"
             ],
             "url": "/tools/schema/pipeline.schema.json"
         },

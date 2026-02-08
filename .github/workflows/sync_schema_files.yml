@@ -2,8 +2,8 @@ name: Sync JSON Schema Files from MaaFramework
 
 on:
   schedule:
-    - cron: '10 0 * * *'  # UTC 00:10 每天运行
-  
+    - cron: '30 22 * * *'  # UTC+8 06:30
+
   workflow_dispatch:
 
 permissions:
@@ -29,23 +29,23 @@ jobs:
     needs: check-repository
     if: needs.check-repository.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check Out Repository
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v4
+
       - name: Download JSON schema files from MaaFramework
         run: |
           echo "Current Date and Time (UTC): $(date -u '+%Y-%m-%d %H:%M:%S')"
-          
+
           # 确保目标目录存在
           mkdir -p tools/schema
-          
-          # 下载四个JSON schema文件
+
+          # 下载JSON schema文件
           curl -s -o tools/schema/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || echo "Failed to download interface.schema.json"
           curl -s -o tools/schema/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || echo "Failed to download interface_config.schema.json"
           curl -s -o tools/schema/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || echo "Failed to download pipeline.schema.json"
-          
+
           # 检查文件是否成功下载
           echo "Checking downloaded files:"
           if compgen -G "tools/schema/*.schema.json" > /dev/null; then
@@ -54,19 +54,19 @@ jobs:
             echo "No schema files downloaded"
             exit 1
           fi
-      
+
       - name: Check for changes with git status
         id: check_status
         run: |
           # 确保git能看到未跟踪的文件
           git add -N tools/schema/
-          
+
           # 检查是否有任何更改（修改、新增、删除）
           if [[ -n "$(git status --porcelain tools/schema/)" ]]; then
             echo "Changes detected in JSON schema files"
             git status --porcelain tools/schema/
             echo "changes_detected=true" >> $GITHUB_OUTPUT
-            
+
             # 检查哪些文件发生了变化
             if [[ -e tools/schema/interface.schema.json ]] && [[ -n "$(git status --porcelain tools/schema/interface.schema.json)" ]]; then
               echo "interface_changed=true" >> $GITHUB_OUTPUT
@@ -90,7 +90,7 @@ jobs:
             echo "interface_config_changed=false" >> $GITHUB_OUTPUT
             echo "pipeline_changed=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Commit and Push Changes
         id: commit_changes
         if: steps.check_status.outputs.changes_detected == 'true'
