@@ -45,25 +45,10 @@
             "type": "TemplateMatch"
         }
     },
-    "ClueExchangeOCR": {
+    "ClueExchangeOCRAdb": {
         "next": [
             "ClueExchange"
-        ],
-        "recognition": {
-            "param": {
-                "expected": [
-                    "[1-5]"
-                ],
-                "roi": [
-                    1167,
-                    71,
-                    10,
-                    16
-                ],
-                "threshold": 0.6
-            },
-            "type": "OCR"
-        }
+        ]
     },
     "ClueExchangeSwipe": {
         "action": {
@@ -219,20 +204,20 @@
     },
     "ExitTerminalAssist": {
         "action": {
-            "param": {
-                "target": [
-                    1211,
-                    27,
-                    20,
-                    14
-                ]
-            },
+            "param": {},
             "type": "Click"
         },
         "next": [
             "ExitAssist",
             "ConfirmTick"
-        ]
+        ],
+        "recognition": {
+            "param": {
+                "template": "VisitFriends/ExitTerminal.png",
+                "threshold": 0.8
+            },
+            "type": "TemplateMatch"
+        }
     },
     "ExitTerminalExchange": {
         "action": {
@@ -306,8 +291,8 @@
     "OnFriendList": {
         "next": [
             "ProductionAssistOCR",
-            "ClueExchangeOCR",
-            "VisitEnd"
+            "VisitEnd",
+            "ClueExchangeOCRAdb"
         ],
         "recognition": {
             "param": {
@@ -406,7 +391,7 @@
                     61
                 ],
                 "template": [
-                    "VisitFriends/ProductionAssistOCR.png"
+                    "VisitFriends/OCR55.png"
                 ],
                 "threshold": [
                     0.9
@@ -494,6 +479,15 @@
     },
     "VisitComplete": {},
     "VisitEnd": {
+        "recognition": {
+            "param": {
+                "template": [
+                    "VisitFriends/OCR05.png"
+                ],
+                "threshold": 0.8
+            },
+            "type": "TemplateMatch"
+        },
         "next": [
             "ClickVisitEnd",
             "ReturnToMenu"
@@ -562,7 +556,7 @@
         "recognition": {
             "param": {
                 "template": [
-                    "VisitFriends/WaitOpenTerminalAssist.png"
+                    "VisitFriends/WaitOpenTerminal.png"
                 ],
                 "threshold": 0.8
             },
@@ -576,7 +570,7 @@
         ],
         "recognition": {
             "param": {
-                "template": "VisitFriends/TerminalIsOpen.png",
+                "template": "VisitFriends/WaitOpenTerminal.png",
                 "threshold": 0.8
             },
             "type": "TemplateMatch"
