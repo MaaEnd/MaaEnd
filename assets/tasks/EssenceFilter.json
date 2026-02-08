@@ -1,0 +1,73 @@
+{
+    "task": [
+        {
+            "name": "EssenceFilter",
+            "label": "$task.EssenceFilter.label",
+            "entry": "EssenceFilterMain",
+            "description": "$task.EssenceFilter.description",
+            "option": [
+                "EssenceFilterPreset"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "EssenceFilterPreset": {
+            "type": "select",
+            "label": "$option.EssenceFilterPreset.label",
+            "description": "$option.EssenceFilterPreset.description",
+            "default": "Rarity6_and_5",
+            "cases": [
+                {
+                    "name": "Rarity6",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity6.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity6"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Rarity5",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity5.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity5"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Rarity6_and_5",
+                    "label": "$option.EssenceFilterPreset.cases.Rarity6_and_5.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "preset_name": "Rarity6_and_5"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
