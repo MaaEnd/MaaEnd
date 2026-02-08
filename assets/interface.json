@@ -67,7 +67,10 @@
         },
         {
             "name": "PlayCover",
-            "type": "PlayCover"
+            "type": "PlayCover",
+            "playcover": {
+                "uuid": "maa.playcover"
+            }
         }
     ],
     "resource": [
