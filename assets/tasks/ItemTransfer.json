@@ -60,6 +60,24 @@
                     }
                 },
                 {
+                    "name": "紫晶矿",
+                    "label": "$item.AmethystOre",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/矿物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶矿.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶矿.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶矿.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针",
                     "label": "$item.Yazhen",
                     "pipeline_override": {
