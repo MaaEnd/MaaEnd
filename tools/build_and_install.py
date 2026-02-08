@@ -26,7 +26,7 @@ LANG_RES = {}
 
 def init_local() -> None:
     lang = locale.getlocale()[0]
-    lang = LANG_MAP.get(lang) if lang else "en_us"
+    lang = LANG_MAP.get(lang.lower()) if lang else "en_us"
     global LANG_RES
     try:
         with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
