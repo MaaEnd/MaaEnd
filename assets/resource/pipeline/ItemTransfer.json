@@ -141,6 +141,7 @@
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownRepo"
         ]
@@ -293,6 +294,7 @@
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownBag"
         ]
@@ -457,6 +459,7 @@
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownBagReturn"
         ]
