@@ -38,7 +38,15 @@
                         },
                         "FindItemInBagReturn": {
                             "template": "Common/Items/蓝铁矿.png"
-                        }
+                        },
+                        "RepoToBag": {
+                            "next": [
+                                "ClickSortAscending",
+                                "ClickItemCategory",
+                                "FindItemInRepo",
+                                "ScrollDownwardRepo"
+                            ]
+                        },
                     }
                 },
                 {
