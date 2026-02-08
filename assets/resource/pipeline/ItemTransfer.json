@@ -144,7 +144,7 @@
             551,
             292
         ],
-        "template": "ItemTransfer/{ItemName}.png",
+        "template": "Common/Items/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
         "method": 3,
@@ -297,7 +297,7 @@
             349,
             285
         ],
-        "template": "ItemTransfer/{ItemName}.png",
+        "template": "Common/Items/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
         "method": 3,
@@ -462,7 +462,7 @@
             349,
             285
         ],
-        "template": "ItemTransfer/{ItemName}.png",
+        "template": "Common/Items/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
         "method": 3,
