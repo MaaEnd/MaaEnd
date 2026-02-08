@@ -39,7 +39,7 @@ func ExtractSkillCombinations(weapons []WeaponData) []SkillCombination {
 
 	for _, weapon := range weapons {
 		combinations = append(combinations, SkillCombination{
-			Weapon:    weapon,
+			Weapon:        weapon,
 			SkillsChinese: weapon.SkillsChinese,
 			SkillIDs:      weapon.SkillIDs,
 		})
