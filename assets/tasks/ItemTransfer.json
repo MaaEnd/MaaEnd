@@ -60,6 +60,24 @@
                     }
                 },
                 {
+                    "name": "紫晶矿",
+                    "label": "$item.AmethystOre",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/矿物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶矿.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶矿.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶矿.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针",
                     "label": "$item.Yazhen",
                     "pipeline_override": {
@@ -200,6 +218,240 @@
                         },
                         "FindItemInBagReturn": {
                             "template": "Common/Items/酮化灌木.png"
+                        }
+                    }
+                },
+                {
+                    "name": "原木",
+                    "label": "$item.RawWood",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/原木.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/原木.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/原木.png"
+                        }
+                    }
+                },
+                {
+                    "name": "映火荞花",
+                    "label": "$item.Firebuckle",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/映火荞花.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/映火荞花.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/映火荞花.png"
+                        }
+                    }
+                },
+                {
+                    "name": "柑实种子",
+                    "label": "$item.CitromeSeed",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/柑实种子.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/柑实种子.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/柑实种子.png"
+                        }
+                    }
+                },
+                {
+                    "name": "灰芦麦",
+                    "label": "$item.ReedRye",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/灰芦麦.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/灰芦麦.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/灰芦麦.png"
+                        }
+                    }
+                },
+                {
+                    "name": "琼叶参",
+                    "label": "$item.RedjadeGinseng",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/琼叶参.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/琼叶参.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/琼叶参.png"
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶种子",
+                    "label": "$item.SandleafSeed",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/砂叶种子.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/砂叶种子.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/砂叶种子.png"
+                        }
+                    }
+                },
+                {
+                    "name": "苦叶椒",
+                    "label": "$item.Tartpepper",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/苦叶椒.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/苦叶椒.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/苦叶椒.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荆刺芽针",
+                    "label": "$item.ThornyYazhen",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/荆刺芽针.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/荆刺芽针.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/荆刺芽针.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花种子",
+                    "label": "$item.BuckflowerSeed",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/荞花种子.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/荞花种子.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/荞花种子.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓬茸锦草",
+                    "label": "$item.FluffedJincao",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/蓬茸锦草.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/蓬茸锦草.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/蓬茸锦草.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化树种",
+                    "label": "$item.AketineSeed",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/酮化树种.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/酮化树种.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/酮化树种.png"
+                        }
+                    }
+                },
+                {
+                    "name": "金石稻",
+                    "label": "$item.AmberRice",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/金石稻.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/金石稻.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/金石稻.png"
+                        }
+                    }
+                },
+                {
+                    "name": "黯银柑实",
+                    "label": "$item.Umbraline",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/黯银柑实.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/黯银柑实.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/黯银柑实.png"
                         }
                     }
                 },
@@ -528,6 +780,276 @@
                     }
                 },
                 {
+                    "name": "晶体外壳粉末",
+                    "label": "$item.OrigocrustPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$item.OriginiumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/源石粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/源石粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/源石粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "碳块",
+                    "label": "$item.Carbon",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/碳块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/碳块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/碳块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "碳粉末",
+                    "label": "$item.CarbonPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/碳粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/碳粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/碳粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$item.AmethystPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$item.AmethystFiber",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$item.DenseFerriumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$item.Ferrium",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/蓝铁块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/蓝铁块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/蓝铁块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$item.SteelBottle",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/钢质瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/钢质瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/钢质瓶.png"
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$item.Steel",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/钢块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/钢块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/钢块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$item.CrystonPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/高晶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/高晶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/高晶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$item.CrystonBottle",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针粉末",
                     "label": "$item.YazhenPowder",
                     "pipeline_override": {
@@ -560,6 +1082,42 @@
                         },
                         "FindItemInBagReturn": {
                             "template": "Common/Items/锦草粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/柑实粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/柑实粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/柑实粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/荞花粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/荞花粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/荞花粉末.png"
                         }
                     }
                 }
