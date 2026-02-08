@@ -8,6 +8,7 @@ import platform
 import urllib.request
 import urllib.error
 import json
+import locale
 import tempfile
 from pathlib import Path
 import time
@@ -16,6 +17,43 @@ import time
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
+
+LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
+LANG_MAP = {
+    "Chinese (Simplified)_China": "zh_cn",
+    "Chinese (Traditional)_Taiwan": "zh_tw",
+    "English_United States": "en_us",
+    "Japanese_Japan": "ja_jp",
+    "Korean_Korea": "ko_kr",
+    "zh_cn": "zh_cn",
+    "zh_tw": "zh_tw",
+    "en_us": "en_us",
+    "ja_jp": "ja_jp",
+    "ko_kr": "ko_kr",
+}
+LANG_RES = {}
+
+
+def init_local() -> None:
+    lang = str(locale.getlocale()[0])
+    if lang in LANG_MAP:
+        lang = LANG_MAP[lang]
+    elif lang.lower() in LANG_MAP:
+        lang = LANG_MAP[lang.lower()]
+    else:
+        lang = "en_us"
+
+    global LANG_RES
+    try:
+        with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
+            LANG_RES = json.load(f)
+    except:
+        print(t("error_load_locale", path=str(LOCALS_DIR / f"{lang}.json")))
+
+
+def t(key: str, **kwargs) -> str:
+    return LANG_RES.get(key, key).format(**kwargs)
+
 
 try:
     OS_KEYWORD: str = {
@@ -58,10 +96,10 @@ def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:
-        print("[INF] 已配置 GitHub Token，将用于 API 请求")
+        print(t("inf_github_token_configured"))
     else:
-        print("[WRN] 未配置 GitHub Token，将使用匿名 API 请求（可能限流）")
-        print("[INF] 如遇 API 速率限制，请设置环境变量 GITHUB_TOKEN/GH_TOKEN")
+        print(t("wrn_github_token_not_configured"))
+        print(t("inf_github_token_hint"))
     print("-" * 40)
 
 
@@ -70,30 +108,30 @@ def run_command(
 ) -> bool:
     """执行命令并输出日志，返回是否成功"""
     cmd_str = " ".join(cmd) if isinstance(cmd, list) else str(cmd)
-    print(f"[CMD] {cmd_str}")
+    print(f"{t('cmd_prefix')} {cmd_str}")
     try:
         subprocess.check_call(cmd, cwd=cwd or PROJECT_BASE, shell=shell)
-        print(f"[INF] 命令执行成功: {cmd_str}")
+        print(t("inf_command_success", cmd=cmd_str))
         return True
     except subprocess.CalledProcessError as e:
-        print(f"[ERR] 命令执行失败: {cmd_str}\n  错误: {e}")
+        print(t("err_command_failed", cmd=cmd_str, error=e))
         return False
 
 
 def update_submodules(skip_if_exist: bool = True) -> bool:
-    print("[INF] 检查子模块...")
+    print(t("inf_check_submodules"))
     if (
         not skip_if_exist
         or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
     ):
-        print("[INF] 正在更新子模块...")
+        print(t("inf_updating_submodules"))
         return run_command(["git", "submodule", "update", "--init", "--recursive"])
-    print("[INF] 子模块已存在")
+    print(t("inf_submodules_exist"))
     return True
 
 
 def run_build_script() -> bool:
-    print("[INF] 执行 build_and_install.py ...")
+    print(t("inf_run_build_script"))
     script_path = PROJECT_BASE / "tools" / "build_and_install.py"
     return run_command([sys.executable, str(script_path)])
 
@@ -110,7 +148,7 @@ def get_latest_release_url(
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     try:
-        print(f"[INF] 获取 {repo} 的最新发布信息...")
+        print(t("inf_get_latest_release", repo=repo))
 
         req = urllib.request.Request(api_url)
         if token:
@@ -140,13 +178,13 @@ def get_latest_release_url(
                 assert isinstance(asset, dict)
                 name = asset["name"].lower()
                 if all(k.lower() in name for k in keywords):
-                    print(f"[INF] 匹配到资源: {asset['name']}")
+                    print(t("inf_matched_asset", name=asset["name"]))
                     tag_name = tag.get("tag_name") or tag.get("name")
                     return asset["browser_download_url"], asset["name"], tag_name
 
         raise ValueError("No matching asset found in the latest release (GitHub API)")
     except Exception as e:
-        print(f"[ERR] 获取发布信息失败: {type(e).__name__} - {e}")
+        print(t("err_get_release_failed", error_type=type(e).__name__, error=e))
 
     return None, None, None
 
@@ -161,7 +199,7 @@ def read_versions_file(path: Path) -> dict[str, str]:
         if isinstance(versions, dict):
             return {str(k): str(v) for k, v in versions.items()}
     except Exception as e:
-        print(f"[WRN] 读取版本文件失败，将忽略本地版本: {e}")
+        print(t("wrn_read_version_failed", error=e))
     return {}
 
 
@@ -170,10 +208,10 @@ def write_versions_file(path: Path, versions: dict[str, str]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump({"versions": versions}, f, ensure_ascii=False, indent=4)
-        print(f"\n[INF] 已写入版本文件: {path}")
-        print(f"[INF] 当前版本信息: {versions}")
+        print(t("inf_write_version_file", path=path))
+        print(t("inf_current_versions", versions=versions))
     except Exception as e:
-        print(f"[WRN] 写入版本文件失败: {e}")
+        print(t("wrn_write_version_failed", error=e))
 
 
 def parse_semver(version: str) -> list[int]:
@@ -256,8 +294,8 @@ def download_file(url: str, dest_path: Path) -> bool:
         return f"{h:02d}:{m:02d}:{s:02d}"
 
     try:
-        print(f"[INF] 开始下载: {url}")
-        print(f"[INF] 正在连接...", end="", flush=True)
+        print(t("inf_start_download", url=url))
+        print(t("inf_connecting"), end="", flush=True)
         with (
             urllib.request.urlopen(url, timeout=TIMEOUT) as res,
             open(dest_path, "wb") as out_file,
@@ -287,15 +325,19 @@ def download_file(url: str, dest_path: Path) -> bool:
                 )
 
                 if progress_str != cached_progress_str:
-                    print(f"\r[INF] 正在下载... {progress_str}   ", end="", flush=True)
+                    print(
+                        f"\r{t('inf_downloading', progress=progress_str)}",
+                        end="",
+                        flush=True,
+                    )
                     cached_progress_str = progress_str
             print()
-        print(f"[INF] 下载完成: {dest_path}")
+        print(t("inf_download_complete", path=dest_path))
         return True
     except urllib.error.URLError as e:
-        print(f"[ERR] 网络错误: {e.reason}")
+        print(t("err_network_error", reason=e.reason))
     except Exception as e:
-        print(f"[ERR] 下载失败: {type(e).__name__} - {e}")
+        print(t("err_download_failed", error_type=type(e).__name__, error=e))
     return False
 
 
@@ -311,14 +353,14 @@ def install_maafw(
     maafw_installed = (maafw_dest / MFW_DIST_NAME).exists()
 
     if skip_if_exist and maafw_installed:
-        print("[INF] MaaFramework 已安装，跳过（如需更新，请使用 --update 参数）")
+        print(t("inf_maafw_installed_skip"))
         return True, local_version, False
 
     url, filename, remote_version = get_latest_release_url(
         MFW_REPO, ["maa", OS_KEYWORD, ARCH_KEYWORD]
     )
     if not url or not filename:
-        print("[ERR] 未找到 MaaFramework 下载链接")
+        print(t("err_maafw_url_not_found"))
         return False, local_version, False
 
     if (
@@ -328,7 +370,7 @@ def install_maafw(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
-        print(f"[INF] MaaFramework 已是最新版本 ({local_version})，跳过下载")
+        print(t("inf_maafw_latest_version", version=local_version))
         return True, local_version, False
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -340,24 +382,20 @@ def install_maafw(
         if maafw_dest.exists():
             while True:
                 try:
-                    print(f"[INF] 正在尝试删除旧目录: {maafw_dest}")
+                    print(t("inf_delete_old_dir", path=maafw_dest))
                     shutil.rmtree(maafw_dest)
                     break
                 except PermissionError as e:
-                    print(f"\n[ERR] 访问被拒绝 (PermissionError): {e}")
-                    print(f"[!] 无法删除 {maafw_dest}，请确保该程序已完全退出。")
-                    cmd = (
-                        input("[?] 请手动处理后按 Enter 重试，或输入 'q' 退出: ")
-                        .strip()
-                        .lower()
-                    )
+                    print(t("err_permission_denied", error=e))
+                    print(t("err_cannot_delete_maafw", path=maafw_dest))
+                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
                     if cmd == "q":
                         return False, local_version, False
                 except Exception as e:
-                    print(f"[ERR] 清理目录时发生未知错误: {e}")
+                    print(t("err_unknown_error_delete", error=e))
                     return False, local_version, False
 
-        print("[INF] 解压 MaaFramework...")
+        print(t("inf_extract_maafw"))
         try:
             extract_root = tmp_path / "extracted"
             extract_root.mkdir(parents=True, exist_ok=True)
@@ -370,7 +408,7 @@ def install_maafw(
             for root, dirs, _ in os.walk(extract_root):
                 if "bin" in dirs:
                     bin_path = Path(root) / "bin"
-                    print(f"[INF] 复制组件到 {maafw_dest}")
+                    print(t("inf_copy_components", dest=maafw_dest))
                     for item in bin_path.iterdir():
                         dest_item = maafw_dest / item.name
                         if item.is_dir():
@@ -383,12 +421,12 @@ def install_maafw(
                     break
 
             if not bin_found:
-                print("[ERR] 解压后未找到 bin 目录")
+                print(t("err_bin_not_found"))
                 return False, local_version, False
-            print("[INF] MaaFramework 安装完成\n")
+            print(t("inf_maafw_install_complete"))
             return True, remote_version or local_version, True
         except Exception as e:
-            print(f"[ERR] MaaFramework 安装失败: {e}")
+            print(t("err_maafw_install_failed", error=e))
             return False, local_version, False
 
 
@@ -404,14 +442,14 @@ def install_mxu(
     mxu_installed = mxu_path.exists()
 
     if skip_if_exist and mxu_installed:
-        print("[INF] MXU 已安装，跳过")
+        print(t("inf_mxu_installed_skip"))
         return True, local_version, False
 
     url, filename, remote_version = get_latest_release_url(
         MXU_REPO, ["mxu", OS_KEYWORD, ARCH_KEYWORD]
     )
     if not url or not filename:
-        print("[ERR] 未找到 MXU 下载链接")
+        print(t("err_mxu_url_not_found"))
         return False, local_version, False
 
     if (
@@ -421,7 +459,7 @@ def install_mxu(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
-        print(f"[INF] MXU 已是最新版本 ({local_version})，跳过下载")
+        print(t("inf_mxu_latest_version", version=local_version))
         return True, local_version, False
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -433,24 +471,20 @@ def install_mxu(
         if mxu_path.exists():
             while True:
                 try:
-                    print(f"[INF] 正在尝试删除旧文件: {mxu_path}")
+                    print(t("inf_delete_old_file", path=mxu_path))
                     mxu_path.unlink()
                     break
                 except PermissionError as e:
-                    print(f"\n[ERR] 访问被拒绝 (PermissionError): {e}")
-                    print(f"[!] 无法删除 {MXU_DIST_NAME}，请确保该程序已完全退出。")
-                    cmd = (
-                        input("[?] 请手动处理后按 Enter 重试，或输入 'q' 退出: ")
-                        .strip()
-                        .lower()
-                    )
+                    print(t("err_permission_denied", error=e))
+                    print(t("err_cannot_delete_mxu", name=MXU_DIST_NAME))
+                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
                     if cmd == "q":
                         return False, local_version, False
                 except Exception as e:
-                    print(f"[ERR] 删除文件时发生未知错误: {e}")
+                    print(t("err_unknown_error_delete_file", error=e))
                     return False, local_version, False
 
-        print("[INF] 解压并安装 MXU...")
+        print(t("inf_extract_install_mxu"))
         try:
             extract_root = tmp_path / "extracted"
             extract_root.mkdir(parents=True, exist_ok=True)
@@ -468,41 +502,41 @@ def install_mxu(
                 if item.name.lower() in [f.lower() for f in target_files]:
                     dest = real_install_root / item.name
                     shutil.copy2(item, dest)
-                    print(f"[INF] 已更新: {item.name}")
+                    print(t("inf_updated_file", name=item.name))
                     if item.name.lower() == MXU_DIST_NAME.lower():
                         copied = True
 
             if not copied:
-                print(f"[ERR] 未能找到 {MXU_DIST_NAME}")
+                print(t("err_mxu_not_found", name=MXU_DIST_NAME))
                 return False, local_version, False
-            print("[INF] MXU 安装完成")
+            print(t("inf_mxu_install_complete"))
             return True, remote_version or local_version, True
         except Exception as e:
-            print(f"[ERR] MXU 安装失败: {e}")
+            print(t("err_mxu_install_failed", error=e))
             return False, local_version, False
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="MaaEnd 构建工具：初始化并安装依赖项")
-    parser.add_argument(
-        "--update", action="store_true", help="当依赖项已存在时，是否进行更新操作"
-    )
-    parser.add_argument("--ci", action="store_true", help="CI 模式：不生成本地版本文件")
+    init_local()
+
+    parser = argparse.ArgumentParser(description=t("description"))
+    parser.add_argument("--update", action="store_true", help=t("arg_update"))
+    parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
     args = parser.parse_args()
 
     install_dir = PROJECT_BASE / "install"
     version_file = install_dir / VERSION_FILE_NAME
     local_versions = read_versions_file(version_file)
-    print("========== MaaEnd Workspace 初始化 ==========")
+    print(t("header_workspace_init"))
     configure_token()
     if not update_submodules(skip_if_exist=not args.update):
-        print("[FATAL] 子模块更新失败，退出")
+        print(t("fatal_submodule_failed"))
         sys.exit(1)
-    print("\n========== 构建 Go Agent ==========")
+    print(t("header_build_go"))
     if not run_build_script():
-        print("[FATAL] 构建脚本执行失败，退出")
+        print(t("fatal_build_failed"))
         sys.exit(1)
-    print("\n========== 下载依赖项 ==========")
+    print(t("header_download_deps"))
     versions: dict[str, str] = dict(local_versions)
     any_downloaded = False
     ok, maafw_version, maafw_downloaded = install_maafw(
@@ -512,7 +546,7 @@ def main() -> None:
         local_version=local_versions.get("maafw"),
     )
     if not ok:
-        print("[FATAL] MaaFramework 安装失败，退出")
+        print(t("fatal_maafw_failed"))
         sys.exit(1)
     if maafw_version:
         versions["maafw"] = maafw_version
@@ -525,7 +559,7 @@ def main() -> None:
         local_version=local_versions.get("mxu"),
     )
     if not ok:
-        print("[FATAL] MXU 安装失败，退出")
+        print(t("fatal_mxu_failed"))
         sys.exit(1)
     if mxu_version:
         versions["mxu"] = mxu_version
@@ -533,16 +567,12 @@ def main() -> None:
 
     if not args.ci and any_downloaded:
         write_versions_file(version_file, versions)
-    print("\n========== 设置完成 ==========")
-    print(
-        f"[INF] 工作区已经初始化/更新完毕，可运行 {install_dir / MXU_DIST_NAME} 来验证安装结果"
-    )
-    print(f"[INF] 后续使用相关工具编辑、调试等，都基于 {install_dir} 文件夹")
+    print(t("header_setup_complete"))
+    print(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME))
+    print(t("inf_install_dir_hint", install_dir=install_dir))
 
     dev_doc = PROJECT_BASE / "docs/developers/development.md"
-    print(
-        f"[INF] 请阅读开发手册 ({dev_doc}) 中的「开发技巧」和「代码规范」后，再进行相关开发工作"
-    )
+    print(t("inf_read_dev_doc", doc_path=dev_doc))
 
 
 if __name__ == "__main__":
