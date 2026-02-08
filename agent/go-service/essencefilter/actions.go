@@ -12,14 +12,14 @@ import (
 )
 
 func LogMXU(ctx *maa.Context, content string) bool {
-	ctx.RunTask("LogMXU", map[string]interface{}{
-		"LogMXU": map[string]interface{}{
-			"action": "DoNothing",
-			"focus": map[string]interface{}{
+	LogMXUOverrideParam := map[string]any{
+		"LogMXU": map[string]any{
+			"focus": map[string]any{
 				"Node.Action.Starting": content,
 			},
 		},
-	})
+	}
+	ctx.RunTask("LogMXU", LogMXUOverrideParam)
 	return true
 }
 
@@ -52,9 +52,9 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 
 	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
-	weaponDataPath = filepath.Join(gameDataDir, "weapons_data")
-	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets")
-	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config")
+	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
+	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
+	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
 	var params struct {
 		PresetName string `json:"preset_name"`
 	}
@@ -295,15 +295,15 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		}
 		b := tm.Box
 		boxArr := [4]int{b.X(), b.Y(), b.Width(), b.Height()}
-		roi := maa.Rect{boxArr[0], boxArr[1] + 90, boxArr[2], boxArr[3] - 90}
-		cDetail, err := ctx.RunRecognitionDirect("ColorMatch", maa.NodeColorMatchParam{
-			ROI:       maa.NewTargetRect(roi),
-			Lower:     [][]int{{18, 70, 220}},
-			Upper:     [][]int{{26, 255, 255}},
-			Count:     100,
-			Method:    40,
-			Connected: true,
-		}, img)
+		roi := maa.Rect{boxArr[0], boxArr[1] + 90, boxArr[2], boxArr[3] - 90} //bottom of each box
+
+		ColorMatchOverrideParam := map[string]any{
+			"EssenceColorMatch": map[string]any{
+				"roi": roi,
+			},
+		}
+		cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
+
 		if err != nil {
 			log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
 			continue
@@ -372,16 +372,16 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	log.Info().Ints("box", box[:]).Int("cx", cx).Int("cy", cy).Msg("<EssenceFilter> RowNextItem: click next box")
 
 	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20} // click center with a small box
-	ctx.RunTask("点击物品", map[string]interface{}{
-		"点击物品": map[string]interface{}{
-			"action": map[string]interface{}{
-				"type": "Click",
-				"param": map[string]interface{}{
+	ClickingBoxOverrideParam := map[string]any{
+		"NodeClick": map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
 					"target": clickingBox,
 				},
 			},
 		},
-	})
+	}
+	ctx.RunTask("NodeClick", ClickingBoxOverrideParam)
 
 	visitedCount++
 	rowIndex++

@@ -51,7 +51,7 @@
         }
     },
     "EssenceFilterNavigateToInventory": {
-        "doc": "导航到背包（占位）",
+        "doc": "导航",
         "action": "DoNothing",
         "next": ["EssenceFilterFinish"],
         "focus": {
