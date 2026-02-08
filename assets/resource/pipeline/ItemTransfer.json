@@ -118,6 +118,23 @@
             "ScrollDownwardRepo"
         ]
     },
+    "ClickSortAscending": {
+        "recognition": "OCR",
+        "roi": [
+            371,
+            505,
+            48,
+            26
+        ],
+        "expected": "升序",
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "ClickItemCategory",
+            "FindItemInRepo",
+            "ScrollDownwardRepo"
+        ]
+    },
     "ClickItemCategory": {
         "recognition": "TemplateMatch",
         "roi": [
