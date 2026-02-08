@@ -146,6 +146,8 @@
     "item.CrystonBottle": "Cryston Bottle",
     "item.YazhenPowder": "Yazhen Powder",
     "item.JincaoPowder": "Jincao Powder",
+    "item.CitromePowder": "Citrome Powder",
+    "item.BuckflowerPowder": "Buckflower Powder",
     "option.ItemTransferOriginRegion.label": "Source Region (Starting Point)",
     "option.ItemTransferOriginRegion.description": "The warehouse region where the item is currently located.",
     "option.ItemTransferDestinationRegion.label": "Destination Region (End Point)",

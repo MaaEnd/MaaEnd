@@ -171,6 +171,8 @@
     "item.CrystonBottle": "高晶製ボトル",
     "item.YazhenPowder": "芽針粉末",
     "item.JincaoPowder": "錦草粉末",
+    "item.CitromePowder": "シトローム粉末",
+    "item.BuckflowerPowder": "蕎花粉末",
     "option.ItemTransferOriginRegion.label": "出発エリア (起点)",
     "option.ItemTransferOriginRegion.description": "アイテムが現在保管されている倉庫エリア。",
     "option.ItemTransferDestinationRegion.label": "到着エリア (終点)",

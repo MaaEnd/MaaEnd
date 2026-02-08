@@ -171,6 +171,8 @@
     "item.CrystonBottle": "크리스톤 병",
     "item.YazhenPowder": "야침 가루",
     "item.JincaoPowder": "금초 가루",
+    "item.CitromePowder": "시트론 가루",
+    "item.BuckflowerPowder": "메밀꽃 가루",
     "option.ItemTransferOriginRegion.label": "출발 구역 (기점)",
     "option.ItemTransferOriginRegion.description": "현재 아이템이 보관된 창고 구역입니다.",
     "option.ItemTransferDestinationRegion.label": "도착 구역 (종점)",

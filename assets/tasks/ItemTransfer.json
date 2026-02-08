@@ -1066,6 +1066,42 @@
                             "template": "Common/Items/锦草粉末.png"
                         }
                     }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/柑实粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/柑实粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/柑实粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/荞花粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/荞花粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/荞花粉末.png"
+                        }
+                    }
                 }
             ],
             "default_case": "蓝铁矿"
