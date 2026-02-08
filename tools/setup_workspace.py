@@ -142,7 +142,7 @@ def get_latest_release_url(
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     try:
-        print(f"[INF] 获取 {repo} 的最新发布信息...")
+        print(t("inf_get_latest_release", repo=repo))
 
         req = urllib.request.Request(api_url)
         if token:
@@ -172,13 +172,13 @@ def get_latest_release_url(
                 assert isinstance(asset, dict)
                 name = asset["name"].lower()
                 if all(k.lower() in name for k in keywords):
-                    print(f"[INF] 匹配到资源: {asset['name']}")
+                    print(t("inf_matched_asset", name=asset["name"]))
                     tag_name = tag.get("tag_name") or tag.get("name")
                     return asset["browser_download_url"], asset["name"], tag_name
 
         raise ValueError("No matching asset found in the latest release (GitHub API)")
     except Exception as e:
-        print(f"[ERR] 获取发布信息失败: {type(e).__name__} - {e}")
+        print(t("err_get_release_failed", error_type=type(e).__name__, error=e))
 
     return None, None, None
 
@@ -347,14 +347,14 @@ def install_maafw(
     maafw_installed = (maafw_dest / MFW_DIST_NAME).exists()
 
     if skip_if_exist and maafw_installed:
-        print("[INF] MaaFramework 已安装，跳过（如需更新，请使用 --update 参数）")
+        print(t("inf_maafw_installed_skip"))
         return True, local_version, False
 
     url, filename, remote_version = get_latest_release_url(
         MFW_REPO, ["maa", OS_KEYWORD, ARCH_KEYWORD]
     )
     if not url or not filename:
-        print("[ERR] 未找到 MaaFramework 下载链接")
+        print(t("err_maafw_url_not_found"))
         return False, local_version, False
 
     if (
@@ -364,7 +364,7 @@ def install_maafw(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
-        print(f"[INF] MaaFramework 已是最新版本 ({local_version})，跳过下载")
+        print(t("inf_maafw_latest_version", version=local_version))
         return True, local_version, False
 
     with tempfile.TemporaryDirectory() as tmp_dir:
