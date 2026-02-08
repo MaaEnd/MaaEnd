@@ -109,7 +109,7 @@
     "task.SeizeEntrustTaskisSwipeALL.label": "スワイプしてすべての注文をトラバースする",
     "task.SeizeEntrustTaskisSwipeALL.description": "このオプションを有効にすると、最初から最後まですべての注文を検索します。すべての注文を 5 秒以内にトラバースできる場合のみ、有効にすることをおすすめします。~~時間つぶしに使用可能です ()~~",
     "task.ItemTransfer.label": "🐌在庫転送",
-    "task.ItemTransfer.description": "指定されたアイテムを異なる地域間で一括転送します。",
+    "task.ItemTransfer.description": "指定されたアイテムを異なる地域間で一括転送します。帝江号で静的な暗い背景を見つけてからタスクを開始してください。",
     "task.ItemTransfer.item_not_found": "ターゲットアイテムが見つかりませんでした。トップに戻りましたが認識に失敗しました",
     "task.ItemTransfer.bag_return_completed": "目標倉庫がいっぱいのため、残りのアイテムを元の倉庫に戻しました",
     "option.ItemTransferWhatToTransfer.label": "転送するアイテム",

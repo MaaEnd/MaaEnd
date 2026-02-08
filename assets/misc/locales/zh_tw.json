@@ -113,7 +113,7 @@
     "controller.Win32-Front.label": "電腦端-前台",
     "controller.ADB.label": "安卓端",
     "task.ItemTransfer.label": "🐌庫存轉移",
-    "task.ItemTransfer.description": "將指定物品在不同地區之間批量切換。",
+    "task.ItemTransfer.description": "將指定物品在不同地區之間批量切換。請在帝江號找到靜態深色背景後開始任務。",
     "task.ItemTransfer.item_not_found": "未能找到目標物品，已回頂但識別失敗",
     "task.ItemTransfer.bag_return_completed": "目標倉庫已滿，剩餘物品已被放回原倉庫",
     "option.ItemTransferWhatToTransfer.label": "要搬運的物品",

@@ -84,7 +84,7 @@
     "task.ClaimSimulationRewards.error_not_found": "未检测到[模拟空间]界面，请手动切换",
     "task.ClaimSimulationRewards.success_finished": "模拟空间奖励领取完毕",
     "task.ItemTransfer.label": "🐌库存转移",
-    "task.ItemTransfer.description": "将指定物品在不同地区之间批量切换。",
+    "task.ItemTransfer.description": "将指定物品在不同地区之间批量切换。请在帝江号找到静态深色背景后开始任务。",
     "task.ItemTransfer.item_not_found": "未能找到目标物品，已回顶但识别失败",
     "task.ItemTransfer.bag_return_completed": "目标仓库已满，剩余物品被放回原仓库",
     "option.ItemTransferWhatToTransfer.label": "要搬运的物品",

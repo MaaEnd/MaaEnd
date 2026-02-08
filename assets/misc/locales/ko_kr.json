@@ -109,7 +109,7 @@
     "task.SeizeEntrustTaskisSwipeALL.label": "스와이프하여 모든 주문 순회",
     "task.SeizeEntrustTaskisSwipeALL.description": "이 옵션을 켜면 처음부터 끝까지 모든 주문을 검색합니다. 모든 주문을 5초 안에 순회할 수 있는 경우에만 켜는 것을 권장합니다. ~~시간 때우기용으로 사용 가능 ()~~",
     "task.ItemTransfer.label": "🐌재고 이전",
-    "task.ItemTransfer.description": "지정된 아이템을 서로 다른 지역 간에 일괄 전환합니다.",
+    "task.ItemTransfer.description": "지정된 아이템을 서로 다른 지역 간에 일괄 전환합니다. 제강호에서 정적 어두운 배경을 찾은 후 작업을 시작하세요.",
     "task.ItemTransfer.item_not_found": "대상 아이템을 찾을 수 없습니다. 맨 위로 돌아갔지만 인식에 실패했습니다",
     "task.ItemTransfer.bag_return_completed": "대상 창고가 가득 찼습니다. 남은 아이템을 원래 창고로 반환했습니다",
     "option.ItemTransferWhatToTransfer.label": "이전할 아이템",
