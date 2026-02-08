@@ -25,7 +25,7 @@
     },
     "SeizeEntrustTaskFound7.31wMoney": {
         "focus": {
-            "Node.Action.Failed": "不对不对，不是武陵订单！",
+            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
             "Node.Recognition.Starting": "再看一眼~",
             "Node.Recognition.Succeeded": "确定就是你啦~"
         },
@@ -61,7 +61,8 @@
                 ]
             },
             "type": "TemplateMatch"
-        }
+        },
+        "timeout": 3000
     },
     "SeizeEntrustTaskInDownSwipeUp": {
         "action": {
