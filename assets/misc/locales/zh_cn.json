@@ -88,6 +88,7 @@
     "task.ItemTransfer.item_not_found": "未能找到目标物品，已回顶但识别失败",
     "task.ItemTransfer.bag_return_completed": "目标仓库已满，剩余物品被放回原仓库",
     "option.ItemTransferWhatToTransfer.label": "要搬运的物品",
+    "自定义": "自定义",
     "蓝铁矿": "蓝铁矿",
     "钢制零件": "钢制零件",
     "铁制零件": "铁制零件",

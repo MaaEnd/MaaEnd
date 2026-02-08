@@ -88,6 +88,7 @@
     "task.ItemTransfer.item_not_found": "Failed to find target item, scrolled back to top but recognition failed",
     "task.ItemTransfer.bag_return_completed": "Destination warehouse is full, remaining items have been returned to origin warehouse",
     "option.ItemTransferWhatToTransfer.label": "Item to Transfer",
+    "自定义": "Custom",
     "蓝铁矿": "Blue Iron Ore",
     "钢制零件": "Steel Part",
     "铁制零件": "Ferrium Part",

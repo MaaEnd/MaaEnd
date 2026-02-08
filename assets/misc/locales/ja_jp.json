@@ -113,6 +113,7 @@
     "task.ItemTransfer.item_not_found": "ターゲットアイテムが見つかりませんでした。トップに戻りましたが認識に失敗しました",
     "task.ItemTransfer.bag_return_completed": "目標倉庫がいっぱいのため、残りのアイテムを元の倉庫に戻しました",
     "option.ItemTransferWhatToTransfer.label": "転送するアイテム",
+    "自定义": "カスタム",
     "蓝铁矿": "藍鉄鉱",
     "钢制零件": "鋼製部品",
     "铁制零件": "鉄製部品",

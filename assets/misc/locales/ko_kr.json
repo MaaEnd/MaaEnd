@@ -113,6 +113,7 @@
     "task.ItemTransfer.item_not_found": "대상 아이템을 찾을 수 없습니다. 맨 위로 돌아갔지만 인식에 실패했습니다",
     "task.ItemTransfer.bag_return_completed": "대상 창고가 가득 찼습니다. 남은 아이템을 원래 창고로 반환했습니다",
     "option.ItemTransferWhatToTransfer.label": "이전할 아이템",
+    "自定义": "사용자 지정",
     "蓝铁矿": "남철광",
     "钢制零件": "강철 부품",
     "铁制零件": "페리움 부품",
