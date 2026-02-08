@@ -180,7 +180,7 @@
         }
     },
     "PuzzleSolverOnFail": {
-        "doc": "回调：核心任务（PuzzleSolverSolvePuzzle）失败时触发",
+        "doc": "回调：核心任务（PuzzleSolverSolvePuzzle）识别未命中时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
