@@ -528,6 +528,276 @@
                     }
                 },
                 {
+                    "name": "晶体外壳粉末",
+                    "label": "$item.OrigocrustPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/晶体外壳粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$item.OriginiumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/源石粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/源石粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/源石粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/砂叶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "碳块",
+                    "label": "$item.CarbonBlock",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/碳块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/碳块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/碳块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "碳粉末",
+                    "label": "$item.CarbonPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/碳粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/碳粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/碳粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$item.AmethystPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$item.AmethystFiber",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/紫晶纤维.png"
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$item.DenseFerriumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/致密蓝铁粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$item.FerriumBlock",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/蓝铁块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/蓝铁块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/蓝铁块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/蓝铁粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/酮化灌木粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$item.SteelBottle",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/钢质瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/钢质瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/钢质瓶.png"
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$item.SteelBlock",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/钢块.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/钢块.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/钢块.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$item.CrystonPowder",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/高晶粉末.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/高晶粉末.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/高晶粉末.png"
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$item.CrystonBottle",
+                    "pipeline_override": {
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "Common/Items/高晶质瓶.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针粉末",
                     "label": "$item.YazhenPowder",
                     "pipeline_override": {
