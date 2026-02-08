@@ -105,7 +105,8 @@
         "pre_delay": 0, // 此节点为守卫节点，无需延迟
         "post_delay": 0, // 此节点为守卫节点，无需延迟
         "next": [
-            "PuzzleSolverSolvePuzzle"
+            "PuzzleSolverSolvePuzzle",
+            "PuzzleSolverOnFail"
         ]
     },
     "PuzzleSolverSolvePuzzle": {
@@ -159,7 +160,7 @@
         }
     },
     "PuzzleSolverOnMiss": {
-        "doc": "回调：未能按预期识别界面时触发",
+        "doc": "回调：未能按预期找到界面的UI元素时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
@@ -176,6 +177,16 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "❔ 未检测到需要操作的拼图界面"
+        }
+    },
+    "PuzzleSolverOnFail": {
+        "doc": "回调：核心任务（PuzzleSolverSolvePuzzle）识别未命中时触发",
+        "recognition": "DirectHit",
+        "next": [
+            // 默认情况下，任务到这里就结束了
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "❌ 未能处理拼图题目\n- 如果当前处于拼图界面，则表明拼图识别算法存在问题，请向我们提交反馈；\n- 如果当前没有处于拼图界面，则这是一次误识别，可以忽略。"
         }
     }
 }
