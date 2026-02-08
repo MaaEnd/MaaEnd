@@ -26,8 +26,8 @@ body:
     attributes:
       label: 日志文件
       description: |
-        💡 使用 MaaEnd - 设置 - 调试 - 导出日志 功能。  
-        ⚠️ **请将生成的 `mxu-logs-xxxxxxxx-xxxxxx.zip` 文件上传。** ⚠️  
+        💡 点击界面上“运行日志”右上角的 🗄️ 导出日志文件。  
+        ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip` 文件** ⚠️  
         ❌ 不要复制文字发送。  
         ❌ 不要截图日志。  
     validations:
