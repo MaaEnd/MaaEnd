@@ -2,6 +2,19 @@
     "ItemTransfer": {
         "recognition": "DirectHit",
         "next": [
+            "ItemTransferCustomTarget"
+        ]
+    },
+    // 自定义目标(通过唤出一个web页面后截图实现)
+    "ItemTransferCustomTarget": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ItemTransferCustomTarget",
+        "next": "ItemTransfer1"
+    },
+    "ItemTransfer1": {
+        "recognition": "DirectHit",
+        "next": [
             "ItemTransferStart",
             "[JumpBack]ItemTransferOpenDijiangRepository",
             "[JumpBack]ItemTransferSelectDijiang",

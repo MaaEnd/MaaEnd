@@ -1,0 +1,75 @@
+.hide {
+  display: none;
+}
+
+hr {
+  opacity: 0;
+}
+
+#exampleSpam {
+  display: block;
+}
+
+#bigDiv {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+#example1 {
+  height: 80px;
+  width: auto;
+
+}
+
+#example2 {
+  height: 80px;
+  width: auto;
+}
+
+#targetItem {
+  max-height: 80px;
+  max-width: 200px;
+  height: 80px;
+  width: auto;
+}
+
+#cropTarget {
+  pointer-events: none;
+  user-select: none;
+}
+
+#cropDiv {
+  width: fit-content;
+}
+
+#click1 {
+  position: absolute;
+  background-color: blue;
+  height: 3px;
+  width: 3px;
+  border: solid white 1px;
+  pointer-events: none;
+  user-select: none;
+}
+
+#click2 {
+  position: absolute;
+  background-color: red;
+  height: 3px;
+  width: 3px;
+  border: solid white 1px;
+  pointer-events: none;
+  user-select: none;
+}
+
+#border {
+  position: absolute;
+  box-sizing: border-box;
+  border: solid white 2px;
+  pointer-events: none;
+  user-select: none;
+  caret-color: transparent;
+}

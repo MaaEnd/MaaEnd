@@ -24,9 +24,34 @@
             "label": "$option.ItemTransferWhatToTransfer.label",
             "cases": [
                 {
+                    "name": "自定义",
+                    "label": "$自定义",
+                    "description": "$自定义_描述",
+                    "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransferCustomTarget"
+                        },
+                        "ClickItemCategory": {
+                            "template": "ItemTransfer/全部.png"
+                        },
+                        "FindItemInRepo": {
+                            "template": "ItemTransfer/html/png/自定义.png"
+                        },
+                        "FindItemInBag": {
+                            "template": "ItemTransfer/html/png/自定义.png"
+                        },
+                        "FindItemInBagReturn": {
+                            "template": "ItemTransfer/html/png/自定义.png"
+                        }
+                    }
+                },
+                {
                     "name": "蓝铁矿",
                     "label": "$蓝铁矿",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/矿物.png"
                         },
@@ -45,6 +70,9 @@
                     "name": "源矿",
                     "label": "$源矿",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/矿物.png"
                         },
@@ -63,6 +91,9 @@
                     "name": "芽针",
                     "label": "$芽针",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -81,6 +112,9 @@
                     "name": "芽针种子",
                     "label": "$芽针种子",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -99,6 +133,9 @@
                     "name": "锦草",
                     "label": "$锦草",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -117,6 +154,9 @@
                     "name": "锦草种子",
                     "label": "$锦草种子",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -135,6 +175,9 @@
                     "name": "砂叶",
                     "label": "$砂叶",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -153,6 +196,9 @@
                     "name": "柑实",
                     "label": "$柑实",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -171,6 +217,9 @@
                     "name": "荞花",
                     "label": "$荞花",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -189,6 +238,9 @@
                     "name": "酮化灌木",
                     "label": "$酮化灌木",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/植物.png"
                         },
@@ -207,6 +259,9 @@
                     "name": "钢制零件",
                     "label": "$钢制零件",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -225,6 +280,9 @@
                     "name": "铁制零件",
                     "label": "$铁制零件",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -243,6 +301,9 @@
                     "name": "高晶零件",
                     "label": "$高晶零件",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -261,6 +322,9 @@
                     "name": "紫晶零件",
                     "label": "$紫晶零件",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -279,6 +343,9 @@
                     "name": "紫晶质瓶",
                     "label": "$紫晶质瓶",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -297,6 +364,9 @@
                     "name": "蓝铁瓶",
                     "label": "$蓝铁瓶",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -315,6 +385,9 @@
                     "name": "高容谷地电池",
                     "label": "$高容谷地电池",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -333,6 +406,9 @@
                     "name": "低容武陵电池",
                     "label": "$低容武陵电池",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -351,6 +427,9 @@
                     "name": "息壤",
                     "label": "$息壤",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -369,6 +448,9 @@
                     "name": "晶体外壳",
                     "label": "$晶体外壳",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -387,6 +469,9 @@
                     "name": "稳定碳块",
                     "label": "$稳定碳块",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -405,6 +490,9 @@
                     "name": "致密源石粉末",
                     "label": "$致密源石粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -423,6 +511,9 @@
                     "name": "致密碳粉末",
                     "label": "$致密碳粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -441,6 +532,9 @@
                     "name": "密制晶体",
                     "label": "$密制晶体",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -459,6 +553,9 @@
                     "name": "致密晶体粉末",
                     "label": "$致密晶体粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -477,6 +574,9 @@
                     "name": "高晶纤维",
                     "label": "$高晶纤维",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -495,6 +595,9 @@
                     "name": "细磨柑实粉末",
                     "label": "$细磨柑实粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -513,6 +616,9 @@
                     "name": "细磨荞花粉末",
                     "label": "$细磨荞花粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/产物.png"
                         },
@@ -531,6 +637,9 @@
                     "name": "芽针粉末",
                     "label": "$芽针粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/可用道具.png"
                         },
@@ -549,6 +658,9 @@
                     "name": "锦草粉末",
                     "label": "$锦草粉末",
                     "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": "ItemTransfer1"
+                        },
                         "ClickItemCategory": {
                             "template": "ItemTransfer/可用道具.png"
                         },

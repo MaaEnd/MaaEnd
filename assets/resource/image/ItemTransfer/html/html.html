@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <title>截选搬运目标物品</title>
+  <base href="/data/">
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+  <center>
+    <span id="Message1">请框选您要搬运的物品，选取的效果应与例子效果一致</span>
+    <hr>
+    <span id="Message2">注：不要框选到物品的数量 |</span>
+    <span id="Message3">若图片过小请调整浏览器缩放</span>
+    <hr>
+    <spam id="Message4">选取本地文件</spam>
+    <input type="file" id="loader" accept="image">
+    <hr>
+    <input type="hidden" id="language" value="zh-cn">
+    <div id="bigDiv">
+      <div>
+        <span id="exampleSpam">例子</span>
+        <img src="png/example1.png" alt="example1" id="example1">
+        <img src="png/example2.png" alt="example2" id="example2">
+      </div>
+      <div>
+        <span id="exampleSpam">目前所选</span>
+        <img src="png/自定义.png" alt="targetItem" id="targetItem">
+      </div>
+    </div>
+
+    <div id="cropDiv">
+      <img id="cropTarget" src="data:image/png;base64,{{.ImageData}}">
+      <!-- <img id="cropTarget" src=""> -->
+      <div id="click1" class="hide"></div>
+      <div id="click2" class="hide"></div>
+      <div id="border"></div>
+    </div>
+    <button id="screenshot">获取截图</button>
+    <button id="initclick">重置光标</button>
+    <button id="confirm">确认截图</button>
+    <button id="quit">退出至流程</button>
+    <hr>
+    <!-- <button class="chooseLanguage">更换语言</button> -->
+
+    <script src="js.js"></script>
+  </center>
+</body>
+
+</html>
