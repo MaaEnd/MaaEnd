@@ -77,7 +77,7 @@
     "task.ClaimSimulationRewards.error_not_found": "Simulation UI not detected. Please switch manually.",
     "task.ClaimSimulationRewards.success_finished": "Simulation  rewards claimed successfully.",
     "task.ItemTransfer.label": "🐌 Inventory Transfer",
-    "task.ItemTransfer.description": "Batch transfer specified items between different regions. **Start this task from the Dijiang warehouse page.**",
+    "task.ItemTransfer.description": "Batch transfer specified items between different regions.",
     "task.ItemTransfer.item_not_found": "Failed to find target item, scrolled back to top but recognition failed",
     "task.ItemTransfer.bag_return_completed": "Destination warehouse is full, remaining items have been returned to origin warehouse",
     "option.ItemTransferWhatToTransfer.label": "Item to Transfer",

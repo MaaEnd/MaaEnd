@@ -2,7 +2,13 @@
     "ItemTransfer": {
         "recognition": "DirectHit",
         "next": [
-            "ItemTransferStart"
+            "ItemTransferStart",
+            "[JumpBack]ItemTransferOpenDijiangRepository",
+            "[JumpBack]ItemTransferSelectDijiang",
+            "[JumpBack]ItemTransferWaitLoadingColor",
+            "[JumpBack]ItemTransferTeleport",
+            "[JumpBack]ItemTransferSelectDijiangTeleport",
+            "[JumpBack]ItemTransferOpenMap"
         ]
     },
     "ItemTransferStart": {
@@ -525,5 +531,241 @@
     },
     "Stop": {
         "action": "StopTask"
+    },
+    "ItemTransferOpenMap": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77
+            }
+        }
+    },
+    "ItemTransferSelectDijiangTeleport": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_DijiangBridge",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    17,
+                                    38,
+                                    1236,
+                                    640
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangBridge.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "_DijiangBridge",
+                                "roi_offset": [
+                                    130,
+                                    -10,
+                                    60,
+                                    20
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferTeleport": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Teleport.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferWaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    127,
+                                    0
+                                ],
+                                "lower": [
+                                    128,
+                                    127,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    127,
+                                    127
+                                ],
+                                "lower": [
+                                    0,
+                                    127,
+                                    127
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    0,
+                                    127
+                                ],
+                                "lower": [
+                                    128,
+                                    0,
+                                    127
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ItemTransferSelectDijiang": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1052,
+                    0,
+                    228,
+                    196
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferOpenDijiangRepository": {
+        "doc": "从帝江号开仓库,适用于PC,adb请改键。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    247,
+                    0,
+                    172,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ControlNexus.png",
+                    "ClaimDijiangRewards/ControlNexusWithTips.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // Key B
+            }
+        }
     }
 }
