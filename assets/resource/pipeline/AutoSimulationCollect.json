@@ -127,8 +127,7 @@
             500,
             400,
             200
-        ] // 覆盖右下角操作区域
-        ,
+        ], // 覆盖右下角操作区域
         "action": {
             "type": "Click"
         },
@@ -139,6 +138,7 @@
             "Sim_SaveFilter",
             "[JumpBack]Sim_Loop_NextReward",
             "Sim_Loop_NoReward"
+
         ]
     },
     "Sim_LoopClickFilter": {
@@ -179,8 +179,7 @@
             500,
             400,
             200
-        ] // 覆盖右下角操作区域
-        ,
+        ], // 覆盖右下角操作区域
         "action": {
             "type": "Click"
         },
@@ -191,6 +190,7 @@
             "Sim_LoopSaveFilter",
             "[JumpBack]Sim_Loop_NextReward",
             "Sim_Loop_NoReward"
+
         ]
     },
     "Sim_Loop_NextReward": {
@@ -250,6 +250,7 @@
         "next": [
             "Sim_ComfirmReward", // 领取完去关弹窗
             "Sim_Loop_ClaimReward"
+
         ]
     },
     "Sim_ComfirmReward": {
@@ -269,6 +270,7 @@
         "next": [
             "Sim_CloseRewardPopup", // 领取完去关弹窗
             "Sim_ComfirmReward"
+
         ]
     },
     "Sim_CloseRewardPopup": {
@@ -294,6 +296,7 @@
             "Sim_LoopClickFilter", // 回去继续找下一个奖励
             "Sim_CheckEmpty", // 找不到了？去检查是不是空了
             "Sim_CloseRewardPopup"
+
         ]
     },
     "Sim_CheckEmpty": {

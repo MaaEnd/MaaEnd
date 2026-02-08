@@ -4,7 +4,45 @@ import platform
 import shutil
 import subprocess
 import sys
+import json
+import locale
 from pathlib import Path
+
+LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
+LANG_MAP = {
+    "Chinese (Simplified)_China": "zh_cn",
+    "Chinese (Traditional)_Taiwan": "zh_tw",
+    "English_United States": "en_us",
+    "Japanese_Japan": "ja_jp",
+    "Korean_Korea": "ko_kr",
+    "zh_cn": "zh_cn",
+    "zh_tw": "zh_tw",
+    "en_us": "en_us",
+    "ja_jp": "ja_jp",
+    "ko_kr": "ko_kr",
+}
+LANG_RES = {}
+
+
+def init_local() -> None:
+    lang = str(locale.getlocale()[0])
+    if lang in LANG_MAP:
+        lang = LANG_MAP[lang]
+    elif lang.lower() in LANG_MAP:
+        lang = LANG_MAP[lang.lower()]
+    else:
+        lang = "en_us"
+
+    global LANG_RES
+    try:
+        with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
+            LANG_RES = json.load(f)
+    except:
+        print(t("error_load_locale", path=str(LOCALS_DIR / f"{lang}.json")))
+
+
+def t(key: str, **kwargs) -> str:
+    return LANG_RES.get(key, key).format(**kwargs)
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -31,7 +69,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
             text=True,
         )
         if result.returncode != 0:
-            print(f"  [ERROR] 创建 Junction 失败: {result.stderr}")
+            print(f"  {t('error')} {t('create_junction_failed')}: {result.stderr}")
             return False
     else:
         dst.symlink_to(src)
@@ -59,7 +97,7 @@ def create_file_link(src: Path, dst: Path) -> bool:
                 text=True,
             )
             if result.returncode != 0:
-                print(f"  [ERROR] 创建文件链接失败: {result.stderr}")
+                print(f"  {t('error')} {t('create_file_link_failed')}: {result.stderr}")
                 return False
     else:
         try:
@@ -94,20 +132,20 @@ def check_go_environment() -> bool:
             text=True,
         )
         if result.returncode == 0:
-            print(f"  Go 版本: {result.stdout.strip()}")
+            print(f"  {t('go_version')}: {result.stdout.strip()}")
             return True
     except FileNotFoundError:
         pass
 
-    print("  [ERROR] 未检测到 Go 环境")
+    print(f"  {t('error')} {t('go_not_found')}")
     print()
-    print("  请安装 Go 后重试:")
-    print("    - 官方下载: https://go.dev/dl/")
-    print("    - Windows: winget install GoLang.Go")
-    print("    - macOS:   brew install go")
-    print("    - Linux:   参考发行版包管理器或官方指南")
+    print(f"  {t('go_install_prompt')}")
+    print(f"    - {t('go_install_official')}")
+    print(f"    - {t('go_install_windows')}")
+    print(f"    - {t('go_install_macos')}")
+    print(f"    - {t('go_install_linux')}")
     print()
-    print("  安装后请确保 'go' 命令在 PATH 中可用")
+    print(f"  {t('go_install_path')}")
     return False
 
 
@@ -115,8 +153,8 @@ def configure_ocr_model(assets_dir: Path) -> bool:
     """配置 OCR 模型，逐个复制文件，已存在则跳过"""
     assets_ocr_src = assets_dir / "MaaCommonAssets" / "OCR" / "ppocr_v5" / "zh_cn"
     if not assets_ocr_src.exists():
-        print(f"  [ERROR] OCR 资源不存在: {assets_ocr_src}")
-        print("  请确保已初始化 submodule: git submodule update --init")
+        print(f"  {t('error')} {t('ocr_not_found')}: {assets_ocr_src}")
+        print(f"  {t('ocr_submodule_hint')}")
         return False
 
     ocr_dir = assets_dir / "resource" / "model" / "ocr"
@@ -136,7 +174,7 @@ def configure_ocr_model(assets_dir: Path) -> bool:
             copied_count += 1
 
     print(f"  -> {ocr_dir}")
-    print(f"  复制 {copied_count} 个文件，跳过 {skipped_count} 个已存在文件")
+    print(f"  {t('ocr_copied', copied=copied_count, skipped=skipped_count)}")
     return True
 
 
@@ -154,7 +192,7 @@ def build_go_agent(
 
     go_service_dir = root_dir / "agent" / "go-service"
     if not go_service_dir.exists():
-        print(f"  [ERROR] Go 源码目录不存在: {go_service_dir}")
+        print(f"  {t('error')} {t('go_source_not_found')}: {go_service_dir}")
         return False
 
     # 检测或使用指定的系统和架构
@@ -182,8 +220,8 @@ def build_go_agent(
     agent_dir.mkdir(parents=True, exist_ok=True)
     output_path = agent_dir / f"go-service{ext}"
 
-    print(f"  目标平台: {goos}/{goarch}")
-    print(f"  输出路径: {output_path}")
+    print(f"  {t('target_platform')}: {goos}/{goarch}")
+    print(f"  {t('output_path')}: {output_path}")
 
     env = {**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}
 
@@ -197,7 +235,7 @@ def build_go_agent(
         env=env,
     )
     if result.returncode != 0:
-        print(f"  [ERROR] go mod tidy 失败: {result.stderr}")
+        print(f"  {t('error')} {t('go_mod_tidy_failed')}: {result.stderr}")
         return False
 
     # go build
@@ -232,10 +270,9 @@ def build_go_agent(
 
     build_cmd.extend(["-o", str(output_path), "."])
 
-    print(
-        f"  构建模式: {'CI (release with debug info)' if ci_mode else '开发 (debug)'}"
-    )
-    print(f"  构建命令: {' '.join(build_cmd)}")
+    build_mode_text = t("build_mode_ci") if ci_mode else t("build_mode_dev")
+    print(f"  {t('build_mode')}: {build_mode_text}")
+    print(f"  {t('build_command')}: {' '.join(build_cmd)}")
 
     result = subprocess.run(
         build_cmd,
@@ -246,7 +283,7 @@ def build_go_agent(
         env=env,
     )
     if result.returncode != 0:
-        print(f"  [ERROR] go build 失败: {result.stderr}")
+        print(f"  {t('error')} {t('go_build_failed')}: {result.stderr}")
         return False
 
     print(f"  -> {output_path}")
@@ -254,13 +291,13 @@ def build_go_agent(
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="MaaEnd 构建工具：处理构建所需资源并创建安装目录"
-    )
-    parser.add_argument("--ci", action="store_true", help="CI 模式：复制文件而非链接")
-    parser.add_argument("--os", dest="target_os", help="目标操作系统 (win/macos/linux)")
-    parser.add_argument("--arch", dest="target_arch", help="目标架构 (x86_64/aarch64)")
-    parser.add_argument("--version", help="版本号（写入 Go Agent）")
+    init_local()
+
+    parser = argparse.ArgumentParser(description=t("description"))
+    parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
+    parser.add_argument("--os", dest="target_os", help=t("arg_os"))
+    parser.add_argument("--arch", dest="target_arch", help=t("arg_arch"))
+    parser.add_argument("--version", help=t("arg_version"))
     args = parser.parse_args()
 
     use_copy = args.ci
@@ -269,9 +306,10 @@ def main():
     assets_dir = root_dir / "assets"
     install_dir = root_dir / "install"
 
-    print(f"项目根目录: {root_dir}")
-    print(f"安装目录:   {install_dir}")
-    print(f"模式:       {'CI (复制)' if use_copy else '开发 (链接)'}")
+    mode_text = t("mode_ci") if use_copy else t("mode_dev")
+    print(f"{t('root_dir')}: {root_dir}")
+    print(f"{t('install_dir')}:   {install_dir}")
+    print(f"{t('mode')}:       {mode_text}")
     print()
 
     install_dir.mkdir(parents=True, exist_ok=True)
@@ -281,13 +319,13 @@ def main():
     link_or_copy_file = copy_file if use_copy else create_file_link
 
     # 1. 配置 OCR 模型
-    print("[1/4] 配置 OCR 模型...")
+    print(t("step_configure_ocr"))
     if not configure_ocr_model(assets_dir):
-        print("  [ERROR] 配置 OCR 模型失败")
+        print(f"  {t('error')} {t('configure_ocr_failed')}")
         sys.exit(1)
 
     # 2. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
-    print("[2/4] 处理 assets 目录...")
+    print(t("step_process_assets"))
     for item in assets_dir.iterdir():
         if item.name == "MaaCommonAssets":
             continue
@@ -300,15 +338,15 @@ def main():
                 print(f"  -> {dst}")
 
     # 3. 构建 Go Agent
-    print("[3/4] 构建 Go Agent...")
+    print(t("step_build_go"))
     if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
     ):
-        print("  [ERROR] 构建 Go Agent 失败")
+        print(f"  {t('error')} {t('build_go_failed')}")
         sys.exit(1)
 
     # 4. 链接/复制项目根目录文件并创建 maafw 目录
-    print("[4/4] 准备项目文件...")
+    print(t("step_prepare_files"))
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
         dst = install_dir / filename
@@ -322,22 +360,22 @@ def main():
 
     print()
     print("=" * 50)
-    print("安装目录准备完成！")
+    print(t("install_complete"))
 
     if not use_copy:
         if not any(maafw_dir.iterdir()):
             print()
-            print("为了使用 MaaFramework，您还需要：")
-            print("  下载 MaaFramework 并解压 bin 内容到 install/maafw/")
-            print("  https://github.com/MaaXYZ/MaaFramework/releases")
+            print(t("maafw_download_hint"))
+            print(f"  {t('maafw_download_step')}")
+            print(f"  {t('maafw_download_url')}")
         if (
             not (install_dir / "mxu").exists()
             and not (install_dir / "mxu.exe").exists()
         ):
             print()
-            print("为了使用 MXU，您还需要：")
-            print("  下载 MXU 并解压到 install/")
-            print("  https://github.com/MistEO/MXU/releases")
+            print(t("mxu_download_hint"))
+            print(f"  {t('mxu_download_step')}")
+            print(f"  {t('mxu_download_url')}")
 
     print()
 

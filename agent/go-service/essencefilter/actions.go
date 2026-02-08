@@ -1,0 +1,524 @@
+package essencefilter
+
+import (
+	"encoding/json"
+	"fmt"
+	"path/filepath"
+	"sort"
+	"strings"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
+func LogMXU(ctx *maa.Context, content string) bool {
+	LogMXUOverrideParam := map[string]any{
+		"LogMXU": map[string]any{
+			"focus": map[string]any{
+				"Node.Action.Starting": content,
+			},
+		},
+	}
+	ctx.RunTask("LogMXU", LogMXUOverrideParam)
+	return true
+}
+
+func LogMXUHTML(ctx *maa.Context, htmlText string) bool {
+	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
+	return LogMXU(ctx, htmlText)
+}
+
+// LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
+func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) bool {
+	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
+	return LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
+}
+
+// LogMXUSimpleHTML logs a simple styled span with a default color.
+func LogMXUSimpleHTML(ctx *maa.Context, text string) bool {
+	// Call the more specific function with the default color "#00bfff".
+	return LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
+}
+
+// EssenceFilterInitAction - initialize filter
+type EssenceFilterInitAction struct{}
+
+func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	log.Info().Msg("<EssenceFilter> ========== Init ==========")
+
+	base := getResourceBase()
+	if base == "" {
+		base = "resource" // fallback to current relative default
+	}
+
+	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
+	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
+	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
+	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
+	var params struct {
+		PresetName string `json:"preset_name"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> Step1 failed: param parse")
+		return false
+	}
+	log.Info().Str("preset_name", params.PresetName).Msg("<EssenceFilter> Step1 ok")
+
+	// 2. load matcher config
+	if err := LoadMatcherConfig(matcherConfigPath); err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> Step2 failed: load matcher config")
+		return false
+	}
+	log.Info().Msg("<EssenceFilter> Step2 ok: matcher config loaded")
+
+	// 3. load DB
+	if err := LoadWeaponDatabase(weaponDataPath); err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> Step3 failed: load DB")
+		return false
+	}
+	LogMXUSimpleHTML(ctx, "武器数据加载完成")
+	logSkillPools()
+
+	// 4. load presets
+	presets, err := LoadPresets(presetsPath)
+	if err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> Step4 failed: load presets")
+		return false
+	}
+
+	// 5. select preset
+	var selectedPreset *FilterPreset
+	for _, p := range presets {
+		if p.Name == params.PresetName {
+			selectedPreset = &p
+			break
+		}
+	}
+	if selectedPreset == nil {
+		log.Error().Str("preset", params.PresetName).Msg("<EssenceFilter> Step5 failed: preset not found")
+		return false
+	}
+
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择预设：%s", selectedPreset.Label))
+	// 6. filter weapons
+	filteredWeapons := FilterWeaponsByConfig(selectedPreset.Filter)
+	names := make([]string, 0, len(filteredWeapons))
+	for _, w := range filteredWeapons {
+		names = append(names, w.ChineseName)
+	}
+	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("<EssenceFilter> Step6 ok")
+	buildFilteredSkillStats(filteredWeapons)
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
+	// Construct weapon list in HTML to show
+	sort.Slice(filteredWeapons, func(i, j int) bool {
+		return filteredWeapons[i].Rarity > filteredWeapons[j].Rarity
+	})
+	var builder strings.Builder
+	const columns = 3
+	builder.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
+	for i, w := range filteredWeapons {
+		if i%columns == 0 {
+			builder.WriteString("<tr>")
+		}
+		color := getColorForRarity(w.Rarity)
+		builder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; color: %s; font-size: 11px;">%s</td>`, color, w.ChineseName))
+		if i%columns == columns-1 || i == len(filteredWeapons)-1 {
+			builder.WriteString("</tr>")
+		}
+	}
+	builder.WriteString("</table>")
+	LogMXUHTML(ctx, builder.String())
+
+	// 7. extract combos
+	targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
+	visitedCount = 0
+	matchedCount = 0
+	currentCol = 1
+	currentRow = 1
+	maxItemsPerRow = 9
+	firstRowSwipeDone = false
+	statsLogged = false
+	log.Info().Int("combinations", len(targetSkillCombinations)).Msg("<EssenceFilter> Step7 ok")
+	log.Info().Msg("<EssenceFilter> ========== Init Done ==========")
+
+	// 展示目标技能
+	var skillIdSlots [3][]int
+	for _, c := range targetSkillCombinations {
+		for i, skillID := range c.SkillIDs {
+			skillIdSlots[i] = append(skillIdSlots[i], skillID)
+		}
+	}
+
+	var skillBuilder strings.Builder
+	skillBuilder.WriteString(`<div style="color: #00bfff; font-weight: 900;">目标技能列表：</div>`)
+
+	slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"} // Placeholders for Slot 1, 2, 3
+
+	for i, idSlot := range skillIdSlots {
+		// Get unique skill names
+		uniqueIds := make(map[int]struct{})
+		for _, id := range idSlot {
+			uniqueIds[id] = struct{}{}
+		}
+
+		// getPoolBySlot is defined in filter.go, skillNameByID is in loader.go
+		pool := getPoolBySlot(i + 1)
+		skillNames := make([]string, 0, len(uniqueIds))
+		for id := range uniqueIds {
+			skillNames = append(skillNames, skillNameByID(id, pool))
+		}
+		sort.Strings(skillNames)
+
+		if len(skillNames) == 0 {
+			continue
+		}
+
+		// Build table for the slot
+		slotColor := slotColors[i]
+		skillBuilder.WriteString(fmt.Sprintf(`<div style="color: %s; font-weight: 700;">词条 %d:</div>`, slotColor, i+1))
+
+		const columns = 3
+		skillBuilder.WriteString(fmt.Sprintf(`<table style="width: 100%%; color: %s; border-collapse: collapse;">`, slotColor))
+		for j, name := range skillNames {
+			if j%columns == 0 {
+				skillBuilder.WriteString("<tr>")
+			}
+			skillBuilder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; font-size: 12px;">%s</td>`, name))
+			if j%columns == columns-1 || j == len(skillNames)-1 {
+				skillBuilder.WriteString("</tr>")
+			}
+		}
+		skillBuilder.WriteString("</table>")
+	}
+	LogMXUHTML(ctx, skillBuilder.String())
+
+	return true
+}
+
+// EssenceFilterCheckItemAction - OCR skills and match
+type EssenceFilterCheckItemAction struct{}
+
+func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	log.Info().Msg("<EssenceFilter> ---- CheckItem ----")
+
+	if !statsLogged {
+		logFilteredSkillStats()
+		statsLogged = true
+	}
+
+	// parse slot info from custom_action_param: {"slot":1,"is_last":false}
+	var params struct {
+		Slot   int  `json:"slot"`
+		IsLast bool `json:"is_last"`
+	}
+	if arg.CustomActionParam != "" {
+		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
+	}
+	if params.Slot < 1 || params.Slot > 3 {
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> invalid slot param")
+		return false
+	}
+	if params.Slot == 1 {
+		currentSkills = [3]string{}
+	}
+
+	// Use pipeline recognition result
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.DetailJson == "" || arg.RecognitionDetail.Hit == false {
+		log.Error().Msg("<EssenceFilter> OCR detail missing from pipeline")
+		return false
+	}
+
+	if len(arg.RecognitionDetail.Results.Filtered) == 0 {
+		log.Error().Msg("<EssenceFilter> OCR detail has no filtered results")
+		return false
+	}
+
+	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	text := ocr.Text
+
+	if text == "" {
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> OCR empty")
+		return false
+	}
+	currentSkills[params.Slot-1] = text
+	log.Info().Int("slot", params.Slot).Str("skill", text).Bool("is_last", params.IsLast).Msg("<EssenceFilter> OCR ok")
+
+	if !params.IsLast {
+		// wait for next slot
+		return true
+	}
+
+	// last slot: ensure all slots filled
+	for i, s := range currentSkills {
+		if s == "" {
+			log.Error().Int("slot", i+1).Msg("<EssenceFilter> missing skill for slot")
+			return false
+		}
+	}
+
+	// Let SkillDecision action handle match/lock routing
+	return true
+}
+
+// EssenceFilterRowCollectAction - collect boxes in a row (TemplateMatch detail) + ColorMatch filter, click first
+type EssenceFilterRowCollectAction struct{}
+
+func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Hit == false {
+		log.Error().Msg("<EssenceFilter> RowCollect: 识别详情或结果为空")
+		return false
+	}
+
+	// 优先使用 Filtered 结果，如果没有则回退到 All
+	results := arg.RecognitionDetail.Results.Filtered
+	if len(results) == 0 {
+		results = arg.RecognitionDetail.Results.All
+	}
+
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().Msg("<EssenceFilter> RowCollect: controller nil")
+		return false
+	}
+	controller.PostScreencap().Wait()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> RowCollect: get screenshot failed")
+		return false
+	}
+
+	rowBoxes = rowBoxes[:0]
+	for _, res := range results {
+		tm, ok := res.AsTemplateMatch()
+		if !ok {
+			continue
+		}
+		b := tm.Box
+		boxArr := [4]int{b.X(), b.Y(), b.Width(), b.Height()}
+		roi := maa.Rect{boxArr[0], boxArr[1] + 90, boxArr[2], boxArr[3] - 90} //bottom of each box
+
+		ColorMatchOverrideParam := map[string]any{
+			"EssenceColorMatch": map[string]any{
+				"roi": roi,
+			},
+		}
+		cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
+
+		if err != nil {
+			log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
+			continue
+		}
+
+		if cDetail != nil && cDetail.Hit {
+			rowBoxes = append(rowBoxes, boxArr)
+		}
+	}
+
+	if len(rowBoxes) > maxItemsPerRow {
+		log.Error().Int("count", len(rowBoxes)).Msg("<EssenceFilter> RowCollect: boxes > maxItemsPerRow, abort")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
+		return true
+	}
+	if len(rowBoxes) == 0 {
+		log.Info().Msg("<EssenceFilter> RowCollect: no valid boxes, finish")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
+		return true
+	}
+
+	rowIndex = 0
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		{Name: "EssenceFilterRowNextItem"},
+	})
+	return true
+}
+
+// EssenceFilterRowNextItemAction - proceed to next box or swipe/finish
+type EssenceFilterRowNextItemAction struct{}
+
+func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// ensure we exit detail before next
+
+	if rowIndex >= len(rowBoxes) {
+		if len(rowBoxes) == maxItemsPerRow {
+			var nextSwipe string
+			if !firstRowSwipeDone {
+				nextSwipe = "EssenceFilterSwipeFirst"
+				firstRowSwipeDone = true
+			} else {
+				nextSwipe = "EssenceFilterSwipeNext"
+			}
+
+			LogMXUSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", currentRow+1))
+			currentRow++
+
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+				{Name: nextSwipe},
+			})
+			return true
+		}
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterFinish"},
+		})
+		return true
+	}
+
+	box := rowBoxes[rowIndex]
+	cx := box[0] + box[2]/2
+	cy := box[1] + box[3]/2
+	log.Info().Ints("box", box[:]).Int("cx", cx).Int("cy", cy).Msg("<EssenceFilter> RowNextItem: click next box")
+
+	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20} // click center with a small box
+	ClickingBoxOverrideParam := map[string]any{
+		"NodeClick": map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"target": clickingBox,
+				},
+			},
+		},
+	}
+	ctx.RunTask("NodeClick", ClickingBoxOverrideParam)
+
+	visitedCount++
+	rowIndex++
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		{Name: "EssenceFilterCheckItemSlot1"},
+	})
+	return true
+}
+
+// EssenceFilterSkillDecisionAction - match skills then decide lock or skip
+type EssenceFilterSkillDecisionAction struct{}
+
+func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	skills := []string{currentSkills[0], currentSkills[1], currentSkills[2]}
+
+	combination, matched := MatchEssenceSkills(ctx, skills)
+	MatchedMessageColor := "#00bfff"
+	if matched {
+		MatchedMessageColor = "#064d7c"
+	}
+
+	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]), MatchedMessageColor)
+	if matched {
+		matchedCount++
+		log.Info().Str("weapon", combination.Weapon.ChineseName).Strs("skills", skills).Ints("skill_ids", combination.SkillIDs).Int("matched_count", matchedCount).Msg("<EssenceFilter> match ok, lock next")
+		weaponcolor := getColorForRarity(combination.Weapon.Rarity)
+		MatchedMessage := fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：<span style="color: %s;">%s</span></div>`, weaponcolor, combination.Weapon.ChineseName)
+		LogMXUHTML(ctx, MatchedMessage)
+
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterLockItemLog"},
+		})
+	} else {
+		log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
+		LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterRowNextItem"},
+		})
+
+	}
+
+	currentSkills = [3]string{}
+	return true
+}
+
+// EssenceFilterFinishAction - finish and reset
+type EssenceFilterFinishAction struct{}
+
+func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	log.Info().Msg("<EssenceFilter> ========== Finish ==========")
+	log.Info().Int("matched_total", matchedCount).Msg("<EssenceFilter> locked items")
+
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("筛选完成！共历遍物品：%d，确认锁定物品：%d", visitedCount, matchedCount))
+
+	targetSkillCombinations = nil
+	matchedCount = 0
+	visitedCount = 0
+	for i := range filteredSkillStats {
+		filteredSkillStats[i] = nil
+	}
+	statsLogged = false
+	currentCol = 1
+	currentRow = 1
+	return true
+}
+
+// EssenceFilterTraceAction - log node/step
+type EssenceFilterTraceAction struct{}
+
+func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params struct {
+		Step string `json:"step"`
+	}
+	_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
+	if params.Step == "" {
+		params.Step = arg.CurrentTaskName
+	}
+	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("<EssenceFilter> Trace")
+	return true
+}
+
+// logSkillPools - print all pools from DB
+func logSkillPools() {
+	for _, entry := range []struct {
+		slot string
+		pool []SkillPool
+	}{
+		{"Slot1", weaponDB.SkillPools.Slot1},
+		{"Slot2", weaponDB.SkillPools.Slot2},
+		{"Slot3", weaponDB.SkillPools.Slot3},
+	} {
+		for _, s := range entry.pool {
+			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
+		}
+	}
+}
+
+// buildFilteredSkillStats - count skill IDs per slot after filter
+func buildFilteredSkillStats(filtered []WeaponData) {
+	for i := range filteredSkillStats {
+		filteredSkillStats[i] = make(map[int]int)
+	}
+	for _, w := range filtered {
+		for i, id := range w.SkillIDs {
+			filteredSkillStats[i][id]++
+		}
+	}
+}
+
+// logFilteredSkillStats - log counts per slot
+func logFilteredSkillStats() {
+	for slotIdx, stat := range filteredSkillStats {
+		slot := slotIdx + 1
+		pool := getPoolBySlot(slot)
+		ids := make([]int, 0, len(stat))
+		for id := range stat {
+			ids = append(ids, id)
+		}
+		sort.Ints(ids)
+		for _, id := range ids {
+			name := skillNameByID(id, pool)
+			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
+		}
+	}
+}
+
+func getColorForRarity(rarity int) string {
+	switch rarity {
+	case 6:
+		return "#ff7000" // rarity 6
+	case 5:
+		return "#ffba03" // rarity 5
+	case 4:
+		return "#9451f8" // rarity 4
+	case 3:
+		return "#26bafb" // rarity 3
+	default:
+		return "#493a3a" // Default color
+	}
+}
