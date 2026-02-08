@@ -1,4 +1,5 @@
 {
+    "error_load_locale": "[ERROR] 로케일 파일 로드 실패 - 저장소를 완전히 클론했는지 확인하세요. 파일 경로: {path}",
     "root_dir": "프로젝트 루트 디렉토리",
     "install_dir": "설치 디렉토리",
     "mode": "모드",

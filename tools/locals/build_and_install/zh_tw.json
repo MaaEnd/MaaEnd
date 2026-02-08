@@ -1,4 +1,5 @@
 {
+    "error_load_locale": "[ERROR] 載入語言檔案失敗，請完整地克隆倉庫。檔案路徑: {path}",
     "root_dir": "專案根目錄",
     "install_dir": "安裝目錄",
     "mode": "模式",

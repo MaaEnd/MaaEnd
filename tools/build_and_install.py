@@ -7,7 +7,6 @@ import sys
 import json
 import locale
 from pathlib import Path
-from typing import Optional
 
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
 LANG_MAP = {
@@ -27,13 +26,14 @@ LANG_RES = {}
 
 def init_local() -> None:
     lang = locale.getlocale()[0]
-    lang = LANG_MAP.get(lang) if lang else "en_us"
+    lang = "zh_tw"
+    # lang = LANG_MAP.get(lang) if lang else "en_us"
     global LANG_RES
     try:
         with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
             LANG_RES = json.load(f)
     except:
-        print(f"[ERROR] Fail to load {LOCALS_DIR / f'{lang}.json'}.")
+        print(t("error_load_locale", path=str(LOCALS_DIR / f"{lang}.json")))
 
 
 def t(key: str, **kwargs) -> str:
