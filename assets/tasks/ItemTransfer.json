@@ -31,13 +31,13 @@
                             "template": "ItemTransfer/矿物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/蓝铁矿.png"
+                            "template": "Common/Items/蓝铁矿.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/蓝铁矿.png"
+                            "template": "Common/Items/蓝铁矿.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/蓝铁矿.png"
+                            "template": "Common/Items/蓝铁矿.png"
                         }
                     }
                 },
@@ -49,13 +49,13 @@
                             "template": "ItemTransfer/矿物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/源矿.png"
+                            "template": "Common/Items/源矿.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/源矿.png"
+                            "template": "Common/Items/源矿.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/源矿.png"
+                            "template": "Common/Items/源矿.png"
                         }
                     }
                 },
@@ -67,13 +67,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/芽针.png"
+                            "template": "Common/Items/芽针.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/芽针.png"
+                            "template": "Common/Items/芽针.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/芽针.png"
+                            "template": "Common/Items/芽针.png"
                         }
                     }
                 },
@@ -85,13 +85,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/芽针种子.png"
+                            "template": "Common/Items/芽针种子.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/芽针种子.png"
+                            "template": "Common/Items/芽针种子.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/芽针种子.png"
+                            "template": "Common/Items/芽针种子.png"
                         }
                     }
                 },
@@ -103,13 +103,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/锦草.png"
+                            "template": "Common/Items/锦草.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/锦草.png"
+                            "template": "Common/Items/锦草.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/锦草.png"
+                            "template": "Common/Items/锦草.png"
                         }
                     }
                 },
@@ -121,13 +121,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/锦草种子.png"
+                            "template": "Common/Items/锦草种子.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/锦草种子.png"
+                            "template": "Common/Items/锦草种子.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/锦草种子.png"
+                            "template": "Common/Items/锦草种子.png"
                         }
                     }
                 },
@@ -139,13 +139,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/砂叶.png"
+                            "template": "Common/Items/砂叶.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/砂叶.png"
+                            "template": "Common/Items/砂叶.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/砂叶.png"
+                            "template": "Common/Items/砂叶.png"
                         }
                     }
                 },
@@ -157,13 +157,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/柑实.png"
+                            "template": "Common/Items/柑实.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/柑实.png"
+                            "template": "Common/Items/柑实.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/柑实.png"
+                            "template": "Common/Items/柑实.png"
                         }
                     }
                 },
@@ -175,13 +175,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/荞花.png"
+                            "template": "Common/Items/荞花.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/荞花.png"
+                            "template": "Common/Items/荞花.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/荞花.png"
+                            "template": "Common/Items/荞花.png"
                         }
                     }
                 },
@@ -193,13 +193,13 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/酮化灌木.png"
+                            "template": "Common/Items/酮化灌木.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/酮化灌木.png"
+                            "template": "Common/Items/酮化灌木.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/酮化灌木.png"
+                            "template": "Common/Items/酮化灌木.png"
                         }
                     }
                 },
@@ -211,13 +211,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/钢制零件.png"
+                            "template": "Common/Items/钢制零件.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/钢制零件.png"
+                            "template": "Common/Items/钢制零件.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/钢制零件.png"
+                            "template": "Common/Items/钢制零件.png"
                         }
                     }
                 },
@@ -229,13 +229,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/铁制零件.png"
+                            "template": "Common/Items/铁制零件.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/铁制零件.png"
+                            "template": "Common/Items/铁制零件.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/铁制零件.png"
+                            "template": "Common/Items/铁制零件.png"
                         }
                     }
                 },
@@ -247,13 +247,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/高晶零件.png"
+                            "template": "Common/Items/高晶零件.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/高晶零件.png"
+                            "template": "Common/Items/高晶零件.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/高晶零件.png"
+                            "template": "Common/Items/高晶零件.png"
                         }
                     }
                 },
@@ -265,13 +265,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/紫晶零件.png"
+                            "template": "Common/Items/紫晶零件.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/紫晶零件.png"
+                            "template": "Common/Items/紫晶零件.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/紫晶零件.png"
+                            "template": "Common/Items/紫晶零件.png"
                         }
                     }
                 },
@@ -283,13 +283,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/紫晶质瓶.png"
+                            "template": "Common/Items/紫晶质瓶.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/紫晶质瓶.png"
+                            "template": "Common/Items/紫晶质瓶.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/紫晶质瓶.png"
+                            "template": "Common/Items/紫晶质瓶.png"
                         }
                     }
                 },
@@ -301,13 +301,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/蓝铁瓶.png"
+                            "template": "Common/Items/蓝铁瓶.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/蓝铁瓶.png"
+                            "template": "Common/Items/蓝铁瓶.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/蓝铁瓶.png"
+                            "template": "Common/Items/蓝铁瓶.png"
                         }
                     }
                 },
@@ -319,13 +319,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/高容谷地电池.png"
+                            "template": "Common/Items/高容谷地电池.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/高容谷地电池.png"
+                            "template": "Common/Items/高容谷地电池.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/高容谷地电池.png"
+                            "template": "Common/Items/高容谷地电池.png"
                         }
                     }
                 },
@@ -337,13 +337,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/低容武陵电池.png"
+                            "template": "Common/Items/低容武陵电池.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/低容武陵电池.png"
+                            "template": "Common/Items/低容武陵电池.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/低容武陵电池.png"
+                            "template": "Common/Items/低容武陵电池.png"
                         }
                     }
                 },
@@ -355,13 +355,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/息壤.png"
+                            "template": "Common/Items/息壤.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/息壤.png"
+                            "template": "Common/Items/息壤.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/息壤.png"
+                            "template": "Common/Items/息壤.png"
                         }
                     }
                 },
@@ -373,13 +373,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/晶体外壳.png"
+                            "template": "Common/Items/晶体外壳.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/晶体外壳.png"
+                            "template": "Common/Items/晶体外壳.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/晶体外壳.png"
+                            "template": "Common/Items/晶体外壳.png"
                         }
                     }
                 },
@@ -391,13 +391,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/稳定碳块.png"
+                            "template": "Common/Items/稳定碳块.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/稳定碳块.png"
+                            "template": "Common/Items/稳定碳块.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/稳定碳块.png"
+                            "template": "Common/Items/稳定碳块.png"
                         }
                     }
                 },
@@ -409,13 +409,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/致密源石粉末.png"
+                            "template": "Common/Items/致密源石粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/致密源石粉末.png"
+                            "template": "Common/Items/致密源石粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/致密源石粉末.png"
+                            "template": "Common/Items/致密源石粉末.png"
                         }
                     }
                 },
@@ -427,13 +427,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/致密碳粉末.png"
+                            "template": "Common/Items/致密碳粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/致密碳粉末.png"
+                            "template": "Common/Items/致密碳粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/致密碳粉末.png"
+                            "template": "Common/Items/致密碳粉末.png"
                         }
                     }
                 },
@@ -445,13 +445,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/密制晶体.png"
+                            "template": "Common/Items/密制晶体.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/密制晶体.png"
+                            "template": "Common/Items/密制晶体.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/密制晶体.png"
+                            "template": "Common/Items/密制晶体.png"
                         }
                     }
                 },
@@ -463,13 +463,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/致密晶体粉末.png"
+                            "template": "Common/Items/致密晶体粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/致密晶体粉末.png"
+                            "template": "Common/Items/致密晶体粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/致密晶体粉末.png"
+                            "template": "Common/Items/致密晶体粉末.png"
                         }
                     }
                 },
@@ -481,13 +481,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/高晶纤维.png"
+                            "template": "Common/Items/高晶纤维.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/高晶纤维.png"
+                            "template": "Common/Items/高晶纤维.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/高晶纤维.png"
+                            "template": "Common/Items/高晶纤维.png"
                         }
                     }
                 },
@@ -499,13 +499,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/细磨柑实粉末.png"
+                            "template": "Common/Items/细磨柑实粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/细磨柑实粉末.png"
+                            "template": "Common/Items/细磨柑实粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/细磨柑实粉末.png"
+                            "template": "Common/Items/细磨柑实粉末.png"
                         }
                     }
                 },
@@ -517,13 +517,13 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/细磨荞花粉末.png"
+                            "template": "Common/Items/细磨荞花粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/细磨荞花粉末.png"
+                            "template": "Common/Items/细磨荞花粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/细磨荞花粉末.png"
+                            "template": "Common/Items/细磨荞花粉末.png"
                         }
                     }
                 },
@@ -535,13 +535,13 @@
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/芽针粉末.png"
+                            "template": "Common/Items/芽针粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/芽针粉末.png"
+                            "template": "Common/Items/芽针粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/芽针粉末.png"
+                            "template": "Common/Items/芽针粉末.png"
                         }
                     }
                 },
@@ -553,13 +553,13 @@
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "FindItemInRepo": {
-                            "template": "ItemTransfer/锦草粉末.png"
+                            "template": "Common/Items/锦草粉末.png"
                         },
                         "FindItemInBag": {
-                            "template": "ItemTransfer/锦草粉末.png"
+                            "template": "Common/Items/锦草粉末.png"
                         },
                         "FindItemInBagReturn": {
-                            "template": "ItemTransfer/锦草粉末.png"
+                            "template": "Common/Items/锦草粉末.png"
                         }
                     }
                 }
