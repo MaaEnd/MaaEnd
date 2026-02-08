@@ -96,7 +96,8 @@
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
         "tasks/SellProduct.json",
-        "tasks/AutoResell.json",
+        "tasks/AutoResell.json",,
+        "tasks/EssenceFilter.json"
         "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
@@ -109,7 +110,6 @@
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",
-        "tasks/AndroidOpenGame.json",
-        "tasks/EssenceFilter.json"
+        "tasks/AndroidOpenGame.json"
     ]
 }
