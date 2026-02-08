@@ -26,11 +26,10 @@ body:
     attributes:
       label: 日志文件
       description: |
-        💡 点击界面上“运行日志”右上角的 📂 打开 `debug` 文件夹。  
-        ⚠️ **请将整个 `debug` 文件夹压缩后上传。** ⚠️  
-        ❌ 不要复制文字发送。   
+        💡 点击界面上“运行日志”右上角的 🗄️ 导出日志文件。  
+        ⚠️ **请将上传导出后的 `MaaEnd-logs-xxx.zip` 文件** ⚠️  
+        ❌ 不要复制文字发送。  
         ❌ 不要截图日志。  
-        ❌ 不要只上传单个文件。
     validations:
       required: true
 
