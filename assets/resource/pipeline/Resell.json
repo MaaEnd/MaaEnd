@@ -155,14 +155,34 @@
     },
     "ResellinStableStore": {
         "doc": "在稳定需求物资商店，进入弹性需求物资商店",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inStableStore.png",
-        "threshold": 0.8,
-        "roi": [
-            0,
-            178,
-            125,
-            124
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inStableStore.png",
+                "threshold": 0.8,
+                "roi": [
+                    0,
+                    178,
+                    125,
+                    124
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    160
+                ],
+                "expected": [
+                    "稳定需求",
+                    "Stable"
+                ],
+                "threshold": 0.6
+            }
         ],
         "pre_delay": 0,
         "post_delay": 500,
@@ -180,14 +200,34 @@
     },
     "ResellinUnstableStore": {
         "doc": "在弹性需求物资商店,滚动至最底端，开始识别价格",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inUnstableStore.png",
-        "threshold": 0.8,
-        "roi": [
-            0,
-            209,
-            128,
-            126
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "template": "Resell/inUnstableStore.png",
+                "threshold": 0.8,
+                "roi": [
+                    0,
+                    209,
+                    128,
+                    126
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "order_by": "Expected",
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    160
+                ],
+                "expected": [
+                    "弹性需求",
+                    "Flexible"
+                ],
+                "threshold": 0.6
+            }
         ],
         "post_wait_freezes": 600,
         "action": "Scroll",
