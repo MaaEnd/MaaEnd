@@ -3,7 +3,7 @@ name: format
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 23 * * *" # UTC
+    - cron: "0 22 * * *" # UTC+8 06:00
 
 jobs:
   format:
@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "pnpm"
 
       - name: Setup Go
@@ -35,7 +35,7 @@ jobs:
         run: pnpm install
 
       - name: Run format
-        run: pnpm format:all --ignore-path .prettierignore
+        run: pnpm format:all
 
       - name: Commit and push changes
         uses: actions-js/push@master

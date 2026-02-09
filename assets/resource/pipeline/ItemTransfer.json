@@ -2,12 +2,23 @@
     "ItemTransfer": {
         "recognition": "DirectHit",
         "next": [
-            "ItemTransferStart"
+            "ItemTransferStart",
+            "[JumpBack]ItemTransferOpenDijiangRepository",
+            "[JumpBack]ItemTransferSelectDijiang",
+            "[JumpBack]ItemTransferWaitLoadingColor",
+            "[JumpBack]ItemTransferTeleport",
+            "[JumpBack]ItemTransferSelectDijiangTeleport",
+            "[JumpBack]ItemTransferOpenMap"
         ]
     },
     "ItemTransferStart": {
         "recognition": "OCR",
-        "roi": [182, 125, 160, 39],
+        "roi": [
+            182,
+            125,
+            160,
+            39
+        ],
         "expected": "仓库",
         "next": [
             "SwitchRepoToOrigin"
@@ -15,7 +26,12 @@
     },
     "SwitchRepoToOrigin": {
         "recognition": "OCR",
-        "roi": [607, 128, 65, 24],
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
         "expected": "仓库切换",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -26,7 +42,12 @@
     },
     "ClickOrigin": {
         "recognition": "OCR",
-        "roi": [515, 158, 481, 393],
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -37,7 +58,12 @@
     },
     "ClickConfirmOrigin": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "确认",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -47,7 +73,12 @@
     },
     "AtOrigin": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "已连接",
         "next": [
             "ClickEscOrigin"
@@ -72,7 +103,12 @@
     },
     "ClickSortDescending": {
         "recognition": "OCR",
-        "roi": [371, 505, 48, 26],
+        "roi": [
+            371,
+            505,
+            48,
+            26
+        ],
         "expected": "降序",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -84,7 +120,12 @@
     },
     "ClickItemCategory": {
         "recognition": "TemplateMatch",
-        "roi": [168, 171, 531, 35],
+        "roi": [
+            168,
+            171,
+            531,
+            35
+        ],
         "template": "ItemTransfer/全部.png",
         "threshold": 0.8,
         "order_by": "Score",
@@ -97,18 +138,30 @@
     },
     "FindItemInRepo": {
         "recognition": "TemplateMatch",
-        "roi": [158, 203, 551, 292],
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownRepo"
         ]
     },
     "ScrollDownwardRepo": {
         "action": "Swipe",
-        "begin": [640, 455],
-        "end": [640, 248],
+        "begin": [
+            640,
+            455
+        ],
+        "end": [
+            640,
+            248
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -121,8 +174,14 @@
     "ScrollUpwardRepo": {
         "doc": "触底后回顶",
         "action": "Swipe",
-        "begin": [640, 248],
-        "end": [640, 455],
+        "begin": [
+            640,
+            248
+        ],
+        "end": [
+            640,
+            455
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -157,7 +216,12 @@
     },
     "SwitchRepoToDestination": {
         "recognition": "OCR",
-        "roi": [607, 128, 65, 24],
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
         "expected": "仓库切换",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -168,7 +232,12 @@
     },
     "ClickDestination": {
         "recognition": "OCR",
-        "roi": [515, 158, 481, 393],
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
         "expected": "DESTINATION_REGION",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -179,7 +248,12 @@
     },
     "ClickConfirmDestination": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "确认",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -189,7 +263,12 @@
     },
     "AtDestination": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "已连接",
         "next": [
             "ClickEscDestination"
@@ -212,18 +291,30 @@
     },
     "FindItemInBag": {
         "recognition": "TemplateMatch",
-        "roi": [768, 209, 349, 285],
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownBag"
         ]
     },
     "ScrollDownwardBag": {
         "action": "Swipe",
-        "begin": [837, 472],
-        "end": [837, 228],
+        "begin": [
+            837,
+            472
+        ],
+        "end": [
+            837,
+            228
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -236,8 +327,14 @@
     "ScrollUpwardBag": {
         "doc": "触底后回顶",
         "action": "Swipe",
-        "begin": [837, 228],
-        "end": [837, 472],
+        "begin": [
+            837,
+            228
+        ],
+        "end": [
+            837,
+            472
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -271,7 +368,12 @@
     },
     "CheckIfFull": {
         "recognition": "OCR",
-        "roi": [493, 112, 291, 20],
+        "roi": [
+            493,
+            112,
+            291,
+            20
+        ],
         "expected": "已满",
         "next": [
             "SwitchRepoToOriginReturn"
@@ -279,7 +381,12 @@
     },
     "SwitchRepoToOriginReturn": {
         "recognition": "OCR",
-        "roi": [607, 128, 65, 24],
+        "roi": [
+            607,
+            128,
+            65,
+            24
+        ],
         "expected": "仓库切换",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -290,7 +397,12 @@
     },
     "ClickOriginReturn": {
         "recognition": "OCR",
-        "roi": [515, 158, 481, 393],
+        "roi": [
+            515,
+            158,
+            481,
+            393
+        ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -301,7 +413,12 @@
     },
     "ClickConfirmOriginReturn": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "确认",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -311,7 +428,12 @@
     },
     "AtOriginReturn": {
         "recognition": "OCR",
-        "roi": [991, 560, 117, 41],
+        "roi": [
+            991,
+            560,
+            117,
+            41
+        ],
         "expected": "已连接",
         "next": [
             "ClickEscOriginReturn"
@@ -334,18 +456,30 @@
     },
     "FindItemInBagReturn": {
         "recognition": "TemplateMatch",
-        "roi": [768, 209, 349, 285],
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
         "template": "ItemTransfer/{ItemName}.png",
         "threshold": 0.85,
         "order_by": "Score",
+        "method": 3,
         "next": [
             "CtrlKeyDownBagReturn"
         ]
     },
     "ScrollDownwardBagReturn": {
         "action": "Swipe",
-        "begin": [837, 472],
-        "end": [837, 228],
+        "begin": [
+            837,
+            472
+        ],
+        "end": [
+            837,
+            228
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -358,8 +492,14 @@
     "ScrollUpwardBagReturn": {
         "doc": "触底后回顶",
         "action": "Swipe",
-        "begin": [837, 228],
-        "end": [837, 472],
+        "begin": [
+            837,
+            228
+        ],
+        "end": [
+            837,
+            472
+        ],
         "end_hold": 500,
         "max_hit": 3,
         "post_wait_freezes": 1,
@@ -391,5 +531,241 @@
     },
     "Stop": {
         "action": "StopTask"
+    },
+    "ItemTransferOpenMap": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77
+            }
+        }
+    },
+    "ItemTransferSelectDijiangTeleport": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_DijiangBridge",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    17,
+                                    38,
+                                    1236,
+                                    640
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangBridge.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "_DijiangBridge",
+                                "roi_offset": [
+                                    130,
+                                    -10,
+                                    60,
+                                    20
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferTeleport": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Teleport.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferWaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    127,
+                                    0
+                                ],
+                                "lower": [
+                                    128,
+                                    127,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    127,
+                                    127
+                                ],
+                                "lower": [
+                                    0,
+                                    127,
+                                    127
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    0,
+                                    127
+                                ],
+                                "lower": [
+                                    128,
+                                    0,
+                                    127
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ItemTransferSelectDijiang": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1052,
+                    0,
+                    228,
+                    196
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ItemTransferOpenDijiangRepository": {
+        "doc": "从帝江号开仓库,适用于PC,adb请改键。",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    247,
+                    0,
+                    172,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ControlNexus.png",
+                    "ClaimDijiangRewards/ControlNexusWithTips.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // Key B
+            }
+        }
     }
 }
