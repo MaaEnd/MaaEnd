@@ -1,893 +1,897 @@
 {
-  "Teach_ClickFilter": {
-    "doc": "第三步：点击干员图标",
-    "recognition": {
-      "type": "TemplateMatch",
-      "param": {
-        "template": [
-          "AutomaticCharacterTutorial/triangle.png"
-        ],
-        "roi": [
-          241,
-          84,
-          57,
-          55
+    "Teach_ClickFilter": {
+        "doc": "第三步：点击干员图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "AutomaticCharacterTutorial/triangle.png"
+                ],
+                "roi": [
+                    241,
+                    84,
+                    57,
+                    55
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    208,
+                    95,
+                    16,
+                    22
+                ]
+            }
+        },
+        "next": [
+            "Teach_ClickFilter1"
         ]
-      }
     },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          208,
-          95,
-          16,
-          22
+    "Teach_search1": {
+        "focus": {
+            "Node.Recognition.Succeeded": "任务完成"
+        },
+        "doc": "第二步：匹配已完成奖励",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "AutomaticCharacterTutorial/AlreadyReceived.png"
+                ],
+                "roi": [
+                    1107,
+                    572,
+                    52,
+                    51
+                ]
+            }
+        }
+    },
+    "Teach_ClickFilter1": {
+        "pre_delay": 500,
+        "post_delay": 800,
+        "doc": "第四步：点击开始训练",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "开启训练",
+                    "开.训练",
+                    "开..",
+                    "训练"
+                ],
+                "roi": [
+                    1135,
+                    651,
+                    72,
+                    23
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1134,
+                    646,
+                    72,
+                    30
+                ]
+            }
+        },
+        "next": [
+            "Teach_ClickFilter2"
         ]
-      }
     },
-    "next": [
-      "Teach_ClickFilter1"
-    ]
-  },
-  "Teach_search1": {
-    "focus": {
-      "Node.Recognition.Succeeded": "任务完成"
-    },
-    "doc": "第二步：匹配已完成奖励",
-    "recognition": {
-      "type": "TemplateMatch",
-      "param": {
-        "template": [
-          "AutomaticCharacterTutorial/AlreadyReceived.png"
-        ],
-        "roi": [
-          1107,
-          572,
-          52,
-          51
+    "Teach_ClickFilter2": {
+        "post_delay": 8000,
+        "doc": "第五步：点击开始训练",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "开启训练",
+                    "开.训练",
+                    "开..",
+                    "训练"
+                ],
+                "roi": [
+                    1134,
+                    652,
+                    70,
+                    23
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1122,
+                    644,
+                    92,
+                    35
+                ]
+            }
+        },
+        "next": [
+            "Teach_ClickFilter3"
         ]
-      }
+    },
+    "Teach_ClickFilter3": {
+        "pre_delay": 800,
+        "focus": {
+            "Node.Recognition.Succeeded": "task_id"
+        },
+        "post_delay": 1500,
+        "doc": "检查是否进入页面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "撤离"
+                ],
+                "roi": [
+                    40,
+                    21,
+                    77,
+                    28
+                ]
+            }
+        },
+        "next": [
+            "前进"
+        ]
+    },
+    "普攻": {
+        "pre_delay": 2000,
+        "post_delay": 1500,
+        "doc": "过普攻重击教学",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    619,
+                    91,
+                    41,
+                    23
+                ],
+                "expected": [
+                    "普攻",
+                    "普.",
+                    ".攻"
+                ]
+            }
+        },
+        "action": {
+            "type": "LongPress",
+            "param": {
+                "duration": 6000
+            }
+        },
+        "next": [
+            "前进2"
+        ]
+    },
+    "重击": {
+        "post_delay": 100,
+        "doc": "重击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    621,
+                    91,
+                    38,
+                    23
+                ],
+                "expected": [
+                    "重击"
+                ]
+            }
+        },
+        "action": {
+            "type": "LongPress",
+            "param": {
+                "duration": 5000
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "连携技": {
+        "doc": "连携技",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    609,
+                    92,
+                    63,
+                    23
+                ],
+                "expected": [
+                    "连搜技",
+                    "连携技",
+                    "连.技",
+                    "连携."
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    69
+                ]
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "中间节点": {
+        "focus": {
+            "Node.Action.Failed": "name"
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {
+                "timeout": 5000
+            }
+        },
+        "next": [
+            "普攻"
+        ]
+    },
+    "AutomaticCharacterTutorial": {
+        "doc": "第一步：识别干员教学主界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "干员教学",
+                    "干员"
+                ],
+                "roi": [
+                    47,
+                    18,
+                    60,
+                    20
+                ]
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {
+                "timeout": 1000
+            }
+        },
+        "next": [
+            "Teach_search",
+            "Teach_search1"
+        ]
+    },
+    "Teach_search": {
+        "doc": "第二步：匹配首通奖励图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "AutomaticCharacterTutorial/First.png"
+                ],
+                "roi": [
+                    1111,
+                    575,
+                    43,
+                    42
+                ]
+            }
+        },
+        "next": [
+            "Teach_ClickFilter"
+        ]
+    },
+    "战技匹配": {
+        "post_delay": 1200,
+        "timeout": 10000,
+        "focus": {
+            "Node.Recognition.Starting": "开始战技匹配",
+            "Node.Recognition.Succeeded": "成功识别战技",
+            "Node.Recognition.Failed": "未能识别战技",
+            "Node.Action.Starting": "开始执行战技操作",
+            "Node.Action.Succeeded": "成功执行战技操作",
+            "Node.Action.Failed": "未能执行战技操作"
+        },
+        "doc": "外部战技匹配",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "DynamicMatchRecognition",
+                "roi": [
+                    617,
+                    49,
+                    45,
+                    66
+                ],
+                "custom_recognition_param": {
+                    "top_roi": [
+                        617,
+                        49,
+                        45,
+                        66
+                    ],
+                    "skill_roi": [
+                        629,
+                        60,
+                        22,
+                        22
+                    ],
+                    "bottom_rois": [
+                        [
+                            1224,
+                            623,
+                            40,
+                            40
+                        ],
+                        [
+                            1160,
+                            623,
+                            40,
+                            40
+                        ],
+                        [
+                            1097,
+                            624,
+                            40,
+                            40
+                        ],
+                        [
+                            1034,
+                            624,
+                            40,
+                            40
+                        ]
+
+                    ],
+                    "key_rois": [
+                        [
+                            1233,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1169,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1105,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1041,
+                            670,
+                            21,
+                            20
+                        ]
+
+                    ],
+                    "threshold": 0.25
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "DynamicMatchAction"
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "识别右箭头": {
+        "timeout": 5000,
+        "post_delay": 200,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "AutomaticCharacterTutorial/RightArrow.png"
+                ],
+                "roi": [
+                    932,
+                    268,
+                    64,
+                    67
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    945,
+                    283,
+                    35,
+                    36
+                ]
+            }
+        },
+        "next": [
+            "点击操作"
+        ]
+    },
+    "点击操作": {
+        "post_delay": 200,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    945,
+                    283,
+                    35,
+                    36
+                ]
+            }
+        },
+        "next": [
+            "点击操作2"
+        ]
+    },
+    "点击操作2": {
+        "post_delay": 200,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    945,
+                    283,
+                    35,
+                    36
+                ]
+            }
+        },
+        "next": [
+            "点击操作3"
+        ]
+    },
+    "点击操作3": {
+        "post_delay": 200,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    945,
+                    283,
+                    35,
+                    36
+                ]
+            }
+        },
+        "next": [
+            "识别确定"
+        ]
+    },
+    "识别确定": {
+        "timeout": 5000,
+        "post_delay": 200,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    661,
+                    644,
+                    38,
+                    26
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    545,
+                    638,
+                    188,
+                    38
+                ]
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "前进": {
+        "pre_delay": 4000,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": [
+                    4
+                ]
+            }
+        },
+        "next": [
+            "前进1"
+        ]
+    },
+    "前进1": {
+        "pre_delay": 300,
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 87,
+                "duration": 600
+            }
+        },
+        "next": [
+            "中间节点"
+        ]
+    },
+    "识别确定1": {
+        "timeout": 5000,
+        "post_delay": 200,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    661,
+                    644,
+                    38,
+                    26
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    545,
+                    638,
+                    188,
+                    38
+                ]
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "识别进入获得奖励界面": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "获得奖励"
+                ],
+                "roi": [
+                    605,
+                    84,
+                    71,
+                    23
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "点击离开"
+        ]
+    },
+    "点击离开": {
+        "pre_delay": 1000,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "离开"
+                ],
+                "roi": [
+                    552,
+                    599,
+                    179,
+                    43
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    552,
+                    599,
+                    179,
+                    43
+                ]
+            }
+        },
+        "next": [
+            "等待节点"
+        ]
+    },
+    "终结技匹配": {
+        "timeout": 25000,
+        "post_delay": 500,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "UltimateSkillRecognition",
+                "custom_recognition_param": {
+                    "top_roi": [
+                        617,
+                        49,
+                        45,
+                        66
+                    ],
+                    "skill_roi": [
+                        626,
+                        57,
+                        28,
+                        28
+                    ],
+                    "ult_rois": [
+                        [
+                            1221,
+                            574,
+                            40,
+                            40
+                        ],
+                        [
+                            1159,
+                            574,
+                            40,
+                            40
+                        ],
+                        [
+                            1097,
+                            574,
+                            40,
+                            40
+                        ],
+                        [
+                            1035,
+                            574,
+                            40,
+                            40
+                        ]
+
+                    ],
+                    "key_rois": [
+                        [
+                            1233,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1169,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1105,
+                            670,
+                            20,
+                            20
+                        ],
+                        [
+                            1041,
+                            670,
+                            21,
+                            20
+                        ]
+
+                    ],
+                    "threshold": 0.1
+                }
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "UltimateSkillAction"
+            }
+        },
+        "next": [
+            "中间节点3"
+        ]
+    },
+    "前进2": {
+        "pre_delay": 300,
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 500,
+                "key": 87
+            }
+        },
+        "next": [
+            "中间节点2"
+        ]
+    },
+    "等待节点": {
+        "action": {
+            "type": "DoNothing",
+            "param": {
+                "timeout": 15000
+            }
+        },
+        "next": [
+            "滑动"
+        ]
+    },
+    "滑动": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "干员教学"
+                ],
+                "roi": [
+                    47,
+                    18,
+                    63,
+                    23
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": 360,
+                "target": [
+                    155,
+                    249,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "滑动2"
+        ]
+    },
+    "点击第一个": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        35,
+                        34,
+                        33
+                    ]
+                ],
+                "upper": [
+                    [
+                        28,
+                        28,
+                        28
+                    ]
+                ],
+                "roi": [
+                    190,
+                    93,
+                    43,
+                    33
+                ],
+                "count": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    185,
+                    96,
+                    42,
+                    32
+                ]
+            }
+        },
+        "next": [
+            "AutomaticCharacterTutorial"
+        ]
+    },
+    "滑动2": {
+        "post_delay": 6000,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": 360,
+                "target": [
+                    155,
+                    249,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "点击第一个"
+        ]
+    },
+    "中间节点2": {
+        "next": [
+            "识别确定1",
+            "连携技",
+            "识别右箭头",
+            "战技检测节点",
+            "重击",
+            "终结技",
+            "识别进入获得奖励界面"
+        ]
+    },
+    "中间节点3": {
+        "next": [
+            "中间节点4"
+        ]
+    },
+    "中间节点4": {
+        "next": [
+            "中间节点2"
+        ]
+    },
+    "终结技": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "终结技",
+                    "终结.",
+                    "终.技"
+                ],
+                "roi": [
+                    613,
+                    90,
+                    55,
+                    25
+                ]
+            }
+        },
+        "next": [
+            "终结技匹配"
+        ]
+    },
+    "战技检测节点": {
+        "pre_delay": 300,
+        "doc": "战技",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    621,
+                    91,
+                    38,
+                    23
+                ],
+                "expected": [
+                    "战技",
+                    "战."
+                ]
+            }
+        },
+        "next": [
+            "战技匹配"
+        ]
     }
-  },
-  "Teach_ClickFilter1": {
-    "pre_delay": 500,
-    "post_delay": 800,
-    "doc": "第四步：点击开始训练",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "开启训练",
-          "开.训练",
-          "开..",
-          "训练"
-        ],
-        "roi": [
-          1135,
-          651,
-          72,
-          23
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          1134,
-          646,
-          72,
-          30
-        ]
-      }
-    },
-    "next": [
-      "Teach_ClickFilter2"
-    ]
-  },
-  "Teach_ClickFilter2": {
-    "post_delay": 8000,
-    "doc": "第五步：点击开始训练",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "开启训练",
-          "开.训练",
-          "开..",
-          "训练"
-        ],
-        "roi": [
-          1134,
-          652,
-          70,
-          23
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          1122,
-          644,
-          92,
-          35
-        ]
-      }
-    },
-    "next": [
-      "Teach_ClickFilter3"
-    ]
-  },
-  "Teach_ClickFilter3": {
-    "pre_delay": 800,
-    "focus": {
-      "Node.Recognition.Succeeded": "task_id"
-    },
-    "post_delay": 1500,
-    "doc": "检查是否进入页面",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "撤离"
-        ],
-        "roi": [
-          40,
-          21,
-          77,
-          28
-        ]
-      }
-    },
-    "next": [
-      "前进"
-    ]
-  },
-  "普攻": {
-    "pre_delay": 2000,
-    "post_delay": 1500,
-    "doc": "过普攻重击教学",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          619,
-          91,
-          41,
-          23
-        ],
-        "expected": [
-          "普攻",
-          "普.",
-          ".攻"
-        ]
-      }
-    },
-    "action": {
-      "type": "LongPress",
-      "param": {
-        "duration": 6000
-      }
-    },
-    "next": [
-      "前进2"
-    ]
-  },
-  "重击": {
-    "post_delay": 100,
-    "doc": "重击",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          621,
-          91,
-          38,
-          23
-        ],
-        "expected": [
-          "重击"
-        ]
-      }
-    },
-    "action": {
-      "type": "LongPress",
-      "param": {
-        "duration": 5000
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "连携技": {
-    "doc": "连携技",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          609,
-          92,
-          63,
-          23
-        ],
-        "expected": [
-          "连搜技",
-          "连携技",
-          "连.技",
-          "连携."
-        ]
-      }
-    },
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": [
-          69
-        ]
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "中间节点": {
-    "focus": {
-      "Node.Action.Failed": "name"
-    },
-    "action": {
-      "type": "DoNothing",
-      "param": {
-        "timeout": 5000
-      }
-    },
-    "next": [
-      "普攻"
-    ]
-  },
-  "AutomaticCharacterTutorial": {
-    "doc": "第一步：识别干员教学主界面",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "干员教学",
-          "干员"
-        ],
-        "roi": [
-          47,
-          18,
-          60,
-          20
-        ]
-      }
-    },
-    "action": {
-      "type": "DoNothing",
-      "param": {
-        "timeout": 1000
-      }
-    },
-    "next": [
-      "Teach_search",
-      "Teach_search1"
-    ]
-  },
-  "Teach_search": {
-    "doc": "第二步：匹配首通奖励图标",
-    "recognition": {
-      "type": "TemplateMatch",
-      "param": {
-        "template": [
-          "AutomaticCharacterTutorial/First.png"
-        ],
-        "roi": [
-          1111,
-          575,
-          43,
-          42
-        ]
-      }
-    },
-    "next": [
-      "Teach_ClickFilter"
-    ]
-  },
-  "战技匹配": {
-    "post_delay": 1200,
-    "timeout": 10000,
-    "focus": {
-      "Node.Recognition.Starting": "开始战技匹配",
-      "Node.Recognition.Succeeded": "成功识别战技",
-      "Node.Recognition.Failed": "未能识别战技",
-      "Node.Action.Starting": "开始执行战技操作",
-      "Node.Action.Succeeded": "成功执行战技操作",
-      "Node.Action.Failed": "未能执行战技操作"
-    },
-    "doc": "外部战技匹配",
-    "recognition": {
-      "type": "Custom",
-      "param": {
-        "custom_recognition": "DynamicMatchRecognition",
-        "roi": [
-          617,
-          49,
-          45,
-          66
-        ],
-        "custom_recognition_param": {
-          "top_roi": [
-            617,
-            49,
-            45,
-            66
-          ],
-          "skill_roi": [
-            629,
-            60,
-            22,
-            22
-          ],
-          "bottom_rois": [
-            [
-              1224,
-              623,
-              40,
-              40
-            ],
-            [
-              1160,
-              623,
-              40,
-              40
-            ],
-            [
-              1097,
-              624,
-              40,
-              40
-            ],
-            [
-              1034,
-              624,
-              40,
-              40
-            ]
-          ],
-          "key_rois": [
-            [
-              1233,
-              670,
-              20,
-              20
-            ],
-            [
-              1169,
-              670,
-              20,
-              20
-            ],
-            [
-              1105,
-              670,
-              20,
-              20
-            ],
-            [
-              1041,
-              670,
-              21,
-              20
-            ]
-          ],
-          "threshold": 0.25
-        }
-      }
-    },
-    "action": {
-      "type": "Custom",
-      "param": {
-        "custom_action": "DynamicMatchAction"
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "识别右箭头": {
-    "timeout": 5000,
-    "post_delay": 200,
-    "recognition": {
-      "type": "TemplateMatch",
-      "param": {
-        "template": [
-          "AutomaticCharacterTutorial/RightArrow.png"
-        ],
-        "roi": [
-          932,
-          268,
-          64,
-          67
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          945,
-          283,
-          35,
-          36
-        ]
-      }
-    },
-    "next": [
-      "点击操作"
-    ]
-  },
-  "点击操作": {
-    "post_delay": 200,
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          945,
-          283,
-          35,
-          36
-        ]
-      }
-    },
-    "next": [
-      "点击操作2"
-    ]
-  },
-  "点击操作2": {
-    "post_delay": 200,
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          945,
-          283,
-          35,
-          36
-        ]
-      }
-    },
-    "next": [
-      "点击操作3"
-    ]
-  },
-  "点击操作3": {
-    "post_delay": 200,
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          945,
-          283,
-          35,
-          36
-        ]
-      }
-    },
-    "next": [
-      "识别确定"
-    ]
-  },
-  "识别确定": {
-    "timeout": 5000,
-    "post_delay": 200,
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          661,
-          644,
-          38,
-          26
-        ],
-        "expected": [
-          "确认"
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          545,
-          638,
-          188,
-          38
-        ]
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "前进": {
-    "pre_delay": 4000,
-    "action": {
-      "type": "ClickKey",
-      "param": {
-        "key": [
-          4
-        ]
-      }
-    },
-    "next": [
-      "前进1"
-    ]
-  },
-  "前进1": {
-    "pre_delay": 300,
-    "action": {
-      "type": "LongPressKey",
-      "param": {
-        "key": 87,
-        "duration": 600
-      }
-    },
-    "next": [
-      "中间节点"
-    ]
-  },
-  "识别确定1": {
-    "timeout": 5000,
-    "post_delay": 200,
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          661,
-          644,
-          38,
-          26
-        ],
-        "expected": [
-          "确认"
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          545,
-          638,
-          188,
-          38
-        ]
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "识别进入获得奖励界面": {
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "获得奖励"
-        ],
-        "roi": [
-          605,
-          84,
-          71,
-          23
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {}
-    },
-    "next": [
-      "点击离开"
-    ]
-  },
-  "点击离开": {
-    "pre_delay": 1000,
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "离开"
-        ],
-        "roi": [
-          552,
-          599,
-          179,
-          43
-        ]
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          552,
-          599,
-          179,
-          43
-        ]
-      }
-    },
-    "next": [
-      "等待节点"
-    ]
-  },
-  "终结技匹配": {
-    "timeout": 25000,
-    "post_delay": 500,
-    "recognition": {
-      "type": "Custom",
-      "param": {
-        "custom_recognition": "UltimateSkillRecognition",
-        "custom_recognition_param": {
-          "top_roi": [
-            617,
-            49,
-            45,
-            66
-          ],
-          "skill_roi": [
-            626,
-            57,
-            28,
-            28
-          ],
-          "ult_rois": [
-            [
-              1221,
-              574,
-              40,
-              40
-            ],
-            [
-              1159,
-              574,
-              40,
-              40
-            ],
-            [
-              1097,
-              574,
-              40,
-              40
-            ],
-            [
-              1035,
-              574,
-              40,
-              40
-            ]
-          ],
-          "key_rois": [
-            [
-              1233,
-              670,
-              20,
-              20
-            ],
-            [
-              1169,
-              670,
-              20,
-              20
-            ],
-            [
-              1105,
-              670,
-              20,
-              20
-            ],
-            [
-              1041,
-              670,
-              21,
-              20
-            ]
-          ],
-          "threshold": 0.1
-        }
-      }
-    },
-    "action": {
-      "type": "Custom",
-      "param": {
-        "custom_action": "UltimateSkillAction"
-      }
-    },
-    "next": [
-      "中间节点3"
-    ]
-  },
-  "前进2": {
-    "pre_delay": 300,
-    "action": {
-      "type": "LongPressKey",
-      "param": {
-        "duration": 500,
-        "key": 87
-      }
-    },
-    "next": [
-      "中间节点2"
-    ]
-  },
-  "等待节点": {
-    "action": {
-      "type": "DoNothing",
-      "param": {
-        "timeout": 15000
-      }
-    },
-    "next": [
-      "滑动"
-    ]
-  },
-  "滑动": {
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "干员教学"
-        ],
-        "roi": [
-          47,
-          18,
-          63,
-          23
-        ]
-      }
-    },
-    "action": {
-      "type": "Scroll",
-      "param": {
-        "dy": 360,
-        "target": [
-          155,
-          249,
-          0,
-          0
-        ]
-      }
-    },
-    "next": [
-      "滑动2"
-    ]
-  },
-  "点击第一个": {
-    "recognition": {
-      "type": "ColorMatch",
-      "param": {
-        "lower": [
-          [
-            35,
-            34,
-            33
-          ]
-        ],
-        "upper": [
-          [
-            28,
-            28,
-            28
-          ]
-        ],
-        "roi": [
-          190,
-          93,
-          43,
-          33
-        ],
-        "count": 1
-      }
-    },
-    "action": {
-      "type": "Click",
-      "param": {
-        "target": [
-          185,
-          96,
-          42,
-          32
-        ]
-      }
-    },
-    "next": [
-      "AutomaticCharacterTutorial"
-    ]
-  },
-  "滑动2": {
-    "post_delay": 6000,
-    "action": {
-      "type": "Scroll",
-      "param": {
-        "dy": 360,
-        "target": [
-          155,
-          249,
-          0,
-          0
-        ]
-      }
-    },
-    "next": [
-      "点击第一个"
-    ]
-  },
-  "中间节点2": {
-    "next": [
-      "识别确定1",
-      "连携技",
-      "识别右箭头",
-      "战技检测节点",
-      "重击",
-      "终结技",
-      "识别进入获得奖励界面"
-    ]
-  },
-  "中间节点3": {
-    "next": [
-      "中间节点4"
-    ]
-  },
-  "中间节点4": {
-    "next": [
-      "中间节点2"
-    ]
-  },
-  "终结技": {
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "expected": [
-          "终结技",
-          "终结.",
-          "终.技"
-        ],
-        "roi": [
-          613,
-          90,
-          55,
-          25
-        ]
-      }
-    },
-    "next": [
-      "终结技匹配"
-    ]
-  },
-  "战技检测节点": {
-    "pre_delay": 300,
-    "doc": "战技",
-    "recognition": {
-      "type": "OCR",
-      "param": {
-        "roi": [
-          621,
-          91,
-          38,
-          23
-        ],
-        "expected": [
-          "战技",
-          "战."
-        ]
-      }
-    },
-    "next": [
-      "战技匹配"
-    ]
-  }
 }
