@@ -42,7 +42,7 @@
         },
         "OriginiumSciencePark": {
             "type": "switch",
-            "label": "源石研究园",
+            "label": "$global.region.OriginiumSciencePark",
             "default_case": "Yes",
             "cases": [
                 {
@@ -65,7 +65,7 @@
         },
         "OriginLodespring": {
             "type": "switch",
-            "label": "矿脉源区",
+            "label": "$global.region.OriginLodespring",
             "default_case": "Yes",
             "cases": [
                 {
@@ -88,7 +88,7 @@
         },
         "PowerPlateau": {
             "type": "switch",
-            "label": "供能高地",
+            "label": "$global.region.PowerPlateau",
             "default_case": "Yes",
             "cases": [
                 {
@@ -137,7 +137,7 @@
         },
         "WulingCity": {
             "type": "switch",
-            "label": "武陵城",
+            "label": "$global.region.WulingCity",
             "default_case": "Yes",
             "cases": [
                 {

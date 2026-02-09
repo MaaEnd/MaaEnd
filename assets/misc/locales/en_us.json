@@ -1,6 +1,10 @@
 {
     "global.region.ValleyIV": "Valley IV",
     "global.region.Wuling": "Wuling",
+    "global.region.OriginiumSciencePark": "Originium Science Park",
+    "global.region.OriginLodespring": "Origin Lodespring",
+    "global.region.PowerPlateau": "Power Plateau",
+    "global.region.WulingCity": "Wuling City",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.AutoSkip.label": "Auto Story",

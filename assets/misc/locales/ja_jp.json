@@ -1,6 +1,10 @@
 {
     "global.region.ValleyIV": "第4谷地 (Valley IV)",
     "global.region.Wuling": "武陵 (Wuling)",
+    "global.region.OriginiumSciencePark": "源石研究パーク",
+    "global.region.OriginLodespring": "鉱山エリア",
+    "global.region.PowerPlateau": "エネルギー高地",
+    "global.region.WulingCity": "武陵城内",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
     "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
     "option.AutoSkip.label": "ストーリー自動",
