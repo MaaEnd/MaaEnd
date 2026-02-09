@@ -1,4 +1,62 @@
 {
+    "EnterValleyIVDepot": {
+        "doc": "进入四号谷地仓储节点",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "CheckValleyIV"
+        ],
+        "action": "Click"
+    },
+    "EnterWulingDepot": {
+        "doc": "进入武陵仓储节点",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "CheckWuling"
+        ],
+        "action": "Click"
+    },
+    "DepotLocked": {
+        "doc": "仓储节点未解锁",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ]
+    },
+    "CheckValleyIVDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            "DepotLocked",
+            "CheckValleyIV"
+        ],
+        "focus": {
+            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CheckWulingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            "DepotLocked",
+            "CheckWuling"
+        ],
+        "focus": {
+            "Node.Action.Starting": "武陵仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
     "CheckOriginiumSciencePark": {
         "doc": "检查是否在源石科技园",
         "recognition": "OCR",

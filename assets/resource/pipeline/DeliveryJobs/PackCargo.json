@@ -1,60 +1,146 @@
 {
-    "EnterValleyIVDepot": {
-        "doc": "进入四号谷地仓储节点",
-        "recognition": "And",
-        "all_of": [
-            "DepotButton",
-            "CheckValleyIV"
+    "CheckOriginiumScienceParkCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckOriginiumSciencePark",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
         ],
-        "action": "Click"
-    },
-    "EnterWulingDepot": {
-        "doc": "进入武陵仓储节点",
-        "recognition": "And",
-        "all_of": [
-            "DepotButton",
-            "CheckWuling"
-        ],
-        "action": "Click"
-    },
-    "DepotLocked": {
-        "doc": "仓储节点未解锁",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/DepotLocked.png",
-        "threshold": 0.8,
-        "roi": [
-            1179,
-            347,
-            36,
-            47
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
         ]
     },
-    "CheckValleyIVDepotLocked": {
-        "doc": "检查四号谷地仓储节点是否解锁",
-        "recognition": "And",
-        "all_of": [
-            "DepotLocked",
-            "CheckValleyIV"
+    "CheckOriginLodespringCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckOriginLodespring",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
         ],
-        "focus": {
-            "Node.Action.Starting": "四号谷地仓储节点未解锁"
-        },
-        "next": [
-            "CheckCurrentArea"
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
         ]
     },
-    "CheckWulingDepotLocked": {
-        "doc": "检查武陵仓储节点是否解锁",
+    "CheckPowerPlateauCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckPowerPlateau",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "CheckWulingCityCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckWulingCity",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "EnterOriginiumScienceParkCargo": {
+        "doc": "进入源石科技园货物",
         "recognition": "And",
         "all_of": [
-            "DepotLocked",
-            "CheckWuling"
+            "CheckOriginiumSciencePark",
+            "CheckOriginiumScienceParkCargo"
         ],
-        "focus": {
-            "Node.Action.Starting": "武陵仓储节点未解锁"
-        },
+        "action": "Click",
         "next": [
-            "CheckCurrentArea"
+            "ProceedToNextStep",
+            "EnterOriginiumScienceParkCargo"
+        ]
+    },
+    "EnterOriginLodespringCargo": {
+        "doc": "进入矿脉源区货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckOriginLodespring",
+            "CheckOriginLodespringCargo"
+        ],
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterOriginLodespringCargo"
+        ]
+    },
+    "EnterPowerPlateauCargo": {
+        "doc": "进入供能高地货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckPowerPlateau",
+            "CheckPowerPlateauCargo"
+        ],
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterPowerPlateauCargo"
+        ]
+    },
+    "EnterWulingCityCargo": {
+        "doc": "进入武陵城货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckWulingCity",
+            "CheckWulingCityCargo"
+        ],
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterWulingCityCargo"
         ]
     },
     "CargoNotReady": {
@@ -79,34 +165,6 @@
         "next": [
             "CheckCurrentArea",
             "CargoNotReady"
-        ]
-    },
-    "EnterCargo": {
-        "doc": "进入货物",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            78,
-            561,
-            985,
-            58
-        ],
-        "expected": [
-            "货物装箱",
-            "貨物裝箱",
-            "Pack Goods",
-            "パッキング",
-            "화물 포장",
-            "查看报价",
-            "查看報價",
-            "Check Bid",
-            "希望価格確認",
-            "입찰 보기"
-        ],
-        "action": "Click",
-        "next": [
-            "ProceedToNextStep",
-            "EnterCargo"
         ]
     },
     "ProceedToNextStep": {

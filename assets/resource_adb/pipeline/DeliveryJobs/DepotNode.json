@@ -1,0 +1,34 @@
+{
+    "CheckOriginiumSciencePark": {
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ]
+    },
+    "CheckOriginLodespring": {
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ]
+    },
+    "CheckPowerPlateau": {
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ]
+    },
+    "CheckWulingCity": {
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ]
+    }
+}
