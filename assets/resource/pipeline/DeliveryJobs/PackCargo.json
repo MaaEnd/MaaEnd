@@ -57,29 +57,6 @@
             "CheckCurrentArea"
         ]
     },
-    "CargoHasOffer": {
-        "doc": "货物有人报价",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            78,
-            561,
-            985,
-            58
-        ],
-        "expected": [
-            "查看报价",
-            "查看報價",
-            "Check Bid",
-            "希望価格確認",
-            "입찰 보기"
-        ],
-        "action": "Click",
-        "next": [
-            "ProceedToNextStep",
-            "CargoHasOffer"
-        ]
-    },
     "CargoNotReady": {
         "doc": "货物未就绪，返回上一级界面",
         "recognition": "OCR",
@@ -119,7 +96,12 @@
             "貨物裝箱",
             "Pack Goods",
             "パッキング",
-            "화물 포장"
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
         ],
         "action": "Click",
         "next": [
