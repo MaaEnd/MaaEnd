@@ -1,0 +1,304 @@
+{
+    "EnterValleyIVDepot": {
+        "doc": "进入四号谷地仓储节点",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "CheckValleyIV"
+        ],
+        "action": "Click"
+    },
+    "EnterWulingDepot": {
+        "doc": "进入武陵仓储节点",
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "CheckWuling"
+        ],
+        "action": "Click"
+    },
+    "DepotLocked": {
+        "doc": "仓储节点未解锁",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ]
+    },
+    "CheckValleyIVDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            "DepotLocked",
+            "CheckValleyIV"
+        ],
+        "focus": {
+            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CheckWulingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁",
+        "recognition": "And",
+        "all_of": [
+            "DepotLocked",
+            "CheckWuling"
+        ],
+        "focus": {
+            "Node.Action.Starting": "武陵仓储节点未解锁"
+        },
+        "next": [
+            "CheckCurrentArea"
+        ]
+    },
+    "CheckOriginiumSciencePark": {
+        "doc": "检查是否在源石研究园",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "Originium Science Park",
+            "源石研究パーク",
+            "오리지늄 연구 구역"
+        ]
+    },
+    "CheckOriginLodespring": {
+        "doc": "检查是否在矿脉源区",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "Origin Lodespring",
+            "鉱山エリア",
+            "광맥 구역"
+        ]
+    },
+    "CheckPowerPlateau": {
+        "doc": "检查是否在供能高地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ],
+        "expected": [
+            "供能高地",
+            "供能高地",
+            "Power Plateau",
+            "エネルギー高地",
+            "에너지 공급 고지"
+        ]
+    },
+    "CheckWulingCity": {
+        "doc": "检查是否在武陵城区",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            54,
+            247,
+            1033,
+            31
+        ],
+        "expected": [
+            "武陵城区",
+            "武陵城區",
+            "Wuling City",
+            "武陵城内",
+            "무릉성 도심"
+        ]
+    },
+    "CheckOriginiumScienceParkCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckOriginiumSciencePark",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "CheckOriginLodespringCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckOriginLodespring",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "CheckPowerPlateauCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckPowerPlateau",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "CheckWulingCityCargo": {
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckWulingCity",
+        "roi_offset": [
+            0,
+            316,
+            159,
+            23
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ]
+    },
+    "EnterOriginiumScienceParkCargo": {
+        "doc": "进入源石研究园货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckOriginiumSciencePark",
+            "CheckOriginiumScienceParkCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterOriginiumScienceParkCargo"
+        ]
+    },
+    "EnterOriginLodespringCargo": {
+        "doc": "进入矿脉源区货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckOriginLodespring",
+            "CheckOriginLodespringCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterOriginLodespringCargo"
+        ]
+    },
+    "EnterPowerPlateauCargo": {
+        "doc": "进入供能高地货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckPowerPlateau",
+            "CheckPowerPlateauCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterPowerPlateauCargo"
+        ]
+    },
+    "EnterWulingCityCargo": {
+        "doc": "进入武陵城货物",
+        "recognition": "And",
+        "all_of": [
+            "CheckWulingCity",
+            "CheckWulingCityCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProceedToNextStep",
+            "EnterWulingCityCargo"
+        ]
+    },
+    "CargoNotReady": {
+        "doc": "货物未就绪，返回上一级界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            78,
+            561,
+            985,
+            58
+        ],
+        "expected": [
+            "^\\d+小时\\d+分钟后就绪$",
+            "^\\d+小時\\d+分鐘後就緒$",
+            "^\\d+h \\d+min to activation$",
+            "^\\d+時間\\d+分後使用可能$",
+            "^\\d+시 \\d+분 후 준비 완료$"
+        ],
+        "action": "ClickKey",
+        "key": 27,
+        "next": [
+            "CheckCurrentArea",
+            "CargoNotReady"
+        ]
+    }
+}

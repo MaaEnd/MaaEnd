@@ -31,14 +31,14 @@
         "max_hit": 1,
         "next": [
             "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]CargoHasOffer",
-            "[JumpBack]EnterCargo",
+            "[JumpBack]EnterOriginiumScienceParkCargo",
+            "[JumpBack]EnterOriginLodespringCargo",
+            "[JumpBack]EnterPowerPlateauCargo",
             "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
             "CheckValleyIVDepotLocked",
             "[JumpBack]EnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
             "[JumpBack]RegionalDevelopmentButton"
-
         ]
     },
     "DeliveryJobsWuling": {
@@ -46,8 +46,7 @@
         "max_hit": 1,
         "next": [
             "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]CargoHasOffer",
-            "[JumpBack]EnterCargo",
+            "[JumpBack]EnterWulingCityCargo",
             "CargoNotReady",
             "CheckWulingDepotLocked",
             "[JumpBack]EnterWulingDepot",
