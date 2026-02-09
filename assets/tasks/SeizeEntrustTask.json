@@ -39,6 +39,7 @@
                     "name": "No",
                     "pipeline_override": {
                         "SeizeEntrustTaskInDownSwipeUp": {
+                            "$__mpe_code": {},
                             "enabled": false
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
