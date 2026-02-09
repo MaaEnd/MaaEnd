@@ -32,6 +32,7 @@ jobs:
 
       - name: Run maa-checker
         run: |
+          # Always use latests @nekosu/maa-checker
           npx @nekosu/maa-checker@latest ./assets/interface.json --github=. --error=mpe-config
 
       # pip install maafw
