@@ -26,7 +26,6 @@
             "Node.Action.Succeeded": "确认在基质界面"
         }
     },
-
     "FirstSwipeToTop": {
         "doc": "初始化位置，滑动到顶端",
         "action": {
@@ -71,6 +70,7 @@
             }
         },
         "next": [
+            "OCREssenceInventoryNumber",
             "EssenceRowDetect",
             "EssenceDetectFinal",
             "EssenceFilterFinish"
@@ -78,6 +78,37 @@
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
         }
+    },
+
+    "OCREssenceInventoryNumber": {
+        "doc": "OCR 识别背包中的基质",
+        "rate_limit": 300,
+        "timeout": 1500,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    89,
+                    51,
+                    35,
+                    18
+                ],
+                "expected": ["\\d+(\\/\\d+)?"],
+                "threshold": 0.3,
+                "only_rec": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "OCREssenceInventoryNumberAction"
+            }
+        },
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal",
+            "EssenceFilterFinish"
+        ]
     },
 
     "EssenceRowDetect": {
