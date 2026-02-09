@@ -1,0 +1,32 @@
+{
+    "CheckCantProduceAnyMore": {
+        "expected": [
+            "Insufficient",
+            "Not enough"
+        ]
+    },
+    "CheckMaterialEnough": {
+        "expected": [
+            "Full",
+            "Discard"
+        ]
+    },
+    "CheckIsSimpleProductionPage": {
+        "expected": [
+            "Emergency",
+            "Ration"
+        ]
+    },
+    "ClickSimpleProductionSuccess": {
+        "expected": [
+            "Success",
+            "Crafted"
+        ]
+    },
+    "ClickSimpleProductionSuccess2": {
+        "expected": [
+            "Success",
+            "Crafted"
+        ]
+    }
+}

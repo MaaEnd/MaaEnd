@@ -1,0 +1,34 @@
+{
+    "EnterTaskMenu": {
+        "expected": [
+            "Operations",
+            "Action"
+        ]
+    },
+    "EnterDailyTab": {
+        "expected": [
+            "Daily"
+        ]
+    },
+    "ClaimSingleReward": {
+        "expected": "Claim"
+    },
+    "EnterBattlePassManual": {
+        "expected": "Pass"
+    },
+    "GoToBattlePass": {
+        "expected": "Go"
+    },
+    "EnterBattlePassTasks": {
+        "expected": "Task"
+    },
+    "ClaimBattlePassTaskRewards": {
+        "expected": "Claim"
+    },
+    "EnterBattlePassRewards": {
+        "expected": "Reward"
+    },
+    "ClaimBattlePassLevelRewards": {
+        "expected": "Claim"
+    }
+}

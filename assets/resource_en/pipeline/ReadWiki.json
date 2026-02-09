@@ -1,0 +1,12 @@
+{
+    "OnESCPageForWiki": {
+        "expected": [
+            "Database"
+        ]
+    },
+    "OnWikiHomePage": {
+        "expected": [
+            "Endfield Database"
+        ]
+    }
+}

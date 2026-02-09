@@ -1,0 +1,71 @@
+{
+    "ItemTransferStart": {
+        "expected": [
+            "Depot",
+            "Storage"
+        ]
+    },
+    "SwitchRepoToOrigin": {
+        "expected": [
+            "Switch",
+            "Depot"
+        ]
+    },
+    "ClickConfirmOrigin": {
+        "expected": [
+            "Confirm"
+        ]
+    },
+    "AtOrigin": {
+        "expected": [
+            "Connected"
+        ]
+    },
+    "ClickSortDescending": {
+        "expected": [
+            "Desc"
+        ]
+    },
+    "ClickSortAscending": {
+        "expected": [
+            "Asc"
+        ]
+    },
+    "SwitchRepoToDestination": {
+        "expected": [
+            "Switch",
+            "Depot"
+        ]
+    },
+    "ClickConfirmDestination": {
+        "expected": [
+            "Confirm"
+        ]
+    },
+    "AtDestination": {
+        "expected": [
+            "Connected"
+        ]
+    },
+    "CheckIfFull": {
+        "expected": [
+            "Full"
+        ]
+    },
+    "SwitchRepoToOriginReturn": {
+        "expected": [
+            "Switch",
+            "Depot"
+        ]
+    },
+    "ClickConfirmOriginReturn": {
+        "expected": [
+            "Confirm"
+        ]
+    },
+    "AtOriginReturn": {
+        "expected": [
+            "Connected"
+        ]
+    }
+}
