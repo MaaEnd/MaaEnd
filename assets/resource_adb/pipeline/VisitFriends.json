@@ -1,27 +1,4 @@
 {
-    "ExitMenu": {
-        "next": [
-            "VisitComplete"
-        ],
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    1224,
-                    34,
-                    0,
-                    0
-                ]
-            }
-        },
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/FriendList.png",
-                "threshold": 0.8
-            }
-        }
-    },
     "OnAssist": {
         "next": [
             "WaitOpenTerminalAssist"
@@ -186,7 +163,7 @@
     },
     "ReturnToMenu": {
         "next": [
-            "ExitMenu"
+            "VisitComplete"
         ],
         "action": {
             "type": "Click",
@@ -196,10 +173,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1196,
-                    7,
-                    50,
-                    50
+                    1203,
+                    10,
+                    75,
+                    51
                 ],
                 "template": [
                     "VisitFriends/CloseFriendList.png"
@@ -238,7 +215,9 @@
     "ClueExchangeOCR": {
         "next": [
             "ClueExchange"
-        ]
+        ],
+        "action": "DoNothing",
+        "recognition": "DirectHit"
     },
     "ExitTerminalAssist": {
         "next": [
