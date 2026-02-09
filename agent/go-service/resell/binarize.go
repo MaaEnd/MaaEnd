@@ -95,19 +95,20 @@ func BinarizeForOCR(img image.Image, mode BinarizeMode) image.Image {
             gray := grayImg.GrayAt(x, y).Y
             var c color.RGBA
             switch mode {
-            case BinarizeDarkText:
-                // 文字比背景暗：低于阈值的是文字(→黑)，高于阈值的是背景(→白)
-                if gray >= threshold {
-                    c = white
-                } else {
-                    c = black
-                }
             case BinarizeLightText:
                 // 文字比背景亮：高于阈值的是文字(→黑)，低于阈值的是背景(→白)
                 if gray >= threshold {
                     c = black
                 } else {
                     c = white
+                }
+            default:
+                // 默认按 DarkText 处理
+                // 文字比背景暗：低于阈值的是文字(→黑)，高于阈值的是背景(→白)
+                if gray >= threshold {
+                    c = white
+                } else {
+                    c = black
                 }
             }
             result.Set(x, y, c)
