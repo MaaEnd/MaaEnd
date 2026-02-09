@@ -69,10 +69,11 @@ var (
 	statsLogged             bool
 
 	// Grid traversal state
-	currentCol        int // 1~9
-	currentRow        int // row index
-	maxItemsPerRow    int
-	firstRowSwipeDone bool // true after first row swipe is used
+	currentCol         int // 1~9
+	currentRow         int // row index
+	maxItemsPerRow     int
+	firstRowSwipeDone  bool // true after first row swipe is used
+	finalLargeScanUsed bool // true if final large scan has been used
 
 	// Current item's three skills cache
 	currentSkills [3]string

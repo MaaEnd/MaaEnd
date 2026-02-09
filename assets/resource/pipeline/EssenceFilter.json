@@ -26,6 +26,7 @@
             "Node.Action.Succeeded": "确认在基质界面"
         }
     },
+
     "FirstSwipeToTop": {
         "doc": "初始化位置，滑动到顶端",
         "action": {
@@ -69,7 +70,11 @@
                 }
             }
         },
-        "next": ["EssenceRowDetect"],
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal",
+            "EssenceFilterFinish"
+        ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
         }
@@ -97,7 +102,39 @@
                 "custom_action": "EssenceFilterRowCollectAction"
             }
         },
-        "next": ["EssenceFilterRowNextItem"]
+        "next": [
+            "EssenceFilterRowNextItem",
+            "EssenceDetectFinal"
+        ]
+    },
+    "EssenceDetectFinal": {
+        "doc": "尾扫：扩大 ROI 捕获底部剩余行",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "threshold": 0.55,
+                "roi": [
+                    18,
+                    72,
+                    956,
+                    570
+                ], // 高度放大，覆盖底部区域
+                "method": 5
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterRowCollectAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "尾扫完成，收集所有剩余基质格子"
+        },
+        "next": [
+            "EssenceFilterRowNextItem"
+        ]
     },
 
     "EssenceFilterCheckItemSlot1": {
@@ -313,7 +350,10 @@
             }
         },
         "post_delay": 200,
-        "next": ["EssenceRowDetect"]
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal"
+        ]
     },
     "EssenceFilterSwipeNext": {
         "doc": "后续滑动",
@@ -333,7 +373,10 @@
             }
         },
         "post_delay": 200,
-        "next": ["EssenceRowDetect"]
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal"
+        ]
     },
 
     "EssenceFilterFinish": {
