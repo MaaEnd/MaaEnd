@@ -1179,10 +1179,20 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ClickOrigin": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "四號谷地",
+                                "Valley IV",
+                                "Valley"
+                            ]
                         },
                         "ClickOriginReturn": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "四號谷地",
+                                "Valley IV",
+                                "Valley"
+                            ]
                         }
                     }
                 },
@@ -1191,10 +1201,16 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ClickOrigin": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         },
                         "ClickOriginReturn": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         }
                     }
                 }
@@ -1211,7 +1227,12 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ClickDestination": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "四號谷地",
+                                "Valley IV",
+                                "Valley"
+                            ]
                         }
                     }
                 },
@@ -1220,7 +1241,10 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ClickDestination": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         }
                     }
                 }

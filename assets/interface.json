@@ -76,15 +76,25 @@
     "resource": [
         {
             "name": "官服",
+            "label": "$resource.CN.label",
             "path": [
                 "./resource"
             ]
         },
         {
             "name": "B 服",
+            "label": "$resource.Bilibili.label",
             "path": [
                 "./resource",
                 "./resource_bilibili"
+            ]
+        },
+        {
+            "name": "Global",
+            "label": "$resource.Global.label",
+            "path": [
+                "./resource",
+                "./resource_en"
             ]
         }
     ],

@@ -23,12 +23,86 @@
                         "DeliveryJobsValleyIV": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "OriginiumSciencePark",
+                        "OriginLodespring",
+                        "PowerPlateau"
+                    ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "DeliveryJobsValleyIV": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "OriginiumSciencePark": {
+            "type": "switch",
+            "label": "$global.region.OriginiumSciencePark",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EnterOriginiumScienceParkCargo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EnterOriginiumScienceParkCargo": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "OriginLodespring": {
+            "type": "switch",
+            "label": "$global.region.OriginLodespring",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EnterOriginLodespringCargo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EnterOriginLodespringCargo": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "PowerPlateau": {
+            "type": "switch",
+            "label": "$global.region.PowerPlateau",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EnterPowerPlateauCargo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EnterPowerPlateauCargo": {
                             "enabled": false
                         }
                     }
@@ -46,12 +120,38 @@
                         "DeliveryJobsWuling": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "WulingCity"
+                    ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "DeliveryJobsWuling": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingCity": {
+            "type": "switch",
+            "label": "$global.region.WulingCity",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EnterWulingCityCargo": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EnterWulingCityCargo": {
                             "enabled": false
                         }
                     }

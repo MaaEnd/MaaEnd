@@ -1,0 +1,42 @@
+{
+    "SeizeEntrustTaskErrorTaskStop": {
+        "expected": [
+            "Client Info",
+            "Commission"
+        ]
+    },
+    "SeizeEntrustTaskMain": {
+        "expected": [
+            "Client Info",
+            "Commission"
+        ]
+    },
+    "SeizeEntrustTaskNews": {
+        "expected": [
+            "Refresh"
+        ]
+    },
+    "SeizeEntrustTaskNews2": {
+        "expected": [
+            "Refresh"
+        ]
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "expected": [
+            "Accept",
+            "Delivery"
+        ]
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "expected": [
+            "Accept",
+            "Delivery"
+        ]
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "expected": [
+            "Accept",
+            "Delivery"
+        ]
+    }
+}

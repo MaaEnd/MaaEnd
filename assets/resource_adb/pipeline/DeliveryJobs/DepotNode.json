@@ -1,0 +1,96 @@
+{
+    "CheckOriginiumSciencePark": {
+        "roi": [
+            67,
+            264,
+            1006,
+            26
+        ]
+    },
+    "CheckOriginLodespring": {
+        "roi": [
+            67,
+            264,
+            1006,
+            26
+        ]
+    },
+    "CheckPowerPlateau": {
+        "roi": [
+            67,
+            264,
+            1006,
+            26
+        ]
+    },
+    "CheckWulingCity": {
+        "roi": [
+            67,
+            264,
+            1006,
+            26
+        ]
+    },
+    "CheckOriginiumScienceParkCargo": {
+        "roi_offset": [
+            -17,
+            325,
+            188,
+            26
+        ]
+    },
+    "CheckOriginLodespringCargo": {
+        "roi_offset": [
+            -17,
+            325,
+            188,
+            26
+        ]
+    },
+    "CheckPowerPlateauCargo": {
+        "roi_offset": [
+            -17,
+            325,
+            188,
+            26
+        ]
+    },
+    "CheckWulingCityCargo": {
+        "roi_offset": [
+            -17,
+            325,
+            188,
+            26
+        ]
+    },
+    "CargoNotReady": {
+        "roi": [
+            79,
+            581,
+            985,
+            58
+        ],
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "CargoNotReady"
+        ]
+    },
+    "BackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/BackToRegionalConstruction.png",
+        "roi": [
+            1195,
+            14,
+            52,
+            43
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "CheckCurrentArea",
+            "BackToRegionalConstruction"
+        ]
+    }
+}

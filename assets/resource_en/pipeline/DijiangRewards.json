@@ -1,0 +1,76 @@
+{
+    "ReceptionRoom_NeedCredit": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "CancelExit": {
+        "expected": [
+            "Cancel"
+        ]
+    },
+    "SetClues": {
+        "expected": [
+            "Clue"
+        ]
+    },
+    "SendCluesSwipe": {
+        "expected": [
+            "Clue"
+        ]
+    },
+    "GrowthChamber": {
+        "expected": [
+            "Growth Chamber"
+        ]
+    },
+    "GrowAgain": {
+        "expected": [
+            "Grow"
+        ]
+    },
+    "ReceptionRoom": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "ExitReceptionRoom": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "MFG_ReceiveRewards": {
+        "expected": [
+            "Manufacturing",
+            "Production"
+        ]
+    },
+    "Exit_MFG_Cabin": {
+        "expected": [
+            "Manufacturing",
+            "Production"
+        ]
+    },
+    "ExitCollect": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "ExitGrowthChamber": {
+        "expected": [
+            "Growth Chamber"
+        ]
+    },
+    "RecoveryEmotion": {
+        "expected": [
+            "Select.*recover",
+            "morale"
+        ]
+    },
+    "CouldNotAssistEmotion": {
+        "expected": [
+            "no more morale",
+            "cannot select"
+        ]
+    }
+}
