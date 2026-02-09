@@ -81,17 +81,17 @@
     },
 
     "OCREssenceInventoryNumber": {
-        "doc": "OCR 识别背包中的基质",
+        "doc": "OCR 识别背包中的基质数量",
         "rate_limit": 300,
         "timeout": 1500,
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    89,
-                    51,
-                    35,
-                    18
+                    93,
+                    48,
+                    74,
+                    22
                 ],
                 "expected": ["\\d+(\\/\\d+)?"],
                 "threshold": 0.3,
@@ -117,7 +117,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.55,
+                "threshold": 0.45,
+                // "threshold": 0.55,
                 "roi": [
                     18,
                     72,
@@ -144,7 +145,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.55,
+                "threshold": 0.45,
+                // "threshold": 0.55,
                 "roi": [
                     18,
                     72,
@@ -159,9 +161,6 @@
             "param": {
                 "custom_action": "EssenceFilterRowCollectAction"
             }
-        },
-        "focus": {
-            "Node.Action.Succeeded": "尾扫完成，收集所有剩余基质格子"
         },
         "next": [
             "EssenceFilterRowNextItem"
