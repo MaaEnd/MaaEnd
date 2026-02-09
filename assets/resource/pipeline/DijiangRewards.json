@@ -57,8 +57,9 @@
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
-
+            "[JumpBack]CarbinSwipe",
+            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]CloseDijiangRewards"
         ]
     },
     "InMainWindow_NeedCredit": {
