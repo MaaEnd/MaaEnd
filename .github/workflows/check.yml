@@ -43,9 +43,9 @@ jobs:
 
       - name: Check Resource
         run: |
-          python ./tools/check_resource.py ./assets/resource/ ./assets/resource_bilibili/
+          python ./tools/check_resource.py ./assets/resource/ ./assets/resource_bilibili/ ./assets/resource_en/
 
       - name: Validate JSON Schema
         run: |
           python -m pip install jsonschema==4.26.0 referencing==0.37.0
-          python tools/validate_schema.py --resource-dirs assets/resource assets/resource_bilibili --exclude-dirs assets/resource/gamedata
+          python tools/validate_schema.py --resource-dirs assets/resource assets/resource_bilibili ./assets/resource_en --exclude-dirs assets/resource/gamedata
