@@ -98,6 +98,7 @@
             "CheckOriginiumSciencePark",
             "CheckOriginiumScienceParkCargo"
         ],
+        "box_index": 1,
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -111,6 +112,7 @@
             "CheckOriginLodespring",
             "CheckOriginLodespringCargo"
         ],
+        "box_index": 1,
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -124,6 +126,7 @@
             "CheckPowerPlateau",
             "CheckPowerPlateauCargo"
         ],
+        "box_index": 1,
         "action": "Click",
         "next": [
             "ProceedToNextStep",
@@ -137,6 +140,7 @@
             "CheckWulingCity",
             "CheckWulingCityCargo"
         ],
+        "box_index": 1,
         "action": "Click",
         "next": [
             "ProceedToNextStep",
