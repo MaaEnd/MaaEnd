@@ -315,7 +315,7 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
 					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
 					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					if num >= 7000 || num <= 100 {
+					if num >= 7000 {
 						//数字不合理，抛弃
 						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
 						success = false
