@@ -1,34 +1,34 @@
 {
     "CheckOriginiumScienceParkCargo": {
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -17,
+            325,
+            188,
+            26
         ]
     },
     "CheckOriginLodespringCargo": {
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -17,
+            325,
+            188,
+            26
         ]
     },
     "CheckPowerPlateauCargo": {
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -17,
+            325,
+            188,
+            26
         ]
     },
     "CheckWulingCityCargo": {
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -17,
+            325,
+            188,
+            26
         ]
     },
     "CargoNotReady": {

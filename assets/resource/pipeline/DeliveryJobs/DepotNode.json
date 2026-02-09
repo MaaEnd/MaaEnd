@@ -58,7 +58,7 @@
         ]
     },
     "CheckOriginiumSciencePark": {
-        "doc": "检查是否在源石科技园",
+        "doc": "检查是否在源石研究园",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -68,7 +68,7 @@
             31
         ],
         "expected": [
-            "源石科技园",
+            "源石研究园",
             "源石研究園",
             "Originium Science Park",
             "源石研究パーク",

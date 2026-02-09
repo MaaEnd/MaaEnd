@@ -92,7 +92,7 @@
         ]
     },
     "EnterOriginiumScienceParkCargo": {
-        "doc": "进入源石科技园货物",
+        "doc": "进入源石研究园货物",
         "recognition": "And",
         "all_of": [
             "CheckOriginiumSciencePark",
