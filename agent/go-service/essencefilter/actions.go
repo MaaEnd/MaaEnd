@@ -201,7 +201,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 type OCREssenceInventoryNumberAction struct{}
 
 func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	const maxSinglePage = 45 // 单页可见格子上限：9列×5行，可按需要调整
+	const maxSinglePage = 45 // 单页可见格子上限：9列×5行
 
 	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
 		log.Error().Msg("<EssenceFilter> CheckTotal: no OCR detail")
@@ -214,14 +214,14 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 		return false
 	}
 
-	// 提取数字：若是 “cur/total” 取 total，否则取第一个数字
+	// 提取数字：若是 “cur/total” 取 cur，否则取第一个数字
 	re := regexp.MustCompile(`\d+`)
 	nums := re.FindAllString(text, -1)
 	if len(nums) == 0 {
 		log.Error().Str("text", text).Msg("<EssenceFilter> CheckTotal: no number found")
 		return false
 	}
-	nStr := nums[len(nums)-1] // 优先取 total；若只有一个数字就取它
+	nStr := nums[0] // 优先取 cur；若只有一个数字就取它
 	n, err := strconv.Atoi(nStr)
 	if err != nil {
 		log.Error().Err(err).Str("text", text).Msg("<EssenceFilter> CheckTotal: parse fail")
@@ -368,7 +368,16 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			rowBoxes = append(rowBoxes, boxArr)
 		}
 	}
+	// sort rowboxes by Y coordinate then X coordinate
+	sort.Slice(rowBoxes, func(i, j int) bool {
+		if rowBoxes[i][1] == rowBoxes[j][1] {
+			return rowBoxes[i][0] < rowBoxes[j][0]
+		}
+		return rowBoxes[i][1] < rowBoxes[j][1]
+	})
 
+	// LogMXUSimpleHTML(ctx, "len(results): "+strconv.Itoa(len(results))+", valid boxes after color match: "+strconv.Itoa(len(rowBoxes)))
+	log.Info().Int("len_results", len(results)).Int("valid_boxes", len(rowBoxes)).Msg("<EssenceFilter> RowCollect: color match done")
 	// 如果本行没有任何符合条件的box，且还没有使用过最终大范围扫描，则触发最终大范围扫描；否则直接结束当前行的处理
 	isFallbackScan := arg.CurrentTaskName == "EssenceDetectFinal"
 
@@ -377,13 +386,13 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceDetectFinal"},
 		})
-	} else {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
-			{Name: "EssenceFilterFinish"},
-		})
+		LogMXUSimpleHTML(ctx, fmt.Sprintf("尾扫完成，收集所有剩余基质格子"))
+		log.Info().Msg("<EssenceFilter> RowCollect: trigger final large scan")
+		return true
 	}
 
-	if len(rowBoxes) > maxItemsPerRow {
+	// 在非尾扫的情况下，如果符合条件的box数量超过单行最大可处理数量，直接结束当前行的处理，避免误操作；如果是尾扫，则不论数量多少都继续处理
+	if (len(rowBoxes) > maxItemsPerRow) && !isFallbackScan {
 		log.Error().Int("count", len(rowBoxes)).Msg("<EssenceFilter> RowCollect: boxes > maxItemsPerRow, abort")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterFinish"},
