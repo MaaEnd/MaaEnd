@@ -201,7 +201,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 type OCREssenceInventoryNumberAction struct{}
 
 func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	const maxSinglePage = 45 // 单页可见格子上限：3列×6行，可按需要调整
+	const maxSinglePage = 45 // 单页可见格子上限：9列×5行，可按需要调整
 
 	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
 		log.Error().Msg("<EssenceFilter> CheckTotal: no OCR detail")
