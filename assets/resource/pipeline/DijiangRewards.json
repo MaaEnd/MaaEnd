@@ -588,7 +588,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dy": -200
+                "dy": -240
             }
         }
     },
