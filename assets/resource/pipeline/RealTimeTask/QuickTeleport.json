@@ -25,7 +25,7 @@
         "doc": "直接点击传送按钮",
         "recognition": "TemplateMatch",
         "template": "RealTimeTask/Teleport.png",
-        "threshold": 0.7,
+        "threshold": 0.8,
         "roi": [
             1210,
             648,
