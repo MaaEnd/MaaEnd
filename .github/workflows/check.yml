@@ -33,7 +33,7 @@ jobs:
       - name: Run maa-checker
         run: |
           # Always use latests @nekosu/maa-checker
-          npx @nekosu/maa-checker@latest ./assets/interface.json --github=. --error=mpe-config
+          npx @nekosu/maa-checker@latest ./assets/interface.json --github=. --load-config=.vscode/maa_checker.json
 
       # pip install maafw
       - name: Install maafw

@@ -420,6 +420,7 @@ FodyWeavers.xsd
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mse_config.json
+!.vscode/maa_checker.json
 *.code-workspace
 
 # Local History for Visual Studio Code
