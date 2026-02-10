@@ -2,11 +2,12 @@
     "FriendVisitMain": {
         "next": [
             "OpenFriendList",
-            "OpenMenu"
+            "OnFriendList",
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "EnterPauseMenu"
         ]
     },
-    "OpenMenu": {
-        "max_hit": 5,
+    "EnterPauseMenu": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -14,7 +15,7 @@
             }
         },
         "next": [
-            "FriendVisitMain"
+            "OpenFriendList"
         ]
     },
     "OpenFriendList": {
