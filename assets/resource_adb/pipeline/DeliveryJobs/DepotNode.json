@@ -63,17 +63,26 @@
             26
         ]
     },
-    "CargoNotReady": {
+    "CheckDepotNode": {
         "roi": [
-            79,
-            581,
-            985,
-            58
-        ],
+            99,
+            167,
+            213,
+            29
+        ]
+    },
+    "ValleyIVCargoNotReady": {
         "action": "DoNothing",
         "next": [
             "BackToRegionalConstruction",
-            "CargoNotReady"
+            "ValleyIVCargoNotReady"
+        ]
+    },
+    "WulingCargoNotReady": {
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "WulingCargoNotReady"
         ]
     },
     "BackToRegionalConstruction": {
