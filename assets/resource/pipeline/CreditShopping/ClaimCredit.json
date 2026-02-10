@@ -11,7 +11,8 @@
         ],
         "action": "Click",
         "next": [
-            "CreditShoppingClaimConfirm"
+            "CreditShoppingClaimConfirm",
+            "CreditShoppingClaimCredit"
         ]
     },
     "CreditShoppingNoCreditClaim": {
@@ -41,7 +42,8 @@
         ],
         "action": "Click",
         "next": [
-            "CreditShoppingShopping"
+            "CreditShoppingShopping",
+            "CreditShoppingClaimConfirm"
         ]
     }
 }
