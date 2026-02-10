@@ -1,5 +1,5 @@
 {
-    "ScenePrivateWorldEnterMenuDqjs": {
+    "ScenePrivateWorldEnterMenuRegionalDevelopment": {
         "doc": "从大世界进入地区建设菜单",
         "action": {
             "type": "ClickKey",
@@ -8,11 +8,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateWorldEnterMenuDqjsLoading",
+            "[JumpBack]ScenePrivateWorldEnterMenuRegionalDevelopmentLoading",
             "SceneNextTrue"
         ]
     },
-    "ScenePrivateWorldEnterMenuDqjsLoading": {
+    "ScenePrivateWorldEnterMenuRegionalDevelopmentLoading": {
         "doc": "等待切换地区建设",
         "recognition": {
             "type": "TemplateMatch",
@@ -24,7 +24,7 @@
                     220
                 ],
                 "template": [
-                    "SceneManager/MenuDqjsIcon.png"
+                    "SceneManager/MenuRegionalDevelopmentIcon.png"
                 ]
             }
         },

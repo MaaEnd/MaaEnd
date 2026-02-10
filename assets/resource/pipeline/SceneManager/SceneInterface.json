@@ -95,7 +95,14 @@
             "ScenePrivateWorldEnterWorldDijiang"
         ]
     },
-    "SceneEnterMenuDqjs": {
+    // "SceneEnterWorldValleyIVTheHub": {
+    //     "doc": "从任意界面进入四号谷地-枢纽区大世界",
+    //     "next": [
+    //         "[JumpBack]ScenePrivateAnyEnterWorld",
+    //         "ScenePrivateWorldEnterWorldValleyIVTheHub"
+    //     ]
+    // },
+    "SceneEnterMenuRegionalDevelopment": {
         "doc": "从任意界面进入地区建设菜单",
         "recognition": {
             "type": "And",
@@ -112,7 +119,7 @@
                                     220
                                 ],
                                 "template": [
-                                    "SceneManager/MenuDqjsIcon.png"
+                                    "SceneManager/MenuRegionalDevelopmentIcon.png"
                                 ]
                             }
                         }
@@ -128,7 +135,11 @@
                                     60
                                 ],
                                 "expected": [
-                                    "地区建设"
+                                    "地区建设",
+                                    "地區建設",
+                                    "Regional Development",
+                                    "地域建設",
+                                    "지역 건설"
                                 ]
                             }
                         }
@@ -139,7 +150,7 @@
         "inverse": true,
         "next": [
             "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterMenuDqjs"
+            "ScenePrivateWorldEnterMenuRegionalDevelopment"
         ]
     },
     "SceneDialogConfirm": {

@@ -38,10 +38,10 @@
             "SceneNextTrue"
         ]
     },
-    "SceneTestEnterMenuDqjs": {
+    "SceneTestEnterMenuRegionalDevelopment": {
         "doc": "在任意场景下，进入地区建设菜单",
         "next": [
-            "[JumpBack]SceneEnterMenuDqjs",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment",
             "SceneNextTrue"
         ]
     }

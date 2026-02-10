@@ -36,5 +36,12 @@
             "[JumpBack]ScenePrivateWorldEnterMapDijiang",
             "ScenePrivateMapEnterTeleport"
         ]
-    }
+    },
+    // "ScenePrivateWorldEnterWorldValleyIVTheHub": {
+    //     "doc": "在大世界界面，进入四号谷地-枢纽区大世界",
+    //     "next": [
+    //         "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub",
+    //         "ScenePrivateMapEnterTeleport"
+    //     ]
+    // }
 }

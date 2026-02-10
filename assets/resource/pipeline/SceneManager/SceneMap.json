@@ -27,6 +27,34 @@
             "ScenePrivateMapEnterMapDijiangSuccess"
         ]
     },
+    // "ScenePrivateWorldEnterMapValleyIVTheHub": {
+    //     "doc": "在大世界界面，进入四号谷地-枢纽区地图",
+    //     "recognition": {
+    //         "type": "OCR",
+    //         "param": {
+    //             "roi": [
+    //                 0,
+    //                 0,
+    //                 140,
+    //                 60
+    //             ],
+    //             "expected": [
+    //                 "枢纽区"
+    //             ]
+    //         }
+    //     },
+    //     "inverse": true,
+    //     "action": {
+    //         "type": "ClickKey",
+    //         "param": {
+    //             "key": 77 // M
+    //         }
+    //     },
+    //     "next": [
+    //         "[JumpBack]ScenePrivateAnyEnterMapLoading",
+    //         "ScenePrivateMapEnterMapValleyIVTheHub"
+    //     ]
+    // },
     "ScenePrivateAnyEnterMapLoading": {
         "doc": "等待切换到地图场景",
         "recognition": {
@@ -131,7 +159,11 @@
                     300
                 ],
                 "expected": [
-                    "协议传送点"
+                    "协议传送点",
+                    "協議傳送點",
+                    "TP Point",
+                    "協約転送ポイント",
+                    "프로토콜 전송 지점"
                 ]
             }
         },
