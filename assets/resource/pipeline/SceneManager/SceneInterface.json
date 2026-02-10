@@ -95,6 +95,53 @@
             "ScenePrivateWorldEnterWorldDijiang"
         ]
     },
+    "SceneEnterMenuDqjs": {
+        "doc": "从任意界面进入地区建设菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -220,
+                                    0,
+                                    220,
+                                    220
+                                ],
+                                "template": [
+                                    "SceneManager/MenuDqjsIcon.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    140,
+                                    60
+                                ],
+                                "expected": [
+                                    "地区建设"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldEnterMenuDqjs"
+        ]
+    },
     "SceneDialogConfirm": {
         "doc": "点击对话框的确认按钮",
         "recognition": {

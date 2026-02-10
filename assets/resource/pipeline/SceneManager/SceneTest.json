@@ -37,5 +37,12 @@
             "[JumpBack]SceneEnterWorldDijiang",
             "SceneNextTrue"
         ]
+    },
+    "SceneTestEnterMenuDqjs": {
+        "doc": "在任意场景下，进入地区建设菜单",
+        "next": [
+            "[JumpBack]SceneEnterMenuDqjs",
+            "SceneNextTrue"
+        ]
     }
 }
