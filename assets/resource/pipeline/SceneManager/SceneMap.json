@@ -158,9 +158,29 @@
         "action": {
             "type": "Click"
         },
+        // 场景一：传送有loading
+        // 场景二：原地传送无loading
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
-            "SceneNextTrue"
+            "ScenePrivateMapTeleportSuccess"
         ]
+    },
+    "ScenePrivateMapTeleportSuccess": {
+        "doc": "进入大世界，传送成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
     }
 }

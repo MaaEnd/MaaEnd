@@ -254,9 +254,9 @@
                 ]
             }
         },
-        "timeout": 60000, // 界面加载超时时间
         "next": [
-            "ScenePrivateLoadingExit"
+            "SceneWaitLoadingExit",
+            "SceneNextTrue"
         ]
     }
 }
