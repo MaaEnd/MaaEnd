@@ -58,7 +58,7 @@
             "Node.Action.Starting": "四号谷地仓储节点未解锁"
         },
         "next": [
-            "CheckCurrentArea"
+            "DeliveryJobsMain"
         ]
     },
     "CheckWulingDepotLocked": {
@@ -72,7 +72,7 @@
             "Node.Action.Starting": "武陵仓储节点未解锁"
         },
         "next": [
-            "CheckCurrentArea"
+            "DeliveryJobsMain"
         ]
     },
     "CheckOriginiumSciencePark": {
@@ -330,7 +330,7 @@
         ],
         "action": "Click",
         "next": [
-            "CheckCurrentArea",
+            "DeliveryJobsMain",
             "BackToRegionalConstruction"
         ]
     }

@@ -1,29 +1,11 @@
 {
     // 自动转交运送委托
-    // 仅允许从大世界或者地区建设页面启动
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
         "next": [
-            "CheckCurrentArea",
-            "[JumpBack]RegionalDevelopmentButton"
-        ]
-    },
-    "CheckCurrentArea": {
-        "doc": "检查当前地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inManagement.png",
-        "threshold": 0.8,
-        "roi": [
-            1139,
-            63,
-            135,
-            127
-        ],
-        "action": "DoNothing",
-        "next": [
+            "[JumpBack]SceneEnterMenuRegionalDevelopment",
             "DeliveryJobsValleyIV",
-            "DeliveryJobsWuling",
-            "DeliveryJobsFinished"
+            "DeliveryJobsWuling"
         ]
     },
     "DeliveryJobsValleyIV": {
@@ -53,14 +35,5 @@
             "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]
-    },
-    "DeliveryJobsFinished": {
-        "doc": "运送委托完成",
-        "recognition": "And",
-        "all_of": [
-            "BackButton",
-            "CheckCurrentArea"
-        ],
-        "action": "Click"
     }
 }

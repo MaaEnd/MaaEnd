@@ -82,7 +82,7 @@
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "藍圖文本",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "請輸入文本，可以夾雜任意字元，將智慧拆分藍圖分享碼",
     "task.DeliveryJobs.label": "🚚自動轉交送貨任務",
-    "task.DeliveryJobs.description": "自動接取並轉交送貨任務，**可在主介面和地區建設頁面開始任務**。\n請選擇需要啟用的地區：",
+    "task.DeliveryJobs.description": "自動接取並轉交送貨任務。\n請選擇需要啟用的地區：",
     "task.ClaimSimulationRewards.label": "📦自動領取模擬空間獎勵",
     "task.ClaimSimulationRewards.description": "請在模擬空間選單內啟動",
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
