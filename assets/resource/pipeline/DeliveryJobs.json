@@ -34,7 +34,7 @@
             "[JumpBack]EnterOriginiumScienceParkCargo",
             "[JumpBack]EnterOriginLodespringCargo",
             "[JumpBack]EnterPowerPlateauCargo",
-            "CargoNotReady", // 在货物全部都没有准备好的时候退出循环
+            "ValleyIVCargoNotReady",
             "CheckValleyIVDepotLocked",
             "[JumpBack]EnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
@@ -47,7 +47,7 @@
         "next": [
             "[JumpBack]EnterDeliveryJob",
             "[JumpBack]EnterWulingCityCargo",
-            "CargoNotReady",
+            "WulingCargoNotReady",
             "CheckWulingDepotLocked",
             "[JumpBack]EnterWulingDepot",
             "[JumpBack]GoToWuling",
@@ -56,7 +56,11 @@
     },
     "DeliveryJobsFinished": {
         "doc": "运送委托完成",
-        "action": "ClickKey",
-        "key": 27
+        "recognition": "And",
+        "all_of": [
+            "BackButton",
+            "CheckCurrentArea"
+        ],
+        "action": "Click"
     }
 }

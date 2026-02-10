@@ -17,6 +17,24 @@
         ],
         "action": "Click"
     },
+    "CheckDepotNode": {
+        "doc": "检查是否在仓储节点界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            77,
+            131,
+            213,
+            29
+        ],
+        "expected": [
+            "节点一览",
+            "節點一覽",
+            "Node Overview",
+            "ボックス一覧",
+            "노드 목록"
+        ]
+    },
     "DepotLocked": {
         "doc": "仓储节点未解锁",
         "recognition": "TemplateMatch",
@@ -277,28 +295,43 @@
             "EnterWulingCityCargo"
         ]
     },
-    "CargoNotReady": {
-        "doc": "货物未就绪，返回上一级界面",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            78,
-            561,
-            985,
-            58
+    "ValleyIVCargoNotReady": {
+        "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+        "recognition": "And",
+        "all_of": [
+            "CheckDepotNode",
+            "CheckOriginiumSciencePark"
         ],
-        "expected": [
-            "^\\d+小时\\d+分钟后就绪$",
-            "^\\d+小時\\d+分鐘後就緒$",
-            "^\\d+h \\d+min to activation$",
-            "^\\d+時間\\d+分後使用可能$",
-            "^\\d+시 \\d+분 후 준비 완료$"
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "ValleyIVCargoNotReady"
+        ]
+    },
+    "WulingCargoNotReady": {
+        "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+        "recognition": "And",
+        "all_of": [
+            "CheckDepotNode",
+            "CheckWulingCity"
         ],
-        "action": "ClickKey",
-        "key": 27,
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "WulingCargoNotReady"
+        ]
+    },
+    "BackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "And",
+        "all_of": [
+            "BackButton",
+            "CheckDepotNode"
+        ],
+        "action": "Click",
         "next": [
             "CheckCurrentArea",
-            "CargoNotReady"
+            "BackToRegionalConstruction"
         ]
     }
 }
