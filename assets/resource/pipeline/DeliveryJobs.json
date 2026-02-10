@@ -56,7 +56,15 @@
     },
     "DeliveryJobsFinished": {
         "doc": "运送委托完成",
-        "action": "ClickKey",
-        "key": 27
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/BackToRegionalConstruction.png",
+        "roi": [
+            1188,
+            7,
+            74,
+            58
+        ],
+        "threshold": 0.8,
+        "action": "Click"
     }
 }

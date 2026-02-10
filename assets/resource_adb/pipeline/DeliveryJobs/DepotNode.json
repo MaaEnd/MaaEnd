@@ -70,36 +70,5 @@
             213,
             29
         ]
-    },
-    "ValleyIVCargoNotReady": {
-        "action": "DoNothing",
-        "next": [
-            "BackToRegionalConstruction",
-            "ValleyIVCargoNotReady"
-        ]
-    },
-    "WulingCargoNotReady": {
-        "action": "DoNothing",
-        "next": [
-            "BackToRegionalConstruction",
-            "WulingCargoNotReady"
-        ]
-    },
-    "BackToRegionalConstruction": {
-        "doc": "返回区域建设界面",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/BackToRegionalConstruction.png",
-        "roi": [
-            1195,
-            14,
-            52,
-            43
-        ],
-        "threshold": 0.8,
-        "action": "Click",
-        "next": [
-            "CheckCurrentArea",
-            "BackToRegionalConstruction"
-        ]
     }
 }

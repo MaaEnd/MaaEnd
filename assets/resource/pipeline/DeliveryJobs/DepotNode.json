@@ -302,10 +302,9 @@
             "CheckDepotNode",
             "CheckValleyIV"
         ],
-        "action": "ClickKey",
-        "key": 27,
+        "action": "DoNothing",
         "next": [
-            "CheckCurrentArea",
+            "BackToRegionalConstruction",
             "ValleyIVCargoNotReady"
         ]
     },
@@ -316,11 +315,27 @@
             "CheckDepotNode",
             "CheckWulingCity"
         ],
-        "action": "ClickKey",
-        "key": 27,
+        "action": "DoNothing",
+        "next": [
+            "BackToRegionalConstruction",
+            "WulingCargoNotReady"
+        ]
+    },
+    "BackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/BackToRegionalConstruction.png",
+        "roi": [
+            1195,
+            3,
+            70,
+            54
+        ],
+        "threshold": 0.8,
+        "action": "Click",
         "next": [
             "CheckCurrentArea",
-            "WulingCargoNotReady"
+            "BackToRegionalConstruction"
         ]
     }
 }
