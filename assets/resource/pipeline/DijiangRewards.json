@@ -544,49 +544,28 @@
     "SendClues": {
         //线索过多,发送一个
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    1164,
-                                    483,
-                                    116,
-                                    96
-                                ],
-                                "only_rec": true,
-                                "expected": [
-                                    "20/20"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    286,
-                                    174,
-                                    849,
-                                    276
-                                ],
-                                "expected": [
-                                    "线索已满" //#不确定
-                                ]
-                            }
-                        }
-                    }
+                "roi": [
+                    793,
+                    350,
+                    280,
+                    75
+                ],
+                "expected": [
+                    "已达自有线索库容量上限"
                 ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
             }
         },
         "next": [
             "SendTheMostClues",
             "[JumpBack]EntrySendClues",
-            "[JumpBack]ExitReceptionRoom",
             "[JumpBack]SendCluesSwipe"
         ]
     },
@@ -609,7 +588,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dy": 200
+                "dy": -240
             }
         }
     },
@@ -711,6 +690,10 @@
         }
     },
     "EntrySendClues": {
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1500
+        },
         "recognition": {
             "type": "OCR",
             "param": {
