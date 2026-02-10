@@ -15,7 +15,8 @@
         ],
         "next": [
             "DeliveryJobsValleyIV",
-            "DeliveryJobsWuling"
+            "DeliveryJobsWuling",
+            "DeliveryJobsFinished"
         ]
     },
     "DeliveryJobsValleyIV": {
@@ -45,5 +46,8 @@
             "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]
+    },
+    "DeliveryJobsFinished": {
+        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服"
     }
 }

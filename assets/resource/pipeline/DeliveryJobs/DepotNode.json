@@ -48,7 +48,7 @@
         ]
     },
     "DeliveryJobsCheckValleyIVDepotLocked": {
-        "doc": "检查四号谷地仓储节点是否解锁",
+        "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -62,7 +62,7 @@
         ]
     },
     "DeliveryJobsCheckWulingDepotLocked": {
-        "doc": "检查武陵仓储节点是否解锁",
+        "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -148,6 +148,7 @@
         ]
     },
     "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "doc": "检查源石研究园的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckOriginiumSciencePark",
@@ -171,6 +172,7 @@
         ]
     },
     "DeliveryJobsCheckOriginLodespringCargo": {
+        "doc": "检查矿脉源区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckOriginLodespring",
@@ -194,6 +196,7 @@
         ]
     },
     "DeliveryJobsCheckPowerPlateauCargo": {
+        "doc": "检查供能高地的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckPowerPlateau",
@@ -217,6 +220,7 @@
         ]
     },
     "DeliveryJobsCheckWulingCityCargo": {
+        "doc": "检查武陵城区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckWulingCity",
@@ -282,7 +286,7 @@
         ]
     },
     "DeliveryJobsEnterWulingCityCargo": {
-        "doc": "进入武陵城货物",
+        "doc": "进入武陵城区货物",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckWulingCity",
@@ -322,7 +326,7 @@
         ]
     },
     "DeliveryJobsBackToRegionalConstruction": {
-        "doc": "返回区域建设界面",
+        "doc": "返回地区建设界面",
         "recognition": "And",
         "all_of": [
             "BackButton",
