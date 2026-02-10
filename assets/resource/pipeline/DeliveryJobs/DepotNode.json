@@ -55,7 +55,7 @@
             "CheckValleyIV"
         ],
         "focus": {
-            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+            "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
         },
         "next": [
             "DeliveryJobsLoop"
@@ -69,7 +69,7 @@
             "CheckWuling"
         ],
         "focus": {
-            "Node.Action.Starting": "武陵仓储节点未解锁"
+            "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
         },
         "next": [
             "DeliveryJobsLoop"

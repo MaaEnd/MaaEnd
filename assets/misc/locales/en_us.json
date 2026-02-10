@@ -81,6 +81,8 @@
     "option.ImportBluePrints.label": "Import Blueprints",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "Blueprint Text",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "Enter text (any characters allowed). Blueprint share codes will be extracted intelligently.",
+    "task.DeliveryJobs.ValleyIVDepotLocked": "Valley IV depot node is locked",
+    "task.DeliveryJobs.WulingDepotLocked": "Wuling depot node is locked",
     "task.DeliveryJobs.label": "🚚Auto Delivery Jobs",
     "task.DeliveryJobs.description": "Automatically accept and hand over delivery jobs.\nPlease select the regions to enable:",
     "task.ClaimSimulationRewards.label": "📦Claim Simulation Rewards",

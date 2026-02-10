@@ -81,6 +81,8 @@
     "option.ImportBluePrints.label": "청사진 가져오기",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "청사진 텍스트",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "텍스트를 입력하세요(임의의 문자를 포함해도 됨). 공유 코드를 스마트하게 추출합니다.",
+    "task.DeliveryJobs.ValleyIVDepotLocked": "제4 계곡 창고 노드가 아직 잠금 해제되지 않았습니다",
+    "task.DeliveryJobs.WulingDepotLocked": "무릉 창고 노드가 아직 잠금 해제되지 않았습니다",
     "task.DeliveryJobs.label": "🚚배달 임무 자동 전달",
     "task.DeliveryJobs.description": "배달 임무를 자동으로 수락하고 전달합니다.\n활성화할 지역을 선택하세요:",
     "task.ClaimSimulationRewards.label": "📦시뮬레이션 공간 보상 자동 수령",

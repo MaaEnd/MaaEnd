@@ -81,6 +81,8 @@
     "option.ImportBluePrints.label": "設計図インポート",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "設計図テキスト",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。",
+    "task.DeliveryJobs.ValleyIVDepotLocked": "第4谷地の倉庫ノードが未解放です",
+    "task.DeliveryJobs.WulingDepotLocked": "武陵の倉庫ノードが未解放です",
     "task.DeliveryJobs.label": "🚚配達任務の自動転送",
     "task.DeliveryJobs.description": "配達任務を自動で受注・転送します。\n有効にする地域を選択してください：",
     "task.ClaimSimulationRewards.label": "📦模擬空間報酬自動受取",
