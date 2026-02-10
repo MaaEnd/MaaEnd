@@ -65,5 +65,18 @@
             115
         ],
         "action": "Click"
+    },
+    "BackButton": {
+        "doc": "返回按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/BackButton.png",
+        "roi": [
+            1195,
+            3,
+            70,
+            54
+        ],
+        "threshold": 0.8,
+        "action": "Click"
     }
 }

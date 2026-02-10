@@ -323,15 +323,11 @@
     },
     "BackToRegionalConstruction": {
         "doc": "返回区域建设界面",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/BackToRegionalConstruction.png",
-        "roi": [
-            1195,
-            3,
-            70,
-            54
+        "recognition": "And",
+        "all_of": [
+            "BackButton",
+            "CheckDepotNode"
         ],
-        "threshold": 0.8,
         "action": "Click",
         "next": [
             "CheckCurrentArea",
