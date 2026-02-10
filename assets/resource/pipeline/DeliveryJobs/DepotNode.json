@@ -300,7 +300,7 @@
         "recognition": "And",
         "all_of": [
             "CheckDepotNode",
-            "CheckValleyIV"
+            "CheckOriginiumSciencePark"
         ],
         "action": "DoNothing",
         "next": [
