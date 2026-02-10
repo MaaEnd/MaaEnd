@@ -1,0 +1,34 @@
+{
+    "ScenePrivateAnyEnterWorld": {
+        "doc": "无限循环esc，从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_delay": 800, // 等待弹框出现完毕
+        "next": [
+            "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]ScenePrivateEndVisitConfirm",
+            "[JumpBack]SceneWaitLoadingExit",
+            "ScenePrivateNextTrue"
+        ]
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "ScenePrivateWorldEnterMenuRegionalDevelopment": {
+        "doc": "从大世界进入地区建设菜单",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 89 // Y
+            }
+        },
+        "next": [
+            "[JumpBack]ScenePrivateWorldEnterMenuRegionalDevelopmentLoading",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "ScenePrivateWorldEnterMenuRegionalDevelopmentLoading": {
+        "doc": "等待切换地区建设",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -220,
+                    0,
+                    220,
+                    220
+                ],
+                "template": [
+                    "SceneManager/MenuRegionalDevelopmentIcon.png"
+                ]
+            }
+        },
+        "inverse": true
+    }
+}

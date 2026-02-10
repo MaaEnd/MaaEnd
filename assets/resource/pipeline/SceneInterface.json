@@ -1,0 +1,274 @@
+{
+    "SceneEnterMapDijiang": {
+        "doc": "进入帝江号地图界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    350,
+                                    220
+                                ],
+                                "expected": [
+                                    "[Oo].?[Mm].?[Vv]"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldEnterMapDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiang": {
+        "doc": "从任意界面进入帝江号大世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVTheHub": {
+        "max_hit": 1,
+        "doc": "从任意界面进入四号谷地-枢纽区大世界，一个task只能运行一次",
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldEnterWorldValleyIVTheHub"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopment": {
+        "doc": "从任意界面进入地区建设菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -220,
+                                    0,
+                                    220,
+                                    220
+                                ],
+                                "template": [
+                                    "SceneManager/MenuRegionalDevelopmentIcon.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    140,
+                                    60
+                                ],
+                                "expected": [
+                                    "地区建设",
+                                    "地區建設",
+                                    "Regional Development",
+                                    "地域建設",
+                                    "지역 건설"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SceneDialogConfirm": {
+        "doc": "点击对话框的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogCancel.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneDialogCancel": {
+        "doc": "点击对话框的取消按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogCancel.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneWaitLoadingExit": {
+        "doc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/LoadingIcon.png"
+                ]
+            }
+        },
+        "next": [
+            "SceneWaitLoadingExit",
+            "ScenePrivateNextTrue"
+        ]
+    }
+}

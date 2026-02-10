@@ -1,5 +1,6 @@
 {
     "AndroidOpenGame": {
+        //
         "action": {
             "type": "StartApp",
             "param": {

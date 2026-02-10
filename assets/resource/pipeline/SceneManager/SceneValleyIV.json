@@ -1,0 +1,196 @@
+{
+    "ScenePrivateWorldEnterWorldValleyIVTheHub": {
+        "doc": "在大世界界面，进入四号谷地-枢纽区大世界",
+        "next": [
+            "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub",
+            "ScenePrivateMapEnterTeleport"
+        ]
+    },
+    "ScenePrivateWorldEnterMapValleyIVTheHub": {
+        "doc": "在大世界界面，进入四号谷地-枢纽区地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "枢纽区",
+                    "樞紐區",
+                    "The Hub",
+                    "中枢エリア",
+                    "거점 지역"
+                ]
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77 // M
+            }
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
+            "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
+            "ScenePrivateMapDijiangEnterMapValleyIVTheHub",
+            "ScenePrivateMapOtherAreaEnterMapValleyIVTheHub"
+        ]
+    },
+    "ScenePrivateMapDijiangEnterMapValleyIVTheHub": {
+        "doc": "在帝江号地图，进入四号谷地-枢纽区地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -250,
+                    0,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MapExitDijiang.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
+            "ScenePrivateMapOverviewEnterMapOverviewValleyIVTheHub"
+        ]
+    },
+    "ScenePrivateMapOverviewEnterMapOverviewValleyIVTheHub": {
+        "doc": "在非帝江号区域总览界面，进入四号谷地-枢纽区地图",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    -150,
+                                    350,
+                                    150
+                                ],
+                                "template": [
+                                    "SceneManager/MapOverviewValleyIVChoose.png",
+                                    "SceneManager/MapOverviewValleyIVNotChoose.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    -260,
+                                    0,
+                                    260,
+                                    160
+                                ],
+                                "expected": [
+                                    "[Oo].?[Mm].?[Vv]"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 1000, // 等待切换到地图总览界面，动画效果是方块闪烁，不好判断，先临时加延迟
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateMapOverviewEnterMapOverviewValleyIVLoading",
+            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub"
+        ]
+    },
+    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
+        "doc": "在四号谷地总览界面，进入枢纽区地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    250,
+                    250,
+                    450,
+                    400
+                ],
+                "expected": [
+                    "枢纽区",
+                    "樞紐區",
+                    "The Hub",
+                    "中枢エリア",
+                    "거점 지역"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess"
+        ]
+    },
+    "ScenePrivateMapOtherAreaEnterMapValleyIVTheHub": {
+        "doc": "在其他区域，进入四号谷地-枢纽区地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -400,
+                    -200,
+                    400,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapOverviewEnter.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
+            "ScenePrivateMapOverviewEnterMapOverviewValleyIVTheHub"
+        ]
+    },
+    "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-枢纽区地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "枢纽区",
+                    "樞紐區",
+                    "The Hub",
+                    "中枢エリア",
+                    "거점 지역"
+                ]
+            }
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading"
+        ]
+    }
+}
