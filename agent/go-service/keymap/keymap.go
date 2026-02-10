@@ -3,29 +3,29 @@ package keymap
 // Win32 Default settings
 var Win32Keymap = map[string]int32{
 	// General
-	"Move_W":           87,  // W (Locked)
-	"Move_A":           65,  // A (Locked)
-	"Move_S":           83,  // S (Locked)
-	"Move_D":           68,  // D (Locked)
-	"Dash":             16,  // Shift
-	"Jump":             32,  // Space
-	"Interact":         70,  // F
-	"Walk":             17,  // Ctrl (Locked)
-	"Menu":             27,  // Esc (Locked)
-	"Backpack":         66,  // B
-	"Valuables":        78,  // N
-	"Team":             85,  // U
-	"Operator":         67,  // C
-	"Mission":          74,  // J
-	"TrackMission":     86,  // V
-	"Map":              77,  // M
-	"BackerChat":       72,  // H
-	"Mail":             75,  // K
-	"Operational":      119, // F8
-	"Headhunt":         120, // F9
-	"SwitchModes":      9,   // Tab (Locked)
-	"UseTools":         82,  // R
-	"ExpandToolsWheel": 82,  // R (LongPress Key) (Followed "UseTools")
+	"Move_W":            87,  // W (Locked)
+	"Move_A":            65,  // A (Locked)
+	"Move_S":            83,  // S (Locked)
+	"Move_D":            68,  // D (Locked)
+	"Dash":              16,  // Shift
+	"Jump":              32,  // Space
+	"Interact":          70,  // F
+	"Walk":              17,  // Ctrl (Locked)
+	"Menu":              27,  // Esc (Locked)
+	"Backpack":          66,  // B
+	"Valuables":         78,  // N
+	"Team":              85,  // U
+	"Operator":          67,  // C
+	"Mission":           74,  // J
+	"TrackMission":      86,  // V
+	"Map":               77,  // M
+	"BackerChat":        72,  // H
+	"Mail":              75,  // K
+	"OperationalManual": 119, // F8
+	"Headhunt":          120, // F9
+	"SwitchModes":       9,   // Tab (Locked)
+	"UseTools":          82,  // R
+	"ExpandToolsWheel":  82,  // R (LongPress Key) (Followed "UseTools")
 	// Combat
 	"Attack":              1,              // Left Mouse Button (Locked)
 	"LockToTarget":        4,              // Middle Mouse Button (Locked)
