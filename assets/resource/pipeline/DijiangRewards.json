@@ -950,7 +950,7 @@
                                     129
                                 ],
                                 "expected": [
-                                    "结束情报交流"
+                                    "情报交流结束"
                                 ]
                             }
                         }
@@ -1206,7 +1206,7 @@
     "CarbinSwipe": {
         // 滑动总控中枢
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "timeout": 2000
         },
         "recognition": {
