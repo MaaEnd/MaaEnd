@@ -1,0 +1,12 @@
+{
+    // SceneEnterMenuRegionalDevelopment 暂时不支持 ADB
+    // 使用以前的方法，仅允许从大世界和地区管理页面启动
+    "DeliveryJobsMain": {
+        "doc": "开始自动转交运送委托",
+        "next": [
+            // "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            "DeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton"
+        ]
+    }
+}

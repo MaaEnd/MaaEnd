@@ -4,6 +4,16 @@
         "doc": "开始自动转交运送委托",
         "next": [
             "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            "DeliveryJobsLoop"
+        ]
+    },
+    "DeliveryJobsLoop": {
+        "doc": "主循环，确保在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
             "DeliveryJobsValleyIV",
             "DeliveryJobsWuling"
         ]
