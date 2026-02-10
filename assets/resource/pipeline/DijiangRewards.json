@@ -261,17 +261,46 @@
     "InLastCarbin": {
         // 最后一个培养舱
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "threshold": 0.8,
-                "roi": [
-                    895,
-                    464,
-                    138,
-                    134
-                ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthChamber.png"
+                "all_of": [
+                    {
+                        "sub_name": "_GrowthChamber",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    895,
+                                    464,
+                                    138,
+                                    134
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/GrowthChamber.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_GrowthChamber",
+                                "upper": [
+                                    150,
+                                    179,
+                                    76
+                                ],
+                                "lower": [
+                                    146,
+                                    175,
+                                    75
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
                 ]
             }
         },
