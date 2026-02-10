@@ -1,5 +1,5 @@
 {
-    "EnterDeliveryJob": {
+    "DeliveryJobsEnterDeliveryJob": {
         "doc": "进入送货任务",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -18,11 +18,11 @@
         ],
         "action": "Click",
         "next": [
-            "ClickTransferJob",
-            "EnterDeliveryJob"
+            "DeliveryJobsClickTransferJob",
+            "DeliveryJobsEnterDeliveryJob"
         ]
     },
-    "ClickTransferJob": {
+    "DeliveryJobsClickTransferJob": {
         "doc": "单击转交任务",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -41,11 +41,11 @@
         ],
         "action": "Click",
         "next": [
-            "ConfirmTaskTransfer",
-            "ClickTransferJob"
+            "DeliveryJobsConfirmTaskTransfer",
+            "DeliveryJobsClickTransferJob"
         ]
     },
-    "ConfirmTaskTransfer": {
+    "DeliveryJobsConfirmTaskTransfer": {
         "doc": "确认转交任务",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/ConfirmTransfer.png",

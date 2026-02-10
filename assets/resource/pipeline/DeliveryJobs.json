@@ -12,13 +12,13 @@
         "doc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
-            "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]EnterOriginiumScienceParkCargo",
-            "[JumpBack]EnterOriginLodespringCargo",
-            "[JumpBack]EnterPowerPlateauCargo",
-            "ValleyIVCargoNotReady",
-            "CheckValleyIVDepotLocked",
-            "[JumpBack]EnterValleyIVDepot",
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
+            "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
+            "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
+            "DeliveryJobsValleyIVCargoNotReady",
+            "DeliveryJobsCheckValleyIVDepotLocked",
+            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
             "[JumpBack]RegionalDevelopmentButton"
         ]
@@ -27,11 +27,11 @@
         "doc": "武陵运送委托",
         "max_hit": 1,
         "next": [
-            "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]EnterWulingCityCargo",
-            "WulingCargoNotReady",
-            "CheckWulingDepotLocked",
-            "[JumpBack]EnterWulingDepot",
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterWulingCityCargo",
+            "DeliveryJobsWulingCargoNotReady",
+            "DeliveryJobsCheckWulingDepotLocked",
+            "[JumpBack]DeliveryJobsEnterWulingDepot",
             "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]
