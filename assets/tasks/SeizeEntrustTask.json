@@ -73,6 +73,17 @@
                                 37
                             ],
                             "template": "SeizeEntrustTask/InUp.png"
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
+                            "param": {
+                                "roi": [
+                                    1245,
+                                    173,
+                                    24,
+                                    37
+                                ],
+                                "template": "SeizeEntrustTask/InUp.png"
+                            }
                         }
                     }
                 }
