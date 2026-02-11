@@ -77,7 +77,7 @@
     "option.CreditShoppingReserve.label": "クレジットが300未満で購入を停止",
     "option.CreditShoppingReserve.description": "300クレジット未満でもホワイトリスト商品は購入されます！",
     "task.ImportBluePrints.label": "📐 設計図を一括インポート",
-    "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。**「マイ設計図」ページから開始してください。**",
+    "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。",
     "option.ImportBluePrints.label": "設計図インポート",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "設計図テキスト",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "テキストを入力してください（任意の文字を含め可）。共有コードをスマートに抽出します。",
