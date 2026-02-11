@@ -49,6 +49,8 @@
     },
     "DeliveryJobsCheckValleyIVDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -63,6 +65,8 @@
     },
     "DeliveryJobsCheckWulingDepotLocked": {
         "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -301,12 +305,13 @@
     },
     "DeliveryJobsValleyIVCargoNotReady": {
         "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
             "DeliveryJobsCheckOriginiumSciencePark"
         ],
-        "action": "DoNothing",
         "next": [
             "DeliveryJobsBackToRegionalConstruction",
             "DeliveryJobsValleyIVCargoNotReady"
@@ -314,12 +319,13 @@
     },
     "DeliveryJobsWulingCargoNotReady": {
         "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
             "DeliveryJobsCheckWulingCity"
         ],
-        "action": "DoNothing",
         "next": [
             "DeliveryJobsBackToRegionalConstruction",
             "DeliveryJobsWulingCargoNotReady"
