@@ -126,6 +126,37 @@
             "type": "TemplateMatch"
         }
     },
+    "AndroidSeizeEntrustTaskInUpSwipeDown": {
+        "action": {
+            "param": {
+                "dy": 240,
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ]
+            },
+            "type": "Scroll"
+        },
+        "doc": "没找到武陵城就往上翻一页(Android)",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    388,
+                    23,
+                    40
+                ],
+                "template": [
+                    "SeizeEntrustTask/InMiddle.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
 
     "SeizeEntrustTaskMain": {
         "focus": {
