@@ -103,5 +103,32 @@
         "threshold": 0.9,
         "method": 10001,
         "action": "Click"
+    },
+    "RegionalDevelopmentLevelButton": {
+        "doc": "地区建设中的地区建设等级按钮",
+        "recognition": "OCR",
+        "roi": [
+            491,
+            337,
+            219,
+            116
+        ],
+        "expected": [
+            "地区建设等级",
+            "地區建設等級",
+            "Regional Development Level",
+            "地域建設レベル",
+            "지역 건설 레벨"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }
