@@ -53,7 +53,16 @@
             "DeliveryJobsConfirmTaskTransfer",
             "DeliveryJobsClickTransferJob",
             "[JumpBack]DeliveryJobsEnterDeliveryJobMission"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsConfirmTaskTransfer": {
         "doc": "确认转交任务",
@@ -66,7 +75,16 @@
             27
         ],
         "threshold": 0.8,
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterDeliveryJobMission": {
         "doc": "进入任务界面中的送货任务",
@@ -85,6 +103,15 @@
             "配達任務",
             "배송 임무"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }
