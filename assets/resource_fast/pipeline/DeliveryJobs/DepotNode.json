@@ -351,6 +351,7 @@
         "action": "Click",
         "next": [
             "DeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton", // 有可能会连续单击两次返回按钮，退回到大世界中
             "DeliveryJobsBackToRegionalConstruction"
         ]
     }
