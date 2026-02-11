@@ -72,7 +72,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msg("Failed to parse quota or no quota found, proceeding with normal flow")
 	}
 
-	// Define product positions using predefined Pipeline names
+	// The recognition areas for single-row and multi-row products are different, so they need to be handled separately
 	rowNames := []string{"第一行", "第二行", "第三行"}
 	maxCols := 8 // Maximum 8 columns per row
 
@@ -224,22 +224,28 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	maxRecord := records[maxProfitIdx]
 	log.Info().Msgf("最高利润商品: 第%d行第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+	showMaxRecord := processMaxRecord(maxRecord)
 
 	// Check if we should purchase
 	if overflowAmount > 0 {
 		// Quota overflow detected, show reminder and recommend purchase
 		log.Info().Msgf("配额溢出：建议购买%d件商品，推荐第%d行第%d列（利润：%d）",
-			overflowAmount, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 
 		// Show message with focus
 		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
-			overflowAmount, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		ResellShowMessage(ctx, message)
+		//进入下个地区
+		taskName := "ChangeNextRegionPrepare"
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: taskName},
+		})
 		return true
 	} else if maxRecord.Profit >= MinimumProfit {
 		// Normal mode: purchase if meets minimum profit
 		log.Info().Msgf("利润达标，准备购买第%d行第%d列商品（利润：%d）",
-			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: taskName},
@@ -248,12 +254,17 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	} else {
 		// No profitable item, show recommendation
 		log.Info().Msgf("没有达到最低利润%d的商品，推荐第%d行第%d列（利润：%d）",
-			MinimumProfit, maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			MinimumProfit, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 
 		// Show message with focus
 		message := fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
-			maxRecord.Row, maxRecord.Col, maxRecord.Profit)
+			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		ResellShowMessage(ctx, message)
+		//进入下个地区
+		taskName := "ChangeNextRegionPrepare"
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: taskName},
+		})
 		return true
 	}
 }
@@ -521,4 +532,12 @@ func ResellShowMessage(ctx *maa.Context, text string) bool {
 		},
 	})
 	return true
+}
+
+func processMaxRecord(record ProfitRecord) ProfitRecord {
+	result := record
+	if result.Row >= 2 {
+		result.Row = result.Row - 1
+	}
+	return result
 }

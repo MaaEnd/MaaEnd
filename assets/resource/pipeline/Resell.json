@@ -6,7 +6,7 @@
         "next": [
             "ResellStageCheckArea",
             "ResellStageCheckInGame",
-            "ResellStageNotInGame"
+            "[JumpBack]ResellEscGoBack"
         ]
     },
     "ResellStageCheckInGame": {
@@ -42,17 +42,6 @@
         "key": 89,
         "next": [
             "ResellStageCheckArea"
-        ]
-    },
-    "ResellStageNotInGame": {
-        "doc": "不在在大世界，不断按ESC进入大世界",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "ResellMain"
         ]
     },
     "ResellStageCheckArea": {
@@ -255,16 +244,12 @@
             26
         ],
         "expected": "无法购买",
-        "action": "ClickKey",
-        "key": 27,
-        "repeat": 2,
-        "repeat_wait_freezes": 200,
-        "post_wait_freezes": 200,
+        "action": "DoNothing",
         "focus": {
             "Node.Action.Starting": "当前地区已售罄，切换下个地区"
         },
         "next": [
-            "ChangeNextRegion"
+            "ChangeNextRegionPrepare"
         ]
     },
     "ResellCheckStockRemain": {
