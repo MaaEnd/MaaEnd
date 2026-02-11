@@ -57,7 +57,7 @@
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
         "template": "Common/ChangeRegionButton.png",
-        "threshold": 0.8,
+        "threshold": 0.9,
         "roi": [
             139,
             263,
@@ -71,13 +71,14 @@
         "doc": "地区建设中的确认更换地区按钮",
         "recognition": "TemplateMatch",
         "template": "Common/ChangeRegionConfirmButton.png",
-        "threshold": 0.8,
+        "threshold": 0.9,
         "roi": [
             784,
             371,
             118,
             115
         ],
+        "method": 10001,
         "action": "Click"
     },
     "BackButton": {
@@ -90,7 +91,7 @@
             70,
             54
         ],
-        "threshold": 0.8,
+        "threshold": 0.9,
         "method": 10001,
         "action": "Click"
     }
