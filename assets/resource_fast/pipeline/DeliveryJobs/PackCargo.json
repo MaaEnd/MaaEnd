@@ -16,9 +16,9 @@
         "next": [
             "DeliveryJobsClickScreenToContinue",
             "DeliveryJobsBackToHome",
+            "DeliveryJobsProceedToNextStep",
             "[JumpBack]DeliveryJobsCargoBid",
-            "[JumpBack]DeliveryJobsCargoFillToMax",
-            "DeliveryJobsProceedToNextStep"
+            "[JumpBack]DeliveryJobsCargoFillToMax"
         ]
     },
     "DeliveryJobsCargoFillToMax": {
