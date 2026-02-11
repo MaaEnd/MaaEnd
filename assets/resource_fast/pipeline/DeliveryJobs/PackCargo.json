@@ -63,16 +63,7 @@
             33
         ],
         "threshold": 0.8,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 1,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        "action": "Click"
     },
     "DeliveryJobsClickScreenToContinue": {
         "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
