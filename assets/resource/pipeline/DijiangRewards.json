@@ -30,6 +30,7 @@
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
+
         ]
     },
     "ControlNexus": {
@@ -59,6 +60,7 @@
             "[JumpBack]CarbinSwipe",
             "[JumpBack]ConfirmExchangeEnd",
             "[JumpBack]CloseDijiangRewards"
+
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -108,6 +110,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -455,6 +458,7 @@
                 ],
                 "expected": [
                     "线索" //#I18N
+
                 ],
                 "order_by": "Vertical"
             }

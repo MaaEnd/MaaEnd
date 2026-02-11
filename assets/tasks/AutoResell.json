@@ -51,10 +51,10 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "ResellFristAreaInWuLing": {
-                            "enable": false
+                            "enabled": false
                         },
                         "ChangeNextRegion": {
-                            "enable": false
+                            "enabled": false
                         }
                     }
                 },
@@ -62,10 +62,10 @@
                     "name": "No",
                     "pipeline_override": {
                         "ResellFristAreaInWuLing": {
-                            "enable": true
+                            "enabled": true
                         },
                         "ChangeNextRegion": {
-                            "enable": true
+                            "enabled": true
                         }
                     }
                 }

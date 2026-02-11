@@ -1,5 +1,6 @@
 {
     "SellProductBegin": {
+        "pre_delay": 0,
         "post_delay": 500,
         "doc": "虚节点",
         "next": [
@@ -13,6 +14,8 @@
         ]
     },
     "SellProductMain": {
+        "pre_delay": 0,
+        "post_delay": 200,
         "doc": "脚本入口",
         "action": {
             "type": "ClickKey",
@@ -27,6 +30,8 @@
         ]
     },
     "SellProductAtHome1": {
+        "pre_delay": 0,
+        "post_delay": 200,
         "doc": "根据标志得知在大世界，进入地区建设",
         "recognition": "Or",
         "any_of": [
@@ -46,6 +51,8 @@
         ]
     },
     "SellProductBack2Home": {
+        "pre_delay": 0,
+        "post_delay": 500,
         "max_hit": 5,
         "focus": {
             "Node.Action.Starting": "当前位置不在主界面或据点管理界面，正在尝试返回"
@@ -59,6 +66,8 @@
         }
     },
     "SellProductAtDevelopment": {
+        "pre_delay": 0,
+        "post_delay": 500,
         "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
@@ -90,6 +99,8 @@
         ]
     },
     "SellProductDragBar": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "备选方案-滑动滑动条",
         "recognition": {
             "type": "TemplateMatch",
@@ -126,6 +137,8 @@
         ]
     },
     "SellProductAtSell": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "已进入售卖界面"
         },
@@ -167,6 +180,8 @@
         ]
     },
     "SellProductForthValley": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "处理完成四号谷地",
         "recognition": {
             "type": "OCR",
@@ -193,6 +208,8 @@
         ]
     },
     "SellProductEnd": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "结束",
         "action": {
             "type": "ClickKey",
@@ -204,6 +221,8 @@
         }
     },
     "SellProductLocalChange1": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点击更换",
         "recognition": {
             "type": "OCR",
@@ -234,6 +253,8 @@
         ]
     },
     "SellProductLocalChange2": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点击更换",
         "recognition": {
             "type": "OCR",
@@ -264,6 +285,8 @@
         ]
     },
     "SellProduct2Wuling": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点武陵小图",
         "recognition": {
             "type": "TemplateMatch",
@@ -295,6 +318,8 @@
         ]
     },
     "SellProduct2FourthValley": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点四号谷地小图",
         "recognition": {
             "type": "TemplateMatch",
@@ -326,6 +351,8 @@
         ]
     },
     "SellProductLocalChangeConfirm": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点击确认切换地区",
         "recognition": {
             "type": "OCR",
@@ -356,6 +383,8 @@
         ]
     },
     "SellProductLocalChange0": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "等待更换出现",
         "recognition": {
             "type": "OCR",
@@ -383,6 +412,8 @@
         ]
     },
     "SellProductLocalCounter": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "max_hit": 1,
         "focus": {
             "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
@@ -394,6 +425,8 @@
         ]
     },
     "SellProductSell": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "交易",
         "recognition": {
             "type": "OCR",
@@ -426,6 +459,8 @@
         ]
     },
     "SellProductSellCheck": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         },
@@ -454,6 +489,8 @@
         ]
     },
     "SellProductCanSell": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "判断当前能不能出售的虚节点",
         "next": [
             "SellProductZeroProduct",
@@ -463,6 +500,8 @@
         ]
     },
     "SellProductZeroProduct": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
         },
@@ -498,6 +537,8 @@
         ]
     },
     "SellProductZeroMoney": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
         },
@@ -527,6 +568,8 @@
         ]
     },
     "SellProductNext": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "下一个据点",
         "recognition": {
             "type": "OCR",
@@ -574,6 +617,8 @@
         ]
     },
     "SellProductLocalDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "选择据点回到第一个，即完成了该地区所有据点",
         "recognition": {
             "type": "ColorMatch",
@@ -614,6 +659,8 @@
         ]
     },
     "SellProductCheckLocalDone": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "判断该地区是否结束",
         "recognition": {
             "type": "OCR",
@@ -654,6 +701,8 @@
         ]
     },
     "SellProductClickBarRight": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "点击进度条最右侧",
         "recognition": {
             "type": "TemplateMatch",
@@ -685,6 +734,8 @@
         ]
     },
     "SellProductAtHome2": {
+        "pre_delay": 0,
+        "post_delay": 200,
         "doc": "根据左上tab得知在大世界，进入地区建设",
         "recognition": {
             "type": "OCR",
@@ -727,6 +778,8 @@
         ]
     },
     "SellProductAtFriend": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
         },
@@ -766,6 +819,8 @@
         ]
     },
     "SellProductAtFriendExit": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
         },
@@ -799,6 +854,8 @@
         ]
     },
     "SellProductAtFriendExitConfirm": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "返回自己家的确认",
         "recognition": {
             "type": "OCR",
@@ -830,7 +887,9 @@
         ]
     },
     "SellProductAtFriendBack": {
-        "doc": "111",
+        "pre_delay": 0,
+        "post_delay": 200,
+        "doc": "成功返回自己家",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -864,6 +923,8 @@
         ]
     },
     "SellProductSellPressed": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "交易按钮已经成功按下",
         "recognition": {
             "type": "ColorMatch",
@@ -896,6 +957,8 @@
         ]
     },
     "SellProductBack2HomeFailed": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "抱歉，未能成功回到大世界，请回到大世界后重新启动本任务"
         },
@@ -905,6 +968,8 @@
         ]
     },
     "SellProductWuling": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "处理完成武陵",
         "recognition": {
             "type": "OCR",
