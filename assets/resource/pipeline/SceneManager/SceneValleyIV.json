@@ -120,12 +120,14 @@
         },
         "action": {
             "type": "Click",
-            "target_offset": [
-                0,
-                5,
-                0,
-                -5
-            ]
+            "param": {
+                "target_offset": [
+                    0,
+                    5,
+                    0,
+                    -5
+                ]
+            }
         },
         "post_wait_freezes": {
             "time": 400,
