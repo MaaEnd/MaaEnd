@@ -2,11 +2,13 @@
     "FriendVisitMain": {
         "next": [
             "OpenFriendList",
-            "OpenMenu"
+            "OnFriendList",
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "EnterPauseMenu"
         ]
     },
-    "OpenMenu": {
-        "max_hit": 5,
+    "EnterPauseMenu": {
+        "max_hit": 1,
         "action": {
             "type": "ClickKey",
             "param": {
@@ -14,7 +16,7 @@
             }
         },
         "next": [
-            "FriendVisitMain"
+            "OpenFriendList"
         ]
     },
     "OpenFriendList": {
@@ -673,9 +675,8 @@
         ]
     },
     "VisitComplete": {
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        }
+        "doc": "结束节点,无需延迟",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
