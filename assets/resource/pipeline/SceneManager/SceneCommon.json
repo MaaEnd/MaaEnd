@@ -2,6 +2,16 @@
     "ScenePrivateNextTrue": {
         "doc": "识别结果永远为真，用于退出next循环"
     },
+    "ScenePrivateAnyExit": {
+        "doc": "退出当前场景，返回上一个场景",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_delay": 800 // 等待弹框出现完毕
+    },
     "ScenePrivateEndVisitConfirm": {
         "doc": "识别结束拜访的确认弹框",
         "recognition": {

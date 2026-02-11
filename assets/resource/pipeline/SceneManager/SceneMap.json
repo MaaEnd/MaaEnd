@@ -1,22 +1,4 @@
 {
-    "ScenePrivateAnyEnterMapLoading": {
-        "doc": "等待切换到地图场景，动画效果是控件从四周向内移动",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -350,
-                    0,
-                    350,
-                    60
-                ],
-                "template": [
-                    "SceneManager/MapMind.png"
-                ]
-            }
-        },
-        "inverse": true
-    },
     "ScenePrivateMapEnterMapNotDijiangSuccess": {
         "doc": "在地图界面，进入非帝江号地图成功",
         "recognition": {
@@ -37,23 +19,57 @@
     "ScenePrivateMapEnterTeleport": {
         "doc": "在地图界面，随机选择一个传送点进入",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    0,
-                    0
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "template": [
+                                    "SceneManager/MapTeleport.png"
+                                ]
+                            }
+                        }
+                    }
                 ],
-                "template": [
-                    "SceneManager/MapTeleport.png"
-                ]
+                "box_index": 1
             }
         },
         "action": {
             "type": "Click"
         },
-        "post_delay": 800, // 等待弹框出现完毕
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
         "next": [
             "[JumpBack]ScenePrivateMapTeleportChoose",
             "ScenePrivateMapTeleportConfirm"
@@ -78,6 +94,15 @@
                     "프로토콜 전송 지점"
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
         },
         "action": {
             "type": "Click"
