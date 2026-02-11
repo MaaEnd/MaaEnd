@@ -1,0 +1,301 @@
+{
+    "AndroidSeizeEntrustTaskErrorTaskStop": {
+        "action": {
+            "param": {},
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "用户退出委托列表"
+        },
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    149,
+                    154,
+                    87,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidSeizeEntrustTaskPostEntrust3": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": "AndroidSeizeEntrustTaskFound7.31wMoney",
+                "roi_offset": [
+                    169,
+                    17,
+                    188,
+                    -3
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    
+    "AndroidSeizeEntrustTaskFound7.31wMoney": {
+        "next": [
+            "AndroidSeizeEntrustTaskPostEntrust3"
+        ],
+        "recognition": {
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/Android7.31wMoney.png"
+                ],
+                "threshold": [
+                    0.9
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AndroidSeizeEntrustTaskFound7.31wMoneyF1": {
+        "next": [
+            "AndroidSeizeEntrustTaskFound7.31wMoney"
+        ],
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "MoneyTag",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": [
+                                    "SeizeEntrustTask/Android7.31wMoney.png"
+                                ],
+                                "threshold": [
+                                    0.9
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "expected": [
+                                    "7.31万",
+                                    "31万",
+                                    "7",
+                                    "31"
+                                ],
+                                "roi": "MoneyTag",
+                                "roi_offset": [
+                                    0,
+                                    0,
+                                    60,
+                                    60
+                                ]
+                
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "AndroidSeizeEntrustTaskInDownSwipeUp": {
+        "action": {
+            "param": {
+                "begin": [
+                    776,
+                    448
+                ],
+                "end": [
+                    776,
+                    208
+                ]
+            },
+            "type": "Swipe"
+        },
+        "doc": "没找到武陵城就往下翻一页",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    612,
+                    16,
+                    23
+                ],
+                "template": [
+                    "SeizeEntrustTask/InDown.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AndroidSeizeEntrustTaskInUpSwipeDown": {
+        "action": {
+            "param": {
+                "begin": [
+                    776,
+                    208
+                ],
+                "end": [
+                    776,
+                    448
+                ]
+            },
+            "type": "Swipe"
+        },
+        "doc": "没找到武陵城就往上翻一页",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1245,
+                    173,
+                    24,
+                    37
+                ],
+                "template": "SeizeEntrustTask/InUp.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AndroidSeizeEntrustTaskMain": {
+        "focus": {
+            "Node.Recognition.Succeeded": "现在开始抢武陵城委托"
+        },
+        "next": [
+            "AndroidisSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    149,
+                    154,
+                    87,
+                    34
+                ]
+            },
+            "type": "OCR"
+        },
+        "timeout": 2000
+    },
+    "AndroidSeizeEntrustTaskNews": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "刷新动作",
+        "next": [
+            "AndroidSeizeEntrustTaskNewsStatus1"
+        ],
+        "rate_limit": 1000,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1035,
+                    650,
+                    98,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidSeizeEntrustTaskNews2": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "依旧刷新动作",
+        "next": [
+            "AndroidSeizeEntrustTaskNewsStatus2"
+        ],
+        "rate_limit": 100,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1035,
+                    650,
+                    98,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidSeizeEntrustTaskNewsStatus1": {
+        "next": [
+            "[JumpBack]AndroidSeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]AndroidSeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]AndroidSeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]AndroidSeizeEntrustTaskNews2"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1019,
+                    529,
+                    244,
+                    121
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidSeizeEntrustTaskNewsStatus2": {
+        "next": [
+            "AndroidisSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1019,
+                    549,
+                    244,
+                    121
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidisSeizeEntrustTaskDestinationWulingCity": {
+        "next": [
+            "[JumpBack]AndroidSeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]AndroidSeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]AndroidSeizeEntrustTaskInDownSwipeUp",
+            "[JumpBack]AndroidSeizeEntrustTaskNews"
+        ]
+    }
+}

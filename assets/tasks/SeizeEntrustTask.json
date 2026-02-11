@@ -3,7 +3,7 @@
         {
             "name": "SeizeEntrustTask",
             "label": "$task.SeizeEntrustTask.label",
-            "entry": "SeizeEntrustTaskMain",
+            "entry": "SeizeEntrustTaskEntry",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
                 "SeizeEntrustTaskisSwipeMiddle"
@@ -11,7 +11,8 @@
             "controller": [
                 "Win32",
                 "Win32-Window",
-                "Win32-Front"
+                "Win32-Front",
+                "ADB"
             ]
         }
     ],
@@ -32,6 +33,12 @@
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
                             "enabled": true
+                        },
+                        "AndroidSeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": true
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": true
                         }
                     }
                 },
@@ -42,6 +49,12 @@
                             "enabled": false
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": false
+                        },
+                        "AndroidSeizeEntrustTaskInDownSwipeUp": {
+                            "enabled": false
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
                             "enabled": false
                         }
                     }
@@ -64,6 +77,15 @@
                                 40
                             ],
                             "template": "SeizeEntrustTask/InMiddle.png"
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
+                            "roi": [
+                                1246,
+                                388,
+                                23,
+                                40
+                            ],
+                            "template": "SeizeEntrustTask/InMiddle.png"
                         }
                     }
                 },
@@ -78,6 +100,17 @@
                                 37
                             ],
                             "template": "SeizeEntrustTask/InUp.png"
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
+                            "param": {
+                                "roi": [
+                                    1245,
+                                    173,
+                                    24,
+                                    37
+                                ],
+                                "template": "SeizeEntrustTask/InUp.png"
+                            }
                         }
                     }
                 }
