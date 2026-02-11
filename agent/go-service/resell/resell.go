@@ -61,7 +61,8 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	overflowAmount := 0
 	log.Info().Msg("Checking quota overflow status...")
-	time.Sleep(500 * time.Millisecond)
+	Resell_delay_freezes_time(ctx, 500)
+	MoveMouseSafe(controller)
 	controller.PostScreencap().Wait()
 
 	// OCR and parse quota from two regions
@@ -90,6 +91,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
@@ -97,6 +99,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 				if !success {
@@ -111,6 +114,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
@@ -119,12 +123,14 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				continue
 			}
 			//商品详情页右下角识别的成本价格为准
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
 				if success {
@@ -141,11 +147,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
 			//等加载好友价格
 			Resell_delay_freezes_time(ctx, 600)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
 			if !success {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
 				if !success {
@@ -175,6 +183,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
 			log.Info().Msg("[Resell]第四步：返回商品详情页")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ReturnButton", "返回")
@@ -186,6 +195,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
@@ -284,6 +294,15 @@ func extractNumbersFromText(text string) (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// MoveMouseSafe moves the mouse to a safe location (10, 10) to avoid blocking OCR
+func MoveMouseSafe(controller *maa.Controller) {
+	// Use PostClick to move mouse to a safe corner
+	// We use (10, 10) to avoid title bar buttons or window borders
+	controller.PostClick(10, 10)
+	// Small delay to ensure mouse move completes
+	time.Sleep(50 * time.Millisecond)
 }
 
 // ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
