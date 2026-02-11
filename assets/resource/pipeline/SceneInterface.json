@@ -1,157 +1,59 @@
 {
     "SceneEnterMapDijiang": {
-        "doc": "进入帝江号地图界面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -350,
-                                    0,
-                                    350,
-                                    60
-                                ],
-                                "template": [
-                                    "SceneManager/MapMind.png"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    350,
-                                    220
-                                ],
-                                "expected": [
-                                    "[Oo].?[Mm].?[Vv]"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "inverse": true,
+        "doc": "从任意界面进入帝江号地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterMapDijiang"
+            "ScenePrivateWorldEnterMapDijiang",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "SceneEnterWorldDijiang": {
         "doc": "从任意界面进入帝江号大世界",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -200,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/WorldMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterWorldDijiang"
+            "ScenePrivateWorldEnterWorldDijiang",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "SceneEnterWorldValleyIVTheHub": {
-        "max_hit": 1,
-        "doc": "从任意界面进入四号谷地-枢纽区大世界，一个task只能运行一次",
+        "doc": "从任意界面进入四号谷地-枢纽区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterWorldValleyIVTheHub"
+            "ScenePrivateWorldAnyEnterWorldValleyIVTheHub",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
+        ]
+    },
+    "SceneEnterWorldFactory": {
+        "doc": "从任意界面进入大世界工厂模式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateAnyEnterWorldFactorySuccess",
+            "ScenePrivateWorldFactoryDisableEnterFactoryActive",
+            "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "ScenePrivateWorldDijiangEnterFactoryActive",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "SceneEnterMenuRegionalDevelopment": {
         "doc": "从任意界面进入地区建设菜单",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -220,
-                                    0,
-                                    220,
-                                    220
-                                ],
-                                "template": [
-                                    "SceneManager/MenuRegionalDevelopmentIcon.png"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    140,
-                                    60
-                                ],
-                                "expected": [
-                                    "地区建设",
-                                    "地區建設",
-                                    "Regional Development",
-                                    "地域建設",
-                                    "지역 건설"
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterMenuRegionalDevelopment"
+            "ScenePrivateWorldEnterMenuRegionalDevelopment",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBluePrint": {
+        "doc": "从任意界面进入蓝图菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldFactoryEnterMenuBluePrint",
+            "[JumpBack]SceneEnterWorldFactory"
         ]
     },
     "SceneDialogConfirm": {

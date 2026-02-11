@@ -77,7 +77,7 @@
     "option.CreditShoppingReserve.label": "信用點低於 300 時停止購買物品",
     "option.CreditShoppingReserve.description": "低於 300 信用點也仍然會購買白名單物品！",
     "task.ImportBluePrints.label": "📐一鍵導入藍圖",
-    "task.ImportBluePrints.description": "一鍵批量導入藍圖，支援智慧解析，**請在終末地我的藍圖頁面開始任務**",
+    "task.ImportBluePrints.description": "一鍵批量導入藍圖，支援智慧解析",
     "option.ImportBluePrints.label": "導入藍圖",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "藍圖文本",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "請輸入文本，可以夾雜任意字元，將智慧拆分藍圖分享碼",

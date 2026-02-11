@@ -1,40 +1,51 @@
 {
-    "ScenePrivateWorldEnterWorldValleyIVTheHub": {
+    "ScenePrivateWorldAnyEnterWorldValleyIVTheHub": {
         "doc": "在大世界界面，进入四号谷地-枢纽区大世界",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
         "next": [
-            "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub",
-            "ScenePrivateMapEnterTeleport"
+            "ScenePrivateMapValleyIVTheHubEnterTeleport",
+            "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub"
         ]
     },
     "ScenePrivateWorldEnterMapValleyIVTheHub": {
         "doc": "在大世界界面，进入四号谷地-枢纽区地图",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
+                    -200,
                     0,
-                    0,
-                    250,
-                    60
+                    200,
+                    200
                 ],
-                "expected": [
-                    "枢纽区",
-                    "樞紐區",
-                    "The Hub",
-                    "中枢エリア",
-                    "거점 지역"
-                ]
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
             }
         },
-        "inverse": true,
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 77 // M
             }
         },
+        "post_wait_freezes": 400,
         "next": [
-            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
             "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
             "ScenePrivateMapDijiangEnterMapValleyIVTheHub",
             "ScenePrivateMapOtherAreaEnterMapValleyIVTheHub"
@@ -60,7 +71,6 @@
             "type": "Click"
         },
         "next": [
-            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
             "ScenePrivateMapOverviewEnterMapOverviewValleyIVTheHub"
         ]
     },
@@ -108,12 +118,27 @@
                 "box_index": 0
             }
         },
-        "pre_delay": 1000, // 等待切换到地图总览界面，动画效果是方块闪烁，不好判断，先临时加延迟
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    5,
+                    0,
+                    -5
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -300,
+                -300,
+                300,
+                300
+            ]
         },
         "next": [
-            // "[JumpBack]ScenePrivateMapOverviewEnterMapOverviewValleyIVLoading",
             "ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub"
         ]
     },
@@ -165,8 +190,86 @@
             "type": "Click"
         },
         "next": [
-            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
             "ScenePrivateMapOverviewEnterMapOverviewValleyIVTheHub"
+        ]
+    },
+    "ScenePrivateMapValleyIVTheHubEnterTeleport": {
+        "doc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "template": [
+                                    "SceneManager/MapTeleport.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    350,
+                                    220
+                                ],
+                                "expected": [
+                                    "枢纽区",
+                                    "樞紐區",
+                                    "The Hub",
+                                    "中枢エリア",
+                                    "거점 지역"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "[JumpBack]ScenePrivateMapTeleportChoose",
+            "ScenePrivateMapTeleportConfirm"
         ]
     },
     "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
@@ -188,9 +291,6 @@
                     "거점 지역"
                 ]
             }
-        },
-        "next": [
-            // "[JumpBack]ScenePrivateAnyEnterMapLoading"
-        ]
+        }
     }
 }

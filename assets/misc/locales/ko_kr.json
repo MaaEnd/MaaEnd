@@ -77,7 +77,7 @@
     "option.CreditShoppingReserve.label": "크레딧 300 미만 시 구매 중지",
     "option.CreditShoppingReserve.description": "300 크레딧 미만에서도 화이트리스트 상품은 구매됩니다!",
     "task.ImportBluePrints.label": "📐 청사진 일괄 가져오기",
-    "task.ImportBluePrints.description": "청사진을 일괄로 가져옵니다(스마트 파싱 지원). **'내 청사진' 페이지에서 시작해 주세요.**",
+    "task.ImportBluePrints.description": "청사진을 일괄로 가져옵니다(스마트 파싱 지원).",
     "option.ImportBluePrints.label": "청사진 가져오기",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "청사진 텍스트",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "텍스트를 입력하세요(임의의 문자를 포함해도 됨). 공유 코드를 스마트하게 추출합니다.",

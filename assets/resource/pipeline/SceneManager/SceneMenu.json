@@ -1,33 +1,139 @@
 {
     "ScenePrivateWorldEnterMenuRegionalDevelopment": {
         "doc": "从大世界进入地区建设菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 89 // Y
             }
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                200
+            ]
+        },
         "next": [
-            "[JumpBack]ScenePrivateWorldEnterMenuRegionalDevelopmentLoading",
-            "ScenePrivateNextTrue"
+            "ScenePrivateWorldEnterMenuRegionalDevelopmentSuccess"
         ]
     },
-    "ScenePrivateWorldEnterMenuRegionalDevelopmentLoading": {
-        "doc": "等待切换地区建设",
+    "ScenePrivateWorldEnterMenuRegionalDevelopmentSuccess": {
+        "doc": "成功进入地区建设菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -220,
+                                    0,
+                                    220,
+                                    220
+                                ],
+                                "template": [
+                                    "SceneManager/MenuRegionalDevelopmentIcon.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    140,
+                                    60
+                                ],
+                                "expected": [
+                                    "地区建设",
+                                    "地區建設",
+                                    "Regional Development",
+                                    "地域建設",
+                                    "지역 건설"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ScenePrivateWorldFactoryEnterMenuBluePrint": {
+        "doc": "从大世界工厂模式进入蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -220,
                     0,
-                    220,
-                    220
+                    0,
+                    60,
+                    60
                 ],
                 "template": [
-                    "SceneManager/MenuRegionalDevelopmentIcon.png"
+                    "SceneManager/WorldFactoryActive.png"
                 ]
             }
         },
-        "inverse": true
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 112 // F1
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                200
+            ]
+        },
+        "next": [
+            "ScenePrivateWorldFactoryEnterMenuBluePrintSuccess"
+        ]
+    },
+    "ScenePrivateWorldFactoryEnterMenuBluePrintSuccess": {
+        "doc": "成功切换到蓝图菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    800,
+                    80
+                ],
+                "template": [
+                    "SceneManager/BluePrintMy.png",
+                    "SceneManager/BluePrintSystem.png",
+                    "SceneManager/BluePrintShare.png"
+                ],
+                "threshold": 0.9
+            }
+        }
     }
 }

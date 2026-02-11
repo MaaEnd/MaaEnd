@@ -3,7 +3,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ImportBluePrintsChooseTab"
+            "ImportBluePrintsChooseTab",
+            "[JumpBack]SceneEnterMenuBluePrint"
         ]
     },
     "ImportBluePrintsChooseTab": {

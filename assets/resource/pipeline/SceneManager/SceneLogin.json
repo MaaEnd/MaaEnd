@@ -1,3 +1,114 @@
 {
-    "ScenePrivateLogin": {}
+    "ScenePrivateLogin": {
+        "doc": "处理登录界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/LoginIcon.png"
+                ]
+            }
+        },
+        "next": [
+            "ScenePrivateLoginContinue",
+            "ScenePrivateLogin"
+        ]
+    },
+    "ScenePrivateLoginContinue": {
+        "doc": "等待登录页面出现按钮继续",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -250,
+                    200,
+                    250,
+                    400
+                ],
+                "expected": [
+                    "点击任意位置继续",
+                    "按下任意位置繼續",
+                    "Click to continue",
+                    "クリックして続ける",
+                    "아무 곳이나 눌러 계속하기"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]ScenePrivateLoginMonthlyPassConfirm",
+            "ScenePrivateLoginSuccess",
+            "[JumpBack]ScenePrivateLoginCloseDialog"
+        ]
+    },
+    "ScenePrivateLoginMonthlyPassConfirm": {
+        "doc": "领取月卡，无法跳过必须领取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "expected": [
+                    "点击任意位置继续",
+                    "按下任意位置繼續",
+                    "Click to continue",
+                    "クリックして続ける",
+                    "아무 곳이나 눌러 계속하기",
+                    "月卡剩余天数",
+                    "月卡剩餘天數",
+                    "Monthly Pass Day(s) Left",
+                    "月パス残り",
+                    "월정액 남은 시간",
+                    "今日月卡奖励",
+                    "今日月卡獎勵",
+                    "Daily Monthly Pass Rewards",
+                    "本日報酬",
+                    "오늘의 월정액 보상"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ScenePrivateLoginCloseDialog": {
+        "doc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        }
+    },
+    "ScenePrivateLoginSuccess": {
+        "doc": "进入大世界成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
+    }
 }

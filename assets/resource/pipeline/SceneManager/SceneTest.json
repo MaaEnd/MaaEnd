@@ -1,58 +1,66 @@
 {
-    "SceneTestEscDialog": {
-        // 用例：在剧情、副本场景下，期望会自动点击esc并确认弹框
-        "doc": "测试点击弹框确认按钮",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27 // ESC
-            }
-        },
-        "post_delay": 800, // 等待弹框出现
-        "next": [
-            "[JumpBack]SceneDialogConfirm",
-            "ScenePrivateNextTrue"
-        ]
-    },
+    // "SceneTestExample": {
+    //     "doc": "接口使用示例",
+    //     "next": [
+    //         "XXXXXXX", // 业务分支
+    //         "[JumpBack]ScenePrivateAnyEnterWorld" // 调用接口
+    //     ]
+    // },
     "SceneTestEnterWorld": {
-        // 用例：在较深界面(背包-武器-升级)开始任务，期望能回到大世界
-        // 用例：在副本界面开始任务，期望能回到大世界
-        // TODO：在登录界面，能进入到大世界
+        // 关键用例：在较深界面(背包-武器-升级)开始任务，期望能回到大世界
+        // 关键用例：在副本界面开始任务，期望能回到大世界
+        // 关键用例：在登录界面，能进入到大世界
+        // 关键用例：在大世界界面，不进行操作
+        // 关键用例：在好友帝江号中，返回大世界
         "doc": "在任意场景下，进入大世界",
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateNextTrue"
+            "ScenePrivateAnyEnterWorld"
         ]
     },
     "SceneTestEnterMapDijiang": {
+        // 关键用例：在帝江号大世界开始任务，期望进入帝江号地图
+        // 关键用例：在四号谷地大世界开始任务，期望进入帝江号地图
         "doc": "在任意场景下，进入帝江号地图",
         "next": [
-            "[JumpBack]SceneEnterMapDijiang",
-            "ScenePrivateNextTrue"
+            "SceneEnterMapDijiang"
         ]
     },
     "SceneTestEnterWorldDijiang": {
+        // 关键用例：在帝江号大世界开始任务，期望进入帝江号大世界
+        // 关键用例：在四号谷地大世界开始任务，期望进入帝江号大世界
         "doc": "在任意场景下，进入帝江号大世界",
         "next": [
-            "[JumpBack]SceneEnterWorldDijiang",
-            "ScenePrivateNextTrue"
+            "SceneEnterWorldDijiang"
         ]
     },
     "SceneTestEnterMenuRegionalDevelopment": {
         "doc": "在任意场景下，进入地区建设菜单",
         "next": [
-            "[JumpBack]SceneEnterMenuRegionalDevelopment",
-            "ScenePrivateNextTrue"
+            "SceneEnterMenuRegionalDevelopment"
         ]
     },
     "SceneTestEnterWorldValleyIVTheHub": {
-        // 用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界
-        // 用例：在武陵大世界开始任务，期望进入四号谷地-枢纽区大世界
-        // 用例：在谷地大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在武陵大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在谷地大世界开始任务，期望进入四号谷地-枢纽区大世界
         "doc": "在任意场景下，进入四号谷地-枢纽区大世界",
         "next": [
-            "[JumpBack]SceneEnterWorldValleyIVTheHub",
-            "ScenePrivateNextTrue"
+            "SceneEnterWorldValleyIVTheHub"
+        ]
+    },
+    "SceneTestEnterWorldFactory": {
+        // 关键用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界并启用工厂模式
+        // 关键用例：在任意大世界开始任务，期望进入开启工厂模式
+        // 关键用例：在战斗状态开始任务，期望进入四号谷地-枢纽区大世界并启用工厂模式
+        "doc": "在任意场景下，进入大世界工厂模式",
+        "next": [
+            "SceneEnterWorldFactory"
+        ]
+    },
+    "SceneTestEnterMenuBluePrint": {
+        "doc": "在任意场景下，进入蓝图菜单",
+        "next": [
+            "SceneEnterMenuBluePrint"
         ]
     }
 }
