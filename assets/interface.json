@@ -126,7 +126,6 @@
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/PCOpenGame.json",
-        "tasks/AndroidOpenGame.json",
-
+        "tasks/AndroidOpenGame.json"
     ]
 }
