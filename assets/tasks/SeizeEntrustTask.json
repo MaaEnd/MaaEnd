@@ -7,11 +7,6 @@
             "description": "$task.SeizeEntrustTask.description",
             "option": [
                 "SeizeEntrustTaskisSwipeMiddle"
-            ],
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Front"
             ]
         }
     ],
@@ -78,6 +73,17 @@
                                 37
                             ],
                             "template": "SeizeEntrustTask/InUp.png"
+                        },
+                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
+                            "param": {
+                                "roi": [
+                                    1245,
+                                    173,
+                                    24,
+                                    37
+                                ],
+                                "template": "SeizeEntrustTask/InUp.png"
+                            }
                         }
                     }
                 }
