@@ -3,18 +3,16 @@ name: check
 on:
   push:
     branches:
-      - "**"
+      - "main"
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
-      - "**.py"
   pull_request:
     branches:
       - "**"
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
-      - "**.py"
   workflow_dispatch:
 
 jobs:
