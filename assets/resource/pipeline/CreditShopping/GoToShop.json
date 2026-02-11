@@ -5,20 +5,7 @@
             "CreditShoppingShopping",
             "CreditShoppingCheckShopPage",
             "CreditShoppingCheckMainUI",
-            "CreditShoppingNotInGame"
-        ]
-    },
-    "CreditShoppingNotInGame": {
-        "doc": "不在大世界，不断按ESC进入大世界",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "max_hit": 5,
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "CreditShoppingCheckMainUI",
-            "CreditShoppingNotInGame"
+            "[JumpBack]SceneTestEnterWorld"
         ]
     },
     "CreditShoppingCheckMainUI": {
