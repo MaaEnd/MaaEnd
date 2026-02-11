@@ -13,6 +13,7 @@
         ],
         "next": [
             "DailyTaskClickProduceBtn" // 直接点生产
+
         ]
     },
     "DailyTaskClickProduceBtn": {

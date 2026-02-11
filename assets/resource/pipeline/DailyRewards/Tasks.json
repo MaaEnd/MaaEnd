@@ -95,7 +95,7 @@
     },
     "DailyTaskUpgradeWeapon": {
         "desc": "检测是否有升级武器任务",
-        "enable": false,
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -119,7 +119,7 @@
     },
     "DailyTaskAssemble": {
         "desc": "检测是否有制造装备任务",
-        "enable": false,
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -193,7 +193,7 @@
     },
     "DailyTaskCreation": {
         "desc": "检测是否有简易制作任务",
-        "enable": false,
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "OCR",

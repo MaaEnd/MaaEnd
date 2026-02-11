@@ -1,6 +1,6 @@
 {
     "CheckWeaponInventory": {
-        "decs": "检查武器库界面",
+        "desc": "检查武器库界面",
         "pre_delay": 0,
         "post_delay": 0,
         "recognition": {
