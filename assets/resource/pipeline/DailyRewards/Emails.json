@@ -81,7 +81,7 @@
         "recognition": {
             "param": {
                 "template": [
-                    "CloseInfo/CloseButton.png"
+                    "Common/BackButton.png"
                 ]
             },
             "type": "TemplateMatch"
