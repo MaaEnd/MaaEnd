@@ -27,12 +27,6 @@
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
                             "enabled": true
-                        },
-                        "AndroidSeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": true
-                        },
-                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": true
                         }
                     }
                 },
@@ -43,12 +37,6 @@
                             "enabled": false
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
-                            "enabled": false
-                        },
-                        "AndroidSeizeEntrustTaskInDownSwipeUp": {
-                            "enabled": false
-                        },
-                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
                             "enabled": false
                         }
                     }
@@ -64,15 +52,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "SeizeEntrustTaskInUpSwipeDown": {
-                            "roi": [
-                                1246,
-                                388,
-                                23,
-                                40
-                            ],
-                            "template": "SeizeEntrustTask/InMiddle.png"
-                        },
-                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
                             "roi": [
                                 1246,
                                 388,
