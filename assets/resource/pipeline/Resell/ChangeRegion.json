@@ -42,7 +42,7 @@
             "IncomeReportButton"
         ],
         "action": "DoNothing",
-        "pew_wait_freezes": 300,
+        "pre_wait_freezes": 300,
         "next": [
             "ChangeNextRegion"
         ]
