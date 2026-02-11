@@ -674,9 +674,8 @@
         ]
     },
     "VisitComplete": {
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        }
+        "doc": "结束节点,无需延迟",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
