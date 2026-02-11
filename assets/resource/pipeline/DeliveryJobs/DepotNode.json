@@ -48,7 +48,7 @@
         ]
     },
     "DeliveryJobsCheckValleyIVDepotLocked": {
-        "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出去下一个区域",
+        "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -62,7 +62,7 @@
         ]
     },
     "DeliveryJobsCheckWulingDepotLocked": {
-        "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出去下一个区域",
+        "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -300,7 +300,7 @@
         ]
     },
     "DeliveryJobsValleyIVCargoNotReady": {
-        "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+        "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
@@ -313,7 +313,7 @@
         ]
     },
     "DeliveryJobsWulingCargoNotReady": {
-        "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+        "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
