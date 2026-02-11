@@ -224,17 +224,17 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	maxRecord := records[maxProfitIdx]
 	log.Info().Msgf("最高利润商品: 第%d行第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
-	ShowMaxRecord := processMaxRecord(maxRecord)
+	showMaxRecord := processMaxRecord(maxRecord)
 
 	// Check if we should purchase
 	if overflowAmount > 0 {
 		// Quota overflow detected, show reminder and recommend purchase
 		log.Info().Msgf("配额溢出：建议购买%d件商品，推荐第%d行第%d列（利润：%d）",
-			overflowAmount, ShowMaxRecord.Row, ShowMaxRecord.Col, ShowMaxRecord.Profit)
+			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 
 		// Show message with focus
 		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
-			overflowAmount, ShowMaxRecord.Row, ShowMaxRecord.Col, ShowMaxRecord.Profit)
+			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		ResellShowMessage(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
@@ -245,7 +245,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	} else if maxRecord.Profit >= MinimumProfit {
 		// Normal mode: purchase if meets minimum profit
 		log.Info().Msgf("利润达标，准备购买第%d行第%d列商品（利润：%d）",
-			ShowMaxRecord.Row, ShowMaxRecord.Col, ShowMaxRecord.Profit)
+			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		taskName := fmt.Sprintf("ResellSelectProductRow%dCol%d", maxRecord.Row, maxRecord.Col)
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: taskName},
@@ -254,11 +254,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	} else {
 		// No profitable item, show recommendation
 		log.Info().Msgf("没有达到最低利润%d的商品，推荐第%d行第%d列（利润：%d）",
-			MinimumProfit, ShowMaxRecord.Row, ShowMaxRecord.Col, ShowMaxRecord.Profit)
+			MinimumProfit, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 
 		// Show message with focus
 		message := fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
-			ShowMaxRecord.Row, ShowMaxRecord.Col, ShowMaxRecord.Profit)
+			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		ResellShowMessage(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
