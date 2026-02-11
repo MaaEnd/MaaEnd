@@ -1,8 +1,6 @@
 {
     "GoToValleyIV": {
         "doc": "前往四号谷地",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "Or",
         "any_of": [
             "IncomeReportButton"
@@ -16,8 +14,6 @@
     },
     "GoToWuling": {
         "doc": "前往武陵",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "Or",
         "any_of": [
             "IncomeReportButton"
@@ -32,8 +28,6 @@
     },
     "CheckValleyIV": {
         "doc": "检查是否是四号谷地",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -53,8 +47,6 @@
     },
     "CheckWuling": {
         "doc": "检查是否是武陵",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
