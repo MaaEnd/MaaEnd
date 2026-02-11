@@ -224,7 +224,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	maxRecord := records[maxProfitIdx]
 	log.Info().Msgf("最高利润商品: 第%d行第%d列，利润%d", maxRecord.Row, maxRecord.Col, maxRecord.Profit)
-	ShowMaxRecord := ProcessMaxRecord(maxRecord)
+	ShowMaxRecord := processMaxRecord(maxRecord)
 
 	// Check if we should purchase
 	if overflowAmount > 0 {
@@ -534,7 +534,7 @@ func ResellShowMessage(ctx *maa.Context, text string) bool {
 	return true
 }
 
-func ProcessMaxRecord(record ProfitRecord) ProfitRecord {
+func processMaxRecord(record ProfitRecord) ProfitRecord {
 	result := record
 	if result.Row >= 2 {
 		result.Row = result.Row - 1
