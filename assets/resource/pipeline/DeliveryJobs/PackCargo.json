@@ -1,5 +1,7 @@
 {
-    "ProceedToNextStep": {
+    // 装箱货物的流程如下：
+    // 选择装箱货物类型（下一步）->装满货物（下一步）->货物竞价->调度申请（下一步）->单击屏幕继续->回到大世界界面
+    "DeliveryJobsProceedToNextStep": {
         "doc": "进入下一步",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/NextStep.png",
@@ -12,14 +14,14 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "CargoBid",
-            "CargoFillToMax",
-            "ClickScreenToContinue",
-            "BackToHome",
-            "ProceedToNextStep"
+            "DeliveryJobsBackToHome",
+            "DeliveryJobsClickScreenToContinue",
+            "DeliveryJobsCargoBid",
+            "DeliveryJobsCargoFillToMax",
+            "DeliveryJobsProceedToNextStep"
         ]
     },
-    "CargoFillToMax": {
+    "DeliveryJobsCargoFillToMax": {
         "doc": "装满货物",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoFillToMax.png",
@@ -32,11 +34,10 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "CargoFillToMax"
+            "DeliveryJobsProceedToNextStep"
         ]
     },
-    "CargoBid": {
+    "DeliveryJobsCargoBid": {
         "doc": "货物竞价",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoBid.png",
@@ -49,12 +50,11 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "CargoBid"
+            "DeliveryJobsProceedToNextStep"
         ]
     },
-    "ClickScreenToContinue": {
-        "doc": "单击屏幕继续",
+    "DeliveryJobsClickScreenToContinue": {
+        "doc": "单击屏幕继续，会直接回到大世界界面",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -72,7 +72,7 @@
         ],
         "action": "Click"
     },
-    "BackToHome": {
+    "DeliveryJobsBackToHome": {
         "doc": "已回到大世界（左上角出现地区建设入口），用于跳出循环",
         "recognition": "Or",
         "any_of": [

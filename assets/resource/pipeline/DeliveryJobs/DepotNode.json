@@ -1,5 +1,5 @@
 {
-    "EnterValleyIVDepot": {
+    "DeliveryJobsEnterValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
         "recognition": "And",
         "all_of": [
@@ -8,7 +8,7 @@
         ],
         "action": "Click"
     },
-    "EnterWulingDepot": {
+    "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
         "recognition": "And",
         "all_of": [
@@ -17,7 +17,7 @@
         ],
         "action": "Click"
     },
-    "CheckDepotNode": {
+    "DeliveryJobsCheckDepotNode": {
         "doc": "检查是否在仓储节点界面",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -35,7 +35,7 @@
             "노드 목록"
         ]
     },
-    "DepotLocked": {
+    "DeliveryJobsDepotLocked": {
         "doc": "仓储节点未解锁",
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/DepotLocked.png",
@@ -47,35 +47,39 @@
             47
         ]
     },
-    "CheckValleyIVDepotLocked": {
-        "doc": "检查四号谷地仓储节点是否解锁",
+    "DeliveryJobsCheckValleyIVDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
-            "DepotLocked",
+            "DeliveryJobsDepotLocked",
             "CheckValleyIV"
         ],
         "focus": {
-            "Node.Action.Starting": "四号谷地仓储节点未解锁"
+            "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
         },
         "next": [
-            "CheckCurrentArea"
+            "DeliveryJobsLoop"
         ]
     },
-    "CheckWulingDepotLocked": {
-        "doc": "检查武陵仓储节点是否解锁",
+    "DeliveryJobsCheckWulingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
-            "DepotLocked",
+            "DeliveryJobsDepotLocked",
             "CheckWuling"
         ],
         "focus": {
-            "Node.Action.Starting": "武陵仓储节点未解锁"
+            "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
         },
         "next": [
-            "CheckCurrentArea"
+            "DeliveryJobsLoop"
         ]
     },
-    "CheckOriginiumSciencePark": {
+    "DeliveryJobsCheckOriginiumSciencePark": {
         "doc": "检查是否在源石研究园",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -93,7 +97,7 @@
             "오리지늄 연구 구역"
         ]
     },
-    "CheckOriginLodespring": {
+    "DeliveryJobsCheckOriginLodespring": {
         "doc": "检查是否在矿脉源区",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -111,7 +115,7 @@
             "광맥 구역"
         ]
     },
-    "CheckPowerPlateau": {
+    "DeliveryJobsCheckPowerPlateau": {
         "doc": "检查是否在供能高地",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -129,7 +133,7 @@
             "에너지 공급 고지"
         ]
     },
-    "CheckWulingCity": {
+    "DeliveryJobsCheckWulingCity": {
         "doc": "检查是否在武陵城区",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -147,10 +151,11 @@
             "무릉성 도심"
         ]
     },
-    "CheckOriginiumScienceParkCargo": {
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "doc": "检查源石研究园的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "CheckOriginiumSciencePark",
+        "roi": "DeliveryJobsCheckOriginiumSciencePark",
         "roi_offset": [
             0,
             316,
@@ -170,10 +175,11 @@
             "입찰 보기"
         ]
     },
-    "CheckOriginLodespringCargo": {
+    "DeliveryJobsCheckOriginLodespringCargo": {
+        "doc": "检查矿脉源区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "CheckOriginLodespring",
+        "roi": "DeliveryJobsCheckOriginLodespring",
         "roi_offset": [
             0,
             316,
@@ -193,10 +199,11 @@
             "입찰 보기"
         ]
     },
-    "CheckPowerPlateauCargo": {
+    "DeliveryJobsCheckPowerPlateauCargo": {
+        "doc": "检查供能高地的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "CheckPowerPlateau",
+        "roi": "DeliveryJobsCheckPowerPlateau",
         "roi_offset": [
             0,
             316,
@@ -216,10 +223,11 @@
             "입찰 보기"
         ]
     },
-    "CheckWulingCityCargo": {
+    "DeliveryJobsCheckWulingCityCargo": {
+        "doc": "检查武陵城区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "CheckWulingCity",
+        "roi": "DeliveryJobsCheckWulingCity",
         "roi_offset": [
             0,
             316,
@@ -239,99 +247,101 @@
             "입찰 보기"
         ]
     },
-    "EnterOriginiumScienceParkCargo": {
+    "DeliveryJobsEnterOriginiumScienceParkCargo": {
         "doc": "进入源石研究园货物",
         "recognition": "And",
         "all_of": [
-            "CheckOriginiumSciencePark",
-            "CheckOriginiumScienceParkCargo"
+            "DeliveryJobsCheckOriginiumSciencePark",
+            "DeliveryJobsCheckOriginiumScienceParkCargo"
         ],
         "box_index": 1,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "EnterOriginiumScienceParkCargo"
+            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsEnterOriginiumScienceParkCargo"
         ]
     },
-    "EnterOriginLodespringCargo": {
+    "DeliveryJobsEnterOriginLodespringCargo": {
         "doc": "进入矿脉源区货物",
         "recognition": "And",
         "all_of": [
-            "CheckOriginLodespring",
-            "CheckOriginLodespringCargo"
+            "DeliveryJobsCheckOriginLodespring",
+            "DeliveryJobsCheckOriginLodespringCargo"
         ],
         "box_index": 1,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "EnterOriginLodespringCargo"
+            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsEnterOriginLodespringCargo"
         ]
     },
-    "EnterPowerPlateauCargo": {
+    "DeliveryJobsEnterPowerPlateauCargo": {
         "doc": "进入供能高地货物",
         "recognition": "And",
         "all_of": [
-            "CheckPowerPlateau",
-            "CheckPowerPlateauCargo"
+            "DeliveryJobsCheckPowerPlateau",
+            "DeliveryJobsCheckPowerPlateauCargo"
         ],
         "box_index": 1,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "EnterPowerPlateauCargo"
+            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsEnterPowerPlateauCargo"
         ]
     },
-    "EnterWulingCityCargo": {
-        "doc": "进入武陵城货物",
+    "DeliveryJobsEnterWulingCityCargo": {
+        "doc": "进入武陵城区货物",
         "recognition": "And",
         "all_of": [
-            "CheckWulingCity",
-            "CheckWulingCityCargo"
+            "DeliveryJobsCheckWulingCity",
+            "DeliveryJobsCheckWulingCityCargo"
         ],
         "box_index": 1,
         "action": "Click",
         "next": [
-            "ProceedToNextStep",
-            "EnterWulingCityCargo"
+            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsEnterWulingCityCargo"
         ]
     },
-    "ValleyIVCargoNotReady": {
-        "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+    "DeliveryJobsValleyIVCargoNotReady": {
+        "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
-            "CheckDepotNode",
-            "CheckOriginiumSciencePark"
+            "DeliveryJobsCheckDepotNode",
+            "DeliveryJobsCheckOriginiumSciencePark"
         ],
-        "action": "DoNothing",
         "next": [
-            "BackToRegionalConstruction",
-            "ValleyIVCargoNotReady"
+            "DeliveryJobsBackToRegionalConstruction",
+            "DeliveryJobsValleyIVCargoNotReady"
         ]
     },
-    "WulingCargoNotReady": {
-        "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级",
+    "DeliveryJobsWulingCargoNotReady": {
+        "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
-            "CheckDepotNode",
-            "CheckWulingCity"
+            "DeliveryJobsCheckDepotNode",
+            "DeliveryJobsCheckWulingCity"
         ],
-        "action": "DoNothing",
         "next": [
-            "BackToRegionalConstruction",
-            "WulingCargoNotReady"
+            "DeliveryJobsBackToRegionalConstruction",
+            "DeliveryJobsWulingCargoNotReady"
         ]
     },
-    "BackToRegionalConstruction": {
-        "doc": "返回区域建设界面",
+    "DeliveryJobsBackToRegionalConstruction": {
+        "doc": "返回地区建设界面",
         "recognition": "And",
         "all_of": [
             "BackButton",
-            "CheckDepotNode"
+            "DeliveryJobsCheckDepotNode"
         ],
         "action": "Click",
         "next": [
-            "CheckCurrentArea",
-            "BackToRegionalConstruction"
+            "DeliveryJobsLoop",
+            "DeliveryJobsBackToRegionalConstruction"
         ]
     }
 }

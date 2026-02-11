@@ -1,25 +1,22 @@
 {
     // 自动转交运送委托
-    // 仅允许从大世界或者地区建设页面启动
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "CheckCurrentArea",
-            "[JumpBack]RegionalDevelopmentButton"
+            "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            "DeliveryJobsLoop"
         ]
     },
-    "CheckCurrentArea": {
-        "doc": "检查当前地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inManagement.png",
-        "threshold": 0.8,
-        "roi": [
-            1139,
-            63,
-            135,
-            127
+    "DeliveryJobsLoop": {
+        "doc": "主循环，确保在地区建设界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton"
         ],
-        "action": "DoNothing",
         "next": [
             "DeliveryJobsValleyIV",
             "DeliveryJobsWuling",
@@ -29,14 +26,16 @@
     "DeliveryJobsValleyIV": {
         "doc": "四号谷地运送委托",
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]EnterOriginiumScienceParkCargo",
-            "[JumpBack]EnterOriginLodespringCargo",
-            "[JumpBack]EnterPowerPlateauCargo",
-            "ValleyIVCargoNotReady",
-            "CheckValleyIVDepotLocked",
-            "[JumpBack]EnterValleyIVDepot",
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
+            "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
+            "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
+            "DeliveryJobsValleyIVCargoNotReady",
+            "DeliveryJobsCheckValleyIVDepotLocked",
+            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
             "[JumpBack]RegionalDevelopmentButton"
         ]
@@ -44,23 +43,21 @@
     "DeliveryJobsWuling": {
         "doc": "武陵运送委托",
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "[JumpBack]EnterDeliveryJob",
-            "[JumpBack]EnterWulingCityCargo",
-            "WulingCargoNotReady",
-            "CheckWulingDepotLocked",
-            "[JumpBack]EnterWulingDepot",
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterWulingCityCargo",
+            "DeliveryJobsWulingCargoNotReady",
+            "DeliveryJobsCheckWulingDepotLocked",
+            "[JumpBack]DeliveryJobsEnterWulingDepot",
             "[JumpBack]GoToWuling",
             "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsFinished": {
-        "doc": "运送委托完成",
-        "recognition": "And",
-        "all_of": [
-            "BackButton",
-            "CheckCurrentArea"
-        ],
-        "action": "Click"
+        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服",
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

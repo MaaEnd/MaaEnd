@@ -1,5 +1,5 @@
 {
-    "EnterDeliveryJob": {
+    "DeliveryJobsEnterDeliveryJob": {
         "roi": [
             79,
             581,
@@ -7,7 +7,7 @@
             58
         ]
     },
-    "ConfirmTaskTransfer": {
+    "DeliveryJobsConfirmTaskTransfer": {
         "roi": [
             868,
             474,

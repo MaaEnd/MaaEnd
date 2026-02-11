@@ -48,7 +48,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EnterOriginiumScienceParkCargo": {
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
                             "enabled": true
                         }
                     }
@@ -56,7 +56,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EnterOriginiumScienceParkCargo": {
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
                             "enabled": false
                         }
                     }
@@ -71,7 +71,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EnterOriginLodespringCargo": {
+                        "DeliveryJobsEnterOriginLodespringCargo": {
                             "enabled": true
                         }
                     }
@@ -79,7 +79,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EnterOriginLodespringCargo": {
+                        "DeliveryJobsEnterOriginLodespringCargo": {
                             "enabled": false
                         }
                     }
@@ -94,7 +94,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EnterPowerPlateauCargo": {
+                        "DeliveryJobsEnterPowerPlateauCargo": {
                             "enabled": true
                         }
                     }
@@ -102,7 +102,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EnterPowerPlateauCargo": {
+                        "DeliveryJobsEnterPowerPlateauCargo": {
                             "enabled": false
                         }
                     }
@@ -143,7 +143,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EnterWulingCityCargo": {
+                        "DeliveryJobsEnterWulingCityCargo": {
                             "enabled": true
                         }
                     }
@@ -151,7 +151,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EnterWulingCityCargo": {
+                        "DeliveryJobsEnterWulingCityCargo": {
                             "enabled": false
                         }
                     }

@@ -1,5 +1,5 @@
 {
-    "ProceedToNextStep": {
+    "DeliveryJobsProceedToNextStep": {
         "roi": [
             1193,
             634,
@@ -7,7 +7,7 @@
             28
         ]
     },
-    "CargoFillToMax": {
+    "DeliveryJobsCargoFillToMax": {
         "roi": [
             1151,
             218,
@@ -15,7 +15,7 @@
             19
         ]
     },
-    "CargoBid": {
+    "DeliveryJobsCargoBid": {
         "roi": [
             817,
             561,

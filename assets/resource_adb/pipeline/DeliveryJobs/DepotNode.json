@@ -1,5 +1,5 @@
 {
-    "CheckOriginiumSciencePark": {
+    "DeliveryJobsCheckOriginiumSciencePark": {
         "roi": [
             67,
             264,
@@ -7,7 +7,7 @@
             26
         ]
     },
-    "CheckOriginLodespring": {
+    "DeliveryJobsCheckOriginLodespring": {
         "roi": [
             67,
             264,
@@ -15,7 +15,7 @@
             26
         ]
     },
-    "CheckPowerPlateau": {
+    "DeliveryJobsCheckPowerPlateau": {
         "roi": [
             67,
             264,
@@ -23,7 +23,7 @@
             26
         ]
     },
-    "CheckWulingCity": {
+    "DeliveryJobsCheckWulingCity": {
         "roi": [
             67,
             264,
@@ -31,7 +31,7 @@
             26
         ]
     },
-    "CheckOriginiumScienceParkCargo": {
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
         "roi_offset": [
             -17,
             325,
@@ -39,7 +39,7 @@
             26
         ]
     },
-    "CheckOriginLodespringCargo": {
+    "DeliveryJobsCheckOriginLodespringCargo": {
         "roi_offset": [
             -17,
             325,
@@ -47,7 +47,7 @@
             26
         ]
     },
-    "CheckPowerPlateauCargo": {
+    "DeliveryJobsCheckPowerPlateauCargo": {
         "roi_offset": [
             -17,
             325,
@@ -55,7 +55,7 @@
             26
         ]
     },
-    "CheckWulingCityCargo": {
+    "DeliveryJobsCheckWulingCityCargo": {
         "roi_offset": [
             -17,
             325,
@@ -63,7 +63,7 @@
             26
         ]
     },
-    "CheckDepotNode": {
+    "DeliveryJobsCheckDepotNode": {
         "roi": [
             99,
             167,
