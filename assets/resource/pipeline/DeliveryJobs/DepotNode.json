@@ -1,21 +1,31 @@
 {
     "DeliveryJobsEnterValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DepotButton",
             "CheckValleyIV"
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "DeliveryJobsCheckOriginiumSciencePark",
+            "DeliveryJobsEnterValleyIVDepot"
+        ]
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
+        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DepotButton",
             "CheckWuling"
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "DeliveryJobsCheckWulingCity",
+            "DeliveryJobsEnterWulingDepot"
+        ]
     },
     "DeliveryJobsCheckDepotNode": {
         "doc": "检查是否在仓储节点界面",
