@@ -1,7 +1,17 @@
 {
     "EssenceFilterMain": {
         "doc": "入口点",
-        "next": ["EssenceFilterCheckInInventory"]
+        "next": ["EssenceFilterCheckInInventory"],
+        "on_error": "EssenceFilterMainFailed"
+    },
+
+    "EssenceFilterMainFailed": {
+        "doc": "入口点失败",
+        "action": {"type": "DoNothing"},
+        "focus": {
+            "Node.Action.Failed": "未能进入基质界面，结束任务"
+        },
+        "next": ["EssenceFilterFinish"]
     },
     "EssenceFilterCheckInInventory": {
         "doc": "检查是否在背包Essence页",
