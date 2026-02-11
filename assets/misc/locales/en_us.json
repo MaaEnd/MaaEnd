@@ -83,7 +83,7 @@
     "option.CreditShoppingReserve.label": "Stop buying when credits below 300",
     "option.CreditShoppingReserve.description": "Whitelisted items will still be purchased even below 300 credits!",
     "task.ImportBluePrints.label": "📐 Import Blueprints",
-    "task.ImportBluePrints.description": "Batch import blueprints with smart parsing. **Start this task from 'My Blueprints' page.**",
+    "task.ImportBluePrints.description": "Batch import blueprints with smart parsing.",
     "option.ImportBluePrints.label": "Import Blueprints",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.label": "Blueprint Text",
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "Enter text (any characters allowed). Blueprint share codes will be extracted intelligently.",

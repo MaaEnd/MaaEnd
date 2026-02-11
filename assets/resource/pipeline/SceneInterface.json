@@ -97,10 +97,60 @@
     },
     "SceneEnterWorldValleyIVTheHub": {
         "max_hit": 1,
-        "doc": "从任意界面进入四号谷地-枢纽区大世界，一个task只能运行一次",
+        "doc": "从任意界面进入四号谷地-枢纽区大世界，一个entry只能运行一次",
         "next": [
             "[JumpBack]ScenePrivateAnyEnterWorld",
-            "ScenePrivateWorldEnterWorldValleyIVTheHub"
+            "ScenePrivateWorldAnyEnterWorldValleyIVTheHub"
+        ]
+    },
+    "SceneEnterWorldFactory": {
+        "doc": "从任意界面进入大世界工厂模式",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    60,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/WorldFactoryActive.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateWorldFactoryDisableEnterFactoryActive",
+            "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "ScenePrivateWorldDijiangEnterFactoryActive"
         ]
     },
     "SceneEnterMenuRegionalDevelopment": {
@@ -152,6 +202,31 @@
         "next": [
             "[JumpBack]ScenePrivateAnyEnterWorld",
             "ScenePrivateWorldEnterMenuRegionalDevelopment"
+        ]
+    },
+    "SceneEnterMenuBluePrint": {
+        "doc": "从任意界面进入蓝图菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    800,
+                    80
+                ],
+                "template": [
+                    "SceneManager/BluePrintMy.png",
+                    "SceneManager/BluePrintSystem.png",
+                    "SceneManager/BluePrintShare.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]SceneEnterWorldFactory",
+            "ScenePrivateWorldFactoryEnterMenuBluePrint"
         ]
     },
     "SceneDialogConfirm": {

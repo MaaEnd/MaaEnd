@@ -1,6 +1,6 @@
 {
     "SceneTestEscDialog": {
-        // 用例：在剧情、副本场景下，期望会自动点击esc并确认弹框
+        // 关键用例：在剧情、副本场景下，期望会自动点击esc并确认弹框
         "doc": "测试点击弹框确认按钮",
         "action": {
             "type": "ClickKey",
@@ -15,8 +15,8 @@
         ]
     },
     "SceneTestEnterWorld": {
-        // 用例：在较深界面(背包-武器-升级)开始任务，期望能回到大世界
-        // 用例：在副本界面开始任务，期望能回到大世界
+        // 关键用例：在较深界面(背包-武器-升级)开始任务，期望能回到大世界
+        // 关键用例：在副本界面开始任务，期望能回到大世界
         // TODO：在登录界面，能进入到大世界
         "doc": "在任意场景下，进入大世界",
         "next": [
@@ -46,12 +46,29 @@
         ]
     },
     "SceneTestEnterWorldValleyIVTheHub": {
-        // 用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界
-        // 用例：在武陵大世界开始任务，期望进入四号谷地-枢纽区大世界
-        // 用例：在谷地大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在武陵大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 关键用例：在谷地大世界开始任务，期望进入四号谷地-枢纽区大世界
         "doc": "在任意场景下，进入四号谷地-枢纽区大世界",
         "next": [
             "[JumpBack]SceneEnterWorldValleyIVTheHub",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterWorldFactory": {
+        // 关键用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界并启用工厂模式
+        // 关键用例：在任意大世界开始任务，期望进入开启工厂模式
+        // 关键用例：在战斗状态开始任务，期望进入四号谷地-枢纽区大世界并启用工厂模式
+        "doc": "在任意场景下，进入大世界工厂模式",
+        "next": [
+            "[JumpBack]SceneEnterWorldFactory",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterMenuBluePrint": {
+        "doc": "在任意场景下，进入蓝图菜单",
+        "next": [
+            "[JumpBack]SceneEnterMenuBluePrint",
             "ScenePrivateNextTrue"
         ]
     }

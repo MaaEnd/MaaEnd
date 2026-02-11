@@ -29,5 +29,39 @@
             }
         },
         "inverse": true
+    },
+    "ScenePrivateWorldFactoryEnterMenuBluePrint": {
+        "doc": "从大世界工厂模式进入蓝图菜单",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 112 // F1
+            }
+        },
+        "next": [
+            "[JumpBack]ScenePrivateWorldFactoryEnterMenuBluePrintLoading",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "ScenePrivateWorldFactoryEnterMenuBluePrintLoading": {
+        "doc": "等待切换到蓝图菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    800,
+                    80
+                ],
+                "template": [
+                    "SceneManager/BluePrintMy.png",
+                    "SceneManager/BluePrintSystem.png",
+                    "SceneManager/BluePrintShare.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "inverse": true
     }
 }
