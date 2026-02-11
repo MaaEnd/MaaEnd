@@ -26,7 +26,8 @@
             "CheckWuling",
             "[JumpBack]ConfirmChangeToWuling",
             "[JumpBack]ChangeToWuling",
-            "[JumpBack]ChangeRegionButton"
+            "[JumpBack]ChangeRegionButton",
+            "[JumpBack]BackFromEnvironmentMonitoringTerminal" // 只有从其他地方切换到武陵双击时，才可能会意外进入环境监测终端
         ]
     },
     "CheckValleyIV": {
@@ -159,6 +160,33 @@
         "all_of": [
             "ChangeRegionConfirmButton",
             "CheckWulingSelected"
+        ],
+        "action": "Click"
+    },
+    "CheckOutskirtsMonitoringTerminal": {
+        "doc": "检查是否在城郊监测终端",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            78,
+            66,
+            153,
+            43
+        ],
+        "expected": [
+            "城郊监测终端",
+            "城郊監測終端",
+            "Outskirts Monitoring Terminal",
+            "郊外観測端末",
+            "교외 관측 단말기"
+        ]
+    },
+    "BackFromEnvironmentMonitoringTerminal": {
+        "doc": "从环境监测终端返回上一级",
+        "recognition": "And",
+        "all_of": [
+            "BackButton",
+            "CheckOutskirtsMonitoringTerminal"
         ],
         "action": "Click"
     }
