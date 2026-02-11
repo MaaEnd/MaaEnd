@@ -1,18 +1,17 @@
 {
     // 自动转交运送委托
+    // SceneEnterMenuRegionalDevelopment 暂时不支持 ADB
+    // 使用以前的方法，仅允许从大世界和地区管理页面启动
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
-            "[JumpBack]SceneEnterMenuRegionalDevelopment",
-            "DeliveryJobsLoop"
+            "DeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton"
+            // "[JumpBack]SceneEnterMenuRegionalDevelopment",
         ]
     },
     "DeliveryJobsLoop": {
         "doc": "主循环，确保在地区建设界面",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "IncomeReportButton"
@@ -26,8 +25,6 @@
     "DeliveryJobsValleyIV": {
         "doc": "四号谷地运送委托",
         "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
             "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
@@ -43,8 +40,6 @@
     "DeliveryJobsWuling": {
         "doc": "武陵运送委托",
         "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
@@ -56,8 +51,6 @@
         ]
     },
     "DeliveryJobsFinished": {
-        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服",
-        "pre_delay": 0,
-        "post_delay": 0
+        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服"
     }
 }
