@@ -25,6 +25,7 @@
         },
         "post_delay": 800, // 等待弹框出现完毕
         "next": [
+            "[JumpBack]ScenePrivateLogin",
             "[JumpBack]SceneDialogConfirm",
             "[JumpBack]ScenePrivateEndVisitConfirm",
             "[JumpBack]SceneWaitLoadingExit",
