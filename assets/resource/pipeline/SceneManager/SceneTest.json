@@ -1,0 +1,58 @@
+{
+    "SceneTestEscDialog": {
+        // 用例：在剧情、副本场景下，期望会自动点击esc并确认弹框
+        "doc": "测试点击弹框确认按钮",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_delay": 800, // 等待弹框出现
+        "next": [
+            "[JumpBack]SceneDialogConfirm",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterWorld": {
+        // 用例：在较深界面(背包-武器-升级)开始任务，期望能回到大世界
+        // 用例：在副本界面开始任务，期望能回到大世界
+        // TODO：在登录界面，能进入到大世界
+        "doc": "在任意场景下，进入大世界",
+        "next": [
+            "[JumpBack]ScenePrivateAnyEnterWorld",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterMapDijiang": {
+        "doc": "在任意场景下，进入帝江号地图",
+        "next": [
+            "[JumpBack]SceneEnterMapDijiang",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterWorldDijiang": {
+        "doc": "在任意场景下，进入帝江号大世界",
+        "next": [
+            "[JumpBack]SceneEnterWorldDijiang",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterMenuRegionalDevelopment": {
+        "doc": "在任意场景下，进入地区建设菜单",
+        "next": [
+            "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            "ScenePrivateNextTrue"
+        ]
+    },
+    "SceneTestEnterWorldValleyIVTheHub": {
+        // 用例：在帝江号大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 用例：在武陵大世界开始任务，期望进入四号谷地-枢纽区大世界
+        // 用例：在谷地大世界开始任务，期望进入四号谷地-枢纽区大世界
+        "doc": "在任意场景下，进入四号谷地-枢纽区大世界",
+        "next": [
+            "[JumpBack]SceneEnterWorldValleyIVTheHub",
+            "ScenePrivateNextTrue"
+        ]
+    }
+}

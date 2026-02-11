@@ -52,8 +52,8 @@
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
                 "screencap": "DXGI_DesktopDup_Window",
-                "mouse": "SendMessageWithCursorPos",
-                "keyboard": "SendMessageWithCursorPos"
+                "mouse": "Seize",
+                "keyboard": "Seize"
             },
             "permission_required": true
         },

@@ -1,0 +1,86 @@
+{
+    "ScenePrivateWorldEnterWorldDijiang": {
+        "doc": "在大世界界面，进入帝江号大世界",
+        "next": [
+            "[JumpBack]ScenePrivateWorldEnterMapDijiang",
+            "ScenePrivateMapEnterTeleport"
+        ]
+    },
+    "ScenePrivateWorldEnterMapDijiang": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77 // M
+            }
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
+            "ScenePrivateMapAnyEnterMapDijiangSuccess",
+            "ScenePrivateMapNotDijiangEnterMapDijiang"
+        ]
+    },
+    "ScenePrivateMapNotDijiangEnterMapDijiang": {
+        "doc": "在地图非帝江号界面，进入帝江号地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    0,
+                    260,
+                    160
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    0,
+                    0,
+                    -5
+                ]
+            }
+        },
+        "next": [
+            // "[JumpBack]ScenePrivateAnyEnterMapLoading",
+            "ScenePrivateMapAnyEnterMapDijiangSuccess"
+        ]
+    },
+    "ScenePrivateMapAnyEnterMapDijiangSuccess": {
+        "doc": "在地图界面，成功进入帝江号地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        }
+    }
+}

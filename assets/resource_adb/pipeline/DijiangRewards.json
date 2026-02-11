@@ -128,46 +128,10 @@
         }
     },
     "SendClues": {
-        //线索过多,发送一个
-        "recognition": {
-            "type": "Or",
+        "action": {
+            "type": "ClickKey",
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    1183,
-                                    646,
-                                    64,
-                                    31
-                                ],
-                                "only_rec": true,
-                                "expected": [
-                                    "20/20"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    286,
-                                    174,
-                                    849,
-                                    276
-                                ],
-                                "expected": [
-                                    "线索已满" //#不确定
-
-                                ]
-                            }
-                        }
-                    }
-                ]
+                "key": 4
             }
         }
     },
@@ -261,6 +225,21 @@
                             }
                         }
                     }
+                ]
+            }
+        }
+    },
+    "SendCluesSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    225,
+                    572
+                ],
+                "end": [
+                    236,
+                    231
                 ]
             }
         }
