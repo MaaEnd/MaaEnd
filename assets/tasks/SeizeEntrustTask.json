@@ -7,12 +7,6 @@
             "description": "$task.SeizeEntrustTask.description",
             "option": [
                 "SeizeEntrustTaskisSwipeMiddle"
-            ],
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Front",
-                "ADB"
             ]
         }
     ],
