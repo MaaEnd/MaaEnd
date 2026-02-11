@@ -502,7 +502,7 @@
         },
         "timeout": 5000,
         "next": ["ResellShipExitToFriendPage"],
-        "on_error": ["ResellShipExitToFriendPage"]
+        "on_error": ["ResellShipEndVisitCheck"]
     },
     "ResellShipExitToFriendPage": {
         "doc": "ESC进入好友拜访界面",
