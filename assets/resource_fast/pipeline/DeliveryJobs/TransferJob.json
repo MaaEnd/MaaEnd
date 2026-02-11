@@ -20,7 +20,16 @@
         "next": [
             "DeliveryJobsClickTransferJob",
             "DeliveryJobsEnterDeliveryJob"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsClickTransferJob": {
         "doc": "单击转交任务",

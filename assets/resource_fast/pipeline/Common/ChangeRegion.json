@@ -89,7 +89,16 @@
             "四号谷地",
             "4번 협곡"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ChangeToWuling": {
         "doc": "更改至武陵",
@@ -108,7 +117,16 @@
             "武陵",
             "무릉"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "CheckValleyIVSelected": {
         "doc": "检查当前选中地区是否是四号谷地",
@@ -152,7 +170,16 @@
             "ChangeRegionConfirmButton",
             "CheckValleyIVSelected"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ConfirmChangeToWuling": {
         "doc": "确认更改至武陵",
@@ -161,7 +188,16 @@
             "ChangeRegionConfirmButton",
             "CheckWulingSelected"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "CheckOutskirtsMonitoringTerminal": {
         "doc": "检查是否在城郊监测终端",
@@ -188,6 +224,15 @@
             "BackButton",
             "CheckOutskirtsMonitoringTerminal"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }

@@ -11,7 +11,16 @@
         "next": [
             "DeliveryJobsCheckOriginiumSciencePark",
             "DeliveryJobsEnterValleyIVDepot"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
@@ -25,7 +34,16 @@
         "next": [
             "DeliveryJobsCheckWulingCity",
             "DeliveryJobsEnterWulingDepot"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsCheckDepotNode": {
         "doc": "检查是否在仓储节点界面",
@@ -353,6 +371,15 @@
             "DeliveryJobsLoop",
             "[JumpBack]RegionalDevelopmentButton", // 有可能会连续单击两次返回按钮，退回到大世界中
             "DeliveryJobsBackToRegionalConstruction"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }

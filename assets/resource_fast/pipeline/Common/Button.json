@@ -11,7 +11,16 @@
             84
         ],
         "action": "ClickKey",
-        "key": 89
+        "key": 89,
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ControlNexusButton": {
         "doc": "帝江号大世界中的控制枢纽按钮",
