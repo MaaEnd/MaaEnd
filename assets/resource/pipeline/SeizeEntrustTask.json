@@ -126,13 +126,7 @@
             "type": "TemplateMatch"
         }
     },
-    "SeizeEntrustTaskEntry": {
-        "next": [
-            "SeizeEntrustTaskMain",
-            "AndroidSeizeEntrustTaskMain"
-        ],
-        "recognition": "DirectHit"
-    },
+
     "SeizeEntrustTaskMain": {
         "focus": {
             "Node.Recognition.Succeeded": "进入抢武陵城委托任务"

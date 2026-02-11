@@ -3,7 +3,7 @@
         {
             "name": "SeizeEntrustTask",
             "label": "$task.SeizeEntrustTask.label",
-            "entry": "SeizeEntrustTaskEntry",
+            "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
                 "SeizeEntrustTaskisSwipeMiddle"

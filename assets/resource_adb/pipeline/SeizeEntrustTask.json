@@ -1,5 +1,5 @@
 {
-    "AndroidSeizeEntrustTaskErrorTaskStop": {
+    "SeizeEntrustTaskErrorTaskStop": {
         "action": {
             "param": {},
             "type": "StopTask"
@@ -23,7 +23,7 @@
             "type": "OCR"
         }
     },
-    "AndroidSeizeEntrustTaskPostEntrust3": {
+    "SeizeEntrustTaskPostEntrust3": {
         "action": {
             "param": {},
             "type": "Click"
@@ -36,7 +36,7 @@
                 "expected": [
                     "接取运送委托"
                 ],
-                "roi": "AndroidSeizeEntrustTaskFound7.31wMoney",
+                "roi": "SeizeEntrustTaskFound7.31wMoney",
                 "roi_offset": [
                     169,
                     17,
@@ -47,15 +47,14 @@
             "type": "OCR"
         }
     },
-    
-    "AndroidSeizeEntrustTaskFound7.31wMoney": {
+    "SeizeEntrustTaskFound7.31wMoney": {
         "next": [
-            "AndroidSeizeEntrustTaskPostEntrust3"
+            "SeizeEntrustTaskPostEntrust3"
         ],
         "recognition": {
             "param": {
                 "template": [
-                    "SeizeEntrustTask/Android7.31wMoney.png"
+                    "SeizeEntrustTask/7.31wMoney.png"
                 ],
                 "threshold": [
                     0.9
@@ -64,9 +63,9 @@
             "type": "TemplateMatch"
         }
     },
-    "AndroidSeizeEntrustTaskFound7.31wMoneyF1": {
+    "SeizeEntrustTaskFound7.31wMoneyF1": {
         "next": [
-            "AndroidSeizeEntrustTaskFound7.31wMoney"
+            "SeizeEntrustTaskFound7.31wMoney"
         ],
         "recognition": {
             "type": "And",
@@ -78,7 +77,7 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "template": [
-                                    "SeizeEntrustTask/Android7.31wMoney.png"
+                                    "SeizeEntrustTask/7.31wMoney.png"
                                 ],
                                 "threshold": [
                                     0.9
@@ -103,7 +102,6 @@
                                     60,
                                     60
                                 ]
-                
                             }
                         }
                     }
@@ -111,7 +109,7 @@
             }
         }
     },
-    "AndroidSeizeEntrustTaskInDownSwipeUp": {
+    "SeizeEntrustTaskInDownSwipeUp": {
         "action": {
             "param": {
                 "begin": [
@@ -143,7 +141,7 @@
             "type": "TemplateMatch"
         }
     },
-    "AndroidSeizeEntrustTaskInUpSwipeDown": {
+    "SeizeEntrustTaskInUpSwipeDown": {
         "action": {
             "param": {
                 "begin": [
@@ -173,12 +171,12 @@
             "type": "TemplateMatch"
         }
     },
-    "AndroidSeizeEntrustTaskMain": {
+    "SeizeEntrustTaskMain": {
         "focus": {
             "Node.Recognition.Succeeded": "现在开始抢武陵城委托"
         },
         "next": [
-            "AndroidisSeizeEntrustTaskDestinationWulingCity"
+            "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [
             "SeizeEntrustTaskStopTask2"
@@ -199,14 +197,14 @@
         },
         "timeout": 2000
     },
-    "AndroidSeizeEntrustTaskNews": {
+    "SeizeEntrustTaskNews": {
         "action": {
             "param": {},
             "type": "Click"
         },
         "doc": "刷新动作",
         "next": [
-            "AndroidSeizeEntrustTaskNewsStatus1"
+            "SeizeEntrustTaskNewsStatus1"
         ],
         "rate_limit": 1000,
         "recognition": {
@@ -224,14 +222,14 @@
             "type": "OCR"
         }
     },
-    "AndroidSeizeEntrustTaskNews2": {
+    "SeizeEntrustTaskNews2": {
         "action": {
             "param": {},
             "type": "Click"
         },
         "doc": "依旧刷新动作",
         "next": [
-            "AndroidSeizeEntrustTaskNewsStatus2"
+            "SeizeEntrustTaskNewsStatus2"
         ],
         "rate_limit": 100,
         "recognition": {
@@ -249,12 +247,12 @@
             "type": "OCR"
         }
     },
-    "AndroidSeizeEntrustTaskNewsStatus1": {
+    "SeizeEntrustTaskNewsStatus1": {
         "next": [
-            "[JumpBack]AndroidSeizeEntrustTaskFound7.31wMoneyF1",
-            "[JumpBack]AndroidSeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]AndroidSeizeEntrustTaskInUpSwipeDown",
-            "[JumpBack]AndroidSeizeEntrustTaskNews2"
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]SeizeEntrustTaskNews2"
         ],
         "recognition": {
             "param": {
@@ -271,9 +269,9 @@
             "type": "OCR"
         }
     },
-    "AndroidSeizeEntrustTaskNewsStatus2": {
+    "SeizeEntrustTaskNewsStatus2": {
         "next": [
-            "AndroidisSeizeEntrustTaskDestinationWulingCity"
+            "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "recognition": {
             "param": {
@@ -290,12 +288,12 @@
             "type": "OCR"
         }
     },
-    "AndroidisSeizeEntrustTaskDestinationWulingCity": {
+    "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
-            "[JumpBack]AndroidSeizeEntrustTaskFound7.31wMoneyF1",
-            "[JumpBack]AndroidSeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]AndroidSeizeEntrustTaskInDownSwipeUp",
-            "[JumpBack]AndroidSeizeEntrustTaskNews"
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
+            "[JumpBack]SeizeEntrustTaskNews"
         ]
     }
 }
