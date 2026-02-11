@@ -889,7 +889,7 @@
     "SellProductAtFriendBack": {
         "pre_delay": 0,
         "post_delay": 0,
-        "doc": "111",
+        "doc": "成功返回自己家",
         "recognition": {
             "type": "OCR",
             "param": {
