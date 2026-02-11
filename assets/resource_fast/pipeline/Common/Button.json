@@ -91,6 +91,7 @@
             54
         ],
         "threshold": 0.8,
+        "method": 10001,
         "action": "Click"
     }
 }
