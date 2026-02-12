@@ -14,12 +14,21 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "DeliveryJobsBackToHome",
             "DeliveryJobsClickScreenToContinue",
-            "DeliveryJobsCargoBid",
-            "DeliveryJobsCargoFillToMax",
-            "DeliveryJobsProceedToNextStep"
-        ]
+            "DeliveryJobsBackToHome",
+            "DeliveryJobsProceedToNextStep",
+            "[JumpBack]DeliveryJobsCargoBid",
+            "[JumpBack]DeliveryJobsCargoFillToMax"
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsCargoFillToMax": {
         "doc": "装满货物",
@@ -33,9 +42,15 @@
         ],
         "threshold": 0.8,
         "action": "Click",
-        "next": [
-            "DeliveryJobsProceedToNextStep"
-        ]
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsCargoBid": {
         "doc": "货物竞价",
@@ -48,13 +63,10 @@
             33
         ],
         "threshold": 0.8,
-        "action": "Click",
-        "next": [
-            "DeliveryJobsProceedToNextStep"
-        ]
+        "action": "Click"
     },
     "DeliveryJobsClickScreenToContinue": {
-        "doc": "单击屏幕继续，会直接回到大世界界面",
+        "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -70,10 +82,19 @@
             "クリックして続行",
             "화면을 눌러 계속하기"
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsBackToHome": {
-        "doc": "已回到大世界（左上角出现地区建设入口），用于跳出循环",
+        "doc": "已回到大世界（左上角出现地区建设入口）。跳出循环",
         "recognition": "Or",
         "any_of": [
             "RegionalDevelopmentButton"

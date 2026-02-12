@@ -11,7 +11,16 @@
             84
         ],
         "action": "ClickKey",
-        "key": 89
+        "key": 89,
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ControlNexusButton": {
         "doc": "帝江号大世界中的控制枢纽按钮",
@@ -57,7 +66,7 @@
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
         "template": "Common/ChangeRegionButton.png",
-        "threshold": 0.8,
+        "threshold": 0.9,
         "roi": [
             139,
             263,
@@ -71,13 +80,14 @@
         "doc": "地区建设中的确认更换地区按钮",
         "recognition": "TemplateMatch",
         "template": "Common/ChangeRegionConfirmButton.png",
-        "threshold": 0.8,
+        "threshold": 0.9,
         "roi": [
             784,
             371,
             118,
             115
         ],
+        "method": 10001,
         "action": "Click"
     },
     "BackButton": {
@@ -90,7 +100,35 @@
             70,
             54
         ],
-        "threshold": 0.8,
+        "threshold": 0.9,
+        "method": 10001,
         "action": "Click"
+    },
+    "RegionalDevelopmentLevelButton": {
+        "doc": "地区建设中的地区建设等级按钮",
+        "recognition": "OCR",
+        "roi": [
+            491,
+            337,
+            219,
+            116
+        ],
+        "expected": [
+            "地区建设等级",
+            "地區建設等級",
+            "Regional Development Level",
+            "地域建設レベル",
+            "지역 건설 레벨"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }

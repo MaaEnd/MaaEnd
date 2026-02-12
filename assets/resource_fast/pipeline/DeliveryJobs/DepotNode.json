@@ -11,7 +11,16 @@
         "next": [
             "DeliveryJobsCheckOriginiumSciencePark",
             "DeliveryJobsEnterValleyIVDepot"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
@@ -25,7 +34,16 @@
         "next": [
             "DeliveryJobsCheckWulingCity",
             "DeliveryJobsEnterWulingDepot"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsCheckDepotNode": {
         "doc": "检查是否在仓储节点界面",
@@ -59,8 +77,6 @@
     },
     "DeliveryJobsCheckValleyIVDepotLocked": {
         "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -75,8 +91,6 @@
     },
     "DeliveryJobsCheckWulingDepotLocked": {
         "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
@@ -315,8 +329,6 @@
     },
     "DeliveryJobsValleyIVCargoNotReady": {
         "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
@@ -329,8 +341,6 @@
     },
     "DeliveryJobsWulingCargoNotReady": {
         "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckDepotNode",
@@ -351,7 +361,17 @@
         "action": "Click",
         "next": [
             "DeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton", // 有可能会连续单击两次返回按钮，退回到大世界中
             "DeliveryJobsBackToRegionalConstruction"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }

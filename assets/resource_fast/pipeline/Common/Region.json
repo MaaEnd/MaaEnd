@@ -2,7 +2,7 @@
     "InWorld": {
         "doc": "在大世界界面",
         "recognition": "TemplateMatch",
-        "template": "SceneManager/WorldMenu.png",
+        "template": "Common/WorldMenu.png",
         "roi": [
             -200,
             0,
