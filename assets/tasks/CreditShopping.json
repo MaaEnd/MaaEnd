@@ -5,11 +5,6 @@
             "label": "$task.CreditShopping.label",
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
-            "controller": [
-                "Win32",
-                "Win32-Front",
-                "Win32-Window"
-            ],
             "option": [
                 "CreditShoppingOptions",
                 "CreditShoppingForce",
