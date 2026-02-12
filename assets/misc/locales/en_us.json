@@ -17,6 +17,8 @@
     "option.AutoFight.label": "Combat Assist",
     "option.AutoFight.description": "Semi-automatic combat.",
     "option.AutoFightAttack.label": "Auto Basic Attack",
+    "option.AutoFightAttackKey.label": "Remap Basic Attack Key",
+    "option.AutoFightAttackKey.description": "Requires in-game setting: Basic Attack - Key 2 set to 0",
     "option.AutoFightSkill.label": "Auto Use Skills",
     "option.AutoFightEndSkill.label": "Auto Use Ultimate",
     "option.AutoFightCombo.label": "Auto Trigger Link Skills",

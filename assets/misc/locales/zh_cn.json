@@ -17,6 +17,8 @@
     "option.AutoFight.label": "辅助战斗",
     "option.AutoFight.description": "半自动战斗",
     "option.AutoFightAttack.label": "自动普攻",
+    "option.AutoFightAttackKey.label": "普攻改键",
+    "option.AutoFightAttackKey.description": "需在游戏中设置:普通攻击-按键2改为0",
     "option.AutoFightSkill.label": "自动释放技能",
     "option.AutoFightEndSkill.label": "自动释放终结技",
     "option.AutoFightCombo.label": "自动触发连携技能",

@@ -17,6 +17,8 @@
     "option.AutoFight.label": "전투 보조",
     "option.AutoFight.description": "반자동 전투입니다.",
     "option.AutoFightAttack.label": "기본 공격 자동",
+    "option.AutoFightAttackKey.label": "기본 공격 키 변경",
+    "option.AutoFightAttackKey.description": "게임 내 설정 필요: 기본 공격 - 키 2를 0으로 설정",
     "option.AutoFightSkill.label": "스킬 자동 사용",
     "option.AutoFightEndSkill.label": "궁극기 자동 사용",
     "option.AutoFightCombo.label": "연계 스킬 자동 발동",
