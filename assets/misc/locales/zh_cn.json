@@ -78,6 +78,8 @@
     "option.CreditShoppingOnlyDiscount.description": "⚠️注意：可能会导致信用点溢出！仍然会购买非打折的白名单物品！",
     "option.CreditShoppingReserve.label": "信用点低于 300 时停止购买物品",
     "option.CreditShoppingReserve.description": "低于 300 信用点也仍然会购买白名单物品！",
+    "option.AutoGetCredits.label": "自动获取信用点",
+    "option.AutoGetCredits.description": "基建联动功能,在信用点不足时自动去帝江号会客室收取信用",
     "task.ImportBluePrints.label": "📐一键导入蓝图",
     "task.ImportBluePrints.description": "一键批量导入蓝图，支持智能解析",
     "option.ImportBluePrints.label": "导入蓝图",
