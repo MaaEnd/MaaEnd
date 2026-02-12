@@ -30,7 +30,6 @@
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-
         ]
     },
     "ControlNexus": {
@@ -60,7 +59,6 @@
             "[JumpBack]CarbinSwipe",
             "[JumpBack]ConfirmExchangeEnd",
             "[JumpBack]CloseDijiangRewards"
-
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -110,7 +108,6 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -443,22 +440,59 @@
             }
         },
         "next": [
+            "ReadySetClues"
+        ]
+    },
+    "ReadySetClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "线索"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "next": [
+            "AlreadyHaveClues",
             "SetClues"
         ]
+    },
+    "AlreadyHaveClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "已填入"
+                ],
+                "order_by": "Vertical"
+            }
+        }
     },
     "SetClues": {
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    952,
-                    189,
-                    311,
-                    500
+                    868,
+                    182,
+                    393,
+                    130
                 ],
                 "expected": [
-                    "线索" //#I18N
-
+                    "线索"
                 ],
                 "order_by": "Vertical"
             }
@@ -592,7 +626,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dy": -240
+                "dy": -120
             }
         }
     },
@@ -1847,9 +1881,10 @@
             }
         },
         "next": [
+            "InControlNexus",
             "[JumpBack]UseAssist",
-            "BackToControlNexus",
-            "ExitProductionAssistInDijiang"
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]ExitProductionAssistInDijiang"
         ]
     },
     "BackToControlNexus": {

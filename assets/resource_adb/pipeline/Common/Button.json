@@ -1,5 +1,14 @@
 {
     "RegionalDevelopmentButton": {
         "action": "Click"
+    },
+    "ControlNexusButton": {
+        "roi": [
+            332,
+            3,
+            62,
+            52
+        ],
+        "action": "Click"
     }
 }

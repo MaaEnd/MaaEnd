@@ -8,6 +8,7 @@
         ]
     },
     "PressEsc": {
+        "desc": "在帝江号大世界按下Esc键打开菜单",
         "recognition": {
             "type": "And",
             "param": {

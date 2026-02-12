@@ -1,0 +1,188 @@
+{
+    "RegionalDevelopmentButton": {
+        "doc": "大世界中的地区建设按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/RegionalDevelopmentButton.png",
+        "threshold": 0.8,
+        "roi": [
+            164,
+            3,
+            232,
+            84
+        ],
+        "action": "ClickKey",
+        "key": 89,
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ControlNexusButton": {
+        "doc": "帝江号大世界中的控制枢纽按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ControlNexusButton.png",
+        "threshold": 0.8,
+        "roi": [
+            258,
+            0,
+            59,
+            68
+        ],
+        "action": "ClickKey",
+        "key": 73,
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "IncomeReportButton": {
+        "doc": "地区建设中的收支简报按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/IncomeReportButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1173,
+            91,
+            68,
+            87
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DepotButton": {
+        "doc": "地区建设中的仓储节点按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/DepotButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1007,
+            331,
+            40,
+            52
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ChangeRegionButton": {
+        "doc": "地区建设中的更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionButton.png",
+        "threshold": 0.9,
+        "roi": [
+            139,
+            263,
+            87,
+            100
+        ],
+        "method": 10001,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ChangeRegionConfirmButton": {
+        "doc": "地区建设中的确认更换地区按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ChangeRegionConfirmButton.png",
+        "threshold": 0.9,
+        "roi": [
+            784,
+            371,
+            118,
+            115
+        ],
+        "method": 10001,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "BackButton": {
+        "doc": "返回按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/BackButton.png",
+        "roi": [
+            1195,
+            3,
+            70,
+            54
+        ],
+        "threshold": 0.9,
+        "method": 10001,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "RegionalDevelopmentLevelButton": {
+        "doc": "地区建设中的地区建设等级按钮",
+        "recognition": "OCR",
+        "roi": [
+            491,
+            337,
+            219,
+            116
+        ],
+        "expected": [
+            "地区建设等级",
+            "地區建設等級",
+            "Regional Development Level",
+            "地域建設レベル",
+            "지역 건설 레벨"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}
