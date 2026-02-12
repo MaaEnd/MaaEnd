@@ -365,6 +365,10 @@
         ]
     },
     "CreditShoppingNothingToBuy": {
-        "recognition": "DirectHit"
+        "recognition": "DirectHit",
+        "next": [
+            "InMainWindow",
+            "[JumpBack]BackButton"
+        ]
     }
 }
