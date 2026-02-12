@@ -6,7 +6,9 @@
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
             "controller": [
-                "ADB"
+                "Win32",
+                "Win32-Front",
+                "Win32-Window"
             ],
             "option": [
                 "CreditShoppingOptions",
