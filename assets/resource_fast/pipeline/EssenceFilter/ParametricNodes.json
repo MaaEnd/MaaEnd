@@ -17,6 +17,15 @@
                     0
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                979,
+                101,
+                283,
+                250
+            ]
         }
     },
     "EssenceColorMatch": {
