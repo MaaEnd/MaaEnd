@@ -1881,9 +1881,10 @@
             }
         },
         "next": [
+            "InControlNexus",
             "[JumpBack]UseAssist",
-            "BackToControlNexus",
-            "ExitProductionAssistInDijiang"
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]ExitProductionAssistInDijiang"
         ]
     },
     "BackToControlNexus": {
