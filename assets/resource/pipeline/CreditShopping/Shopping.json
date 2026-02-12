@@ -36,6 +36,7 @@
     "CreditShoppingReserveCredit": {
         "doc": "信用点 < 300",
         "recognition": "OCR",
+        "only_rec": true,
         "roi": [
             1083,
             17,
@@ -244,6 +245,30 @@
                 "count": 20000
             },
             {
+                "doc": "有折扣（价格是黄色）",
+                "sub_name": "IsDiscount",
+                "recognition": "ColorMatch",
+                "roi": "NotSoldOut",
+                "roi_offset": [
+                    100,
+                    0,
+                    -100,
+                    -150
+                ],
+                "lower": [
+                    255,
+                    220,
+                    0
+                ],
+                "upper": [
+                    255,
+                    220,
+                    0
+                ],
+                "count": 500,
+                "order_by": "vertical"
+            },
+            {
                 "sub_name": "BlacklistOCR",
                 "recognition": "OCR",
                 "roi": "NotSoldOut",
@@ -278,30 +303,6 @@
                     108
                 ],
                 "count": 20,
-                "order_by": "vertical"
-            },
-            {
-                "doc": "有折扣（价格是黄色）",
-                "sub_name": "IsDiscount",
-                "recognition": "ColorMatch",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    100,
-                    0,
-                    -100,
-                    -150
-                ],
-                "lower": [
-                    255,
-                    220,
-                    0
-                ],
-                "upper": [
-                    255,
-                    220,
-                    0
-                ],
-                "count": 500,
                 "order_by": "vertical"
             }
         ],
