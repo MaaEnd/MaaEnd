@@ -13,7 +13,8 @@ import (
 var buildSlotIndicesOnce sync.Once
 
 // MatchEssenceSkills - 先用原始清洗文本匹配，失败后再用相近字替换后的文本匹配
-func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombination, bool) {
+// 返回结构化的技能组合匹配结果（可能对应多把武器），不再在此处拼接武器名字符串。
+func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombinationMatch, bool) {
 	if len(ocrSkills) != 3 {
 		log.Warn().Int("len", len(ocrSkills)).Strs("ocr_skills", ocrSkills).Msg("[EssenceFilter] MatchEssenceSkills: OCR 数量不足")
 		return nil, false
@@ -32,20 +33,43 @@ func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombination
 		log.Debug().Int("slot", i+1).Str("skill", skill).Int("skill_id", id).Msg("[EssenceFilter] OCR 技能映射结果")
 	}
 
+	var matchedWeapons []WeaponData
+	var skillIDs []int
+	var skillsChinese []string
 	for _, combination := range targetSkillCombinations {
 		if len(combination.SkillIDs) == 3 &&
 			ocrSkillIDs[0] == combination.SkillIDs[0] &&
 			ocrSkillIDs[1] == combination.SkillIDs[1] &&
 			ocrSkillIDs[2] == combination.SkillIDs[2] {
-			log.Info().
-				Str("weapon", combination.Weapon.ChineseName).
-				Ints("ocr_skill_ids", ocrSkillIDs).
-				Ints("expected_ids", combination.SkillIDs).
-				Strs("ocr_skills", ocrSkills).
-				Strs("expected_skills", combination.SkillsChinese).
-				Msg("[EssenceFilter] MatchEssenceSkills: ID 匹配成功")
-			return &combination, true
+			if len(matchedWeapons) == 0 {
+				// 保存基础的技能 ID / 中文名信息
+				skillIDs = append([]int(nil), combination.SkillIDs...)
+				skillsChinese = append([]string(nil), combination.SkillsChinese...)
+			}
+			matchedWeapons = append(matchedWeapons, combination.Weapon)
 		}
+	}
+
+	if len(matchedWeapons) > 0 {
+		weaponNames := make([]string, 0, len(matchedWeapons))
+		for _, w := range matchedWeapons {
+			weaponNames = append(weaponNames, w.ChineseName)
+		}
+
+		result := &SkillCombinationMatch{
+			SkillIDs:      skillIDs,
+			SkillsChinese: skillsChinese,
+			Weapons:       matchedWeapons,
+		}
+
+		log.Info().
+			Strs("weapons", weaponNames).
+			Ints("ocr_skill_ids", ocrSkillIDs).
+			Ints("expected_ids", result.SkillIDs).
+			Strs("ocr_skills", ocrSkills).
+			Strs("expected_skills", result.SkillsChinese).
+			Msg("[EssenceFilter] MatchEssenceSkills: ID 匹配成功")
+		return result, true
 	}
 
 	log.Info().

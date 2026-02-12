@@ -6,7 +6,33 @@
             "OpenFriendList",
             "OpenFriendListFromFriendShip",
             "EnterPauseMenu",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "OpenFriendListFromFriendShip": {
+        "doc": "在好友船上时按 Esc 会打开好友列表（而非暂停菜单），按下 Esc 后进入好友列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ArriveShip.png",
+                "roi": [
+                    1166,
+                    0,
+                    114,
+                    76
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_wait_freezes": 2,
+        "next": [
+            "OnFriendList"
         ]
     },
     "OpenFriendListFromFriendShip": {

@@ -3,6 +3,7 @@ package essencefilter
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -135,6 +136,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
 	visitedCount = 0
 	matchedCount = 0
+	matchedCombinationSummary = make(map[string]*SkillCombinationSummary)
 	currentCol = 1
 	currentRow = 1
 	maxItemsPerRow = 9
@@ -475,7 +477,7 @@ type EssenceFilterSkillDecisionAction struct{}
 func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	skills := []string{currentSkills[0], currentSkills[1], currentSkills[2]}
 
-	combination, matched := MatchEssenceSkills(ctx, skills)
+	matchResult, matched := MatchEssenceSkills(ctx, skills)
 	MatchedMessageColor := "#00bfff"
 	if matched {
 		MatchedMessageColor = "#064d7c"
@@ -484,10 +486,58 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]), MatchedMessageColor)
 	if matched {
 		matchedCount++
-		log.Info().Str("weapon", combination.Weapon.ChineseName).Strs("skills", skills).Ints("skill_ids", combination.SkillIDs).Int("matched_count", matchedCount).Msg("<EssenceFilter> match ok, lock next")
-		weaponcolor := getColorForRarity(combination.Weapon.Rarity)
-		MatchedMessage := fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：<span style="color: %s;">%s</span></div>`, weaponcolor, combination.Weapon.ChineseName)
+
+		// 提取所有可能武器名，交给 UI 层做展示格式化
+		weaponNames := make([]string, 0, len(matchResult.Weapons))
+		for _, w := range matchResult.Weapons {
+			weaponNames = append(weaponNames, w.ChineseName)
+		}
+
+		log.Info().
+			Strs("weapons", weaponNames).
+			Strs("skills", skills).
+			Ints("skill_ids", matchResult.SkillIDs).
+			Int("matched_count", matchedCount).
+			Msg("<EssenceFilter> match ok, lock next")
+
+		// 按各自稀有度为每把武器单独着色
+		var weaponsHTML strings.Builder
+		for i, w := range matchResult.Weapons {
+			if i > 0 {
+				weaponsHTML.WriteString("、")
+			}
+			weaponColor := getColorForRarity(w.Rarity)
+			weaponsHTML.WriteString(fmt.Sprintf(
+				`<span style="color: %s;">%s</span>`,
+				weaponColor, escapeHTML(w.ChineseName),
+			))
+		}
+		MatchedMessage := fmt.Sprintf(
+			`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`,
+			weaponsHTML.String(),
+		)
 		LogMXUHTML(ctx, MatchedMessage)
+
+		// 更新本轮运行的技能组合统计信息
+		key := skillCombinationKey(matchResult.SkillIDs)
+		if key != "" {
+			if s, ok := matchedCombinationSummary[key]; ok {
+				s.Count++
+			} else {
+				idsCopy := append([]int(nil), matchResult.SkillIDs...)
+				cfgSkillsCopy := append([]string(nil), matchResult.SkillsChinese...)
+				ocrSkillsCopy := append([]string(nil), skills...)
+				weaponsCopy := make([]WeaponData, len(matchResult.Weapons))
+				copy(weaponsCopy, matchResult.Weapons)
+				matchedCombinationSummary[key] = &SkillCombinationSummary{
+					SkillIDs:      idsCopy,
+					SkillsChinese: cfgSkillsCopy,
+					OCRSkills:     ocrSkillsCopy,
+					Weapons:       weaponsCopy,
+					Count:         1,
+				}
+			}
+		}
 
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterLockItemLog"},
@@ -514,12 +564,16 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("筛选完成！共历遍物品：%d，确认锁定物品：%d", visitedCount, matchedCount), "#11cf00")
 
+	// 追加本轮战利品摘要
+	logMatchSummary(ctx)
+
 	targetSkillCombinations = nil
 	matchedCount = 0
 	visitedCount = 0
 	for i := range filteredSkillStats {
 		filteredSkillStats[i] = nil
 	}
+	matchedCombinationSummary = nil
 	statsLogged = false
 	currentCol = 1
 	currentRow = 1
@@ -604,4 +658,99 @@ func getColorForRarity(rarity int) string {
 	default:
 		return "#493a3a" // Default color
 	}
+}
+
+// escapeHTML - 简单封装 html.EscapeString，便于后续统一替换/扩展
+func escapeHTML(s string) string {
+	return html.EscapeString(s)
+}
+
+// formatWeaponNames - 将多把武器名格式化为展示字符串（UI 层负责拼接与本地化）
+func formatWeaponNames(weapons []WeaponData) string {
+	if len(weapons) == 0 {
+		return ""
+	}
+	names := make([]string, 0, len(weapons))
+	for _, w := range weapons {
+		names = append(names, w.ChineseName)
+	}
+	// 这里采用顿号拼接，更符合中文习惯；如需本地化，可进一步抽象
+	return strings.Join(names, "、")
+}
+
+// formatWeaponNamesColoredHTML - 按稀有度为每把武器着色并拼接成 HTML 片段
+func formatWeaponNamesColoredHTML(weapons []WeaponData) string {
+	if len(weapons) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	for i, w := range weapons {
+		if i > 0 {
+			b.WriteString("、")
+		}
+		color := getColorForRarity(w.Rarity)
+		b.WriteString(fmt.Sprintf(
+			`<span style="color: %s;">%s</span>`,
+			color, escapeHTML(w.ChineseName),
+		))
+	}
+	return b.String()
+}
+
+// skillCombinationKey - 将技能 ID 列表转换为稳定的 key，用于统计 map
+func skillCombinationKey(ids []int) string {
+	if len(ids) == 0 {
+		return ""
+	}
+	parts := make([]string, len(ids))
+	for i, id := range ids {
+		parts[i] = strconv.Itoa(id)
+	}
+	return strings.Join(parts, "-")
+}
+
+// logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
+func logMatchSummary(ctx *maa.Context) {
+	if len(matchedCombinationSummary) == 0 {
+		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
+		return
+	}
+
+	type viewItem struct {
+		Key string
+		*SkillCombinationSummary
+	}
+
+	items := make([]viewItem, 0, len(matchedCombinationSummary))
+	for k, v := range matchedCombinationSummary {
+		items = append(items, viewItem{Key: k, SkillCombinationSummary: v})
+	}
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Key < items[j].Key
+	})
+
+	var b strings.Builder
+	b.WriteString(`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">战利品摘要：</div>`)
+	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
+	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
+
+	for _, item := range items {
+		weaponText := formatWeaponNamesColoredHTML(item.Weapons)
+		// 为了和前面 OCR 日志一致，summary 优先展示实际 OCR 到的技能文本
+		skillSource := item.OCRSkills
+		if len(skillSource) == 0 {
+			// 兜底：如果没有 OCR 文本（理论上不会发生），退回到静态配置的技能中文名
+			skillSource = item.SkillsChinese
+		}
+		skillText := escapeHTML(strings.Join(skillSource, " | "))
+		b.WriteString("<tr>")
+		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, weaponText))
+		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, skillText))
+		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px; text-align: right;">%d</td>`, item.Count))
+		b.WriteString("</tr>")
+	}
+
+	b.WriteString(`</table>`)
+	LogMXUHTML(ctx, b.String())
 }

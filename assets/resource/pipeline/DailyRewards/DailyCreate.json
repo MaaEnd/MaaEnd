@@ -13,7 +13,6 @@
         ],
         "next": [
             "DailyTaskClickProduceBtn" // 直接点生产
-
         ]
     },
     "DailyTaskClickProduceBtn": {
@@ -50,7 +49,8 @@
             82
         ],
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "DailyTaskCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "DailyTaskCloseProductPopup": {
@@ -71,12 +71,27 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "DailyTaskCreationFinish"
+            "DailyTaskCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "DailyTaskCreationFinish": {
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
     }
 }

@@ -87,6 +87,15 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
         }
     },
 

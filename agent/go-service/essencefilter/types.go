@@ -46,11 +46,27 @@ type FilterConfig struct {
 	MaxRarity int   `json:"max_rarity"` // max rarity
 }
 
-// SkillCombination - target skill combination
+// SkillCombination - target skill combination（静态配置，一把武器一条）
 type SkillCombination struct {
 	Weapon        WeaponData
 	SkillsChinese []string // [slot1_cn, slot2_cn, slot3_cn]
 	SkillIDs      []int    // [slot1_id, slot2_id, slot3_id]
+}
+
+// SkillCombinationMatch - 运行时匹配结果：同一套技能可能对应多把武器
+type SkillCombinationMatch struct {
+	SkillIDs      []int
+	SkillsChinese []string
+	Weapons       []WeaponData
+}
+
+// SkillCombinationSummary - 本次运行中某一套技能组合的锁定统计
+type SkillCombinationSummary struct {
+	SkillIDs      []int
+	SkillsChinese []string   // 静态配置中的技能中文名（用于调试）
+	OCRSkills     []string   // 实际本次匹配时 OCR 到的技能文本（用于展示）
+	Weapons       []WeaponData
+	Count         int
 }
 
 // MatcherConfig - 匹配器配置结构
@@ -67,6 +83,9 @@ var (
 	matchedCount            int
 	filteredSkillStats      [3]map[int]int
 	statsLogged             bool
+
+	// 本次运行中命中的技能组合摘要，按技能 ID 组合聚合
+	matchedCombinationSummary map[string]*SkillCombinationSummary
 
 	// Grid traversal state
 	currentCol         int // 1~9

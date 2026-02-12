@@ -4,28 +4,42 @@
         "next": [
             "CreditShoppingShopping",
             "CreditShoppingCheckShopPage",
-            "CreditShoppingCheckMainUI",
+            "[JumpBack]EntryCreeditShop",
+            "[JumpBack]CreditShoppingCheckMainUI",
             "[JumpBack]SceneTestEnterWorld"
         ]
     },
     "CreditShoppingCheckMainUI": {
         "doc": "检测主界面（未展开），点击 F5 展开",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000
+        },
         "recognition": "TemplateMatch",
         "template": "CreditShopping/Expand.png",
         "threshold": 0.8,
         "green_mask": true,
         "roi": [
-            832,
-            33,
-            371,
-            23
+            701,
+            0,
+            305,
+            82
         ],
         "action": "ClickKey",
-        "key": 116,
-        "next": [
-            "CreditShoppingCheckShopPage",
-            "CreditShoppingCheckMainUI"
-        ]
+        "key": 192
+    },
+    "EntryCreeditShop": {
+        "doc": "进入商店",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/ShoppingEntry.png",
+        "roi": [
+            700,
+            0,
+            425,
+            80
+        ],
+        "action": "ClickKey",
+        "key": 116
     },
     "CreditShoppingCheckShopPage": {
         "doc": "检测商店页面，点击信用交易所 Tab",
@@ -33,10 +47,10 @@
         "template": "CreditShopping/CreditShoppingTab.png",
         "threshold": 0.8,
         "roi": [
-            834,
-            58,
-            24,
-            22
+            796,
+            41,
+            296,
+            89
         ],
         "action": "Click",
         "next": [

@@ -13,7 +13,40 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InDijiangWorld"
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -98,8 +131,8 @@
             "DailyTaskUpgradeWeapon",
             "DailyTaskCreation",
             "DailyTaskAssemble",
-            "[JumpBack]DailyTaskScrollDown",
-            "DailyTaskScrollFinished"
+            "DailyTaskScrollFinished",
+            "[JumpBack]DailyTaskScrollDown"
         ]
     },
     "DailyTaskUpgradeWeapon": {
@@ -111,6 +144,30 @@
             "param": {
                 "expected": [
                     "武器等级"
+                ],
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskUpgradeWeaponIsValid"
+        ]
+    },
+    "DailyTaskCreation": {
+        "desc": "检测是否有简易制作任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "简易制作"
                 ],
                 "roi": [
                     343,
@@ -151,7 +208,7 @@
         ]
     },
     "DailyTaskAssembleIsValid": {
-        "desc": "检测升级武器任务是否可以执行",
+        "desc": "检测制造装备任务是否可以执行",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -171,7 +228,7 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]CheckWeaponInventory",
+            "[JumpBack]DailyTaskCheckIsAssemblePage",
             "PressEsc"
         ]
     },
@@ -192,36 +249,9 @@
                 ]
             }
         },
-        "action": {
-            "type": "Click"
-        },
         "next": [
-            "[JumpBack]CheckWeaponInventory",
+            "[JumpBack]DailyTasUpgradeGuideToInventory",
             "PressEsc"
-        ]
-    },
-    "DailyTaskCreation": {
-        "desc": "检测是否有简易制作任务",
-        "enabled": false,
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "简易制作"
-                ],
-                "roi": [
-                    343,
-                    191,
-                    469,
-                    409
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "DailyTaskCreationIsValid"
         ]
     },
     "DailyTaskCreationIsValid": {
@@ -273,10 +303,10 @@
                     "登录游戏"
                 ],
                 "roi": [
-                    500,
-                    600,
-                    400,
-                    50
+                    345,
+                    317,
+                    518,
+                    264
                 ]
             }
         },

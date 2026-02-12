@@ -75,15 +75,44 @@
     "RealTimeAutoFightAttack": {
         "doc": "自动普攻",
         "recognition": "DirectHit",
-        "action": "Click",
         "pre_delay": 0,
         "post_delay": 0,
-        "target": [
-            600,
-            320,
-            80,
-            80
-        ],
+        "next": [
+            "RealTimeAutoFightAttackMousePress",
+            "RealTimeAutoFightAttackKeyPress"
+        ]
+    },
+    "RealTimeAutoFightAttackMousePress": {
+        "doc": "自动普攻点击鼠标",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    600,
+                    320,
+                    80,
+                    80
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightAttackKeyPress": {
+        "doc": "自动普攻键盘按键",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 48 // 0键
+            }
+        },
         "next": [
             "RealTimeAutoFightEntry"
         ]

@@ -15,6 +15,7 @@
             "type": "switch",
             "label": "$option.AutoStartExchange.label",
             "description": "$option.AutoStartExchange.description",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
