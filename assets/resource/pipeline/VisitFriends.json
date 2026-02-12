@@ -126,9 +126,6 @@
         "next": [
             "PriorStealGateClueCheck",
             "VisitEnd"
-        ],
-        "on_error": [
-            "EscThenIdentifyShipOrPauseMenu"
         ]
     },
     "PriorStealGateClueCheck": {
@@ -154,9 +151,6 @@
         },
         "next": [
             "ProductionAssist"
-        ],
-        "on_error": [
-            "EscThenIdentifyShipOrPauseMenu"
         ]
     },
     "ProductionAssistOCR": {
@@ -211,9 +205,6 @@
         "next": [
             "GrowthChamberCheck",
             "SkipConfirmBackToFriendList"
-        ],
-        "on_error": [
-            "EscThenIdentifyShipOrPauseMenu"
         ]
     },
     "ProductionAssistCheck": {
@@ -262,9 +253,6 @@
         "next": [
             "ConfirmVisitToAssist",
             "SkipConfirmBackToFriendList"
-        ],
-        "on_error": [
-            "EscBackToFriendList"
         ]
     },
     "SkipConfirmBackToFriendList": {
@@ -284,36 +272,6 @@
         },
         "next": [
             "ProductionAssistSwipe"
-        ]
-    },
-    "EscBackToFriendList": {
-        "doc": "超时未进入舰船时按 Esc 返回好友列表，避免卡在确认前界面",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "next": [
-            "PriorStealGate"
-        ]
-    },
-    "EscThenIdentifyShipOrPauseMenu": {
-        "doc": "偷菜/助力流程超时后按 Esc，再识别当前是否在他人舰船或暂停菜单（OnFriendList / OpenFriendListFromFriendShip / OpenFriendList / EnterPauseMenu），以正确回到好友列表",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "next": [
-            "OnFriendList",
-            "OpenFriendListFromFriendShip",
-            "OpenFriendList",
-            "EnterPauseMenu",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "ProductionAssistSwipe": {
@@ -445,9 +403,6 @@
         },
         "next": [
             "OnAssist"
-        ],
-        "on_error": [
-            "EscBackToFriendList"
         ]
     },
     "OnAssist": {
