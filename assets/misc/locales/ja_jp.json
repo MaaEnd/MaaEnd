@@ -17,6 +17,8 @@
     "option.AutoFight.label": "戦闘支援",
     "option.AutoFight.description": "半自動戦闘です。",
     "option.AutoFightAttack.label": "通常攻撃を自動",
+    "option.AutoFightAttackKey.label": "通常攻撃キー変更",
+    "option.AutoFightAttackKey.description": "ゲーム内設定が必要：通常攻撃-キー2を0に設定",
     "option.AutoFightSkill.label": "スキル自動使用",
     "option.AutoFightEndSkill.label": "必殺技自動使用",
     "option.AutoFightCombo.label": "連携スキル自動発動",

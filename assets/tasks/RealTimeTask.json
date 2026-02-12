@@ -328,12 +328,45 @@
                         "RealTimeAutoFightAttack": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoFightAttackKey"
+                    ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "RealTimeAutoFightAttack": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightAttackKey": {
+            "label": "$option.AutoFightAttackKey.label",
+            "type": "switch",
+            "description": "$option.AutoFightAttackKey.description",
+            "default": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttackMousePress": {
+                            "enabled": false
+                        },
+                        "RealTimeAutoFightAttackKeyPress": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RealTimeAutoFightAttackMousePress": {
+                            "enabled": true
+                        },
+                        "RealTimeAutoFightAttackKeyPress": {
                             "enabled": false
                         }
                     }
