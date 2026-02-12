@@ -63,8 +63,8 @@ type SkillCombinationMatch struct {
 // SkillCombinationSummary - 本次运行中某一套技能组合的锁定统计
 type SkillCombinationSummary struct {
 	SkillIDs      []int
-	SkillsChinese []string   // 静态配置中的技能中文名（用于调试）
-	OCRSkills     []string   // 实际本次匹配时 OCR 到的技能文本（用于展示）
+	SkillsChinese []string // 静态配置中的技能中文名（用于调试）
+	OCRSkills     []string // 实际本次匹配时 OCR 到的技能文本（用于展示）
 	Weapons       []WeaponData
 	Count         int
 }

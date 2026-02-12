@@ -54,7 +54,8 @@
         "max_hit": 1,
         "recognition": "And",
         "box_index": 3,
-        "all_of": [ //这里的是模板内容,interface中会覆盖具体的执行参数
+        "all_of": [
+            //这里的是模板内容,interface中会覆盖具体的执行参数
             {
                 "sub_name": "CreditIcon",
                 "recognition": "TemplateMatch",
@@ -135,7 +136,8 @@
         "doc": "优先购买",
         "recognition": "And",
         "box_index": 3,
-        "all_of": [ //这里的是模板内容,interface中会覆盖具体的执行参数
+        "all_of": [
+            //这里的是模板内容,interface中会覆盖具体的执行参数
             {
                 "sub_name": "CreditIcon",
                 "recognition": "TemplateMatch",
@@ -215,7 +217,8 @@
         "doc": "普通购买(无折扣)",
         "recognition": "And",
         "box_index": 3,
-        "all_of": [ //这里的是模板内容,interface中会覆盖具体的执行参数
+        "all_of": [
+            //这里的是模板内容,interface中会覆盖具体的执行参数
             {
                 "sub_name": "CreditIcon",
                 "recognition": "TemplateMatch",
