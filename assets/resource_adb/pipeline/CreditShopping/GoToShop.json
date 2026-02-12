@@ -1,0 +1,11 @@
+{
+    "CreditShoppingCheckMainUI": {
+        "action": "Click"
+    },
+    "EntryCreeditShop": {
+        "action": "Click"
+    },
+    "CreditShoppingCheckShopPage": {
+        "action": "Click"
+    }
+}

@@ -58,10 +58,10 @@
             104
         ],
         "roi": [
-            573,
-            498,
-            132,
-            43
+            571,
+            497,
+            133,
+            95
         ],
         "action": "DoNothing",
         "next": [
@@ -73,10 +73,10 @@
         "recognition": "TemplateMatch",
         "template": "CreditShopping/CloseBuyItemDialog.png",
         "roi": [
-            1071,
-            129,
-            23,
-            23
+            1066,
+            63,
+            148,
+            97
         ],
         "action": "Click",
         "next": [
@@ -88,10 +88,10 @@
         "recognition": "TemplateMatch",
         "template": "CreditShopping/BuyConfirm.png",
         "roi": [
-            1060,
-            569,
-            21,
-            21
+            1050,
+            559,
+            168,
+            113
         ],
         "threshold": 0.8,
         "action": "Click",
