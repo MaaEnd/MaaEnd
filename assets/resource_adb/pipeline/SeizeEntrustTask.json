@@ -1,0 +1,333 @@
+{
+    "SeizeEntrustTaskErrorTaskStop": {
+        "action": {
+            "param": {},
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "用户退出委托列表"
+        },
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    149,
+                    154,
+                    87,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": "SeizeEntrustTaskFound7.31wMoney",
+                "roi_offset": [
+                    169,
+                    17,
+                    188,
+                    -3
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskFound7.31wMoney": {
+        "next": [
+            "SeizeEntrustTaskPostEntrust3"
+        ],
+        "recognition": {
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.31wMoney.png"
+                ],
+                "threshold": [
+                    0.9
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "SeizeEntrustTaskFound7.31wMoneyF1": {
+        "next": [
+            "SeizeEntrustTaskFound7.31wMoney"
+        ],
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "MoneyTag",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": [
+                                    "SeizeEntrustTask/7.31wMoney.png"
+                                ],
+                                "threshold": [
+                                    0.9
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "expected": [
+                                    "7.31万",
+                                    "31万",
+                                    "7",
+                                    "31"
+                                ],
+                                "roi": "MoneyTag",
+                                "roi_offset": [
+                                    0,
+                                    0,
+                                    60,
+                                    60
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "SeizeEntrustTaskInDownSwipeUp": {
+        "action": {
+            "param": {
+                "begin": [
+                    776,
+                    448
+                ],
+                "end": [
+                    776,
+                    208
+                ]
+            },
+            "type": "Swipe"
+        },
+        "doc": "没找到武陵城就往下翻一页",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    612,
+                    16,
+                    23
+                ],
+                "template": [
+                    "SeizeEntrustTask/InDown.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "SeizeEntrustTaskInUpSwipeDown": {
+        "action": {
+            "param": {
+                "begin": [
+                    776,
+                    208
+                ],
+                "end": [
+                    776,
+                    448
+                ]
+            },
+            "type": "Swipe"
+        },
+        "doc": "没找到武陵城就往上翻一页",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    388,
+                    23,
+                    40
+                ],
+                "template": [
+                    "SeizeEntrustTask/InMiddle.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AndroidSeizeEntrustTaskInUpSwipeDown": {
+        "action": {
+            "param": {
+                "begin": [
+                    776,
+                    208
+                ],
+                "end": [
+                    776,
+                    448
+                ]
+            },
+            "type": "Swipe"
+        },
+        "doc": "没找到武陵城就往上翻一页",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    388,
+                    23,
+                    40
+                ],
+                "template": [
+                    "SeizeEntrustTask/InMiddle.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "SeizeEntrustTaskMain": {
+        "focus": {
+            "Node.Recognition.Succeeded": "现在开始抢武陵城委托"
+        },
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskStopTask2"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "委托人信息"
+                ],
+                "roi": [
+                    149,
+                    154,
+                    87,
+                    34
+                ]
+            },
+            "type": "OCR"
+        },
+        "timeout": 2000
+    },
+    "SeizeEntrustTaskNews": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "刷新动作",
+        "next": [
+            "SeizeEntrustTaskNewsStatus1"
+        ],
+        "rate_limit": 1000,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1035,
+                    650,
+                    98,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskNews2": {
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "依旧刷新动作",
+        "next": [
+            "SeizeEntrustTaskNewsStatus2"
+        ],
+        "rate_limit": 100,
+        "recognition": {
+            "param": {
+                "expected": [
+                    "刷新"
+                ],
+                "roi": [
+                    1035,
+                    650,
+                    98,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]AndroidSeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]SeizeEntrustTaskNews2"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1019,
+                    529,
+                    244,
+                    121
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "接取运送委托"
+                ],
+                "roi": [
+                    1019,
+                    549,
+                    244,
+                    121
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "isSeizeEntrustTaskDestinationWulingCity": {
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
+            "[JumpBack]SeizeEntrustTaskNews"
+        ]
+    }
+}

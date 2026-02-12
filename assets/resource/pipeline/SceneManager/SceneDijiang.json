@@ -1,0 +1,221 @@
+{
+    "ScenePrivateWorldEnterWorldDijiang": {
+        "doc": "在大世界界面，进入帝江号大世界",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "ScenePrivateMapDijiangEnterTeleport",
+            "[JumpBack]ScenePrivateWorldEnterMapDijiang"
+        ]
+    },
+    "ScenePrivateWorldEnterMapDijiang": {
+        "doc": "在大世界界面，进入帝江号地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77 // M
+            }
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ScenePrivateMapAnyEnterMapDijiangSuccess",
+            "ScenePrivateMapNotDijiangEnterMapDijiang"
+        ]
+    },
+    "ScenePrivateMapNotDijiangEnterMapDijiang": {
+        "doc": "在地图非帝江号界面，进入帝江号地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    0,
+                    260,
+                    160
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    0,
+                    0,
+                    -5
+                ]
+            }
+        },
+        "post_wait_freezes": 100,
+        "next": [
+            "ScenePrivateMapAnyEnterMapDijiangSuccess"
+        ]
+    },
+    "ScenePrivateMapAnyEnterMapDijiangSuccess": {
+        "doc": "在地图界面，成功进入帝江号地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        }
+    },
+    "ScenePrivateMapDijiangEnterTeleport": {
+        "doc": "在帝江号地图界面，随机选择一个传送点进入",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "template": [
+                                    "SceneManager/MapTeleport.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    350,
+                                    220
+                                ],
+                                "expected": [
+                                    "[Oo].?[Mm].?[Vv]"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "[JumpBack]ScenePrivateMapTeleportChoose",
+            "ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "ScenePrivateAnyEnterWorldDijiangSuccess": {
+        "doc": "在任意界面，成功进入帝江号大世界",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

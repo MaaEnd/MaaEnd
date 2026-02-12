@@ -6,7 +6,7 @@
         "next": [
             "ResellStageCheckArea",
             "ResellStageCheckInGame",
-            "ResellStageNotInGame"
+            "[JumpBack]ResellEscGoBack"
         ]
     },
     "ResellStageCheckInGame": {
@@ -42,17 +42,6 @@
         "key": 89,
         "next": [
             "ResellStageCheckArea"
-        ]
-    },
-    "ResellStageNotInGame": {
-        "doc": "不在在大世界，不断按ESC进入大世界",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "ClickKey",
-        "key": 27,
-        "next": [
-            "ResellMain"
         ]
     },
     "ResellStageCheckArea": {
@@ -148,38 +137,54 @@
         "post_delay": 500,
         "action": "Click",
         "next": [
-            "ResellinStableStore",
-            "ResellinUnstableStore",
-            "ResellStageCheckArea"
+            "ResellWaitForStableStore"
         ]
     },
-    "ResellinStableStore": {
-        "doc": "在稳定需求物资商店，进入弹性需求物资商店",
-        "recognition": "TemplateMatch",
-        "template": "Resell/inStableStore.png",
-        "threshold": 0.8,
+    "ResellWaitForStableStore": {
+        "doc": "轮询 OCR 识别稳定需求物资调度页面加载完成",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
             0,
-            178,
-            125,
-            124
+            0,
+            1280,
+            160
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
-        "target": [
-            389,
-            73,
-            185,
-            43
+        "expected": [
+            "稳定需求",
+            "Stable"
         ],
+        "threshold": 0.6,
+        "action": "DoNothing",
         "next": [
-            "ResellinUnstableStore",
-            "ResellStageEnterStore"
+            "ResellClickToUnstableStore",
+            "ResellWaitForStableStore"
         ]
     },
-    "ResellinUnstableStore": {
-        "doc": "在弹性需求物资商店,滚动至最底端，开始识别价格",
+    "ResellClickToUnstableStore": {
+        "doc": "识别并点击弹性需求物资标签",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            300,
+            50,
+            300,
+            80
+        ],
+        "expected": [
+            "弹性需求",
+            "Flexible"
+        ],
+        "threshold": 0.6,
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "ResellWaitForUnstableStore",
+            "ResellClickToUnstableStore"
+        ]
+    },
+    "ResellWaitForUnstableStore": {
+        "doc": "轮询匹配左侧市场图标，确认切换到弹性需求物资页面",
         "recognition": "TemplateMatch",
         "template": "Resell/inUnstableStore.png",
         "threshold": 0.8,
@@ -189,6 +194,15 @@
             128,
             126
         ],
+        "action": "DoNothing",
+        "next": [
+            "ResellinUnstableStore",
+            "ResellWaitForUnstableStore"
+        ]
+    },
+    "ResellinUnstableStore": {
+        "doc": "在弹性需求物资商店，滚动至最底端，开始识别价格",
+        "recognition": "DirectHit",
         "post_wait_freezes": 600,
         "action": "Scroll",
         "target": [
@@ -230,16 +244,12 @@
             26
         ],
         "expected": "无法购买",
-        "action": "ClickKey",
-        "key": 27,
-        "repeat": 2,
-        "repeat_wait_freezes": 200,
-        "post_wait_freezes": 200,
+        "action": "DoNothing",
         "focus": {
             "Node.Action.Starting": "当前地区已售罄，切换下个地区"
         },
         "next": [
-            "ChangeNextRegion"
+            "ChangeNextRegionPrepare"
         ]
     },
     "ResellCheckStockRemain": {

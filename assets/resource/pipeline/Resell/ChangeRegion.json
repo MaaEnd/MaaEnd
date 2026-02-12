@@ -1,112 +1,124 @@
 {
     "Wuling2FourthValley": {
         "doc": "武陵回四号谷地",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            114,
-            232,
-            122,
-            122
+        "recognition": "Or",
+        "any_of": [
+            "ChangeRegionButton"
         ],
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
+        "action": "DoNothing",
         "next": [
-            "GotoFourthValley"
+            "WulingToFourthValleyDone",
+            "[JumpBack]GoToValleyIV"
         ]
     },
-    "GotoFourthValley": {
-        "doc": "前往四号谷地",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "threshold": 0.8,
-        "roi": [
-            479,
-            147,
-            319,
-            94
+    "WulingToFourthValleyDone": {
+        "doc": "已切换到四号谷地",
+        "recognition": "Or",
+        "any_of": [
+            "CheckValleyIV"
         ],
-        "expected": "四号谷地",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
-        "next": [
-            "ConfirmChangeRegion"
-        ]
-    },
-    "ConfirmChangeRegion": {
-        "doc": "确认更换地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ConfirmChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            763,
-            371,
-            122,
-            121
-        ],
-        "pre_delay": 0,
-        "post_wait_freezes": 200,
-        "action": "Click",
+        "action": "DoNothing",
         "next": [
             "ResellStageEnterStore",
             "ResellStageCheckArea"
         ]
     },
-    "ChangeNextRegion": {
-        "doc": "更换到下一个地区",
-        "recognition": "TemplateMatch",
-        "template": "Resell/ChangeRegion.png",
-        "threshold": 0.8,
-        "roi": [
-            114,
-            232,
-            122,
-            122
-        ],
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
+    "ChangeNextRegionPrepare": {
+        "doc": "确保当前在地区建设界面后切换下一个地区",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "post_wait_freezes": 300,
         "next": [
-            "CheckChangeRegionToWuLing",
-            "LastAreaFinished"
+            "ChangeNextRegionInManagement",
+            "[JumpBack]ResellCheckInWorld1",
+            "[JumpBack]ResellCheckInWorld2",
+            "[JumpBack]ResellEscGoBack"
         ]
     },
-    "CheckChangeRegionToWuLing": {
-        "doc": "更换到武陵",
-        "recognition": "And",
-        "all_of": [
-            {
-                "sub_name": "武陵字样的位置",
-                "recognition": "OCR",
-                "threshold": 0.8,
-                "roi": [
-                    714,
-                    218,
-                    36,
-                    21
-                ]
-            },
-            {
-                "sub_name": "当前查看地区字样的位置",
-                "recognition": "OCR",
-                "threshold": 0.8,
-                "roi": [
-                    488,
-                    150,
-                    85,
-                    20
-                ]
-            }
+    "ChangeNextRegionInManagement": {
+        "doc": "已在地区建设界面，继续切换地区",
+        "recognition": "Or",
+        "any_of": [
+            "IncomeReportButton"
         ],
-        "box_index": 0,
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "Click",
+        "action": "DoNothing",
+        "pre_wait_freezes": 300,
         "next": [
-            "ConfirmChangeRegion"
+            "ChangeNextRegion"
+        ]
+    },
+    "ResellCheckInWorld1": {
+        "doc": "在大世界(模板1)，按Y进入地区建设",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inGame1.png",
+        "threshold": 0.8,
+        "roi": [
+            172,
+            0,
+            133,
+            118
+        ],
+        "action": "ClickKey",
+        "post_wait_freezes": 300,
+        "key": 89
+    },
+    "ResellCheckInWorld2": {
+        "doc": "在大世界(模板2)，按Y进入地区建设",
+        "recognition": "TemplateMatch",
+        "template": "Resell/inGame2.png",
+        "threshold": 0.8,
+        "roi": [
+            1182,
+            0,
+            98,
+            128
+        ],
+        "action": "ClickKey",
+        "post_wait_freezes": 300,
+        "key": 89
+    },
+    "ResellEscGoBack": {
+        "doc": "未在地区建设界面，按ESC返回",
+        "recognition": "DirectHit",
+        "action": "ClickKey",
+        "post_wait_freezes": 400,
+        "key": 27
+    },
+    "ChangeNextRegion": {
+        "doc": "更换到下一个地区",
+        "recognition": "Or",
+        "any_of": [
+            "ChangeRegionButton"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "LastAreaFinished",
+            "ChangeNextRegionToWuling",
+            "[JumpBack]ChangeRegionButton"
+        ]
+    },
+    "ChangeNextRegionToWuling": {
+        "doc": "切换到武陵继续售卖",
+        "recognition": "Or",
+        "any_of": [
+            "CheckValleyIV"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ChangeNextRegionDone",
+            "[JumpBack]GoToWuling"
+        ]
+    },
+    "ChangeNextRegionDone": {
+        "doc": "已切换到武陵",
+        "recognition": "Or",
+        "any_of": [
+            "CheckWuling"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellStageEnterStore",
+            "ResellStageCheckArea"
         ]
     },
     "LastAreaFinished": {

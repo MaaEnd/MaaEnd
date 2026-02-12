@@ -7,11 +7,6 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "PriorStealVegetables"
-            ],
-            "controller": [
-                "Win32",
-                "Win32-Front",
-                "Win32-Window"
             ]
         }
     ],

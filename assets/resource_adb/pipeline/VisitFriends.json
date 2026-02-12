@@ -1,0 +1,322 @@
+{
+    "OnAssist": {
+        "next": [
+            "WaitOpenTerminalAssist"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    54,
+                    286,
+                    117,
+                    16
+                ]
+            }
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "VisitFriends/ArriveShip.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "OpenMenu": {
+        "next": [
+            "OpenFriendList"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1218,
+                    40,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "VisitEnd": {
+        "next": [
+            "ClickVisitEnd",
+            "ReturnToMenu"
+        ],
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "VisitFriends/OCR05.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "ExitAssist": {
+        "next": [
+            "OnFriendList"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "VisitFriends/Leave.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "OnExchange": {
+        "next": [
+            "WaitOpenTerminalExchange"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    55,
+                    285,
+                    110,
+                    17
+                ]
+            }
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ArriveShip.png",
+                "threshold": 0.8
+            }
+        }
+    },
+    "ConfirmTick": {
+        "next": [
+            "ExitTerminalAssist"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "VisitFriends/ConfirmTick.png"
+                ]
+            }
+        }
+    },
+    "ExitExchange": {
+        "next": [
+            "OnFriendList"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    2,
+                    7,
+                    190,
+                    73
+                ],
+                "template": [
+                    "VisitFriends/Leave.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "OnFriendList": {
+        "next": [
+            "ProductionAssistOCR",
+            "VisitEnd",
+            "ClueExchangeOCR"
+        ],
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -1,
+                    11,
+                    543,
+                    121
+                ],
+                "template": [
+                    "VisitFriends/OnFriendList.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
+    },
+    "ReturnToMenu": {
+        "next": [
+            "VisitComplete"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1203,
+                    10,
+                    75,
+                    51
+                ],
+                "template": [
+                    "VisitFriends/CloseFriendList.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
+    },
+    "SwipeTerminalBar": {
+        "next": [
+            "VisitorTerminalAssistAgain",
+            "ExitTerminalAssist"
+        ],
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end": [
+                    [
+                        532,
+                        576,
+                        0,
+                        0
+                    ]
+                ],
+                "begin": [
+                    1148,
+                    584,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "ClueExchangeOCR": {
+        "next": [
+            "ClueExchange"
+        ],
+        "action": "DoNothing",
+        "recognition": "DirectHit"
+    },
+    "ExitTerminalAssist": {
+        "next": [
+            "ExitAssist",
+            "ConfirmTick"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ExitTerminal.png",
+                "threshold": 0.8
+            }
+        }
+    },
+    "ProductionAssistOCR": {
+        "next": [
+            "ProductionAssist"
+        ],
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1129,
+                    73,
+                    146,
+                    61
+                ],
+                "template": [
+                    "VisitFriends/OCR55.png"
+                ],
+                "threshold": [
+                    0.9
+                ]
+            }
+        }
+    },
+    "ExitTerminalExchange": {
+        "next": [
+            "ExitExchange"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1210,
+                    26,
+                    19,
+                    17
+                ]
+            }
+        }
+    },
+    "ProductionAssistSwipe": {
+        "next": [
+            "ProductionAssist"
+        ],
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end": [
+                    [
+                        536,
+                        169,
+                        0,
+                        0
+                    ]
+                ],
+                "begin": [
+                    533,
+                    545,
+                    0,
+                    0
+                ],
+                "end_hold": 200
+            }
+        },
+        "max_hit": 12
+    },
+    "VisitorTerminalAssistAgain": {
+        "next": [
+            "ConfirmTick",
+            "ExitTerminalAssist"
+        ],
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "VisitFriends/ProductionAssist.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    }
+}

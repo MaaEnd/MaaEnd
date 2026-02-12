@@ -1,0 +1,44 @@
+{
+    "LoginFailed": {
+        "expected": [
+            "Login Failed",
+            "Check Network",
+            "Retry"
+        ]
+    },
+    "LoginFailureConfirmation": {
+        "expected": [
+            "Confirm"
+        ]
+    },
+    "ClickContinue": {
+        "expected": [
+            "Click",
+            "Tap",
+            "anywhere",
+            "continue"
+        ]
+    },
+    "EnterGame": {
+        "expected": [
+            "Explore",
+            "Industry"
+        ]
+    },
+    "MonthlyCard": {
+        "expected": [
+            "Monthly Card",
+            "today"
+        ]
+    },
+    "CheckIn": {
+        "expected": [
+            "Claim"
+        ]
+    },
+    "CollectRewards": {
+        "expected": [
+            "Rewards"
+        ]
+    }
+}

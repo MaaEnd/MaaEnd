@@ -30,6 +30,7 @@
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
+
         ]
     },
     "ControlNexus": {
@@ -56,7 +57,10 @@
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
+            "[JumpBack]CarbinSwipe",
+            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]CloseDijiangRewards"
+
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -106,6 +110,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -259,16 +264,46 @@
     "InLastCarbin": {
         // 最后一个培养舱
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    895,
-                    464,
-                    138,
-                    134
-                ],
-                "template": [
-                    "ClaimDijiangRewards/GrowthChamber.png"
+                "all_of": [
+                    {
+                        "sub_name": "_GrowthChamber",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    895,
+                                    464,
+                                    138,
+                                    134
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/GrowthChamber.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_GrowthChamber",
+                                "upper": [
+                                    150,
+                                    179,
+                                    76
+                                ],
+                                "lower": [
+                                    146,
+                                    175,
+                                    75
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -423,6 +458,7 @@
                 ],
                 "expected": [
                     "线索" //#I18N
+
                 ],
                 "order_by": "Vertical"
             }
@@ -512,49 +548,28 @@
     "SendClues": {
         //线索过多,发送一个
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    1164,
-                                    483,
-                                    116,
-                                    96
-                                ],
-                                "only_rec": true,
-                                "expected": [
-                                    "20/20"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    286,
-                                    174,
-                                    849,
-                                    276
-                                ],
-                                "expected": [
-                                    "线索已满" //#不确定
-                                ]
-                            }
-                        }
-                    }
+                "roi": [
+                    793,
+                    350,
+                    280,
+                    75
+                ],
+                "expected": [
+                    "已达自有线索库容量上限"
                 ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
             }
         },
         "next": [
             "SendTheMostClues",
             "[JumpBack]EntrySendClues",
-            "[JumpBack]ExitReceptionRoom",
             "[JumpBack]SendCluesSwipe"
         ]
     },
@@ -577,7 +592,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dy": 200
+                "dy": -240
             }
         }
     },
@@ -679,6 +694,10 @@
         }
     },
     "EntrySendClues": {
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1500
+        },
         "recognition": {
             "type": "OCR",
             "param": {
@@ -899,8 +918,53 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoom"
+            "ReceptionRoom",
+            "[JumpBack]EndExchange"
         ]
+    },
+    "EndExchange": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    528,
+                                    562,
+                                    256,
+                                    151
+                                ],
+                                "expected": [
+                                    "确认"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    498,
+                                    83,
+                                    321,
+                                    129
+                                ],
+                                "expected": [
+                                    "情报交流结束"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "ReceptionRoom": {
         "recognition": {
@@ -1146,7 +1210,7 @@
     "CarbinSwipe": {
         // 滑动总控中枢
         "post_wait_freezes": {
-            "time": 200,
+            "time": 500,
             "timeout": 2000
         },
         "recognition": {
@@ -1166,7 +1230,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 100,
+                "dx": 240,
                 "target_offset": [
                     600,
                     20,

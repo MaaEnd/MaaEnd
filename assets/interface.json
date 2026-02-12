@@ -52,8 +52,8 @@
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
                 "screencap": "DXGI_DesktopDup_Window",
-                "mouse": "SendMessageWithCursorPos",
-                "keyboard": "SendMessageWithCursorPos"
+                "mouse": "Seize",
+                "keyboard": "Seize"
             },
             "permission_required": true
         },
@@ -67,21 +67,37 @@
         },
         {
             "name": "PlayCover",
-            "type": "PlayCover"
+            "type": "PlayCover",
+            "playcover": {
+                "uuid": "maa.playcover"
+            }
         }
     ],
     "resource": [
         {
             "name": "官服",
+            "label": "$resource.CN.label",
             "path": [
+                "./resource_fast",
                 "./resource"
             ]
         },
         {
             "name": "B 服",
+            "label": "$resource.Bilibili.label",
             "path": [
+                "./resource_fast",
                 "./resource",
                 "./resource_bilibili"
+            ]
+        },
+        {
+            "name": "Global",
+            "label": "$resource.Global.label",
+            "path": [
+                "./resource_fast",
+                "./resource",
+                "./resource_en"
             ]
         }
     ],
@@ -97,6 +113,7 @@
         "tasks/DailyRewards.json",
         "tasks/SellProduct.json",
         "tasks/AutoResell.json",
+        "tasks/EssenceFilter.json",
         "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",

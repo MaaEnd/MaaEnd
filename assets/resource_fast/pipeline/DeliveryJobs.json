@@ -1,0 +1,56 @@
+{
+    // 自动转交运送委托
+    // SceneEnterMenuRegionalDevelopment 暂时不支持 fast
+    // 使用以前的方法，仅允许从大世界和地区管理页面启动
+    "DeliveryJobsMain": {
+        "doc": "开始自动转交运送委托",
+        "next": [
+            "DeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton"
+            // "[JumpBack]SceneEnterMenuRegionalDevelopment",
+        ]
+    },
+    "DeliveryJobsLoop": {
+        "doc": "主循环，确保在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
+            "DeliveryJobsValleyIV",
+            "DeliveryJobsWuling",
+            "DeliveryJobsFinished"
+        ]
+    },
+    "DeliveryJobsValleyIV": {
+        "doc": "四号谷地运送委托",
+        "max_hit": 1,
+        "next": [
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
+            "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
+            "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
+            "DeliveryJobsValleyIVCargoNotReady",
+            "DeliveryJobsCheckValleyIVDepotLocked",
+            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
+            "[JumpBack]GoToValleyIV",
+            "[JumpBack]RegionalDevelopmentButton"
+        ]
+    },
+    "DeliveryJobsWuling": {
+        "doc": "武陵运送委托",
+        "max_hit": 1,
+        "next": [
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterWulingCityCargo",
+            "DeliveryJobsWulingCargoNotReady",
+            "DeliveryJobsCheckWulingDepotLocked",
+            "[JumpBack]DeliveryJobsEnterWulingDepot",
+            "[JumpBack]GoToWuling",
+            "[JumpBack]RegionalDevelopmentButton"
+        ]
+    },
+    "DeliveryJobsFinished": {
+        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服"
+    }
+}

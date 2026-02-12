@@ -12,7 +12,9 @@
         ],
         "action": "Custom",
         "custom_action": "CreditShoppingParseParams",
-        "next": ["CreditShoppingScanItem"]
+        "next": [
+            "CreditShoppingScanItem"
+        ]
     },
     "CreditShoppingScanItem": {
         "recognition": "TemplateMatch",
@@ -49,7 +51,9 @@
     "CreditShoppingBuyFirst": {
         "doc": "优先购买",
         "recognition": "And",
-        "all_of": [{}],
+        "all_of": [
+            {}
+        ],
         "attach": {
             "all_of": [
                 {
@@ -125,13 +129,15 @@
             ]
         },
         "next": [
-            "CreditShoppingBuyFistItem"
+            "CreditShoppingBuyFirstItem"
         ]
     },
     "CreditShoppingBuyNormal": {
         "doc": "普通购买",
         "recognition": "And",
-        "all_of": [{}],
+        "all_of": [
+            {}
+        ],
         "attach": {
             "all_of": [
                 {

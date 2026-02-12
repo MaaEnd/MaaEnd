@@ -1,0 +1,155 @@
+{
+    "ScenePrivateMapEnterMapNotDijiangSuccess": {
+        "doc": "在地图界面，进入非帝江号地图成功",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -260,
+                    0,
+                    260,
+                    160
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        }
+    },
+    "ScenePrivateMapEnterTeleport": {
+        "doc": "在地图界面，随机选择一个传送点进入",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -350,
+                                    0,
+                                    350,
+                                    60
+                                ],
+                                "template": [
+                                    "SceneManager/MapMind.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    0,
+                                    0
+                                ],
+                                "template": [
+                                    "SceneManager/MapTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "[JumpBack]ScenePrivateMapTeleportChoose",
+            "ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "ScenePrivateMapTeleportChoose": {
+        "doc": "判断是否有多个图标重叠，导致出现候选条目",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -500,
+                    350,
+                    400,
+                    300
+                ],
+                "expected": [
+                    "协议传送点",
+                    "協議傳送點",
+                    "TP Point",
+                    "協約転送ポイント",
+                    "프로토콜 전송 지점"
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ScenePrivateMapTeleportConfirm": {
+        "doc": "点击确认传送",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -150,
+                    -150,
+                    150,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapTeleportConfirm.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        // 场景一：传送有loading
+        // 场景二：原地传送无loading
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "ScenePrivateMapTeleportSuccess"
+        ]
+    },
+    "ScenePrivateMapTeleportSuccess": {
+        "doc": "进入大世界，传送成功",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
+    }
+}

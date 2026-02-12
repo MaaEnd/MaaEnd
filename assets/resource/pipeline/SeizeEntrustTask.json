@@ -24,6 +24,11 @@
         }
     },
     "SeizeEntrustTaskFound7.31wMoney": {
+        "focus": {
+            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
+            "Node.Recognition.Starting": "再看一眼~",
+            "Node.Recognition.Succeeded": "确定就是你啦~"
+        },
         "next": [
             "SeizeEntrustTaskPostEntrust3"
         ],
@@ -40,6 +45,9 @@
         }
     },
     "SeizeEntrustTaskFound7.31wMoneyF1": {
+        "focus": {
+            "Node.Recognition.Succeeded": "找到7.31万武陵城订单！"
+        },
         "next": [
             "SeizeEntrustTaskFound7.31wMoney"
         ],
@@ -53,7 +61,8 @@
                 ]
             },
             "type": "TemplateMatch"
-        }
+        },
+        "timeout": 3000
     },
     "SeizeEntrustTaskInDownSwipeUp": {
         "action": {
@@ -117,9 +126,41 @@
             "type": "TemplateMatch"
         }
     },
+    "AndroidSeizeEntrustTaskInUpSwipeDown": {
+        "action": {
+            "param": {
+                "dy": 240,
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ]
+            },
+            "type": "Scroll"
+        },
+        "doc": "没找到武陵城就往上翻一页(Android)",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1246,
+                    388,
+                    23,
+                    40
+                ],
+                "template": [
+                    "SeizeEntrustTask/InMiddle.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+
     "SeizeEntrustTaskMain": {
         "focus": {
-            "Node.Recognition.Succeeded": "现在开始抢武陵城委托"
+            "Node.Recognition.Succeeded": "进入抢武陵城委托任务"
         },
         "next": [
             "isSeizeEntrustTaskDestinationWulingCity"
@@ -141,7 +182,7 @@
             },
             "type": "OCR"
         },
-        "timeout": 2000
+        "timeout": 3000
     },
     "SeizeEntrustTaskNews": {
         "action": {
@@ -239,6 +280,9 @@
             "param": {},
             "type": "Click"
         },
+        "focus": {
+            "Node.Action.Succeeded": "点击抢单~"
+        },
         "next": [
             "SeizeEntrustTaskStopTask"
         ],
@@ -249,10 +293,10 @@
                 ],
                 "roi": "SeizeEntrustTaskFound7.31wMoney",
                 "roi_offset": [
-                    169,
-                    17,
-                    188,
-                    -3
+                    168,
+                    -1,
+                    187,
+                    15
                 ]
             },
             "type": "OCR"
@@ -262,6 +306,9 @@
         "action": {
             "param": {},
             "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "抢完了，记得及时送货哟~"
         }
     },
     "SeizeEntrustTaskStopTask2": {

@@ -1,0 +1,103 @@
+{
+    // 装箱货物的流程如下：
+    // 选择装箱货物类型（下一步）->装满货物（下一步）->货物竞价->调度申请（下一步）->单击屏幕继续->回到大世界界面
+    "DeliveryJobsProceedToNextStep": {
+        "doc": "进入下一步",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/NextStep.png",
+        "roi": [
+            1209,
+            649,
+            29,
+            28
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "DeliveryJobsClickScreenToContinue",
+            "DeliveryJobsBackToHome",
+            "DeliveryJobsProceedToNextStep",
+            "[JumpBack]DeliveryJobsCargoBid",
+            "[JumpBack]DeliveryJobsCargoFillToMax"
+        ],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsCargoFillToMax": {
+        "doc": "装满货物",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoFillToMax.png",
+        "roi": [
+            1174,
+            172,
+            34,
+            19
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsCargoBid": {
+        "doc": "货物竞价",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/CargoBid.png",
+        "roi": [
+            911,
+            593,
+            36,
+            33
+        ],
+        "threshold": 0.8,
+        "action": "Click"
+    },
+    "DeliveryJobsClickScreenToContinue": {
+        "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            527,
+            646,
+            222,
+            48
+        ],
+        "expected": [
+            "点击屏幕继续",
+            "按任意處繼續",
+            "Click to continue",
+            "クリックして続行",
+            "화면을 눌러 계속하기"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsBackToHome": {
+        "doc": "已回到大世界（左上角出现地区建设入口）。跳出循环",
+        "recognition": "Or",
+        "any_of": [
+            "RegionalDevelopmentButton"
+        ]
+    }
+}

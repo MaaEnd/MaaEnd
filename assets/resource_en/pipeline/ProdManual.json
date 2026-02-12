@@ -1,0 +1,66 @@
+{
+    "AlreadyInPM": {
+        "expected": [
+            "Back",
+            "Return"
+        ]
+    },
+    "ConfirmPMReward": {
+        "expected": [
+            "Reward"
+        ]
+    },
+    "ConfirmUpdate": {
+        "expected": [
+            "Tap to continue",
+            "Click to continue"
+        ]
+    },
+    "OpenPMInBackpack": {
+        "expected": [
+            "Simple Craft",
+            "Quick Craft"
+        ]
+    },
+    "OpenPMInList": {
+        "expected": [
+            "Obtain",
+            "Unlock"
+        ]
+    },
+    "OpenPMInMenu": {
+        "expected": [
+            "Exploration Level",
+            "Explore"
+        ]
+    },
+    "OpenPMInMenuOpen": {
+        "expected": [
+            "Backpack",
+            "Inventory"
+        ]
+    },
+    "OpenPMInProd": {
+        "expected": [
+            "Emergency",
+            "Ration"
+        ]
+    },
+    "OpenPMInProdClick": {
+        "expected": [
+            "Crafting Manual",
+            "Manual"
+        ]
+    },
+    "PMBackAtPM": {
+        "expected": [
+            "Back",
+            "Return"
+        ]
+    },
+    "ReceivePMReward": {
+        "expected": [
+            "Claim"
+        ]
+    }
+}

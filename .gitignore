@@ -36,7 +36,7 @@ build-*
 *.exe
 *.out
 *.app
-__debug_bin.exe*
+__debug_bin*
 
 Debug
 Release
@@ -420,6 +420,7 @@ FodyWeavers.xsd
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/mse_config.json
+!.vscode/maa_checker.json
 *.code-workspace
 
 # Local History for Visual Studio Code
@@ -469,3 +470,6 @@ debug
 .com.apple.timemachine.donotpresent
 Network Trash Folder
 Temporary Items
+
+# python
+venv/

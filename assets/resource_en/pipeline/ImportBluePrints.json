@@ -1,0 +1,29 @@
+{
+    "ImportBluePrintsChooseTab": {
+        "expected": [
+            "Shared Blueprint",
+            "Shared"
+        ]
+    },
+    "ImportBluePrintsChooseImport": {
+        "expected": [
+            "Import Blueprint",
+            "Import"
+        ]
+    },
+    "ImportBluePrintsConfirm": {
+        "expected": "Confirm"
+    },
+    "ImportBluePrintsSave": {
+        "expected": [
+            "Save to Shared",
+            "Save"
+        ]
+    },
+    "ImportBluePrintsExists": {
+        "expected": [
+            "Saved",
+            "Already"
+        ]
+    }
+}

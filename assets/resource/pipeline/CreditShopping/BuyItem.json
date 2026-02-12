@@ -1,13 +1,14 @@
 {
     // 在商店中购买物品的节点
-    "CreditShoppingBuyFistItem": {
+    "CreditShoppingBuyFirstItem": {
         "doc": "点击购买商品",
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyFirst",
         "next": [
             "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
         ]
     },
     "CreditShoppingBuyNormalItem": {
@@ -17,7 +18,8 @@
         "target": "CreditShoppingBuyNormal",
         "next": [
             "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItem"
         ]
     },
     "CreditShoppingBuyBlacklistItem": {
@@ -27,7 +29,8 @@
         "target": "CreditShoppingBuyBlacklist",
         "next": [
             "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
         ]
     },
     "CreditShoppingBuyFailed": {
@@ -64,7 +67,10 @@
             23,
             23
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "CreditShoppingCloseDialog"
+        ]
     },
     "CreditShoppingBuyConfirm": {
         "doc": "购买确认",
@@ -80,7 +86,8 @@
         "action": "Click",
         "next": [
             "CreditShoppingClaimConfirm",
-            "CreditShoppingBuyFailed"
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm"
         ]
     }
 }
