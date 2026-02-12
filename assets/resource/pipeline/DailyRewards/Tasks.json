@@ -3,11 +3,20 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]SceneEnterWorldDijiang",
-            "PressEsc"
+            "PressEsc",
+            "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
     "PressEsc": {
+        "desc": "在帝江号大世界按下Esc键打开菜单",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangWorld"
+                ]
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {

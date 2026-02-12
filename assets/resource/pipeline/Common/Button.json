@@ -1,6 +1,6 @@
 {
     "RegionalDevelopmentButton": {
-        "doc": "主页中的地区建设按钮",
+        "doc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
         "template": "Common/RegionalDevelopmentButton.png",
         "threshold": 0.8,
@@ -12,6 +12,20 @@
         ],
         "action": "ClickKey",
         "key": 89
+    },
+    "ControlNexusButton": {
+        "doc": "帝江号大世界中的控制枢纽按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ControlNexusButton.png",
+        "threshold": 0.8,
+        "roi": [
+            258,
+            0,
+            59,
+            68
+        ],
+        "action": "ClickKey",
+        "key": 73
     },
     "IncomeReportButton": {
         "doc": "地区建设中的收支简报按钮",
