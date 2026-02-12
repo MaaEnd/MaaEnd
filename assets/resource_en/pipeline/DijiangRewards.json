@@ -9,6 +9,11 @@
             "Cancel"
         ]
     },
+    "AlreadyHaveClues": {
+        "expected": [
+            "Pegged"
+        ]
+    },
     "SetClues": {
         "expected": [
             "Clue"
