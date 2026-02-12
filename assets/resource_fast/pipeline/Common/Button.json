@@ -34,7 +34,16 @@
             68
         ],
         "action": "ClickKey",
-        "key": 73
+        "key": 73,
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "IncomeReportButton": {
         "doc": "地区建设中的收支简报按钮",
@@ -47,7 +56,16 @@
             68,
             87
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DepotButton": {
         "doc": "地区建设中的仓储节点按钮",
@@ -60,7 +78,16 @@
             40,
             52
         ],
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ChangeRegionButton": {
         "doc": "地区建设中的更换地区按钮",
@@ -74,7 +101,16 @@
             100
         ],
         "method": 10001,
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ChangeRegionConfirmButton": {
         "doc": "地区建设中的确认更换地区按钮",
@@ -88,7 +124,16 @@
             115
         ],
         "method": 10001,
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "BackButton": {
         "doc": "返回按钮",
@@ -102,7 +147,16 @@
         ],
         "threshold": 0.9,
         "method": 10001,
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "RegionalDevelopmentLevelButton": {
         "doc": "地区建设中的地区建设等级按钮",
