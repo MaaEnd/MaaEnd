@@ -3,13 +3,19 @@
         "next": [
             "OpenFriendList",
             "OnFriendList",
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "EnterPauseMenu"
+            "EnterPauseMenu",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "EnterPauseMenu": {
         "doc": "按下 Esc 键唤出暂停界面，等待「好友」按钮",
         "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": ["InWorld"]
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {
