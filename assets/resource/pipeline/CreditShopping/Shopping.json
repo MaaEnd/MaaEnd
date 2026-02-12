@@ -50,6 +50,7 @@
     "CreditShoppingBuyFirst": {
         "doc": "优先购买",
         "recognition": "And",
+        "box_index": 3,
         "all_of": [ //这里的是模板内容,interface中会覆盖具体的执行参数
             {
                 "sub_name": "CreditIcon",
@@ -122,7 +123,6 @@
                 "order_by": "vertical"
             }
         ],
-        "action": "Click",
         "next": [
             "CreditShoppingBuyFirstItem"
         ]
@@ -130,6 +130,7 @@
     "CreditShoppingBuyNormalNoDiscount": {
         "doc": "普通购买(无折扣)",
         "recognition": "And",
+        "box_index": 3,
         "all_of": [ //这里的是模板内容,interface中会覆盖具体的执行参数
             {
                 "sub_name": "CreditIcon",
@@ -201,7 +202,6 @@
                 "order_by": "vertical"
             }
         ],
-        "action": "Click",
         "next": [
             "CreditShoppingBuyNormalItemNoDiscount"
         ]
@@ -209,6 +209,7 @@
     "CreditShoppingBuyNormalWithDiscount": {
         "doc": "普通购买(折扣)",
         "recognition": "And",
+        "box_index": 4,
         "all_of": [
             {
                 "sub_name": "CreditIcon",
@@ -304,7 +305,6 @@
                 "order_by": "vertical"
             }
         ],
-        "action": "Click",
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]
@@ -312,6 +312,7 @@
     "CreditShoppingBuyBlacklist": {
         "doc": "信用点溢出时购买黑名单物品",
         "recognition": "And",
+        "box_index": 2,
         "all_of": [
             {
                 "sub_name": "CreditNum",
