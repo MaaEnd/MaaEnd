@@ -1,0 +1,9 @@
+{
+    // SceneEnterMenuRegionalDevelopment 可以通过覆盖入口节点来使用
+    "DeliveryJobsMain": {
+        "next": [
+            "DeliveryJobsLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    }
+}
