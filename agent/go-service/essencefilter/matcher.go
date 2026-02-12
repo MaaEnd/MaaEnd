@@ -32,20 +32,33 @@ func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombination
 		log.Debug().Int("slot", i+1).Str("skill", skill).Int("skill_id", id).Msg("[EssenceFilter] OCR 技能映射结果")
 	}
 
+	var finalCombination *SkillCombination
 	for _, combination := range targetSkillCombinations {
 		if len(combination.SkillIDs) == 3 &&
 			ocrSkillIDs[0] == combination.SkillIDs[0] &&
 			ocrSkillIDs[1] == combination.SkillIDs[1] &&
 			ocrSkillIDs[2] == combination.SkillIDs[2] {
-			log.Info().
-				Str("weapon", combination.Weapon.ChineseName).
-				Ints("ocr_skill_ids", ocrSkillIDs).
-				Ints("expected_ids", combination.SkillIDs).
-				Strs("ocr_skills", ocrSkills).
-				Strs("expected_skills", combination.SkillsChinese).
-				Msg("[EssenceFilter] MatchEssenceSkills: ID 匹配成功")
-			return &combination, true
+
+			// 如果这是第一次匹配到，将其作为基础
+			if finalCombination == nil {
+				temp := combination
+				finalCombination = &temp
+			} else {
+				// 如果已经匹配过（说明有多个武器共用这套技能），追加武器名
+				finalCombination.Weapon.ChineseName += ", " + combination.Weapon.ChineseName
+			}
 		}
+	}
+
+	if finalCombination != nil {
+		log.Info().
+			Str("weapon", finalCombination.Weapon.ChineseName).
+			Ints("ocr_skill_ids", ocrSkillIDs).
+			Ints("expected_ids", finalCombination.SkillIDs).
+			Strs("ocr_skills", ocrSkills).
+			Strs("expected_skills", finalCombination.SkillsChinese).
+			Msg("[EssenceFilter] MatchEssenceSkills: ID 匹配成功")
+		return finalCombination, true
 	}
 
 	log.Info().
