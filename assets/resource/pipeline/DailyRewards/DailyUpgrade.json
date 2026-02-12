@@ -1,4 +1,70 @@
 {
+    "DailyTasUpgradeGuideToInventory": {
+        "desc": "导航区武器库",
+        "action": {
+            "param": {
+                "target": true
+            },
+            "type": "Click"
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "template": "Common/BackButton.png",
+                        "roi": [
+                            -200,
+                            0,
+                            200,
+                            200
+                        ],
+                        "threshold": 0.8
+                    },
+                    {
+                        "recognition": "OCR",
+                        "roi": [
+                            0,
+                            0,
+                            200,
+                            200
+                        ],
+                        "expected": "行动"
+                    }
+                ]
+            }
+        },
+        "next": [
+            "DailyTasUpgradeGuideToInventory2",
+            "DailyTasUpgradeGuideToInventory"
+        ]
+    },
+    "DailyTasUpgradeGuideToInventory2": {
+        "action": {
+            "param": {
+                "target": true
+            },
+            "type": "Click"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -300,
+                    0,
+                    300,
+                    700
+                ],
+                "expected": "贵重品"
+            }
+        },
+        "next": [
+            "CheckWeaponInventory",
+            "DailyTasUpgradeGuideToInventory2"
+        ]
+    },
     "CheckWeaponInventory": {
         "desc": "检查武器库界面",
         "pre_delay": 0,
@@ -131,13 +197,28 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]ScenePrivateAnyEnterWorld",
-            "DailyTaskUpgradeWeaponFinished"
+            "DailyTaskUpgradeWeaponFinished",
+            "[JumpBack]ScenePrivateAnyEnterWorld"
         ]
     },
     "DailyTaskUpgradeWeaponFinished": {
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
     },
     "DailyTaskUpgradeSwitchLowLevel": {
         "desc": "识别品质，切换到等级分类",
