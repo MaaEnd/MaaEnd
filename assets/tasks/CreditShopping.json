@@ -256,12 +256,12 @@
                             "doc": "有折扣（价格是黄色）",
                             "sub_name": "IsDiscount",
                             "recognition": "ColorMatch",
-                            "roi": "NotSoldOut",
+                            "roi": "Affordable",
                             "roi_offset": [
-                                100,
-                                0,
-                                -100,
-                                -150
+                                171,
+                                108,
+                                57,
+                                27
                             ],
                             "lower": [
                                 255,
