@@ -109,7 +109,7 @@
                     ]
                 }
             },
-            "CreditShoppingBuyNormal": {
+            "CreditShoppingBuyNormalNoDiscount": {
                 "all_of": [
                     {
                         "sub_name": "CreditIcon",
@@ -154,7 +154,7 @@
                             -160
                         ],
                         "order_by": "vertical",
-                        "expected": "^(?!({blacklist})$).*$"
+                        "expected": "^(?!({Blacklist})$).*$"
                     },
                     {
                         "doc": "买得起（价格不是红色）",
@@ -180,34 +180,103 @@
                         "count": 20,
                         "order_by": "vertical"
                     }
-                ],
-                "only_buy_discount_subrec": {
-                    "sub_name": "IsDiscount",
-                    "recognition": "ColorMatch",
-                    "roi": "NotSoldOut",
-                    "roi_offset": [
-                        100,
-                        0,
-                        -100,
-                        -150
-                    ],
-                    "lower": [
-                        255,
-                        220,
-                        0
-                    ],
-                    "upper": [
-                        255,
-                        220,
-                        0
-                    ],
-                    "count": 500
-                },
-                "offset": [
-                    -96,
-                    171,
-                    100,
-                    -5
+                ]
+            },
+            "CreditShoppingBuyNormalWithDiscount": {
+                "all_of": [
+                    {
+                        "sub_name": "CreditIcon",
+                        "recognition": "TemplateMatch",
+                        "template": "CreditShopping/CreditIcon.png",
+                        "roi": [
+                            74,
+                            103,
+                            1131,
+                            538
+                        ],
+                        "order_by": "vertical"
+                    },
+                    {
+                        "doc": "非售罄",
+                        "sub_name": "NotSoldOut",
+                        "recognition": "ColorMatch",
+                        "method": 6,
+                        "roi": "CreditIcon",
+                        "roi_offset": [
+                            -95,
+                            -133,
+                            130,
+                            160
+                        ],
+                        "lower": [
+                            120
+                        ],
+                        "upper": [
+                            255
+                        ],
+                        "count": 20000
+                    },
+                    {
+                        "sub_name": "BlacklistOCR",
+                        "recognition": "OCR",
+                        "roi": "NotSoldOut",
+                        "roi_offset": [
+                            0,
+                            170,
+                            0,
+                            -160
+                        ],
+                        "order_by": "vertical",
+                        "expected": "^(?!({Blacklist})$).*$"
+                    },
+                    {
+                        "doc": "买得起（价格不是红色）",
+                        "sub_name": "Affordable",
+                        "recognition": "ColorMatch",
+                        "roi": "BlacklistOCR",
+                        "roi_offset": [
+                            65,
+                            -40,
+                            -20,
+                            1
+                        ],
+                        "lower": [
+                            76,
+                            76,
+                            76
+                        ],
+                        "upper": [
+                            108,
+                            108,
+                            108
+                        ],
+                        "count": 20,
+                        "order_by": "vertical"
+                    },
+                    {
+                        "doc": "有折扣（价格是黄色）",
+                        "sub_name": "IsDiscount",
+                        "recognition": "ColorMatch",
+                        "roi": "NotSoldOut",
+                        "roi_offset": [
+                            100,
+                            0,
+                            -100,
+                            -150
+                        ],
+                        "lower": [
+                            255,
+                            220,
+                            0
+                        ],
+                        "upper": [
+                            255,
+                            220,
+                            0
+                        ],
+                        "count": 500,
+                        "order_by": "vertical"
+                    }
                 ]
             }
         },

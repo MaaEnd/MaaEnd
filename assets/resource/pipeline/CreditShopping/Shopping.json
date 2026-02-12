@@ -124,8 +124,7 @@
         ],
         "action": "Click",
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyFirstItem"
         ]
     },
     "CreditShoppingBuyNormalNoDiscount": {
@@ -204,8 +203,7 @@
         ],
         "action": "Click",
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyNormalItemNoDiscount"
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
@@ -308,8 +306,7 @@
         ],
         "action": "Click",
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm"
+            "CreditShoppingBuyNormalItemWithDiscount"
         ]
     },
     "CreditShoppingBuyBlacklist": {
@@ -366,10 +363,6 @@
         ]
     },
     "CreditShoppingNothingToBuy": {
-        "recognition": "DirectHit",
-        "next": [
-            "InMainWindow",
-            "[JumpBack]BackButton"
-        ]
+        "recognition": "DirectHit"
     }
 }
