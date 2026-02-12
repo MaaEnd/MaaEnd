@@ -50,7 +50,7 @@
         ],
         "next": [
             "DailyTaskCreationFinish",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "DailyTaskCloseProductPopup": {
@@ -72,7 +72,7 @@
         },
         "next": [
             "DailyTaskCreationFinish",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "DailyTaskCreationFinish": {

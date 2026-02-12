@@ -4,7 +4,7 @@
             "OpenFriendList",
             "OnFriendList",
             "EnterPauseMenu",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "EnterPauseMenu": {
@@ -13,7 +13,9 @@
         "recognition": {
             "type": "And",
             "param": {
-                "all_of": ["InWorld"]
+                "all_of": [
+                    "InWorld"
+                ]
             }
         },
         "action": {

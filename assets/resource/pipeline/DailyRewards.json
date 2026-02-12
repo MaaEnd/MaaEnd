@@ -5,7 +5,7 @@
         },
         "max_hit": 1,
         "next": [
-            "CheckEmailStart"
+            "DailyEmailStart"
         ],
         "post_delay": 0,
         "pre_delay": 0

@@ -3,7 +3,7 @@
     //     "doc": "接口使用示例",
     //     "next": [
     //         "XXXXXXX", // 业务分支
-    //         "[JumpBack]ScenePrivateAnyEnterWorld" // 调用接口
+    //         "[JumpBack]SceneAnyEnterWorld" // 调用接口
     //     ]
     // },
     "SceneTestEnterWorld": {
@@ -14,7 +14,7 @@
         // 关键用例：在好友帝江号中，返回大世界
         "doc": "在任意场景下，进入大世界",
         "next": [
-            "ScenePrivateAnyEnterWorld"
+            "SceneAnyEnterWorld"
         ]
     },
     "SceneTestEnterMapDijiang": {
@@ -61,6 +61,12 @@
         "doc": "在任意场景下，进入蓝图菜单",
         "next": [
             "SceneEnterMenuBluePrint"
+        ]
+    },
+    "SceneTestEnterMenuEmail": {
+        "doc": "在任意场景下，进入邮箱界面",
+        "next": [
+            "SceneEnterMenuEmail"
         ]
     }
 }
