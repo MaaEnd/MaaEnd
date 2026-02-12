@@ -440,21 +440,59 @@
             }
         },
         "next": [
+            "ReadySetClues"
+        ]
+    },
+    "ReadySetClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "线索"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "next": [
+            "AlreadyHaveClues",
             "SetClues"
         ]
+    },
+    "AlreadyHaveClues": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "已填入"
+                ],
+                "order_by": "Vertical"
+            }
+        }
     },
     "SetClues": {
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    952,
-                    189,
-                    311,
-                    500
+                    868,
+                    182,
+                    393,
+                    130
                 ],
                 "expected": [
-                    "线索" //#I18N
+                    "线索"
                 ],
                 "order_by": "Vertical"
             }
