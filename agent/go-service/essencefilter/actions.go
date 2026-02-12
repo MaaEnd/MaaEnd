@@ -500,13 +500,21 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			Int("matched_count", matchedCount).
 			Msg("<EssenceFilter> match ok, lock next")
 
-		// 选第一把作为代表来决定稀有度颜色（多把武器共用一套技能时，通常稀有度一致）
-		primaryWeapon := matchResult.Weapons[0]
-		weaponcolor := getColorForRarity(primaryWeapon.Rarity)
-		displayName := formatWeaponNames(matchResult.Weapons)
+		// 按各自稀有度为每把武器单独着色
+		var weaponsHTML strings.Builder
+		for i, w := range matchResult.Weapons {
+			if i > 0 {
+				weaponsHTML.WriteString("、")
+			}
+			weaponColor := getColorForRarity(w.Rarity)
+			weaponsHTML.WriteString(fmt.Sprintf(
+				`<span style="color: %s;">%s</span>`,
+				weaponColor, escapeHTML(w.ChineseName),
+			))
+		}
 		MatchedMessage := fmt.Sprintf(
-			`<div style="color: #064d7c; font-weight: 900;">匹配到武器：<span style="color: %s;">%s</span></div>`,
-			weaponcolor, displayName,
+			`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`,
+			weaponsHTML.String(),
 		)
 		LogMXUHTML(ctx, MatchedMessage)
 
@@ -670,6 +678,25 @@ func formatWeaponNames(weapons []WeaponData) string {
 	return strings.Join(names, "、")
 }
 
+// formatWeaponNamesColoredHTML - 按稀有度为每把武器着色并拼接成 HTML 片段
+func formatWeaponNamesColoredHTML(weapons []WeaponData) string {
+	if len(weapons) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	for i, w := range weapons {
+		if i > 0 {
+			b.WriteString("、")
+		}
+		color := getColorForRarity(w.Rarity)
+		b.WriteString(fmt.Sprintf(
+			`<span style="color: %s;">%s</span>`,
+			color, escapeHTML(w.ChineseName),
+		))
+	}
+	return b.String()
+}
+
 // skillCombinationKey - 将技能 ID 列表转换为稳定的 key，用于统计 map
 func skillCombinationKey(ids []int) string {
 	if len(ids) == 0 {
@@ -709,7 +736,7 @@ func logMatchSummary(ctx *maa.Context) {
 	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
 
 	for _, item := range items {
-		weaponText := escapeHTML(formatWeaponNames(item.Weapons))
+		weaponText := formatWeaponNamesColoredHTML(item.Weapons)
 		// 为了和前面 OCR 日志一致，summary 优先展示实际 OCR 到的技能文本
 		skillSource := item.OCRSkills
 		if len(skillSource) == 0 {
