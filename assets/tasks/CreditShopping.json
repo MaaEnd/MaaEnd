@@ -5,6 +5,9 @@
             "label": "$task.CreditShopping.label",
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
+            "controller": [
+                "ADB"
+            ],
             "option": [
                 "CreditShoppingOptions",
                 "CreditShoppingForce",
