@@ -34,6 +34,21 @@
             "CreditShoppingNothingToBuy"
         ]
     },
+    "CreditShoppingReserveCredit": {
+        "doc": "信用点 < 300",
+        "recognition": "OCR",
+        "only_rec": true,
+        "roi": [
+            1083,
+            17,
+            76,
+            26
+        ],
+        "expected": "^([12]?\\d{1,2})$",
+        "next": [
+            "CreditShoppingNothingToBuy"
+        ]
+    },
     "AutoGetCredits": {
         "doc": "额度不足时候自动去基建获取",
         "max_hit": 1,
@@ -114,21 +129,6 @@
         "next": [
             "[JumpBack]NeedCredit",
             "CreditShoppingMain"
-        ]
-    },
-    "CreditShoppingReserveCredit": {
-        "doc": "信用点 < 300",
-        "recognition": "OCR",
-        "only_rec": true,
-        "roi": [
-            1083,
-            17,
-            76,
-            26
-        ],
-        "expected": "^([12]?\\d{1,2})$",
-        "next": [
-            "CreditShoppingNothingToBuy"
         ]
     },
     "CreditShoppingBuyFirst": {

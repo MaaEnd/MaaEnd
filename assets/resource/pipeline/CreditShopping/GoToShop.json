@@ -11,6 +11,10 @@
     },
     "CreditShoppingCheckMainUI": {
         "doc": "检测主界面（未展开），点击 F5 展开",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000
+        },
         "recognition": "TemplateMatch",
         "template": "CreditShopping/Expand.png",
         "threshold": 0.8,
