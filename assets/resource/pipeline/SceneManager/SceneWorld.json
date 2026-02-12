@@ -1,15 +1,4 @@
 {
-    "ScenePrivateAnyEnterWorld": {
-        "doc": "无限循环esc，从任意界面进入谷地/武陵/帝江任意一个大世界",
-        "next": [
-            "ScenePrivateAnyEnterWorldSuccess",
-            "[JumpBack]ScenePrivateLogin",
-            "[JumpBack]SceneDialogConfirm",
-            "[JumpBack]ScenePrivateEndVisitConfirm",
-            "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]ScenePrivateAnyExit"
-        ]
-    },
     "ScenePrivateAnyEnterWorldSuccess": {
         "doc": "从任意界面进入大世界成功",
         "recognition": {

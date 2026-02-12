@@ -1,11 +1,31 @@
 {
+    "SceneAnyEnterWorld": {
+        "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "next": [
+            "ScenePrivateAnyEnterWorldSuccess",
+            "[JumpBack]ScenePrivateLogin",
+            "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]ScenePrivateEndVisitConfirm",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]ScenePrivateAnyExit"
+        ]
+    },
+    "SceneEnterMenuList": {
+        "doc": "从任意界面进入菜单总列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterMapDijiang": {
         "doc": "从任意界面进入帝江号地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterMapDijiang",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneEnterWorldDijiang": {
@@ -14,7 +34,7 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterWorldDijiang",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneEnterWorldValleyIVTheHub": {
@@ -23,7 +43,7 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldAnyEnterWorldValleyIVTheHub",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneEnterWorldFactory": {
@@ -35,7 +55,7 @@
             "ScenePrivateWorldFactoryDisableEnterFactoryActive",
             "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
             "ScenePrivateWorldDijiangEnterFactoryActive",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneEnterMenuRegionalDevelopment": {
@@ -44,7 +64,7 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterMenuRegionalDevelopment",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneEnterMenuBluePrint": {
@@ -54,6 +74,15 @@
         "next": [
             "ScenePrivateWorldFactoryEnterMenuBluePrint",
             "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuEmail": {
+        "doc": "从任意界面进入邮箱界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneDialogConfirm": {

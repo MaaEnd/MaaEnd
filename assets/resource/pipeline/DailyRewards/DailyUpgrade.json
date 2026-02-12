@@ -198,7 +198,7 @@
         },
         "next": [
             "DailyTaskUpgradeWeaponFinished",
-            "[JumpBack]ScenePrivateAnyEnterWorld"
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "DailyTaskUpgradeWeaponFinished": {
