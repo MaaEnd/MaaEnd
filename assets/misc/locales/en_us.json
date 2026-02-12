@@ -84,6 +84,8 @@
     "option.CreditShoppingOnlyDiscount.description": "⚠️Note: This may cause credit overflow! Whitelisted items will still be purchased even if not discounted!",
     "option.CreditShoppingReserve.label": "Stop buying when credits below 300",
     "option.CreditShoppingReserve.description": "Whitelisted items will still be purchased even below 300 credits!",
+    "option.AutoGetCredits.label": "Automatically Get Credits",
+    "option.AutoGetCredits.description": "Infrastructure linkage feature, automatically go to the Dijiang reception room to collect credits when credits are insufficient.",
     "task.ImportBluePrints.label": "📐 Import Blueprints",
     "task.ImportBluePrints.description": "Batch import blueprints with smart parsing.",
     "option.ImportBluePrints.label": "Import Blueprints",

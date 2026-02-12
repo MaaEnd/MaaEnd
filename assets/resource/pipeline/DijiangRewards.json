@@ -2,13 +2,6 @@
     "NeedCredit": {
         "max_hit": 1,
         //这个节点是给信用点商店任务预留的
-        //使用方式为,在信用点商店的interface节点中,增加
-        //"pipeline_override": {
-        //    "StartExchange": {
-        //        "enabled": true
-        //    }
-        //}
-        //和Entry,option等参数同级
         //当然你也可以自己给NeedCredit这项任务添加识别器
         //
         //当信用点商店中包含玉或者其他高价值物品,但是信用点不够就运行这个任务
@@ -195,7 +188,6 @@
         ]
     },
     "StartExchange": {
-        "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
             "param": {

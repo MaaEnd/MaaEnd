@@ -78,6 +78,8 @@
     "option.CreditShoppingOnlyDiscount.description": "⚠️注意：クレジットオーバーフローの原因になる可能性があります！割引なしでもホワイトリスト商品は購入されます！",
     "option.CreditShoppingReserve.label": "クレジットが300未満で購入を停止",
     "option.CreditShoppingReserve.description": "300クレジット未満でもホワイトリスト商品は購入されます！",
+    "option.AutoGetCredits.label": "自動でクレジットを取得",
+    "option.AutoGetCredits.description": "基盤施設連動機能で、クレジットが不足している場合に自動で帝江号の応接室でクレジットを取得します。",
     "task.ImportBluePrints.label": "📐 設計図を一括インポート",
     "task.ImportBluePrints.description": "設計図を一括でインポートします（スマート解析対応）。",
     "option.ImportBluePrints.label": "設計図インポート",

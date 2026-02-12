@@ -1,13 +1,13 @@
 {
     "CreditShoppingClaimCredit": {
         "doc": "领取信用点",
-        "recognition": "TemplateMatch",
-        "template": "CreditShopping/ClaimCredit.png",
+        "recognition": "OCR",
+        "expected": "收取信用",
         "roi": [
-            198,
-            664,
-            22,
-            11
+            26,
+            583,
+            254,
+            137
         ],
         "action": "Click",
         "next": [
