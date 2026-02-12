@@ -13,11 +13,7 @@
                 "type": {
                     "title": "控制器类型",
                     "type": "string",
-                    "enum": [
-                        "Adb",
-                        "Win32",
-                        "PlayCover"
-                    ]
+                    "enum": ["Adb", "Win32", "PlayCover"]
                 }
             }
         },
@@ -86,10 +82,7 @@
                                     "type": "string"
                                 }
                             },
-                            "required": [
-                                "name",
-                                "value"
-                            ]
+                            "required": ["name", "value"]
                         }
                     }
                 },
@@ -97,9 +90,5 @@
             }
         }
     },
-    "required": [
-        "controller",
-        "resource",
-        "task"
-    ]
+    "required": ["controller", "resource", "task"]
 }
