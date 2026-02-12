@@ -3,6 +3,7 @@ package essencefilter
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -651,6 +652,11 @@ func getColorForRarity(rarity int) string {
 	}
 }
 
+// escapeHTML - 简单封装 html.EscapeString，便于后续统一替换/扩展
+func escapeHTML(s string) string {
+	return html.EscapeString(s)
+}
+
 // formatWeaponNames - 将多把武器名格式化为展示字符串（UI 层负责拼接与本地化）
 func formatWeaponNames(weapons []WeaponData) string {
 	if len(weapons) == 0 {
@@ -703,14 +709,14 @@ func logMatchSummary(ctx *maa.Context) {
 	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
 
 	for _, item := range items {
-		weaponText := formatWeaponNames(item.Weapons)
+		weaponText := escapeHTML(formatWeaponNames(item.Weapons))
 		// 为了和前面 OCR 日志一致，summary 优先展示实际 OCR 到的技能文本
 		skillSource := item.OCRSkills
 		if len(skillSource) == 0 {
 			// 兜底：如果没有 OCR 文本（理论上不会发生），退回到静态配置的技能中文名
 			skillSource = item.SkillsChinese
 		}
-		skillText := strings.Join(skillSource, " | ")
+		skillText := escapeHTML(strings.Join(skillSource, " | "))
 		b.WriteString("<tr>")
 		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, weaponText))
 		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, skillText))
