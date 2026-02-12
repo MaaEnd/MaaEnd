@@ -68,5 +68,11 @@
         "next": [
             "SceneEnterMenuEmail"
         ]
+    },
+    "SceneTestEnterMenuList": {
+        "doc": "在任意场景下，进入菜单总列表",
+        "next": [
+            "SceneEnterMenuList"
+        ]
     }
 }

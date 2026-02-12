@@ -10,6 +10,15 @@
             "[JumpBack]ScenePrivateAnyExit"
         ]
     },
+    "SceneEnterMenuList": {
+        "doc": "从任意界面进入菜单总列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterMapDijiang": {
         "doc": "从任意界面进入帝江号地图界面",
         "pre_delay": 0,
