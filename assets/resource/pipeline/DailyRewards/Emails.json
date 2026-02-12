@@ -43,7 +43,7 @@
         "repeat_wait_freezes": 1000
     },
     "DailyEmailStart": {
-        "doc": "邮件奖励流程入口，",
+        "doc": "邮件奖励流程入口",
         "next": [
             "DailyEmailAlreadyInEmail",
             "[JumpBack]SceneEnterMenuEmail"
