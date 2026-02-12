@@ -245,30 +245,6 @@
                 "count": 20000
             },
             {
-                "doc": "有折扣（价格是黄色）",
-                "sub_name": "IsDiscount",
-                "recognition": "ColorMatch",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    100,
-                    0,
-                    -100,
-                    -150
-                ],
-                "lower": [
-                    255,
-                    220,
-                    0
-                ],
-                "upper": [
-                    255,
-                    220,
-                    0
-                ],
-                "count": 500,
-                "order_by": "vertical"
-            },
-            {
                 "sub_name": "BlacklistOCR",
                 "recognition": "OCR",
                 "roi": "NotSoldOut",
@@ -279,7 +255,7 @@
                     -160
                 ],
                 "order_by": "vertical",
-                "expected": "^(?!()$).*$"
+                "expected": "^(?!(折金票|协议棱柱组)$).*$"
             },
             {
                 "doc": "买得起（价格不是红色）",
@@ -303,6 +279,30 @@
                     108
                 ],
                 "count": 20,
+                "order_by": "vertical"
+            },
+            {
+                "doc": "有折扣（价格是黄色）",
+                "sub_name": "IsDiscount",
+                "recognition": "ColorMatch",
+                "roi": "Affordable",
+                "roi_offset": [
+                    171,
+                    108,
+                    57,
+                    27
+                ],
+                "lower": [
+                    255,
+                    220,
+                    0
+                ],
+                "upper": [
+                    255,
+                    220,
+                    0
+                ],
+                "count": 500,
                 "order_by": "vertical"
             }
         ],

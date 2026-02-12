@@ -35,9 +35,6 @@
             ],
             "pipeline_override": {
                 "CreditShoppingBuyFirst": {
-                    "focus": {
-                        "Node.Recognition.Succeeded": "覆盖{buy_first}"
-                    },
                     "all_of": [
                         {
                             "sub_name": "CreditIcon",
@@ -112,9 +109,6 @@
                     ]
                 },
                 "CreditShoppingBuyNormalNoDiscount": {
-                    "focus": {
-                        "Node.Recognition.Succeeded": "覆盖{Blacklist}无折扣"
-                    },
                     "all_of": [
                         {
                             "sub_name": "CreditIcon",
@@ -188,9 +182,6 @@
                     ]
                 },
                 "CreditShoppingBuyNormalWithDiscount": {
-                    "focus": {
-                        "Node.Recognition.Succeeded": "覆盖{Blacklist}折扣"
-                    },
                     "all_of": [
                         {
                             "sub_name": "CreditIcon",
@@ -298,9 +289,6 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "开启溢出时无视黑名单"
-                            },
                             "enabled": true
                         }
                     }
@@ -309,9 +297,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "关闭溢出时无视黑名单"
-                            },
                             "enabled": false
                         }
                     }
@@ -331,9 +316,6 @@
                             "enabled": false
                         },
                         "CreditShoppingBuyNormalWithDiscount": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "开启只购买打折物品"
-                            },
                             "enabled": true
                         }
                     }
@@ -342,9 +324,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyNormalNoDiscount": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "关闭只购买打折物品"
-                            },
                             "enabled": true
                         },
                         "CreditShoppingBuyNormalWithDiscount": {
@@ -364,9 +343,6 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "CreditShoppingReserveCredit": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "开启信用点低于300时停止"
-                            },
                             "enabled": true
                         }
                     }
@@ -375,9 +351,6 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingReserveCredit": {
-                            "focus": {
-                                "Node.Recognition.Succeeded": "关闭信用点低于300时停止"
-                            },
                             "enabled": false
                         }
                     }
