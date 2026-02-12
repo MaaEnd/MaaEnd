@@ -30,7 +30,7 @@
                 "key": 27
             }
         },
-        "post_delay": 400,
+        "post_wait_freezes": 2,
         "next": [
             "OnFriendList"
         ]
