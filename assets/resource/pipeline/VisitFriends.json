@@ -1,14 +1,42 @@
 {
     "FriendVisitMain": {
+        "doc": "入口：优先识别当前界面，再决定按 Esc 后的行为（好友船 Esc→好友列表，己方世界 Esc→暂停菜单）",
         "next": [
-            "OpenFriendList",
             "OnFriendList",
+            "OpenFriendList",
+            "OpenFriendListFromFriendShip",
             "EnterPauseMenu",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "OpenFriendListFromFriendShip": {
+        "doc": "在好友船上时按 Esc 会打开好友列表（而非暂停菜单），按下 Esc 后进入好友列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/ArriveShip.png",
+                "roi": [
+                    1166,
+                    0,
+                    114,
+                    76
+                ],
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "post_wait_freezes": 2,
+        "next": [
+            "OnFriendList"
+        ]
+    },
     "EnterPauseMenu": {
-        "doc": "按下 Esc 键唤出暂停界面，等待「好友」按钮",
+        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船时有效）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -269,7 +297,7 @@
         ]
     },
     "VisitorTerminalSwipeFacilityList": {
-        "doc": "访客终端界面为了露出培养仓助力按钮而向左划",
+        "doc": "访客终端界面为了露出培养仓助力按钮而向左划。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
         "recognition": "DirectHit",
         "max_hit": 12,
         "action": {
@@ -286,8 +314,54 @@
                 "end_hold": 200
             }
         },
+        "post_wait_freezes": 500,
         "next": [
             "VisitorTerminalMeetingRoomCheck",
+            "VisitorTerminalGrowthChamberIcon",
+            "VisitorTerminalSwipeForGrowthChamber",
+            "VisitorTerminalAssistGrowthChamber"
+        ]
+    },
+    "VisitorTerminalGrowthChamberIcon": {
+        "doc": "定位培养仓图标（24×24），供后续节点基于其位置用 roi 搜索助力按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/GrowthChamberOpen.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "VisitorTerminalAssistGrowthChamber"
+        ]
+    },
+    "VisitorTerminalSwipeForGrowthChamber": {
+        "doc": "未找到培养仓图标时向左划一次再重试，避免用无效 roi 进 AssistGrowthChamber。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
+        "recognition": "DirectHit",
+        "max_hit": 11,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1000,
+                    550
+                ],
+                "end": [
+                    550,
+                    550
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "VisitorTerminalMeetingRoomCheck",
+            "VisitorTerminalGrowthChamberIcon",
+            "VisitorTerminalSwipeForGrowthChamber",
             "VisitorTerminalAssistGrowthChamber"
         ]
     },
@@ -422,14 +496,19 @@
         ]
     },
     "VisitorTerminalAssistGrowthChamber": {
-        "doc": "访客终端助力培养仓",
+        "doc": "在培养仓图标附近区域（roi 基于 GrowthChamberIcon 位置 + offset）匹配并点击助力按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "VisitFriends/ProductionAssist.png",
                 "threshold": 0.8,
-                "order_by": "Horizontal",
-                "index": -1
+                "roi": "VisitorTerminalGrowthChamberIcon",
+                "roi_offset": [
+                    -12,
+                    -12,
+                    176,
+                    136
+                ]
             }
         },
         "action": {
