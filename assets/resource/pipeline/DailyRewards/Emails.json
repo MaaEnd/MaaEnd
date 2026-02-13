@@ -68,6 +68,29 @@
                 "green_mask": true
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "next": [
+            "DailyEmailHasUnreadMessage",
+            "DailyEmailNoUnreadMessage"
+        ]
+    },
+    "DailyEmailHasUnreadMessage": {
+        "doc": "大世界有未读邮件,尝试打开邮件",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    80
+                ],
+                "template": [
+                    "CheckEmail/email.png"
+                ]
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {
@@ -77,29 +100,28 @@
         "focus": {
             "Node.Action.Succeeded": "尝试打开邮件"
         },
-        "post_delay": 2000, // 通过尝试打开邮箱，判断有没有未读邮件
+        "post_wait_freezes": 400,
         "next": [
-            "DailyEmailAlreadyInEmail",
-            "DailyEmailNoUnreadEmail"
+            "DailyEmailAlreadyInEmail"
         ]
     },
-    "DailyEmailNoUnreadEmail": {
-        "doc": "还在大世界界面，判断为没有未读邮件",
+    "DailyEmailNoUnreadMessage": {
+        "doc": "大世界没有未读邮件，不进行操作",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    -200,
                     0,
-                    200,
-                    200
+                    0,
+                    350,
+                    80
                 ],
                 "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                    "CheckEmail/email.png"
+                ]
             }
         },
+        "inverse": true,
         "focus": {
             "Node.Recognition.Succeeded": "没有未读邮件"
         }
