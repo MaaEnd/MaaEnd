@@ -432,7 +432,8 @@
             }
         },
         "next": [
-            "ReadySetClues"
+            "ReadySetClues",
+            "EndExchange"
         ]
     },
     "ReadySetClues": {
@@ -568,7 +569,8 @@
         "next": [
             "SendClues",
             "Collect",
-            "CollectClues"
+            "CollectClues",
+            "EndExchange"
         ]
     },
     "SendClues": {
@@ -799,7 +801,8 @@
         },
         "next": [
             "CloseRewardsButton",
-            "ReceiveClues"
+            "ReceiveClues",
+            "EndExchange"
         ]
     },
     "GrowthChamber": {
@@ -976,7 +979,8 @@
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom",
-            "[JumpBack]WhiteConfirmButtonType1"
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]EndExchange"
         ]
     },
     "InControlNexus": {
@@ -1436,6 +1440,7 @@
             "[JumpBack]ConfirmRestock",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]CloseRewardsButton",
+            "[JumpBack]EndExchange",
             "ControlNexusClickTips"
         ]
     },
