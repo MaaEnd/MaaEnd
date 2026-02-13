@@ -1,0 +1,270 @@
+{
+    "YellowButtonBackground": {
+        "doc": "黄色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        253,
+                        237,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        209,
+                        207,
+                        13
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        239,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        244,
+                        241,
+                        48
+                    ]
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "WhiteButtonBackground": {
+        "doc": "白色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "ConfirmButton_Yellow": {
+        "doc": "通用确认按钮，黄色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/Confirm.png",
+                                    "Common/Button/Confirm_Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ConfirmButton_Yellow_2": {
+        "doc": "通用确认按钮，黄色底，对号标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/Confirm_1.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "CancelButton": {
+        "doc": "通用取消按钮,白色底,X标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/Cancel.png",
+                                    "Common/Button/Cancel_Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ConfirmButton_White": {
+        "doc": "通用确认按钮，白色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/ConfirmWhite.png",
+                                    "Common/Button/ConfirmWhite_Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Teleport": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/Teleport.png",
+                    "Common/Button/Teleport_Hover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CloseRewardsInfo": {
+        //关闭奖励界面
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/CloseReward.png",
+                    "Common/Button/CloseReward_Hover.png"
+                ],
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitButton": {
+        "doc": "通用退出按钮，位于界面右上角的X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    882,
+                    0,
+                    398,
+                    335
+                ],
+                "template": [
+                    "Common/Button/ClosePage.png",
+                    "Common/Button/ExitProductionAssist.png",
+                    "Common/Button/CloseButton.png"
+                ]
+            }
+        }
+    }
+}

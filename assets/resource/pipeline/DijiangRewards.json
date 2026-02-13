@@ -1382,25 +1382,6 @@
             }
         }
     },
-    "Teleport": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1181,
-                    611,
-                    94,
-                    102
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Teleport.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "SelectDijiangTeleport": {
         "post_wait_freezes": {
             "time": 200,
