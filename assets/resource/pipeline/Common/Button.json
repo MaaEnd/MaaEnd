@@ -87,8 +87,8 @@
             }
         }
     },
-    "ConfirmButton_Yellow": {
-        "doc": "通用确认按钮，黄色底，圆环形标志",
+    "YellowConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，黄色底，圆环形标志",
         "recognition": {
             "type": "And",
             "param": {
@@ -107,8 +107,8 @@
                                     40
                                 ],
                                 "template": [
-                                    "Common/Button/Confirm.png",
-                                    "Common/Button/Confirm_Hover.png"
+                                    "Common/Button/YellowConfirmButtonType1.png",
+                                    "Common/Button/YellowConfirmButtonType1Hover.png"
                                 ]
                             }
                         }
@@ -117,8 +117,8 @@
             }
         }
     },
-    "ConfirmButton_Yellow_2": {
-        "doc": "通用确认按钮，黄色底，对号标志",
+    "YellowConfirmButtonType2": {
+        "doc": "通用确认按钮，有文字，黄色底，对号标志",
         "recognition": {
             "type": "And",
             "param": {
@@ -137,7 +137,7 @@
                                     40
                                 ],
                                 "template": [
-                                    "Common/Button/Confirm_1.png"
+                                    "Common/Button/YellowConfirmButtonType2.png"
                                 ]
                             }
                         }
@@ -147,7 +147,7 @@
         }
     },
     "CancelButton": {
-        "doc": "通用取消按钮,白色底,X标志",
+        "doc": "通用取消按钮，有文字，白色底，X标志",
         "recognition": {
             "type": "And",
             "param": {
@@ -166,8 +166,8 @@
                                     40
                                 ],
                                 "template": [
-                                    "Common/Button/Cancel.png",
-                                    "Common/Button/Cancel_Hover.png"
+                                    "Common/Button/CancelButton.png",
+                                    "Common/Button/CancelButtonHover.png"
                                 ]
                             }
                         }
@@ -176,8 +176,8 @@
             }
         }
     },
-    "ConfirmButton_White": {
-        "doc": "通用确认按钮，白色底，圆环形标志",
+    "WhiteConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，白色底，圆环形标志",
         "recognition": {
             "type": "And",
             "param": {
@@ -196,8 +196,8 @@
                                     40
                                 ],
                                 "template": [
-                                    "Common/Button/ConfirmWhite.png",
-                                    "Common/Button/ConfirmWhite_Hover.png"
+                                    "Common/Button/WhiteConfirmButtonType1.png",
+                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                                 ]
                             }
                         }
@@ -206,7 +206,8 @@
             }
         }
     },
-    "Teleport": {
+    "TeleportButton": {
+        "doc": "传送按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -217,8 +218,8 @@
                     102
                 ],
                 "template": [
-                    "Common/Button/Teleport.png",
-                    "Common/Button/Teleport_Hover.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },
@@ -226,14 +227,14 @@
             "type": "Click"
         }
     },
-    "CloseRewardsInfo": {
-        //关闭奖励界面
+    "CloseRewardsButton": {
+        "doc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": [
-                    "Common/Button/CloseReward.png",
-                    "Common/Button/CloseReward_Hover.png"
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
                 ],
                 "roi": [
                     571,
@@ -248,7 +249,7 @@
             "type": "Click"
         }
     },
-    "ExitButton": {
+    "CloseButtonType1": {
         "doc": "通用退出按钮，位于界面右上角的X",
         "recognition": {
             "type": "TemplateMatch",
@@ -260,9 +261,10 @@
                     335
                 ],
                 "template": [
-                    "Common/Button/ClosePage.png",
-                    "Common/Button/ExitProductionAssist.png",
-                    "Common/Button/CloseButton.png"
+                    "Common/Button/CloseButtonType1.png",
+                    "Common/Button/CloseButtonType2.png",
+                    "Common/Button/CloseButtonType3.png",
+                    "Common/Button/CloseButtonType4.png"
                 ]
             }
         }

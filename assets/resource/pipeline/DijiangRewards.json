@@ -20,10 +20,9 @@
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
+            "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-
         ]
     },
     "ControlNexus": {
@@ -53,7 +52,6 @@
             "[JumpBack]CarbinSwipe",
             "[JumpBack]ConfirmExchangeEnd",
             "[JumpBack]CloseDijiangRewards"
-
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -99,11 +97,10 @@
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
+            "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
