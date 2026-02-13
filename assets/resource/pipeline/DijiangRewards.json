@@ -1205,7 +1205,9 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
-                ]
+                ],
+                "order_by": "Horizontal",
+                "index": -1
             }
         },
         "action": {
