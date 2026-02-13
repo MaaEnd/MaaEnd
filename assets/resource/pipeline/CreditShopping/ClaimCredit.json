@@ -38,10 +38,10 @@
             "Common/Button/CloseRewardButtonHover.png"
         ],
         "roi": [
-            623,
-            648,
-            34,
-            32
+            560,
+            586,
+            161,
+            134
         ],
         "action": "Click",
         "next": [
