@@ -115,6 +115,9 @@
                     }
                 ]
             }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "YellowConfirmButtonType2": {
@@ -144,6 +147,9 @@
                     }
                 ]
             }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "CancelButton": {
@@ -174,6 +180,9 @@
                     }
                 ]
             }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "WhiteConfirmButtonType1": {
@@ -204,6 +213,9 @@
                     }
                 ]
             }
+        },
+        "action": {
+            "type": "Click"
         }
     },
     "TeleportButton": {
@@ -267,6 +279,9 @@
                     "Common/Button/CloseButtonType4.png"
                 ]
             }
+        },
+        "action": {
+            "type": "Click"
         }
     }
 }
