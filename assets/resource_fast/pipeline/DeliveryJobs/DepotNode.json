@@ -11,6 +11,8 @@
         "next": [
             "DeliveryJobsCheckOriginiumSciencePark",
             "DeliveryJobsEnterValleyIVDepot"
+            // FIXME: 可能因为双击进入货物界面
+            // "DeliveryJobsBackFromCargo"
         ],
         "post_wait_freezes": {
             "time": 1,
@@ -363,7 +365,6 @@
             "DeliveryJobsLoop",
             "[JumpBack]RegionalDevelopmentButton", // 有可能会连续单击两次返回按钮，退回到大世界中
             "DeliveryJobsBackToRegionalConstruction"
-
         ],
         "post_wait_freezes": {
             "time": 1,
