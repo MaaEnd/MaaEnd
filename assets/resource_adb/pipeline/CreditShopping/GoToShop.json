@@ -4,8 +4,8 @@
             "CreditShoppingShopping",
             "CreditShoppingCheckShopPage",
             "EntryCreeditShop",
-            "CreditShoppingCheckMainUI",
-            "[JumpBack]SceneTestEnterWorld"
+            "CreditShoppingCheckMainUI"
+            //"[JumpBack]SceneTestEnterWorld"
         ]
     },
     "CreditShoppingCheckMainUI": {
