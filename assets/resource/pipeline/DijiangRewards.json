@@ -23,7 +23,6 @@
             "[JumpBack]Teleport",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-
         ]
     },
     "ControlNexus": {
@@ -51,9 +50,8 @@
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
-            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]EndExchange",
             "[JumpBack]CloseDijiangRewards"
-
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -103,7 +101,6 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -435,7 +432,8 @@
             }
         },
         "next": [
-            "ReadySetClues"
+            "ReadySetClues",
+            "EndExchange"
         ]
     },
     "ReadySetClues": {
@@ -571,7 +569,8 @@
         "next": [
             "SendClues",
             "Collect",
-            "CollectClues"
+            "CollectClues",
+            "EndExchange"
         ]
     },
     "SendClues": {
@@ -802,7 +801,8 @@
         },
         "next": [
             "Receive",
-            "ReceiveClues"
+            "ReceiveClues",
+            "EndExchange"
         ]
     },
     "Receive": {
@@ -1018,27 +1018,8 @@
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom",
-            "[JumpBack]ConfirmExchangeEnd"
+            "[JumpBack]EndExchange"
         ]
-    },
-    "ConfirmExchangeEnd": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    685,
-                    616,
-                    73,
-                    70
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     },
     "InControlNexus": {
         "recognition": {
@@ -1633,7 +1614,7 @@
         "next": [
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
-            "[JumpBack]ConfirmExchangeEnd",
+            "[JumpBack]EndExchange",
             "[JumpBack]CloseDijiangRewards",
             "ControlNexusClickTips"
         ]
