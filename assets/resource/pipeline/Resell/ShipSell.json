@@ -18,7 +18,7 @@
             }
         },
         "inverse": true,
-        "pre_delay": 1000,
+        "pre_delay": 0,
         "post_delay": 0,
         "next": ["ResellShipWalkAS_KeyDownA"]
     },
@@ -81,7 +81,7 @@
                 "key": 83
             }
         },
-        "post_delay": 100,
+        "post_delay": 0,
         "next": ["ResellShipWalkAW_KeyDownA"]
     },
 
@@ -110,7 +110,7 @@
                 "key": 87
             }
         },
-        "post_delay": 1000,
+        "post_delay": 0,
         "next": ["ResellShipDetectTerminal"]
     },
     "ResellShipDetectTerminal": {
@@ -123,7 +123,7 @@
                 "roi": [400, 200, 480, 320]
             }
         },
-        "post_delay": 100,
+        "post_delay": 0,
         "next": ["ResellShipWalkAW_KeyUpA"],
         "timeout": 20000
     },
@@ -181,7 +181,7 @@
                 "key": 87
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipInteract"]
     },
 
@@ -196,7 +196,7 @@
                 "key": 70
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipInTerminal"]
     },
     "ResellShipInTerminal": {
@@ -225,7 +225,7 @@
                 "target": [100, 300]
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipPage1SellSwipe", "ResellShipPage1NoStock"]
     },
 
@@ -246,7 +246,7 @@
                 "end": [700, 525]
             }
         },
-        "post_delay": 100,
+        "post_delay": 0,
         "next": ["ResellShipPage1SellExecute"]
     },
     "ResellShipPage1SellExecute": {
@@ -260,7 +260,7 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 2000,
+        "post_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -285,7 +285,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 200,
+        "post_delay": 0,
         "next": ["ResellShipSwitchPage"]
     },
     "ResellShipPage1NoStock": {
@@ -304,7 +304,7 @@
                 "key": 27
             }
         },
-        "post_delay": 200,
+        "post_delay": 0,
         "next": ["ResellShipSwitchPage"]
     },
 
@@ -319,7 +319,7 @@
                 "key": 69
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipPage2Click"]
     },
 
@@ -334,7 +334,7 @@
                 "target": [100, 300]
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipPage2SellSwipe", "ResellShipPage2NoStock"]
     },
 
@@ -355,7 +355,7 @@
                 "end": [700, 525]
             }
         },
-        "post_delay": 100,
+        "post_delay": 0,
         "next": ["ResellShipPage2SellExecute"]
     },
     "ResellShipPage2SellExecute": {
@@ -369,7 +369,7 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 2000,
+        "post_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -394,7 +394,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 200,
+        "post_delay": 0,
         "next": ["ResellShipExitSell"]
     },
     "ResellShipPage2NoStock": {
@@ -413,7 +413,7 @@
                 "key": 27
             }
         },
-        "post_delay": 200,
+        "post_delay": 0,
         "next": ["ResellShipExitSell"]
     },
 
@@ -428,7 +428,7 @@
                 "key": 27
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipExitTerminal", "ResellShipExitToFriendPage", "ResellShipEndVisitCheck"]
     },
     "ResellShipExitTerminal": {
@@ -447,7 +447,7 @@
                 "key": 27
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipExitToFriendPage", "ResellShipEndVisitCheck"]
     },
     "ResellShipExitToFriendPage": {
@@ -466,7 +466,7 @@
                 "key": 27
             }
         },
-        "post_delay": 500,
+        "post_delay": 0,
         "next": ["ResellShipEndVisitCheck"]
     },
     "ResellShipEndVisitCheck": {
@@ -500,7 +500,7 @@
         "action": {
             "type": "Click"
         },
-        "post_delay": 2000,
+        "post_delay": 0,
         "timeout": 5000,
         "next": ["ResellShipReturnOwnShip"]
     },
@@ -514,8 +514,8 @@
                 "roi": [172, 0, 133, 118]
             }
         },
-        "pre_delay": 1000,
-        "post_delay": 2000,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": ["ResellMain"]
     }
 }
