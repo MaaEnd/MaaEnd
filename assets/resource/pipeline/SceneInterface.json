@@ -77,7 +77,7 @@
         ]
     },
     "SceneEnterMenuEmail": {
-        "doc": "从任意界面进入邮箱界面",
+        "doc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

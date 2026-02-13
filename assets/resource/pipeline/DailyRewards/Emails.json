@@ -45,11 +45,64 @@
     "DailyEmailStart": {
         "doc": "邮件奖励流程入口",
         "next": [
-            "DailyEmailAlreadyInEmail",
-            "[JumpBack]SceneEnterMenuEmail"
+            "DailyEmailWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
         ],
         "post_delay": 0,
         "pre_delay": 0
+    },
+    "DailyEmailWorldEnterMenuEmail": {
+        "doc": "从大世界进入邮箱界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 75 // K
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "尝试打开邮件"
+        },
+        "post_delay": 2000, // 通过尝试打开邮箱，判断有没有未读邮件
+        "next": [
+            "DailyEmailAlreadyInEmail",
+            "DailyEmailNoUnreadEmail"
+        ]
+    },
+    "DailyEmailNoUnreadEmail": {
+        "doc": "还在大世界界面，判断为没有未读邮件",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "没有未读邮件"
+        }
     },
     "DailyEmailConfirmEmail": {
         "action": {
