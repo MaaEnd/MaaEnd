@@ -1,6 +1,8 @@
 {
+    // ADB 中直接单击即可
     "RegionalDevelopmentButton": {
-        "action": "Click"
+        "action": "Click",
+        "next": []
     },
     "ControlNexusButton": {
         "roi": [
