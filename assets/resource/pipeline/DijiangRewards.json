@@ -24,6 +24,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]SceneEnterWorldDijiang"
+
         ]
     },
     "ControlNexus": {
@@ -53,6 +54,7 @@
             "[JumpBack]CarbinSwipe",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]CloseRewardsButton"
+
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -102,6 +104,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
