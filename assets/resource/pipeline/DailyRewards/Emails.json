@@ -45,11 +45,86 @@
     "DailyEmailStart": {
         "doc": "邮件奖励流程入口",
         "next": [
-            "DailyEmailAlreadyInEmail",
-            "[JumpBack]SceneEnterMenuEmail"
+            "DailyEmailWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
         ],
         "post_delay": 0,
         "pre_delay": 0
+    },
+    "DailyEmailWorldEnterMenuEmail": {
+        "doc": "从大世界进入邮箱界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "next": [
+            "DailyEmailHasUnreadMessage",
+            "DailyEmailNoUnreadMessage"
+        ]
+    },
+    "DailyEmailHasUnreadMessage": {
+        "doc": "大世界有未读邮件,尝试打开邮件",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    80
+                ],
+                "template": [
+                    "CheckEmail/email.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 75 // K
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "尝试打开邮件"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "DailyEmailAlreadyInEmail"
+        ]
+    },
+    "DailyEmailNoUnreadMessage": {
+        "doc": "大世界没有未读邮件，不进行操作",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    80
+                ],
+                "template": [
+                    "CheckEmail/email.png"
+                ]
+            }
+        },
+        "inverse": true,
+        "focus": {
+            "Node.Recognition.Succeeded": "没有未读邮件"
+        }
     },
     "DailyEmailConfirmEmail": {
         "action": {
