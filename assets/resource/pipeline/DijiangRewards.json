@@ -377,6 +377,7 @@
             "param": {
                 "all_of": [
                     {
+                        "doc": "任务提示的红点",
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
@@ -402,6 +403,7 @@
                         }
                     },
                     {
+                        "doc": "确保在会客室界面",
                         "recognition": {
                             "type": "OCR",
                             "param": {
@@ -476,22 +478,71 @@
     },
     "SetClues": {
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [
-                    868,
-                    182,
-                    393,
-                    130
-                ],
-                "expected": [
-                    "线索"
-                ],
-                "order_by": "Vertical"
+                "any_of": [
+                    {
+                        "doc": "识别线索的删除按钮",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    1,
+                                    -17,
+                                    180,
+                                    17
+                                ],
+                                "upper": [
+                                    221,
+                                    44,
+                                    76
+                                ],
+                                "lower": [
+                                    221,
+                                    44,
+                                    75
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "doc": "识别线索的剩余天数",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    -102,
+                                    1,
+                                    -21,
+                                    85
+                                ],
+                                "upper": [
+                                    166,
+                                    189,
+                                    107
+                                ],
+                                "lower": [
+                                    109,
+                                    153,
+                                    0
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target": "ReadySetClues"
+            }
         }
     },
     "CollectClues": {
