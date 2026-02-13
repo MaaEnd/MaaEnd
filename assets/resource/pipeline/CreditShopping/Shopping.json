@@ -5,10 +5,10 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
         "roi": [
-            831,
-            56,
-            30,
-            25
+            813,
+            44,
+            293,
+            82
         ],
         "next": [
             "CreditShoppingScanItem"
@@ -19,10 +19,10 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
         "roi": [
-            831,
-            56,
-            30,
-            25
+            813,
+            44,
+            293,
+            82
         ],
         "next": [
             "CreditShoppingReserveCredit",
@@ -36,6 +36,7 @@
     },
     "CreditShoppingReserveCredit": {
         "doc": "信用点 < 300",
+        "enabled": false,
         "recognition": "OCR",
         "only_rec": true,
         "roi": [

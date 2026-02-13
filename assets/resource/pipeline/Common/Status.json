@@ -1,0 +1,80 @@
+{
+    "WaitLoadingColor": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    127,
+                                    0
+                                ],
+                                "lower": [
+                                    128,
+                                    127,
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    0,
+                                    127,
+                                    127
+                                ],
+                                "lower": [
+                                    0,
+                                    127,
+                                    127
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    462,
+                                    124,
+                                    226
+                                ],
+                                "upper": [
+                                    128,
+                                    0,
+                                    127
+                                ],
+                                "lower": [
+                                    128,
+                                    0,
+                                    127
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

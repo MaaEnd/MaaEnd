@@ -656,7 +656,8 @@
                     102
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Teleport.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },

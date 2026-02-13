@@ -1,0 +1,354 @@
+{
+    "YellowButtonBackground": {
+        "doc": "黄色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        253,
+                        237,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        209,
+                        207,
+                        13
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        239,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        244,
+                        241,
+                        48
+                    ]
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "WhiteButtonBackground": {
+        "doc": "白色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "GrayButtonBackground": {
+        "doc": "灰色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        69,
+                        68,
+                        68
+                    ],
+                    [
+                        83,
+                        82,
+                        82
+                    ]
+                ],
+                "upper": [
+                    [
+                        70,
+                        69,
+                        69
+                    ],
+                    [
+                        84,
+                        83,
+                        83
+                    ]
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "YellowConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，黄色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/YellowConfirmButtonType1.png",
+                                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "YellowConfirmButtonType2": {
+        "doc": "通用确认按钮，有文字，黄色底，对号标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/YellowConfirmButtonType2.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CancelButton": {
+        "doc": "通用取消按钮，有文字，白色底，X标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType1.png",
+                                    "Common/Button/CancelButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "GrayCancelButton": {
+        "doc": "通用取消按钮，有文字，灰色底，X标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "GrayButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "GrayButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType2.png",
+                                    "Common/Button/CancelButtonType2Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "WhiteConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，白色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/WhiteConfirmButtonType1.png",
+                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "TeleportButton": {
+        "doc": "传送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CloseRewardsButton": {
+        "doc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CloseButtonType1": {
+        "doc": "通用退出按钮，位于界面右上角的X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    882,
+                    0,
+                    398,
+                    335
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType1.png",
+                    "Common/Button/CloseButtonType2.png",
+                    "Common/Button/CloseButtonType3.png",
+                    "Common/Button/CloseButtonType4.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}

@@ -4,9 +4,9 @@
         "next": [
             "CreditShoppingShopping",
             "CreditShoppingCheckShopPage",
-            "[JumpBack]EntryCreeditShop",
-            "[JumpBack]CreditShoppingCheckMainUI",
-            "[JumpBack]SceneTestEnterWorld"
+            "EntryCreeditShop",
+            "CreditShoppingCheckMainUI"
+            //"[JumpBack]SceneTestEnterWorld"
         ]
     },
     "CreditShoppingCheckMainUI": {
@@ -20,13 +20,18 @@
         "threshold": 0.8,
         "green_mask": true,
         "roi": [
-            701,
+            700,
             0,
-            305,
-            82
+            580,
+            83
         ],
         "action": "ClickKey",
-        "key": 192
+        "key": 192,
+        "next": [
+            "CreditShoppingCheckShopPage",
+            "EntryCreeditShop",
+            "CreditShoppingCheckMainUI"
+        ]
     },
     "EntryCreeditShop": {
         "doc": "进入商店",
@@ -39,7 +44,11 @@
             80
         ],
         "action": "ClickKey",
-        "key": 116
+        "key": 116,
+        "next": [
+            "CreditShoppingCheckShopPage",
+            "EntryCreeditShop"
+        ]
     },
     "CreditShoppingCheckShopPage": {
         "doc": "检测商店页面，点击信用交易所 Tab",
