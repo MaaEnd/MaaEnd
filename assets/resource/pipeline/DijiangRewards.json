@@ -455,27 +455,11 @@
             }
         },
         "next": [
-            "AlreadyHaveClues",
-            "SetClues"
+            "SetClues",
+            "AlreadyHaveClues"
         ]
     },
-    "AlreadyHaveClues": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    835,
-                    166,
-                    142,
-                    166
-                ],
-                "expected": [
-                    "已填入"
-                ],
-                "order_by": "Vertical"
-            }
-        }
-    },
+    "AlreadyHaveClues": {},
     "SetClues": {
         "recognition": {
             "type": "Or",
