@@ -20,10 +20,9 @@
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
+            "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-
         ]
     },
     "ControlNexus": {
@@ -51,9 +50,8 @@
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
-            "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]CloseDijiangRewards"
-
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton"
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -99,11 +97,10 @@
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
+            "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -185,7 +182,7 @@
         },
         "next": [
             "InControlNexus_NeedCredit",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]CloseRewardsButton",
             "[JumpBack]StartExchange",
             "[JumpBack]ExitReceptionRoom"
         ]
@@ -201,7 +198,7 @@
                     175
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Confirm.png"
+                    "Common/Button/YellowConfirmButtonType2.png"
                 ]
             }
         },
@@ -380,6 +377,7 @@
             "param": {
                 "all_of": [
                     {
+                        "doc": "任务提示的红点",
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
@@ -405,6 +403,7 @@
                         }
                     },
                     {
+                        "doc": "确保在会客室界面",
                         "recognition": {
                             "type": "OCR",
                             "param": {
@@ -435,7 +434,8 @@
             }
         },
         "next": [
-            "ReadySetClues"
+            "ReadySetClues",
+            "EndExchange"
         ]
     },
     "ReadySetClues": {
@@ -464,10 +464,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    868,
-                    182,
-                    393,
-                    130
+                    835,
+                    166,
+                    142,
+                    166
                 ],
                 "expected": [
                     "已填入"
@@ -478,22 +478,71 @@
     },
     "SetClues": {
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [
-                    868,
-                    182,
-                    393,
-                    130
-                ],
-                "expected": [
-                    "线索"
-                ],
-                "order_by": "Vertical"
+                "any_of": [
+                    {
+                        "doc": "识别线索的删除按钮",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    1,
+                                    -17,
+                                    180,
+                                    17
+                                ],
+                                "upper": [
+                                    221,
+                                    44,
+                                    76
+                                ],
+                                "lower": [
+                                    221,
+                                    44,
+                                    75
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "doc": "识别线索的剩余天数",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    -102,
+                                    1,
+                                    -21,
+                                    85
+                                ],
+                                "upper": [
+                                    166,
+                                    189,
+                                    107
+                                ],
+                                "lower": [
+                                    109,
+                                    153,
+                                    0
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target": "ReadySetClues"
+            }
         }
     },
     "CollectClues": {
@@ -571,7 +620,8 @@
         "next": [
             "SendClues",
             "Collect",
-            "CollectClues"
+            "CollectClues",
+            "EndExchange"
         ]
     },
     "SendClues": {
@@ -801,29 +851,10 @@
             "type": "Click"
         },
         "next": [
-            "Receive",
-            "ReceiveClues"
+            "CloseRewardsButton",
+            "ReceiveClues",
+            "EndExchange"
         ]
-    },
-    "Receive": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1121,
-                    551,
-                    159,
-                    169
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png",
-                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     },
     "GrowthChamber": {
         // 培养舱任务
@@ -842,9 +873,9 @@
             }
         },
         "next": [
-            "[JumpBack]CloseDijiangRewards",
-            "[JumpBack]TakeRewards",
-            "[JumpBack]DijiangConfirm",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]YellowConfirmButtonType2",
             "[JumpBack]GrowAgain",
             "ExitGrowthChamber"
         ]
@@ -861,25 +892,6 @@
                 ],
                 "expected": [
                     "再次培养"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "DijiangConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    696,
-                    267,
-                    418,
-                    274
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Confirm.png"
                 ]
             }
         },
@@ -1012,33 +1024,15 @@
         },
         "next": [
             "InControlNexus",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]CloseRewardsButton",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom",
-            "[JumpBack]ConfirmExchangeEnd"
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]EndExchange"
         ]
-    },
-    "ConfirmExchangeEnd": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    685,
-                    616,
-                    73,
-                    70
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     },
     "InControlNexus": {
         "recognition": {
@@ -1097,29 +1091,10 @@
             }
         },
         "next": [
-            "[JumpBack]UseAssist",
-            "ExitProductionAssistInDijiang",
+            "[JumpBack]YellowConfirmButtonType1",
+            "CloseButtonType1",
             "RecoveryEmotion"
         ]
-    },
-    "ExitProductionAssistInDijiang": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1064,
-                    23,
-                    216,
-                    158
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ExitProductionAssist.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     },
     "SelectLowEmotion": {
         "recognition": {
@@ -1213,29 +1188,6 @@
             }
         }
     },
-    "UseAssist": {
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    991,
-                    529,
-                    258,
-                    168
-                ],
-                "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "CarbinSwipe": {
         // 滑动总控中枢
         "post_wait_freezes": {
@@ -1286,8 +1238,8 @@
             }
         },
         "next": [
-            "[JumpBack]CloseDijiangRewards",
-            "[JumpBack]TakeRewards",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
             "ReStock"
         ]
     },
@@ -1304,7 +1256,9 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
-                ]
+                ],
+                "order_by": "Horizontal",
+                "index": -1
             }
         },
         "action": {
@@ -1326,7 +1280,8 @@
                     277
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ]
             }
         },
@@ -1380,25 +1335,6 @@
             "param": {
                 "key": 73
             }
-        }
-    },
-    "Teleport": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1181,
-                    611,
-                    94,
-                    102
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Teleport.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
         }
     },
     "SelectDijiangTeleport": {
@@ -1516,84 +1452,6 @@
             }
         }
     },
-    "WaitLoadingColor": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    128,
-                                    127,
-                                    0
-                                ],
-                                "lower": [
-                                    128,
-                                    127,
-                                    0
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    0,
-                                    127,
-                                    127
-                                ],
-                                "lower": [
-                                    0,
-                                    127,
-                                    127
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    128,
-                                    0,
-                                    127
-                                ],
-                                "lower": [
-                                    128,
-                                    0,
-                                    127
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-    },
     "ControlNexusClickTips": {
         //点击任务提示(红点)
         "recognition": {
@@ -1633,8 +1491,9 @@
         "next": [
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
-            "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]EndExchange",
             "ControlNexusClickTips"
         ]
     },
@@ -1680,53 +1539,6 @@
                 ]
             }
         }
-    },
-    "TakeRewards": {
-        //领取奖励
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    860,
-                    512,
-                    156,
-                    130
-                ],
-                "template": [
-                    "ClaimDijiangRewards/TakeRewards.png",
-                    "ClaimDijiangRewards/TakeRewards_Hover.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "CloseDijiangRewards": {
-        //关闭奖励界面
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/CloseReward.png",
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "ReRecognitionInMFG": {
-        "max_hit": 10
     },
     "EixtCabin": {
         "recognition": {
@@ -1783,7 +1595,7 @@
                     227
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Confirm.png"
+                    "Common/Button/YellowConfirmButtonType2.png"
                 ]
             }
         },
@@ -1877,9 +1689,9 @@
         },
         "next": [
             "InControlNexus",
-            "[JumpBack]UseAssist",
+            "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
-            "[JumpBack]ExitProductionAssistInDijiang"
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "BackToControlNexus": {

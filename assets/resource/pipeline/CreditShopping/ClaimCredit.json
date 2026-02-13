@@ -33,12 +33,15 @@
     "CreditShoppingClaimConfirm": {
         "doc": "获取信用点或物品后的通用确认节点",
         "recognition": "TemplateMatch",
-        "template": "CreditShopping/ClaimConfirm.png",
+        "template": [
+            "Common/Button/CloseRewardButton.png",
+            "Common/Button/CloseRewardButtonHover.png"
+        ],
         "roi": [
-            623,
-            648,
-            34,
-            32
+            560,
+            586,
+            161,
+            134
         ],
         "action": "Click",
         "next": [

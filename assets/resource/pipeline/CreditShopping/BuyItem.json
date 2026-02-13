@@ -71,7 +71,7 @@
     "CreditShoppingCloseDialog": {
         "doc": "关闭对话框",
         "recognition": "TemplateMatch",
-        "template": "CreditShopping/CloseBuyItemDialog.png",
+        "template": "Common/Button/CloseButtonType2.png",
         "roi": [
             1066,
             63,
@@ -86,7 +86,10 @@
     "CreditShoppingBuyConfirm": {
         "doc": "购买确认",
         "recognition": "TemplateMatch",
-        "template": "CreditShopping/BuyConfirm.png",
+        "template": [
+            "Common/Button/YellowConfirmButtonType1.png",
+            "Common/Button/YellowConfirmButtonType1Hover.png"
+        ],
         "roi": [
             1050,
             559,
