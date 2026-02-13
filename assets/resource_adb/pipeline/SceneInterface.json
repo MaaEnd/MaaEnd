@@ -1,0 +1,44 @@
+{
+    "SceneAnyEnterWorld": {
+        "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "next": [
+            "[JumpBack]CancelExitGame",
+            "ScenePrivateAnyEnterWorldSuccess",
+            "[JumpBack]ScenePrivateLogin",
+            "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]ScenePrivateEndVisitConfirm",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]ScenePrivateAnyExit"
+        ]
+    },
+    "CancelExitGame": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    513,
+                    302,
+                    251,
+                    115
+                ],
+                "expected": [
+                    "是否退出游戏"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "ScenePrivateAnyExit": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}
