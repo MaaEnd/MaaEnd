@@ -1,0 +1,35 @@
+{
+    "task": [
+        {
+            "name": "MapLocalizationTest",
+            "label": "Map Localization Debug",
+            "entry": "MapLocalizationDebugLoop",
+            "description": "Real-time map localization testing",
+            "option": [
+                "MapLocalizationTestMode"
+            ]
+        }
+    ],
+    "option": {
+        "MapLocalizationTestMode": {
+            "type": "select",
+            "default": "Default",
+            "cases": [
+                {
+                    "name": "Default",
+                    "pipeline_override": {
+                        "MapLocalizationDebugLoop": {
+                            "next": "MapLocalizationDebugAction"
+                        },
+                        "MapLocalizationDebugAction": {
+                            "recognition": "DirectHit",
+                            "action": "Custom",
+                            "custom_action": "MapLocateAction",
+                            "next": "MapLocalizationDebugLoop"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
