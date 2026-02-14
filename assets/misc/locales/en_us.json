@@ -54,6 +54,8 @@
     "task.DijiangRewards.description": "Auto-collect products, restock materials, and manage Clue exchange.",
     "option.AutoStartExchange.label": "Auto Start Clue Exchange",
     "option.AutoStartExchange.description": "Automatically starts clue exchange during base tasks. It is not recommended to enable this option, as clue exchange tasks should wait for credit point transaction tasks to actively initiate in order to obtain high-value items.",
+    "option.ProductionAssistanceWithoutTheControlNexus.label": "Production Assistance without Master Control Nexus",
+    "option.ProductionAssistanceWithoutTheControlNexus.description": "When enabled, the mood recovery function of the Master Control Nexus is disabled",
     "task.DailyRewards.label": "📅 Claim Daily Rewards",
     "task.DailyRewards.description": "Claim daily rewards",
     "option.DailyTaskRewards.label": "Daily Mission/Pass Rewards",
