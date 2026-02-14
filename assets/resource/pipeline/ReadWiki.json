@@ -144,7 +144,7 @@
             }
         },
         "next": [
-            "wikinextPage",
+            "[JumpBack]WikiNextPage",
             "ClickRealUnreadPage",
             "ScrollListForNextUnreadWiki",
             "ClickChapterUnreadBadge",
@@ -219,7 +219,7 @@
             "WikiBackButton"
         ]
     },
-    "wikinextPage": {
+    "WikiNextPage": {
         "doc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
         "timeout": 1000,
         "recognition": {
@@ -238,7 +238,7 @@
             }
         },
         "next": [
-            "wikinextPage"
+            "WikiNextPage"
         ]
     }
 }
