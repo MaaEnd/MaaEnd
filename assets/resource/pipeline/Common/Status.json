@@ -1,5 +1,6 @@
 {
     "WaitLoadingColor": {
+        "doc": "等待加载界面",
         "recognition": {
             "type": "And",
             "param": {

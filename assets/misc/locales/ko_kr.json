@@ -54,6 +54,8 @@
     "task.DijiangRewards.description": "기반시설 생산물 수령 및 보급, 단서 수집 및 배치 자동화",
     "option.AutoStartExchange.label": "단서 교환 자동 시작",
     "option.AutoStartExchange.description": "기반 시설 임무 진행 중 단서 교환을 자동으로 시작합니다. 이 옵션을 활성화하는 것은 권장되지 않습니다. 고가치 아이템을 획득하려면 단서 교환 임무가 크레딧 거래 임무가 활성화되기를 기다려야 합니다.",
+    "option.ProductionAssistanceWithoutTheControlNexus.label": "마스터 컨트롤 넥서스를 사용하지 않는 생산 지원",
+    "option.ProductionAssistanceWithoutTheControlNexus.description": "활성화하면 마스터 컨트롤 넥서스의 기분 회복 기능을 사용하지 않습니다",
     "task.DailyRewards.label": "📅 일일 보상 수령",
     "task.DailyRewards.description": "일일 보상을 수령합니다",
     "option.DailyTaskRewards.label": "일일 임무/패스 보상",

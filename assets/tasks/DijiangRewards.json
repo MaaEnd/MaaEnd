@@ -34,6 +34,30 @@
                     }
                 }
             ]
+        },
+        "ProductionAssistanceWithoutTheControlNexus": {
+            "type": "switch",
+            "label": "$option.ProductionAssistanceWithoutTheControlNexus.label",
+            "description": "$option.ProductionAssistanceWithoutTheControlNexus.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RecoveryEmotion": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RecoveryEmotion": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
         }
     }
 }
