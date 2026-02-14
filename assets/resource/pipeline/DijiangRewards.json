@@ -43,6 +43,7 @@
             "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
             "[JumpBack]ControlNexusClickTips",
             "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]RecoveryEmotion",
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
@@ -86,22 +87,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    15,
-                                    437,
-                                    225,
-                                    153
-                                ],
-                                "template": [
-                                    "ClaimDijiangRewards/InControlNexus.png"
-                                ]
-                            }
-                        }
-                    }
+                    "InControlNexus"
                 ]
             }
         },
@@ -150,22 +136,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    15,
-                                    437,
-                                    225,
-                                    153
-                                ],
-                                "template": [
-                                    "ClaimDijiangRewards/InControlNexus.png"
-                                ]
-                            }
-                        }
-                    }
+                    "InControlNexus"
                 ]
             }
         },
@@ -1134,26 +1105,53 @@
             "timeout": 2000
         },
         "recognition": {
-            "type": "ColorMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    1112,
-                    0,
-                    168,
-                    74
-                ],
-                "lower": [
-                    224,
-                    105,
-                    0
-                ],
-                "upper": [
-                    255,
-                    117,
-                    4
-                ],
-                "count": 40,
-                "connected": true
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱",
+                                    "培养舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {
@@ -1170,7 +1168,30 @@
         "next": [
             "[JumpBack]YellowConfirmButtonType1",
             "CloseButtonType1",
-            "RecoveryEmotion"
+            "ExitRecoveryEmotion"
+        ]
+    },
+    "ExitRecoveryEmotion": {
+        "doc": "意外进入恢复心情界面,需要退出",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    278,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "SelectLowEmotion": {
@@ -1706,16 +1727,68 @@
         }
     },
     "RecoveryEmotion": {
-        // 控制中枢内打开,选择待恢复心情的干员
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "InControlNexus",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]YellowConfirmButtonType1",
+            "StartRecoveryEmotion",
+            "CloseButtonType1"
+        ]
+    },
+    "StartRecoveryEmotion": {
+        "doc": "控制中枢内打开,选择待恢复心情的干员",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    0,
-                    0
+                    464,
+                    138,
+                    278,
+                    154
                 ],
                 "expected": [
                     "选择待恢复心情的干员"
