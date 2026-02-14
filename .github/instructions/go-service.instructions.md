@@ -18,6 +18,7 @@ applyTo: "agent/go-service/**"
 
 - **Maa 的 custom 组件应按单文件边界管理**：每个自定义识别器或动作的实现尽量集中在单独文件中，避免单文件行数爆炸。
 - 同一子包内可按职责拆分为多个 `.go` 文件（如 `register.go`、按功能命名的实现文件），保持单文件职责清晰、行数可控，便于阅读与维护。
+- **接口实现校验应靠近类型定义**：用于编译期校验类型实现某接口的写法（如 `var _ maa.CustomRecognitionRunner = &RealTimeAutoFightEntryRecognition{}`）应写在**定义该类型的文件**中，不要集中放在 `register.go`。这样在阅读实现时即可确认接口契约；审查时若发现校验与类型定义分离，应要求将校验挪到定义附近。
 
 </FileManagementAndReadability>
 
