@@ -1,4 +1,49 @@
 {
+    "ProtosyncMenuButton": {
+        "doc": "大世界中的协议同步器按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/ProtosyncMenuButton.png",
+        "roi": [
+            -200,
+            0,
+            200,
+            200
+        ],
+        "green_mask": true,
+        "next": [
+            "AltClickProtosyncMenuButtonKeyDown"
+        ]
+    },
+    "AltClickProtosyncMenuButtonKeyDown": {
+        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（按住 Alt 键）",
+        "action": "KeyDown",
+        "key": 164, // 0xA4	Left Alt key
+        "next": [
+            "AltClickProtosyncMenuButtonClick"
+        ]
+    },
+    "AltClickProtosyncMenuButtonClick": {
+        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（单击）",
+        "target": "ProtosyncMenuButton",
+        "action": "Click",
+        "next": [
+            "AltClickProtosyncMenuButtonKeyUp"
+        ]
+    },
+    "AltClickProtosyncMenuButtonKeyUp": {
+        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（释放 Alt 键）",
+        "action": "KeyUp",
+        "key": 164, // 0xA4	Left Alt key
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
     "RegionalDevelopmentButton": {
         "doc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
@@ -10,8 +55,30 @@
             232,
             84
         ],
-        "action": "ClickKey",
-        "key": 89,
+        "next": [
+            "AltClickRegionalDevelopmentButtonKeyDown"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonKeyDown": {
+        "doc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
+        "action": "KeyDown",
+        "key": 164, // 0xA4	Left Alt key
+        "next": [
+            "AltClickRegionalDevelopmentButtonClick"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonClick": {
+        "doc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",
+        "target": "RegionalDevelopmentButton",
+        "action": "Click",
+        "next": [
+            "AltClickRegionalDevelopmentButtonKeyUp"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonKeyUp": {
+        "doc": "使用 Alt + 点击大世界中的地区建设按钮（释放 Alt 键）",
+        "action": "KeyUp",
+        "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
             "time": 1,
             "target": [

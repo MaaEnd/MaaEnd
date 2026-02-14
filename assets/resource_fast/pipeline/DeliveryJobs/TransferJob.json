@@ -18,8 +18,13 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsClickTransferJob",
-            "DeliveryJobsEnterDeliveryJob"
+            "[JumpBack]DeliveryJobsConfirmTaskTransfer",
+            "[JumpBack]DeliveryJobsClickTransferJob",
+            "[JumpBack]DeliveryJobsEnterDeliveryJobMission",
+            "DeliveryJobsEnterDeliveryJob",
+            // 如果没有任务但是在仓储节点/大世界，说明送货任务处理完毕，跳出循环
+            "DeliveryJobsCheckDepotNode",
+            "DeliveryJobsBackToHome"
         ],
         "post_wait_freezes": {
             "time": 1,
@@ -49,11 +54,6 @@
             "운송 의뢰 위탁"
         ],
         "action": "Click",
-        "next": [
-            "DeliveryJobsConfirmTaskTransfer",
-            "DeliveryJobsClickTransferJob",
-            "[JumpBack]DeliveryJobsEnterDeliveryJobMission"
-        ],
         "post_wait_freezes": {
             "time": 1,
             "target": [

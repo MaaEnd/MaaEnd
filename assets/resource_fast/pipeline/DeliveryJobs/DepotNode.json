@@ -10,7 +10,9 @@
         "action": "Click",
         "next": [
             "DeliveryJobsCheckOriginiumSciencePark",
-            "DeliveryJobsEnterValleyIVDepot"
+            "DeliveryJobsEnterValleyIVDepot",
+            // 可能因为双击进入货物界面
+            "[JumpBack]DeliveryJobsBackFromCargo"
         ],
         "post_wait_freezes": {
             "time": 1,
@@ -363,7 +365,6 @@
             "DeliveryJobsLoop",
             "[JumpBack]RegionalDevelopmentButton", // 有可能会连续单击两次返回按钮，退回到大世界中
             "DeliveryJobsBackToRegionalConstruction"
-
         ],
         "post_wait_freezes": {
             "time": 1,
@@ -374,5 +375,41 @@
                 0
             ]
         }
+    },
+    "DeliveryJobsBackFromCargo": {
+        "doc": "从货物界面返回仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "BackButton",
+            "DeliveryJobsInCargo"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsInCargo": {
+        "doc": "检查是否在货物界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            20,
+            1,
+            298,
+            54
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장"
+        ]
     }
 }

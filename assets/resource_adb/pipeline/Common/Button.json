@@ -1,6 +1,17 @@
 {
+    // ADB 中直接单击即可
     "RegionalDevelopmentButton": {
-        "action": "Click"
+        "action": "Click",
+        "next": [],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "ControlNexusButton": {
         "roi": [
