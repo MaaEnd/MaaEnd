@@ -40,18 +40,21 @@ applyTo: "agent/go-service/**"
 
 <LogStyleZerolog>
 
-- **禁止纯字符串日志**：不得使用 `log.Printf`、`fmt` 拼接、`log.Println` 等旧式写法，不符合 zerolog 结构化日志规范；Review 时发现此类写法应要求改为 zerolog 链式调用。
-- **必须使用 zerolog 链式风格**：先选级别（如 `log.Info()`、`log.Error()`），再链式挂字段（如 `.Err(err)`、`.Str("key", "val")`），最后以 `.Msg("xxx")` 收尾。
-- **正确示例**：
+- **统一使用 zerolog**：禁止 `log.Printf`、`log.Println` 等旧式写法；一律改为 zerolog 链式调用。
+- **链式写法**：级别（`log.Info()` / `log.Error()`）→ 链式挂字段（`.Err(err)`、`.Str("key", "val")` 等）→ 以 `.Msg("简短描述")` 收尾。
+- **上下文用字段，不拼进 Msg**：组件名、步骤、场景等用链式字段（如 `.Str("component", "EssenceFilter")`、`.Str("step", "Step2")`）。禁止在 `Msg` 里用前缀（如 `<Component>`、`[Step2]`）或长句（如「Step2 ok: …」「MatchEssenceSkills: …」），否则无法按字段检索；审查时要求改为「字段 + 简短 Msg」。
+- **错误、参数、识别结果**：一律用链式字段（`.Err(err)`、`.Int("x", x)` 等），不拼进 `Msg` 字符串。
+- **示例**：
   ```go
   log.Info().
-      Msg("xxx")
+      Str("component", "EssenceFilter").
+      Str("step", "Step2").
+      Msg("matcher config loaded")
 
   log.Error().
       Err(err).
       Msg("xxx")
   ```
-- 错误、关键参数、识别结果等应通过链式字段传递（如 `.Err(err)`、`.Int("x", x)`），不要拼进 `Msg` 字符串里。
 
 </LogStyleZerolog>
 
