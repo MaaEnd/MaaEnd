@@ -399,10 +399,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            28,
-            89,
-            129,
-            35
+            20,
+            1,
+            298,
+            54
         ],
         "expected": [
             "货物装箱",
