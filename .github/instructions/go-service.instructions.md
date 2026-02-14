@@ -71,7 +71,7 @@ applyTo: "agent/go-service/**"
 <SuggestedChecks>
 
 - 重复逻辑是否可抽取为共用函数或子包。
-- 是否有多余的硬编码延迟（如 `time.Sleep`）；若仅为“等界面稳定”，应优先由 Pipeline 用识别节点驱动。
+- 是否有多余的硬编码延迟（如 `time.Sleep`）；若仅为“等界面稳定”，应优先由 Pipeline 用识别节点驱动。若代码中已有注释说明用途（如手势间隔、与框架/设备回调的配合等），则无需提示改由 Pipeline 驱动。
 
 </SuggestedChecks>
 
