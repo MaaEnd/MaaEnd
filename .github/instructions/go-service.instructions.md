@@ -16,8 +16,9 @@ applyTo: "agent/go-service/**"
 
 ### 2. 注册与可被 Pipeline 调用
 
-- 新增的 CustomRecognizer / CustomAction 必须在对应子包的 `registerAll()`（或项目约定的注册入口）中注册。
-- 注册名称、参数需与 Pipeline 中 `CustomRecognizer` / `CustomAction` 的 `name`、`params` 一致。
+- **子包内**：新增的 CustomRecognizer、CustomAction、EventSink 必须在对应子包内注册。子包应单独使用 `register.go` 定义并维护 `Register()`，在该函数中完成本包所有组件的注册。
+- **main 聚合**：各子包的 `Register()` 必须在 main 包的 `registerAll()` 中被调用，否则组件不会生效。
+- **与 Pipeline/配置一致**：注册名称、参数需与 Pipeline 中 CustomRecognizer / CustomAction 的 `name`、`params` 一致。
 
 ### 3. 单文件管理与可读性
 
