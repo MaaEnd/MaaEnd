@@ -50,7 +50,7 @@
         },
         "post_delay": 0,
         "post_wait_freezes": {
-            "time": 1000,
+            "time": 500,
             "target": [640, 0, 640, 360],
             "timeout": 15000
         },
@@ -217,12 +217,17 @@
     "ResellShipPage1Click": {
         "doc": "【第一页】点击第一个商品",
         "recognition": {
-            "type": "DirectHit"
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Resell/storeItem.png",
+                "threshold": 0.8,
+                "roi": [0, 220, 250, 460]
+            }
         },
         "action": {
             "type": "Click",
             "param": {
-                "target": [100, 300]
+                "target_offset": [0, 0, 40, -100]
             }
         },
         "post_delay": 0,
@@ -262,10 +267,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target": [1058, 574, 23, 22]
-            }
+            "type": "Click"
         },
         "next": [
             "ResellShipPage1SellSuccess",
@@ -326,12 +328,17 @@
     "ResellShipPage2Click": {
         "doc": "【第二页】点击第一个商品",
         "recognition": {
-            "type": "DirectHit"
+            "type": "TemplateMatch",
+            "param": {
+                "template": "Resell/storeItem.png",
+                "threshold": 0.8,
+                "roi": [0, 220, 250, 460]
+            }
         },
         "action": {
             "type": "Click",
             "param": {
-                "target": [100, 300]
+                "target_offset": [0, 0, 40, -100]
             }
         },
         "post_delay": 0,
@@ -371,10 +378,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target": [1058, 574, 23, 22]
-            }
+            "type": "Click"
         },
         "next": [
             "ResellShipPage2SellSuccess",
