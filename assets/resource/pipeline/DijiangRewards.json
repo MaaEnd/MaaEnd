@@ -9,21 +9,17 @@
         //帝江号的日常收取中不会开启
         //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
         "next": [
-            "InMainWindow_NeedCredit",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CancelExit",
+            "InMainWindow_NeedCredit", //适配万能跳转时,只保留这一项
+            "[JumpBack]CloseButtonType1"
         ]
     },
     //主流程
     "DijiangRewards": {
         "next": [
-            "ControlNexus", //主流程内收集所有奖励
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]TeleportButton",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
-
+            "[JumpBack]CancelExit",
+            "InMainWindow_Normal", //适配万能跳转时,只保留这一项
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "ControlNexus": {
@@ -53,7 +49,70 @@
             "[JumpBack]CarbinSwipe",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]CloseRewardsButton"
-
+        ]
+    },
+    "InMainWindow_Normal": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    15,
+                                    437,
+                                    225,
+                                    153
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/InControlNexus.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "ControlNexus", //主流程内收集所有奖励
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -90,6 +149,22 @@
                                 ]
                             }
                         }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    15,
+                                    437,
+                                    225,
+                                    153
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/InControlNexus.png"
+                                ]
+                            }
+                        }
                     }
                 ]
             }
@@ -103,7 +178,6 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -226,7 +300,7 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang",
+            "[JumpBack]CloseButtonType1",
             "[JumpBack]CancelExit"
         ]
     },
@@ -306,7 +380,7 @@
     "FinishAllDijiangTask": {
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "InMainWindow": {
@@ -1562,28 +1636,6 @@
             "type": "Click",
             "param": {
                 "contact": 1
-            }
-        }
-    },
-    "CloseButtonDijiang": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1077,
-                    0,
-                    203,
-                    147
-                ],
-                "template": [
-                    "CloseInfo/CloseButton.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
             }
         }
     },
