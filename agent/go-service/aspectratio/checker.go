@@ -28,7 +28,13 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 	if event != maa.EventStatusStarting {
 		return
 	}
-
+	
+	if detail.Entry == "MaaTaskerPostStop" {
+		// Ignore post-stop events to avoid redundant checks
+		log.Debug().Msg("Received PostStop event, skipping aspect ratio check")
+		return
+	}
+	
 	log.Debug().
 		Uint64("task_id", detail.TaskID).
 		Str("entry", detail.Entry).
