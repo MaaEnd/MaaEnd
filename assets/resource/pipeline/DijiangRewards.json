@@ -1764,6 +1764,10 @@
         }
     },
     "RecoveryEmotion": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "doc": "恢复心情",
         "recognition": {
             "type": "And",
