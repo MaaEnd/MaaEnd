@@ -2,7 +2,7 @@
 applyTo: "agent/go-service/**"
 ---
 
-本说明仅在对 `agent/go-service/` 下文件的请求中生效（含 Copilot 代码评审与编码智能体）。其他目录请参阅项目根目录的 `AGENTS.md`。
+本说明仅在对 `agent/go-service/` 下的文件的请求中生效（含 Copilot 代码评审与编码智能体）。其他目录请参阅项目根目录的 `AGENTS.md`。
 
 <RequiredChecks>
 
