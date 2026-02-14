@@ -6,7 +6,8 @@
             "entry": "DijiangRewards",
             "description": "$task.DijiangRewards.description",
             "option": [
-                "AutoStartExchange"
+                "AutoStartExchange",
+                "ProductionAssistanceWithoutTheControlNexus"
             ]
         }
     ],
