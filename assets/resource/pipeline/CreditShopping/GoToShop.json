@@ -2,11 +2,70 @@
     "CreditShoppingMain": {
         "doc": "信用点购物主入口",
         "next": [
+            "[JumpBack]CancelExit",
+            "InMainWindowCreditShipping",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "InMainWindowCreditShipping": {
+        "doc": "在主页面或者信用点购物界面",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "CreditShopping/CreditShoppingTabSelected.png",
+                                "threshold": 0.7,
+                                "roi": [
+                                    813,
+                                    44,
+                                    293,
+                                    82
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
             "CreditShoppingShopping",
             "CreditShoppingCheckShopPage",
             "EntryCreeditShop",
             "CreditShoppingCheckMainUI"
-            //"[JumpBack]SceneTestEnterWorld"
         ]
     },
     "CreditShoppingCheckMainUI": {
