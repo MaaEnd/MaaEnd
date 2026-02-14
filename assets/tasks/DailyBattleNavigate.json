@@ -1,0 +1,12 @@
+{
+    "task": [
+        {
+            "name": "DailyBattleNavigate",
+            "label": "⚔️日常本刷关",
+            "entry": "DailyBattleNavigateStart",
+            "description": "请在行动手册-索引界面启动；当前固定执行两次干员进阶1级副本；请保证AI队友能够解决副本怪物。",
+            "option": []
+        }
+    ],
+    "option": {}
+}
