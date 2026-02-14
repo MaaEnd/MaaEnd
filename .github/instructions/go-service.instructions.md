@@ -46,16 +46,17 @@ applyTo: "agent/go-service/**"
 - **上下文用字段，不拼进 Msg**：组件名、步骤、场景等用链式字段（如 `.Str("component", "EssenceFilter")`、`.Str("step", "Step2")`）。禁止在 `Msg` 里用前缀（如 `<Component>`、`[Step2]`）或长句（如「Step2 ok: …」「MatchEssenceSkills: …」），否则无法按字段检索；审查时要求改为「字段 + 简短 Msg」。
 - **错误、参数、识别结果**：一律用链式字段（`.Err(err)`、`.Int("x", x)` 等），不拼进 `Msg` 字符串。
 - **示例**：
-  ```go
-  log.Info().
-      Str("component", "EssenceFilter").
-      Str("step", "Step2").
-      Msg("matcher config loaded")
 
-  log.Error().
-      Err(err).
-      Msg("xxx")
-  ```
+    ```go
+    log.Info().
+        Str("component", "EssenceFilter").
+        Str("step", "Step2").
+        Msg("matcher config loaded")
+
+    log.Error().
+        Err(err).
+        Msg("xxx")
+    ```
 
 </LogStyleZerolog>
 

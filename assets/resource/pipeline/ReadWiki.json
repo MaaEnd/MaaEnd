@@ -149,7 +149,12 @@
     "ClickRealUnreadPage": {
         "post_wait_freezes": {
             "time": 50,
-            "target": [756,675,30,11]
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
         },
         "recognition": {
             "type": "TemplateMatch",
@@ -226,14 +231,25 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "ReadWiki/WikiNextPage.png",
-                "roi": [748,673,48,19]
+                "roi": [
+                    748,
+                    673,
+                    48,
+                    19
+                ]
             }
         },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [700,400],
-                "end": [700, 200],
+                "begin": [
+                    700,
+                    400
+                ],
+                "end": [
+                    700,
+                    200
+                ],
                 "end_hold": 200
             }
         },
