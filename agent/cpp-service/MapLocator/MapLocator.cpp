@@ -47,6 +47,12 @@ MapLocator::MapLocator(const std::string &mapRoot, const std::string &yoloModelP
   }
 }
 
+MapLocator::~MapLocator() {
+  if (asyncYoloTask.valid()) {
+    asyncYoloTask.wait();
+  }
+}
+
 // 将地图暗部/虚空统一压成纯黑, 避免与小地图的黑色背景产生误匹配
 static void PreprocessMap(cv::Mat &img, const ImageProcessingConfig &cfg) {
   if (img.empty()) return;
@@ -509,25 +515,30 @@ std::optional<MapPosition> MapLocator::locate(const cv::Mat &minimap) {
   auto tmpl = prepareTemplate(minimap);
   auto now = std::chrono::steady_clock::now();
 
-  // Check async YOLO result
-  if (asyncYoloTask.valid() && asyncYoloTask.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
-      std::string predictedZone = asyncYoloTask.get();
-            if (!predictedZone.empty() && !currentZoneId.empty() && predictedZone != currentZoneId) {
-                Logger::Info("[MapLocator] Async YOLO detected zone change: " + currentZoneId + " -> " + predictedZone);
-                lostTrackingCount = MaxLostTrackingCount + 1;
-                lastKnownPos = std::nullopt;
-            }  }
+  {
+    std::lock_guard<std::mutex> lock(taskMutex);
+    
+    // Check async YOLO result
+    if (asyncYoloTask.valid() && asyncYoloTask.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+        std::string predictedZone = asyncYoloTask.get();
+        if (!predictedZone.empty() && !currentZoneId.empty() && predictedZone != currentZoneId) {
+            Logger::Info("[MapLocator] Async YOLO detected zone change: " + currentZoneId + " -> " + predictedZone);
+            lostTrackingCount = MaxLostTrackingCount + 1;
+            lastKnownPos = std::nullopt;
+        }
+    }
 
-  // Dispatch new async YOLO task
-  if (!asyncYoloTask.valid()) {
-      auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - lastYoloCheckTime).count();
-      if (elapsed >= 3 && isYoloLoaded) {
-          lastYoloCheckTime = now;
-          cv::Mat yoloInput = tmpl.templRaw.clone();
-          asyncYoloTask = std::async(std::launch::async, [this, yoloInput]() {
-              return predictZoneByYOLO(yoloInput);
-          });
-      }
+    // Dispatch new async YOLO task
+    if (!asyncYoloTask.valid()) {
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - lastYoloCheckTime).count();
+        if (elapsed >= 3 && isYoloLoaded) {
+            lastYoloCheckTime = now;
+            cv::Mat yoloInput = tmpl.templRaw.clone();
+            asyncYoloTask = std::async(std::launch::async, [this, yoloInput]() {
+                return predictZoneByYOLO(yoloInput);
+            });
+        }
+    }
   }
 
   auto trackingResult = tryTracking(tmpl, now);

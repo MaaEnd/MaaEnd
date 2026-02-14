@@ -19,7 +19,7 @@ struct MatchResultRaw;
 class MapLocator {
 public:
   explicit MapLocator(const std::string &mapRoot, const std::string &yoloModelPath = "");
-  ~MapLocator() = default;
+  ~MapLocator();
 
   std::optional<MapPosition> locate(const cv::Mat &minimap);
   std::optional<MapPosition> getLastKnownPos() const;
@@ -79,6 +79,7 @@ private:
   std::vector<std::string> yoloClassNames;
   
   std::mutex yoloMutex;
+  std::mutex taskMutex;
   std::future<std::string> asyncYoloTask;
   std::chrono::steady_clock::time_point lastYoloCheckTime;
 

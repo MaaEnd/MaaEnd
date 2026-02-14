@@ -7,10 +7,10 @@ namespace maplocator {
 
 struct MapPosition {
   std::string zoneId;
-  double x;
-  double y;
-  double avgDiff;
-  int sliceIndex;
+  double x = 0.0;
+  double y = 0.0;
+  double avgDiff = 0.0;
+  int sliceIndex = 0;
 };
 
 // roi及搜索相关常量
