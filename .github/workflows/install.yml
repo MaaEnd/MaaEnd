@@ -83,17 +83,23 @@ jobs:
 
   build_and_install:
     needs: meta
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [win, macos, linux]
         arch: [aarch64, x86_64]
       fail-fast: false
+    runs-on: ${{ matrix.os == 'win' && 'windows-latest' || (matrix.os == 'macos' && 'macos-latest' || 'ubuntu-latest') }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
+
+      - name: Setup Windows 10 SDK
+        if: matrix.os == 'win'
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.2
+        with:
+          sdk-version: 26100
 
       - name: Setup Go
         uses: actions/setup-go@v5
