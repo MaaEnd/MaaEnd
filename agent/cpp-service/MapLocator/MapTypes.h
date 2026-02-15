@@ -14,6 +14,8 @@ struct MapPosition {
 };
 
 // roi及搜索相关常量
+constexpr int MinimapROIOriginX = 49;
+constexpr int MinimapROIOriginY = 51;
 constexpr int MinimapROIWidth = 117;
 constexpr int MinimapROIHeight = 120;
 constexpr int MaxLostTrackingCount = 3;

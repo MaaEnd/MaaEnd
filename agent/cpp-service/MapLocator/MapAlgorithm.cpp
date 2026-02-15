@@ -6,28 +6,12 @@
 
 namespace maplocator {
 
-cv::Mat GenerateMinimapMask(const cv::Mat &minimap) {
-  int w = minimap.cols;
-  int h = minimap.rows;
-  cv::Mat mask = cv::Mat::zeros(h, w, CV_8UC1);
+cv::Mat GenerateMinimapMask(const cv::Mat &minimap, const ImageProcessingConfig &cfg) {
+  int w = minimap.cols, h = minimap.rows;
+  cv::Mat baseMask = cv::Mat::zeros(h, w, CV_8UC1);
+  int centerX = w / 2, centerY = h / 2;
+  int radiusSq = (std::min(w, h) / 2) * (std::min(w, h) / 2);
 
-  int centerX = w / 2;
-  int centerY = h / 2;
-  int radius = std::min(w, h) / 2;
-  int radiusSq = radius * radius;
-
-  for (int y = 0; y < h; y++) {
-    for (int x = 0; x < w; x++) {
-      int dx = x - centerX;
-      int dy = y - centerY;
-      if (dx * dx + dy * dy <= radiusSq)
-        mask.at<uchar>(y, x) = 255;
-    }
-  }
-
-  // 40: 黄/蓝图标与地图底色的最小色差, 低于此值可能误伤地图本身的彩色区域
-  const int DiffThreshold = 40;
-  
   cv::Mat workImg = minimap;
   cv::Mat tempBGR;
   if (workImg.channels() == 4) {
@@ -35,31 +19,49 @@ cv::Mat GenerateMinimapMask(const cv::Mat &minimap) {
       workImg = tempBGR;
   }
 
+  // 圆形遮罩 + 黄蓝图标剔除
   for (int y = 0; y < h; y++) {
-    uchar *maskRow = mask.ptr<uchar>(y);
+    uchar *maskRow = baseMask.ptr<uchar>(y);
     const cv::Vec3b *imgRow = workImg.ptr<cv::Vec3b>(y);
-    
     for (int x = 0; x < w; x++) {
-      if (maskRow[x] == 0) continue;
-
+      if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) > radiusSq) continue;
       int b = imgRow[x][0], g = imgRow[x][1], r = imgRow[x][2];
-
       bool isIcon = false;
-      if (r > 100 && g > 100) {
-        if ((std::min(r, g) - b) > DiffThreshold) isIcon = true;
-      }
-      if (!isIcon && b > 100) {
-        if ((b - std::max(r, g)) > DiffThreshold) isIcon = true;
-      }
-
-      if (isIcon) maskRow[x] = 0;
+      if (r > 100 && g > 100 && std::min(r, g) - b > cfg.iconDiffThreshold) isIcon = true;
+      if (!isIcon && b > 100 && b - std::max(r, g) > cfg.iconDiffThreshold) isIcon = true;
+      if (!isIcon) maskRow[x] = 255;
     }
   }
+  cv::circle(baseMask, cv::Point(centerX, centerY), cfg.centerMaskRadius, cv::Scalar(0), -1);
 
-  // 10px: 覆盖玩家箭头, 实测箭头半径约8px, 留2px余量
-  cv::circle(mask, cv::Point(w / 2, h / 2), 10, cv::Scalar(0), -1);
+  cv::Mat gray;
+  if (minimap.channels() == 4) cv::cvtColor(minimap, gray, cv::COLOR_BGRA2GRAY);
+  else cv::cvtColor(minimap, gray, cv::COLOR_BGR2GRAY);
 
-  return mask;
+  // 暗部剔除
+  cv::Mat darkMask;
+  cv::threshold(gray, darkMask, cfg.minimapDarkMaskThreshold, 255, cv::THRESH_BINARY_INV);
+  baseMask.setTo(0, darkMask);
+
+  cv::Mat floatMask;
+  baseMask.convertTo(floatMask, CV_32F, 1.0 / 255.0);
+
+  // 梯度加权: 纹理丰富区域贡献更大, 平坦区保底0.1防零贡献
+  cv::Mat gradX, gradY, gradMag;
+  cv::Sobel(gray, gradX, CV_32F, 1, 0);
+  cv::Sobel(gray, gradY, CV_32F, 0, 1);
+  gradMag = cv::abs(gradX) + cv::abs(gradY);
+
+  double maxVal;
+  cv::minMaxLoc(gradMag, nullptr, &maxVal);
+  if (maxVal > 0) gradMag /= maxVal;
+
+  cv::add(gradMag, cfg.gradientBaseWeight, gradMag);
+  cv::threshold(gradMag, gradMag, 1.0, 1.0, cv::THRESH_TRUNC);
+
+  cv::Mat finalMask;
+  cv::multiply(floatMask, gradMag, finalMask);
+  return finalMask;
 }
 
 } // namespace maplocator

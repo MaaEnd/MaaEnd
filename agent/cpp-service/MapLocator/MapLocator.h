@@ -64,7 +64,6 @@ private:
   void updateMotionModel(const MapPosition &newPos, std::chrono::steady_clock::time_point now);
   std::string predictZoneByYOLO(const cv::Mat &minimap);
   std::string convertYoloNameToZoneId(const std::string &yoloName);
-  cv::Mat GeneratePerfectWeightMask(const cv::Mat &minimap);
 
   std::map<std::string, cv::Mat> zones;
   std::string currentZoneId;

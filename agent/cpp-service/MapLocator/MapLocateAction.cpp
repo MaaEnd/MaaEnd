@@ -73,7 +73,8 @@ MaaBool MAA_CALL MapLocateActionRun(MaaContext *context, MaaTaskId task_id,
   }
 
   // (49,51,117,120): Go端实测的小地图ROI坐标, 与分辨率绑定
-  cv::Rect roi(49, 51, 117, 120);
+  cv::Rect roi(MinimapROIOriginX, MinimapROIOriginY, MinimapROIWidth,
+               MinimapROIHeight);
   cv::Rect imgBounds(0, 0, w, h);
   roi = roi & imgBounds;
 

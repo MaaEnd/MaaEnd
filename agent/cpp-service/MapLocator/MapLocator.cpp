@@ -1,4 +1,5 @@
 #include "MapLocator.h"
+#include "MapAlgorithm.h"
 #include "../Logger.h"
 
 #include <algorithm>
@@ -237,71 +238,15 @@ void MapLocator::loadAvailableZones(const std::string &root) {
 
     // 完整处理后再插入zones, 避免异常导致半成品残留
     cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_UNCHANGED);
-    if (img.empty()) continue;
+    if (img.empty()) {
+        Logger::Error("Failed to load map: " + entry.path().string());
+        continue;
+    }
     if (img.channels() == 3) cv::cvtColor(img, img, cv::COLOR_BGR2BGRA);
     PreprocessMap(img, imgCfg);
     zones[key] = std::move(img);
     Logger::Info("Loaded Map: " + key);
   }
-}
-
-cv::Mat MapLocator::GeneratePerfectWeightMask(const cv::Mat &minimap) {
-  int w = minimap.cols, h = minimap.rows;
-  cv::Mat baseMask = cv::Mat::zeros(h, w, CV_8UC1);
-  int centerX = w / 2, centerY = h / 2;
-  int radiusSq = (std::min(w, h) / 2) * (std::min(w, h) / 2);
-
-  // at()太慢, ptr行指针+圆内判定手动迭代
-  cv::Mat workImg = minimap;
-  cv::Mat tempBGR;
-  if (workImg.channels() == 4) {
-      cv::cvtColor(workImg, tempBGR, cv::COLOR_BGRA2BGR);
-      workImg = tempBGR;
-  }
-
-  // 圆形遮罩 + 黄蓝图标剔除
-  for (int y = 0; y < h; y++) {
-    uchar *maskRow = baseMask.ptr<uchar>(y);
-    const cv::Vec3b *imgRow = workImg.ptr<cv::Vec3b>(y);
-    for (int x = 0; x < w; x++) {
-      if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) > radiusSq) continue;
-      int b = imgRow[x][0], g = imgRow[x][1], r = imgRow[x][2];
-      bool isIcon = false;
-      if (r > 100 && g > 100 && std::min(r, g) - b > imgCfg.iconDiffThreshold) isIcon = true;
-      if (!isIcon && b > 100 && b - std::max(r, g) > imgCfg.iconDiffThreshold) isIcon = true;
-      if (!isIcon) maskRow[x] = 255;
-    }
-  }
-  cv::circle(baseMask, cv::Point(centerX, centerY), imgCfg.centerMaskRadius, cv::Scalar(0), -1);
-
-  cv::Mat gray;
-  if (minimap.channels() == 4) cv::cvtColor(minimap, gray, cv::COLOR_BGRA2GRAY);
-  else cv::cvtColor(minimap, gray, cv::COLOR_BGR2GRAY);
-
-  // 暗部剔除: 与PreprocessMap阈值对齐, 否则双方都变黑后产生黑吃黑误匹配
-  cv::Mat darkMask;
-  cv::threshold(gray, darkMask, imgCfg.minimapDarkMaskThreshold, 255, cv::THRESH_BINARY_INV);
-  baseMask.setTo(0, darkMask);
-
-  cv::Mat floatMask;
-  baseMask.convertTo(floatMask, CV_32F, 1.0 / 255.0);
-
-  // 梯度加权: 纹理丰富区域贡献更大, 平坦区保底0.1防零贡献
-  cv::Mat gradX, gradY, gradMag;
-  cv::Sobel(gray, gradX, CV_32F, 1, 0);
-  cv::Sobel(gray, gradY, CV_32F, 0, 1);
-  gradMag = cv::abs(gradX) + cv::abs(gradY);
-
-  double maxVal;
-  cv::minMaxLoc(gradMag, nullptr, &maxVal);
-  if (maxVal > 0) gradMag /= maxVal;
-
-  cv::add(gradMag, imgCfg.gradientBaseWeight, gradMag);
-  cv::threshold(gradMag, gradMag, 1.0, 1.0, cv::THRESH_TRUNC);
-
-  cv::Mat finalMask;
-  cv::multiply(floatMask, gradMag, finalMask);
-  return finalMask;
 }
 
 MapLocator::PreparedTemplate MapLocator::prepareTemplate(const cv::Mat &minimap) {
@@ -316,7 +261,7 @@ MapLocator::PreparedTemplate MapLocator::prepareTemplate(const cv::Mat &minimap)
   result.templRaw.copyTo(result.templ);
   PreprocessMap(result.templ, imgCfg);
 
-  result.weightMask = GeneratePerfectWeightMask(minimap);
+  result.weightMask = GenerateMinimapMask(minimap, imgCfg);
 
   // weightedPixels = sum(mask^2), 作为SQDIFF归一化分母
   cv::Mat maskSq;
