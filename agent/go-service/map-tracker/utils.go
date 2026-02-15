@@ -91,16 +91,15 @@ func scaleImage(img image.Image, scale float64) image.Image {
 	return dst
 }
 
-func rotateImage(img image.Image, angle float64) image.Image {
-	bounds := img.Bounds()
+func rotateImageRGBA(imgRGBA *image.RGBA, angle float64) *image.RGBA {
+	bounds := imgRGBA.Bounds()
 	w, h := bounds.Dx(), bounds.Dy()
 	cx, cy := float64(w)/2, float64(h)/2
 	rad := angle * math.Pi / 180.0
 	cos, sin := math.Cos(rad), math.Sin(rad)
 	dst := image.NewRGBA(bounds)
-	srcRGBA := ToRGBA(img)
-	ds, ss := dst.Stride, srcRGBA.Stride
-	dp, sp := dst.Pix, srcRGBA.Pix
+	ds, ss := dst.Stride, imgRGBA.Stride
+	dp, sp := dst.Pix, imgRGBA.Pix
 
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {

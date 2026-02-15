@@ -358,6 +358,7 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 
 	// Crop pointer area from screen
 	patch := cropArea(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
+	patchRGBA := ToRGBA(patch)
 
 	// Precompute needle (pointer) statistics
 	pointerRGBA := ToRGBA(i.pointer)
@@ -372,10 +373,9 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 
 	for angle := 0; angle < 360; angle += rotStep {
 		// Rotate the patch
-		rotatedPatch := rotateImage(patch, float64(angle))
+		rotatedRGBA := rotateImageRGBA(patchRGBA, float64(angle))
 
 		// Match against pointer template
-		rotatedRGBA := ToRGBA(rotatedPatch)
 		integral := NewIntegralImage(rotatedRGBA)
 		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, pointerRGBA, pointerStats, image.Rectangle{})
 
