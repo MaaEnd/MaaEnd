@@ -24,12 +24,12 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 	dailyEventUnreadItems = nil
 
 	// 在左侧区域查找所有红点图标
-	detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
-		Threshold: []float64{0.7},
-		Template:  []string{"DailyRewards/RedDot.png"},
-		ROI:       maa.NewTargetRect(maa.Rect{0, 0, 300, 720}),
-		GreenMask: true,
-	}, arg.Img)
+	overrideParamRedDot := map[string]any{
+		"DailyEventRecognitionRedDot": map[string]any{
+			"roi": maa.Rect{0, 0, 300, 720},
+		},
+	}
+	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img, overrideParamRedDot)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run TemplateMatch for RedDot")
 		return nil, false
@@ -47,17 +47,18 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 		}
 
 		redDotBox := tmResult.Box
-		// OCR 区域：红点左侧，与红点同一垂直位置
-		ocrROI := maa.Rect{
-			0,
-			redDotBox.Y(),
-			redDotBox.X(),
-			60, // 一个列表项高度大约60
+		overrideParamItemText := map[string]any{
+			"DailyEventRecognitionItemText": map[string]any{
+				"roi": maa.Rect{
+					0,
+					redDotBox.Y(),
+					redDotBox.X(),
+					60, // 一个列表项高度大约60
+				},
+			},
 		}
 
-		ocrDetail, err := ctx.RunRecognitionDirect("OCR", maa.NodeOCRParam{
-			ROI: maa.NewTargetRect(ocrROI),
-		}, arg.Img)
+		ocrDetail, err := ctx.RunRecognition("DailyEventRecognitionItemText", arg.Img, overrideParamItemText)
 		if err != nil {
 			log.Warn().Err(err).Msg("Failed to run OCR for event text")
 			continue
@@ -122,12 +123,12 @@ func (r *DailyEventUnreadDetailInitRecognition) Run(ctx *maa.Context, arg *maa.C
 	dailyEventUnreadDetails = nil
 
 	// 在屏幕右侧区域查找红点
-	detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
-		Threshold: []float64{0.7},
-		Template:  []string{"DailyRewards/RedDot.png"},
-		ROI:       maa.NewTargetRect(maa.Rect{-800, 0, 800, 720}),
-		GreenMask: true,
-	}, arg.Img)
+	overrideParamRedDot := map[string]any{
+		"DailyEventRecognitionRedDot": map[string]any{
+			"roi": maa.Rect{-800, 0, 800, 720},
+		},
+	}
+	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img, overrideParamRedDot)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run TemplateMatch for RedDot on right side")
 		return nil, false
@@ -147,16 +148,25 @@ func (r *DailyEventUnreadDetailInitRecognition) Run(ctx *maa.Context, arg *maa.C
 		redDotBox := tmResult.Box
 
 		// 检测红点左侧是否包含"前往"，有则跳过
-		ocrROI := maa.Rect{
-			redDotBox.X() - 200,
-			redDotBox.Y(),
-			200,
-			50,
+		overrideParamGotoButton := map[string]any{
+			"DailyEventRecognitionGotoButton": map[string]any{
+				"roi": maa.Rect{
+					redDotBox.X() - 200,
+					redDotBox.Y(),
+					200,
+					50},
+			},
 		}
-		ocrDetail, err := ctx.RunRecognitionDirect("OCR", maa.NodeOCRParam{
-			ROI:      maa.NewTargetRect(ocrROI),
-			Expected: []string{"前往"},
-		}, arg.Img)
+
+		ocrDetail, err := ctx.RunRecognition("DailyEventRecognitionGotoButton", arg.Img, overrideParamGotoButton)
+		if err != nil {
+			log.Warn().Err(err).Msg("Failed to run OCR for reward text")
+			continue
+		}
+		if ocrDetail != nil && ocrDetail.Hit {
+			log.Debug().Interface("box", redDotBox).Msg("Found '前往' text, skipping this red dot")
+			continue
+		}
 		if err != nil {
 			log.Warn().Err(err).Msg("Failed to run OCR for reward text")
 			continue

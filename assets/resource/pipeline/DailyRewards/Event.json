@@ -118,6 +118,7 @@
         "next": [
             "DailyEventRewardsConfirm",
             "DailyEventUnreadDetailPick",
+            "DailyEventUnreadDetailInit",
             "DailyEventFinish"
         ]
     },
@@ -125,6 +126,46 @@
         "desc": "结束任务",
         "focus": {
             "Node.Recognition.Succeeded": "领取活动奖励结束"
+        }
+    },
+    "DailyEventRecognitionRedDot": {
+        "desc": "识别活动界面的红点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "DailyRewards/RedDot.png",
+                    "DailyRewards/RedDot2.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.9
+            }
+        }
+    },
+    "DailyEventRecognitionGotoButton": {
+        "desc": "识别活动界面是前往按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "前往",
+                    "Go",
+                    "移動",
+                    "바로가기"
+                ]
+            }
+        }
+    },
+    "DailyEventRecognitionItemText": {
+        "desc": "识别活动界面的红点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "threshold": 0.7,
+                "expected": [
+                    ".{3,}" // 匹配三个及以上字符
+                ]
+            }
         }
     },
     "DailyEventRewardsConfirm": {
