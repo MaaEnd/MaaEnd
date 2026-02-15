@@ -1,0 +1,11 @@
+{
+    "MapLocalizationDebugLoop": {
+        "next": "MapLocalizationDebugAction"
+    },
+    "MapLocalizationDebugAction": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapLocateAction",
+        "next": "MapLocalizationDebugLoop"
+    }
+}
