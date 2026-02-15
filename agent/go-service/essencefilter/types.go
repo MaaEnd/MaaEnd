@@ -32,20 +32,6 @@ type WeaponDatabase struct {
 	Weapons []WeaponData `json:"weapons"`
 }
 
-// FilterPreset - preset config
-type FilterPreset struct {
-	Name   string       `json:"name"`
-	Label  string       `json:"label"`
-	Filter FilterConfig `json:"filter"`
-}
-
-// FilterConfig - filtering config
-type FilterConfig struct {
-	TypeIDs   []int `json:"type_ids"`   // optional weapon type filter
-	MinRarity int   `json:"min_rarity"` // min rarity
-	MaxRarity int   `json:"max_rarity"` // max rarity
-}
-
 // SkillCombination - target skill combination（静态配置，一把武器一条）
 type SkillCombination struct {
 	Weapon        WeaponData
@@ -73,6 +59,14 @@ type SkillCombinationSummary struct {
 type MatcherConfig struct {
 	SimilarWordMap  map[string]string `json:"similarWordMap"`
 	SuffixStopwords []string          `json:"suffixStopwords"`
+}
+
+type EssenceFilterOptions struct {
+	Rarity6Weapon   bool `json:"rarity6_weapon"`
+	Rarity5Weapon   bool `json:"rarity5_weapon"`
+	Rarity4Weapon   bool `json:"rarity4_weapon"`
+	FlawlessEssence bool `json:"flawless_essence"`
+	PureEssence     bool `json:"pure_essence"`
 }
 
 // Global variables
@@ -104,4 +98,6 @@ var (
 
 	// Matcher config - loaded from JSON config file, used for skill name matching
 	matcherConfig MatcherConfig
+
+	gOpt EssenceFilterOptions
 )

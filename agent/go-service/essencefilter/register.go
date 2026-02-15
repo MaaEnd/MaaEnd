@@ -18,4 +18,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceFilterFinishAction", &EssenceFilterFinishAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterTraceAction", &EssenceFilterTraceAction{})
 	maa.AgentServerRegisterCustomAction("OCREssenceInventoryNumberAction", &OCREssenceInventoryNumberAction{})
+	maa.AgentServerRegisterCustomAction("ApplyCustomActionParamToGlobalAction", &ApplyCustomActionParamToGlobalAction{})
 }

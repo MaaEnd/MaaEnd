@@ -6,7 +6,11 @@
             "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
             "option": [
-                "EssenceFilterPreset"
+                "Rarity6Weapon",
+                "Rarity5Weapon",
+                "Rarity4Weapon"
+                // "FlawlessEssence",
+                // "PureEssence"
             ],
             "controller": [
                 "Win32",
@@ -16,21 +20,20 @@
         }
     ],
     "option": {
-        "EssenceFilterPreset": {
-            "type": "select",
-            "label": "$option.EssenceFilterPreset.label",
-            "description": "$option.EssenceFilterPreset.description",
-            "default": "Rarity6_and_5",
+        "Rarity6Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity6Weapon.label",
+            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Rarity6",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity6.label",
+                    "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
+                        "EssenceFilterSetRarity6Weapon": {
                             "action": {
                                 "param": {
                                     "custom_action_param": {
-                                        "preset_name": "Rarity6"
+                                        "k": "rarity6_weapon",
+                                        "v": true
                                     }
                                 }
                             }
@@ -38,14 +41,36 @@
                     }
                 },
                 {
-                    "name": "Rarity5",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity5.label",
+                    "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
+                        "EssenceFilterSetRarity6Weapon": {
                             "action": {
                                 "param": {
                                     "custom_action_param": {
-                                        "preset_name": "Rarity5"
+                                        "k": "rarity6_weapon",
+                                        "v": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "Rarity5Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity5Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterSetRarity5Weapon": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "k": "rarity5_weapon",
+                                        "v": true
                                     }
                                 }
                             }
@@ -53,14 +78,121 @@
                     }
                 },
                 {
-                    "name": "Rarity6_and_5",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity6_and_5.label",
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterSetRarity5Weapon": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "k": "rarity5_weapon",
+                                        "v": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "Rarity4Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity4Weapon.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterSetRarity4Weapon": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "k": "rarity4_weapon",
+                                        "v": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterSetRarity4Weapon": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "k": "rarity4_weapon",
+                                        "v": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "FlawlessEssence": {
+            "type": "switch",
+            "label": "$option.FlawlessEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "action": {
                                 "param": {
                                     "custom_action_param": {
-                                        "preset_name": "Rarity6_and_5"
+                                        "flawless_essence": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "flawless_essence": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "PureEssence": {
+            "type": "switch",
+            "label": "$option.PureEssence.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "pure_essence": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "pure_essence": false
                                     }
                                 }
                             }
