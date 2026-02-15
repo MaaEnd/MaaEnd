@@ -49,7 +49,7 @@ func getResourceBase() string {
 	return ""
 }
 
-// findResourceFile tries to find a file in the cached resource path or standard fallbacks
+// findResource tries to find a file in the cached resource path or standard fallbacks
 func findResource(relativePath string) string {
 	// 1. Try cached path from sink
 	if base := getResourceBase(); base != "" {
