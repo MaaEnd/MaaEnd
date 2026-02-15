@@ -95,7 +95,8 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 		return nil, false
 	}
 	if i.pointerErr != nil {
-		log.Warn().Err(i.pointerErr).Msg("Failed to initialize pointer, rotation will be skipped")
+		log.Error().Err(i.pointerErr).Msg("Failed to initialize pointer")
+		return nil, false
 	}
 
 	// Perform location inference
@@ -106,11 +107,9 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	// Perform rotation inference (if pointer is loaded)
 	rot, rotConf := 0, 0.0
 	var rotTime time.Duration
-	if i.pointer != nil {
-		t1 := time.Now()
-		rot, rotConf = i.inferRotation(arg.Img, rotStep)
-		rotTime = time.Since(t1)
-	}
+	t1 := time.Now()
+	rot, rotConf = i.inferRotation(arg.Img, rotStep)
+	rotTime = time.Since(t1)
 
 	// Build result
 	result := InferResult{
@@ -384,6 +383,9 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 			bestAngle = angle
 		}
 	}
+
+	// Convert to clockwise angle
+	bestAngle = (360 - bestAngle) % 360
 
 	return bestAngle, maxVal
 }
