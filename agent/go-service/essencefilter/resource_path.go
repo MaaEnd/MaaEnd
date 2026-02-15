@@ -1,7 +1,6 @@
 package essencefilter
 
 import (
-	"fmt"
 	"path/filepath"
 	"sync"
 	"sync/atomic"
@@ -26,7 +25,7 @@ var (
 type resourcePathSink struct{}
 
 func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.EventStatus, detail maa.ResourceLoadingDetail) {
-	fmt.Println("[EssenceFilter] Resource loading event: status=%s, path=%s\n", status, detail.Path)
+	// fmt.Println("[EssenceFilter] Resource loading event: status=%s, path=%s\n", status, detail.Path)
 	if status != maa.EventStatusSucceeded || detail.Path == "" {
 		return
 	}

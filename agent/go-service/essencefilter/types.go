@@ -69,6 +69,16 @@ type EssenceFilterOptions struct {
 	PureEssence     bool `json:"pure_essence"`
 }
 
+type ColorRange struct {
+	Lower [3]int
+	Upper [3]int
+}
+
+type EssenceMeta struct {
+	Name  string
+	Range ColorRange
+}
+
 // Global variables
 var (
 	weaponDB                WeaponDatabase
@@ -98,4 +108,23 @@ var (
 
 	// Matcher config - loaded from JSON config file, used for skill name matching
 	matcherConfig MatcherConfig
+
+	// Essence color matching parameters
+	FlawlessEssenceMeta = EssenceMeta{
+		// Name: "Flawless Essence",
+		Name: "无暇基质",
+		Range: ColorRange{
+			Lower: [3]int{18, 70, 220},
+			Upper: [3]int{26, 255, 255},
+		},
+	}
+	PureEssenceMeta = EssenceMeta{
+		Name: "高纯基质",
+		Range: ColorRange{
+			Lower: [3]int{130, 55, 80},
+			Upper: [3]int{136, 255, 255},
+		},
+	}
+
+	EssenceTypes []EssenceMeta
 )

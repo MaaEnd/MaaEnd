@@ -69,7 +69,22 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
+	EssenceTypes = EssenceTypes[:0] // reset global EssenceTypes slice
+	if opts.FlawlessEssence {
+		EssenceTypes = append(EssenceTypes, FlawlessEssenceMeta)
+	}
+	if opts.PureEssence {
+		EssenceTypes = append(EssenceTypes, PureEssenceMeta)
+	}
+
+	if len(EssenceTypes) == 0 {
+		log.Error().Msg("<EssenceFilter> Step5 failed: no essence type selected, please select at least one essence type")
+		LogMXUSimpleHTMLWithColor(ctx, "未选择任何基质类型，请至少选择一个基质类型作为筛选条件", "#ff0000")
+		return false
+	}
+
 	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(EssenceTypes)))
 	// 6. filter weapons
 	filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
 	names := make([]string, 0, len(filteredWeapons))
@@ -321,20 +336,25 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 		roi := maa.Rect{colorMatchROIX, colorMatchROIY, colorMatchROIW, colorMatchROIH}
 
-		ColorMatchOverrideParam := map[string]any{
-			"EssenceColorMatch": map[string]any{
-				"roi": roi,
-			},
-		}
-		cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
+		for _, et := range EssenceTypes {
+			ColorMatchOverrideParam := map[string]any{
+				"EssenceColorMatch": map[string]any{
+					"roi":   roi,
+					"lower": et.Range.Lower,
+					"upper": et.Range.Upper,
+				},
+			}
+			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
 
-		if err != nil {
-			log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
-			continue
-		}
+			if err != nil {
+				log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
+				continue
+			}
 
-		if cDetail != nil && cDetail.Hit {
-			rowBoxes = append(rowBoxes, boxArr)
+			if cDetail != nil && cDetail.Hit {
+				rowBoxes = append(rowBoxes, boxArr)
+				break
+			}
 		}
 	}
 	// sort rowboxes by Y coordinate then X coordinate
@@ -355,7 +375,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceDetectFinal"},
 		})
-		LogMXUSimpleHTML(ctx, fmt.Sprintf("尾扫完成，收集所有剩余基质格子"))
+		LogMXUSimpleHTMLWithColor(ctx, "尾扫完成，收集所有剩余基质格子", "#1a01fd")
 		log.Info().Msg("<EssenceFilter> RowCollect: trigger final large scan")
 		return true
 	}

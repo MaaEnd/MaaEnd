@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -43,4 +44,12 @@ func rarityListToString(rarities []int) string {
 	default:
 		return fmt.Sprintf("%d+", len(rarities))
 	}
+}
+
+func essenceListToString(EssenceTypes []EssenceMeta) string {
+	names := make([]string, len(EssenceTypes))
+	for i, e := range EssenceTypes {
+		names[i] = e.Name
+	}
+	return strings.Join(names, "、")
 }

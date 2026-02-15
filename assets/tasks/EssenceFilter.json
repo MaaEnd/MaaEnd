@@ -8,9 +8,9 @@
             "option": [
                 "Rarity6Weapon",
                 "Rarity5Weapon",
-                "Rarity4Weapon"
-                // "FlawlessEssence",
-                // "PureEssence"
+                "Rarity4Weapon",
+                "FlawlessEssence",
+                "PureEssence"
             ],
             "controller": [
                 "Win32",
