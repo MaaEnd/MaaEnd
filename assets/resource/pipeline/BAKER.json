@@ -245,6 +245,7 @@
         "template": [
             "Baker/TalkWith.png",
             "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+
         ],
         "threshold": 0.95,
         "roi": [
@@ -263,13 +264,12 @@
             "CheckChatPage",
             "TalkWith"
         ]
-    },    
+    },
     "TalkWithHint": {
         "doc": "事务通讯的小红点",
         "recognition": "TemplateMatch",
         "template": [
             "Baker/hint.png"
-
         ],
         "roi": [
             31,

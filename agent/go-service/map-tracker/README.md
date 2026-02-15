@@ -2,16 +2,16 @@
 
 ```json
 {
-  "MapTracking": {
-    "recognition": {
-      "type": "Custom",
-      "param": {
-        "name": "MapTrackerInfer",
-        "precision": 0.4,
-        "threshold": 0.5
-      }
+    "MapTracking": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "name": "MapTrackerInfer",
+                "precision": 0.4,
+                "threshold": 0.5
+            }
+        }
     }
-  }
 }
 ```
 
