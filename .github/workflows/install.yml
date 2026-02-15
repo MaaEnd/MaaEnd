@@ -95,6 +95,17 @@ jobs:
         with:
           submodules: true
 
+      - name: Install Linux dependencies
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build cmake
+
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos'
+        run: |
+          brew install ninja cmake
+
       - name: Setup Windows 10 SDK
         if: matrix.os == 'win'
         uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.2
