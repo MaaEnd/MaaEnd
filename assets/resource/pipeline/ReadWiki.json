@@ -147,6 +147,15 @@
         ]
     },
     "ClickRealUnreadPage": {
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -171,6 +180,7 @@
             }
         },
         "next": [
+            "[JumpBack]WikiNextPage",
             "ClickRealUnreadPage",
             "ScrollListForNextUnreadWiki",
             "ClickChapterUnreadBadge",
@@ -212,6 +222,39 @@
             "ScrollListForNextUnreadWiki",
             "ClickChapterUnreadBadge",
             "WikiBackButton"
+        ]
+    },
+    "WikiNextPage": {
+        "doc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
+        "timeout": 1000,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "ReadWiki/WikiNextPage.png",
+                "roi": [
+                    748,
+                    673,
+                    48,
+                    19
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    700,
+                    400
+                ],
+                "end": [
+                    700,
+                    200
+                ],
+                "end_hold": 200
+            }
+        },
+        "next": [
+            "WikiNextPage"
         ]
     }
 }

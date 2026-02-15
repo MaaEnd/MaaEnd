@@ -54,6 +54,8 @@
     "task.DijiangRewards.description": "自動領取基建產物並補貨，自動收發與放置線索",
     "option.AutoStartExchange.label": "自動開啟線索交流",
     "option.AutoStartExchange.description": "在基建任務過程中，自動開啟線索交流，並不推薦開啟此選項，線索交流任務應該等待信用點交易任務主動開啟以獲取高價值物品",
+    "option.ProductionAssistanceWithoutTheControlNexus.label": "不使用總控中樞生產助力",
+    "option.ProductionAssistanceWithoutTheControlNexus.description": "開啟後不會使用總控中樞的恢復心情功能",
     "task.DailyRewards.label": "📅日常獎勵領取",
     "task.DailyRewards.description": "領取每日獎勵",
     "option.DailyTaskRewards.label": "每日任務/通行證獎勵",

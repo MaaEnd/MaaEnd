@@ -1,15 +1,10 @@
 {
     "InWorld": {
         "doc": "在大世界界面",
-        "recognition": "TemplateMatch",
-        "template": "Common/WorldMenu.png",
-        "roi": [
-            -200,
-            0,
-            200,
-            200
-        ],
-        "green_mask": true
+        "recognition": "And",
+        "all_of": [
+            "ProtosyncMenuButton"
+        ]
     },
     "InDijiangWorld": {
         "doc": "在帝江号大世界中",

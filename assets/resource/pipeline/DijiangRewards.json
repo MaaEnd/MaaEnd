@@ -1,5 +1,6 @@
 {
     "NeedCredit": {
+        "doc": "信用点不足,需要先去信用点商店购买物品",
         "max_hit": 1,
         //这个节点是给信用点商店任务预留的
         //当然你也可以自己给NeedCredit这项任务添加识别器
@@ -9,24 +10,24 @@
         //帝江号的日常收取中不会开启
         //BTW:这个任务完成后会退出其他界面回到帝江号内部,你需要重新进入信用点商店
         "next": [
-            "InMainWindow_NeedCredit",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CancelExit",
+            "InMainWindow_NeedCredit", //适配万能跳转时,只保留这一项
+            "[JumpBack]CloseButtonType1"
+
         ]
     },
     //主流程
     "DijiangRewards": {
+        "doc": "基建奖励领取",
         "next": [
-            "ControlNexus", //主流程内收集所有奖励
-            "[JumpBack]OpenDijiangControlNexus",
-            "[JumpBack]SelectDijiang",
-            "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
-            "[JumpBack]SelectDijiangTeleport",
-            "[JumpBack]OpenMap"
+            "[JumpBack]CancelExit",
+            "InMainWindow_Normal", //适配万能跳转时,只保留这一项
+            "[JumpBack]CloseButtonType1"
+
         ]
     },
     "ControlNexus": {
-        //任务主流程
+        "doc": "控制中枢任务主流程",
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -43,18 +44,20 @@
             }
         },
         "next": [
-            "[JumpBack]EntryReceptionRoom", //单独运行一次会客室
+            "[JumpBack]EntryReceptionRoom",
             "[JumpBack]ControlNexusClickTips",
             "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]RecoveryEmotion",
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
-            "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]CloseDijiangRewards"
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton"
         ]
     },
-    "InMainWindow_NeedCredit": {
+    "InMainWindow_Normal": {
+        "doc": "到达指定页面,需要进入控制中枢领取奖励",
         "recognition": {
             "type": "Or",
             "param": {
@@ -88,7 +91,61 @@
                                 ]
                             }
                         }
-                    }
+                    },
+                    "InControlNexus"
+
+                ]
+            }
+        },
+        "next": [
+            "ControlNexus", //主流程内收集所有奖励
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+
+        ]
+    },
+    "InMainWindow_NeedCredit": {
+        "doc": "到达指定页面,需要进入控制中枢领取信用点",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    "InControlNexus"
+
                 ]
             }
         },
@@ -97,13 +154,15 @@
             "[JumpBack]OpenDijiangControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
-            "[JumpBack]Teleport",
+            "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
+        "doc": "进入会客室领取信用点",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -162,10 +221,12 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoom_NeedCredit"
+            "ReceptionRoom_NeedCredit",
+            "[JumpBack]EndExchange"
         ]
     },
     "ReceptionRoom_NeedCredit": {
+        "doc": "确认到达会客室",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -182,12 +243,13 @@
         },
         "next": [
             "InControlNexus_NeedCredit",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]CloseRewardsButton",
             "[JumpBack]StartExchange",
             "[JumpBack]ExitReceptionRoom"
         ]
     },
     "StartExchange": {
+        "doc": "开始线索交流",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -198,7 +260,7 @@
                     175
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Confirm.png"
+                    "Common/Button/YellowConfirmButtonType2.png"
                 ]
             }
         },
@@ -207,6 +269,7 @@
         }
     },
     "InControlNexus_NeedCredit": {
+        "doc": "到达控制中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -223,11 +286,12 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang",
+            "[JumpBack]CloseButtonType1",
             "[JumpBack]CancelExit"
         ]
     },
     "CancelExit": {
+        "doc": "取消退出",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -251,7 +315,7 @@
         }
     },
     "InLastCarbin": {
-        // 最后一个培养舱
+        "doc": "最后一个培养舱",
         "recognition": {
             "type": "And",
             "param": {
@@ -301,12 +365,14 @@
         ]
     },
     "FinishAllDijiangTask": {
+        "doc": "完成所有基建任务",
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonDijiang"
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "InMainWindow": {
+        "doc": "在主界面",
         "recognition": {
             "type": "Or",
             "param": {
@@ -346,6 +412,7 @@
         }
     },
     "ExitReceptionRoom": {
+        "doc": "退出会客室",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -368,6 +435,7 @@
         }
     },
     "ReceptionRoomClickTips": {
+        "doc": "点击会客室的红点",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -377,6 +445,7 @@
             "param": {
                 "all_of": [
                     {
+                        "doc": "任务提示的红点",
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
@@ -402,6 +471,7 @@
                         }
                     },
                     {
+                        "doc": "确保在会客室界面",
                         "recognition": {
                             "type": "OCR",
                             "param": {
@@ -432,10 +502,12 @@
             }
         },
         "next": [
-            "ReadySetClues"
+            "ReadySetClues",
+            "EndExchange"
         ]
     },
     "ReadySetClues": {
+        "doc": "准备设置线索",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -457,14 +529,15 @@
         ]
     },
     "AlreadyHaveClues": {
+        "doc": "已经有线索了",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    868,
-                    182,
-                    393,
-                    130
+                    835,
+                    166,
+                    142,
+                    166
                 ],
                 "expected": [
                     "已填入"
@@ -474,27 +547,77 @@
         }
     },
     "SetClues": {
+        "doc": "放置线索",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [
-                    868,
-                    182,
-                    393,
-                    130
-                ],
-                "expected": [
-                    "线索"
-                ],
-                "order_by": "Vertical"
+                "any_of": [
+                    {
+                        "doc": "识别线索的删除按钮",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    1,
+                                    -17,
+                                    180,
+                                    17
+                                ],
+                                "upper": [
+                                    221,
+                                    44,
+                                    76
+                                ],
+                                "lower": [
+                                    221,
+                                    44,
+                                    75
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "doc": "识别线索的剩余天数",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    -102,
+                                    1,
+                                    -21,
+                                    85
+                                ],
+                                "upper": [
+                                    166,
+                                    189,
+                                    107
+                                ],
+                                "lower": [
+                                    109,
+                                    153,
+                                    0
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target": "ReadySetClues"
+            }
         }
     },
     "CollectClues": {
-        // 收集线索
+        "doc": "收集线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -568,11 +691,12 @@
         "next": [
             "SendClues",
             "Collect",
-            "CollectClues"
+            "CollectClues",
+            "EndExchange"
         ]
     },
     "SendClues": {
-        //线索过多,发送一个
+        "doc": "线索过多,发送一个",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -600,6 +724,7 @@
         ]
     },
     "SendCluesSwipe": {
+        "doc": "没有指定线索,通过滑动来刷新线索数量",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -623,7 +748,7 @@
         }
     },
     "SendTheMostClues": {
-        // 找到4-20之间的数字,点击发送
+        "doc": "找到4-20之间的数字,点击发送",
         // 线索最多20个,也就是平均下来每张线索不超过3个就可以正常接收
         "recognition": {
             "type": "And",
@@ -676,6 +801,7 @@
         ]
     },
     "Send": {
+        "doc": "发送线索",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -698,6 +824,7 @@
         ]
     },
     "ExitSend": {
+        "doc": "退出发送界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -720,6 +847,7 @@
         }
     },
     "EntrySendClues": {
+        "doc": "进入发送线索界面",
         "post_wait_freezes": {
             "time": 100,
             "timeout": 1500
@@ -743,6 +871,7 @@
         }
     },
     "ReceiveClues": {
+        "doc": "接收线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -798,32 +927,13 @@
             "type": "Click"
         },
         "next": [
-            "Receive",
-            "ReceiveClues"
+            "CloseRewardsButton",
+            "ReceiveClues",
+            "EndExchange"
         ]
     },
-    "Receive": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1121,
-                    551,
-                    159,
-                    169
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ReceiveAll.png",
-                    "ClaimDijiangRewards/ReceiveAll_Hover.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "GrowthChamber": {
-        // 培养舱任务
+        "doc": "培养舱任务",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -839,14 +949,15 @@
             }
         },
         "next": [
-            "[JumpBack]CloseDijiangRewards",
-            "[JumpBack]TakeRewards",
-            "[JumpBack]DijiangConfirm",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]YellowConfirmButtonType2",
             "[JumpBack]GrowAgain",
             "ExitGrowthChamber"
         ]
     },
     "GrowAgain": {
+        "doc": "再次培养",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -865,27 +976,8 @@
             "type": "Click"
         }
     },
-    "DijiangConfirm": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    696,
-                    267,
-                    418,
-                    274
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Confirm.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "EntryReceptionRoom": {
-        //单独进入会客室
+        "doc": "单独进入会客室",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -949,6 +1041,7 @@
         ]
     },
     "EndExchange": {
+        "doc": "结束线索交流",
         "recognition": {
             "type": "And",
             "param": {
@@ -993,6 +1086,7 @@
         }
     },
     "ReceptionRoom": {
+        "doc": "确认到达会客室",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1009,35 +1103,18 @@
         },
         "next": [
             "InControlNexus",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]CloseRewardsButton",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
             "[JumpBack]StartExchange",
             "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom",
-            "[JumpBack]ConfirmExchangeEnd"
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]EndExchange"
         ]
     },
-    "ConfirmExchangeEnd": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    685,
-                    616,
-                    73,
-                    70
-                ],
-                "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "InControlNexus": {
+        "doc": "到达控制中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1054,32 +1131,59 @@
         }
     },
     "ProductionAssistInDijiang": {
-        //好友辅助
+        "doc": "制造舱好友辅助",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
         },
         "recognition": {
-            "type": "ColorMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    1112,
-                    0,
-                    168,
-                    74
-                ],
-                "lower": [
-                    224,
-                    105,
-                    0
-                ],
-                "upper": [
-                    255,
-                    117,
-                    4
-                ],
-                "count": 40,
-                "connected": true
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱",
+                                    "培养舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
             }
         },
         "action": {
@@ -1094,31 +1198,36 @@
             }
         },
         "next": [
-            "[JumpBack]UseAssist",
-            "ExitProductionAssistInDijiang",
-            "RecoveryEmotion"
+            "[JumpBack]YellowConfirmButtonType1",
+            "CloseButtonType1",
+            "ExitRecoveryEmotion"
         ]
     },
-    "ExitProductionAssistInDijiang": {
+    "ExitRecoveryEmotion": {
+        "doc": "意外进入恢复心情界面,需要退出",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    1064,
-                    23,
-                    216,
-                    158
+                    464,
+                    138,
+                    278,
+                    154
                 ],
-                "template": [
-                    "ClaimDijiangRewards/ExitProductionAssist.png"
+                "expected": [
+                    "选择待恢复心情的干员"
                 ]
             }
         },
-        "action": {
-            "type": "Click"
-        }
+        "next": [
+            "InControlNexus",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]CloseButtonType1"
+        ]
     },
     "SelectLowEmotion": {
+        "doc": "选择心情较低的干员",
         "recognition": {
             "type": "And",
             "param": {
@@ -1210,31 +1319,8 @@
             }
         }
     },
-    "UseAssist": {
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    991,
-                    529,
-                    258,
-                    168
-                ],
-                "template": [
-                    "ClaimDijiangRewards/TakeRewards.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "CarbinSwipe": {
-        // 滑动总控中枢
+        "doc": "滑动总控中枢",
         "post_wait_freezes": {
             "time": 500,
             "timeout": 2000
@@ -1267,7 +1353,7 @@
         }
     },
     "MFG_ReceiveRewards": {
-        //制造舱任务
+        "doc": "制造舱任务",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1283,13 +1369,13 @@
             }
         },
         "next": [
-            "[JumpBack]CloseDijiangRewards",
-            "[JumpBack]TakeRewards",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
             "ReStock"
         ]
     },
     "ReStock": {
-        //补货
+        "doc": "补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1301,7 +1387,9 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
-                ]
+                ],
+                "order_by": "Horizontal",
+                "index": -1
             }
         },
         "action": {
@@ -1313,6 +1401,7 @@
         ]
     },
     "ConfirmRestock": {
+        "doc": "确认补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1323,7 +1412,8 @@
                     277
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ConfirmRestock.png"
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ]
             }
         },
@@ -1335,6 +1425,7 @@
         ]
     },
     "Exit_MFG_Cabin": {
+        "doc": "退出制造舱界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1357,6 +1448,7 @@
         }
     },
     "OpenDijiangControlNexus": {
+        "doc": "打开帝江号总控中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1379,26 +1471,8 @@
             }
         }
     },
-    "Teleport": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1181,
-                    611,
-                    94,
-                    102
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Teleport.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
     "SelectDijiangTeleport": {
+        "doc": "选择帝江号传送点",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -1450,6 +1524,7 @@
         }
     },
     "SelectDijiang": {
+        "doc": "选择帝江号",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1469,6 +1544,7 @@
         }
     },
     "OpenMap": {
+        "doc": "打开地图",
         "recognition": {
             "type": "Or",
             "param": {
@@ -1513,86 +1589,8 @@
             }
         }
     },
-    "WaitLoadingColor": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    128,
-                                    127,
-                                    0
-                                ],
-                                "lower": [
-                                    128,
-                                    127,
-                                    0
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    0,
-                                    127,
-                                    127
-                                ],
-                                "lower": [
-                                    0,
-                                    127,
-                                    127
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    462,
-                                    124,
-                                    226
-                                ],
-                                "upper": [
-                                    128,
-                                    0,
-                                    127
-                                ],
-                                "lower": [
-                                    128,
-                                    0,
-                                    127
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-    },
     "ControlNexusClickTips": {
-        //点击任务提示(红点)
+        "doc": "点击任务提示(红点)",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -1630,13 +1628,14 @@
         "next": [
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",
-            "[JumpBack]ConfirmExchangeEnd",
-            "[JumpBack]CloseDijiangRewards",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]EndExchange",
             "ControlNexusClickTips"
         ]
     },
     "AlreadyInCarbin": {
-        //已经在舱室内部或者好友助力界面,
+        "doc": "已经在舱室内部或者好友助力界面",
         "recognition": {
             "type": "Or",
             "param": {
@@ -1678,54 +1677,8 @@
             }
         }
     },
-    "TakeRewards": {
-        //领取奖励
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    860,
-                    512,
-                    156,
-                    130
-                ],
-                "template": [
-                    "ClaimDijiangRewards/TakeRewards.png",
-                    "ClaimDijiangRewards/TakeRewards_Hover.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "CloseDijiangRewards": {
-        //关闭奖励界面
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "DailyRewards/CloseReward.png",
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
-                ],
-                "threshold": 0.9
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
-    },
-    "ReRecognitionInMFG": {
-        "max_hit": 10
-    },
     "EixtCabin": {
+        "doc": "退出舱室",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1747,29 +1700,8 @@
             }
         }
     },
-    "CloseButtonDijiang": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1077,
-                    0,
-                    203,
-                    147
-                ],
-                "template": [
-                    "CloseInfo/CloseButton.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        }
-    },
     "Collect": {
+        "doc": "收集奖励",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1780,7 +1712,7 @@
                     227
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Confirm.png"
+                    "Common/Button/YellowConfirmButtonType2.png"
                 ]
             }
         },
@@ -1792,6 +1724,7 @@
         ]
     },
     "ExitCollect": {
+        "doc": "退出收集界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1814,6 +1747,7 @@
         }
     },
     "ExitGrowthChamber": {
+        "doc": "退出培养舱界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1836,16 +1770,73 @@
         }
     },
     "RecoveryEmotion": {
-        // 控制中枢内打开,选择待恢复心情的干员
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "doc": "恢复心情",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "InControlNexus",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]YellowConfirmButtonType1",
+            "StartRecoveryEmotion",
+            "CloseButtonType1"
+        ]
+    },
+    "StartRecoveryEmotion": {
+        "doc": "控制中枢内打开,选择待恢复心情的干员",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    0,
-                    0
+                    464,
+                    138,
+                    278,
+                    154
                 ],
                 "expected": [
                     "选择待恢复心情的干员"
@@ -1858,6 +1849,7 @@
         ]
     },
     "CouldNotAssistEmotion": {
+        "doc": "无法恢复心情",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1874,12 +1866,13 @@
         },
         "next": [
             "InControlNexus",
-            "[JumpBack]UseAssist",
+            "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
-            "[JumpBack]ExitProductionAssistInDijiang"
+            "[JumpBack]CloseButtonType1"
         ]
     },
     "BackToControlNexus": {
+        "doc": "从其他界面返回控制中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

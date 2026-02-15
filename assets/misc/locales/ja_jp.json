@@ -54,6 +54,8 @@
     "task.DijiangRewards.description": "製造物の回収と補給、及び手掛かりの受取・設置を自動化します。",
     "option.AutoStartExchange.label": "手がかり交換を自動開始",
     "option.AutoStartExchange.description": "基地任務中に手がかり交換を自動的に開始します。このオプションの有効化は推奨されません。高価値なアイテムを獲得するためには、手がかり交換任務はクレジット取引任務が主動的に開始するのを待つべきです。",
+    "option.ProductionAssistanceWithoutTheControlNexus.label": "マスターコントロールネクサスを使用しない生産支援",
+    "option.ProductionAssistanceWithoutTheControlNexus.description": "有効にすると、マスターコントロールネクサスの気分回復機能は使用されません",
     "task.DailyRewards.label": "📅 デイリー報酬受け取り",
     "task.DailyRewards.description": "デイリー報酬を受け取ります",
     "option.DailyTaskRewards.label": "デイリー任務/パス報酬",

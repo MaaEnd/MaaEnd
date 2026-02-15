@@ -67,6 +67,60 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMenuEvent": {
+        "doc": "从任意界面进入活动菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuEvent",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuValuables": {
+        "doc": "从任意界面进入贵重品库菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuValuables",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuOperationalManual": {
+        "doc": "从任意界面进入行动手册菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuOperationalManual",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuProtocolPass": {
+        "doc": "从任意界面进入通行证菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuProtocolPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriends": {
+        "doc": "从任意界面进入好友菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuFriends",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterGearAssembly": {
+        "doc": "从任意界面进入装备加工界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuGearAssembly",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterMenuBluePrint": {
         "doc": "从任意界面进入蓝图菜单",
         "pre_delay": 0,
@@ -77,7 +131,7 @@
         ]
     },
     "SceneEnterMenuEmail": {
-        "doc": "从任意界面进入邮箱界面",
+        "doc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
