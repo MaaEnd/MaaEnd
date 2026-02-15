@@ -9,6 +9,7 @@ import (
 	_ "image/png"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +18,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// MapData represents a preloaded map image with its name and precomputed integral images
+// MapData represents a preloaded map image
 type MapData struct {
 	Name     string
 	Img      *image.RGBA
@@ -63,10 +64,12 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	// Parse custom recognition parameters
 	precision := 0.4
 	threshold := 0.5
+	mapNameRegexStr := "^map\\d+_lv\\d+$"
 	if arg.CustomRecognitionParam != "" {
 		var params struct {
-			Precision float64 `json:"precision"`
-			Threshold float64 `json:"threshold"`
+			Precision    float64 `json:"precision"`
+			Threshold    float64 `json:"threshold"`
+			MapNameRegex string  `json:"map_name_regex"`
 		}
 		if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err == nil {
 			if params.Precision > 0.0 && params.Precision <= 1.0 {
@@ -75,7 +78,17 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 			if params.Threshold >= 0.0 && params.Threshold < 1.0 {
 				threshold = params.Threshold
 			}
+			if params.MapNameRegex != "" {
+				mapNameRegexStr = params.MapNameRegex
+			}
 		}
+	}
+
+	// Compile regex
+	mapNameRegex, err := regexp.Compile(mapNameRegexStr)
+	if err != nil {
+		log.Error().Err(err).Str("regex", mapNameRegexStr).Msg("Invalid map_name_regex")
+		return nil, false
 	}
 
 	locScale := precision
@@ -104,7 +117,7 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 
 	// Perform location inference
 	t0 := time.Now()
-	locX, locY, locConf, mapName := i.inferLocation(arg.Img, locScale)
+	locX, locY, locConf, mapName := i.inferLocation(arg.Img, locScale, mapNameRegex)
 	locTime := time.Since(t0)
 
 	// Perform rotation inference (if pointer is loaded)
@@ -138,11 +151,11 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 
 	log.Info().
 		Str("mapName", mapName).
-		Dur("locTime", locTime).
-		Dur("rotTime", rotTime).
 		Int("x", locX).
 		Int("y", locY).
 		Int("rot", rot).
+		Dur("locTime", locTime).
+		Dur("rotTime", rotTime).
 		Float64("locConf", locConf).
 		Float64("rotConf", rotConf).
 		Bool("hit", hit).
@@ -295,7 +308,7 @@ func (i *Infer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 
 // inferLocation infers the player's location on the map
 // Returns (x, y, confidence, mapName)
-func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int, float64, string) {
+func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
 	// Crop mini-map area from screen
 	miniMap := cropArea(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
 
@@ -322,8 +335,15 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int
 
 	// Use cached scaled maps
 	scaledMaps := i.getScaledMaps(locScale)
+	triedCount := 0
 
 	for _, mapData := range scaledMaps {
+		// Filter maps based on regex
+		if !mapNameRegex.MatchString(mapData.Name) {
+			continue
+		}
+		triedCount++
+
 		// Perform template matching (using optimized version with precomputed stats)
 		// Note: mapData.Img is already cropped if a rect was provided in map_rect.json
 		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats)
@@ -337,6 +357,10 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int
 			bestMapName = mapData.Name
 		}
 	}
+	log.Debug().Int("triedMaps", triedCount).
+		Float64("bestVal", bestVal).
+		Str("bestMap", bestMapName).
+		Msg("Location inference completed")
 
 	return bestX, bestY, bestVal, bestMapName
 }
