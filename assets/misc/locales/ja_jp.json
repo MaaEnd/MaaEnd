@@ -60,6 +60,7 @@
     "task.DailyRewards.description": "デイリー報酬を受け取ります",
     "option.DailyTaskRewards.label": "デイリー任務/パス報酬",
     "option.DailyEmailRewards.label": "メール/一時保管報酬",
+    "option.DailyEventRewards.label": "イベント報酬",
     "task.AutoResell.label": "💰 半自動転売",
     "task.AutoResell.description": "不安定需要物資を半自動で転売します。最高利益の商品を自動で識別して購入し、該当フレンドの宇宙船に入ります。現在、販売は手動で行う必要があります。",
     "option.DisableChangeRegion.label": "地域切り替えを無効化",

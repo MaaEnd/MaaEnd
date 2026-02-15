@@ -60,6 +60,7 @@
     "task.DailyRewards.description": "領取每日獎勵",
     "option.DailyTaskRewards.label": "每日任務/通行證獎勵",
     "option.DailyEmailRewards.label": "郵件/暫存區獎勵",
+    "option.DailyEventRewards.label": "活動獎勵",
     "task.AutoResell.label": "💰半自動倒賣",
     "task.AutoResell.description": "半自動倒賣彈性需求物資，自行識別最高利潤貨物並進行購買，進入對應好友的飛船，目前仍需手動進行售賣",
     "option.DisableChangeRegion.label": "禁用地區切換",

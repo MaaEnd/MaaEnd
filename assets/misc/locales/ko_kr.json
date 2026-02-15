@@ -60,6 +60,7 @@
     "task.DailyRewards.description": "일일 보상을 수령합니다",
     "option.DailyTaskRewards.label": "일일 임무/패스 보상",
     "option.DailyEmailRewards.label": "우편/임시 보관함 보상",
+    "option.DailyEventRewards.label": "이벤트 보상",
     "task.AutoResell.label": "💰 반자동 재판매",
     "task.AutoResell.description": "불안정 수요 물자를 반자동으로 재판매합니다. 최고 이익 상품을 자동으로 식별하여 구매하고 해당 친구의 우주선에 진입합니다. 현재 판매는 수동으로 진행해야 합니다.",
     "option.DisableChangeRegion.label": "지역 전환 비활성화",

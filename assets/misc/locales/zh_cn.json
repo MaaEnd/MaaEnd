@@ -60,6 +60,7 @@
     "task.DailyRewards.description": "领取每日奖励",
     "option.DailyTaskRewards.label": "每日任务/通行证奖励",
     "option.DailyEmailRewards.label": "邮件/暂存区奖励",
+    "option.DailyEventRewards.label": "活动奖励",
     "task.AutoResell.label": "💰半自动倒卖",
     "task.AutoResell.description": "半自动倒卖弹性需求物资，自行识别最高利润货物并进行购买，进入对应好友的飞船，目前仍需手动售卖",
     "option.DisableChangeRegion.label": "禁用地区切换",
