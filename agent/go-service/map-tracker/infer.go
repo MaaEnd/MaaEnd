@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/draw"
 	_ "image/png"
 	"os"
 	"path/filepath"
@@ -21,6 +22,8 @@ type MapData struct {
 	Name     string
 	Img      *image.RGBA
 	Integral *IntegralImage
+	OffsetX  int
+	OffsetY  int
 }
 
 // InferResult represents the result of map tracking inference
@@ -41,7 +44,7 @@ type Infer struct {
 	mapsOnce    sync.Once
 	pointerOnce sync.Once
 	maps        []MapData
-	pointer     image.Image
+	pointer     *image.RGBA
 	mapsErr     error
 	pointerErr  error
 
@@ -158,7 +161,7 @@ func (i *Infer) initMaps(ctx *maa.Context) {
 		if i.mapsErr != nil {
 			log.Error().Err(i.mapsErr).Msg("Failed to load maps")
 		} else {
-			log.Info().Int("count", len(i.maps)).Msg("Maps loaded successfully")
+			log.Info().Int("mapsCount", len(i.maps)).Msg("Map images loaded")
 		}
 	})
 }
@@ -170,7 +173,7 @@ func (i *Infer) initPointer(ctx *maa.Context) {
 		if i.pointerErr != nil {
 			log.Error().Err(i.pointerErr).Msg("Failed to load pointer template")
 		} else {
-			log.Info().Msg("Pointer template loaded successfully")
+			log.Info().Msg("Pointer template image loaded")
 		}
 	})
 }
@@ -181,6 +184,17 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 	mapDir := findResource(MAP_DIR)
 	if mapDir == "" {
 		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
+	}
+
+	// Read map_rect.json if it exists
+	rectList := make(map[string][]int)
+	rectPath := filepath.Join(mapDir, "map_rect.json")
+	if data, err := os.ReadFile(rectPath); err == nil {
+		if err := json.Unmarshal(data, &rectList); err != nil {
+			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_rect.json")
+		} else {
+			log.Info().Msg("Map rect JSON loaded")
+		}
 	}
 
 	// Read directory entries
@@ -216,21 +230,36 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 			continue
 		}
 
-		imgRGBA := ToRGBA(img)
+		// Extract map name (remove "_merged.png" suffix)
+		name := strings.TrimSuffix(filename, "_merged.png")
+
+		var imgRGBA *image.RGBA
+		offsetX, offsetY := 0, 0
+
+		// Crop if valid rect exists
+		if r, ok := rectList[name]; ok && len(r) == 4 {
+			rect := image.Rect(r[0], r[1], r[2], r[3])
+			// Crop precisely using drawing
+			b := img.Bounds()
+			r0 := rect.Intersect(b)
+			dst := image.NewRGBA(image.Rect(0, 0, r0.Dx(), r0.Dy()))
+			draw.Draw(dst, dst.Bounds(), img, r0.Min, draw.Src)
+			imgRGBA = dst
+			offsetX, offsetY = r0.Min.X, r0.Min.Y
+		} else {
+			imgRGBA = ToRGBA(img)
+		}
 
 		// Precompute integral image
 		integral := NewIntegralImage(imgRGBA)
-
-		// Extract map name (remove "_merged.png" suffix)
-		name := strings.TrimSuffix(filename, "_merged.png")
 
 		maps = append(maps, MapData{
 			Name:     name,
 			Img:      imgRGBA,
 			Integral: integral,
+			OffsetX:  offsetX,
+			OffsetY:  offsetY,
 		})
-
-		log.Debug().Str("name", name).Str("path", imgPath).Msg("Loaded map image")
 	}
 
 	if len(maps) == 0 {
@@ -241,7 +270,7 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 }
 
 // loadPointer loads the pointer template image
-func (i *Infer) loadPointer(ctx *maa.Context) (image.Image, error) {
+func (i *Infer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 	// Find pointer template using search strategy
 	pointerPath := findResource(POINTER_PATH)
 	if pointerPath == "" {
@@ -260,9 +289,8 @@ func (i *Infer) loadPointer(ctx *maa.Context) (image.Image, error) {
 		return nil, fmt.Errorf("failed to decode pointer template: %w", err)
 	}
 
-	log.Debug().Str("path", pointerPath).Msg("Loaded pointer template")
-
-	return img, nil
+	rgba := ToRGBA(img)
+	return rgba, nil
 }
 
 // inferLocation infers the player's location on the map
@@ -296,26 +324,16 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int
 	scaledMaps := i.getScaledMaps(locScale)
 
 	for _, mapData := range scaledMaps {
-		// Get valid area for this map and scale it
-		validRect := image.Rectangle{}
-		if rect, ok := VALID_RECT_MAP[mapData.Name]; ok {
-			validRect = image.Rect(
-				int(float64(rect.Min.X)*locScale),
-				int(float64(rect.Min.Y)*locScale),
-				int(float64(rect.Max.X)*locScale),
-				int(float64(rect.Max.Y)*locScale),
-			)
-		}
-
-		// Perform template matching (using optimized version with precomputed stats and valid area)
-		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats, validRect)
+		// Perform template matching (using optimized version with precomputed stats)
+		// Note: mapData.Img is already cropped if a rect was provided in map_rect.json
+		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats)
 
 		if matchVal > bestVal {
 			bestVal = matchVal
 			// Convert top-left corner to center position
-			// Then convert back to original scale
-			bestX = int(float64(matchX+miniMapW/2) / locScale)
-			bestY = int(float64(matchY+miniMapH/2) / locScale)
+			// Then convert back to original scale and add map offset
+			bestX = int(float64(matchX+miniMapW/2)/locScale) + mapData.OffsetX
+			bestY = int(float64(matchY+miniMapH/2)/locScale) + mapData.OffsetY
 			bestMapName = mapData.Name
 		}
 	}
@@ -341,6 +359,8 @@ func (i *Infer) getScaledMaps(scale float64) []MapData {
 			Name:     m.Name,
 			Img:      sRGBA,
 			Integral: NewIntegralImage(sRGBA),
+			OffsetX:  m.OffsetX,
+			OffsetY:  m.OffsetY,
 		})
 	}
 	i.scaledScale = scale
@@ -360,8 +380,7 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 	patchRGBA := ToRGBA(patch)
 
 	// Precompute needle (pointer) statistics
-	pointerRGBA := ToRGBA(i.pointer)
-	pointerStats := GetNeedleStats(pointerRGBA)
+	pointerStats := GetNeedleStats(i.pointer)
 	if pointerStats.Dn < 1e-6 {
 		return 0, 0.0
 	}
@@ -376,7 +395,7 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 
 		// Match against pointer template
 		integral := NewIntegralImage(rotatedRGBA)
-		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, pointerRGBA, pointerStats, image.Rectangle{})
+		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, i.pointer, pointerStats)
 
 		if matchVal > maxVal {
 			maxVal = matchVal
