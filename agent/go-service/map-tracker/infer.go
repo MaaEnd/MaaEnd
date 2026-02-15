@@ -192,6 +192,7 @@ func (i *Infer) initPointer(ctx *maa.Context) {
 }
 
 // loadMaps loads all map images from the resource directory
+// and try crops them if map_rect.json exists
 func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 	// Find map directory using search strategy
 	mapDir := findResource(MAP_DIR)

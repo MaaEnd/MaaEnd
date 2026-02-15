@@ -26,6 +26,6 @@ Typically, the default parameters work well for most cases. Only adjust them if 
 - `threshold`: Range \[0.0, 1.0). Default 0.5. Controls the confidence threshold for location recognition. Higher values lead to higher chance of "no-hit" results.
 - `map_name_regex`: String. A regular expression that filters map names. Only maps whose names match this regex will be used for matching.
   - `^map\\d+_lv\\d+$`: Matches all normal maps. (Default)
-  - `^map\\d+_lv\\d+_(tier_\\d+)?$`: Matches all normal maps and tier maps.
+  - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all normal maps and tier maps.
   - `^map001_lv001$`: Matches only map001_lv001.
   - `^map001_lv\\d+$`: Matches all levels of map001.
