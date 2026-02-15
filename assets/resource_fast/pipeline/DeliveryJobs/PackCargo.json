@@ -35,10 +35,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoFillToMax.png",
         "roi": [
-            1174,
-            172,
-            34,
-            19
+            1168,
+            169,
+            48,
+            26
         ],
         "threshold": 0.8,
         "action": "Click",
