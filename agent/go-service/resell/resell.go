@@ -88,17 +88,17 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		for col := 1; col <= maxCols; col++ {
 			log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]商品位置")
 			// Step 1: 识别商品价格
-			log.Info().Msg("[Resell]第一步：识别商品价格")
+			log.Info().Msg("[Resell]第一步：识别商品位置及价格")
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
 			pricePipelineName := fmt.Sprintf("Resell_ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
-			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
+			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName, BinarizeDarkText)
 			if !success {
 				//失败就重试一遍
 				controller.PostScreencap().Wait()
-				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
+				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName, BinarizeDarkText)
 				if !success {
 					log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
 					break
@@ -109,7 +109,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			controller.PostClick(int32(clickX), int32(clickY))
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
-			log.Info().Msg("[Resell]第二步：查看好友价格")
+			log.Info().Msg("[Resell]第二步：查看商品详情页价格")
 			Resell_delay_freezes_time(ctx, 200)
 			controller.PostScreencap().Wait()
 
@@ -120,13 +120,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			}
 			//商品详情页右下角识别的成本价格为准
 			controller.PostScreencap().Wait()
-			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
+			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice", BinarizeLightText)
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				//失败就重试一遍
 				controller.PostScreencap().Wait()
-				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
+				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice", BinarizeLightText)
 				if success {
 					costPrice = ConfirmcostPrice
 				} else {
@@ -143,11 +143,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Resell_delay_freezes_time(ctx, 600)
 			controller.PostScreencap().Wait()
 
-			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
+			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice", BinarizeDarkText)
 			if !success {
 				//失败就重试一遍
 				controller.PostScreencap().Wait()
-				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
+				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice", BinarizeDarkText)
 				if !success {
 					log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
 					continue
@@ -287,7 +287,8 @@ func extractNumbersFromText(text string) (int, bool) {
 }
 
 // ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
-func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
+// mode: 二值化模式，BinarizeDarkText 用于白底灰字，BinarizeLightText 用于灰底白字
+func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, mode BinarizeMode) (int, int, int, bool) {
 	img, err := controller.CacheImage()
 	if err != nil {
 		log.Error().
@@ -300,8 +301,11 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 		return 0, 0, 0, false
 	}
 
+	// 二值化处理以提高数字识别率
+	binarizedImg := BinarizeForOCR(img, mode)
+
 	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
+	detail, err := ctx.RunRecognition(pipelineName, binarizedImg, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -322,7 +326,7 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
 					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
 					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					if num >= 7000 || num <= 100 {
+					if num >= 7000 {
 						//数字不合理，抛弃
 						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
 						success = false
@@ -449,8 +453,11 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 
+	// 二值化处理以提高配额数字识别率
+	binarizedImg := BinarizeForOCR(img, BinarizeDarkText)
+
 	// OCR region 1: 使用预定义的配额当前值Pipeline
-	detail1, err := ctx.RunRecognition("Resell_ROI_Quota_Current", img, nil)
+	detail1, err := ctx.RunRecognition("Resell_ROI_Quota_Current", binarizedImg, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -476,7 +483,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2, err := ctx.RunRecognition("Resell_ROI_Quota_NextAdd", img, nil)
+	detail2, err := ctx.RunRecognition("Resell_ROI_Quota_NextAdd", binarizedImg, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
