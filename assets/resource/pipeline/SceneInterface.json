@@ -256,7 +256,7 @@
                                 ],
                                 "threshold": 0.9
                             }
-                        },
+                        }
                     },
                     {
                         "recognition": {
