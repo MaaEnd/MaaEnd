@@ -6,6 +6,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/keymap"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
@@ -20,6 +21,7 @@ func registerAll() {
 	puzzle.Register()
 	essencefilter.Register()
 	creditshopping.Register()
+	keymap.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
