@@ -28,14 +28,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity6Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity6_weapon",
-                                        "v": true
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity6_weapon": true
                             }
                         }
                     }
@@ -43,14 +38,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity6Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity6_weapon",
-                                        "v": false
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity6_weapon": false
                             }
                         }
                     }
@@ -65,14 +55,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity5Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity5_weapon",
-                                        "v": true
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity5_weapon": true
                             }
                         }
                     }
@@ -80,14 +65,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity5Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity5_weapon",
-                                        "v": false
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity5_weapon": false
                             }
                         }
                     }
@@ -102,14 +82,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity4Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity4_weapon",
-                                        "v": true
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity4_weapon": true
                             }
                         }
                     }
@@ -117,14 +92,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterSetRarity4Weapon": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "k": "rarity4_weapon",
-                                        "v": false
-                                    }
-                                }
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity4_weapon": false
                             }
                         }
                     }
@@ -140,12 +110,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "flawless_essence": true
-                                    }
-                                }
+                            "attach": {
+                                "flawless_essence": true
                             }
                         }
                     }
@@ -154,12 +120,8 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "flawless_essence": false
-                                    }
-                                }
+                            "attach": {
+                                "flawless_essence": false
                             }
                         }
                     }
@@ -175,12 +137,8 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "pure_essence": true
-                                    }
-                                }
+                            "attach": {
+                                "pure_essence": true
                             }
                         }
                     }
@@ -189,12 +147,8 @@
                     "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "pure_essence": false
-                                    }
-                                }
+                            "attach": {
+                                "pure_essence": false
                             }
                         }
                     }

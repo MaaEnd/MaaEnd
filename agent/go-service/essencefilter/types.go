@@ -98,6 +98,4 @@ var (
 
 	// Matcher config - loaded from JSON config file, used for skill name matching
 	matcherConfig MatcherConfig
-
-	gOpt EssenceFilterOptions
 )

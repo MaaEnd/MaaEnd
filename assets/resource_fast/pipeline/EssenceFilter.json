@@ -56,7 +56,7 @@
         },
         "repeat": 3,
         "post_delay": 500,
-        "next": ["EssenceFilterSetRarity6Weapon"],
+        "next": ["EssenceFilterInit"],
         "focus": {
             "Node.Action.Succeeded": "滑动到顶端"
         }
@@ -68,48 +68,6 @@
         "focus": {
             "Node.Action.Succeeded": "不在基质界面"
         }
-    },
-    "EssenceFilterSetRarity6Weapon": {
-        "doc": "接受六星武器选项",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ApplyCustomActionParamToGlobalAction",
-                "custom_action_param": {
-                    "k": "rarity6_weapon",
-                    "v": false
-                }
-            }
-        },
-        "next": ["EssenceFilterSetRarity5Weapon"]
-    },
-    "EssenceFilterSetRarity5Weapon": {
-        "doc": "接受五星武器选项",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ApplyCustomActionParamToGlobalAction",
-                "custom_action_param": {
-                    "k": "rarity5_weapon",
-                    "v": false
-                }
-            }
-        },
-        "next": ["EssenceFilterSetRarity4Weapon"]
-    },
-    "EssenceFilterSetRarity4Weapon": {
-        "doc": "接受四星武器选项",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ApplyCustomActionParamToGlobalAction",
-                "custom_action_param": {
-                    "k": "rarity4_weapon",
-                    "v": false
-                }
-            }
-        },
-        "next": ["EssenceFilterInit"]
     },
     "EssenceFilterInit": {
         "doc": "初始化：加载数据与预设",

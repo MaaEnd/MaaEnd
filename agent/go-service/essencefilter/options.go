@@ -1,26 +1,33 @@
 package essencefilter
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
-func setByKey(o *EssenceFilterOptions, k string, v bool) error {
-	switch k {
-	case "rarity6_weapon":
-		o.Rarity6Weapon = v
-	case "rarity5_weapon":
-		o.Rarity5Weapon = v
-	case "rarity4_weapon":
-		o.Rarity4Weapon = v
-	case "flawless_essence":
-		o.FlawlessEssence = v
-	case "pure_essence":
-		o.PureEssence = v
-	default:
-		return fmt.Errorf("unknown option key: %s", k)
+func getOptionsFromAttach(ctx *maa.Context, nodeName string) (*EssenceFilterOptions, error) {
+	raw, err := ctx.GetNodeJSON(nodeName)
+
+	if err != nil {
+		log.Error().Err(err).Str("node", nodeName).Msg("failed to get options from node")
+		return nil, err
 	}
-	return nil
+
+	// unmarshal into wrapper struct to extract Attach field
+	var wrapper struct {
+		Attach EssenceFilterOptions `json:"attach"`
+	}
+
+	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+		log.Error().Err(err).Str("node", nodeName).Msg("failed to unmarshal options")
+		return nil, err
+	}
+
+	return &wrapper.Attach, nil
 }
 
 func rarityListToString(rarities []int) string {
@@ -36,12 +43,4 @@ func rarityListToString(rarities []int) string {
 	default:
 		return fmt.Sprintf("%d+", len(rarities))
 	}
-}
-
-func ResetGlobalOptions() {
-	gOpt = EssenceFilterOptions{}
-}
-
-func GetGlobalOptions() EssenceFilterOptions {
-	return gOpt // 返回副本
 }

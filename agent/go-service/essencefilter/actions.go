@@ -44,8 +44,12 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	logSkillPools()
 
 	// 4. load presets
+	opts, err := getOptionsFromAttach(ctx, arg.CurrentTaskName)
+	if err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> Step4 failed: load options")
+		return false
+	}
 
-	opts := GetGlobalOptions()
 	// 5. select preset
 
 	var WeaponRarity []int
@@ -166,7 +170,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 type OCREssenceInventoryNumberAction struct{}
 
 func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	ResetGlobalOptions()
 	const maxSinglePage = 45 // 单页可见格子上限：9列×5行
 
 	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
@@ -561,40 +564,5 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 		params.Step = arg.CurrentTaskName
 	}
 	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("<EssenceFilter> Trace")
-	return true
-}
-
-// 接受来自MXU的参数, k: name of the option to update, v: value to set; apply to global options
-type ApplyCustomActionParamToGlobalAction struct{}
-
-func (a *ApplyCustomActionParamToGlobalAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
-	raw := strings.TrimSpace(arg.CustomActionParam)
-	// fmt.Println(raw)
-	if raw == "" || raw == "null" {
-		return true
-	}
-
-	// 先按 object 解析，方便判断是 patch 还是普通对象
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(raw), &obj); err != nil {
-		// 解析失败 => 节点失败
-		return false
-	}
-
-	// 1) patch: {"k":"pure_essence","v":false}
-	if _, hasK := obj["k"]; hasK {
-		var kv struct {
-			K string `json:"k"`
-			V bool   `json:"v"`
-		}
-		if err := json.Unmarshal([]byte(raw), &kv); err != nil {
-			return false
-		}
-		if err := setByKey(&gOpt, kv.K, kv.V); err != nil {
-			return false
-		}
-		return true
-	}
-
 	return true
 }
