@@ -121,7 +121,7 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	}
 
 	// Determine if recognition hit
-	hit := locConf > threshold
+	hit := locConf > threshold && rotConf > threshold
 
 	// Serialize result to JSON
 	detailJSON, err := json.Marshal(result)
@@ -279,8 +279,8 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int
 	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
 
 	// Precompute needle (minimap) statistics for all matches
-	mn, dn := ComputeNeedleStats(miniMapRGBA)
-	if dn < 1e-6 {
+	miniStats := GetNeedleStats(miniMapRGBA)
+	if miniStats.Dn < 1e-6 {
 		return 0, 0, 0.0, "None"
 	}
 
@@ -293,8 +293,19 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64) (int, int
 	scaledMaps := i.getScaledMaps(locScale)
 
 	for _, mapData := range scaledMaps {
-		// Perform template matching (using optimized version with precomputed stats)
-		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, mn, dn)
+		// Get valid area for this map and scale it
+		validRect := image.Rectangle{}
+		if rect, ok := VALID_RECT_MAP[mapData.Name]; ok {
+			validRect = image.Rect(
+				int(float64(rect.Min.X)*locScale),
+				int(float64(rect.Min.Y)*locScale),
+				int(float64(rect.Max.X)*locScale),
+				int(float64(rect.Max.Y)*locScale),
+			)
+		}
+
+		// Perform template matching (using optimized version with precomputed stats and valid area)
+		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats, validRect)
 
 		if matchVal > bestVal {
 			bestVal = matchVal
@@ -346,8 +357,8 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 
 	// Precompute needle (pointer) statistics
 	pointerRGBA := ToRGBA(i.pointer)
-	mn, dn := ComputeNeedleStats(pointerRGBA)
-	if dn < 1e-6 {
+	pointerStats := GetNeedleStats(pointerRGBA)
+	if pointerStats.Dn < 1e-6 {
 		return 0, 0.0
 	}
 
@@ -362,7 +373,7 @@ func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64)
 		// Match against pointer template
 		rotatedRGBA := ToRGBA(rotatedPatch)
 		integral := NewIntegralImage(rotatedRGBA)
-		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, pointerRGBA, mn, dn)
+		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, pointerRGBA, pointerStats, image.Rectangle{})
 
 		if matchVal > maxVal {
 			maxVal = matchVal

@@ -7,8 +7,8 @@
       "type": "Custom",
       "param": {
         "name": "MapTrackerInfer",
-        "precision": 0.33,
-        "threshold": 0.25
+        "precision": 0.4,
+        "threshold": 0.5
       }
     }
   }

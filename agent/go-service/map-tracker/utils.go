@@ -16,6 +16,12 @@ type IntegralImage struct {
 	W, H  int
 }
 
+// NeedleStats holds the mean and standard deviation of the template
+type NeedleStats struct {
+	Mn float64 // Mean pixel value of the needle
+	Dn float64 // Standard deviation of the needle
+}
+
 // NewIntegralImage computes the integral images for an RGBA image
 func NewIntegralImage(img *image.RGBA) *IntegralImage {
 	w, h := img.Rect.Dx(), img.Rect.Dy()
@@ -118,7 +124,7 @@ func ToRGBA(img image.Image) *image.RGBA {
 	return dst
 }
 
-func ComputeNeedleStats(nRGBA *image.RGBA) (float64, float64) {
+func GetNeedleStats(nRGBA *image.RGBA) *NeedleStats {
 	nW, nH := nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
 	var sn, ssn float64
 	np, ns := nRGBA.Pix, nRGBA.Stride
@@ -133,12 +139,32 @@ func ComputeNeedleStats(nRGBA *image.RGBA) (float64, float64) {
 	}
 	cnt := float64(nW * nH * 3)
 	mn, dn := sn/cnt, math.Sqrt(ssn-cnt*(sn/cnt)*(sn/cnt))
-	return mn, dn
+	return &NeedleStats{Mn: mn, Dn: dn}
 }
 
-func MatchTemplateOptimized(hRGBA *image.RGBA, hInt *IntegralImage, nRGBA *image.RGBA, mn, dn float64) (int, int, float64) {
+func MatchTemplateOptimized(
+	hRGBA *image.RGBA,
+	hInt *IntegralImage,
+	nRGBA *image.RGBA,
+	nStats *NeedleStats,
+	validRect image.Rectangle,
+) (int, int, float64) {
 	hW, hH, nW, nH := hRGBA.Rect.Dx(), hRGBA.Rect.Dy(), nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
 	if nW > hW || nH > hH {
+		return 0, 0, 0.0
+	}
+
+	// Calculate search bounds for the top-left corner (x, y)
+	minX, minY := 0, 0
+	maxX, maxY := hW-nW, hH-nH
+	if !validRect.Empty() {
+		minX = max(minX, validRect.Min.X)
+		minY = max(minY, validRect.Min.Y)
+		maxX = min(maxX, validRect.Max.X-nW)
+		maxY = min(maxY, validRect.Max.Y-nH)
+	}
+
+	if minX > maxX || minY > maxY {
 		return 0, 0, 0.0
 	}
 
@@ -148,14 +174,14 @@ func MatchTemplateOptimized(hRGBA *image.RGBA, hInt *IntegralImage, nRGBA *image
 	}
 	numWorkers, step := 6, 3
 	resChan := make(chan result, numWorkers)
-	rows := hH - nH + 1
+	rows := maxY - minY + 1
 
 	for i := 0; i < numWorkers; i++ {
 		go func(id int) {
 			lx, ly, lm := 0, 0, -1.0
-			for y := id * step; y < rows; y += numWorkers * step {
-				for x := 0; x <= hW-nW; x += step {
-					s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, mn, dn)
+			for y := minY + id*step; y < minY+rows; y += numWorkers * step {
+				for x := minX; x <= maxX; x += step {
+					s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats.Mn, nStats.Dn)
 					if s > lm {
 						lm, lx, ly = s, x, y
 					}
@@ -165,7 +191,7 @@ func MatchTemplateOptimized(hRGBA *image.RGBA, hInt *IntegralImage, nRGBA *image
 		}(i)
 	}
 
-	bc := result{0, 0, -1.0}
+	bc := result{minX, minY, -1.0}
 	for i := 0; i < numWorkers; i++ {
 		r := <-resChan
 		if r.s > bc.s {
@@ -175,9 +201,9 @@ func MatchTemplateOptimized(hRGBA *image.RGBA, hInt *IntegralImage, nRGBA *image
 
 	fm, fx, fy := bc.s, bc.x, bc.y
 	// Fine-tuning pass around the best result
-	for y := max(0, bc.y-step+1); y < min(rows, bc.y+step); y++ {
-		for x := max(0, bc.x-step+1); x < min(hW-nW+1, bc.x+step); x++ {
-			s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, mn, dn)
+	for y := max(minY, bc.y-step+1); y < min(maxY+1, bc.y+step); y++ {
+		for x := max(minX, bc.x-step+1); x < min(maxX+1, bc.x+step); x++ {
+			s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats.Mn, nStats.Dn)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
