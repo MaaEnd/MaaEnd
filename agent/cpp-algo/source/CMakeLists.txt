@@ -16,10 +16,10 @@ add_dependencies(cpp-algo MaaUtils)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${cpp_algo_src})
 
 install(TARGETS cpp-algo
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION bin
+    RUNTIME DESTINATION agent
+    LIBRARY DESTINATION agent
 )
 
 if(WIN32)
-    install(FILES $<TARGET_PDB_FILE:cpp-algo> DESTINATION symbol OPTIONAL)
+    install(FILES $<TARGET_PDB_FILE:cpp-algo> DESTINATION agent OPTIONAL)
 endif()

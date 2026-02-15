@@ -290,6 +290,103 @@ def build_go_agent(
     return True
 
 
+def check_cmake_environment() -> bool:
+    """检查 CMake 环境是否可用"""
+    try:
+        result = subprocess.run(
+            ["cmake", "--version"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            version_line = result.stdout.strip().splitlines()[0]
+            print(f"  {t('cmake_version')}: {version_line}")
+            return True
+    except FileNotFoundError:
+        pass
+
+    print(f"  {t('error')} {t('cmake_not_found')}")
+    return False
+
+
+def build_cpp_algo(
+    root_dir: Path,
+    install_dir: Path,
+    ci_mode: bool = False,
+) -> bool:
+    """构建 C++ Algo Agent"""
+    if not check_cmake_environment():
+        return False
+
+    cpp_algo_dir = root_dir / "agent" / "cpp-algo"
+    if not cpp_algo_dir.exists():
+        print(f"  {t('error')} {t('cpp_source_not_found')}: {cpp_algo_dir}")
+        return False
+
+    build_dir = cpp_algo_dir / "build"
+    build_dir.mkdir(parents=True, exist_ok=True)
+
+    build_type = "Release" if ci_mode else "Debug"
+    print(f"  {t('build_mode')}: {build_type}")
+
+    # cmake configure
+    configure_cmd = [
+        "cmake",
+        "..",
+        f"-DCMAKE_BUILD_TYPE={build_type}",
+        f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+    ]
+    print(f"  {t('build_command')}: {' '.join(configure_cmd)}")
+
+    result = subprocess.run(
+        configure_cmd,
+        cwd=build_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        print(f"  {t('error')} {t('cmake_configure_failed')}:")
+        print(result.stderr)
+        return False
+
+    # cmake build
+    build_cmd = ["cmake", "--build", ".", "--config", build_type]
+    print(f"  {t('build_command')}: {' '.join(build_cmd)}")
+
+    result = subprocess.run(
+        build_cmd,
+        cwd=build_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        print(f"  {t('error')} {t('cmake_build_failed')}:")
+        print(result.stderr)
+        return False
+
+    # cmake install
+    install_cmd = ["cmake", "--install", ".", "--config", build_type]
+    print(f"  {t('build_command')}: {' '.join(install_cmd)}")
+
+    result = subprocess.run(
+        install_cmd,
+        cwd=build_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        print(f"  {t('error')} {t('cmake_install_failed')}:")
+        print(result.stderr)
+        return False
+
+    agent_dir = install_dir / "agent"
+    print(f"  -> {agent_dir}")
+    return True
+
+
 def main():
     init_local()
 
@@ -345,7 +442,13 @@ def main():
         print(f"  {t('error')} {t('build_go_failed')}")
         sys.exit(1)
 
-    # 4. 链接/复制项目根目录文件并创建 maafw 目录
+    # 4. 构建 C++ Algo Agent
+    print(t("step_build_cpp"))
+    if not build_cpp_algo(root_dir, install_dir, use_copy):
+        print(f"  {t('error')} {t('build_cpp_failed')}")
+        sys.exit(1)
+
+    # 5. 链接/复制项目根目录文件并创建 maafw 目录
     print(t("step_prepare_files"))
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
