@@ -130,6 +130,20 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     return True
 
 
+def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
+    """下载 MaaDeps 预编译依赖"""
+    maadeps_dir = (
+        PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaDeps" / "vcpkg" / "installed"
+    )
+    if skip_if_exist and maadeps_dir.exists() and any(maadeps_dir.iterdir()):
+        print(t("inf_maadeps_exist"))
+        return True
+
+    print(t("inf_bootstrap_maadeps"))
+    script_path = PROJECT_BASE / "tools" / "maadeps-download.py"
+    return run_command([sys.executable, str(script_path)])
+
+
 def run_build_script() -> bool:
     print(t("inf_run_build_script"))
     script_path = PROJECT_BASE / "tools" / "build_and_install.py"
@@ -531,6 +545,10 @@ def main() -> None:
     configure_token()
     if not update_submodules(skip_if_exist=not args.update):
         print(t("fatal_submodule_failed"))
+        sys.exit(1)
+    print(t("header_bootstrap_maadeps"))
+    if not bootstrap_maadeps(skip_if_exist=not args.update):
+        print(t("fatal_maadeps_failed"))
         sys.exit(1)
     print(t("header_build_go"))
     if not run_build_script():

@@ -100,6 +100,21 @@ jobs:
         with:
           go-version-file: "agent/go-service/go.mod"
 
+      - name: Cache MaaDeps
+        id: cache-maadeps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
+
+      - name: Bootstrap MaaDeps
+        if: steps.cache-maadeps.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
+
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
         with:
@@ -180,6 +195,9 @@ jobs:
           fi
           if [[ -f install/agent/go-service ]]; then
             chmod +x install/agent/go-service
+          fi
+          if [[ -f install/agent/cpp-algo ]]; then
+            chmod +x install/agent/cpp-algo
           fi
           # 给 maafw 目录下的可执行文件添加权限
           find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
@@ -277,6 +295,9 @@ jobs:
           chmod +x "$APP_NAME/Contents/MacOS/MaaEnd"
           if [[ -f "$APP_NAME/Contents/MacOS/agent/go-service" ]]; then
             chmod +x "$APP_NAME/Contents/MacOS/agent/go-service"
+          fi
+          if [[ -f "$APP_NAME/Contents/MacOS/agent/cpp-algo" ]]; then
+            chmod +x "$APP_NAME/Contents/MacOS/agent/cpp-algo"
           fi
           codesign --force --deep --sign - "$APP_NAME"
 
