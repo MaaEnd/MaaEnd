@@ -13,6 +13,19 @@ endif()
 
 add_dependencies(cpp-algo MaaUtils)
 
+# Set RPATH to find shared libraries in ../maafw relative to the executable
+if(APPLE)
+    set_target_properties(cpp-algo PROPERTIES
+        INSTALL_RPATH "@executable_path/../maafw"
+        BUILD_RPATH "@executable_path/../maafw"
+    )
+elseif(UNIX)
+    set_target_properties(cpp-algo PROPERTIES
+        INSTALL_RPATH "$ORIGIN/../maafw"
+        BUILD_RPATH "$ORIGIN/../maafw"
+    )
+endif()
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${cpp_algo_src})
 
 install(TARGETS cpp-algo
