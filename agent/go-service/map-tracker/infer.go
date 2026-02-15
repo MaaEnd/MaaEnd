@@ -25,12 +25,14 @@ type MapData struct {
 
 // InferResult represents the result of map tracking inference
 type InferResult struct {
-	MapName string  // Map name
-	X       int     // X coordinate on the map
-	Y       int     // Y coordinate on the map
-	Rot     int     // Rotation angle (0-359 degrees)
-	LocConf float64 // Location confidence
-	RotConf float64 // Rotation confidence
+	MapName   string  `json:"mapName"`   // Map name
+	X         int     `json:"x"`         // X coordinate on the map
+	Y         int     `json:"y"`         // Y coordinate on the map
+	Rot       int     `json:"rot"`       // Rotation angle (0-359 degrees)
+	LocConf   float64 `json:"locConf"`   // Location confidence
+	RotConf   float64 `json:"rotConf"`   // Rotation confidence
+	LocTimeMs int64   `json:"locTimeMs"` // Location inference time in ms
+	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
 }
 
 // Infer is the custom recognition component for map tracking
@@ -112,12 +114,14 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 
 	// Build result
 	result := InferResult{
-		MapName: mapName,
-		X:       locX,
-		Y:       locY,
-		Rot:     rot,
-		LocConf: locConf,
-		RotConf: rotConf,
+		MapName:   mapName,
+		X:         locX,
+		Y:         locY,
+		Rot:       rot,
+		LocConf:   locConf,
+		RotConf:   rotConf,
+		LocTimeMs: locTime.Milliseconds(),
+		RotTimeMs: rotTime.Milliseconds(),
 	}
 
 	// Determine if recognition hit
