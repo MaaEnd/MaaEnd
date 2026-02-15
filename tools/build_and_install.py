@@ -312,9 +312,11 @@ def check_cmake_environment() -> bool:
 def build_cpp_algo(
     root_dir: Path,
     install_dir: Path,
+    target_os: str | None = None,
+    target_arch: str | None = None,
     ci_mode: bool = False,
 ) -> bool:
-    """构建 C++ Algo Agent"""
+    """构建 C++ Algo Agent（使用 CMake Presets）"""
     if not check_cmake_environment():
         return False
 
@@ -323,24 +325,78 @@ def build_cpp_algo(
         print(f"  {t('error')} {t('cpp_source_not_found')}: {cpp_algo_dir}")
         return False
 
-    build_dir = cpp_algo_dir / "build"
-    build_dir.mkdir(parents=True, exist_ok=True)
-
     build_type = "Release" if ci_mode else "Debug"
-    print(f"  {t('build_mode')}: {build_type}")
 
-    # cmake configure
+    # 确定目标操作系统
+    if target_os:
+        resolved_os = target_os  # win, macos, linux
+    else:
+        system = platform.system().lower()
+        resolved_os = {"windows": "win", "darwin": "macos"}.get(system, "linux")
+
+    # 确定目标架构
+    if target_arch:
+        resolved_arch = target_arch  # x86_64, aarch64
+    else:
+        machine = platform.machine().lower()
+        if machine in ("x86_64", "amd64"):
+            resolved_arch = "x86_64"
+        elif machine in ("aarch64", "arm64"):
+            resolved_arch = "aarch64"
+        else:
+            resolved_arch = machine
+
+    # 根据平台选择 configure preset，参考 MaaFramework build.yml
+    if resolved_os == "win":
+        if resolved_arch == "aarch64":
+            configure_preset = "MSVC 2022 ARM"
+        else:
+            configure_preset = "MSVC 2022"
+    elif resolved_os == "linux":
+        if resolved_arch == "aarch64":
+            configure_preset = "NinjaMulti Linux arm64"
+        else:
+            configure_preset = "NinjaMulti Linux x64"
+    else:
+        # macOS
+        configure_preset = "NinjaMulti"
+
+    # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
+    arch_part = "x64" if resolved_arch == "x86_64" else "arm64"
+    os_part = {"win": "windows", "macos": "osx", "linux": "linux"}.get(
+        resolved_os, resolved_os
+    )
+    maadeps_triplet = f"maa-{arch_part}-{os_part}"
+
+    print(f"  {t('build_mode')}: {build_type}")
+    print(f"  {t('target_platform')}: {resolved_os}/{resolved_arch}")
+    print(f"  Configure preset: {configure_preset}")
+    print(f"  MaaDeps triplet: {maadeps_triplet}")
+
+    # cmake --preset <configure_preset>
     configure_cmd = [
         "cmake",
-        "..",
-        f"-DCMAKE_BUILD_TYPE={build_type}",
+        "--preset",
+        configure_preset,
+        f"-DMAADEPS_TRIPLET={maadeps_triplet}",
         f"-DCMAKE_INSTALL_PREFIX={install_dir}",
     ]
+
+    # macOS 需要额外的参数
+    if resolved_os == "macos":
+        osx_arch = "x86_64" if resolved_arch == "x86_64" else "arm64"
+        configure_cmd.extend(
+            [
+                "-DCMAKE_OSX_SYSROOT=macosx",
+                f"-DCMAKE_OSX_ARCHITECTURES={osx_arch}",
+            ]
+        )
+
     print(f"  {t('build_command')}: {' '.join(configure_cmd)}")
 
     result = subprocess.run(
         configure_cmd,
-        cwd=build_dir,
+        cwd=cpp_algo_dir,
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -350,13 +406,20 @@ def build_cpp_algo(
         print(result.stderr)
         return False
 
-    # cmake build
-    build_cmd = ["cmake", "--build", ".", "--config", build_type]
+    # cmake --build build --preset <build_preset>
+    build_preset = f"{configure_preset} - {build_type}"
+    build_cmd = [
+        "cmake",
+        "--build",
+        "build",
+        "--preset",
+        build_preset,
+    ]
     print(f"  {t('build_command')}: {' '.join(build_cmd)}")
 
     result = subprocess.run(
         build_cmd,
-        cwd=build_dir,
+        cwd=cpp_algo_dir,
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -366,13 +429,21 @@ def build_cpp_algo(
         print(result.stderr)
         return False
 
-    # cmake install
-    install_cmd = ["cmake", "--install", ".", "--config", build_type]
+    # cmake --install build --prefix <install_dir> --config <build_type>
+    install_cmd = [
+        "cmake",
+        "--install",
+        "build",
+        "--prefix",
+        str(install_dir),
+        "--config",
+        build_type,
+    ]
     print(f"  {t('build_command')}: {' '.join(install_cmd)}")
 
     result = subprocess.run(
         install_cmd,
-        cwd=build_dir,
+        cwd=cpp_algo_dir,
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -444,7 +515,7 @@ def main():
 
     # 4. 构建 C++ Algo Agent
     print(t("step_build_cpp"))
-    if not build_cpp_algo(root_dir, install_dir, use_copy):
+    if not build_cpp_algo(root_dir, install_dir, args.target_os, args.target_arch, use_copy):
         print(f"  {t('error')} {t('build_cpp_failed')}")
         sys.exit(1)
 
