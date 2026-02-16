@@ -1,0 +1,476 @@
+{
+    "DailyBattleNavigateStart": {
+        "next": [
+            "DailyBattleSelectCategory"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "DailyBattleSelectCategory": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    500
+                ],
+                "order_by": "Expected",
+                "expected": "干员养成"
+            }
+        },
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleSelectSubCategory"
+        ]
+    },
+    "DailyBattleSelectSubCategory": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "干员进阶"
+            }
+        },
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleFindGoTo"
+        ]
+    },
+    "DailyBattleFindGoTo": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "DailyBattleSelectSubCategory",
+                "roi_offset": [
+                    400,
+                    0,
+                    550,
+                    100
+                ],
+                "order_by": "Expected",
+                "expected": "前往"
+            }
+        },
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitEnterBeforeSelectLevel"
+        ]
+    },
+    "DailyBattleWaitEnterBeforeSelectLevel": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 30000,
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleSelectLevel"
+        ]
+    },
+    "DailyBattleSelectLevel": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "Click",
+        "target": [
+            160,
+            110
+        ],
+        "post_delay": 200,
+        "next": [
+            "DailyBattleClickEnter"
+        ]
+    },
+    "DailyBattleClickEnter": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 4000,
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "DailyBattleMoveMouseToCorner1"
+        ]
+    },
+    "DailyBattleMoveMouseToCorner1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchMove",
+        "target": [
+            1,
+            1,
+            0,
+            0
+        ],
+        "contact": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleClickEnterConfirm"
+        ]
+    },
+    "DailyBattleClickEnterConfirm": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 60000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleInBattleCheck1"
+        ]
+    },
+    "DailyBattleInBattleCheck1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 60000,
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleKeyDownW1"
+        ],
+        "on_error": [
+            "DailyBattleForceKeyUpW1OnError"
+        ]
+    },
+    "DailyBattleForceKeyUpW1OnError": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyUp",
+        "key": 87,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleForceFailAfterReleaseW1"
+        ]
+    },
+    "DailyBattleForceFailAfterReleaseW1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "__FORCE_ERROR_RELEASE_W__"
+            }
+        },
+        "timeout": 1,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "DailyBattleKeyDownW1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyDown",
+        "key": 87,
+        "post_delay": 300,
+        "next": [
+            "DailyBattleKeyUpW1"
+        ]
+    },
+    "DailyBattleTouchPrompt1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "触碰"
+            }
+        },
+        "timeout": 8000,
+        "action": "ClickKey",
+        "key": 70,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitBattleEnd1"
+        ]
+    },
+    "DailyBattleKeyUpW1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyUp",
+        "key": 87,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleTouchPrompt1"
+        ]
+    },
+    "DailyBattleWaitBattleEnd1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "心照涓流"
+            }
+        },
+        "timeout": 1000,
+        "post_delay": 1000,
+        "next": [
+            "DailyBattleWaitBattleEnd1"
+        ],
+        "on_error": [
+            "DailyBattleExitClick1"
+        ]
+    },
+    "DailyBattleExitClick1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 30000,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 500,
+        "next": [
+            "DailyBattleExitConfirm1"
+        ]
+    },
+    "DailyBattleExitConfirm1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "确认"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitEnterV1_1"
+        ]
+    },
+    "DailyBattleWaitEnterV1_1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 90000,
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleClickEnter1"
+        ]
+    },
+    "DailyBattleClickEnter1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 4000,
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "DailyBattleMoveMouseToCorner2"
+        ]
+    },
+    "DailyBattleMoveMouseToCorner2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchMove",
+        "target": [
+            1,
+            1,
+            0,
+            0
+        ],
+        "contact": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleClickEnterConfirm1"
+        ]
+    },
+    "DailyBattleClickEnterConfirm1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "进入协议空间"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleInBattleCheck2"
+        ]
+    },
+    "DailyBattleInBattleCheck2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 60000,
+        "action": "DoNothing",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleKeyDownW2"
+        ],
+        "on_error": [
+            "DailyBattleForceKeyUpW2OnError"
+        ]
+    },
+    "DailyBattleForceKeyUpW2OnError": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyUp",
+        "key": 87,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleForceFailAfterReleaseW2"
+        ]
+    },
+    "DailyBattleForceFailAfterReleaseW2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "__FORCE_ERROR_RELEASE_W__"
+            }
+        },
+        "timeout": 1,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "DailyBattleKeyDownW2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyDown",
+        "key": 87,
+        "post_delay": 300,
+        "next": [
+            "DailyBattleKeyUpW2"
+        ]
+    },
+    "DailyBattleTouchPrompt2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "触碰"
+            }
+        },
+        "timeout": 8000,
+        "action": "ClickKey",
+        "key": 70,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitBattleEnd2"
+        ]
+    },
+    "DailyBattleKeyUpW2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "KeyUp",
+        "key": 87,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleTouchPrompt2"
+        ]
+    },
+    "DailyBattleWaitBattleEnd2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "心照涓流"
+            }
+        },
+        "timeout": 1000,
+        "post_delay": 1000,
+        "next": [
+            "DailyBattleWaitBattleEnd2"
+        ],
+        "on_error": [
+            "DailyBattleExitClick2"
+        ]
+    },
+    "DailyBattleExitClick2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 30000,
+        "action": "ClickKey",
+        "key": 27,
+        "post_delay": 500,
+        "next": [
+            "DailyBattleExitConfirm2"
+        ]
+    },
+    "DailyBattleExitConfirm2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "确认"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleBack"
+        ]
+    },
+    "DailyBattleBack": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "UI/Exit_WhiteOnBlack.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleNavigateEnd"
+        ]
+    },
+    "DailyBattleNavigateEnd": {
+        "post_delay": 0,
+        "pre_delay": 0
+    }
+}

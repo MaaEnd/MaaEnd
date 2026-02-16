@@ -1,0 +1,216 @@
+{
+    "DailyBattleMoveMouseToCorner1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "DailyBattleClickEnterConfirm"
+        ]
+    },
+    "DailyBattleMoveMouseToCorner2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "DailyBattleClickEnterConfirm1"
+        ]
+    },
+    "DailyBattleSelectLevel": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "Click",
+        "target": [
+            160,
+            140
+        ],
+        "post_delay": 200,
+        "next": [
+            "DailyBattleClickEnter"
+        ]
+    },
+    "DailyBattleKeyDownW1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchDown",
+        "target": [
+            195,
+            470
+        ],
+        "contact": 0,
+        "post_delay": 300,
+        "next": [
+            "DailyBattleKeyUpW1"
+        ]
+    },
+    "DailyBattleKeyUpW1": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleTouchPrompt1"
+        ]
+    },
+    "DailyBattleKeyDownW2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchDown",
+        "target": [
+            195,
+            470
+        ],
+        "contact": 0,
+        "post_delay": 300,
+        "next": [
+            "DailyBattleKeyUpW2"
+        ]
+    },
+    "DailyBattleTouchPrompt1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "触碰"
+            }
+        },
+        "timeout": 8000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitBattleEnd1"
+        ]
+    },
+    "DailyBattleTouchPrompt2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "触碰"
+            }
+        },
+        "timeout": 8000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitBattleEnd2"
+        ]
+    },
+    "DailyBattleExitClick1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 30000,
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "DailyBattleExitConfirm1"
+        ]
+    },
+    "DailyBattleExitConfirm1": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "确认"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleWaitEnterV1_1"
+        ]
+    },
+    "DailyBattleExitClick2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "撤离"
+            }
+        },
+        "timeout": 30000,
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "DailyBattleExitConfirm2"
+        ]
+    },
+    "DailyBattleExitConfirm2": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "order_by": "Expected",
+                "expected": "确认"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleBack"
+        ]
+    },
+    "DailyBattleBack": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "UI/Exit_WhiteOnBlack.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "timeout": 90000,
+        "action": "Click",
+        "post_delay": 200,
+        "next": [
+            "DailyBattleNavigateEnd"
+        ]
+    },
+    "DailyBattleKeyUpW2": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 200,
+        "next": [
+            "DailyBattleTouchPrompt2"
+        ]
+    },
+    "DailyBattleForceKeyUpW1OnError": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleForceFailAfterReleaseW1"
+        ]
+    },
+    "DailyBattleForceKeyUpW2OnError": {
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "action": "TouchUp",
+        "contact": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyBattleForceFailAfterReleaseW2"
+        ]
+    }
+}
