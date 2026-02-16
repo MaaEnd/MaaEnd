@@ -9,6 +9,8 @@ import (
 	xdraw "golang.org/x/image/draw"
 )
 
+/* ******** Recognitions ******** */
+
 // IntegralImage stores precomputed sums for O(1) area statistics
 type IntegralImage struct {
 	Sum   []float64
