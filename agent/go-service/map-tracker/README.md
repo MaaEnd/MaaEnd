@@ -21,7 +21,7 @@ This document shows how to use MapTracker series nodes.
 
 ### Example
 
-Here is an pipeline example.
+Here is a pipeline example.
 
 ```json
 {
@@ -45,8 +45,8 @@ Here is an pipeline example.
 ### FAQ
 
 - **Where can I find the map names?**  
-    Please refer to `/assets/resource/MapTracker/map`. Note that name suffix "_merged.png" isn't a part of map name.
-- **How is the coordinates measured?**  
+    Please refer to `/assets/resource/image/MapTracker/map`. Note that the name suffix "_merged.png" is not part of the map name.
+- **How are the coordinates measured?**  
     The coordinates are measured in mini-map image pixels, where (0, 0) is the top-left corner.
 - **How to get target coordinates?**  
     *We provide a MapTracker tool* to easily generate location targets via GUI. Please install Python and `opencv-python`, then run the script at `/tools/map_tracker_tool.py`.

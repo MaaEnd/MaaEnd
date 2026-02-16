@@ -766,7 +766,7 @@ def main():
             return
 
     elif mode == "I":
-        print(f"\n{_Y}Where's your pipline JSON file path?{_0}")
+        print(f"\n{_Y}Where's your pipeline JSON file path?{_0}")
         file_path = input("> ").strip()
         file_path = file_path.strip('"').strip("'")
 
@@ -780,7 +780,7 @@ def main():
             )
             return
 
-        print(f"\n{_Y}Which node you want to import?{_0}")
+        print(f"\n{_Y}Which node do you want to import?{_0}")
         for i, c in enumerate(candidates):
             print(
                 f"  {_C}[{i+1}]{_0} {c['node_name']} {_A}(Map: {c['map_name']}, Points: {len(c['targets'])}){_0}"
