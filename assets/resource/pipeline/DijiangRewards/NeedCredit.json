@@ -1,6 +1,6 @@
 {
     "EntryReceptionRoom_NeedCredit": {
-        "doc": "信用点商店联动:进入会客室领取信用点",
+        "doc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -65,7 +65,7 @@
         ]
     },
     "ReceptionRoom_NeedCredit": {
-        "doc": "确认到达会客室",
+        "doc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -88,7 +88,7 @@
         ]
     },
     "InControlNexus_NeedCredit": {
-        "doc": "到达控制中枢",
+        "doc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -110,7 +110,7 @@
         ]
     },
     "StartExchange": {
-        "doc": "开始线索交流",
+        "doc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

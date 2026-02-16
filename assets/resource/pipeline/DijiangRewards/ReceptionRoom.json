@@ -1,6 +1,6 @@
 {
     "EntryReceptionRoom": {
-        "doc": "会客室",
+        "doc": "[会客室·进入] 主流程: 从控制中枢点击会客室区域进入",
         "max_hit": 1,
         "recognition": {
             "type": "And",
@@ -65,7 +65,7 @@
         ]
     },
     "ReceptionRoom": {
-        "doc": "确认到达会客室",
+        "doc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -93,7 +93,7 @@
         ]
     },
     "ReceptionRoomClickTips": {
-        "doc": "点击会客室的红点",
+        "doc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -165,7 +165,7 @@
         ]
     },
     "ReadySetClues": {
-        "doc": "准备设置线索",
+        "doc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -187,7 +187,7 @@
         ]
     },
     "AlreadyHaveClues": {
-        "doc": "已经有线索了",
+        "doc": "[会客室·线索] 识别「已填入」，无需再放置线索",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -205,7 +205,7 @@
         }
     },
     "SetClues": {
-        "doc": "放置线索",
+        "doc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
         "recognition": {
             "type": "Or",
             "param": {
@@ -275,7 +275,7 @@
         }
     },
     "CollectClues": {
-        "doc": "收集线索",
+        "doc": "[会客室·线索] 点击「收集」红点领取线索，线索上限时自动赠送线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -350,11 +350,11 @@
             "SendClues",
             "Collect",
             "CollectClues",
-            "EndExchange"
+            "[JumpBack]EndExchange"
         ]
     },
     "SendClues": {
-        "doc": "线索过多,发送一个",
+        "doc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -382,7 +382,7 @@
         ]
     },
     "SendCluesSwipe": {
-        "doc": "没有指定线索,通过滑动来刷新线索数量",
+        "doc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -406,7 +406,7 @@
         }
     },
     "SendTheMostClues": {
-        "doc": "找到4-20之间的数字,点击发送",
+        "doc": "[会客室·线索] 在赠予界面识别自有库存数量 4–20 的线索并点击，以便发送",
         "recognition": {
             "type": "And",
             "param": {
@@ -458,7 +458,7 @@
         ]
     },
     "Send": {
-        "doc": "发送线索",
+        "doc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -481,7 +481,7 @@
         ]
     },
     "ExitSend": {
-        "doc": "退出发送界面",
+        "doc": "[会客室·线索] 发送完成后关闭赠予界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -504,7 +504,7 @@
         }
     },
     "EntrySendClues": {
-        "doc": "进入发送线索界面",
+        "doc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
         "post_wait_freezes": {
             "time": 100,
             "timeout": 1500
@@ -528,7 +528,7 @@
         }
     },
     "ReceiveClues": {
-        "doc": "接收线索",
+        "doc": "[会客室·线索] 点击「接收」红点接收好友赠送线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -590,7 +590,7 @@
         ]
     },
     "EndExchange": {
-        "doc": "结束线索交流",
+        "doc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
         "recognition": {
             "type": "And",
             "param": {
@@ -635,7 +635,7 @@
         }
     },
     "ExitReceptionRoom": {
-        "doc": "退出会客室",
+        "doc": "[会客室·离开] 返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -658,7 +658,7 @@
         }
     },
     "Collect": {
-        "doc": "收集奖励",
+        "doc": "[会客室·领奖] 点击黄按钮领取会客室收集奖励",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -681,7 +681,7 @@
         ]
     },
     "ExitCollect": {
-        "doc": "退出收集界面",
+        "doc": "[会客室·领奖] 领奖后点击左上会客室标题关闭收集界面",
         "recognition": {
             "type": "OCR",
             "param": {

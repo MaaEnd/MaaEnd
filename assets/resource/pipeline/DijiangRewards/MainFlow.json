@@ -1,6 +1,6 @@
 {
     "ControlNexus": {
-        "doc": "控制中枢任务主流程",
+        "doc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -30,7 +30,7 @@
         ]
     },
     "InMainWindow_Normal": {
-        "doc": "到达指定页面,需要进入控制中枢领取奖励",
+        "doc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
         "recognition": {
             "type": "Or",
             "param": {
@@ -80,7 +80,7 @@
         ]
     },
     "InMainWindow_NeedCredit": {
-        "doc": "到达指定页面,需要进入控制中枢领取信用点",
+        "doc": "[联动主流程·入口]识别主界面或已在控制中枢，进入会客室做线索交流以获取信用点",
         "recognition": {
             "type": "Or",
             "param": {
@@ -131,7 +131,7 @@
         ]
     },
     "InMainWindow": {
-        "doc": "在主界面",
+        "doc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
         "recognition": {
             "type": "Or",
             "param": {
@@ -171,7 +171,7 @@
         }
     },
     "InLastCarbin": {
-        "doc": "最后一个培养舱",
+        "doc": "[主流程·控制中枢] 识别已滑到最后一个培养舱且无红点，进入完成分支",
         "recognition": {
             "type": "And",
             "param": {
@@ -221,14 +221,14 @@
         ]
     },
     "FinishAllDijiangTask": {
-        "doc": "完成所有基建任务",
+        "doc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonType1"
         ]
     },
     "CancelExit": {
-        "doc": "取消退出",
+        "doc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -252,7 +252,7 @@
         }
     },
     "CarbinSwipe": {
-        "doc": "滑动总控中枢",
+        "doc": "[主流程·控制中枢] 在总控中枢界面向右滑动，以露出更多舱室(如培养舱)",
         "post_wait_freezes": {
             "time": 500,
             "timeout": 2000
@@ -285,7 +285,7 @@
         }
     },
     "InControlNexus": {
-        "doc": "到达控制中枢",
+        "doc": "[主流程·状态] 识别处于帝江号总控中枢界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

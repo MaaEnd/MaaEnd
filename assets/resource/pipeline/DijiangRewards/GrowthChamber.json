@@ -1,6 +1,6 @@
 {
     "GrowthChamber": {
-        "doc": "培养舱任务",
+        "doc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -24,7 +24,7 @@
         ]
     },
     "GrowAgain": {
-        "doc": "再次培养",
+        "doc": "[培养舱·操作] 点击「再次培养」开始下一轮培养",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -44,7 +44,7 @@
         }
     },
     "ExitGrowthChamber": {
-        "doc": "退出培养舱界面",
+        "doc": "[培养舱·离开] 返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {

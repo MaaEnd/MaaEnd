@@ -1,6 +1,6 @@
 {
     "MFG_ReceiveRewards": {
-        "doc": "制造舱任务",
+        "doc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -22,7 +22,7 @@
         ]
     },
     "ReStock": {
-        "doc": "补货",
+        "doc": "[制造舱·操作] 点击最右侧补货按钮打开补货界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -48,7 +48,7 @@
         ]
     },
     "ConfirmRestock": {
-        "doc": "确认补货",
+        "doc": "[制造舱·操作] 在补货弹窗中点击白确认按钮确认补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -72,7 +72,7 @@
         ]
     },
     "Exit_MFG_Cabin": {
-        "doc": "退出制造舱界面",
+        "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {

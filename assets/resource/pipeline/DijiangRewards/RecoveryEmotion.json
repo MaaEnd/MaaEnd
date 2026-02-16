@@ -1,6 +1,6 @@
 {
     "ProductionAssistInDijiang": {
-        "doc": "制造舱好友辅助",
+        "doc": "[控制中枢·红点] 制造舱有红点时点击好友辅助入口，可能进入助力或恢复心情界面",
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -72,7 +72,7 @@
         ]
     },
     "ExitRecoveryEmotion": {
-        "doc": "意外进入恢复心情界面,需要退出",
+        "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -99,7 +99,7 @@
             "time": 200,
             "timeout": 2000
         },
-        "doc": "恢复心情",
+        "doc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
         "recognition": {
             "type": "And",
             "param": {
@@ -153,7 +153,7 @@
         ]
     },
     "EmotionFull": {
-        "doc": "意外点击了满心情的干员,重新进入心情选择界面",
+        "doc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -174,7 +174,7 @@
         ]
     },
     "StartRecoveryEmotion": {
-        "doc": "控制中枢内打开,选择待恢复心情的干员",
+        "doc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -196,7 +196,7 @@
         ]
     },
     "SelectLowEmotion": {
-        "doc": "选择心情较低的干员",
+        "doc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
         "recognition": {
             "type": "And",
             "param": {
@@ -290,7 +290,7 @@
         }
     },
     "CouldNotAssistEmotion": {
-        "doc": "无法恢复心情",
+        "doc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -313,7 +313,7 @@
         ]
     },
     "BackToControlNexus": {
-        "doc": "从其他界面返回控制中枢",
+        "doc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
