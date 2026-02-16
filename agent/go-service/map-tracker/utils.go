@@ -146,7 +146,6 @@ func MatchTemplateOptimized(
 	hInt *IntegralImage,
 	nRGBA *image.RGBA,
 	nStats *NeedleStats,
-	validRect image.Rectangle,
 ) (int, int, float64) {
 	hW, hH, nW, nH := hRGBA.Rect.Dx(), hRGBA.Rect.Dy(), nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
 	if nW > hW || nH > hH {
@@ -156,16 +155,6 @@ func MatchTemplateOptimized(
 	// Calculate search bounds for the top-left corner (x, y)
 	minX, minY := 0, 0
 	maxX, maxY := hW-nW, hH-nH
-	if !validRect.Empty() {
-		minX = max(minX, validRect.Min.X)
-		minY = max(minY, validRect.Min.Y)
-		maxX = min(maxX, validRect.Max.X-nW)
-		maxY = min(maxY, validRect.Max.Y-nH)
-	}
-
-	if minX > maxX || minY > maxY {
-		return 0, 0, 0.0
-	}
 
 	type result struct {
 		x, y int
