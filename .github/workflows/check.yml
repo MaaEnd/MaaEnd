@@ -46,4 +46,4 @@ jobs:
       - name: Validate JSON Schema
         run: |
           python -m pip install jsonschema==4.26.0 referencing==0.37.0
-          python tools/validate_schema.py --resource-dirs assets/resource_fast assets/resource assets/resource_bilibili ./assets/resource_en --exclude-dirs assets/resource/gamedata
+          python tools/validate_schema.py --resource-dirs assets/resource_fast assets/resource assets/resource_bilibili ./assets/resource_en --exclude-dirs assets/resource/gamedata assets/resource/image
