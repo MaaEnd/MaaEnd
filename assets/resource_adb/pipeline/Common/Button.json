@@ -14,6 +14,16 @@
         }
     },
     "ControlNexusButton": {
-        "action": "Click"
+        "action": "Click",
+        "next": [],
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }
