@@ -1,0 +1,304 @@
+{
+    "ControlNexus": {
+        "doc": "控制中枢任务主流程",
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]RecoveryEmotion",
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton"
+        ]
+    },
+    "InMainWindow_Normal": {
+        "doc": "到达指定页面,需要进入控制中枢领取奖励",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    "InControlNexus"
+                ]
+            }
+        },
+        "next": [
+            "ControlNexus",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "InMainWindow_NeedCredit": {
+        "doc": "到达指定页面,需要进入控制中枢领取信用点",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    "InControlNexus"
+                ]
+            }
+        },
+        "next": [
+            "EntryReceptionRoom_NeedCredit",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap",
+            "[JumpBack]CancelExit"
+        ]
+    },
+    "InMainWindow": {
+        "doc": "在主界面",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "InLastCarbin": {
+        "doc": "最后一个培养舱",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_GrowthChamber",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    895,
+                                    464,
+                                    138,
+                                    134
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/GrowthChamber.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_GrowthChamber",
+                                "upper": [
+                                    150,
+                                    179,
+                                    76
+                                ],
+                                "lower": [
+                                    146,
+                                    175,
+                                    75
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
+    },
+    "FinishAllDijiangTask": {
+        "doc": "完成所有基建任务",
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "CancelExit": {
+        "doc": "取消退出",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    308,
+                    282,
+                    370,
+                    306
+                ],
+                "expected": [
+                    "取消"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CarbinSwipe": {
+        "doc": "滑动总控中枢",
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 240,
+                "target_offset": [
+                    600,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "InControlNexus": {
+        "doc": "到达控制中枢",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        }
+    }
+}

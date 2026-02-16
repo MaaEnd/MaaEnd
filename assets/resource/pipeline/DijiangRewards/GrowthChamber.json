@@ -1,0 +1,69 @@
+{
+    "GrowthChamber": {
+        "doc": "培养舱任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]YellowConfirmButtonType2",
+            "[JumpBack]GrowAgain",
+            "ExitGrowthChamber"
+        ]
+    },
+    "GrowAgain": {
+        "doc": "再次培养",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    793,
+                    505,
+                    222,
+                    121
+                ],
+                "expected": [
+                    "再次培养"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitGrowthChamber": {
+        "doc": "退出培养舱界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    }
+}

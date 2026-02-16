@@ -1,0 +1,97 @@
+{
+    "MFG_ReceiveRewards": {
+        "doc": "制造舱任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "ReStock"
+        ]
+    },
+    "ReStock": {
+        "doc": "补货",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    892,
+                    437,
+                    154,
+                    118
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Restock.png"
+                ],
+                "order_by": "Horizontal",
+                "index": -1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmRestock",
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "ConfirmRestock": {
+        "doc": "确认补货",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    847,
+                    416,
+                    416,
+                    277
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "Exit_MFG_Cabin": {
+        "doc": "退出制造舱界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    }
+}

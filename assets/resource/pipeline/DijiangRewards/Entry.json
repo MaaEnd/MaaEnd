@@ -1,0 +1,19 @@
+{
+    "NeedCredit": {
+        "doc": "信用点商店联动入口",
+        "max_hit": 1,
+        "next": [
+            "[JumpBack]CancelExit",
+            "InMainWindow_NeedCredit",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "DijiangRewards": {
+        "doc": "基建奖励领取",
+        "next": [
+            "[JumpBack]CancelExit",
+            "InMainWindow_Normal",
+            "[JumpBack]CloseButtonType1"
+        ]
+    }
+}
