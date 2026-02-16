@@ -199,7 +199,7 @@
     "option.ItemTransferTransferTimes.input.description": "이전 작업을 수행할 횟수입니다.",
     "option.ItemTransferTransferTimes.input.error": "0보다 큰 정수를 입력하세요.",
     "task.WeaponUpgrade.label": "🔫무기 업그레이드",
-    "task.WeaponUpgrade.description": "가장 낮은 품질과 레벨의 무기를 자동으로 선택하여 1레벨 업그레이드합니다",
+    "task.WeaponUpgrade.description": "가장 낮은 품질과 레벨의 무기를 자동으로 하나 선택하여 1레벨 업그레이드합니다",
     "option.DailyTaskUpgradeWeapon.label": "무기 업그레이드",
     "option.DailyTaskUpgradeWeapon.desc": "활동 점수를 얻기 위해 가장 낮은 레벨의 무기를 자동으로 1회 업그레이드합니다.",
     "option.DailyTaskAssemble.label": "장비 제작",

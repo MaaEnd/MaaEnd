@@ -128,7 +128,7 @@
     "task.ItemTransfer.bag_return_completed": "目標倉庫がいっぱいのため、残りのアイテムを元の倉庫に戻しました",
     "option.ItemTransferWhatToTransfer.label": "転送するアイテム",
     "task.WeaponUpgrade.label": "🔫武器レベルアップ",
-    "task.WeaponUpgrade.description": "最も品質が低く、レベルが最も低い武器を自動で選択し、1レベルアップします",
+    "task.WeaponUpgrade.description": "品質が最も低く、レベルが最も低い武器を自動で1つ選択し、1レベルアップします",
     "option.DailyTaskUpgradeWeapon.label": "武器レベルアップ",
     "option.DailyTaskUpgradeWeapon.desc": "活躍度を稼ぐため、最低レベルの武器を1回自動でレベルアップします。",
     "option.DailyTaskAssemble.label": "装備製造",
