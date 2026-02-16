@@ -235,6 +235,54 @@
             "type": "Click"
         }
     },
+    "SceneNoticeRewardsConfirm": {
+        "doc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    0,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsIcon.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    540,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
     "SceneWaitLoadingExit": {
         "doc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
         "recognition": {

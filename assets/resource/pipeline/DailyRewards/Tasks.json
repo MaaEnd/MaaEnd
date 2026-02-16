@@ -368,7 +368,14 @@
         },
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    -5,
+                    20,
+                    0,
+                    0
+                ]
+            }
         },
         "next": [
             "CloseActivityRewardPopup"

@@ -39,6 +39,28 @@
                 }
             ]
         },
+        "DailyEventRewards": {
+            "type": "switch",
+            "label": "$option.DailyEventRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyEventRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyEventRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "DailyTaskRewards": {
             "type": "switch",
             "label": "$option.DailyTaskRewards.label",
