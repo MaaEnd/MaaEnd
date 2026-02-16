@@ -318,9 +318,6 @@ class PathEditPage:
         self.map_path = os.path.join(map_dir, map_name)
         if not os.path.exists(self.map_path):
             print(f"Error: Map file not found: {self.map_path}")
-            # Try to find with extension if not provided
-            if not map_name.endswith(".png"):
-                self.map_path = os.path.join(map_dir, map_name + ".png")
 
         self.img = cv2.imread(self.map_path)
         if self.img is None:
@@ -734,7 +731,7 @@ def main():
     print(f"{_G}Welcome to MapTracker tool.{_0}")
     print(f"\n{_Y}Select a mode:{_0}")
     print(f"  {_C}[N]{_0} Create a new path")
-    print(f"  {_C}[I]{_0} Import a existing path from pipeline file")
+    print(f"  {_C}[I]{_0} Import an existing path from pipeline file")
 
     mode = input("> ").strip().upper()
 
@@ -888,13 +885,16 @@ def main():
         print(f"\n{_C}--- JSON Snippet ---{_0}\n")
         print(json.dumps(snippet, indent=4, ensure_ascii=False))
 
-    elif export_mode == "L":
-        print(f"\n{_C}--- Point List ---{_0}\n")
-        # Format as SIMPact string [[x,y], [x,y]]
-        SIMPact_str = "[" + ", ".join([str(p) for p in points]) + "]"
-        print(SIMPact_str)
     else:
-        print(f"{_Y}Discarded.")
+        SIMPact_str = "[" + ", ".join([str(p) for p in points]) + "]"
+        if export_mode == "L":
+            print(f"\n{_C}--- Point List ---{_0}\n")
+            print(SIMPact_str)
+        else:
+            print(f"{_Y}Invalid export mode.{_0}")
+            print(f"  To prevent data loss, the point list is printed below.{_0}")
+            print(f"\n{_C}--- Point List ---{_0}\n")
+            print(SIMPact_str)
 
 
 if __name__ == "__main__":
