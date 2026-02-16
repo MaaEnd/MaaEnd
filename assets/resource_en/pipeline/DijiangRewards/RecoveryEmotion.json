@@ -1,0 +1,73 @@
+{
+    "ProductionAssistInDijiang": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "MFG Cabin"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ExitRecoveryEmotion": {
+        "expected": [
+            "Select operator awaiting mood recovery"
+        ]
+    },
+    "EmotionFull": {
+        "expected": [
+            "Cannot assist as operator mood is maxed"
+        ]
+    },
+    "StartRecoveryEmotion": {
+        "expected": [
+            "Select operator awaiting mood recovery"
+        ]
+    },
+    "CouldNotAssistEmotion": {
+        "expected": [
+            "Cannot select more operators as all Mood Booster Points have been used up"
+        ]
+    }
+}
