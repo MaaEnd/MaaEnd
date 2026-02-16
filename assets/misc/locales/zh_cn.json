@@ -198,6 +198,8 @@
     "task.SeizeEntrustTaskisSwipeMiddle.description": "开启此选项后，只会滑动到中间，不会滑动到最顶部\n不开启需要手动滑动到武陵订单可能出现的位置，一般在5万的谷地订单上面，或者在列表最底部",
     "task.SeizeEntrustTaskisSwipeALL.label": "滑动遍历全部订单(不建议开启)",
     "task.SeizeEntrustTaskisSwipeALL.description": "开启此选项后会从头到尾找一遍订单 ~~开启后能在5s内遍历完所有订单可以用来消耗时间()~~",
+    "task.WeaponUpgrade.label": "🔫升级武器",
+    "task.WeaponUpgrade.description": "自动将选择品质最低、等级最低的武器升级一级",
     "option.DailyTaskUpgradeWeapon.label": "升级武器",
     "option.DailyTaskUpgradeWeapon.desc": "自动升级一次最低级的武器刷活跃度",
     "option.DailyTaskAssemble.label": "制造装备",

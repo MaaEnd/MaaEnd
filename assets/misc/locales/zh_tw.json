@@ -205,6 +205,8 @@
     "option.ItemTransferTransferTimes.input.label": "次數",
     "option.ItemTransferTransferTimes.input.description": "執行搬運操作的次數。",
     "option.ItemTransferTransferTimes.input.error": "請輸入大於0的整數。",
+    "task.WeaponUpgrade.label": "🔫升級武器",
+    "task.WeaponUpgrade.description": "自動選擇品質最低、等級最低的武器升級一級",
     "option.DailyTaskUpgradeWeapon.label": "升級武器",
     "option.DailyTaskUpgradeWeapon.desc": "自動升級一次最低等級的武器以獲取活躍度",
     "option.DailyTaskAssemble.label": "裝備製造",

@@ -62,6 +62,8 @@
     "option.DailyEmailRewards.label": "Mail/Temporary Storage Rewards",
     "option.DailyEventRewards.label": "Event Rewards",
     "option.DailyProtocolPassRewards.label": "Protocol Pass Rewards",
+    "task.WeaponUpgrade.label": "🔫Weapon Upgrade",
+    "task.WeaponUpgrade.description": "Automatically select the weapon with the lowest rarity and level, then upgrade it by one level",
     "option.DailyTaskUpgradeWeapon.label": "Weapon Upgrade",
     "option.DailyTaskUpgradeWeapon.desc": "Automatically level up the lowest-level weapon once to earn activity points.",
     "option.DailyTaskAssemble.label": "Assemble Gear",

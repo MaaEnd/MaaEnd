@@ -1,0 +1,10 @@
+{
+    "task": [
+        {
+            "name": "WeaponUpgrade",
+            "label": "$task.WeaponUpgrade.label",
+            "entry": "WeaponUpgradeStart",
+            "description": "$task.WeaponUpgrade.description"
+        }
+    ]
+}
