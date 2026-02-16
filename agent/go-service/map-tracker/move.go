@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"regexp"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -74,11 +75,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 		for {
 			// Calculate time since last check
-			now := time.Now()
-			elapsed := now.Sub(lastInferTime)
+			elapsed := time.Since(lastInferTime)
 			if elapsed < inferIntervalDuration {
 				time.Sleep(inferIntervalDuration - elapsed)
 			}
+			now := time.Now()
 			lastInferTime = now
 
 			// Check stopping signal
@@ -192,9 +193,13 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param MoveParam) (*InferRes
 	// Capture Screen
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
-	if err != nil || img == nil {
+	if err != nil {
 		log.Error().Err(err).Msg("Failed to get cached image")
 		return nil, err
+	}
+	if img == nil {
+		log.Error().Msg("Cached image is nil")
+		return nil, fmt.Errorf("cached image is nil")
 	}
 
 	// Run recognition
@@ -205,15 +210,19 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param MoveParam) (*InferRes
 			"custom_recognition": "MapTrackerInfer",
 			"custom_recognition_param": map[string]any{
 				"precision":      0.6,
-				"map_name_regex": "^" + param.MapName + "$",
+				"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
 			},
 		},
 	}
 
 	res, err := ctx.RunRecognition(nodeName, img, config)
-	if err != nil || res == nil {
+	if err != nil {
 		log.Error().Err(err).Msg("Failed to run MapTrackerInfer")
 		return nil, err
+	}
+	if res == nil || res.DetailJson == "" {
+		log.Error().Msg("Inference result is empty")
+		return nil, fmt.Errorf("inference result is empty")
 	}
 
 	// Extract result
@@ -228,10 +237,13 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param MoveParam) (*InferRes
 		log.Error().Err(err).Msg("Failed to unmarshal wrapped result")
 		return nil, err
 	}
-
 	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal InferResult")
 		return nil, err
+	}
+	if result.MapName == "None" {
+		log.Error().Msg("Map not recognized in inference result")
+		return nil, fmt.Errorf("map not recognized in inference result")
 	}
 
 	return &result, nil

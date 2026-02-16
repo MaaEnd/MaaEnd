@@ -291,6 +291,7 @@ func (aw *ActionWrapper) RotateCamera(dx int, durationMillis int, delayMillis in
 
 /* ******** Misc ******** */
 
+// PrintUI displays a message on the UI
 func PrintUI(ctx *maa.Context, content string) bool {
 	overrideParam := map[string]any{
 		"MapTrackerPrintUI": map[string]any{
