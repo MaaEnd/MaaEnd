@@ -123,6 +123,7 @@
         "tasks/ReceiveProdManual.json",
         "tasks/ReadAllWiki.json",
         "tasks/Weapon.json",
+        "tasks/GearAssembly.json",
         "tasks/ItemTransfer.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",

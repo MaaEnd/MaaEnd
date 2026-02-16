@@ -1,0 +1,10 @@
+{
+    "task": [
+        {
+            "name": "GearAssembly",
+            "label": "$task.GearAssembly.label",
+            "entry": "GearAssemblyStart",
+            "description": "$task.GearAssembly.description"
+        }
+    ]
+}

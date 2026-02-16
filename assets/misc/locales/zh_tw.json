@@ -207,6 +207,8 @@
     "option.ItemTransferTransferTimes.input.error": "請輸入大於0的整數。",
     "task.WeaponUpgrade.label": "🔫升級武器",
     "task.WeaponUpgrade.description": "自動選擇一個品質最低、等級最低的武器，升級一級",
+    "task.GearAssembly.label": "🔧裝備製造",
+    "task.GearAssembly.description": "自動製造一個最低等級的裝備",
     "option.DailyTaskUpgradeWeapon.label": "升級武器",
     "option.DailyTaskUpgradeWeapon.desc": "自動升級一次最低等級的武器以獲取活躍度",
     "option.DailyTaskAssemble.label": "裝備製造",

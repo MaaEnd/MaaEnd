@@ -64,6 +64,8 @@
     "option.DailyProtocolPassRewards.label": "Protocol Pass Rewards",
     "task.WeaponUpgrade.label": "🔫Weapon Upgrade",
     "task.WeaponUpgrade.description": "Automatically select a weapon with the lowest rarity and level, and upgrade it by one level",
+    "task.GearAssembly.label": "🔧Gear Assembly",
+    "task.GearAssembly.description": "Automatically assemble one piece of the lowest-level gear",
     "option.DailyTaskUpgradeWeapon.label": "Weapon Upgrade",
     "option.DailyTaskUpgradeWeapon.desc": "Automatically level up the lowest-level weapon once to earn activity points.",
     "option.DailyTaskAssemble.label": "Assemble Gear",
