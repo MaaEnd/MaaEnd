@@ -52,10 +52,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            77,
-            131,
-            213,
-            29
+            57,
+            115,
+            233,
+            105
         ],
         "expected": [
             "节点一览",
@@ -110,10 +110,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            54,
-            247,
-            1033,
-            31
+            67,
+            224,
+            1006,
+            95
         ],
         "expected": [
             "源石研究园",
@@ -128,10 +128,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            54,
-            247,
-            1033,
-            31
+            67,
+            224,
+            1006,
+            95
         ],
         "expected": [
             "矿脉源区",
@@ -146,10 +146,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            54,
-            247,
-            1033,
-            31
+            67,
+            224,
+            1006,
+            95
         ],
         "expected": [
             "供能高地",
@@ -164,10 +164,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            54,
-            247,
-            1033,
-            31
+            67,
+            224,
+            1006,
+            95
         ],
         "expected": [
             "武陵城区",
@@ -183,10 +183,10 @@
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckOriginiumSciencePark",
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -39,
+            286,
+            220,
+            62
         ],
         "expected": [
             "货物装箱",
@@ -207,10 +207,10 @@
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckOriginLodespring",
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -39,
+            286,
+            220,
+            62
         ],
         "expected": [
             "货物装箱",
@@ -231,10 +231,10 @@
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckPowerPlateau",
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -39,
+            286,
+            220,
+            62
         ],
         "expected": [
             "货物装箱",
@@ -255,10 +255,10 @@
         "order_by": "Expected",
         "roi": "DeliveryJobsCheckWulingCity",
         "roi_offset": [
-            0,
-            316,
-            159,
-            23
+            -39,
+            286,
+            220,
+            62
         ],
         "expected": [
             "货物装箱",

@@ -95,13 +95,35 @@
         "template": "Common/ControlNexusButton.png",
         "threshold": 0.8,
         "roi": [
-            258,
-            0,
-            59,
-            68
+            185,
+            3,
+            209,
+            96
         ],
-        "action": "ClickKey",
-        "key": 73,
+        "next": [
+            "AltClickControlNexusButtonKeyDown"
+        ]
+    },
+    "AltClickControlNexusButtonKeyDown": {
+        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（按住 Alt 键）",
+        "action": "KeyDown",
+        "key": 164, // 0xA4	Left Alt key
+        "next": [
+            "AltClickControlNexusButtonClick"
+        ]
+    },
+    "AltClickControlNexusButtonClick": {
+        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（单击）",
+        "target": "ControlNexusButton",
+        "action": "Click",
+        "next": [
+            "AltClickControlNexusButtonKeyUp"
+        ]
+    },
+    "AltClickControlNexusButtonKeyUp": {
+        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（释放 Alt 键）",
+        "action": "KeyUp",
+        "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
             "time": 1,
             "target": [
