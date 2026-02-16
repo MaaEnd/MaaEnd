@@ -95,10 +95,10 @@
         "template": "Common/ControlNexusButton.png",
         "threshold": 0.8,
         "roi": [
-            258,
-            0,
-            59,
-            68
+            185,
+            3,
+            209,
+            96
         ],
         "action": "ClickKey",
         "key": 73,
