@@ -13,7 +13,6 @@
             "[JumpBack]CancelExit",
             "InMainWindow_NeedCredit", //适配万能跳转时,只保留这一项
             "[JumpBack]CloseButtonType1"
-
         ]
     },
     //主流程
@@ -23,7 +22,6 @@
             "[JumpBack]CancelExit",
             "InMainWindow_Normal", //适配万能跳转时,只保留这一项
             "[JumpBack]CloseButtonType1"
-
         ]
     },
     "ControlNexus": {
@@ -93,7 +91,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -105,7 +102,6 @@
             "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -145,7 +141,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -158,7 +153,6 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
-
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
@@ -1248,7 +1242,8 @@
                                     "ClaimDijiangRewards/LowEmotion.png",
                                     "ClaimDijiangRewards/NormalEmotion.png",
                                     "ClaimDijiangRewards/HighEmotion.png"
-                                ]
+                                ],
+                                "order_by": "Vertical"
                             }
                         }
                     },
@@ -1821,9 +1816,31 @@
             }
         },
         "next": [
+            "[JumpBack]EmotionFull",
             "[JumpBack]YellowConfirmButtonType1",
             "StartRecoveryEmotion",
             "CloseButtonType1"
+        ]
+    },
+    "EmotionFull": {
+        "doc": "意外点击了满心情的干员,重新进入心情选择界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    416,
+                    65,
+                    428,
+                    119
+                ],
+                "expected": [
+                    "干员心情已满",
+                    "无法使用助力"
+                ]
+            }
+        },
+        "next": [
+            "BackToControlNexus"
         ]
     },
     "StartRecoveryEmotion": {
