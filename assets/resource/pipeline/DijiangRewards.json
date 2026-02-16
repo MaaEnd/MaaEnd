@@ -216,7 +216,8 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom_NeedCredit"
         ]
     },
     "ReceptionRoom_NeedCredit": {
@@ -1032,7 +1033,8 @@
         },
         "next": [
             "ReceptionRoom",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom"
         ]
     },
     "EndExchange": {
