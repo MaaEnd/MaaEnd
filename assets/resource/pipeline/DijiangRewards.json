@@ -1816,7 +1816,7 @@
             }
         },
         "next": [
-            "EmotionFull",
+            "[JumpBack]EmotionFull",
             "[JumpBack]YellowConfirmButtonType1",
             "StartRecoveryEmotion",
             "CloseButtonType1"
