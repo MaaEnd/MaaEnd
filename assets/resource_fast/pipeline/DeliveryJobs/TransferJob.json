@@ -4,10 +4,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            78,
-            561,
+            79,
+            550,
             985,
-            58
+            89
         ],
         "expected": [
             "查看任务",
@@ -69,10 +69,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/ConfirmTransfer.png",
         "roi": [
-            818,
-            450,
-            27,
-            27
+            810,
+            437,
+            100,
+            77
         ],
         "threshold": 0.8,
         "action": "Click",
@@ -93,7 +93,7 @@
         "roi": [
             96,
             53,
-            132,
+            285,
             634
         ],
         "expected": [
