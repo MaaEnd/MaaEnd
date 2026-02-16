@@ -58,7 +58,7 @@
     "option.ProductionAssistanceWithoutTheControlNexus.description": "开启后不会使用总控中枢的恢复心情功能",
     "task.DailyRewards.label": "📅日常奖励领取",
     "task.DailyRewards.description": "领取每日奖励",
-    "option.DailyTaskRewards.label": "每日任务/通行证奖励",
+    "option.DailyTaskRewards.label": "每日任务奖励",
     "option.DailyEmailRewards.label": "邮件/暂存区奖励",
     "option.DailyEventRewards.label": "活动奖励",
     "task.AutoResell.label": "💰半自动倒卖",

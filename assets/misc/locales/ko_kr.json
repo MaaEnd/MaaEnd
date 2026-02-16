@@ -58,7 +58,7 @@
     "option.ProductionAssistanceWithoutTheControlNexus.description": "활성화하면 마스터 컨트롤 넥서스의 기분 회복 기능을 사용하지 않습니다",
     "task.DailyRewards.label": "📅 일일 보상 수령",
     "task.DailyRewards.description": "일일 보상을 수령합니다",
-    "option.DailyTaskRewards.label": "일일 임무/패스 보상",
+    "option.DailyTaskRewards.label": "일일 임무 보상",
     "option.DailyEmailRewards.label": "우편/임시 보관함 보상",
     "option.DailyEventRewards.label": "이벤트 보상",
     "task.AutoResell.label": "💰 반자동 재판매",
