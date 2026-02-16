@@ -11,12 +11,40 @@
                 "Win32-Front"
             ],
             "option": [
-                "ImportMinimumProfit",
-                "DisableChangeRegion"
+                "AutoBuyAndSell",
+                "AutoChangeRegion"
             ]
         }
     ],
     "option": {
+        "AutoBuyAndSell": {
+            "type": "switch",
+            "label": "$option.AutoBuyAndSell.label",
+            "description": "$option.AutoBuyAndSell.description",
+            "default": true,
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "ImportMinimumProfit"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ResellStart": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "MinimumProfit": 999999
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "ImportMinimumProfit": {
             "type": "input",
             "label": "$option.ImportMinimumProfit.label",
@@ -42,19 +70,19 @@
                 }
             }
         },
-        "DisableChangeRegion": {
+        "AutoChangeRegion": {
             "type": "switch",
-            "label": "$option.DisableChangeRegion.label",
-            "default": false,
+            "label": "$option.AutoChangeRegion.label",
+            "default": true,
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "ResellFristAreaInWuLing": {
-                            "enabled": false
+                            "enabled": true
                         },
                         "ChangeNextRegion": {
-                            "enabled": false
+                            "enabled": true
                         }
                     }
                 },
@@ -62,10 +90,10 @@
                     "name": "No",
                     "pipeline_override": {
                         "ResellFristAreaInWuLing": {
-                            "enabled": true
+                            "enabled": false
                         },
                         "ChangeNextRegion": {
-                            "enabled": true
+                            "enabled": false
                         }
                     }
                 }
