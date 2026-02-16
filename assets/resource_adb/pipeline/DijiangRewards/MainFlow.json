@@ -1,0 +1,23 @@
+{
+    "CarbinSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin_offset": [
+                    500,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "CloseButtonDijiang": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}
