@@ -31,10 +31,12 @@ const (
 // Move action configuration
 const (
 	INFER_INTERVAL_MS                = 200
-	ARRIVAL_TOLERANCE                = 5  // Unit: mini-map pixel distance
-	ROTATION_TOLERANCE               = 10 // Unit: degree
-	ROTATION_SENSITIVITY             = 2.75
-	STUCK_MIN_DURATION_MS            = 1000
+	ARRIVAL_TOLERANCE                = 4.5 // Unit: mini-map pixel distance
+	ROTATION_LOW_TOLERANCE           = 8   // Unit: degree
+	ROTATION_HIGH_TOLERANCE          = 60  // Unit: degree
+	ROTATION_SENSITIVITY             = 2.0
+	STUCK_MIN_DURATION_MS            = 1500
+	SPRINT_MIN_DISTANCE              = 15.0 // Unit: mini-map pixel distance
 	FAILURE_ARRIVAL_MAX_DURATION_MS  = 60000
 	FAILURE_ROTATION_MAX_DURATION_MS = 30000
 	FAILURE_STUCK_MAX_DURATION_MS    = 10000

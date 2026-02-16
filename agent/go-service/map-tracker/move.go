@@ -137,11 +137,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			targetRot := calcTargetRotation(curX, curY, targetX, targetY)
 			deltaRot := calcDeltaRotation(rot, targetRot)
 
-			// Always moving
-			aw.KeyDownSync(KEY_W, 100)
-
 			// Check rotation and adjust if needed
-			if math.Abs(float64(deltaRot)) > ROTATION_TOLERANCE {
+			if math.Abs(float64(deltaRot)) > ROTATION_LOW_TOLERANCE {
 				if lastRotationAdjustTime.IsZero() {
 					lastRotationAdjustTime = now
 				}
@@ -153,8 +150,23 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 
 				log.Debug().Int("cur", rot).Int("target", targetRot).Int("delta", deltaRot).Msg("Adjusting rotation")
-				aw.RotateCamera(int(float64(deltaRot)*ROTATION_SENSITIVITY), 100, 100)
+
+				if math.Abs(float64(deltaRot)) > ROTATION_HIGH_TOLERANCE {
+					// Stop and rotate for large misalignment
+					aw.KeyUpSync(KEY_W, 0)
+					aw.RotateCamera(int(float64(deltaRot)*ROTATION_SENSITIVITY), 100, 100)
+					aw.KeyDownSync(KEY_W, 0)
+				} else {
+					// Just rotate for small misalignment
+					aw.KeyDownSync(KEY_W, 0)
+					aw.RotateCamera(int(float64(deltaRot)*ROTATION_SENSITIVITY), 100, 100)
+				}
 			} else {
+				aw.KeyDownSync(KEY_W, 0)
+				if dist > SPRINT_MIN_DISTANCE {
+					// Sprint if target is far enough
+					aw.KeyTypeSync(KEY_SHIFT, 100)
+				}
 				lastRotationAdjustTime = time.Time{} // Reset
 			}
 		}
