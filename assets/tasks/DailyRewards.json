@@ -8,7 +8,8 @@
             "option": [
                 "DailyEmailRewards",
                 "DailyTaskRewards",
-                "DailyEventRewards"
+                "DailyEventRewards",
+                "DailyProtocolPassRewards"
             ],
             "controller": [
                 "Win32",
@@ -78,6 +79,28 @@
                     "name": "No",
                     "pipeline_override": {
                         "DailyTaskRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyProtocolPassRewards": {
+            "type": "switch",
+            "label": "$option.DailyProtocolPassRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyProtocolPassRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyProtocolPassRewardSub": {
                             "enabled": false
                         }
                     }

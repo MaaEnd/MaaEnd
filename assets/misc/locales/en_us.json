@@ -61,6 +61,7 @@
     "option.DailyTaskRewards.label": "Daily Mission Rewards",
     "option.DailyEmailRewards.label": "Mail/Temporary Storage Rewards",
     "option.DailyEventRewards.label": "Event Rewards",
+    "option.DailyProtocolPassRewards.label": "Protocol Pass Rewards",
     "option.DailyTaskUpgradeWeapon.label": "Weapon Upgrade",
     "option.DailyTaskUpgradeWeapon.desc": "Automatically level up the lowest-level weapon once to earn activity points.",
     "option.DailyTaskAssemble.label": "Assemble Gear",
