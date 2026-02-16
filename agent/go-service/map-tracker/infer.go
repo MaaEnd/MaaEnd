@@ -18,15 +18,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// MapData represents a preloaded map image
-type MapData struct {
-	Name     string
-	Img      *image.RGBA
-	Integral *IntegralImage
-	OffsetX  int
-	OffsetY  int
-}
-
 // InferResult represents the result of map tracking inference
 type InferResult struct {
 	MapName   string  `json:"mapName"`   // Map name
@@ -37,6 +28,22 @@ type InferResult struct {
 	RotConf   float64 `json:"rotConf"`   // Rotation confidence
 	LocTimeMs int64   `json:"locTimeMs"` // Location inference time in ms
 	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
+}
+
+// InferParam represents the parameters for map tracking inference
+type InferParam struct {
+	MapNameRegex string  `json:"map_name_regex"` // Regex to filter map names
+	Precision    float64 `json:"precision"`      // Matching precision (0.0, 1.0]
+	Threshold    float64 `json:"threshold"`      // Confidence threshold [0.0, 1.0)
+}
+
+// MapData represents a preloaded map image
+type MapData struct {
+	Name     string
+	Img      *image.RGBA
+	Integral *IntegralImage
+	OffsetX  int
+	OffsetY  int
 }
 
 // Infer is the custom recognition component for map tracking
@@ -55,9 +62,7 @@ type Infer struct {
 	scaledMaps  []MapData
 }
 
-var (
-	_ maa.CustomRecognitionRunner = &Infer{}
-)
+var _ maa.CustomRecognitionRunner = &Infer{}
 
 // Run implements maa.CustomRecognitionRunner
 func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -66,20 +71,16 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	threshold := 0.5
 	mapNameRegexStr := "^map\\d+_lv\\d+$"
 	if arg.CustomRecognitionParam != "" {
-		var params struct {
-			Precision    float64 `json:"precision"`
-			Threshold    float64 `json:"threshold"`
-			MapNameRegex string  `json:"map_name_regex"`
-		}
+		var params InferParam
 		if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err == nil {
+			if params.MapNameRegex != "" {
+				mapNameRegexStr = params.MapNameRegex
+			}
 			if params.Precision > 0.0 && params.Precision <= 1.0 {
 				precision = params.Precision
 			}
 			if params.Threshold >= 0.0 && params.Threshold < 1.0 {
 				threshold = params.Threshold
-			}
-			if params.MapNameRegex != "" {
-				mapNameRegexStr = params.MapNameRegex
 			}
 		}
 	}
