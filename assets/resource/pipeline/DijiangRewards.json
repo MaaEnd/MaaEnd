@@ -216,7 +216,8 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom_NeedCredit"
         ]
     },
     "ReceptionRoom_NeedCredit": {
@@ -254,7 +255,8 @@
                     175
                 ],
                 "template": [
-                    "Common/Button/YellowConfirmButtonType2.png"
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
                 ]
             }
         },
@@ -1031,7 +1033,8 @@
         },
         "next": [
             "ReceptionRoom",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom"
         ]
     },
     "EndExchange": {

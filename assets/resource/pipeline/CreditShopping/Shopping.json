@@ -25,9 +25,9 @@
             82
         ],
         "next": [
-            "CreditShoppingReserveCredit",
-            "CreditShoppingBuyFirst",
             "AutoGetCredits",
+            "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalNoDiscount",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
@@ -36,7 +36,6 @@
     },
     "CreditShoppingReserveCredit": {
         "doc": "信用点 < 300",
-        "enabled": false,
         "recognition": "OCR",
         "only_rec": true,
         "roi": [
@@ -100,7 +99,7 @@
                     0,
                     -160
                 ],
-                "expected": "^(嵌晶玉|武库配额)$", //这里是具体执行参数
+                "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
                 "order_by": "Expected"
             },
             {

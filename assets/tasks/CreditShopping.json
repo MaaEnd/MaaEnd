@@ -9,7 +9,8 @@
                 "CreditShoppingOptions",
                 "CreditShoppingForce",
                 "CreditShoppingOnlyDiscount",
-                "CreditShoppingReserve"
+                "CreditShoppingReserve",
+                "AutoGetCredits"
             ]
         }
     ],
