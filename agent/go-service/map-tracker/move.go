@@ -54,7 +54,12 @@ var _ maa.CustomActionRunner = &MapTrackerMove{}
 // Run implements maa.CustomActionRunner
 func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// Prepare variables
-	param := MapTrackerMoveParam{}
+	param, err := parseParam(arg.CustomActionParam)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to parse parameters")
+		return false
+	}
+
 	ctrl := ctx.GetTasker().GetController()
 	aw := NewActionWrapper(ctx, ctrl)
 	inferIntervalDuration := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
@@ -99,7 +104,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			}
 
 			// Check arrival timeout
-			deltaArrivalMs := now.Sub(lastArrivalTime).Microseconds()
+			deltaArrivalMs := now.Sub(lastArrivalTime).Milliseconds()
 			if deltaArrivalMs > param.ArrivalTimeout {
 				log.Error().Msg("Arrival timeout, stopping task")
 				doEmergencyStop(aw)
@@ -267,7 +272,7 @@ func doEmergencyStop(aw *ActionWrapper) {
 	aw.ctx.GetTasker().PostStop()
 }
 
-func doInfer(ctx *maa.Context, ctrl *maa.Controller, param MapTrackerMoveParam) (*InferResult, error) {
+func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*InferResult, error) {
 	// Capture Screen
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
