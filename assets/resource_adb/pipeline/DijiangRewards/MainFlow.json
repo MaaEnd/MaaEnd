@@ -12,6 +12,18 @@
             }
         }
     },
+    "LasCarbinColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    962,
+                    418,
+                    57,
+                    217
+                ]
+            }
+        }
+    },
     "CloseButtonDijiang": {
         "action": {
             "type": "ClickKey",
