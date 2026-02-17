@@ -1,0 +1,133 @@
+{
+    "task": [
+        {
+            "name": "AutoHeadhunting",
+            "label": "$task.AutoHeadhunting.label",
+            "entry": "AutoHeadhunting",
+            "description": "$task.AutoHeadhunting.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ],
+            "option": [
+                "TargetPulls",
+                "TargetOperator",
+                "TargetOperatorNum",
+                "PreferMode"
+            ]
+        }
+    ],
+    "option": {
+        "TargetPulls": {
+            "type": "input",
+            "label": "$option.TargetPulls.label",
+            "inputs": [
+                {
+                    "name": "TargetPulls",
+                    "label": "$option.TargetPulls.label",
+                    "description": "$option.TargetPulls.inputs.TargetPulls.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 0
+                }
+            ],
+            "pipeline_override": {
+                "AutoHeadhunting": {
+                    "action": {
+                        "param": {
+                            "attach": {
+                                "TargetPulls": "{TargetPulls}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "TargetOperator": {
+            "type": "input",
+            "label": "$option.TargetOperator.label",
+            "inputs": [
+                {
+                    "name": "TargetOperator",
+                    "label": "$option.TargetOperator.label",
+                    "description": "$option.TargetOperator.inputs.TargetOperator.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "AutoHeadhunting": {
+                    "action": {
+                        "param": {
+                            "attach": {
+                                "TargetOperator": "{TargetOperator}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "TargetOperatorNum": {
+            "type": "input",
+            "label": "$option.TargetOperatorNum.label",
+            "inputs": [
+                {
+                    "name": "TargetOperatorNum",
+                    "label": "$option.TargetOperatorNum.label",
+                    "description": "$option.TargetOperatorNum.inputs.TargetOperatorNum.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 1
+                }
+            ],
+            "pipeline_override": {
+                "AutoHeadhunting": {
+                    "action": {
+                        "param": {
+                            "attach": {
+                                "TargetOperatorNum": "{TargetOperatorNum}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "PreferMode": {
+            "type": "select",
+            "label": "$option.PreferMode.label",
+            "cases": [
+                {
+                    "name": "1x",
+                    "label": "$option.PreferMode.cases.1x.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "action": {
+                                "param": {
+                                    "attach": {
+                                        "PreferMode": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "10x",
+                    "label": "$option.PreferMode.cases.10x.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "action": {
+                                "param": {
+                                    "attach": {
+                                        "PreferMode": 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

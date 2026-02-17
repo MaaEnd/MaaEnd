@@ -23,8 +23,20 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		TargetOperatorNum int    // 抽到目标干员达到该数量后停止
 		PreferMode        int    // 抽卡偏好 优先使用对应模式进行抽取 不足时回退到单抽直至满足停止条件
 	}
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().Err(err).Msg("[AutoHeadhunting] Failed to parse parameters")
+	node, err := ctx.GetNode("AutoHeadhunting")
+	if err != nil {
+		log.Err(err).Msg("[AutoHeadhunting] Failed to get node parameters")
+		return false
+	}
+
+	attach := node.Attach
+	attachJSON, err := json.Marshal(attach)
+	if err != nil {
+		log.Err(err).Msg("[AutoHeadhunting] Failed to marshal attach")
+		return false
+	}
+	if err := json.Unmarshal(attachJSON, &params); err != nil {
+		log.Err(err).Msg("[AutoHeadhunting] Failed to unmarshal attach to params")
 		return false
 	}
 

@@ -3,7 +3,7 @@
         "action": "Custom",
         "custom_action": "AutoHeadhunting",
         "custom_action_param": {
-            "TargetPulls": 2,
+            "TargetPulls": 0,
             "TargetOperator": "",
             "TargetOperatorNum": 1,
             "PreferMode": 1
