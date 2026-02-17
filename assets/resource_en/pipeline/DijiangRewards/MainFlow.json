@@ -3,5 +3,10 @@
         "expected": [
             "Cancel"
         ]
+    },
+    "LastCarbinText": {
+        "expected": [
+            "Growth Chamber"
+        ]
     }
 }

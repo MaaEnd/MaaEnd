@@ -114,7 +114,7 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonType1",
+            "[JumpBack]CloseButtonType2",
             "[JumpBack]CancelExit"
         ]
     },
