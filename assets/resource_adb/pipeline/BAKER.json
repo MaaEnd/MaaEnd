@@ -87,6 +87,62 @@
             "BakerExpend"
         ]
     },
+    "TalkWith": {
+        "doc": "通用聊天点击流程: 根据 Baker 联系人列表尝试进入未聊天的信息",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/TalkWith.png",
+            "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+        ],
+        "roi": [
+            90,
+            55,
+            360,
+            590
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage",
+            "TalkWith"
+        ]
+    },
+    "TalkWithHint": {
+        "doc": "事务通讯的小红点",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/hint.png"
+        ],
+        "roi": [
+            90,
+            55,
+            360,
+            590
+        ],
+        "action": {
+            "param": {
+                "target_offset": [
+                    // 事务通讯的小红点，进行一点偏移就可以点到任务了
+                    -10,
+                    10,
+                    0,
+                    0
+                ]
+            },
+            "type": "Click"
+        },
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage",
+            "TalkWithHint"
+        ]
+    },
     "TalkOver2": {
         "doc": "通用聊天点击流程: 用于检测当前会话是否结束 (匹配方式2)",
         // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
@@ -107,4 +163,46 @@
             "RefreshBakerFilter"
         ]
     },
+    "BakerOverEnd": {
+        "doc": "真正的退出节点,在上面两种类型的会话都没有之后退出任务",
+        "next": [
+            "CloseButtonType1"
+        ]
+    },
+    /*      从这里开始，是事务通讯的逻辑     */
+    "CheckTopHint": {
+        "doc": "点击 Baker 页面顶部的图标进行事务通讯页面切换",
+        "max_hit": 1,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    39,
+                    191
+                ]
+            }
+        },
+        "next": [
+            "CheckBakerHome"
+        ]
+    },
+    "ResetBakerFilter2": {
+        "doc": "用于点击筛选栏目中的刷新 (事务通讯需要同样的操作), 在事务通讯中的筛选点击刷新之后会重新回到顶部所以需要先点刷新再下拉",
+        "recognition": "TemplateMatch",
+        "template": "Baker/FilterResetBtn.png",
+        "max_hit": 1,
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSwipeFilter",
+            "BakerFilterUnread",
+            "SaveBakerFilter"
+        ]
+    }
 }
