@@ -123,7 +123,7 @@
         "AutoCloseInteraction": {
             "type": "switch",
             "label": "$option.AutoCloseInteraction.label",
-            "default": "No",
+            "default_case": "No",
             "description": "$option.AutoCloseInteraction.description",
             "cases": [
                 {
@@ -184,7 +184,7 @@
             "label": "$option.EnableTutorialGuide.label",
             "description": "$option.EnableTutorialGuide.description",
             "type": "switch",
-            "default": "No",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -214,7 +214,7 @@
             "label": "$option.EnableTutorialBook.label",
             "description": "$option.EnableTutorialBook.description",
             "type": "switch",
-            "default": "Yes",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -244,7 +244,7 @@
             "label": "$option.EnableClickAnywhere.label",
             "description": "$option.EnableClickAnywhere.description",
             "type": "switch",
-            "default": "Yes",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -268,7 +268,7 @@
             "label": "$option.EnableCloseSpecialPanel.label",
             "description": "$option.EnableCloseSpecialPanel.description",
             "type": "switch",
-            "default": "Yes",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -347,7 +347,7 @@
             "label": "$option.AutoFightAttackKey.label",
             "type": "switch",
             "description": "$option.AutoFightAttackKey.description",
-            "default": "No",
+            "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
@@ -581,7 +581,7 @@
                     "description": "$option.AutoTaskInterval.inputs.CheckInterval.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": 400
+                    "default": "400"
                 }
             ],
             "pipeline_override": {
