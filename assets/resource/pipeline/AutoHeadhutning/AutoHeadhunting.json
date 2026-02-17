@@ -3,11 +3,13 @@
         "action": "Custom",
         "custom_action": "AutoHeadhunting",
         "attach": {
+            /*
             "Language": "zh_cn",
             "TargetPulls": 0,
             "TargetOperator": "",
             "TargetOperatorNum": 1,
             "PreferMode": 1
+            */
         }
     },
     "AutoHeadhunting:Click10x": {
@@ -50,12 +52,17 @@
         ],
         "action": "Click",
         "post_delay": 2000
-        //"next": ["AutoHeadhunting:Skip1"]
     },
     "AutoHeadhunting:DetectOrigeometry": {
         "recognition": "TemplateMatch",
         "template": ["AutoHeadhunting/Origeometry.png"],
-        "timeout": 2500
+        "roi": [
+            245,
+            230,
+            283,
+            268
+        ],
+        "timeout": 2000
     },
     "AutoHeadhunting:Skip1": {
         // 跳过拉杆动画

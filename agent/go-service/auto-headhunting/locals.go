@@ -38,6 +38,7 @@ var locals = map[string]map[string]string{
 		"秋栗":   "秋栗",
 		"萤石":   "萤石",
 		// 显示文本 Display Text
+		"results":          "抽取结果: %s",
 		"used_pulls":       "已抽取次数",
 		"task_unknown_err": "未知错误",
 		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",

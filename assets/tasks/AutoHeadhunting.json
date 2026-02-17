@@ -34,12 +34,8 @@
             ],
             "pipeline_override": {
                 "AutoHeadhunting": {
-                    "action": {
-                        "param": {
-                            "attach": {
-                                "TargetPulls": "{TargetPulls}"
-                            }
-                        }
+                    "attach": {
+                        "TargetPulls": "{TargetPulls}"
                     }
                 }
             }
@@ -58,12 +54,8 @@
             ],
             "pipeline_override": {
                 "AutoHeadhunting": {
-                    "action": {
-                        "param": {
-                            "attach": {
-                                "TargetOperator": "{TargetOperator}"
-                            }
-                        }
+                    "attach": {
+                        "TargetOperator": "{TargetOperator}"
                     }
                 }
             }
@@ -83,12 +75,8 @@
             ],
             "pipeline_override": {
                 "AutoHeadhunting": {
-                    "action": {
-                        "param": {
-                            "attach": {
-                                "TargetOperatorNum": "{TargetOperatorNum}"
-                            }
-                        }
+                    "attach": {
+                        "TargetOperatorNum": "{TargetOperatorNum}"
                     }
                 }
             }
@@ -102,12 +90,8 @@
                     "label": "$option.PreferMode.cases.1x.label",
                     "pipeline_override": {
                         "AutoHeadhunting": {
-                            "action": {
-                                "param": {
-                                    "attach": {
-                                        "PreferMode": 1
-                                    }
-                                }
+                            "attach": {
+                                "PreferMode": 1
                             }
                         }
                     }
@@ -117,12 +101,8 @@
                     "label": "$option.PreferMode.cases.10x.label",
                     "pipeline_override": {
                         "AutoHeadhunting": {
-                            "action": {
-                                "param": {
-                                    "attach": {
-                                        "PreferMode": 10
-                                    }
-                                }
+                            "attach": {
+                                "PreferMode": 10
                             }
                         }
                     }

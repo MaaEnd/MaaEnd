@@ -100,8 +100,8 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			log.Err(err).Msg("[AutoHeadhunting] Failed to cache image")
 			return false
 		}
-		_, err = ctx.RunRecognition("AutoHeadhunting:DetectOrigeometry", img)
-		if err == nil {
+		details, err := ctx.RunRecognition("AutoHeadhunting:DetectOrigeometry", img)
+		if err == nil && len(details.Results.Best) > 0 {
 			log.Info().Msg("[AutoHeadhunting] Found Origeometry, stopping task...")
 			return true
 		}
@@ -142,6 +142,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					return false
 				}
 
+				fmt.Printf(t("results"), ocr.Text)
 				log.Info().Msgf("[AutoHeadhunting] Detected operator: %s", ocr.Text)
 				ans = append(ans, ocr.Text)
 				break
