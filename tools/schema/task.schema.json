@@ -228,14 +228,6 @@
                                 "$ref": "#/definitions/caseItem"
                             }
                         },
-                        "default": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "title": "默认值",
-                            "description": "默认开关状态，布尔值或字符串"
-                        },
                         "default_case": {
                             "type": "string",
                             "title": "默认选项",
