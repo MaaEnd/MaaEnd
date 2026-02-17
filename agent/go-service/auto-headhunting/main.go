@@ -106,6 +106,9 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			return true
 		}
 
+		// 跳过拉杆和降落动画
+		ctx.RunTask("AutoHeadhunting:Skip1")
+
 		ans := make([]string, 0)
 		for range mode {
 			if tasker.Stopping() {
