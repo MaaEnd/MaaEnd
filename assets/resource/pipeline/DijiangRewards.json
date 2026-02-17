@@ -13,6 +13,7 @@
             "[JumpBack]CancelExit",
             "InMainWindow_NeedCredit", //适配万能跳转时,只保留这一项
             "[JumpBack]CloseButtonType1"
+
         ]
     },
     //主流程
@@ -22,6 +23,7 @@
             "[JumpBack]CancelExit",
             "InMainWindow_Normal", //适配万能跳转时,只保留这一项
             "[JumpBack]CloseButtonType1"
+
         ]
     },
     "ControlNexus": {
@@ -91,6 +93,7 @@
                         }
                     },
                     "InControlNexus"
+
                 ]
             }
         },
@@ -102,6 +105,7 @@
             "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
+
         ]
     },
     "InMainWindow_NeedCredit": {
@@ -141,6 +145,7 @@
                         }
                     },
                     "InControlNexus"
+
                 ]
             }
         },
@@ -153,6 +158,7 @@
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit"
+
         ]
     },
     "EntryReceptionRoom_NeedCredit": {
