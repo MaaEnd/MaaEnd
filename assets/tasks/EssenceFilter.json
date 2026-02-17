@@ -6,7 +6,11 @@
             "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
             "option": [
-                "EssenceFilterPreset"
+                "Rarity6Weapon",
+                "Rarity5Weapon",
+                "Rarity4Weapon",
+                "FlawlessEssence",
+                "PureEssence"
             ],
             "controller": [
                 "Win32",
@@ -16,53 +20,135 @@
         }
     ],
     "option": {
-        "EssenceFilterPreset": {
-            "type": "select",
-            "label": "$option.EssenceFilterPreset.label",
-            "description": "$option.EssenceFilterPreset.description",
-            "default": "Rarity6_and_5",
+        "Rarity6Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity6Weapon.label",
+            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Rarity6",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity6.label",
+                    "name": "Yes",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preset_name": "Rarity6"
-                                    }
-                                }
+                            "attach": {
+                                "rarity6_weapon": true
                             }
                         }
                     }
                 },
                 {
-                    "name": "Rarity5",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity5.label",
+                    "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preset_name": "Rarity5"
-                                    }
-                                }
+                            "attach": {
+                                "rarity6_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "Rarity5Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity5Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity5_weapon": true
                             }
                         }
                     }
                 },
                 {
-                    "name": "Rarity6_and_5",
-                    "label": "$option.EssenceFilterPreset.cases.Rarity6_and_5.label",
+                    "name": "No",
                     "pipeline_override": {
                         "EssenceFilterInit": {
-                            "action": {
-                                "param": {
-                                    "custom_action_param": {
-                                        "preset_name": "Rarity6_and_5"
-                                    }
-                                }
+                            "attach": {
+                                "rarity5_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "Rarity4Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity4Weapon.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity4_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "rarity4_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "FlawlessEssence": {
+            "type": "switch",
+            "label": "$option.FlawlessEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "flawless_essence": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "flawless_essence": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "PureEssence": {
+            "type": "switch",
+            "label": "$option.PureEssence.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "pure_essence": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "pure_essence": false
                             }
                         }
                     }

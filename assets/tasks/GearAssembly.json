@@ -1,0 +1,15 @@
+{
+    "task": [
+        {
+            "name": "GearAssembly",
+            "label": "$task.GearAssembly.label",
+            "entry": "GearAssemblyStart",
+            "description": "$task.GearAssembly.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ]
+}

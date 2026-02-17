@@ -1,9 +1,18 @@
 {
-    "DailyTaskCheckIsSimpleProductionPage": {
-        "desc": "检测是否处于 [简易制作页面]",
+    "GearAssemblyStart": {
+        "desc": "装备制作任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "GearAssemblyCheckIsAssemblePage",
+            "[JumpBack]SceneEnterMenuGearAssembly"
+        ]
+    },
+    "GearAssemblyCheckIsAssemblePage": {
+        "desc": "检测是否处于 [装备制作]",
         "recognition": "OCR",
         "expected": [
-            "应急食药"
+            "套组装备"
         ],
         "roi": [
             0,
@@ -12,11 +21,32 @@
             117
         ],
         "next": [
-            "DailyTaskClickProduceBtn" // 直接点生产
-
+            "[JumpBack]GearAssemblySwitchAscending",
+            "GearAssemblyClickProduceBtn"
         ]
     },
-    "DailyTaskClickProduceBtn": {
+    "GearAssemblySwitchAscending": {
+        "desc": "识别到降序，变成升序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "降序"
+                ],
+                "roi": [
+                    44,
+                    648,
+                    351,
+                    35
+                ]
+            }
+        },
+        "post_wait_freezes": 1,
+        "action": {
+            "type": "Click"
+        }
+    },
+    "GearAssemblyClickProduceBtn": {
         "desc": "点击制作按钮",
         "recognition": "OCR",
         "expected": [
@@ -31,12 +61,12 @@
         "post_wait_freezes": 100,
         "action": "Click",
         "next": [
-            "DailyTaskCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
+            "GearAssemblyCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
             // 检查下是不是进入成功页面
-            "DailyTaskCloseProductPopup"
+            "GearAssemblyCloseProductPopup"
         ]
     },
-    "DailyTaskCheckMaterialEnough": {
+    "GearAssemblyCheckMaterialEnough": {
         "desc": "检测背包是否已满，背包已满直接结束",
         "recognition": "OCR",
         "expected": [
@@ -50,11 +80,11 @@
             82
         ],
         "next": [
-            "DailyTaskCreationFinish",
+            "GearAssemblyCreationFinish",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "DailyTaskCloseProductPopup": {
+    "GearAssemblyCloseProductPopup": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -72,11 +102,11 @@
             "type": "Click"
         },
         "next": [
-            "DailyTaskCreationFinish",
+            "GearAssemblyCreationFinish",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "DailyTaskCreationFinish": {
+    "GearAssemblyCreationFinish": {
         "pre_delay": 0,
         "post_delay": 0,
         "recognition": {

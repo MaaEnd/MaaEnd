@@ -2,9 +2,60 @@
 
 This document shows how to use MapTracker series nodes.
 
+## Action: MapTrackerMove
+
+🚶Moves the player to one or more **target locations** on the map.
+
+### Definition
+
+- `type`: Custom
+- `custom_action`: MapTrackerMove
+- `custom_action_param`: (required)
+    - `map_name`: string
+    - `targets`: list of int[2]
+
+### Parameters
+
+- `map_name`: The exact name of the map. For example, "map001_lv001".
+- `targets`: A list of target locations on the map, each represented as a pair of integers [x, y].
+
+### Example
+
+Here is a pipeline example.
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "targets": [
+                [679, 341],
+                [688, 350],
+                [679, 358],
+                [670, 350]
+            ]
+        }
+    }
+}
+```
+
+### FAQ
+
+- **Where can I find the map names?**  
+    Please refer to `/assets/resource/image/MapTracker/map`. Note that the name suffix "_merged.png" is not part of the map name.
+- **How are the coordinates measured?**  
+    The coordinates are measured in mini-map image pixels, where (0, 0) is the top-left corner.
+- **How to get target coordinates?**  
+    *We provide a MapTracker tool* to easily generate location targets via GUI. Please install Python and `opencv-python`, then run the script at `/tools/map_tracker_tool.py`.
+
+> **Note**: The MapTracker tool can also open and edit an existing `targets` list from a given pipeline file.
+
 ## Recognition: MapTrackerInfer
 
-Gets the player's current **location and rotation** on the map by analyzing the mini-map in the game screen.
+📍Gets the player's current **location and rotation** on the map by analyzing the mini-map in the game screen.
 
 ### Definition
 
@@ -47,6 +98,4 @@ type InferResult struct {
 ### FAQ
 
 - **How to match location only in specific maps?**  
-    Please use the `map_name_regex` parameter to filter map names. Be careful that you must ensure the player is just in the map that can be matched, otherwise the recognition may fail.
-- **Where can I find the map names?**  
-    Please refer to `/assets/resource/MapTracker/map`.
+   Please use the `map_name_regex` parameter to filter map names. Be careful that you must ensure the player is just in the map that can be matched, otherwise the recognition may fail.
