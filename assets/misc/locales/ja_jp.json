@@ -129,6 +129,8 @@
     "option.ItemTransferWhatToTransfer.label": "転送するアイテム",
     "task.WeaponUpgrade.label": "🔫武器レベルアップ",
     "task.WeaponUpgrade.description": "品質が最も低く、レベルが最も低い武器を自動で1つ選択し、1レベルアップします",
+    "task.Crafting.label": "🧪簡易製作",
+    "task.Crafting.description": "緊急食薬を自動で1つ製作します",
     "task.GearAssembly.label": "🔧装備製造",
     "task.GearAssembly.description": "最低レベルの装備を自動で1つ製造します",
     "option.DailyTaskUpgradeWeapon.label": "武器レベルアップ",

@@ -200,6 +200,8 @@
     "option.ItemTransferTransferTimes.input.error": "0보다 큰 정수를 입력하세요.",
     "task.WeaponUpgrade.label": "🔫무기 업그레이드",
     "task.WeaponUpgrade.description": "가장 낮은 품질과 레벨의 무기를 자동으로 하나 선택하여 1레벨 업그레이드합니다",
+    "task.Crafting.label": "🧪간편 제작",
+    "task.Crafting.description": "비상 식약을 자동으로 하나 제작합니다",
     "task.GearAssembly.label": "🔧장비 제조",
     "task.GearAssembly.description": "가장 낮은 등급의 장비를 자동으로 하나 제조합니다",
     "option.DailyTaskUpgradeWeapon.label": "무기 업그레이드",
