@@ -2,6 +2,7 @@ package autoheadhunting
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -42,6 +43,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	log.Info().Msgf("[AutoHeadhunting] Starting with parameters: %+v", params)
 	for usedPulls < params.TargetPulls && targetCount < params.TargetOperatorNum {
 		if tasker.Stopping() {
 			log.Info().Msg("[AutoHeadhunting] Stopping task...")
@@ -75,6 +77,18 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			return false
 		}
 
+		// 点击确认后检测是否存在源石图标 如果有停止任务 (抽数不够)
+		img, err := controller.CacheImage()
+		if err != nil {
+			log.Err(err).Msg("[AutoHeadhunting] Failed to cache image")
+			return false
+		}
+		_, err = ctx.RunRecognition("AutoHeadhunting:DetectOrigeometry", img)
+		if err == nil {
+			log.Info().Msg("[AutoHeadhunting] Found Origeometry, stopping task...")
+			return true
+		}
+
 		ans := make([]string, 0)
 		for range mode {
 			if tasker.Stopping() {
@@ -85,6 +99,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// 通过检测武库配额图标以跳过星级动画
 			ctx.RunTask("AutoHeadhunting:SkipStars")
 
+			// OCR 识别干员名称
 			for range MAX_OCR_RETRIES {
 				img, err := controller.CacheImage()
 				if err != nil {
@@ -127,23 +142,30 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		if mode == 1 {
 			ExitEntry = "AutoHeadhunting:Done"
 		}
-
-		_, err := ctx.RunTask(ExitEntry)
+		_, err = ctx.RunTask(ExitEntry)
 		if err != nil {
 			log.Err(err).Msg("[AutoHeadhunting] Failed to close results")
 			return false
 		}
 
 		// 记录抽卡结果
-		log.Info().Msgf("[AutoHeadhunting] Pull results: %v", ans)
+		ans_mp := make(map[string]int)
 		for _, name := range ans {
+			ans_mp[name]++
 			if name == params.TargetOperator {
 				targetCount++
 				log.Info().Msgf("[AutoHeadhunting] Found target operator: %s (count: %d)", name, targetCount)
 			}
 
 		}
+		ans_str := make([]string, 0)
+		for name, count := range ans_mp {
+			ans_str = append(ans_str, fmt.Sprintf("%s: %d", name, count))
+		}
+		log.Info().Msgf("[AutoHeadhunting] Results: %s", ans_str)
+		log.Info().Msgf("[AutoHeadhunting] Used pulls: %d /  %d", usedPulls, params.TargetPulls)
 	}
 
+	log.Info().Msgf("[AutoHeadhunting] Finished with %d pulls, found %d target operators", usedPulls, targetCount)
 	return true
 }

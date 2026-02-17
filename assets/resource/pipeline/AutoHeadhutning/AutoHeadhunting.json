@@ -3,10 +3,10 @@
         "action": "Custom",
         "custom_action": "AutoHeadhunting",
         "custom_action_param": {
-            "TargetPulls": 10,
+            "TargetPulls": 2,
             "TargetOperator": "",
             "TargetOperatorNum": 1,
-            "PreferMode": 10
+            "PreferMode": 1
         }
     },
     "AutoHeadhunting:Click10x": {
@@ -37,6 +37,7 @@
             "AutoHeadhunting:Confirm"
         ]
     },
+
     "AutoHeadhunting:Confirm": {
         "recognition": "OCR",
         "expected": ["确认"],
@@ -47,8 +48,13 @@
             89
         ],
         "action": "Click",
-        "post_delay": 2000,
-        "next": ["AutoHeadhunting:Skip1"]
+        "post_delay": 2000
+        //"next": ["AutoHeadhunting:Skip1"]
+    },
+    "AutoHeadhunting:DetectOrigeometry": {
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/Origeometry.png"],
+        "timeout": 2500
     },
     "AutoHeadhunting:Skip1": {
         // 跳过拉杆动画
@@ -119,14 +125,23 @@
         "post_delay": 300,
         "next": ["AutoHeadhunting:SkipStars"]
     },
-
-    "AutoHeadhunting:NextOperator": {
-        "next": [
-            "AutoHeadhunting:Next_DetectedArsenalTicket",
-            "AutoHeadhunting:UndetectedArsenalTicket"
+    "AutoHeadhunting:Next_DetectedArsenalTicket": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            12,
+            126,
+            100,
+            93
         ],
-        "post_delay": 400,
-        "pre_delay": 200
+        "template": ["AutoHeadhunting/ArsenalTicket.png"],
+        "action": "Click",
+        "target": [
+            178,
+            132,
+            304,
+            199
+        ],
+        "next": ["AutoHeadhunting:NextOperator"]
     },
 
     "AutoHeadhunting:Close": {
@@ -160,30 +175,20 @@
         "action": "Click"
     },
     "AutoHeadhunting:SkipStars": {
+        // 跳过星级动画
         "next": [
             "AutoHeadhunting:DetectedArsenalTicket",
             "AutoHeadhunting:SS_UndetectedArsenalTicket"
         ],
-        "post_delay": 400,
-        "pre_delay": 200
+        "post_delay": 300
     },
-    "AutoHeadhunting:Next_DetectedArsenalTicket": {
-        "recognition": "TemplateMatch",
-        "roi": [
-            12,
-            126,
-            100,
-            93
+    "AutoHeadhunting:NextOperator": {
+        // 前往下一个干员
+        "next": [
+            "AutoHeadhunting:Next_DetectedArsenalTicket",
+            "AutoHeadhunting:UndetectedArsenalTicket"
         ],
-        "template": ["AutoHeadhunting/ArsenalTicket.png"],
-        "action": "Click",
-        "target": [
-            178,
-            132,
-            304,
-            199
-        ],
-        "next": ["AutoHeadhunting:NextOperator"]
+        "post_delay": 300
     },
     "AutoHeadhunting:DetectOperatorName": {
         "recognition": "OCR",
