@@ -1,0 +1,15 @@
+{
+    "task": [
+        {
+            "name": "WeaponUpgrade",
+            "label": "$task.WeaponUpgrade.label",
+            "entry": "WeaponUpgradeStart",
+            "description": "$task.WeaponUpgrade.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ]
+}

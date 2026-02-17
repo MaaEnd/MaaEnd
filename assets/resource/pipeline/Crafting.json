@@ -1,0 +1,150 @@
+{
+    "CraftingStart": {
+        "desc": "简易制作任务入口",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "next": [
+            "CraftingEnterMenu",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "CraftingEnterMenu": {
+        "desc": "进入简易制作界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    900,
+                    100,
+                    250,
+                    160
+                ],
+                "expected": [
+                    "简易制作",
+                    "Crafting",
+                    "道具製作",
+                    "간편 제작",
+                    "簡易製作"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "CraftingEnterInMenu"
+        ]
+    },
+    "CraftingEnterInMenu": {
+        "desc": "进入简易制作界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "简易制作",
+                    "Crafting",
+                    "道具製作",
+                    "간편 제작",
+                    "簡易製作"
+                ]
+            }
+        },
+        "next": [
+            "CraftingClickProduceBtn"
+        ]
+    },
+    "CraftingClickProduceBtn": {
+        "desc": "点击制作按钮",
+        "recognition": "OCR",
+        "expected": [
+            "制作"
+        ],
+        "roi": [
+            1134,
+            614,
+            139,
+            95
+        ],
+        "post_wait_freezes": 100,
+        "action": "Click",
+        "next": [
+            "CraftingCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
+            // 检查下是不是进入成功页面
+            "CraftingCloseProductPopup"
+        ]
+    },
+    "CraftingCheckMaterialEnough": {
+        "desc": "检测背包是否已满，背包已满直接结束",
+        "recognition": "OCR",
+        "expected": [
+            "空间已满",
+            "可销毁或丢弃部分"
+        ],
+        "roi": [
+            409,
+            81,
+            439,
+            82
+        ],
+        "next": [
+            "CraftingCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "CraftingCloseProductPopup": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "DailyRewards/CloseReward.png",
+                "roi": [
+                    622,
+                    645,
+                    37,
+                    38
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CraftingCreationFinish",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "CraftingCreationFinish": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        }
+    }
+}

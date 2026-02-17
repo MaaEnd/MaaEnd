@@ -6,10 +6,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/NextStep.png",
         "roi": [
-            1209,
-            649,
-            29,
-            28
+            1185,
+            627,
+            63,
+            59
         ],
         "threshold": 0.8,
         "action": "Click",
@@ -35,10 +35,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoFillToMax.png",
         "roi": [
-            1174,
-            172,
-            34,
-            19
+            1141,
+            156,
+            78,
+            89
         ],
         "threshold": 0.8,
         "action": "Click",
@@ -57,10 +57,10 @@
         "recognition": "TemplateMatch",
         "template": "DeliveryJobs/CargoBid.png",
         "roi": [
-            911,
-            593,
-            36,
-            33
+            789,
+            524,
+            220,
+            143
         ],
         "threshold": 0.8,
         "action": "Click"
