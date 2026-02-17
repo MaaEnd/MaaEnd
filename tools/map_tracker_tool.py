@@ -681,63 +681,88 @@ class PipelineHandler:
             node_content = match.group(2)
             # Check if the node contains MapTrackerMove
             if '"custom_action": "MapTrackerMove"' in node_content:
+                # Detect structure type
+                # Old structure: "action": "Custom", "custom_action": "MapTrackerMove", "custom_action_param": { ... }
+                # New structure: "action": { "custom_action": "MapTrackerMove", "param": { ... } }
+                is_new_structure = (
+                    re.search(r'"action"\s*:\s*\{', node_content) is not None
+                )
+
                 # Extract map_name
                 m_match = re.search(r'"map_name"\s*:\s*"([^"]+)"', node_content)
                 map_name = m_match.group(1) if m_match else "Unknown"
-                # Extract targets
+                # Extract path
                 t_match = re.search(
-                    r'"targets"\s*:\s*(\[[\s\S]*?\]\s*\]|\[\s*\])', node_content
+                    r'"path"\s*:\s*(\[[\s\S]*?\]\s*\]|\[\s*\])', node_content
                 )
                 if t_match:
-                    targets_str = t_match.group(1)
+                    path_str = t_match.group(1)
                     try:
-                        targets = json.loads(targets_str)
+                        path = json.loads(path_str)
                         results.append(
                             {
                                 "node_name": node_name,
                                 "map_name": map_name,
-                                "targets": targets,
+                                "path": path,
+                                "is_new_structure": is_new_structure,
                             }
                         )
                     except:
                         continue
         return results
 
-    def replace_targets(self, node_name, new_targets):
-        """Regex replace the targets list in the pipeline file"""
+    def replace_path(self, node_name, new_path):
+        """Regex replace the path list in the pipeline file, ensuring the target node's structure is maintained"""
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 self._content = f.read()
         except:
             return False
 
-        # Construct regex: match the targets field under this node
-        pattern = re.compile(
-            r'(\s*"'
-            + re.escape(node_name)
-            + r'"\s*:\s*\{[\s\S]*?"targets"\s*:\s*)(\[[\s\S]*?\]\s*\]|\[\s*\])',
+        # Find the node block first to isolate the "path" update within it
+        node_pattern = re.compile(
+            r'^(\s*"' + re.escape(node_name) + r'"\s*:\s*\{)([\s\S]*?\n\s*\})',
             re.MULTILINE,
         )
 
-        match = pattern.search(self._content)
-        if not match:
+        node_match = node_pattern.search(self._content)
+        if not node_match:
             print(f"{_R}Error: Node {node_name} not found in file when saving.{_0}")
             return False
 
-        # Format new targets, following multi-line array convention
-        if not new_targets:
-            formatted_targets = "[]"
-        else:
-            formatted_targets = "[\n"
-            for i, p in enumerate(new_targets):
-                comma = "," if i < len(new_targets) - 1 else ""
-                formatted_targets += f"                [{p[0]}, {p[1]}]{comma}\n"
-            formatted_targets += "            ]"
+        header = node_match.group(1)
+        body = node_match.group(2)
 
+        # Look for the "path" field specifically within this node body
+        path_pattern = re.compile(
+            r'("path"\s*:\s*)(\[[\s\S]*?\]\s*\]|\[\s*\])',
+            re.MULTILINE,
+        )
+
+        path_match = path_pattern.search(body)
+        if not path_match:
+            print(
+                f"{_R}Error: 'path' field not found in node {node_name} when saving.{_0}"
+            )
+            return False
+
+        # Format new path, following multi-line array convention
+        if not new_path:
+            formatted_path = "[]"
+        else:
+            formatted_path = "[\n"
+            for i, p in enumerate(new_path):
+                comma = "," if i < len(new_path) - 1 else ""
+                formatted_path += f"                [{p[0]}, {p[1]}]{comma}\n"
+            formatted_path += "            ]"
+
+        new_body = (
+            body[: path_match.start(2)] + formatted_path + body[path_match.end(2) :]
+        )
         new_content = (
-            self._content[: match.start(2)]
-            + formatted_targets
-            + self._content[match.end(2) :]
+            self._content[: node_match.start(2)]
+            + new_body
+            + self._content[node_match.end(2) :]
         )
 
         try:
@@ -802,7 +827,7 @@ def main():
         print(f"\n{_Y}Which node do you want to import?{_0}")
         for i, c in enumerate(candidates):
             print(
-                f"  {_C}[{i+1}]{_0} {c['node_name']} {_A}(Map: {c['map_name']}, Points: {len(c['targets'])}){_0}"
+                f"  {_C}[{i+1}]{_0} {c['node_name']} {_A}(Map: {c['map_name']}, Points: {len(c['path'])}){_0}"
             )
 
         try:
@@ -813,7 +838,7 @@ def main():
             selected_node = candidates[sel]
 
             original_map_name = selected_node["map_name"]
-            initial_points = selected_node["targets"]
+            initial_points = selected_node["path"]
 
             # Try to resolve the actual map filename on disk (keeping suffix) for editing
             resolved = find_map_file(original_map_name)
@@ -835,6 +860,7 @@ def main():
                     "handler": handler,
                     "node_name": selected_node["node_name"],
                     "original_map_name": original_map_name,
+                    "is_new_structure": selected_node.get("is_new_structure", False),
                 }
 
             except ValueError as e:
@@ -859,13 +885,13 @@ def main():
     print(f"  Total {len(points)} points")
     print(f"\n{_Y}Select an export mode:{_0}")
     if import_context:
-        print(f"  {_C}[R]{_0} Replace original targets in pipeline")
+        print(f"  {_C}[R]{_0} Replace original path in pipeline")
         print(f"      {_A}Write the changes back to {import_context['file_path']}{_0}")
     print(f"  {_C}[J]{_0} Print the node JSON string")
     print(f"      {_A}You can then copy the string as a new node.{_0}")
     print(f"  {_C}[L]{_0} Print the point list")
     print(
-        f"      {_A}You can copy the list and replace the {_0}'targets'{_A} field in your existing node.{_0}"
+        f"      {_A}You can copy the list and replace the {_0}'path'{_A} field in your existing node.{_0}"
     )
 
     export_mode = input("> ").strip().upper()
@@ -873,7 +899,7 @@ def main():
     if export_mode == "R" and import_context:
         handler = import_context["handler"]
         node_name = import_context["node_name"]
-        if handler.replace_targets(node_name, points):
+        if handler.replace_path(node_name, points):
             print(
                 f"\n{_G}Successfully updated node '{node_name}' in {import_context['file_path']}.{_0}"
             )
@@ -887,6 +913,9 @@ def main():
             if import_context
             else map_name
         )
+        is_new = (
+            import_context.get("is_new_structure", False) if import_context else False
+        )
         norm = raw_name
         if isinstance(norm, str):
             if norm.endswith("_merged.png"):
@@ -894,16 +923,27 @@ def main():
             elif norm.endswith(".png"):
                 norm = norm[:-4]
 
-        snippet = {
-            "NodeName": {
+        if is_new:
+            node_data = {
+                "action": {
+                    "custom_action": "MapTrackerMove",
+                    "param": {
+                        "map_name": norm,
+                        "path": [[int(p[0]), int(p[1])] for p in points],
+                    },
+                }
+            }
+        else:
+            node_data = {
                 "action": "Custom",
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
                     "map_name": norm,
-                    "targets": [[int(p[0]), int(p[1])] for p in points],
+                    "path": [[int(p[0]), int(p[1])] for p in points],
                 },
             }
-        }
+
+        snippet = {"NodeName": node_data}
         print(f"\n{_C}--- JSON Snippet ---{_0}\n")
         print(json.dumps(snippet, indent=4, ensure_ascii=False))
 
