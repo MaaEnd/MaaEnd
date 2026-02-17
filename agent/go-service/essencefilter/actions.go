@@ -21,10 +21,10 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	base := getResourceBase()
 	if base == "" {
-		base = "resource" // fallback to current relative default
+		base = "data" // fallback to current relative default
 	}
 
-	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
+	gameDataDir := filepath.Join(base, "EssenceFilter")
 	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
 	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
 
