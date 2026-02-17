@@ -24,6 +24,13 @@
         },
         {
             "fileMatch": [
+                "/assets/tasks/**/*.json",
+                "/install/tasks/**/*.json"
+            ],
+            "url": "/tools/schema/task.schema.json"
+        },
+        {
+            "fileMatch": [
                 "/install/config/maa_pi_config.json"
             ],
             "url": "/tools/schema/interface_config.schema.json"

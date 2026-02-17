@@ -238,6 +238,13 @@ def main():
         default=["assets/interface.json"],
         help="Path to interface.json files (default: assets/interface.json)",
     )
+    parser.add_argument(
+        "--task-dirs",
+        type=str,
+        nargs="*",
+        default=[],
+        help="Directories containing task files to validate against task.schema.json (default: none)",
+    )
 
     args = parser.parse_args()
 
@@ -325,6 +332,41 @@ def main():
                 print(
                     f"Warning: Interface file {interface_file} does not exist, skipping..."
                 )
+
+    # 验证 task 文件
+    if args.task_dirs:
+        print("\nValidating task files...")
+        task_schema_path = schema_dir / "task.schema.json"
+        if task_schema_path.exists():
+            task_schema = load_jsonc(task_schema_path)
+            task_schema_uri = task_schema_path.as_uri()
+            schema_store[task_schema_uri] = task_schema
+
+            task_validator = create_validator(task_schema, schema_store)
+
+            for task_dir in args.task_dirs:
+                task_path = Path(task_dir)
+                if not task_path.exists():
+                    print(
+                        f"Warning: Task directory {task_dir} does not exist, skipping..."
+                    )
+                    continue
+
+                for file_path in task_path.rglob("*.json"):
+                    if is_excluded(file_path):
+                        continue
+                    if not validate_file(file_path, task_validator):
+                        all_valid = False
+
+                for file_path in task_path.rglob("*.jsonc"):
+                    if is_excluded(file_path):
+                        continue
+                    if not validate_file(file_path, task_validator):
+                        all_valid = False
+        else:
+            print(
+                f"Warning: Task schema {task_schema_path} does not exist, skipping task validation..."
+            )
 
     if all_valid:
         print("\n✅ All validations passed!")
