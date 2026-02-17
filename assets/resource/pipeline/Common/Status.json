@@ -77,5 +77,22 @@
                 ]
             }
         }
+    },
+    "ESCMenu": {
+        "doc": "Esc菜单内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    228,
+                    440,
+                    265,
+                    205
+                ],
+                "expected": [
+                    "探索等级"
+                ]
+            }
+        }
     }
 }

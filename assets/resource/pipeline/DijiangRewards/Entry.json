@@ -8,7 +8,7 @@
         "next": [
             "[JumpBack]CancelExit",
             "InMainWindow_NeedCredit",
-            "[JumpBack]CloseButtonType1"
+            "[JumpBack]CloseButtonType2"
         ]
     },
     "DijiangRewards": {
@@ -19,7 +19,7 @@
         "next": [
             "[JumpBack]CancelExit",
             "InMainWindow_Normal",
-            "[JumpBack]CloseButtonType1"
+            "[JumpBack]CloseButtonType2"
         ]
     }
 }
