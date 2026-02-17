@@ -98,4 +98,4 @@ type InferResult struct {
 ### FAQ
 
 - **How to match location only in specific maps?**  
-    Please use the `map_name_regex` parameter to filter map names. Be careful that you must ensure the player is just in the map that can be matched, otherwise the recognition may fail.
+   Please use the `map_name_regex` parameter to filter map names. Be careful that you must ensure the player is just in the map that can be matched, otherwise the recognition may fail.
