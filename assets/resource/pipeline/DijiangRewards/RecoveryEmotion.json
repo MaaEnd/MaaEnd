@@ -73,6 +73,9 @@
     },
     "ExitRecoveryEmotion": {
         "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
+        "focus": {
+            "Node.PipelineNode.Failed": "从恢复心情界面返回控制中枢失败"
+        },
         "recognition": {
             "type": "OCR",
             "param": {
@@ -100,6 +103,9 @@
             "timeout": 2000
         },
         "doc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
+        },
         "recognition": {
             "type": "And",
             "param": {
@@ -154,6 +160,9 @@
     },
     "EmotionFull": {
         "doc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
+        "focus": {
+            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+        },
         "recognition": {
             "type": "OCR",
             "param": {
@@ -291,6 +300,9 @@
     },
     "CouldNotAssistEmotion": {
         "doc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
+        "focus": {
+            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
+        },
         "recognition": {
             "type": "OCR",
             "param": {

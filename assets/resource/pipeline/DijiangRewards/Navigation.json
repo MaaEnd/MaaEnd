@@ -177,6 +177,9 @@
                 ]
             }
         },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入舱室后失败,无法识别当前环境"
+        },
         "next": [
             "AlreadyInCarbin",
             "[JumpBack]ConfirmRestock",

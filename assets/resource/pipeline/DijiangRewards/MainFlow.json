@@ -1,6 +1,9 @@
 {
     "ControlNexus": {
         "doc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
+        "focus": {
+            "Node.PipelineNode.Failed": "未识别到指定舱室"
+        },
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -31,6 +34,9 @@
     },
     "InMainWindow_Normal": {
         "doc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号失败"
+        },
         "recognition": {
             "type": "Or",
             "param": {
@@ -81,6 +87,9 @@
     },
     "InMainWindow_NeedCredit": {
         "doc": "[联动主流程·入口]识别主界面或已在控制中枢，进入会客室做线索交流以获取信用点",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室获取信用点失败"
+        },
         "recognition": {
             "type": "Or",
             "param": {
@@ -222,6 +231,9 @@
     },
     "FinishAllDijiangTask": {
         "doc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
+        "focus": {
+            "Node.PipelineNode.Failed": "帝江基建流程结束后未能返回主界面"
+        },
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonType1"

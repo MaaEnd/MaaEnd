@@ -2,6 +2,9 @@
     "EntryReceptionRoom": {
         "doc": "[会客室·进入] 主流程: 从控制中枢点击会客室区域进入",
         "max_hit": 1,
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室识别"
+        },
         "recognition": {
             "type": "And",
             "param": {
@@ -80,6 +83,9 @@
                 ]
             }
         },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
+        },
         "next": [
             "InControlNexus",
             "[JumpBack]CloseRewardsButton",
@@ -89,11 +95,15 @@
             "[JumpBack]ReceptionRoomClickTips",
             "[JumpBack]ExitReceptionRoom",
             "[JumpBack]WhiteConfirmButtonType1",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "ReceptionRoom"
         ]
     },
     "ReceptionRoomClickTips": {
         "doc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
+        "focus": {
+            "Node.PipelineNode.Failed": "放置线索失败"
+        },
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
@@ -166,6 +176,9 @@
     },
     "ReadySetClues": {
         "doc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
+        "focus": {
+            "Node.PipelineNode.Failed": "会客室线索区域状态识别失败"
+        },
         "recognition": {
             "type": "OCR",
             "param": {

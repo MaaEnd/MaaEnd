@@ -2,6 +2,9 @@
     "EntryReceptionRoom_NeedCredit": {
         "doc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
         "max_hit": 1,
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室失败"
+        },
         "recognition": {
             "type": "And",
             "param": {
@@ -66,6 +69,9 @@
     },
     "ReceptionRoom_NeedCredit": {
         "doc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
+        "focus": {
+            "Node.PipelineNode.Failed": "线索交流开启失败"
+        },
         "recognition": {
             "type": "OCR",
             "param": {
@@ -102,6 +108,9 @@
                     "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
         },
         "next": [
             "InMainWindow",

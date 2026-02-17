@@ -15,6 +15,9 @@
                 ]
             }
         },
+        "focus": {
+            "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
+        },
         "next": [
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]YellowConfirmButtonType1",
