@@ -32,20 +32,6 @@ type WeaponDatabase struct {
 	Weapons []WeaponData `json:"weapons"`
 }
 
-// FilterPreset - preset config
-type FilterPreset struct {
-	Name   string       `json:"name"`
-	Label  string       `json:"label"`
-	Filter FilterConfig `json:"filter"`
-}
-
-// FilterConfig - filtering config
-type FilterConfig struct {
-	TypeIDs   []int `json:"type_ids"`   // optional weapon type filter
-	MinRarity int   `json:"min_rarity"` // min rarity
-	MaxRarity int   `json:"max_rarity"` // max rarity
-}
-
 // SkillCombination - target skill combination（静态配置，一把武器一条）
 type SkillCombination struct {
 	Weapon        WeaponData
@@ -73,6 +59,24 @@ type SkillCombinationSummary struct {
 type MatcherConfig struct {
 	SimilarWordMap  map[string]string `json:"similarWordMap"`
 	SuffixStopwords []string          `json:"suffixStopwords"`
+}
+
+type EssenceFilterOptions struct {
+	Rarity6Weapon   bool `json:"rarity6_weapon"`
+	Rarity5Weapon   bool `json:"rarity5_weapon"`
+	Rarity4Weapon   bool `json:"rarity4_weapon"`
+	FlawlessEssence bool `json:"flawless_essence"`
+	PureEssence     bool `json:"pure_essence"`
+}
+
+type ColorRange struct {
+	Lower [3]int
+	Upper [3]int
+}
+
+type EssenceMeta struct {
+	Name  string
+	Range ColorRange
 }
 
 // Global variables
@@ -104,4 +108,23 @@ var (
 
 	// Matcher config - loaded from JSON config file, used for skill name matching
 	matcherConfig MatcherConfig
+
+	// Essence color matching parameters
+	FlawlessEssenceMeta = EssenceMeta{
+		// Name: "Flawless Essence",
+		Name: "无暇基质",
+		Range: ColorRange{
+			Lower: [3]int{18, 70, 220},
+			Upper: [3]int{26, 255, 255},
+		},
+	}
+	PureEssenceMeta = EssenceMeta{
+		Name: "高纯基质",
+		Range: ColorRange{
+			Lower: [3]int{130, 55, 80},
+			Upper: [3]int{136, 255, 255},
+		},
+	}
+
+	EssenceTypes []EssenceMeta
 )

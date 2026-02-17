@@ -3,7 +3,6 @@ package essencefilter
 import (
 	"encoding/json"
 	"fmt"
-	"html"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -13,35 +12,6 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
-
-func LogMXU(ctx *maa.Context, content string) bool {
-	LogMXUOverrideParam := map[string]any{
-		"LogMXU": map[string]any{
-			"focus": map[string]any{
-				"Node.Action.Starting": content,
-			},
-		},
-	}
-	ctx.RunTask("LogMXU", LogMXUOverrideParam)
-	return true
-}
-
-func LogMXUHTML(ctx *maa.Context, htmlText string) bool {
-	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
-	return LogMXU(ctx, htmlText)
-}
-
-// LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
-func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) bool {
-	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
-	return LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
-}
-
-// LogMXUSimpleHTML logs a simple styled span with a default color.
-func LogMXUSimpleHTML(ctx *maa.Context, text string) bool {
-	// Call the more specific function with the default color "#00bfff".
-	return LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
-}
 
 // EssenceFilterInitAction - initialize filter
 type EssenceFilterInitAction struct{}
@@ -56,16 +26,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	gameDataDir := filepath.Join(base, "gamedata", "EssenceFilter")
 	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
-	presetsPath := filepath.Join(gameDataDir, "essence_filter_presets.json")
 	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
-	var params struct {
-		PresetName string `json:"preset_name"`
-	}
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().Err(err).Msg("<EssenceFilter> Step1 failed: param parse")
-		return false
-	}
-	log.Info().Str("preset_name", params.PresetName).Msg("<EssenceFilter> Step1 ok")
 
 	// 2. load matcher config
 	if err := LoadMatcherConfig(matcherConfigPath); err != nil {
@@ -83,28 +44,49 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	logSkillPools()
 
 	// 4. load presets
-	presets, err := LoadPresets(presetsPath)
+	opts, err := getOptionsFromAttach(ctx, arg.CurrentTaskName)
 	if err != nil {
-		log.Error().Err(err).Msg("<EssenceFilter> Step4 failed: load presets")
+		log.Error().Err(err).Msg("<EssenceFilter> Step4 failed: load options")
 		return false
 	}
 
 	// 5. select preset
-	var selectedPreset *FilterPreset
-	for _, p := range presets {
-		if p.Name == params.PresetName {
-			selectedPreset = &p
-			break
-		}
+
+	var WeaponRarity []int
+	if opts.Rarity6Weapon {
+		WeaponRarity = append(WeaponRarity, 6)
 	}
-	if selectedPreset == nil {
-		log.Error().Str("preset", params.PresetName).Msg("<EssenceFilter> Step5 failed: preset not found")
+	if opts.Rarity5Weapon {
+		WeaponRarity = append(WeaponRarity, 5)
+	}
+	if opts.Rarity4Weapon {
+		WeaponRarity = append(WeaponRarity, 4)
+	}
+
+	if len(WeaponRarity) == 0 {
+		log.Error().Msg("<EssenceFilter> Step5 failed: no preset selected, please select at least one preset")
+		LogMXUSimpleHTMLWithColor(ctx, "未选择任何武器稀有度，请至少选择一个武器稀有度作为筛选条件", "#ff0000")
 		return false
 	}
 
-	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择预设：%s", selectedPreset.Label))
+	EssenceTypes = EssenceTypes[:0] // reset global EssenceTypes slice
+	if opts.FlawlessEssence {
+		EssenceTypes = append(EssenceTypes, FlawlessEssenceMeta)
+	}
+	if opts.PureEssence {
+		EssenceTypes = append(EssenceTypes, PureEssenceMeta)
+	}
+
+	if len(EssenceTypes) == 0 {
+		log.Error().Msg("<EssenceFilter> Step5 failed: no essence type selected, please select at least one essence type")
+		LogMXUSimpleHTMLWithColor(ctx, "未选择任何基质类型，请至少选择一个基质类型作为筛选条件", "#ff0000")
+		return false
+	}
+
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(EssenceTypes)))
 	// 6. filter weapons
-	filteredWeapons := FilterWeaponsByConfig(selectedPreset.Filter)
+	filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
 	names := make([]string, 0, len(filteredWeapons))
 	for _, w := range filteredWeapons {
 		names = append(names, w.ChineseName)
@@ -354,20 +336,25 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 		roi := maa.Rect{colorMatchROIX, colorMatchROIY, colorMatchROIW, colorMatchROIH}
 
-		ColorMatchOverrideParam := map[string]any{
-			"EssenceColorMatch": map[string]any{
-				"roi": roi,
-			},
-		}
-		cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
+		for _, et := range EssenceTypes {
+			ColorMatchOverrideParam := map[string]any{
+				"EssenceColorMatch": map[string]any{
+					"roi":   roi,
+					"lower": et.Range.Lower,
+					"upper": et.Range.Upper,
+				},
+			}
+			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, ColorMatchOverrideParam)
 
-		if err != nil {
-			log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
-			continue
-		}
+			if err != nil {
+				log.Error().Err(err).Ints("box", boxArr[:]).Msg("<EssenceFilter> RowCollect: ColorMatch failed")
+				continue
+			}
 
-		if cDetail != nil && cDetail.Hit {
-			rowBoxes = append(rowBoxes, boxArr)
+			if cDetail != nil && cDetail.Hit {
+				rowBoxes = append(rowBoxes, boxArr)
+				break
+			}
 		}
 	}
 	// sort rowboxes by Y coordinate then X coordinate
@@ -388,7 +375,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceDetectFinal"},
 		})
-		LogMXUSimpleHTML(ctx, fmt.Sprintf("尾扫完成，收集所有剩余基质格子"))
+		LogMXUSimpleHTMLWithColor(ctx, "尾扫完成，收集所有剩余基质格子", "#1a01fd")
 		log.Info().Msg("<EssenceFilter> RowCollect: trigger final large scan")
 		return true
 	}
@@ -598,159 +585,4 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	}
 	log.Info().Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("<EssenceFilter> Trace")
 	return true
-}
-
-// logSkillPools - print all pools from DB
-func logSkillPools() {
-	for _, entry := range []struct {
-		slot string
-		pool []SkillPool
-	}{
-		{"Slot1", weaponDB.SkillPools.Slot1},
-		{"Slot2", weaponDB.SkillPools.Slot2},
-		{"Slot3", weaponDB.SkillPools.Slot3},
-	} {
-		for _, s := range entry.pool {
-			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
-		}
-	}
-}
-
-// buildFilteredSkillStats - count skill IDs per slot after filter
-func buildFilteredSkillStats(filtered []WeaponData) {
-	for i := range filteredSkillStats {
-		filteredSkillStats[i] = make(map[int]int)
-	}
-	for _, w := range filtered {
-		for i, id := range w.SkillIDs {
-			filteredSkillStats[i][id]++
-		}
-	}
-}
-
-// logFilteredSkillStats - log counts per slot
-func logFilteredSkillStats() {
-	for slotIdx, stat := range filteredSkillStats {
-		slot := slotIdx + 1
-		pool := getPoolBySlot(slot)
-		ids := make([]int, 0, len(stat))
-		for id := range stat {
-			ids = append(ids, id)
-		}
-		sort.Ints(ids)
-		for _, id := range ids {
-			name := skillNameByID(id, pool)
-			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
-		}
-	}
-}
-
-func getColorForRarity(rarity int) string {
-	switch rarity {
-	case 6:
-		return "#ff7000" // rarity 6
-	case 5:
-		return "#ffba03" // rarity 5
-	case 4:
-		return "#9451f8" // rarity 4
-	case 3:
-		return "#26bafb" // rarity 3
-	default:
-		return "#493a3a" // Default color
-	}
-}
-
-// escapeHTML - 简单封装 html.EscapeString，便于后续统一替换/扩展
-func escapeHTML(s string) string {
-	return html.EscapeString(s)
-}
-
-// formatWeaponNames - 将多把武器名格式化为展示字符串（UI 层负责拼接与本地化）
-func formatWeaponNames(weapons []WeaponData) string {
-	if len(weapons) == 0 {
-		return ""
-	}
-	names := make([]string, 0, len(weapons))
-	for _, w := range weapons {
-		names = append(names, w.ChineseName)
-	}
-	// 这里采用顿号拼接，更符合中文习惯；如需本地化，可进一步抽象
-	return strings.Join(names, "、")
-}
-
-// formatWeaponNamesColoredHTML - 按稀有度为每把武器着色并拼接成 HTML 片段
-func formatWeaponNamesColoredHTML(weapons []WeaponData) string {
-	if len(weapons) == 0 {
-		return ""
-	}
-	var b strings.Builder
-	for i, w := range weapons {
-		if i > 0 {
-			b.WriteString("、")
-		}
-		color := getColorForRarity(w.Rarity)
-		b.WriteString(fmt.Sprintf(
-			`<span style="color: %s;">%s</span>`,
-			color, escapeHTML(w.ChineseName),
-		))
-	}
-	return b.String()
-}
-
-// skillCombinationKey - 将技能 ID 列表转换为稳定的 key，用于统计 map
-func skillCombinationKey(ids []int) string {
-	if len(ids) == 0 {
-		return ""
-	}
-	parts := make([]string, len(ids))
-	for i, id := range ids {
-		parts[i] = strconv.Itoa(id)
-	}
-	return strings.Join(parts, "-")
-}
-
-// logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
-func logMatchSummary(ctx *maa.Context) {
-	if len(matchedCombinationSummary) == 0 {
-		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
-		return
-	}
-
-	type viewItem struct {
-		Key string
-		*SkillCombinationSummary
-	}
-
-	items := make([]viewItem, 0, len(matchedCombinationSummary))
-	for k, v := range matchedCombinationSummary {
-		items = append(items, viewItem{Key: k, SkillCombinationSummary: v})
-	}
-
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Key < items[j].Key
-	})
-
-	var b strings.Builder
-	b.WriteString(`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">战利品摘要：</div>`)
-	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
-	b.WriteString(`<tr><th style="text-align:left; padding: 2px 4px;">武器</th><th style="text-align:left; padding: 2px 4px;">技能组合</th><th style="text-align:right; padding: 2px 4px;">锁定数量</th></tr>`)
-
-	for _, item := range items {
-		weaponText := formatWeaponNamesColoredHTML(item.Weapons)
-		// 为了和前面 OCR 日志一致，summary 优先展示实际 OCR 到的技能文本
-		skillSource := item.OCRSkills
-		if len(skillSource) == 0 {
-			// 兜底：如果没有 OCR 文本（理论上不会发生），退回到静态配置的技能中文名
-			skillSource = item.SkillsChinese
-		}
-		skillText := escapeHTML(strings.Join(skillSource, " | "))
-		b.WriteString("<tr>")
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, weaponText))
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, skillText))
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px; text-align: right;">%d</td>`, item.Count))
-		b.WriteString("</tr>")
-	}
-
-	b.WriteString(`</table>`)
-	LogMXUHTML(ctx, b.String())
 }
