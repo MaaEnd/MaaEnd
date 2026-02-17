@@ -48,6 +48,9 @@ class Drawer:
     def get_image(self):
         return self._img
 
+    def get_text_size(self, text: str, font_scale: float, *, thickness: int):
+        return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
+
     def text(
         self,
         text: str,
@@ -60,7 +63,7 @@ class Drawer:
         bg_padding: int = 5,
     ):
         if bg_color is not None:
-            text_size = cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
+            text_size = self.get_text_size(text, font_scale, thickness=thickness)
             cv2.rectangle(
                 self._img,
                 (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
@@ -73,9 +76,7 @@ class Drawer:
     def text_centered(
         self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
     ):
-        text_size = cv2.getTextSize(
-            text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness
-        )[0]
+        text_size = self.get_text_size(text, font_scale, thickness=thickness)
         x = pos[0] - text_size[0] // 2
         self.text(text, (x, pos[1]), font_scale, color=color, thickness=thickness)
 
@@ -454,9 +455,7 @@ class PathEditPage:
 
         max_width = 0
         for line in legend_lines:
-            text_size = cv2.getTextSize(
-                line, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness
-            )[0]
+            text_size = drawer.get_text_size(line, font_scale, thickness=thickness)
             max_width = max(max_width, text_size[0])
         legend_w = max_width + 2 * padding
         legend_h = len(legend_lines) * line_height + 2 * padding
