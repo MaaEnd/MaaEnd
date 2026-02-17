@@ -227,8 +227,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "LasCarbin",
-                    {}
+                    "LasCarbinColor",
+                    "LastCarbinText"
                 ]
             }
         },
