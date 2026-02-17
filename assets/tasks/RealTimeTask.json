@@ -122,9 +122,9 @@
         },
         "AutoCloseInteraction": {
             "type": "switch",
-            "label": "自动交互处理",
+            "label": "$option.AutoCloseInteraction.label",
             "default": "No",
-            "description": "开启后将自动处理：指引光标、说明书翻页、全屏点击继续、档案关闭等",
+            "description": "$option.AutoCloseInteraction.description",
             "cases": [
                 {
                     "name": "Yes",
@@ -181,8 +181,8 @@
             ]
         },
         "EnableTutorialGuide": {
-            "label": "点击指引光标",
-            "description": "自动点击屏幕上出现的白色指引手势/箭头（老普之手！🛑开启后会严重拖慢轮循速度！！）",
+            "label": "$option.EnableTutorialGuide.label",
+            "description": "$option.EnableTutorialGuide.description",
             "type": "switch",
             "default": "No",
             "cases": [
@@ -211,8 +211,8 @@
             ]
         },
         "EnableTutorialBook": {
-            "label": "翻阅说明书",
-            "description": "自动翻页并确认说明教程弹窗",
+            "label": "$option.EnableTutorialBook.label",
+            "description": "$option.EnableTutorialBook.description",
             "type": "switch",
             "default": "Yes",
             "cases": [
@@ -241,8 +241,8 @@
             ]
         },
         "EnableClickAnywhere": {
-            "label": "点击任意处继续",
-            "description": "自动识别并点击全屏遮罩提示",
+            "label": "$option.EnableClickAnywhere.label",
+            "description": "$option.EnableClickAnywhere.description",
             "type": "switch",
             "default": "Yes",
             "cases": [
@@ -265,8 +265,8 @@
             ]
         },
         "EnableCloseSpecialPanel": {
-            "label": "关闭档案/语音",
-            "description": "自动识别并关闭剧情文档或语音记录界面",
+            "label": "$option.EnableCloseSpecialPanel.label",
+            "description": "$option.EnableCloseSpecialPanel.description",
             "type": "switch",
             "default": "Yes",
             "cases": [
