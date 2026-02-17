@@ -311,6 +311,13 @@ func (i *Infer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 // inferLocation infers the player's location on the map
 // Returns (x, y, confidence, mapName)
 func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
+	// Use cached scaled maps
+	scaledMaps := i.getScaledMaps(locScale)
+	if len(scaledMaps) == 0 {
+		log.Warn().Msg("No maps available for matching")
+		return 0, 0, 0.0, "None"
+	}
+
 	// Crop mini-map area from screen
 	miniMap := cropArea(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
 
@@ -335,8 +342,6 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRe
 	bestX, bestY := 0, 0
 	bestMapName := "None"
 
-	// Use cached scaled maps
-	scaledMaps := i.getScaledMaps(locScale)
 	triedCount := 0
 
 	for _, mapData := range scaledMaps {
@@ -359,6 +364,11 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRe
 			bestMapName = mapData.Name
 		}
 	}
+
+	if triedCount == 0 {
+		log.Warn().Str("regex", mapNameRegex.String()).Msg("No maps matched the regex")
+	}
+
 	log.Debug().Int("triedMaps", triedCount).
 		Float64("bestVal", bestVal).
 		Str("bestMap", bestMapName).
