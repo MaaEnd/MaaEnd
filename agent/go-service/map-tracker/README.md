@@ -32,10 +32,23 @@ Here is a pipeline example.
         "custom_action_param": {
             "map_name": "map02_lv002",
             "targets": [
-                [679, 341],
-                [688, 350],
-                [679, 358],
-                [670, 350]
+                [
+                    679,
+                    341
+                ],
+                [
+                    688,
+                    350
+                ],
+                [
+                    679,
+                    358
+                ],
+                [
+                    670,
+                    350
+                ]
+
             ]
         }
     }
@@ -45,11 +58,11 @@ Here is a pipeline example.
 ### FAQ
 
 - **Where can I find the map names?**  
-    Please refer to `/assets/resource/image/MapTracker/map`. Note that the name suffix "_merged.png" is not part of the map name.
+   Please refer to `/assets/resource/image/MapTracker/map`. Note that the name suffix "\_merged.png" is not part of the map name.
 - **How are the coordinates measured?**  
-    The coordinates are measured in mini-map image pixels, where (0, 0) is the top-left corner.
+   The coordinates are measured in mini-map image pixels, where (0, 0) is the top-left corner.
 - **How to get target coordinates?**  
-    *We provide a MapTracker tool* to easily generate location targets via GUI. Please install Python and `opencv-python`, then run the script at `/tools/map_tracker_tool.py`.
+   _We provide a MapTracker tool_ to easily generate location targets via GUI. Please install Python and `opencv-python`, then run the script at `/tools/map_tracker_tool.py`.
 
 > **Note**: The MapTracker tool can also open and edit an existing `targets` list from a given pipeline file.
 

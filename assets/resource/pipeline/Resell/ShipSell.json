@@ -11,9 +11,22 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": [640, 360, 100, 100],
-                "lower": [0, 0, 0],
-                "upper": [30, 30, 30],
+                "roi": [
+                    640,
+                    360,
+                    100,
+                    100
+                ],
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    30,
+                    30,
+                    30
+                ],
                 "count": 5000
             }
         },
@@ -51,7 +64,12 @@
         "post_delay": 0,
         "post_wait_freezes": {
             "time": 500,
-            "target": [640, 0, 640, 360],
+            "target": [
+                640,
+                0,
+                640,
+                360
+            ],
             "timeout": 15000
         },
         "next": ["ResellShipWalkAS_KeyUpA"]
@@ -120,7 +138,12 @@
             "param": {
                 "template": "Resell/terminal.png",
                 "threshold": 0.7,
-                "roi": [400, 200, 480, 320]
+                "roi": [
+                    400,
+                    200,
+                    480,
+                    320
+                ]
             }
         },
         "post_delay": 0,
@@ -206,7 +229,12 @@
             "param": {
                 "template": "Resell/inTerminal.png",
                 "threshold": 0.8,
-                "roi": [0, 50, 250, 250]
+                "roi": [
+                    0,
+                    50,
+                    250,
+                    250
+                ]
             }
         },
         "post_delay": 0,
@@ -221,17 +249,30 @@
             "param": {
                 "template": "Resell/storeItem.png",
                 "threshold": 0.8,
-                "roi": [0, 220, 250, 460]
+                "roi": [
+                    0,
+                    220,
+                    250,
+                    460
+                ]
             }
         },
         "action": {
             "type": "Click",
             "param": {
-                "target_offset": [0, 0, 40, -100]
+                "target_offset": [
+                    0,
+                    0,
+                    40,
+                    -100
+                ]
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage1SellSwipe", "ResellShipPage1NoStock"]
+        "next": [
+            "ResellShipPage1SellSwipe",
+            "ResellShipPage1NoStock"
+        ]
     },
 
     "ResellShipPage1SellSwipe": {
@@ -241,14 +282,25 @@
             "param": {
                 "template": "Resell/Confirm.png",
                 "threshold": 0.8,
-                "roi": [1010, 525, 120, 122]
+                "roi": [
+                    1010,
+                    525,
+                    120,
+                    122
+                ]
             }
         },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [530, 525],
-                "end": [700, 525]
+                "begin": [
+                    530,
+                    525
+                ],
+                "end": [
+                    700,
+                    525
+                ]
             }
         },
         "post_delay": 0,
@@ -261,7 +313,12 @@
             "param": {
                 "template": "Resell/Confirm.png",
                 "threshold": 0.8,
-                "roi": [1010, 525, 120, 122]
+                "roi": [
+                    1010,
+                    525,
+                    120,
+                    122
+                ]
             }
         },
         "pre_delay": 0,
@@ -281,7 +338,12 @@
             "param": {
                 "template": "Resell/success.png",
                 "threshold": 0.8,
-                "roi": [577, 601, 124, 119]
+                "roi": [
+                    577,
+                    601,
+                    124,
+                    119
+                ]
             }
         },
         "action": {
@@ -297,7 +359,12 @@
             "param": {
                 "template": "Resell/noStock.png",
                 "threshold": 0.8,
-                "roi": [200, 500, 200, 100]
+                "roi": [
+                    200,
+                    500,
+                    200,
+                    100
+                ]
             }
         },
         "action": {
@@ -332,17 +399,30 @@
             "param": {
                 "template": "Resell/storeItem.png",
                 "threshold": 0.8,
-                "roi": [0, 220, 250, 460]
+                "roi": [
+                    0,
+                    220,
+                    250,
+                    460
+                ]
             }
         },
         "action": {
             "type": "Click",
             "param": {
-                "target_offset": [0, 0, 40, -100]
+                "target_offset": [
+                    0,
+                    0,
+                    40,
+                    -100
+                ]
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage2SellSwipe", "ResellShipPage2NoStock"]
+        "next": [
+            "ResellShipPage2SellSwipe",
+            "ResellShipPage2NoStock"
+        ]
     },
 
     "ResellShipPage2SellSwipe": {
@@ -352,14 +432,25 @@
             "param": {
                 "template": "Resell/Confirm.png",
                 "threshold": 0.8,
-                "roi": [1010, 525, 120, 122]
+                "roi": [
+                    1010,
+                    525,
+                    120,
+                    122
+                ]
             }
         },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [530, 525],
-                "end": [700, 525]
+                "begin": [
+                    530,
+                    525
+                ],
+                "end": [
+                    700,
+                    525
+                ]
             }
         },
         "post_delay": 0,
@@ -372,7 +463,12 @@
             "param": {
                 "template": "Resell/Confirm.png",
                 "threshold": 0.8,
-                "roi": [1010, 525, 120, 122]
+                "roi": [
+                    1010,
+                    525,
+                    120,
+                    122
+                ]
             }
         },
         "pre_delay": 0,
@@ -392,7 +488,12 @@
             "param": {
                 "template": "Resell/success.png",
                 "threshold": 0.8,
-                "roi": [577, 601, 124, 119]
+                "roi": [
+                    577,
+                    601,
+                    124,
+                    119
+                ]
             }
         },
         "action": {
@@ -408,7 +509,12 @@
             "param": {
                 "template": "Resell/noStock.png",
                 "threshold": 0.8,
-                "roi": [200, 500, 200, 100]
+                "roi": [
+                    200,
+                    500,
+                    200,
+                    100
+                ]
             }
         },
         "action": {
@@ -433,7 +539,11 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipExitTerminal", "ResellShipExitToFriendPage", "ResellShipEndVisitCheck"]
+        "next": [
+            "ResellShipExitTerminal",
+            "ResellShipExitToFriendPage",
+            "ResellShipEndVisitCheck"
+        ]
     },
     "ResellShipExitTerminal": {
         "doc": "【环境检测1】在终端界面 -> ESC",
@@ -442,7 +552,12 @@
             "param": {
                 "template": "Resell/inTerminal.png",
                 "threshold": 0.8,
-                "roi": [0, 50, 250, 250]
+                "roi": [
+                    0,
+                    50,
+                    250,
+                    250
+                ]
             }
         },
         "action": {
@@ -452,7 +567,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipExitToFriendPage", "ResellShipEndVisitCheck"]
+        "next": [
+            "ResellShipExitToFriendPage",
+            "ResellShipEndVisitCheck"
+        ]
     },
     "ResellShipExitToFriendPage": {
         "doc": "【环境检测2】在船坞 -> ESC",
@@ -461,7 +579,12 @@
             "param": {
                 "template": "Resell/inShip.png",
                 "threshold": 0.8,
-                "roi": [0, 0, 125, 125]
+                "roi": [
+                    0,
+                    0,
+                    125,
+                    125
+                ]
             }
         },
         "action": {
@@ -480,7 +603,12 @@
             "param": {
                 "template": "Resell/endVisitCheck.png",
                 "threshold": 0.7,
-                "roi": [1000, 600, 280, 120]
+                "roi": [
+                    1000,
+                    600,
+                    280,
+                    120
+                ]
             }
         },
         "action": {
@@ -498,7 +626,12 @@
             "param": {
                 "template": "Resell/endVisitConfirm.png",
                 "threshold": 0.7,
-                "roi": [400, 300, 500, 300]
+                "roi": [
+                    400,
+                    300,
+                    500,
+                    300
+                ]
             }
         },
         "action": {
@@ -515,7 +648,12 @@
             "param": {
                 "template": "Resell/inGame1.png",
                 "threshold": 0.8,
-                "roi": [172, 0, 133, 118]
+                "roi": [
+                    172,
+                    0,
+                    133,
+                    118
+                ]
             }
         },
         "pre_delay": 0,

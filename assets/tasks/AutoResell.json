@@ -21,7 +21,7 @@
             "type": "switch",
             "label": "$option.AutoBuyAndSell.label",
             "description": "$option.AutoBuyAndSell.description",
-            "default": true,
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -55,7 +55,7 @@
                     "description": "$option.ImportMinimumProfit.inputs.ImportMinimumProfit.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": 3000
+                    "default": "3000"
                 }
             ],
             "pipeline_override": {
@@ -73,7 +73,7 @@
         "AutoChangeRegion": {
             "type": "switch",
             "label": "$option.AutoChangeRegion.label",
-            "default": true,
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
