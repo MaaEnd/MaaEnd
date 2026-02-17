@@ -3,6 +3,7 @@ package autoheadhunting
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -41,6 +42,11 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	fmt.Printf("%s: %d\n", t("target_pulls"), params.TargetPulls)
+	fmt.Printf("%s: %s\n", t("target_operator"), params.TargetOperator)
+	fmt.Printf("%s: %d\n", t("target_num"), params.TargetOperatorNum)
+	fmt.Printf("%s: %d\n", t("prefer_mode"), params.PreferMode)
+
 	lang = params.Language
 
 	stopping := false
@@ -69,6 +75,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 		mode := params.PreferMode
 		if params.TargetPulls-usedPulls < 10 {
+			fmt.Printf("%s\n", t("fallback_1x"))
 			mode = 1
 		}
 
@@ -107,7 +114,11 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		// 跳过拉杆和降落动画
-		ctx.RunTask("AutoHeadhunting:Skip1")
+		_, err = ctx.RunTask("AutoHeadhunting:Skip1")
+		if err != nil {
+			log.Err(err).Msg("[AutoHeadhunting] Failed to skip the pull animation")
+			return false
+		}
 
 		ans := make([]string, 0)
 		for range mode {
@@ -186,13 +197,13 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 		ans_mp_str := make([]string, 0)
 		ans_str := make([]string, 0)
-		ans_str = append(ans_str, fmt.Sprintf("%s %d/%d:", t("used_pulls"), usedPulls, params.TargetPulls)+"\n")
+		ans_str = append(ans_str, fmt.Sprintf("%s %d/%d", t("used_pulls"), usedPulls, params.TargetPulls)+"\n")
 		for name, count := range ans_mp {
 			ans_mp_str = append(ans_mp_str, fmt.Sprintf("%s: %d", name, count))
 			ans_str = append(ans_str, fmt.Sprintf("%s: %d", name, count)+"\n")
 		}
 
-		fmt.Printf("%s", ans_str)
+		fmt.Printf("%s", strings.Join(ans_str, ""))
 		log.Info().Msgf("[AutoHeadhunting] Results: %s", ans_mp_str)
 		log.Info().Msgf("[AutoHeadhunting] Used pulls: %d /  %d", usedPulls, params.TargetPulls)
 	}

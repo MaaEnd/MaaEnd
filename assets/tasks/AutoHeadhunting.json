@@ -84,6 +84,7 @@
         "PreferMode": {
             "type": "select",
             "label": "$option.PreferMode.label",
+            "default_case": "1x",
             "cases": [
                 {
                     "name": "1x",

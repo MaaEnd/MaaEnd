@@ -3,8 +3,8 @@
         "action": "Custom",
         "custom_action": "AutoHeadhunting",
         "attach": {
+            "Language": "zh_cn"
             /*
-            "Language": "zh_cn",
             "TargetPulls": 0,
             "TargetOperator": "",
             "TargetOperatorNum": 1,
