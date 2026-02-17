@@ -92,7 +92,15 @@
             }
         },
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    53,
+                    5,
+                    -85,
+                    -9
+                ]
+            }
         }
     },
     "OpenMap": {
