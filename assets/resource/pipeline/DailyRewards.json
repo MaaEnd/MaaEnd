@@ -3,6 +3,7 @@
         "next": [
             "[JumpBack]DailyEmailRewardSub",
             "[JumpBack]DailyTaskRewardSub",
+            "[JumpBack]DailyProtocolPassRewardSub",
             "[JumpBack]DailyEventRewardSub",
             "DailyRewardEnd"
         ],
@@ -30,7 +31,7 @@
         },
         "max_hit": 1,
         "next": [
-            "DailyRewards"
+            "DailyTaskStart"
         ],
         "post_delay": 0,
         "pre_delay": 0
@@ -42,6 +43,17 @@
         "max_hit": 1,
         "next": [
             "DailyEventStart"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "DailyProtocolPassRewardSub": {
+        "focus": {
+            "Node.Recognition.Succeeded": "开始领取通行证奖励"
+        },
+        "max_hit": 1,
+        "next": [
+            "DailyProtocolPassStart"
         ],
         "post_delay": 0,
         "pre_delay": 0

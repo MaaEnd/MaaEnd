@@ -134,8 +134,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": [
-                    "DailyRewards/RedDot.png",
-                    "DailyRewards/RedDot2.png"
+                    "DailyRewards/EventRedDot.png",
+                    "DailyRewards/EventRedDot2.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.9

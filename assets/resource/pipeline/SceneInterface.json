@@ -112,7 +112,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "SceneEnterGearAssembly": {
+    "SceneEnterMenuGearAssembly": {
         "doc": "从任意界面进入装备加工界面",
         "pre_delay": 0,
         "post_delay": 0,
@@ -137,6 +137,15 @@
         "next": [
             "ScenePrivateWorldEnterMenuEmail",
             "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "doc": "从任意界面进入背包界面，左侧包含仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
     "SceneDialogConfirm": {
