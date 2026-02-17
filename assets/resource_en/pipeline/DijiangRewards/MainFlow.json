@@ -8,5 +8,10 @@
         "expected": [
             "Growth Chamber"
         ]
+    },
+    "CloseAssist": {
+        "expected": [
+            "Invite Friend"
+        ]
     }
 }

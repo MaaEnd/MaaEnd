@@ -29,8 +29,32 @@
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
             "[JumpBack]WhiteConfirmButtonType1",
-            "[JumpBack]CloseRewardsButton"
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]CloseAssist"
         ]
+    },
+    "CloseAssist": {
+        "doc": "[意外进入生产助力] 识别进入生产助力界面，点击返回控制中枢",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    957,
+                    550,
+                    126,
+                    83
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
     },
     "InMainWindow_Normal": {
         "doc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
