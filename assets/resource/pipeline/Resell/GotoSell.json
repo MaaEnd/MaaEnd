@@ -93,7 +93,7 @@
         "post_delay": 500,
         "action": "Click",
         "next": [
-            //"WaitingForLoading"
+            "WaitingForLoading"
         ]
     },
     "WaitingForLoading": {
@@ -121,6 +121,8 @@
         "pre_delay": 0,
         "post_delay": 500,
         "action": "DoNothing",
-        "next": []
+        "next": [
+            "ResellShipLoaded"
+        ]
     }
 }
