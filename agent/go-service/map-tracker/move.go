@@ -68,7 +68,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if err != nil {
 				log.Warn().
 					Err(err).
-					Msg("Failed to show navigation moving UI")
+					Str("module", "map-tracker").
+					Str("ui_view", "navigation_moving").
+					Msg("failed to render UI")
 			}
 		} else if err != nil {
 			log.Debug().Err(err).Msg("Initial infer failed for moving UI")
@@ -193,7 +195,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if err != nil {
 		log.Warn().
 			Err(err).
-			Msg("Failed to show navigation finished UI")
+			Str("module", "map-tracker").
+			Str("ui_view", "navigation_finished").
+			Msg("failed to render UI")
 	}
 
 	return true
@@ -205,7 +209,9 @@ func doEmergencyStop(aw *ActionWrapper) {
 	if err != nil {
 		log.Warn().
 			Err(err).
-			Msg("Failed to show emergency stop UI")
+			Str("module", "map-tracker").
+			Str("ui_view", "emergency_stop").
+			Msg("failed to render UI")
 	}
 	aw.KeyUpSync(KEY_W, 100)
 	aw.ctx.GetTasker().PostStop()
