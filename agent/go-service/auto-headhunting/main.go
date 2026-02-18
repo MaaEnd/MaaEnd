@@ -114,10 +114,15 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		// 跳过拉杆和降落动画
-		_, err = ctx.RunTask("AutoHeadhunting:Skip1")
+		task_details, err := ctx.RunTask("AutoHeadhunting:Skip1")
 		if err != nil {
 			log.Err(err).Msg("[AutoHeadhunting] Failed to skip the pull animation")
 			return false
+		}
+		if task_details != nil && !task_details.Status.Done() {
+			// 六星动画无法跳过 当未检测到跳过键时 进入等待
+			log.Info().Msg("[AutoHeadhunting] Skip button is not detected, waiting for animation to finish...")
+			ctx.RunTask("AutoHeadhunting:Waiting")
 		}
 
 		ans := make([]string, 0)

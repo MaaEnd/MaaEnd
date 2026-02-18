@@ -76,10 +76,11 @@
         ],
         "action": "Click",
         "post_delay": 500,
+        "timeout": 1500,
         "next": ["AutoHeadhunting:Skip2"]
     },
     "AutoHeadhunting:Skip2": {
-        // 跳过降落动画
+        // 跳过落地动画
         "recognition": "TemplateMatch",
         "template": ["AutoHeadhunting/skip.png"],
         "roi": [
@@ -88,8 +89,13 @@
             74,
             70
         ],
+        "action": "Click",
         "post_delay": 500,
-        "action": "Click"
+        "timeout": 1500
+    },
+    "AutoHeadhunting:Waiting": {
+        // 六星动画无法跳过 当未检测到跳过键时 进入等待
+        "post_delay": 20000
     },
 
     "AutoHeadhunting:DetectedArsenalTicket": {
