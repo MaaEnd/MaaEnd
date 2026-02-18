@@ -6,34 +6,24 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
-func LogMXU(ctx *maa.Context, content string) bool {
-	LogMXUOverrideParam := map[string]any{
-		"LogMXU": map[string]any{
-			"focus": map[string]any{
-				"Node.Action.Starting": content,
-			},
-		},
-	}
-	ctx.RunTask("LogMXU", LogMXUOverrideParam)
-	return true
-}
-
-func LogMXUHTML(ctx *maa.Context, htmlText string) bool {
+func LogMXUHTML(ctx *maa.Context, htmlText string) error {
 	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
-	return LogMXU(ctx, htmlText)
+	return maafocus.NodeActionStarting(ctx, htmlText)
 }
 
 // LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
-func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) bool {
+func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) error {
 	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
 	return LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
 }
 
 // LogMXUSimpleHTML logs a simple styled span with a default color.
-func LogMXUSimpleHTML(ctx *maa.Context, text string) bool {
+func LogMXUSimpleHTML(ctx *maa.Context, text string) error {
 	// Call the more specific function with the default color "#00bfff".
 	return LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
 }
@@ -41,7 +31,14 @@ func LogMXUSimpleHTML(ctx *maa.Context, text string) bool {
 // logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
 func logMatchSummary(ctx *maa.Context) {
 	if len(matchedCombinationSummary) == 0 {
-		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
+		err := LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("module", "essencefilter").
+				Str("ui_view", "no_match_summary").
+				Msg("failed to render UI")
+		}
 		return
 	}
 
@@ -89,7 +86,14 @@ func logMatchSummary(ctx *maa.Context) {
 	}
 
 	b.WriteString(`</table>`)
-	LogMXUHTML(ctx, b.String())
+	err := LogMXUHTML(ctx, b.String())
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("module", "essencefilter").
+			Str("ui_view", "match_summary").
+			Msg("failed to render UI")
+	}
 }
 
 // formatWeaponNamesColoredHTML - 按稀有度为每把武器着色并拼接成 HTML 片段
