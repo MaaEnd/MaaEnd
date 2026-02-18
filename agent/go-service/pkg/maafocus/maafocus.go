@@ -1,3 +1,5 @@
+// Package maafocus provides helpers to send focus payloads from go-service
+// events so the client can render related UI focus hints.
 package maafocus
 
 import (
