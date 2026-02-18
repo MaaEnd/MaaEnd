@@ -229,6 +229,8 @@
     "controller.Win32.label": "电脑端",
     "controller.Win32-Window.label": "电脑端-备选",
     "controller.Win32-Front.label": "电脑端-前台",
+    "controller.Win32-Background.label": "电脑端-后台",
+    "controller.Win32-Window-Background.label": "电脑端-备选-后台",
     "controller.ADB.label": "安卓端",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md",
     "operator.Perlica": "佩丽卡",

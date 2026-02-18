@@ -229,6 +229,8 @@
     "controller.Win32.label": "PC",
     "controller.Win32-Window.label": "PC-Fallback",
     "controller.Win32-Front.label": "PC-Foreground",
+    "controller.Win32-Background.label": "PC-Background",
+    "controller.Win32-Window-Background.label": "PC-Fallback-Background",
     "controller.ADB.label": "Android",
     "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md",
     "operator.Perlica": "Perlica",
