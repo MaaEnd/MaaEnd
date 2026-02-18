@@ -28,6 +28,60 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMapValleyIVTheHub": {
+        "doc": "从任意界面进入四号谷地-枢纽区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVTheHub",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVValleyPass": {
+        "doc": "从任意界面进入四号谷地-谷地通道地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginiumSciencePark": {
+        "doc": "从任意界面进入四号谷地-源石研究园地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVAburreyQuarry": {
+        "doc": "从任意界面进入四号谷地-阿伯莉采石场地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginLodespring": {
+        "doc": "从任意界面进入四号谷地-矿脉源区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVPowerPlateau": {
+        "doc": "从任意界面进入四号谷地-供能高地地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterWorldDijiang": {
         "doc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
