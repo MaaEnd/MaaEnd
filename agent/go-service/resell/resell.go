@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -214,7 +215,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	// Check if sold out
 	if len(records) == 0 {
 		log.Info().Msg("库存已售罄，无可购买商品")
-		ResellShowMessage(ctx, "⚠️ 库存已售罄，无可购买商品")
+		maafocus.NodeActionStarting(ctx, "⚠️ 库存已售罄，无可购买商品")
 		return true
 	}
 
@@ -245,7 +246,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		// Show message with focus
 		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
 			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
-		ResellShowMessage(ctx, message)
+		maafocus.NodeActionStarting(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -277,7 +278,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			message = fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
 				showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		}
-		ResellShowMessage(ctx, message)
+		maafocus.NodeActionStarting(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -545,20 +546,6 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	return x, y, hoursLater, b
-}
-
-// ResellShowMessage - Show message to user with focus
-func ResellShowMessage(ctx *maa.Context, text string) bool {
-	ctx.RunTask("Resell_TaskShowMessage", map[string]interface{}{
-		"Resell_TaskShowMessage": map[string]interface{}{
-			"recognition": "DirectHit",
-			"action":      "DoNothing",
-			"focus": map[string]interface{}{
-				"Node.Action.Starting": text,
-			},
-		},
-	})
-	return true
 }
 
 func processMaxRecord(record ProfitRecord) ProfitRecord {

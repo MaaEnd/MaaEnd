@@ -36,13 +36,14 @@
         ]
     },
     "EnterPauseMenu": {
-        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船时有效）",
+        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船、且不在好友列表时有效）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "InWorld"
+                    "InWorld",
+                    "NotOnFriendList"
                 ]
             }
         },
@@ -101,6 +102,28 @@
             "ClueExchangeOCR",
             "VisitEnd"
         ]
+    },
+    "NotOnFriendList": {
+        "doc": "识别当前不在好友列表界面（用于 EnterPauseMenu，避免在好友列表时误判为 InWorld 而按 Esc）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/OnFriendList.png",
+                "roi": [
+                    12,
+                    44,
+                    80,
+                    64
+                ],
+                "threshold": 0.8
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": []
     },
     "PriorStealGate": {
         "doc": "偷菜模式：助力生产 - 剩余次数大于0",
@@ -191,6 +214,7 @@
     },
     "ProductionAssistCheckPriorSteal": {
         "doc": "偷菜模式：找到可以线索交流也能助力生产的好友舰船",
+        "pre_wait_freezes": 200,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -204,7 +228,29 @@
         },
         "next": [
             "GrowthChamberCheck",
-            "SkipConfirmBackToFriendList"
+            "SkipConfirmBackToFriendList",
+            "ProductionAssistCheckPriorStealRetry"
+        ]
+    },
+    "ProductionAssistCheckPriorStealRetry": {
+        "doc": "子菜单未打开时重试点击",
+        "max_hit": 5,
+        "pre_wait_freezes": 200,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/PreStoleCheckAvailable.png",
+                "threshold": 0.95
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GrowthChamberCheck",
+            "SkipConfirmBackToFriendList",
+            "ProductionAssistCheckPriorStealRetry"
         ]
     },
     "ProductionAssistCheck": {
@@ -277,7 +323,6 @@
     "ProductionAssistSwipe": {
         "doc": "好友界面向下滑找更多好友",
         "recognition": "DirectHit",
-        "max_hit": 12,
         "action": {
             "type": "Swipe",
             "param": {
@@ -299,7 +344,6 @@
     "VisitorTerminalSwipeFacilityList": {
         "doc": "访客终端界面为了露出培养仓助力按钮而向左划。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
         "recognition": "DirectHit",
-        "max_hit": 12,
         "action": {
             "type": "Swipe",
             "param": {

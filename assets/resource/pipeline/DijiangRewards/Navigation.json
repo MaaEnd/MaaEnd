@@ -1,0 +1,243 @@
+{
+    "OpenDijiangControlNexus": {
+        "doc": "[导航·帝江号] 从主界面按 I 键打开帝江号总控中枢入口",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    247,
+                    0,
+                    172,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/ControlNexus.png",
+                    "ClaimDijiangRewards/ControlNexusWithTips.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 73
+            }
+        }
+    },
+    "SelectDijiangTeleport": {
+        "doc": "[导航·传送] 在地图界面识别帝江桥并点击帝江传送点",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_DijiangBridge",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    17,
+                                    38,
+                                    1236,
+                                    640
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangBridge.png"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "_DijiangBridge",
+                                "roi_offset": [
+                                    130,
+                                    -10,
+                                    60,
+                                    20
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/DijiangTeleport.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SelectDijiang": {
+        "doc": "[导航·地图] 在地图/选船界面点击帝江号(OMV)以进入帝江",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1052,
+                    0,
+                    228,
+                    196
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    53,
+                    5,
+                    -85,
+                    -9
+                ]
+            }
+        }
+    },
+    "OpenMap": {
+        "doc": "[导航·主界面] 从主界面按 M 键打开地图",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77
+            }
+        }
+    },
+    "ControlNexusClickTips": {
+        "doc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    759,
+                    463,
+                    521,
+                    117
+                ],
+                "lower": [
+                    224,
+                    105,
+                    0
+                ],
+                "upper": [
+                    255,
+                    117,
+                    4
+                ],
+                "count": 40,
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -100,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入舱室后失败,无法识别当前环境"
+        },
+        "next": [
+            "AlreadyInCarbin",
+            "[JumpBack]ConfirmRestock",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]EndExchange",
+            "ControlNexusClickTips"
+        ]
+    },
+    "AlreadyInCarbin": {
+        "doc": "[控制中枢·状态] 红点点击后已在舱室(制造舱/培养舱)或生产助力界面，用于 next 状态判断",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱",
+                                    "培养舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    170,
+                                    104,
+                                    121,
+                                    77
+                                ],
+                                "expected": [
+                                    "生产助力"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

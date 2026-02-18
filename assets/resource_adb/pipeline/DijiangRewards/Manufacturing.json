@@ -1,0 +1,10 @@
+{
+    "Exit_MFG_Cabin": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}

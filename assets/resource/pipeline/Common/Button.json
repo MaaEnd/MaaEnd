@@ -20,7 +20,6 @@
                         207,
                         13
                     ]
-
                 ],
                 "upper": [
                     [
@@ -38,7 +37,6 @@
                         241,
                         48
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -66,7 +64,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "upper": [
                     [
@@ -84,7 +81,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -107,7 +103,6 @@
                         82,
                         82
                     ]
-
                 ],
                 "upper": [
                     [
@@ -120,7 +115,6 @@
                         83,
                         83
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -335,7 +329,7 @@
         }
     },
     "CloseButtonType1": {
-        "doc": "通用退出按钮，位于界面右上角的X",
+        "doc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -355,6 +349,24 @@
         },
         "action": {
             "type": "Click"
+        }
+    },
+    "CloseButtonType2": {
+        "doc": "通用退出按钮，位于界面右上角的X,兼容ESC菜单",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ESCMenu"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
         }
     }
 }

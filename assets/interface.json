@@ -45,6 +45,32 @@
             "permission_required": true
         },
         {
+            "name": "Win32-Background",
+            "label": "$controller.Win32-Background.label",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "FramePool",
+                "mouse": "SendMessageWithWindowPos",
+                "keyboard": "SendMessageWithWindowPos"
+            },
+            "permission_required": true
+        },
+        {
+            "name": "Win32-Window-Background",
+            "label": "$controller.Win32-Window-Background.label",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "PrintWindow",
+                "mouse": "SendMessageWithWindowPos",
+                "keyboard": "SendMessageWithWindowPos"
+            },
+            "permission_required": true
+        },
+        {
             "name": "Win32-Front",
             "label": "$controller.Win32-Front.label",
             "type": "Win32",

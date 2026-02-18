@@ -1,0 +1,302 @@
+{
+    "AlreadyHaveClues": {
+        "expected": [
+            "Pegged"
+        ]
+    },
+    "ReceptionRoomClickTips": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    79,
+                                    1116,
+                                    485
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "Reception Room"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "CollectClues": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 2,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "Reception Room"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "Collection"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "SendClues": {
+        "expected": [
+            "Local clue library is full"
+        ]
+    },
+    "ReadySetClues": {
+        "expected": [
+            "Clue"
+        ]
+    },
+    "SendCluesSwipe": {
+        "expected": [
+            "Clue"
+        ]
+    },
+    "SendTheMostClues": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_Clue",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    126,
+                                    157,
+                                    120,
+                                    555
+                                ],
+                                "expected": [
+                                    "Local Library"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "only_rec": true,
+                                "roi": "_Clue",
+                                "roi_offset": [
+                                    165,
+                                    0,
+                                    -46,
+                                    0
+                                ],
+                                "expected": [
+                                    "^(20|[4-9]|1[0-9])$"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "EntrySendClues": {
+        "expected": [
+            "Send"
+        ]
+    },
+    "ReceiveClues": {
+        "doc": "[会客室·线索] 点击「接收」红点接收好友赠送线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "Receive"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "EndExchange": {
+        "doc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    528,
+                                    562,
+                                    256,
+                                    151
+                                ],
+                                "expected": [
+                                    "Confirm"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    498,
+                                    83,
+                                    321,
+                                    129
+                                ],
+                                "expected": [
+                                    "Clue Exchange Ended"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "ReceptionRoom": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "ExitReceptionRoom": {
+        "expected": [
+            "Reception"
+        ]
+    },
+    "ExitCollect": {
+        "expected": [
+            "Reception"
+        ]
+    }
+}
