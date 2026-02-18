@@ -167,14 +167,6 @@ func (r *DailyEventUnreadDetailInitRecognition) Run(ctx *maa.Context, arg *maa.C
 			log.Debug().Interface("box", redDotBox).Msg("Found '前往' text, skipping this red dot")
 			continue
 		}
-		if err != nil {
-			log.Warn().Err(err).Msg("Failed to run OCR for reward text")
-			continue
-		}
-		if ocrDetail != nil && ocrDetail.Hit {
-			log.Debug().Interface("box", redDotBox).Msg("Found '前往' text, skipping this red dot")
-			continue
-		}
 
 		clickBox := maa.Rect{
 			redDotBox.X() - 20,
