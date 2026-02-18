@@ -204,5 +204,28 @@
             "BakerFilterUnread",
             "SaveBakerFilter"
         ]
+    },
+    "TalkOver3": {
+        "doc": "事务通讯: 用于检测当前会话是否结束 (匹配方式3)",
+        // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver3 中图片进行增强
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/taskshow.png",
+            "Baker/taskshow2.png",
+            "Baker/taskshow3.png"
+        ],
+        "threshold": 0.95,
+        "roi": [
+            510,
+            90,
+            104,
+            586
+        ],
+        "action": "DoNothing",
+        "next": [
+            "TalkWith",
+            "TalkWithHint",
+            "RefreshBakerFilter"
+        ]
     }
 }
