@@ -222,8 +222,8 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Msgf("[AutoHeadhunting] Finished with %d pulls, found %d target operators (%s)", usedPulls, targetCount, params.TargetOperator)
 	log.Info().Msgf("[AutoHeadhunting] Final results: %v", mp)
 
-	fmt.Printf(t("done")+"\n", usedPulls, targetCount, params.TargetOperator)
-	fmt.Printf(t("final_results"), mp)
+	fmt.Printf(t("done")+"\n", usedPulls, targetCount, targetLabel)
+	// fmt.Printf(t("final_results"), mp) // TODO: 本地化最终结果输出
 
 	return true
 }
