@@ -288,20 +288,3 @@ func (aw *ActionWrapper) RotateCamera(dx int, durationMillis int, delayMillis in
 	aw.ClickSync(0, cx, cy, stepDelayMillis)
 	aw.KeyUpSync(KEY_ALT, stepDelayMillis)
 }
-
-/* ******** Misc ******** */
-
-// PrintUI displays a message on the UI
-func PrintUI(ctx *maa.Context, content string) bool {
-	overrideParam := map[string]any{
-		"MapTrackerPrintUI": map[string]any{
-			"pre_delay":  0,
-			"post_delay": 0,
-			"focus": map[string]any{
-				"Node.Action.Starting": content,
-			},
-		},
-	}
-	ctx.RunTask("MapTrackerPrintUI", overrideParam)
-	return true
-}

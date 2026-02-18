@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -74,7 +75,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// Show navigation UI
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
 			initDist := math.Hypot(float64(initRes.X-targetX), float64(initRes.Y-targetY))
-			PrintUI(aw.ctx, fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)))
+			maafocus.NodeActionStarting(
+				aw.ctx,
+				fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
+			)
 		} else if err != nil {
 			log.Debug().Err(err).Msg("Initial infer failed for moving UI")
 		}
@@ -191,7 +195,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// Show finished UI summary
-	PrintUI(aw.ctx, fmt.Sprintf(navigationFinishedHTML, len(param.Path)))
+	maafocus.NodeActionStarting(
+		aw.ctx,
+		fmt.Sprintf(navigationFinishedHTML, len(param.Path)),
+	)
 
 	return true
 }
@@ -267,7 +274,7 @@ func parseParam(paramStr string) (*MapTrackerMoveParam, error) {
 
 func doEmergencyStop(aw *ActionWrapper) {
 	log.Warn().Msg("Emergency stop triggered")
-	PrintUI(aw.ctx, emergencyStopHTML)
+	maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
 	aw.KeyUpSync(KEY_W, 100)
 	aw.ctx.GetTasker().PostStop()
 }
