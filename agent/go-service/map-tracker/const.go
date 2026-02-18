@@ -7,7 +7,7 @@ const (
 )
 
 // Location inference configuration
-var (
+const (
 	// Mini-map crop area
 	LOC_CENTER_X = 108
 	LOC_CENTER_Y = 111
@@ -15,7 +15,7 @@ var (
 )
 
 // Rotation inference configuration
-var (
+const (
 	// Pointer crop area
 	ROT_CENTER_X = 108
 	ROT_CENTER_Y = 111
@@ -30,17 +30,21 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS                = 200
-	ARRIVAL_TOLERANCE                = 4.5 // Unit: mini-map pixel distance
-	ROTATION_LOW_TOLERANCE           = 8   // Unit: degree
-	ROTATION_HIGH_TOLERANCE          = 60  // Unit: degree
-	ROTATION_SENSITIVITY             = 2.0
-	STUCK_MIN_DURATION_MS            = 1500
-	SPRINT_MIN_DISTANCE              = 15.0 // Unit: mini-map pixel distance
-	FAILURE_ARRIVAL_MAX_DURATION_MS  = 60000
-	FAILURE_ROTATION_MAX_DURATION_MS = 30000
-	FAILURE_STUCK_MAX_DURATION_MS    = 10000
+	INFER_INTERVAL_MS = 200
 )
+
+// MapTrackerMove parameters default values
+var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
+	ArrivalThreshold:       4.5,
+	ArrivalTimeout:         60000,
+	RotationLowerThreshold: 8.0,
+	RotationUpperThreshold: 60.0,
+	RotationSpeed:          2.0,
+	RotationTimeout:        30000,
+	SprintThreshold:        25.0,
+	StuckThreshold:         1500,
+	StuckTimeout:           10000,
+}
 
 // Win32 action related codes
 const (

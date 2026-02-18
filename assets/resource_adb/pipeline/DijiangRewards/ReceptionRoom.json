@@ -1,0 +1,33 @@
+{
+    "ExitReceptionRoom": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "SendClues": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "SendCluesSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    225,
+                    572
+                ],
+                "end": [
+                    236,
+                    231
+                ]
+            }
+        }
+    }
+}

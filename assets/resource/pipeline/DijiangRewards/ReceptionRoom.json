@@ -1,0 +1,719 @@
+{
+    "EntryReceptionRoom": {
+        "doc": "[会客室·进入] 主流程: 从控制中枢点击会客室区域进入",
+        "max_hit": 1,
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室识别"
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_ReceptionRoomBackground",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    363,
+                                    12,
+                                    538,
+                                    278
+                                ],
+                                "lower": [
+                                    151,
+                                    132,
+                                    235
+                                ],
+                                "upper": [
+                                    158,
+                                    138,
+                                    249
+                                ],
+                                "count": 400,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_ReceptionRoomBackground",
+                                "lower": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "upper": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "count": 50,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ReceptionRoom",
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom"
+        ]
+    },
+    "ReceptionRoom": {
+        "doc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]CollectClues",
+            "[JumpBack]ReceiveClues",
+            "[JumpBack]StartExchange",
+            "[JumpBack]ReceptionRoomClickTips",
+            "[JumpBack]ExitReceptionRoom",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]EndExchange",
+            "ReceptionRoom"
+        ]
+    },
+    "ReceptionRoomClickTips": {
+        "doc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
+        "focus": {
+            "Node.PipelineNode.Failed": "放置线索失败"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "doc": "任务提示的红点",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    79,
+                                    1116,
+                                    485
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "doc": "确保在会客室界面",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "会客室"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -40,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "ReadySetClues",
+            "EndExchange"
+        ]
+    },
+    "ReadySetClues": {
+        "doc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
+        "focus": {
+            "Node.PipelineNode.Failed": "会客室线索区域状态识别失败"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "线索"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "next": [
+            "AlreadyHaveClues",
+            "SetClues"
+        ]
+    },
+    "AlreadyHaveClues": {
+        "doc": "[会客室·线索] 识别「已填入」，无需再放置线索",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    835,
+                    166,
+                    142,
+                    166
+                ],
+                "expected": [
+                    "已填入"
+                ],
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "SetClues": {
+        "doc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "doc": "识别线索的删除按钮",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    1,
+                                    -17,
+                                    180,
+                                    17
+                                ],
+                                "upper": [
+                                    221,
+                                    44,
+                                    76
+                                ],
+                                "lower": [
+                                    221,
+                                    44,
+                                    75
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "doc": "识别线索的剩余天数",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "ReadySetClues",
+                                "roi_offset": [
+                                    -102,
+                                    1,
+                                    -21,
+                                    85
+                                ],
+                                "upper": [
+                                    166,
+                                    189,
+                                    107
+                                ],
+                                "lower": [
+                                    109,
+                                    153,
+                                    0
+                                ],
+                                "count": 20,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "ReadySetClues"
+            }
+        }
+    },
+    "CollectClues": {
+        "doc": "[会客室·线索] 点击「收集」红点领取线索，线索上限时自动赠送线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 2,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "会客室"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "收集"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SendClues",
+            "Collect",
+            "CollectClues",
+            "[JumpBack]EndExchange"
+        ]
+    },
+    "SendClues": {
+        "doc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    793,
+                    350,
+                    280,
+                    75
+                ],
+                "expected": [
+                    "已达自有线索库容量上限"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "next": [
+            "SendTheMostClues",
+            "[JumpBack]EntrySendClues",
+            "[JumpBack]SendCluesSwipe"
+        ]
+    },
+    "SendCluesSwipe": {
+        "doc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    121,
+                    112,
+                    239,
+                    597
+                ],
+                "expected": [
+                    "线索"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": -120
+            }
+        }
+    },
+    "SendTheMostClues": {
+        "doc": "[会客室·线索] 在赠予界面识别自有库存数量 4–20 的线索并点击，以便发送",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_Clue",
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    126,
+                                    157,
+                                    120,
+                                    555
+                                ],
+                                "expected": [
+                                    "自有库存"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "only_rec": true,
+                                "roi": "_Clue",
+                                "roi_offset": [
+                                    165,
+                                    0,
+                                    -46,
+                                    0
+                                ],
+                                "expected": [
+                                    "^(20|[4-9]|1[0-9])$"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Send"
+        ]
+    },
+    "Send": {
+        "doc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1106,
+                    102,
+                    87,
+                    81
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitSend"
+        ]
+    },
+    "ExitSend": {
+        "doc": "[会客室·线索] 发送完成后关闭赠予界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1106,
+                    102,
+                    87,
+                    81
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "EntrySendClues": {
+        "doc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1500
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ReceiveClues": {
+        "doc": "[会客室·线索] 点击「接收」红点接收好友赠送线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "sub_name": "_Tips",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1117,
+                                    82,
+                                    163,
+                                    517
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": "_Tips",
+                                "roi_offset": [
+                                    -63,
+                                    31,
+                                    81,
+                                    36
+                                ],
+                                "expected": [
+                                    "接收"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseRewardsButton",
+            "ReceiveClues",
+            "EndExchange"
+        ]
+    },
+    "EndExchange": {
+        "doc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    528,
+                                    562,
+                                    256,
+                                    151
+                                ],
+                                "expected": [
+                                    "确认"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    498,
+                                    83,
+                                    321,
+                                    129
+                                ],
+                                "expected": [
+                                    "情报交流结束"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitReceptionRoom": {
+        "doc": "[会客室·离开] 返回控制中枢",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "Collect": {
+        "doc": "[会客室·领奖] 点击黄按钮领取会客室收集奖励",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1129,
+                    406,
+                    151,
+                    227
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitCollect"
+        ]
+    },
+    "ExitCollect": {
+        "doc": "[会客室·领奖] 领奖后点击左上会客室标题关闭收集界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    }
+}
