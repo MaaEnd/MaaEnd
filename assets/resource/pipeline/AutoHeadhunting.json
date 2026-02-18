@@ -76,7 +76,7 @@
         ],
         "action": "Click",
         "post_delay": 500,
-        "timeout": 1500,
+        "timeout": 2500,
         "next": ["AutoHeadhunting:Skip2"]
     },
     "AutoHeadhunting:Skip2": {
@@ -91,7 +91,7 @@
         ],
         "action": "Click",
         "post_delay": 500,
-        "timeout": 1500
+        "timeout": 2500
     },
     "AutoHeadhunting:Waiting": {
         // 六星动画无法跳过 当未检测到跳过键时 进入等待
