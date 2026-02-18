@@ -43,9 +43,10 @@ var locals = map[string]map[string]string{
 		"target_num":       "目标数量",
 		"prefer_mode":      "偏好模式",
 		"fallback_1x":      "距离目标抽数小于10抽，切换为单抽模式",
-		"results":          "抽取结果: %s\n",
+		"results":          "抽取结果: %s",
+		"final_results":    "最终结果: %v",
 		"used_pulls":       "已抽取次数",
 		"task_unknown_err": "未知错误",
-		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）\n",
+		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",
 	},
 }
