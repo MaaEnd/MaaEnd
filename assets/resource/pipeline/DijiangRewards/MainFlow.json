@@ -1,0 +1,348 @@
+{
+    "ControlNexus": {
+        "doc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
+        "focus": {
+            "Node.PipelineNode.Failed": "未识别到指定舱室"
+        },
+        "max_hit": 1,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EntryReceptionRoom",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]RecoveryEmotion",
+            "[JumpBack]ControlNexusClickTips",
+            "[JumpBack]MFG_ReceiveRewards",
+            "[JumpBack]GrowthChamber",
+            "InLastCarbin",
+            "[JumpBack]CarbinSwipe",
+            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]CloseAssist"
+        ]
+    },
+    "CloseAssist": {
+        "doc": "[意外进入生产助力] 识别进入生产助力界面，点击返回控制中枢",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    957,
+                    550,
+                    126,
+                    83
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    },
+    "InMainWindow_Normal": {
+        "doc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号失败"
+        },
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    "InControlNexus"
+                ]
+            }
+        },
+        "next": [
+            "ControlNexus",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap"
+        ]
+    },
+    "InMainWindow_NeedCredit": {
+        "doc": "[联动主流程·入口]识别主界面或已在控制中枢，进入会客室做线索交流以获取信用点",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室获取信用点失败"
+        },
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    },
+                    "InControlNexus"
+                ]
+            }
+        },
+        "next": [
+            "EntryReceptionRoom_NeedCredit",
+            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]SelectDijiang",
+            "[JumpBack]WaitLoadingColor",
+            "[JumpBack]TeleportButton",
+            "[JumpBack]SelectDijiangTeleport",
+            "[JumpBack]OpenMap",
+            "[JumpBack]CancelExit"
+        ]
+    },
+    "InMainWindow": {
+        "doc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    172,
+                                    0,
+                                    183,
+                                    119
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8,
+                                "roi": [
+                                    1182,
+                                    0,
+                                    98,
+                                    128
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "LasCarbinColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    911,
+                    417,
+                    52,
+                    218
+                ],
+                "upper": [
+                    160,
+                    180,
+                    80
+                ],
+                "lower": [
+                    130,
+                    170,
+                    70
+                ],
+                "count": 30,
+                "connected": true
+            }
+        }
+    },
+    "LastCarbinText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "LasCarbinColor",
+                "roi_offset": [
+                    0,
+                    0,
+                    150,
+                    0
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        }
+    },
+    "InLastCarbin": {
+        "doc": "[主流程·控制中枢] 识别已滑到最后一个培养舱且无红点，进入完成分支",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "LasCarbinColor",
+                    "LastCarbinText"
+                ]
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
+    },
+    "FinishAllDijiangTask": {
+        "doc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
+        "focus": {
+            "Node.PipelineNode.Failed": "帝江基建流程结束后未能返回主界面"
+        },
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonType2"
+        ]
+    },
+    "CancelExit": {
+        "doc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    308,
+                    282,
+                    370,
+                    306
+                ],
+                "expected": [
+                    "取消"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "CarbinSwipe": {
+        "doc": "[主流程·控制中枢] 在总控中枢界面向右滑动，以露出更多舱室(如培养舱)",
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
+        "max_hit": 5, //滑动次数过多直接判定失败，避免死循环
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 240,
+                "target_offset": [
+                    600,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "InControlNexus": {
+        "doc": "[主流程·状态] 识别处于帝江号总控中枢界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        }
+    }
+}

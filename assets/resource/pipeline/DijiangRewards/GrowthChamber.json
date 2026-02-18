@@ -1,0 +1,72 @@
+{
+    "GrowthChamber": {
+        "doc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
+        },
+        "next": [
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]YellowConfirmButtonType2",
+            "[JumpBack]GrowAgain",
+            "ExitGrowthChamber"
+        ]
+    },
+    "GrowAgain": {
+        "doc": "[培养舱·操作] 点击「再次培养」开始下一轮培养",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    793,
+                    505,
+                    222,
+                    121
+                ],
+                "expected": [
+                    "再次培养"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ExitGrowthChamber": {
+        "doc": "[培养舱·离开] 返回控制中枢",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "培养舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    }
+}

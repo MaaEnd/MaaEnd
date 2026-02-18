@@ -1,0 +1,25 @@
+{
+    "NeedCredit": {
+        "doc": "信用点商店联动入口",
+        "focus": {
+            "Node.PipelineNode.Failed": "未能进入信用点联动流程"
+        },
+        "max_hit": 1,
+        "next": [
+            "[JumpBack]CancelExit",
+            "InMainWindow_NeedCredit",
+            "[JumpBack]CloseButtonType2"
+        ]
+    },
+    "DijiangRewards": {
+        "doc": "基建奖励领取",
+        "focus": {
+            "Node.PipelineNode.Failed": "未识别到进入基建入口"
+        },
+        "next": [
+            "[JumpBack]CancelExit",
+            "InMainWindow_Normal",
+            "[JumpBack]CloseButtonType2"
+        ]
+    }
+}

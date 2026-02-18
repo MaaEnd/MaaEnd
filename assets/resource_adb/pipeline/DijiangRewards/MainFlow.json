@@ -1,0 +1,43 @@
+{
+    "CarbinSwipe": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin_offset": [
+                    500,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "LasCarbinColor": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    962,
+                    418,
+                    57,
+                    217
+                ]
+            }
+        }
+    },
+    "CloseAssist": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "CloseButtonDijiang": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    }
+}

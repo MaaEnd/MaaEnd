@@ -1,0 +1,17 @@
+{
+    "CancelExit": {
+        "expected": [
+            "Cancel"
+        ]
+    },
+    "LastCarbinText": {
+        "expected": [
+            "Growth Chamber"
+        ]
+    },
+    "CloseAssist": {
+        "expected": [
+            "Invite Friend"
+        ]
+    }
+}
