@@ -66,7 +66,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
 			)
 			if err != nil {
-				log.Error().
+				log.Warn().
 					Err(err).
 					Msg("Failed to show navigation moving UI")
 			}
@@ -191,7 +191,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		fmt.Sprintf(navigationFinishedHTML, len(param.Targets)),
 	)
 	if err != nil {
-		log.Error().
+		log.Warn().
 			Err(err).
 			Msg("Failed to show navigation finished UI")
 	}
@@ -203,7 +203,7 @@ func doEmergencyStop(aw *ActionWrapper) {
 	log.Warn().Msg("Emergency stop triggered")
 	err := maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
 	if err != nil {
-		log.Error().
+		log.Warn().
 			Err(err).
 			Msg("Failed to show emergency stop UI")
 	}
