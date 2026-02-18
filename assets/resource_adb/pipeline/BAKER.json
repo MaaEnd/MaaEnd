@@ -1,0 +1,231 @@
+{
+    "ClickH": {
+        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/BakerIcon.png",
+            "Baker/BakerIcon2.png"
+        ],
+        "roi": [
+            168,
+            113,
+            101,
+            95
+        ],
+        "action": "Click",
+        "next": [
+            "ClickTopTak",
+            "BakerEntry" // ClickTopTak 若是没匹配到，则回到 BakerEntry]
+        ]
+    },
+    "ClickTopTak": {
+        "doc": "开局先点一下会话信息图标,保证处于会话信息页面",
+        "max_hit": 1,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    55,
+                    108
+                ]
+            }
+        },
+        "next": [
+            "BakerEntry"
+        ]
+    },
+    "ResetBakerFilter": {
+        "doc": "用于点击筛选栏目中的刷新",
+        "recognition": "TemplateMatch",
+        "template": "Baker/FilterResetBtn.png",
+        "max_hit": 1,
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerFilterUnread",
+            "SaveBakerFilter"
+        ]
+    },
+    "BakerFilterUnread": {
+        "doc": "筛选页面中点击未读选项, 需要已经点过清空选项之后再进行选择未读",
+        "recognition": "OCR",
+        "expected": [
+            "未读"
+        ],
+        "roi": [
+            163,
+            283,
+            322,
+            253
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "SaveBakerFilter"
+        ]
+    },
+    "BakerExpend": {
+        "doc": "会话信息流程: 检测 Baker 联系人是否可以下拉,展开选项之后进行后续点击流程",
+        "recognition": "TemplateMatch",
+        "template": "Baker/Expend.png",
+        "threshold": 0.95,
+        "roi": [
+            351,
+            50,
+            105,
+            645
+        ],
+        "action": "Click",
+        "next": [
+            "TalkWith",
+            "BakerExpend"
+        ]
+    },
+    "TalkWith": {
+        "doc": "通用聊天点击流程: 根据 Baker 联系人列表尝试进入未聊天的信息",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/TalkWith.png",
+            "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
+        ],
+        "roi": [
+            90,
+            55,
+            360,
+            590
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage",
+            "TalkWith"
+        ]
+    },
+    "TalkWithHint": {
+        "doc": "事务通讯的小红点",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/hint.png"
+        ],
+        "roi": [
+            90,
+            55,
+            360,
+            590
+        ],
+        "action": {
+            "param": {
+                "target_offset": [
+                    // 事务通讯的小红点，进行一点偏移就可以点到任务了
+                    -10,
+                    10,
+                    0,
+                    0
+                ]
+            },
+            "type": "Click"
+        },
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage",
+            "TalkWithHint"
+        ]
+    },
+    "TalkOver2": {
+        "doc": "通用聊天点击流程: 用于检测当前会话是否结束 (匹配方式2)",
+        // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver2 中图片进行增强
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/talkover.png"
+        ],
+        "threshold": 0.95,
+        "roi": [
+            59,
+            42,
+            141,
+            631
+        ],
+        "action": "DoNothing",
+        "next": [
+            "TalkWith",
+            "RefreshBakerFilter"
+        ]
+    },
+    "BakerOverEnd": {
+        "doc": "真正的退出节点,在上面两种类型的会话都没有之后退出任务",
+        "next": [
+            "CloseButtonType1"
+        ]
+    },
+    /*      从这里开始，是事务通讯的逻辑     */
+    "CheckTopHint": {
+        "doc": "点击 Baker 页面顶部的图标进行事务通讯页面切换",
+        "max_hit": 1,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    39,
+                    191
+                ]
+            }
+        },
+        "next": [
+            "CheckBakerHome"
+        ]
+    },
+    "ResetBakerFilter2": {
+        "doc": "用于点击筛选栏目中的刷新 (事务通讯需要同样的操作), 在事务通讯中的筛选点击刷新之后会重新回到顶部所以需要先点刷新再下拉",
+        "recognition": "TemplateMatch",
+        "template": "Baker/FilterResetBtn.png",
+        "max_hit": 1,
+        "roi": [
+            796,
+            480,
+            130,
+            137
+        ],
+        "action": "Click",
+        "post_wait_freezes": 1,
+        "next": [
+            "BakerSwipeFilter",
+            "BakerFilterUnread",
+            "SaveBakerFilter"
+        ]
+    },
+    "TalkOver3": {
+        "doc": "事务通讯: 用于检测当前会话是否结束 (匹配方式3)",
+        // 部分聊天情况 TalkOver 无法覆盖，使用 TalkOver3 中图片进行增强
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/taskshow.png",
+            "Baker/taskshow2.png",
+            "Baker/taskshow3.png"
+        ],
+        "threshold": 0.95,
+        "roi": [
+            510,
+            90,
+            104,
+            586
+        ],
+        "action": "DoNothing",
+        "next": [
+            "TalkWith",
+            "TalkWithHint",
+            "RefreshBakerFilter"
+        ]
+    }
+}
