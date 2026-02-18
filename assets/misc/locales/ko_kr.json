@@ -229,6 +229,8 @@
     "controller.Win32.label": "PC",
     "controller.Win32-Window.label": "PC-대체",
     "controller.Win32-Front.label": "PC-포그라운드",
+    "controller.Win32-Background.label": "PC-백그라운드",
+    "controller.Win32-Window-Background.label": "PC-대체-백그라운드",
     "controller.ADB.label": "Android",
     "contact.file": "misc/locales/CONTACT/CONTACT.ko_kr.md",
     "operator.Perlica": "펠리카",
