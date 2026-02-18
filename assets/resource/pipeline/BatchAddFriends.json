@@ -1,0 +1,292 @@
+{
+    "BatchAddFriendsMain": {
+        "doc": "批量添加好友主入口",
+        "next": [
+            "BatchAddFriendsOpenAddPage",
+            "BatchAddFriendsOnAddPage",
+            "[JumpBack]SceneEnterMenuFriends"
+        ]
+    },
+    "BatchAddFriendsOpenAddPage": {
+        "doc": "进入添加好友界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "BatchAddFriends/addFriend.png",
+                "threshold": 0.8,
+                "roi": [
+                    620,
+                    0,
+                    200,
+                    120
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsOnAddPage"
+        ]
+    },
+    "BatchAddFriendsOnAddPage": {
+        "doc": "确认已进入添加好友页面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    63,
+                    106,
+                    50,
+                    24
+                ],
+                "expected": "陌生人",
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStart"
+        ]
+    },
+    "BatchAddFriendsFocusSearchBox": {
+        "doc": "聚焦搜索框",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    36,
+                    66,
+                    191,
+                    26
+                ],
+                "expected": [
+                    "搜索玩家名称或UID添加好友"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "doc": "点击搜索按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1117,
+                    64,
+                    44,
+                    25
+                ],
+                "expected": [
+                    "搜索"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "BatchAddFriendsClickAddButton": {
+        "doc": "点击添加好友",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1102,
+                    139,
+                    149,
+                    495
+                ],
+                "expected": [
+                    "添加好友"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "timeout": 800,
+        "action": {
+            "type": "Click",
+            "param": {}
+        }
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "doc": "点击添加好友（陌生人列表）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1102,
+                    139,
+                    149,
+                    495
+                ],
+                "expected": [
+                    "添加好友"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "timeout": 800,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsAddStrangersLoop",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsSwipeList": {
+        "doc": "陌生人列表向下滑",
+        "recognition": "DirectHit",
+        "max_hit": 9,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    560
+                ],
+                "end": [
+                    640,
+                    220
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsHandleSearchResult": {
+        "doc": "处理搜索结果",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsClickAddButton",
+            "BatchAddFriendsSearchEmptyResult"
+        ]
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "doc": "搜索结果为空",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    591,
+                    375,
+                    121,
+                    17
+                ],
+                "expected": "未搜索到相关玩家",
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "timeout": 800,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        }
+    },
+    "BatchAddFriendsStrangersStart": {
+        "doc": "陌生人批量添加入口",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsClickAddButtonStranger",
+            "BatchAddFriendsSwipeList",
+            "BatchAddFriendsNoAddButton",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsNoAddButton": {
+        "doc": "未识别到添加好友按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1102,
+                    139,
+                    149,
+                    495
+                ],
+                "expected": [
+                    "添加好友"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsChangeBatch",
+            "BatchAddFriendsStrangersEnd"
+        ]
+    },
+    "BatchAddFriendsAddStrangersLoop": {
+        "doc": "陌生人批量添加计数",
+        "recognition": "DirectHit",
+        "max_hit": 20,
+        "next": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsChangeBatch": {
+        "doc": "换一批",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1151,
+                    648,
+                    55,
+                    26
+                ],
+                "expected": [
+                    "换一批"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsChangeBatchAction"
+            }
+        },
+        "next": [
+            "BatchAddFriendsStrangersStart"
+        ]
+    },
+    "BatchAddFriendsStrangersEnd": {
+        "doc": "陌生人批量添加结束"
+    },
+    "BatchAddFriendsStart": {
+        "doc": "批量添加好友逻辑",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "BatchAddFriendsAction"
+    }
+}

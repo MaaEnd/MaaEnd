@@ -1,0 +1,53 @@
+{
+    "task": [
+        {
+            "name": "BatchAddFriends",
+            "label": "$task.BatchAddFriends.label",
+            "entry": "BatchAddFriendsMain",
+            "description": "$task.BatchAddFriends.description",
+            "option": [
+                "BatchAddFriends"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "BatchAddFriends": {
+            "type": "input",
+            "label": "$option.BatchAddFriends.label",
+            "inputs": [
+                {
+                    "name": "UidList",
+                    "label": "$option.BatchAddFriends.inputs.UidList.label",
+                    "description": "$option.BatchAddFriends.inputs.UidList.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "MaxCount",
+                    "label": "$option.BatchAddFriends.inputs.MaxCount.label",
+                    "description": "$option.BatchAddFriends.inputs.MaxCount.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": 20
+                }
+            ],
+            "pipeline_override": {
+                "BatchAddFriendsStart": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "uid_list": "{UidList}",
+                                "max_count": "{MaxCount}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
