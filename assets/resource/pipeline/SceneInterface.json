@@ -82,6 +82,24 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMapWulingWulingCity": {
+        "doc": "从任意界面进入武陵-武陵城地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapWulingWulingCity",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapWulingJingyuValley": {
+        "doc": "从任意界面进入武陵-景玉谷地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapWulingJingyuValley",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterWorldDijiang": {
         "doc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
