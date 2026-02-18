@@ -1,74 +1,15 @@
 {
-    "DailyTasUpgradeGuideToInventory": {
-        "desc": "导航区武器库",
-        "action": {
-            "param": {
-                "target": true
-            },
-            "type": "Click"
-        },
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "sub_name": "icon",
-                        "recognition": "TemplateMatch",
-                        "template": "Common/BackButton.png",
-                        "roi": [
-                            -200,
-                            0,
-                            200,
-                            200
-                        ],
-                        "threshold": 0.8
-                    },
-                    {
-                        "recognition": "OCR",
-                        "roi": [
-                            0,
-                            0,
-                            200,
-                            200
-                        ],
-                        "expected": "行动"
-                    }
-                ]
-            }
-        },
-        "next": [
-            "DailyTasUpgradeGuideToInventory2",
-            "DailyTasUpgradeGuideToInventory"
-        ]
-    },
-    "DailyTasUpgradeGuideToInventory2": {
-        "action": {
-            "param": {
-                "target": true
-            },
-            "type": "Click"
-        },
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -300,
-                    0,
-                    300,
-                    700
-                ],
-                "expected": "贵重品"
-            }
-        },
-        "next": [
-            "CheckWeaponInventory",
-            "DailyTasUpgradeGuideToInventory2"
-        ]
-    },
-    "CheckWeaponInventory": {
-        "desc": "检查武器库界面",
+    "WeaponUpgradeStart": {
+        "desc": "升级武器任务入口",
         "pre_delay": 0,
         "post_delay": 0,
+        "next": [
+            "WeaponUpgradeSetFilter",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "WeaponUpgradeSetFilter": {
+        "desc": "设置武器库筛选条件",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -83,20 +24,22 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "post_wait_freezes": 1,
         "next": [
-            "[JumpBack]DailyTaskUpgradeSwitchLowLevel",
-            "[JumpBack]DailyTaskUpgradeSwitchAscending",
-            "SelectLowLevelWeapons"
+            "[JumpBack]WeaponUpgradeSwitchLowLevel",
+            "[JumpBack]WeaponUpgradeSwitchAscending",
+            "WeaponUpgradeSelectLowLevelWeapons"
         ]
     },
-    "SelectLowLevelWeapons": {
+    "WeaponUpgradeSelectLowLevelWeapons": {
         "desc": "选择低等级武器详情",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.9,
-                "template": "DailyRewards/UpgradeWeapon/WeaponDetails.png",
+                "template": "Weapon/WeaponDetails.png",
                 "roi": [
                     985,
                     591,
@@ -110,16 +53,16 @@
         },
         "post_wait_freezes": 1,
         "next": [
-            "ClickLevelUpButton"
+            "WeaponUpgradeClickLevelUpButton"
         ]
     },
-    "ClickLevelUpButton": {
+    "WeaponUpgradeClickLevelUpButton": {
         "desc": "进入升级UI",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.9,
-                "template": "DailyRewards/UpgradeWeapon/LevelUpButton.png",
+                "template": "Weapon/LevelUpButton.png",
                 "roi": [
                     985,
                     591,
@@ -133,17 +76,17 @@
         },
         "post_wait_freezes": 100,
         "next": [
-            "[JumpBack]AddUpgrade",
-            "CorfirmUpgradeLevel"
+            "[JumpBack]WeaponUpgradeAddUpgrade",
+            "WeaponUpgradeConfirmUpgradeLevel"
         ]
     },
-    "AddUpgrade": {
+    "WeaponUpgradeAddUpgrade": {
         "desc": "添加升级材料,仅在未有升级材料时添加",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.9,
-                "template": "DailyRewards/UpgradeWeapon/EmptyUpgradeMaterial.png",
+                "template": "Weapon/EmptyUpgradeMaterial.png",
                 "roi": [
                     22,
                     555,
@@ -154,16 +97,16 @@
         },
         "post_wait_freezes": 100,
         "next": [
-            "ClickAddUpgradeMaterial"
+            "WeaponUpgradeClickAddUpgradeMaterial"
         ]
     },
-    "ClickAddUpgradeMaterial": {
+    "WeaponUpgradeClickAddUpgradeMaterial": {
         "desc": "点击添加升级材料按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.9,
-                "template": "DailyRewards/UpgradeWeapon/AddUpgradeMaterialButton.png",
+                "template": "Weapon/AddUpgradeMaterialButton.png",
                 "roi": [
                     1215,
                     54,
@@ -177,13 +120,13 @@
             "type": "Click"
         }
     },
-    "CorfirmUpgradeLevel": {
+    "WeaponUpgradeConfirmUpgradeLevel": {
         "desc": "确认升级等级",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.9,
-                "template": "DailyRewards/UpgradeWeapon/CorfirmUpgradeButton.png",
+                "template": "Weapon/CorfirmUpgradeButton.png",
                 "roi": [
                     985,
                     591,
@@ -197,11 +140,11 @@
             "type": "Click"
         },
         "next": [
-            "DailyTaskUpgradeWeaponFinished",
+            "WeaponUpgradeWeaponFinished",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "DailyTaskUpgradeWeaponFinished": {
+    "WeaponUpgradeWeaponFinished": {
         "pre_delay": 0,
         "post_delay": 0,
         "recognition": {
@@ -220,7 +163,7 @@
             }
         }
     },
-    "DailyTaskUpgradeSwitchLowLevel": {
+    "WeaponUpgradeSwitchLowLevel": {
         "desc": "识别品质，切换到等级分类",
         "recognition": {
             "type": "OCR",
@@ -241,11 +184,11 @@
             "type": "Click"
         },
         "next": [
-            "ClickLevelSort",
-            "DailyTaskUpgradeSwitchLowLevel"
+            "WeaponUpgradeClickLevelSort",
+            "WeaponUpgradeSwitchLowLevel"
         ]
     },
-    "ClickLevelSort": {
+    "WeaponUpgradeClickLevelSort": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -265,7 +208,7 @@
             "type": "Click"
         }
     },
-    "DailyTaskUpgradeSwitchAscending": {
+    "WeaponUpgradeSwitchAscending": {
         "desc": "识别到降序，变成升序",
         "recognition": {
             "type": "OCR",

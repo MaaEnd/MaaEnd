@@ -213,10 +213,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            78,
-            66,
-            153,
-            43
+            65,
+            57,
+            184,
+            85
         ],
         "expected": [
             "城郊监测终端",

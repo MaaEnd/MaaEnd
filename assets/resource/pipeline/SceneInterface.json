@@ -112,7 +112,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "SceneEnterGearAssembly": {
+    "SceneEnterMenuGearAssembly": {
         "doc": "从任意界面进入装备加工界面",
         "pre_delay": 0,
         "post_delay": 0,
@@ -137,6 +137,15 @@
         "next": [
             "ScenePrivateWorldEnterMenuEmail",
             "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "doc": "从任意界面进入背包界面，左侧包含仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
     "SceneDialogConfirm": {
@@ -229,6 +238,54 @@
                     }
                 ],
                 "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneNoticeRewardsConfirm": {
+        "doc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    0,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsIcon.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    540,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
             }
         },
         "action": {

@@ -97,6 +97,7 @@
         "next": [
             "OpenBakerFilter2", // 只会执行一次, 后续走打开确认流程可以少一步
             "TalkWith", // 和会话信息流程相比不需要进行下拉
+            "TalkWithHint",
             "BakerOverCheck" // Baker 任务结束
 
         ]
@@ -243,11 +244,33 @@
         "recognition": "TemplateMatch",
         "template": [
             "Baker/TalkWith.png",
-            "Baker/DialogWith.png", // 部分群组聊天框 TalkWith.png 检测不到
-            "Baker/hint.png"
+            "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
 
         ],
         "threshold": 0.95,
+        "roi": [
+            31,
+            61,
+            320,
+            590
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "TalkOver",
+            "TalkOver2",
+            "TalkOver3",
+            "CheckChatPage",
+            "TalkWith"
+        ]
+    },
+    "TalkWithHint": {
+        "doc": "事务通讯的小红点",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Baker/hint.png"
+        ],
         "roi": [
             31,
             61,
@@ -271,7 +294,7 @@
             "TalkOver2",
             "TalkOver3",
             "CheckChatPage",
-            "TalkWith"
+            "TalkWithHint"
         ]
     },
     "CheckChatPage": {
@@ -344,7 +367,7 @@
             20,
             15,
             0,
-            -15
+            -30
         ],
         "next": [
             "CheckChatPage"
@@ -505,6 +528,7 @@
         "action": "DoNothing",
         "next": [
             "TalkWith",
+            "TalkWithHint",
             "RefreshBakerFilter"
         ]
     }

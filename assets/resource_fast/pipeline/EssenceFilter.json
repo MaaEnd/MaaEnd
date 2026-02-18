@@ -28,10 +28,11 @@
                 ]
             }
         },
+        "timeout": 2000,
         "next": [
-            "FirstSwipeToTop",
-            "EssenceFilterNavigateToInventory"
+            "FirstSwipeToTop"
         ],
+        "on_error": ["EssenceFilterNavigateToInventory"],
         "focus": {
             "Node.Action.Succeeded": "确认在基质界面"
         }
@@ -73,10 +74,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "EssenceFilterInitAction",
-                "custom_action_param": {
-                    "preset_name": "Rarity6Weapons"
-                }
+                "custom_action": "EssenceFilterInitAction"
             }
         },
         "next": [
@@ -136,8 +134,7 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.45,
-                // "threshold": 0.55,
+                "threshold": 0.35,
                 "roi": [
                     18,
                     72,
@@ -164,8 +161,7 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.45,
-                // "threshold": 0.55,
+                "threshold": 0.35,
                 "roi": [
                     18,
                     72,

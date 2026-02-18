@@ -3,6 +3,7 @@ package importtask
 import (
 	"encoding/json"
 	"regexp"
+	"strings"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -12,8 +13,10 @@ import (
 var blueprintCodes []string
 
 func parseBlueprintCodes(text string) []string {
+	// 在每个 "EF" 前插入空格，以支持连续拼接的蓝图码（如 "EF01...EF02..."）
+	separated := strings.ReplaceAll(text, "EF", " EF")
 	re := regexp.MustCompile(`EF[a-zA-Z0-9]+`)
-	return re.FindAllString(text, -1)
+	return re.FindAllString(separated, -1)
 }
 
 type ImportBluePrintsInitTextAction struct{}

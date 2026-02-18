@@ -29,7 +29,7 @@
         }
     },
     "EssenceColorMatch": {
-        "doc": "为每一个格子做ColorMatch确保只锁定橙色基质, ROI由EssenceFilterRowCollectAction的override传入",
+        "doc": "为每一个格子做ColorMatch确保只锁定对应颜色, ROI和lower/upper由EssenceFilterRowCollectAction的override传入。预填为金色基质",
         "recognition": {
             "type": "ColorMatch",
             "param": {

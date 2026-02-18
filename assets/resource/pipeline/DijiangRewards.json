@@ -222,7 +222,8 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom_NeedCredit"
         ]
     },
     "ReceptionRoom_NeedCredit": {
@@ -260,7 +261,8 @@
                     175
                 ],
                 "template": [
-                    "Common/Button/YellowConfirmButtonType2.png"
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
                 ]
             }
         },
@@ -1037,7 +1039,8 @@
         },
         "next": [
             "ReceptionRoom",
-            "[JumpBack]EndExchange"
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom"
         ]
     },
     "EndExchange": {
@@ -1248,7 +1251,8 @@
                                     "ClaimDijiangRewards/LowEmotion.png",
                                     "ClaimDijiangRewards/NormalEmotion.png",
                                     "ClaimDijiangRewards/HighEmotion.png"
-                                ]
+                                ],
+                                "order_by": "Vertical"
                             }
                         }
                     },
@@ -1821,9 +1825,31 @@
             }
         },
         "next": [
+            "[JumpBack]EmotionFull",
             "[JumpBack]YellowConfirmButtonType1",
             "StartRecoveryEmotion",
             "CloseButtonType1"
+        ]
+    },
+    "EmotionFull": {
+        "doc": "意外点击了满心情的干员,重新进入心情选择界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    416,
+                    65,
+                    428,
+                    119
+                ],
+                "expected": [
+                    "干员心情已满",
+                    "无法使用助力"
+                ]
+            }
+        },
+        "next": [
+            "BackToControlNexus"
         ]
     },
     "StartRecoveryEmotion": {

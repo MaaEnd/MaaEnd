@@ -749,5 +749,153 @@
                 "threshold": 0.9
             }
         }
+    },
+    "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
+        "desc": "从帝江号大世界进入包含仓库的背包界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    400,
+                                    80
+                                ],
+                                "template": [
+                                    "SceneManager/WorldDijiangMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    -200,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/WorldMenu.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "ScenePrivateMenuListEnterMenuBackpack",
+            "[JumpBack]ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "ScenePrivateMenuListEnterMenuBackpack": {
+        "desc": "从菜单列表进入背包界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "ENDFIELD"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]ScenePrivateMenuListScrollToBottom",
+            "ScenePrivateMenuListBottomEnterMenuBackpack"
+        ]
+    },
+    "ScenePrivateMenuListScrollToBottom": {
+        "desc": "菜单列表滚动到最底部",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -400,
+                    0,
+                    400,
+                    720
+                ],
+                "expected": [
+                    "行动手册",
+                    "Operational Manual",
+                    "案内所",
+                    "작전 매뉴얼",
+                    "行動手冊"
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1150,
+                    600
+                ],
+                "end": [
+                    1150,
+                    200
+                ],
+                "end_hold": 200
+            }
+        },
+        "post_wait_freezes": 500
+    },
+    "ScenePrivateMenuListBottomEnterMenuBackpack": {
+        "desc": "从菜单列表底部进入背包界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -400,
+                    0,
+                    400,
+                    720
+                ],
+                "expected": [
+                    "背包",
+                    "Backpack",
+                    "道具箱",
+                    "가방"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuBackpackSuccess"
+        ]
+    },
+    "ScenePrivateAnyEnterMenuBackpackSuccess": {
+        "desc": "成功进入背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    900,
+                    100,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MenuBackpackCraft.png"
+                ]
+            }
+        }
     }
 }

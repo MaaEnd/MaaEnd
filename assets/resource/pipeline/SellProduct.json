@@ -612,6 +612,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 80,
         "next": [
             "SellProductCheckLocalDone"
         ]

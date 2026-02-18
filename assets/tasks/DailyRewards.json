@@ -7,7 +7,9 @@
             "description": "$task.DailyRewards.description",
             "option": [
                 "DailyEmailRewards",
-                "DailyTaskRewards"
+                "DailyTaskRewards",
+                "DailyEventRewards",
+                "DailyProtocolPassRewards"
             ],
             "controller": [
                 "Win32",
@@ -39,6 +41,28 @@
                 }
             ]
         },
+        "DailyEventRewards": {
+            "type": "switch",
+            "label": "$option.DailyEventRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyEventRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyEventRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
         "DailyTaskRewards": {
             "type": "switch",
             "label": "$option.DailyTaskRewards.label",
@@ -49,12 +73,7 @@
                         "DailyTaskRewardSub": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "DailyTaskUpgradeWeapon",
-                        "DailyTaskCreation",
-                        "DailyTaskAssemble"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
@@ -66,16 +85,14 @@
                 }
             ]
         },
-        "DailyTaskUpgradeWeapon": {
+        "DailyProtocolPassRewards": {
             "type": "switch",
-            "default_case": "No",
-            "label": "$option.DailyTaskUpgradeWeapon.label",
-            "description": "$option.DailyTaskUpgradeWeapon.desc",
+            "label": "$option.DailyProtocolPassRewards.label",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "DailyTaskUpgradeWeapon": {
+                        "DailyProtocolPassRewardSub": {
                             "enabled": true
                         }
                     }
@@ -83,55 +100,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "DailyTaskUpgradeWeapon": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "DailyTaskAssemble": {
-            "type": "switch",
-            "default_case": "No",
-            "label": "$option.DailyTaskAssemble.label",
-            "description": "$option.DailyTaskAssemble.desc",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "DailyTaskAssemble": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "DailyTaskAssemble": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "DailyTaskCreation": {
-            "type": "switch",
-            "default_case": "No",
-            "label": "$option.DailyTaskCreation.label",
-            "description": "$option.DailyTaskCreation.desc",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "DailyTaskCreation": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "DailyTaskCreation": {
+                        "DailyProtocolPassRewardSub": {
                             "enabled": false
                         }
                     }
