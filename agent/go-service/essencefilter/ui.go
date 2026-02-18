@@ -33,7 +33,7 @@ func logMatchSummary(ctx *maa.Context) {
 	if len(matchedCombinationSummary) == 0 {
 		err := LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
 		if err != nil {
-			log.Error().
+			log.Warn().
 				Err(err).
 				Str("module", "essencefilter").
 				Str("ui_view", "no_match_summary").
@@ -88,7 +88,7 @@ func logMatchSummary(ctx *maa.Context) {
 	b.WriteString(`</table>`)
 	err := LogMXUHTML(ctx, b.String())
 	if err != nil {
-		log.Error().
+		log.Warn().
 			Err(err).
 			Str("module", "essencefilter").
 			Str("ui_view", "match_summary").
