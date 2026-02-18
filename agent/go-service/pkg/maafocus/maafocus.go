@@ -6,9 +6,7 @@ import (
 	"github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-const (
-	nodeName = "_GO_SERVICE_FOCUS_"
-)
+const nodeName = "_GO_SERVICE_FOCUS_"
 
 var ErrNilContext = errors.New("context is nil")
 
