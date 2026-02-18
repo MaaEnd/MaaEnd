@@ -217,7 +217,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		log.Info().Msg("库存已售罄，无可购买商品")
 		err := maafocus.NodeActionStarting(ctx, "⚠️ 库存已售罄，无可购买商品")
 		if err != nil {
-			log.Error().
+			log.Warn().
 				Err(err).
 				Str("module", "resell").
 				Str("ui_view", "sold_out_message").
@@ -255,7 +255,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 		err := maafocus.NodeActionStarting(ctx, message)
 		if err != nil {
-			log.Error().
+			log.Warn().
 				Err(err).
 				Str("module", "resell").
 				Str("ui_view", "overflow_message").
@@ -294,7 +294,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		}
 		err := maafocus.NodeActionStarting(ctx, message)
 		if err != nil {
-			log.Error().
+			log.Warn().
 				Err(err).
 				Str("module", "resell").
 				Str("ui_view", "no_profitable_item_message").
