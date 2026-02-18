@@ -197,7 +197,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// Show finished UI summary
 	maafocus.NodeActionStarting(
 		aw.ctx,
-		fmt.Sprintf(navigationFinishedHTML, len(param.Targets)),
+		fmt.Sprintf(navigationFinishedHTML, len(param.Path)),
 	)
 
 	return true
