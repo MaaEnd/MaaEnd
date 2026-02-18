@@ -8,6 +8,7 @@ import (
 
 const nodeName = "_GO_SERVICE_FOCUS_"
 
+// ErrNilContext indicates the provided context is nil.
 var ErrNilContext = errors.New("context is nil")
 
 // NodeActionStarting sets the focus to the node action starting event
