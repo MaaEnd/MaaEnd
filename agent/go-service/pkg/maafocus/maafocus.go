@@ -1,21 +1,20 @@
 package maafocus
 
 import (
-	"errors"
-
 	"github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 const nodeName = "_GO_SERVICE_FOCUS_"
 
-// ErrNilContext indicates the provided context is nil.
-var ErrNilContext = errors.New("context is nil")
-
-// NodeActionStarting sets the focus to the node action starting event
-// content is the content to be displayed on the UI
-func NodeActionStarting(ctx *maa.Context, content string) error {
+// NodeActionStarting sends focus payload on node action starting event.
+// The actual UI rendering is handled by client side.
+func NodeActionStarting(ctx *maa.Context, content string) {
 	if ctx == nil {
-		return ErrNilContext
+		log.Warn().
+			Str("event", "node_action_starting").
+			Msg("context is nil, skip sending focus")
+		return
 	}
 
 	pp := maa.NewPipeline()
@@ -26,6 +25,10 @@ func NodeActionStarting(ctx *maa.Context, content string) error {
 		maa.WithPreDelay(0),
 		maa.WithPostDelay(0),
 	))
-	_, err := ctx.RunTask(nodeName, pp)
-	return err
+	if _, err := ctx.RunTask(nodeName, pp); err != nil {
+		log.Warn().
+			Err(err).
+			Str("event", "node_action_starting").
+			Msg("failed to send focus")
+	}
 }

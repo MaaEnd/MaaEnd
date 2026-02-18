@@ -8,37 +8,29 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
-func LogMXUHTML(ctx *maa.Context, htmlText string) error {
+func LogMXUHTML(ctx *maa.Context, htmlText string) {
 	htmlText = strings.TrimLeft(htmlText, " \t\r\n")
-	return maafocus.NodeActionStarting(ctx, htmlText)
+	maafocus.NodeActionStarting(ctx, htmlText)
 }
 
 // LogMXUSimpleHTMLWithColor logs a simple styled span, allowing a custom color.
-func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) error {
+func LogMXUSimpleHTMLWithColor(ctx *maa.Context, text string, color string) {
 	HTMLTemplate := fmt.Sprintf(`<span style="color: %s; font-weight: 500;">%%s</span>`, color)
-	return LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
+	LogMXUHTML(ctx, fmt.Sprintf(HTMLTemplate, text))
 }
 
 // LogMXUSimpleHTML logs a simple styled span with a default color.
-func LogMXUSimpleHTML(ctx *maa.Context, text string) error {
+func LogMXUSimpleHTML(ctx *maa.Context, text string) {
 	// Call the more specific function with the default color "#00bfff".
-	return LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
+	LogMXUSimpleHTMLWithColor(ctx, text, "#00bfff")
 }
 
 // logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
 func logMatchSummary(ctx *maa.Context) {
 	if len(matchedCombinationSummary) == 0 {
-		err := LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
-		if err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("ui_view", "no_match_summary").
-				Msg("failed to render UI")
-		}
+		LogMXUSimpleHTML(ctx, "本次未锁定任何目标基质。")
 		return
 	}
 
@@ -86,14 +78,7 @@ func logMatchSummary(ctx *maa.Context) {
 	}
 
 	b.WriteString(`</table>`)
-	err := LogMXUHTML(ctx, b.String())
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("ui_view", "match_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUHTML(ctx, b.String())
 }
 
 // formatWeaponNamesColoredHTML - 按稀有度为每把武器着色并拼接成 HTML 片段

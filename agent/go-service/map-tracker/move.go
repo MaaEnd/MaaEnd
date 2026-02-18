@@ -61,17 +61,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// Show navigation UI
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
 			initDist := math.Hypot(float64(initRes.X-targetX), float64(initRes.Y-targetY))
-			err := maafocus.NodeActionStarting(
+			maafocus.NodeActionStarting(
 				aw.ctx,
 				fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
 			)
-			if err != nil {
-				log.Warn().
-					Err(err).
-					Str("module", "map-tracker").
-					Str("ui_view", "navigation_moving").
-					Msg("failed to render UI")
-			}
 		} else if err != nil {
 			log.Debug().Err(err).Msg("Initial infer failed for moving UI")
 		}
@@ -188,31 +181,17 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// Show finished UI summary
-	err := maafocus.NodeActionStarting(
+	maafocus.NodeActionStarting(
 		aw.ctx,
 		fmt.Sprintf(navigationFinishedHTML, len(param.Targets)),
 	)
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "map-tracker").
-			Str("ui_view", "navigation_finished").
-			Msg("failed to render UI")
-	}
 
 	return true
 }
 
 func doEmergencyStop(aw *ActionWrapper) {
 	log.Warn().Msg("Emergency stop triggered")
-	err := maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "map-tracker").
-			Str("ui_view", "emergency_stop").
-			Msg("failed to render UI")
-	}
+	maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
 	aw.KeyUpSync(KEY_W, 100)
 	aw.ctx.GetTasker().PostStop()
 }

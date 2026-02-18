@@ -40,14 +40,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		log.Error().Err(err).Msg("<EssenceFilter> Step3 failed: load DB")
 		return false
 	}
-	if err := LogMXUSimpleHTML(ctx, "武器数据加载完成"); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step3_load_db").
-			Str("ui_view", "load_db_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUSimpleHTML(ctx, "武器数据加载完成")
 	logSkillPools()
 
 	// 4. load presets
@@ -72,14 +65,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	if len(WeaponRarity) == 0 {
 		log.Error().Msg("<EssenceFilter> Step5 failed: no preset selected, please select at least one preset")
-		if err := LogMXUSimpleHTMLWithColor(ctx, "未选择任何武器稀有度，请至少选择一个武器稀有度作为筛选条件", "#ff0000"); err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("phase", "init_step5_select_weapon_rarity").
-				Str("ui_view", "validation_error").
-				Msg("failed to render UI")
-		}
+		LogMXUSimpleHTMLWithColor(ctx, "未选择任何武器稀有度，请至少选择一个武器稀有度作为筛选条件", "#ff0000")
 		return false
 	}
 
@@ -93,33 +79,12 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	if len(EssenceTypes) == 0 {
 		log.Error().Msg("<EssenceFilter> Step5 failed: no essence type selected, please select at least one essence type")
-		if err := LogMXUSimpleHTMLWithColor(ctx, "未选择任何基质类型，请至少选择一个基质类型作为筛选条件", "#ff0000"); err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("phase", "init_step5_select_essence_type").
-				Str("ui_view", "validation_error").
-				Msg("failed to render UI")
-		}
+		LogMXUSimpleHTMLWithColor(ctx, "未选择任何基质类型，请至少选择一个基质类型作为筛选条件", "#ff0000")
 		return false
 	}
 
-	if err := LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity))); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step5_select_preset").
-			Str("ui_view", "selected_preset_summary").
-			Msg("failed to render UI")
-	}
-	if err := LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(EssenceTypes))); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step5_select_essence_type").
-			Str("ui_view", "selected_essence_type_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(EssenceTypes)))
 	// 6. filter weapons
 	filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
 	names := make([]string, 0, len(filteredWeapons))
@@ -128,14 +93,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 	log.Info().Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("<EssenceFilter> Step6 ok")
 	buildFilteredSkillStats(filteredWeapons)
-	if err := LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons))); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step6_filter_weapons").
-			Str("ui_view", "filtered_weapons_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
 	// Construct weapon list in HTML to show
 	sort.Slice(filteredWeapons, func(i, j int) bool {
 		return filteredWeapons[i].Rarity > filteredWeapons[j].Rarity
@@ -154,14 +112,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 	}
 	builder.WriteString("</table>")
-	if err := LogMXUHTML(ctx, builder.String()); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step6_filter_weapons").
-			Str("ui_view", "filtered_weapons_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUHTML(ctx, builder.String())
 
 	// 7. extract combos
 	targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
@@ -226,14 +177,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		}
 		skillBuilder.WriteString("</table>")
 	}
-	if err := LogMXUHTML(ctx, skillBuilder.String()); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "init_step7_extract_combos").
-			Str("ui_view", "target_skills_summary").
-			Msg("failed to render UI")
-	}
+	LogMXUHTML(ctx, skillBuilder.String())
 
 	return true
 }
@@ -270,17 +214,10 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 
 	log.Info().Int("count", n).Int("max_single_page", maxSinglePage).Str("raw", text).
 		Msg("<EssenceFilter> CheckTotal: parsed")
-	if err := LogMXUSimpleHTML(
+	LogMXUSimpleHTML(
 		ctx,
 		fmt.Sprintf("库存中共 <span style=\"color: #ff7000; font-weight: 900;\">%d</span> 个基质", n),
-	); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "check_total").
-			Str("ui_view", "inventory_count").
-			Msg("failed to render UI")
-	}
+	)
 
 	if n <= maxSinglePage {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -441,18 +378,11 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceDetectFinal"},
 		})
-		if err := LogMXUSimpleHTMLWithColor(
+		LogMXUSimpleHTMLWithColor(
 			ctx,
 			"尾扫完成，收集所有剩余基质格子",
 			"#1a01fd",
-		); err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("phase", "row_collect_final_scan").
-				Str("ui_view", "final_scan_summary").
-				Msg("failed to render UI")
-		}
+		)
 		log.Info().Msg("<EssenceFilter> RowCollect: trigger final large scan")
 		return true
 	}
@@ -496,17 +426,10 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				nextSwipe = "EssenceFilterSwipeNext"
 			}
 
-			if err := LogMXUSimpleHTML(
+			LogMXUSimpleHTML(
 				ctx,
 				fmt.Sprintf("滑动到第 %d 行", currentRow+1),
-			); err != nil {
-				log.Warn().
-					Err(err).
-					Str("module", "essencefilter").
-					Str("phase", "row_next_item").
-					Str("ui_view", "swipe_summary").
-					Msg("failed to render UI")
-			}
+			)
 			currentRow++
 
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -557,18 +480,11 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		MatchedMessageColor = "#064d7c"
 	}
 
-	if err := LogMXUSimpleHTMLWithColor(
+	LogMXUSimpleHTMLWithColor(
 		ctx,
 		fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]),
 		MatchedMessageColor,
-	); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "skill_decision").
-			Str("ui_view", "ocr_skill_summary").
-			Msg("failed to render UI")
-	}
+	)
 	if matched {
 		matchedCount++
 
@@ -601,14 +517,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`,
 			weaponsHTML.String(),
 		)
-		if err := LogMXUHTML(ctx, MatchedMessage); err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("phase", "skill_decision").
-				Str("ui_view", "match_summary").
-				Msg("failed to render UI")
-		}
+		LogMXUHTML(ctx, MatchedMessage)
 
 		// 更新本轮运行的技能组合统计信息
 		key := skillCombinationKey(matchResult.SkillIDs)
@@ -636,14 +545,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		})
 	} else {
 		log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
-		if err := LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品"); err != nil {
-			log.Warn().
-				Err(err).
-				Str("module", "essencefilter").
-				Str("phase", "skill_decision").
-				Str("ui_view", "no_match_summary").
-				Msg("failed to render UI")
-		}
+		LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterRowNextItem"},
 		})
@@ -661,18 +563,11 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	log.Info().Msg("<EssenceFilter> ========== Finish ==========")
 	log.Info().Int("matched_total", matchedCount).Msg("<EssenceFilter> locked items")
 
-	if err := LogMXUSimpleHTMLWithColor(
+	LogMXUSimpleHTMLWithColor(
 		ctx,
 		fmt.Sprintf("筛选完成！共历遍物品：%d，确认锁定物品：%d", visitedCount, matchedCount),
 		"#11cf00",
-	); err != nil {
-		log.Warn().
-			Err(err).
-			Str("module", "essencefilter").
-			Str("phase", "finish").
-			Str("ui_view", "run_summary").
-			Msg("failed to render UI")
-	}
+	)
 
 	// 追加本轮战利品摘要
 	logMatchSummary(ctx)
