@@ -836,6 +836,42 @@
             }
         }
     },
+    "ScenePrivateWorldEnterMenuBackpack": {
+        "desc": "从任意大世界进入包含仓库的背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // B
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuBackpackSuccess"
+        ]
+    },
     "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
         "desc": "从帝江号大世界进入包含仓库的背包界面",
         "recognition": {
@@ -879,9 +915,23 @@
                 ]
             }
         },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // B
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuBackpack",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuBackpack": {
