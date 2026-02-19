@@ -104,7 +104,15 @@
                 ]
             }
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                460,
+                290,
+                360,
+                150
+            ]
+        },
         "next": [
             "SceneNoticeRewardsConfirm"
         ]
