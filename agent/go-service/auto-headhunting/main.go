@@ -159,7 +159,10 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			ctx.RunTask("AutoHeadhunting:SkipStars")
 
 			// OCR 识别干员名称
+			textInvalid := false
+			invalidText := ""
 			for range MAX_OCR_RETRIES {
+				controller.PostScreencap().Wait()
 				img, err := controller.CacheImage()
 				if err != nil {
 					log.Err(err).Msg("[AutoHeadhunting] Failed to cache image")
@@ -183,6 +186,15 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					return false
 				}
 
+				// 检查干员名称是否存在
+				if !isValidOperator(ocr.Text) {
+					log.Warn().Msgf("[AutoHeadhunting] OCR result '%s' is not a valid operator name, skipping...", ocr.Text)
+					textInvalid = true
+					invalidText = ocr.Text
+					continue
+				}
+
+				textInvalid = false
 				log.Info().Msgf("[AutoHeadhunting] Detected operator: %s", ocr.Text)
 
 				// 记录结果
@@ -210,6 +222,14 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text+starLabel), getColorForStars(stars))
 
+				break
+			}
+
+			if textInvalid {
+				// OCR 结果无效，显示无效名称提前终止任务
+				log.Warn().Msg("[AutoHeadhunting] OCR result is invalid after retries, skipping to next pull...")
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("unknown_operator"), invalidText), "#ff0000")
+				stopping = true
 				break
 			}
 

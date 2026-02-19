@@ -40,6 +40,13 @@ func isSixStar(localizedName string) bool {
 	return exists
 }
 
+// isValidOperator 检查 OCR 结果是否为合法的干员名称
+// 通过反向索引判断该名称是否存在于干员表中
+func isValidOperator(localizedName string) bool {
+	_, exists := reverseOperatorMap[localizedName]
+	return exists
+}
+
 // sixStarSet 缓存当前语言下所有六星干员的本地化名称
 var sixStarSet map[string]struct{}
 
@@ -84,6 +91,7 @@ var locals = map[string]map[string]string{
 		"final_results":    "最终结果: %v",
 		"used_pulls":       "已抽取次数: %d / %d",
 		"unenough_pulls":   "剩余抽数不足，已终止任务。",
+		"unknown_operator": "未知干员 %s 终止任务",
 		"task_unknown_err": "未知错误",
 		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",
 		"any_6_stars":      "任意6★干员",

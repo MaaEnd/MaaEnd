@@ -96,7 +96,7 @@
         "timeout": 2500
     },
     "AutoHeadhunting:Waiting": {
-        // 六星动画无法跳过 当未检测到跳过键时 进入等待
+        // 部分六星动画无法跳过 当未检测到跳过键时 进入等待
         "post_delay": 20000
     },
 
@@ -109,7 +109,7 @@
             93
         ],
         "pre_delay": 100,
-        "post_delay": 300,
+        "post_delay": 200,
         "template": ["AutoHeadhunting/ArsenalTicket.png"]
     },
     "AutoHeadhunting:UndetectedArsenalTicket": {
@@ -123,7 +123,7 @@
         "template": ["AutoHeadhunting/ArsenalTicket.png"],
         "inverse": true,
         "pre_delay": 100,
-        "post_delay": 300
+        "post_delay": 200
     },
     "AutoHeadhunting:SS_UndetectedArsenalTicket": {
         "recognition": "TemplateMatch",
@@ -142,8 +142,8 @@
             304,
             199
         ],
-        "pre_delay": 100,
-        "post_delay": 300,
+        "pre_delay": 0,
+        "post_delay": 200,
         "next": ["AutoHeadhunting:SkipStars"]
     },
     "AutoHeadhunting:Next_DetectedArsenalTicket": {
@@ -246,7 +246,9 @@
             "埃特拉",
             "安塔尔",
             "秋栗",
-            "萤石"
+            "萤石",
+            ".*" // 用于捕获意外结果
+
         ],
         "replace": [
             [
