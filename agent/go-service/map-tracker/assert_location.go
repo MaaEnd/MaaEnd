@@ -94,7 +94,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		return nil, false
 	}
 	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal InferResult")
+		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, false
 	}
 

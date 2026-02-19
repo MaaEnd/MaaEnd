@@ -336,7 +336,7 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		return nil, err
 	}
 	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal InferResult")
+		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, err
 	}
 	if result.MapName == "None" {

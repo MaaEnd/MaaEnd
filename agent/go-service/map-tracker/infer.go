@@ -85,7 +85,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	if param.Precision < 0.3 {
 		rotStep = 12
 	} else if param.Precision < 0.6 {
-		param.Precision = 6
+		rotStep = 6
 	} else {
 		rotStep = 3
 	}
