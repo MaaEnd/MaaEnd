@@ -59,7 +59,7 @@ func logTaskParamsHTML(ctx *maa.Context, targetPulls int, targetLabel string, ta
 	b.WriteString(`<table style="border-collapse: collapse; font-size: 12px;">`)
 
 	// 查找目标干员的星级，生成带颜色和星级标注的干员名称 HTML
-	_, stars := o(t(targetLabel))
+	_, stars := oByLocalName(targetLabel)
 	var targetValueHTML string
 	if targetLabel == "None" {
 		targetValueHTML = escapeHTML(targetLabel)
@@ -103,7 +103,7 @@ func logPullResultsHTML(ctx *maa.Context, usedPulls int, targetPulls int, ansMp 
 		escapeHTML(t("used_pulls")), usedPulls, targetPulls,
 	))
 	for name, count := range ansMp {
-		_, stars := o(t(name))
+		_, stars := oByLocalName(name)
 		coloredName := formatOperatorNameColoredHTML(name, stars)
 		starLabel := ""
 		if stars != "0" {
@@ -135,7 +135,7 @@ func logFinalSummaryHTML(ctx *maa.Context, usedPulls int, targetCount int, targe
 		if _, exists := starColors[name]; exists {
 			continue
 		}
-		_, stars := o(t(name))
+		_, stars := oByLocalName(name)
 		entries = append(entries, operatorEntry{name: name, stars: stars, count: count})
 	}
 	sort.Slice(entries, func(i, j int) bool {

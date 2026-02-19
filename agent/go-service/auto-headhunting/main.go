@@ -48,7 +48,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	lang = params.Language
-	buildSixStarSet()
+	buildOperatorCaches()
 
 	isAny6Stars := params.TargetOperator == "ANY_6_STARS_OP"
 	targetLabel, _ := o(params.TargetOperator)
@@ -187,7 +187,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				log.Info().Msgf("[AutoHeadhunting] Detected operator: %s", ocr.Text)
 
 				// 记录结果
-				_, stars := o(t(ocr.Text))
+				_, stars := oByLocalName(ocr.Text)
 				mp[ocr.Text]++
 				mp[stars]++
 

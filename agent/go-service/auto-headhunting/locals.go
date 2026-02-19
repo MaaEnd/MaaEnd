@@ -20,7 +20,20 @@ func o(key string) (string, string) {
 	return key, "0"
 }
 
-// isSixStar 判断干员名（当前语言的本地化名称）是否为六星干员
+// oByLocalName 通过任意语言的本地化名称反向查找干员信息
+// 返回 (当前语言的本地化名称, 星级)
+// 使用预构建的反向索引进行 O(1) 查找
+func oByLocalName(localName string) (string, string) {
+	if key, exists := reverseOperatorMap[localName]; exists {
+		return o(key)
+	}
+	return localName, "0"
+}
+
+// reverseOperatorMap 缓存从任意语言的本地化名称到英文 key 的反向映射
+var reverseOperatorMap map[string]string
+
+// isSixStar 判断干员名（任意语言的本地化名称）是否为六星干员
 // 使用预构建的 set 进行 O(1) 查找
 func isSixStar(localizedName string) bool {
 	_, exists := sixStarSet[localizedName]
@@ -30,13 +43,28 @@ func isSixStar(localizedName string) bool {
 // sixStarSet 缓存当前语言下所有六星干员的本地化名称
 var sixStarSet map[string]struct{}
 
-// buildSixStarSet 根据当前 lang 从 operators 表预构建六星干员名称集合
-// 应在 lang 设置后调用一次
-func buildSixStarSet() {
+/*
+buildOperatorCaches 根据当前 lang 从 operators 表预构建：
+1. sixStarSet: 所有语言下六星干员本地化名称的集合
+2. reverseOperatorMap: 所有语言下本地化名称到英文 key 的反向映射
+应在 lang 设置后调用一次
+*/
+func buildOperatorCaches() {
 	sixStarSet = make(map[string]struct{})
-	for _, opMap := range operators {
+	reverseOperatorMap = make(map[string]string)
+	for key, opMap := range operators {
+		for langKey, name := range opMap {
+			if langKey == "stars" {
+				continue
+			}
+			reverseOperatorMap[name] = key
+		}
 		if opMap["stars"] == "6" {
-			if name, exists := opMap[lang]; exists {
+			// 将所有语言的六星干员名称都加入 set，确保 OCR 任何语言结果都能匹配
+			for langKey, name := range opMap {
+				if langKey == "stars" {
+					continue
+				}
 				sixStarSet[name] = struct{}{}
 			}
 		}
@@ -59,30 +87,6 @@ var locals = map[string]map[string]string{
 		"task_unknown_err": "未知错误",
 		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",
 		"any_6_stars":      "任意★6干员",
-		// 干员信息
-		"佩里卡":  "Perlica",
-		"伊冯":   "Yvonne",
-		"艾尔黛拉": "Ardelia",
-		"洁尔佩塔": "Gilberta",
-		"陈千语":  "ChenQianyu",
-		"狼卫":   "Wulfgard",
-		"安塔尔":  "Antal",
-		"赛希":   "Xaihi",
-		"黎风":   "Lifeng",
-		"卡契尔":  "Catcher",
-		"弧光":   "Arclight",
-		"艾维文娜": "Avywenna",
-		"莱万汀":  "Laevatain",
-		"阿列什":  "Alesh",
-		"骏卫":   "Pogranichnik",
-		"别礼":   "LastRite",
-		"余烬":   "Ember",
-		"昼雪":   "Snowshine",
-		"大潘":   "DaPan",
-		"萤石":   "Fluorite",
-		"秋栗":   "Akekuri",
-		"埃特拉":  "Estella",
-		"管理员":  "Endministrator",
 	},
 }
 
