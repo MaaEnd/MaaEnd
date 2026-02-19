@@ -277,6 +277,15 @@
                 "key": 78 // N
             }
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
         "next": [
             "ScenePrivateAnyEnterMenuValuablesSuccess"
         ]
