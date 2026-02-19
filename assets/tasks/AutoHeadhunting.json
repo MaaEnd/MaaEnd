@@ -94,7 +94,7 @@
             "type": "select",
             "label": "$option.TargetOperator.label",
             "description": "$option.TargetOperator.inputs.TargetOperator.description",
-            "default_case": "None",
+            "default_case": "6stars",
             "cases": [
                 {
                     "name": "None",
@@ -103,6 +103,17 @@
                         "AutoHeadhunting": {
                             "attach": {
                                 "TargetOperator": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "6stars",
+                    "label": "$option.TargetOperator.cases.ANY_6_STARS_OP.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "ANY_6_STARS_OP"
                             }
                         }
                     }

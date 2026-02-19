@@ -245,6 +245,7 @@
     "option.PreferMode.cases.10x.label": "优先十连",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_tw.md",
     "option.TargetOperator.cases.None.label": "無目標干員",
+    "option.TargetOperator.cases.ANY_6_STARS_OP.label": "任意6★干員",
     "operator.Perlica": "佩麗卡",
     "operator.Yvonne": "伊馮",
     "operator.Ardelia": "艾爾黛拉",

@@ -48,9 +48,13 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	lang = params.Language
+	buildSixStarSet()
 
+	isAny6Stars := params.TargetOperator == "ANY_6_STARS_OP"
 	targetLabel, _ := o(params.TargetOperator)
-	if targetLabel == "" {
+	if isAny6Stars {
+		targetLabel = t("any_6_stars")
+	} else if targetLabel == "" {
 		targetLabel = "None"
 	}
 
@@ -186,7 +190,16 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				_, stars := o(t(ocr.Text))
 				mp[ocr.Text]++
 				mp[stars]++
-				if ocr.Text == targetLabel {
+
+				// 判断是否命中目标干员
+				isTarget := false
+				if isAny6Stars {
+					// ANY_6_STARS_OP 模式：动态匹配任意六星干员
+					isTarget = isSixStar(ocr.Text)
+				} else {
+					isTarget = ocr.Text == targetLabel
+				}
+				if isTarget {
 					targetCount++
 					log.Info().Msgf("[AutoHeadhunting] Found target operator: %s (count: %d)", ocr.Text, targetCount)
 				}

@@ -20,6 +20,29 @@ func o(key string) (string, string) {
 	return key, "0"
 }
 
+// isSixStar 判断干员名（当前语言的本地化名称）是否为六星干员
+// 使用预构建的 set 进行 O(1) 查找
+func isSixStar(localizedName string) bool {
+	_, exists := sixStarSet[localizedName]
+	return exists
+}
+
+// sixStarSet 缓存当前语言下所有六星干员的本地化名称
+var sixStarSet map[string]struct{}
+
+// buildSixStarSet 根据当前 lang 从 operators 表预构建六星干员名称集合
+// 应在 lang 设置后调用一次
+func buildSixStarSet() {
+	sixStarSet = make(map[string]struct{})
+	for _, opMap := range operators {
+		if opMap["stars"] == "6" {
+			if name, exists := opMap[lang]; exists {
+				sixStarSet[name] = struct{}{}
+			}
+		}
+	}
+}
+
 // 显示文本 Display Text
 var locals = map[string]map[string]string{
 	"zh_cn": {
@@ -35,6 +58,7 @@ var locals = map[string]map[string]string{
 		"unenough_pulls":   "剩余抽数不足，已终止任务。",
 		"task_unknown_err": "未知错误",
 		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",
+		"any_6_stars":      "任意★6干员",
 		// 干员信息
 		"佩里卡":  "Perlica",
 		"伊冯":   "Yvonne",

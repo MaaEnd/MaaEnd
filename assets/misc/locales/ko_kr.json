@@ -245,6 +245,7 @@
     "option.PreferMode.cases.10x.label": "优先十连",
     "contact.file": "misc/locales/CONTACT/CONTACT.ko_kr.md",
     "option.TargetOperator.cases.None.label": "목표干员 없음",
+    "option.TargetOperator.cases.ANY_6_STARS_OP.label": "임의 6★ 간원",
     "operator.Perlica": "펠리카",
     "operator.Yvonne": "이본",
     "operator.Ardelia": "아델리아",
