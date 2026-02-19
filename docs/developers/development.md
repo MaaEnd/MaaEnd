@@ -1,24 +1,28 @@
 # 开发手册
 
 **MaaEnd** 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，采用 [方案二](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) 进行开发。
-我们的主体流程采用 [Pipeline JSON 低代码](https://github.com/MaaEnd/MaaEnd/tree/main/assets/resource/pipeline)，复杂逻辑通过 [go-service](https://github.com/MaaEnd/MaaEnd/tree/main/agent/go-service) 编码实现。
+我们的主体流程采用 [Pipeline JSON 低代码](/assets/resource/pipeline)，复杂逻辑通过 [go-service](/agent/go-service) 编码实现。
 若有意加入 MaaEnd 开发，可以先阅读 MaaFramework 相关文档，了解低代码逻辑、相关编辑调试工具的使用~
 
 ## 本地部署
 
-### 自动设置
-
-我们提供一个自动化的工作区初始化脚本，只需执行：
+我们提供一个自动化的**工作区初始化脚本**，只需执行：
 
 ```bash
 python tools/setup_workspace.py
 ```
 
-即可完整设置开发所需的环境。如果出现问题，你可以参照下方的手动设置指南来分步骤操作。
+即可完整设置开发所需的环境。
 
-### 手动设置
+> [!NOTE]
+> 
+> 如果出现问题，你也可以参照下方的**手动配置指南**来分步骤操作。
 
-1. 完整 clone 项目及子仓库。
+<details>
+<summary>点此展开手动配置指南。</summary>
+<br>
+
+1. 完整克隆项目及子仓库。
 
     ```bash
     git clone https://github.com/MaaEnd/MaaEnd --recursive
@@ -39,18 +43,32 @@ python tools/setup_workspace.py
     ```
 
 3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
+
 4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
+
+</details>
 
 ## 开发技巧
 
+### 关于开发体验
+
 - MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。工作目录可设置为 `install` 文件夹。
 - 每次修改 Pipeline 后只需要在开发工具中重新加载资源即可；但每次修改 go-service 都需要执行 `python tools/build_and_install.py` 重新进行编译。
-- 可利用 vscode 等工具对 go-service 挂断点或单步运行（自行 debug 启动 go-service，或利用 vscode attach）。~~不是哥们，你靠看日志改代码啊？~~
+- 可利用 VS Code 等工具对 go-service 挂断点或单步运行（自行 debug 启动 go-service，或利用 vscode attach）。~~不是哥们，你靠看日志改代码啊？~~
 - MXU 是面向终端用户的 GUI，不建议使用其开发调试，上述的 MaaFramework 开发工具可以极大程度提高开发效率。~~真狠啊就硬试啊~~
+
+### 关于资源
+
 - MaaEnd 开发中所有图片、坐标均需要以 720p 为基准，MaaFramework 在实际运行时会根据用户设备的分辨率自动进行转换。推荐使用上述开发工具进行截图和坐标换算。
 - 资源文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `assets` 再进行提交。**
 - `resource_fast` 文件夹中清除了默认延迟，操作速度会大幅加快，但也对 pipeline 的鲁棒性提出来更高的要求。我们推荐优先使用 `resource_fast`，但也请开发者根据任务实际情况自行选择。  
   _说人话就是 `resource_fast` 难写的多，每次操作之后下一帧画面可能还是过渡动画，你也要想办法识别。但运行速度也更快，对自己有信心的可以试试。搞不定或者懒得弄就放 `resource` 里，操作慢一点但写起来简单。_
+
+### 关于秦始皇节点
+
+某些具有高可复用性的节点已经予以封装，并撰写了详细文档，以避免重复造轮子。参见：
+
+- [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 
 ## 代码规范
 
