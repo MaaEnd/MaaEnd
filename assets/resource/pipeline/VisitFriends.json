@@ -6,7 +6,7 @@
             "OpenFriendList",
             "OpenFriendListFromFriendShip",
             "EnterPauseMenu",
-            "[JumpBack]SceneAnyEnterWorld"
+            "[JumpBack]SceneEnterMenuFriends"
         ]
     },
     "OpenFriendListFromFriendShip": {
