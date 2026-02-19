@@ -6,7 +6,7 @@
             "OpenFriendList",
             "OpenFriendListFromFriendShip",
             "EnterPauseMenu",
-            "[JumpBack]SceneAnyEnterWorld"
+            "[JumpBack]SceneEnterMenuFriends"
         ]
     },
     "OpenFriendListFromFriendShip": {
@@ -36,14 +36,14 @@
         ]
     },
     "EnterPauseMenu": {
-        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船、且不在好友列表时有效）",
+        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船时有效）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
+                "box_index": 0,
                 "all_of": [
-                    "InWorld",
-                    "NotOnFriendList"
+                    "InWorld"
                 ]
             }
         },
@@ -102,28 +102,6 @@
             "ClueExchangeOCR",
             "VisitEnd"
         ]
-    },
-    "NotOnFriendList": {
-        "doc": "识别当前不在好友列表界面（用于 EnterPauseMenu，避免在好友列表时误判为 InWorld 而按 Esc）",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/OnFriendList.png",
-                "roi": [
-                    12,
-                    44,
-                    80,
-                    64
-                ],
-                "threshold": 0.8
-            }
-        },
-        "inverse": true,
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": []
     },
     "PriorStealGate": {
         "doc": "偷菜模式：助力生产 - 剩余次数大于0",
