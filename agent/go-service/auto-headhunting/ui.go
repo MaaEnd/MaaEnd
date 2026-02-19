@@ -57,21 +57,37 @@ func logTaskParamsHTML(ctx *maa.Context, targetPulls int, targetLabel string, ta
 	b.WriteString(fmt.Sprintf(`<div style="font-weight: 900; color: #00bfff; margin-bottom: 2px;">🎰 %s</div>`, t("params")))
 	b.WriteString(`<table style="border-collapse: collapse; font-size: 12px;">`)
 
-	rows := []struct {
-		label string
-		value string
-	}{
-		{t("target_pulls"), fmt.Sprintf("%d", targetPulls)},
-		{t("target_operator"), targetLabel},
-		{t("target_num"), fmt.Sprintf("%d", targetOperatorNum)},
-		{t("prefer_mode"), fmt.Sprintf("%d", preferMode)},
+	// 查找目标干员的星级，生成带颜色和星级标注的干员名称 HTML
+	_, stars := o(t(targetLabel))
+	var targetValueHTML string
+	if targetLabel == "None" {
+		targetValueHTML = escapeHTML(targetLabel)
+	} else {
+		targetValueHTML = formatOperatorNameColoredHTML(targetLabel, stars)
+		if stars != "0" {
+			targetValueHTML += fmt.Sprintf(` <span style="color: %s;">★%s</span>`, getColorForStars(stars), stars)
+		}
 	}
 
-	for _, row := range rows {
-		b.WriteString(fmt.Sprintf(
-			`<tr><td style="padding: 1px 6px 1px 0; color: #888;">%s</td><td style="padding: 1px 0; color: #e0e0e0; font-weight: 500;">%s</td></tr>`,
-			escapeHTML(row.label), escapeHTML(row.value),
-		))
+	type row struct {
+		label     string
+		valueHTML string
+		escape    bool // 是否需要 escapeHTML
+	}
+	rows := []row{
+		{t("target_pulls"), fmt.Sprintf("%d", targetPulls), true},
+		{t("target_operator"), targetValueHTML, false},
+		{t("target_num"), fmt.Sprintf("%d", targetOperatorNum), true},
+		{t("prefer_mode"), fmt.Sprintf("%d", preferMode), true},
+	}
+
+	for _, r := range rows {
+		valueHTML := r.valueHTML
+		if r.escape {
+			valueHTML = escapeHTML(r.valueHTML)
+		}
+		fmt.Fprintf(&b, `<tr><td style="padding: 1px 6px 1px 0; color: #888;">%s</td><td style="padding: 1px 0; color: #e0e0e0; font-weight: 500;">%s</td></tr>`,
+			escapeHTML(r.label), valueHTML)
 	}
 
 	b.WriteString(`</table>`)
@@ -88,9 +104,11 @@ func logPullResultsHTML(ctx *maa.Context, usedPulls int, targetPulls int, ansMp 
 	for name, count := range ansMp {
 		_, stars := o(t(name))
 		coloredName := formatOperatorNameColoredHTML(name, stars)
-		b.WriteString(fmt.Sprintf(
-			`<div>%s: %d</div>`, coloredName, count,
-		))
+		starLabel := ""
+		if stars != "0" {
+			starLabel = fmt.Sprintf(` <span style="color: %s;">★%s</span>`, getColorForStars(stars), stars)
+		}
+		fmt.Fprintf(&b, `<div>%s%s: %d</div>`, coloredName, starLabel, count)
 	}
 	LogMXUHTML(ctx, b.String())
 }
@@ -98,15 +116,11 @@ func logPullResultsHTML(ctx *maa.Context, usedPulls int, targetPulls int, ansMp 
 // logFinalSummaryHTML 输出最终抽卡结果摘要的 HTML
 func logFinalSummaryHTML(ctx *maa.Context, usedPulls int, targetCount int, targetLabel string, mp map[string]int) {
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf(
-		`<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">%s</div>`,
-		escapeHTML(fmt.Sprintf(t("done"), usedPulls, targetCount, targetLabel)),
-	))
+	fmt.Fprintf(&b, `<div style="color: #00bfff; font-weight: 900; margin-top: 4px;">%s</div>`,
+		escapeHTML(fmt.Sprintf(t("done"), usedPulls, targetCount, targetLabel)))
 	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
-	b.WriteString(fmt.Sprintf(
-		`<tr><th style="text-align:left; padding: 2px 4px;">%s</th><th style="text-align:right; padding: 2px 4px;">%s</th></tr>`,
-		escapeHTML(t("target_operator")), escapeHTML(t("target_num")),
-	))
+	fmt.Fprintf(&b, `<tr><th style="text-align:left; padding: 2px 4px;">%s</th><th style="text-align:right; padding: 2px 4px;">%s</th></tr>`,
+		escapeHTML(t("target_operator")), escapeHTML(t("target_num")))
 	for name, count := range mp {
 		// 跳过星级统计条目（key 为纯数字星级如 "4", "5", "6"）
 		if _, exists := starColors[name]; exists {
@@ -114,9 +128,13 @@ func logFinalSummaryHTML(ctx *maa.Context, usedPulls int, targetCount int, targe
 		}
 		_, stars := o(t(name))
 		coloredName := formatOperatorNameColoredHTML(name, stars)
+		starLabel := ""
+		if stars != "0" {
+			starLabel = fmt.Sprintf(` <span style="color: %s;">★%s</span>`, getColorForStars(stars), stars)
+		}
 		b.WriteString("<tr>")
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px;">%s</td>`, coloredName))
-		b.WriteString(fmt.Sprintf(`<td style="padding: 2px 4px; text-align: right;">%d</td>`, count))
+		fmt.Fprintf(&b, `<td style="padding: 2px 4px;">%s%s</td>`, coloredName, starLabel)
+		fmt.Fprintf(&b, `<td style="padding: 2px 4px; text-align: right;">%d</td>`, count)
 		b.WriteString("</tr>")
 	}
 	b.WriteString(`</table>`)

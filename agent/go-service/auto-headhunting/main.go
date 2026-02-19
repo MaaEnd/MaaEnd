@@ -174,7 +174,11 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 
 				_, ocrStars := o(t(ocr.Text))
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text), getColorForStars(ocrStars))
+				starLabel := ""
+				if ocrStars != "0" {
+					starLabel = fmt.Sprintf(" ★%s", ocrStars)
+				}
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text+starLabel), getColorForStars(ocrStars))
 				log.Info().Msgf("[AutoHeadhunting] Detected operator: %s", ocr.Text)
 				ans = append(ans, ocr.Text)
 				break
