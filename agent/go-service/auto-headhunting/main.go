@@ -130,6 +130,8 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			break
 		}
 
+		log.Info().Msgf("[AutoHeadhunting] Used pulls: %d /  %d", usedPulls, params.TargetPulls)
+
 		// 跳过拉杆和降落动画
 		task_details, err := ctx.RunTask("AutoHeadhunting:Skip1")
 		if err != nil {
@@ -142,7 +144,6 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			ctx.RunTask("AutoHeadhunting:Waiting")
 		}
 
-		ans := make([]string, 0)
 		for range mode {
 			if tasker.Stopping() {
 				log.Info().Msg("[AutoHeadhunting] Stopping task...")
@@ -178,14 +179,24 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					return false
 				}
 
-				_, ocrStars := o(t(ocr.Text))
-				starLabel := ""
-				if ocrStars != "0" {
-					starLabel = fmt.Sprintf(" ★%s", ocrStars)
-				}
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text+starLabel), getColorForStars(ocrStars))
 				log.Info().Msgf("[AutoHeadhunting] Detected operator: %s", ocr.Text)
-				ans = append(ans, ocr.Text)
+
+				// 记录结果
+				_, stars := o(t(ocr.Text))
+				mp[ocr.Text]++
+				mp[stars]++
+				if ocr.Text == targetLabel {
+					targetCount++
+					log.Info().Msgf("[AutoHeadhunting] Found target operator: %s (count: %d)", ocr.Text, targetCount)
+				}
+
+				// 在 MXU 显示结果
+				starLabel := ""
+				if stars != "0" {
+					starLabel = fmt.Sprintf(" ★%s", stars)
+				}
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text+starLabel), getColorForStars(stars))
+
 				break
 			}
 
@@ -196,6 +207,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				return false
 			}
 		}
+
 		if stopping {
 			break
 		}
@@ -210,20 +222,6 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			log.Err(err).Msg("[AutoHeadhunting] Failed to close results")
 			return false
 		}
-
-		// 记录抽卡结果
-		for _, name := range ans {
-			// 寻找目标干员
-			_, stars := o(t(name))
-			mp[name]++
-			mp[stars]++
-			if name == targetLabel {
-				targetCount++
-				log.Info().Msgf("[AutoHeadhunting] Found target operator: %s (count: %d)", name, targetCount)
-			}
-
-		}
-		log.Info().Msgf("[AutoHeadhunting] Used pulls: %d /  %d", usedPulls, params.TargetPulls)
 	}
 
 	log.Info().Msgf("[AutoHeadhunting] Finished with %d pulls, found %d target operators (%s)", usedPulls, targetCount, params.TargetOperator)
