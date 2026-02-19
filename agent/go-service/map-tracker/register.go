@@ -7,6 +7,6 @@ import "github.com/MaaXYZ/maa-framework-go/v4"
 func Register() {
 	ensureResourcePathSink()
 
-	maa.AgentServerRegisterCustomRecognition("MapTrackerInfer", &Infer{})
+	maa.AgentServerRegisterCustomRecognition("MapTrackerInfer", &MapTrackerInfer{})
 	maa.AgentServerRegisterCustomAction("MapTrackerMove", &MapTrackerMove{})
 }
