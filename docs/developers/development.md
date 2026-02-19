@@ -15,7 +15,7 @@ python tools/setup_workspace.py
 即可完整设置开发所需的环境。
 
 > [!NOTE]
-> 
+>
 > 如果出现问题，你也可以参照下方的**手动配置指南**来分步骤操作。
 
 <details>
