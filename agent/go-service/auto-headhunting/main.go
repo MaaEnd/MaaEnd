@@ -212,11 +212,9 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		// 记录抽卡结果
-		ans_mp := make(map[string]int)
 		for _, name := range ans {
 			// 寻找目标干员
 			_, stars := o(t(name))
-			ans_mp[name]++
 			mp[name]++
 			mp[stars]++
 			if name == targetLabel {
@@ -225,15 +223,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			}
 
 		}
-		ans_mp_str := make([]string, 0)
-		for name, count := range ans_mp {
-			ans_mp_str = append(ans_mp_str, fmt.Sprintf("%s: %d", name, count))
-		}
-		log.Info().Msgf("[AutoHeadhunting] Results: %s", ans_mp_str)
 		log.Info().Msgf("[AutoHeadhunting] Used pulls: %d /  %d", usedPulls, params.TargetPulls)
-
-		// 输出单轮抽卡结果的带颜色 HTML
-		logPullResultsHTML(ctx, usedPulls, params.TargetPulls, ans_mp)
 	}
 
 	log.Info().Msgf("[AutoHeadhunting] Finished with %d pulls, found %d target operators (%s)", usedPulls, targetCount, params.TargetOperator)
