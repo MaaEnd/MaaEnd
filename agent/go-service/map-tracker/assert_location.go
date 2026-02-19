@@ -41,10 +41,6 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	mapNamesMap := make(map[string]struct{})
 	var mapNames []string
 	for _, condition := range param.Expected {
-		if condition.MapName == "" {
-			log.Error().Msg("map_name cannot be empty in expected conditions")
-			return nil, false
-		}
 		if _, exists := mapNamesMap[condition.MapName]; !exists {
 			mapNamesMap[condition.MapName] = struct{}{}
 			mapNames = append(mapNames, regexp.QuoteMeta(condition.MapName))
@@ -129,6 +125,17 @@ func (r *MapTrackerAssertLocation) parseParam(paramStr string) (*MapTrackerAsser
 
 	if len(param.Expected) == 0 {
 		return nil, fmt.Errorf("expected conditions must be provided")
+	}
+	for i, condition := range param.Expected {
+		if condition.MapName == "" {
+			return nil, fmt.Errorf("map_name must be provided for expected condition at index %d", i)
+		}
+		if len(condition.Target) != 4 {
+			return nil, fmt.Errorf("target must have 4 integers [x, y, w, h] for expected condition at index %d", i)
+		}
+		if condition.Target[2] <= 0 || condition.Target[3] <= 0 {
+			return nil, fmt.Errorf("width and height in target must be positive for expected condition at index %d", i)
+		}
 	}
 	// Precision and Threshold will be validated in MapTrackerInfer, omitted here
 

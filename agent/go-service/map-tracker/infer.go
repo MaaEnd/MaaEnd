@@ -175,6 +175,8 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 			} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
 				return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
 			}
+		} else {
+			return nil, fmt.Errorf("failed to unmarshal parameters: %w", err)
 		}
 		return &param, nil
 	} else {
