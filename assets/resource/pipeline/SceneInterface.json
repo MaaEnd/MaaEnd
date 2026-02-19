@@ -189,8 +189,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuGearAssembly",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ScenePrivateWorldFactoryEnterMenuGearAssembly",
+            "[JumpBack]SceneEnterWorldFactory"
         ]
     },
     "SceneEnterMenuBluePrint": {
@@ -208,6 +208,15 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpack": {
+        "doc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuBackpack",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },

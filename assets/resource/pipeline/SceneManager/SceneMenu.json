@@ -32,10 +32,10 @@
             ]
         },
         "next": [
-            "ScenePrivateWorldEnterMenuListSuccess"
+            "ScenePrivateAnyEnterMenuListSuccess"
         ]
     },
-    "ScenePrivateWorldEnterMenuListSuccess": {
+    "ScenePrivateAnyEnterMenuListSuccess": {
         "doc": "成功进入菜单总列表",
         "recognition": {
             "type": "OCR",
@@ -69,11 +69,14 @@
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 89 // Y
+            }
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuRegionalDevelopment",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuRegionalDevelopment": {
@@ -175,11 +178,23 @@
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 118 // F7
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuEvent",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuEventSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuEvent": {
@@ -256,11 +271,23 @@
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 78 // N
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuValuables",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuValuablesSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuValuables": {
@@ -337,11 +364,23 @@
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 119 // F8
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuOperationalManual",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuOperationalManualSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuOperationalManual": {
@@ -418,11 +457,23 @@
                 "green_mask": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 117 // F6
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuProtocolPass",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuProtocolPassSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuProtocolPass": {
@@ -671,10 +722,10 @@
             ]
         },
         "next": [
-            "ScenePrivateWorldEnterMenuEmailSuccess"
+            "ScenePrivateAnyEnterMenuEmailSuccess"
         ]
     },
-    "ScenePrivateWorldEnterMenuEmailSuccess": {
+    "ScenePrivateAnyEnterMenuEmailSuccess": {
         "doc": "成功进入邮箱菜单",
         "recognition": {
             "type": "OCR",
@@ -727,10 +778,45 @@
             ]
         },
         "next": [
-            "ScenePrivateWorldFactoryEnterMenuBluePrintSuccess"
+            "ScenePrivateAnyEnterMenuBluePrintSuccess"
         ]
     },
-    "ScenePrivateWorldFactoryEnterMenuBluePrintSuccess": {
+    "ScenePrivateWorldFactoryEnterMenuGearAssembly": {
+        "doc": "从大世界工厂模式进入装备加工界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryActive.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 76 // L
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuGearAssemblySuccess"
+        ]
+    },
+    "ScenePrivateAnyEnterMenuBluePrintSuccess": {
         "doc": "成功切换到蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -749,6 +835,42 @@
                 "threshold": 0.9
             }
         }
+    },
+    "ScenePrivateWorldEnterMenuBackpack": {
+        "desc": "从任意大世界进入包含仓库的背包界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // B
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuBackpackSuccess"
+        ]
     },
     "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
         "desc": "从帝江号大世界进入包含仓库的背包界面",
@@ -793,9 +915,23 @@
                 ]
             }
         },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 // B
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
+        },
         "next": [
-            "ScenePrivateMenuListEnterMenuBackpack",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
     "ScenePrivateMenuListEnterMenuBackpack": {
