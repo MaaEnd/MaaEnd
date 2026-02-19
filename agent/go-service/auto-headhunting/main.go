@@ -58,6 +58,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	logTaskParamsHTML(ctx, params.TargetPulls, targetLabel, params.TargetOperatorNum, params.PreferMode)
 
 	stopping := false
+	display_fallback_1x_warn := true
 	usedPulls := 0
 	targetCount := 0
 	const MAX_OCR_RETRIES = 10
@@ -84,8 +85,12 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 		mode := params.PreferMode
 		if params.TargetPulls-usedPulls < 10 {
-			LogMXUSimpleHTMLWithColor(ctx, t("fallback_1x"), "#ffa500")
 			mode = 1
+			if display_fallback_1x_warn {
+				// 只展示一遍回退单抽的警告
+				LogMXUSimpleHTMLWithColor(ctx, t("fallback_1x"), "#ffa500")
+				display_fallback_1x_warn = false
+			}
 		}
 
 		switch mode {
