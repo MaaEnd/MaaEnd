@@ -2,7 +2,6 @@ package batchaddfriends
 
 import (
 	"encoding/json"
-	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -14,20 +13,14 @@ import (
 )
 
 type batchAddConfig struct {
-	DefaultMaxCount  int `json:"default_max_count"`
-	RandomDelayMinMs int `json:"random_delay_min_ms"`
-	RandomDelayMaxMs int `json:"random_delay_max_ms"`
-	PageWaitMs       int `json:"page_wait_ms"`
-	MaxFailStreak    int `json:"max_fail_streak"`
+	DefaultMaxCount int `json:"default_max_count"`
+	MaxFailStreak   int `json:"max_fail_streak"`
 }
 
 var (
 	defaultConfig = batchAddConfig{
-		DefaultMaxCount:  20,
-		RandomDelayMinMs: 1000,
-		RandomDelayMaxMs: 3000,
-		PageWaitMs:       1500,
-		MaxFailStreak:    5,
+		DefaultMaxCount: 20,
+		MaxFailStreak:   5,
 	}
 	lastChangeBatchAt int64
 )
@@ -59,7 +52,6 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	added := 0
 	failStreak := 0
 
@@ -72,11 +64,10 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 				log.Error().Msg("[BatchAddFriends]连续失败次数过多，终止任务")
 				return false
 			}
-			ok := addByUID(ctx, controller, cfg, uid)
+			ok := addByUID(ctx, controller, uid)
 			if ok {
 				added++
 				failStreak = 0
-				sleepRandom(rng, cfg.RandomDelayMinMs, cfg.RandomDelayMaxMs)
 			} else {
 				failStreak++
 			}
@@ -142,29 +133,13 @@ func splitUIDs(raw string) []string {
 	return uids
 }
 
-func sleepRandom(rng *rand.Rand, minMs int, maxMs int) {
-	if maxMs <= 0 || minMs < 0 {
-		return
-	}
-	if maxMs < minMs {
-		maxMs = minMs
-	}
-	delay := minMs
-	if maxMs > minMs {
-		delay = minMs + rng.Intn(maxMs-minMs+1)
-	}
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-}
-
-func addByUID(ctx *maa.Context, controller *maa.Controller, cfg batchAddConfig, uid string) bool {
+func addByUID(ctx *maa.Context, controller *maa.Controller, uid string) bool {
 	if strings.TrimSpace(uid) == "" {
 		return false
 	}
 	ctx.RunTask("BatchAddFriendsFocusSearchBox", nil)
 	controller.PostInputText(uid).Wait()
-	ctx.RunTask("BatchAddFriendsTriggerSearch", nil)
-	time.Sleep(time.Duration(cfg.PageWaitMs) * time.Millisecond)
-	ctx.RunTask("BatchAddFriendsHandleSearchResult", nil)
+	ctx.RunTask("BatchAddFriendsSearchFlow", nil)
 	log.Info().Str("uid", uid).Msg("[BatchAddFriends]已处理搜索结果")
 	return true
 }

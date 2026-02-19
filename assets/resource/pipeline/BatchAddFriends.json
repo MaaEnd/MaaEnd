@@ -25,10 +25,7 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "next": [
-            "BatchAddFriendsOnAddPage"
-        ]
+        }
     },
     "BatchAddFriendsOnAddPage": {
         "doc": "确认已进入添加好友页面",
@@ -52,6 +49,13 @@
         },
         "next": [
             "BatchAddFriendsStart"
+        ]
+    },
+    "BatchAddFriendsSearchFlow": {
+        "doc": "搜索流程入口",
+        "recognition": "DirectHit",
+        "next": [
+            "BatchAddFriendsTriggerSearch"
         ]
     },
     "BatchAddFriendsFocusSearchBox": {
@@ -98,7 +102,11 @@
         "action": {
             "type": "Click",
             "param": {}
-        }
+        },
+        "post_wait_freezes": 1500,
+        "next": [
+            "BatchAddFriendsHandleSearchResult"
+        ]
     },
     "BatchAddFriendsClickAddButton": {
         "doc": "点击添加好友",
@@ -118,9 +126,48 @@
                 "order_by": "Expected"
             }
         },
-        "timeout": 800,
         "action": {
             "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "BatchAddFriendsFriendListFullToast",
+            "BatchAddFriendsAfterAddEnd"
+        ]
+    },
+    "BatchAddFriendsFriendListFullToast": {
+        "doc": "好友列表已满提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    481,
+                    108,
+                    304,
+                    29
+                ],
+                "expected": [
+                    "你的好友列表已满，无法再发送申请"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "BatchAddFriendsStrangersEnd",
+            "BatchAddFriendsAfterAddEnd"
+        ]
+    },
+    "BatchAddFriendsAfterAddEnd": {
+        "doc": "点击添加好友后结束",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "DoNothing",
             "param": {}
         }
     },
@@ -142,13 +189,13 @@
                 "order_by": "Expected"
             }
         },
-        "timeout": 800,
         "action": {
             "type": "Click",
             "param": {}
         },
         "post_wait_freezes": 200,
         "next": [
+            "BatchAddFriendsFriendListFullToast",
             "BatchAddFriendsAddStrangersLoop",
             "BatchAddFriendsStrangersEnd"
         ]
@@ -200,7 +247,6 @@
                 "order_by": "Expected"
             }
         },
-        "timeout": 800,
         "action": {
             "type": "DoNothing",
             "param": {}
@@ -211,8 +257,8 @@
         "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsClickAddButtonStranger",
-            "BatchAddFriendsSwipeList",
             "BatchAddFriendsNoAddButton",
+            "BatchAddFriendsSwipeList",
             "BatchAddFriendsStrangersEnd"
         ]
     },
@@ -286,7 +332,11 @@
     "BatchAddFriendsStart": {
         "doc": "批量添加好友逻辑",
         "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "BatchAddFriendsAction"
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "BatchAddFriendsAction"
+            }
+        }
     }
 }
