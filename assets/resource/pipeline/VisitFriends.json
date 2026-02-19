@@ -41,6 +41,7 @@
         "recognition": {
             "type": "And",
             "param": {
+                "box_index": 0,
                 "all_of": [
                     "InWorld",
                     "NotOnFriendList"
