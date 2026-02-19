@@ -108,7 +108,7 @@ class SelectMapPage:
             self.window_w // self.cols, (self.window_h - self.nav_height) // self.rows
         )
         self.page_size = self.rows * self.cols
-        self.window_name = "Select Map"
+        self.window_name = "MapTracker Tool - Map Selector"
 
         self.current_page = 0
         self.cached_page = -1
@@ -348,12 +348,14 @@ class PathEditPage:
         self.scale = 1.0
         self.offset_x, self.offset_y = 0, 0
         self.window_w, self.window_h = 1280, 720
-        self.window_name = "Location Tool (Edit Mode)"
+        self.window_name = "MapTracker Tool - Path Editor"
 
         self.drag_idx = -1
+        self.selected_idx = -1
         self.panning = False
         self.pan_start = (0, 0)
-        self.point_radius = 5
+        self.line_width = 1.75
+        self.point_radius = 4.5
         self.selection_threshold = 10
         # Action state for point interactions (left button):
         self.action_down_idx = -1
@@ -365,14 +367,14 @@ class PathEditPage:
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates"""
-        mx = int(screen_x / self.scale + self.offset_x)
-        my = int(screen_y / self.scale + self.offset_y)
+        mx = round(screen_x / self.scale + self.offset_x)
+        my = round(screen_y / self.scale + self.offset_y)
         return mx, my
 
     def _get_screen_coords(self, map_x, map_y):
         """Convert original map coordinates to screen (viewport) coordinates"""
-        sx = int((map_x - self.offset_x) * self.scale)
-        sy = int((map_y - self.offset_y) * self.scale)
+        sx = round((map_x - self.offset_x) * self.scale)
+        sy = round((map_y - self.offset_y) * self.scale)
         return sx, sy
 
     def _is_on_line(self, mx, my, p1, p2, threshold=10):
@@ -416,8 +418,6 @@ class PathEditPage:
 
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            color = (0, 165, 255) if i == self.drag_idx else (0, 0, 255)
-
             if i > 0:
                 psx, psy = self._get_screen_coords(
                     self.points[i - 1][0], self.points[i - 1][1]
@@ -426,18 +426,22 @@ class PathEditPage:
                     (psx, psy),
                     (sx, sy),
                     color=(0, 0, 255),
-                    thickness=max(1, int(2 * self.scale**0.5)),
+                    thickness=max(1, int(self.line_width * self.scale**0.5)),
                 )
 
+        for i in range(len(self.points)):
+            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             drawer.circle(
                 (sx, sy),
                 int(self.point_radius * max(0.5, self.scale**0.5)),
-                color=color,
+                color=(0, 165, 255) if i == self.drag_idx else (0, 0, 255),
                 thickness=-1,
             )
 
+        for i in range(len(self.points)):
+            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             drawer.text(
-                str(i), (sx + 5, sy - 5), 0.45, color=(255, 255, 255), thickness=1
+                str(i), (sx + 5, sy - 5), 0.5, color=(255, 255, 255), thickness=1
             )
 
         legend_x, legend_y = 10, 10
@@ -445,7 +449,7 @@ class PathEditPage:
             "[ Tips ]",
             "Mouse Left Click: Add/Delete Point",
             "Mouse Left Drag: Move Point",
-            "Mouse Right Click: Drag Map",
+            "Mouse Right Drag: Drag Map",
             "Close Window: Finish",
         ]
         font_scale = 0.5
@@ -487,10 +491,28 @@ class PathEditPage:
 
         # Draw bottom-left status display
         drawer.text(
-            f"Zoom: {self.scale:.2f}x | Points: {len(self.points)}",
-            (20, self.window_h - 20),
+            f"Zoom: {self.scale:.2f}x",
+            (20, self.window_h - 45),
             font_scale=0.5,
             color=(0, 255, 255),
+            thickness=1,
+            bg_color=(0, 0, 0),
+            bg_padding=10,
+        )
+
+        if 0 <= self.selected_idx < len(self.points):
+            p = self.points[self.selected_idx]
+            info = (
+                f"Point: Index={self.selected_idx}, Location=({int(p[0])}, {int(p[1])})"
+            )
+        else:
+            info = f"Total Points: {len(self.points)}"
+
+        drawer.text(
+            info,
+            (20, self.window_h - 20),
+            font_scale=0.5,
+            color=(255, 255, 255),
             thickness=1,
             bg_color=(0, 0, 0),
             bg_padding=10,
@@ -505,7 +527,7 @@ class PathEditPage:
                 self.scale *= 1.14514
             else:
                 self.scale /= 1.14514
-            self.scale = max(0.2, min(self.scale, 5.0))
+            self.scale = max(0.5, min(self.scale, 10.0))
 
             self.offset_x = mx - x / self.scale
             self.offset_y = my - y / self.scale
@@ -544,7 +566,7 @@ class PathEditPage:
                         self._render()
                         return
 
-            # SIMPatibility: if left button held and drag_idx set, move point
+            # If left button held and drag_idx set, start move point
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [mx, my]
                 self.action_dragging = True
@@ -576,6 +598,7 @@ class PathEditPage:
             self.action_dragging = False
             if found_idx != -1:
                 self.drag_idx = found_idx
+                self.selected_idx = found_idx
 
         elif event == cv2.EVENT_LBUTTONUP:
             # If was dragging a point, finish
@@ -595,7 +618,11 @@ class PathEditPage:
                                 self.drag_idx = -1
                             elif self.drag_idx > del_idx:
                                 self.drag_idx -= 1
-                    else:
+                            if self.selected_idx == del_idx:
+                                self.selected_idx = -1
+                            elif self.selected_idx > del_idx:
+                                self.selected_idx -= 1
+                    elif self.action_down_pos == (x, y):
                         # insert on line or append
                         inserted = False
                         for i in range(1, len(self.points)):
@@ -610,10 +637,12 @@ class PathEditPage:
                                 threshold=map_threshold,
                             ):
                                 self.points.insert(i, [mx, my])
+                                self.selected_idx = i
                                 inserted = True
                                 break
                         if not inserted:
                             self.points.append([mx, my])
+                            self.selected_idx = len(self.points) - 1
 
             # Reset action state and render
             self.action_down_idx = -1
@@ -633,8 +662,7 @@ class PathEditPage:
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
             if cv2.waitKey(1) & 0xFF == 27:
-                cv2.destroyAllWindows()
-                return None
+                break
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
@@ -682,7 +710,7 @@ class PipelineHandler:
             if '"custom_action": "MapTrackerMove"' in node_content:
                 # Detect structure type
                 # Old structure: "action": "Custom", "custom_action": "MapTrackerMove", "custom_action_param": { ... }
-                # New structure: "action": { "custom_action": "MapTrackerMove", "param": { ... } }
+                # New structure: "action": { "custom_action": "MapTrackerMove", "custom_action_param": { ... } }
                 is_new_structure = (
                     re.search(r'"action"\s*:\s*\{', node_content) is not None
                 )
@@ -874,10 +902,6 @@ def main():
         print(f"{_R}Invalid mode.{_0}")
         return
 
-    if points is None:
-        print(f"{_Y}Editing cancelled.{_0}")
-        return
-
     # Export Logic
     print("\n----------\n")
     print(f"{_G}Finished editing.{_0}")
@@ -885,15 +909,20 @@ def main():
     print(f"\n{_Y}Select an export mode:{_0}")
     if import_context:
         print(f"  {_C}[R]{_0} Replace original path in pipeline")
-        print(f"      {_A}Write the changes back to {import_context['file_path']}{_0}")
+        print(f"      {_A}and write the changes back to your pipeline file.{_0}")
     print(f"  {_C}[J]{_0} Print the node JSON string")
-    print(f"      {_A}You can then copy the string as a new node.{_0}")
+    print(f"      {_A}which represents a new pipeline node.{_0}")
+    print(f"  {_C}[D]{_0} Print the parameters dict")
+    print(f"      {_A}which can be used as 'custom_action_param' field.{_0}")
     print(f"  {_C}[L]{_0} Print the point list")
-    print(
-        f"      {_A}You can copy the list and replace the {_0}'path'{_A} field in your existing node.{_0}"
-    )
+    print(f"      {_A}which can be used as 'path'{_A} field.{_0}")
 
     export_mode = input("> ").strip().upper()
+
+    param_data = {
+        "map_name": map_name,
+        "path": [[int(p[0]), int(p[1])] for p in points],
+    }
 
     if export_mode == "R" and import_context:
         handler = import_context["handler"]
@@ -906,7 +935,6 @@ def main():
             print(f"\n{_R}Failed to update node.{_0}")
 
     elif export_mode == "J":
-        # Construct a snippet
         raw_name = (
             import_context.get("original_map_name", map_name)
             if import_context
@@ -926,25 +954,23 @@ def main():
             node_data = {
                 "action": {
                     "custom_action": "MapTrackerMove",
-                    "param": {
-                        "map_name": norm,
-                        "path": [[int(p[0]), int(p[1])] for p in points],
-                    },
+                    "custom_action_param": param_data,
                 }
             }
         else:
             node_data = {
                 "action": "Custom",
                 "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": norm,
-                    "path": [[int(p[0]), int(p[1])] for p in points],
-                },
+                "custom_action_param": param_data,
             }
 
         snippet = {"NodeName": node_data}
         print(f"\n{_C}--- JSON Snippet ---{_0}\n")
         print(json.dumps(snippet, indent=4, ensure_ascii=False))
+
+    elif export_mode == "D":
+        print(f"\n{_C}--- Parameters Dict ---{_0}\n")
+        print(json.dumps(param_data, indent=None, ensure_ascii=False))
 
     else:
         SIMPact_str = "[" + ", ".join([str(p) for p in points]) + "]"

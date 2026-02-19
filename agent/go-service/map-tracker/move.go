@@ -55,9 +55,9 @@ var _ maa.CustomActionRunner = &MapTrackerMove{}
 // Run implements maa.CustomActionRunner
 func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// Prepare variables
-	param, err := parseParam(arg.CustomActionParam)
+	param, err := a.parseParam(arg.CustomActionParam)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to parse parameters")
+		log.Error().Err(err).Msg("Failed to parse parameters for MapTrackerMove")
 		return false
 	}
 
@@ -203,7 +203,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	return true
 }
 
-func parseParam(paramStr string) (*MapTrackerMoveParam, error) {
+func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, error) {
 	log.Debug().Msg("Parsing and validating parameters")
 
 	// Parse parameters
@@ -224,11 +224,13 @@ func parseParam(paramStr string) (*MapTrackerMoveParam, error) {
 	} else if param.ArrivalThreshold == 0 {
 		param.ArrivalThreshold = DEFAULT_MOVING_PARAM.ArrivalThreshold
 	}
+
 	if param.ArrivalTimeout < 0 {
 		return nil, fmt.Errorf("arrival_timeout must be non-negative")
 	} else if param.ArrivalTimeout == 0 {
 		param.ArrivalTimeout = DEFAULT_MOVING_PARAM.ArrivalTimeout
 	}
+
 	if param.RotationLowerThreshold < 0 {
 		return nil, fmt.Errorf("rotation_lower_threshold must be non-negative")
 	} else if param.RotationLowerThreshold > 180 {
@@ -236,6 +238,7 @@ func parseParam(paramStr string) (*MapTrackerMoveParam, error) {
 	} else if param.RotationLowerThreshold == 0 {
 		param.RotationLowerThreshold = DEFAULT_MOVING_PARAM.RotationLowerThreshold
 	}
+
 	if param.RotationUpperThreshold < 0 {
 		return nil, fmt.Errorf("rotation_upper_threshold must be non-negative")
 	} else if param.RotationUpperThreshold > 180 {
@@ -243,26 +246,31 @@ func parseParam(paramStr string) (*MapTrackerMoveParam, error) {
 	} else if param.RotationUpperThreshold == 0 {
 		param.RotationUpperThreshold = DEFAULT_MOVING_PARAM.RotationUpperThreshold
 	}
+
 	if param.RotationSpeed < 0 {
 		return nil, fmt.Errorf("rotation_speed must be non-negative")
 	} else if param.RotationSpeed == 0 {
 		param.RotationSpeed = DEFAULT_MOVING_PARAM.RotationSpeed
 	}
+
 	if param.RotationTimeout < 0 {
 		return nil, fmt.Errorf("rotation_timeout must be non-negative")
 	} else if param.RotationTimeout == 0 {
 		param.RotationTimeout = DEFAULT_MOVING_PARAM.RotationTimeout
 	}
+
 	if param.SprintThreshold < 0 {
 		return nil, fmt.Errorf("sprint_threshold must be non-negative")
 	} else if param.SprintThreshold == 0 {
 		param.SprintThreshold = DEFAULT_MOVING_PARAM.SprintThreshold
 	}
+
 	if param.StuckThreshold < 0 {
 		return nil, fmt.Errorf("stuck_threshold must be non-negative")
 	} else if param.StuckThreshold == 0 {
 		param.StuckThreshold = DEFAULT_MOVING_PARAM.StuckThreshold
 	}
+
 	if param.StuckTimeout < 0 {
 		return nil, fmt.Errorf("stuck_timeout must be non-negative")
 	} else if param.StuckTimeout == 0 {
@@ -279,7 +287,7 @@ func doEmergencyStop(aw *ActionWrapper) {
 	aw.ctx.GetTasker().PostStop()
 }
 
-func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*InferResult, error) {
+func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*MapTrackerInferResult, error) {
 	// Capture Screen
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
@@ -316,7 +324,7 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	// Extract result
-	var result InferResult
+	var result MapTrackerInferResult
 	var wrapped struct {
 		Best struct {
 			Detail json.RawMessage `json:"detail"`
@@ -328,7 +336,7 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		return nil, err
 	}
 	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal InferResult")
+		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, err
 	}
 	if result.MapName == "None" {

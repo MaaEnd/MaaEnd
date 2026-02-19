@@ -18,8 +18,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// InferResult represents the result of map tracking inference
-type InferResult struct {
+// MapTrackerInferResult represents the result of map tracking inference
+type MapTrackerInferResult struct {
 	MapName   string  `json:"mapName"`   // Map name
 	X         int     `json:"x"`         // X coordinate on the map
 	Y         int     `json:"y"`         // Y coordinate on the map
@@ -30,15 +30,15 @@ type InferResult struct {
 	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
 }
 
-// InferParam represents the parameters for map tracking inference
-type InferParam struct {
-	MapNameRegex string  `json:"map_name_regex"` // Regex to filter map names
-	Precision    float64 `json:"precision"`      // Matching precision (0.0, 1.0]
-	Threshold    float64 `json:"threshold"`      // Confidence threshold [0.0, 1.0)
+// MapTrackerInferParam represents the parameters for map tracking inference
+type MapTrackerInferParam struct {
+	MapNameRegex string  `json:"map_name_regex,omitempty"`
+	Precision    float64 `json:"precision,omitempty"`
+	Threshold    float64 `json:"threshold,omitempty"`
 }
 
-// MapData represents a preloaded map image
-type MapData struct {
+// MapCache represents a preloaded map image
+type MapCache struct {
 	Name     string
 	Img      *image.RGBA
 	Integral *IntegralImage
@@ -46,12 +46,12 @@ type MapData struct {
 	OffsetY  int
 }
 
-// Infer is the custom recognition component for map tracking
-type Infer struct {
+// MapTrackerInfer is the custom recognition component for map tracking
+type MapTrackerInfer struct {
 	// Cache for preloaded resources
 	mapsOnce    sync.Once
 	pointerOnce sync.Once
-	maps        []MapData
+	maps        []MapCache
 	pointer     *image.RGBA
 	mapsErr     error
 	pointerErr  error
@@ -59,44 +59,32 @@ type Infer struct {
 	// Cache for scaled maps
 	scaledMu    sync.Mutex
 	scaledScale float64
-	scaledMaps  []MapData
+	scaledMaps  []MapCache
 }
 
-var _ maa.CustomRecognitionRunner = &Infer{}
+var _ maa.CustomRecognitionRunner = &MapTrackerInfer{}
 
 // Run implements maa.CustomRecognitionRunner
-func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	// Parse custom recognition parameters
-	precision := 0.4
-	threshold := 0.5
-	mapNameRegexStr := "^map\\d+_lv\\d+$"
-	if arg.CustomRecognitionParam != "" {
-		var params InferParam
-		if err := json.Unmarshal([]byte(arg.CustomRecognitionParam), &params); err == nil {
-			if params.MapNameRegex != "" {
-				mapNameRegexStr = params.MapNameRegex
-			}
-			if params.Precision > 0.0 && params.Precision <= 1.0 {
-				precision = params.Precision
-			}
-			if params.Threshold >= 0.0 && params.Threshold < 1.0 {
-				threshold = params.Threshold
-			}
-		}
-	}
-
-	// Compile regex
-	mapNameRegex, err := regexp.Compile(mapNameRegexStr)
+	param, err := i.parseParam(arg.CustomRecognitionParam)
 	if err != nil {
-		log.Error().Err(err).Str("regex", mapNameRegexStr).Msg("Invalid map_name_regex")
+		log.Error().Err(err).Msg("Failed to parse parameters for MapTrackerInfer")
 		return nil, false
 	}
 
-	locScale := precision
+	// Compile regex
+	mapNameRegex, err := regexp.Compile(param.MapNameRegex)
+	if err != nil {
+		log.Error().Err(err).Str("regex", param.MapNameRegex).Msg("Invalid map_name_regex")
+		return nil, false
+	}
+
+	locScale := param.Precision
 	var rotStep int
-	if precision < 0.3 {
+	if param.Precision < 0.3 {
 		rotStep = 12
-	} else if precision < 0.6 {
+	} else if param.Precision < 0.6 {
 		rotStep = 6
 	} else {
 		rotStep = 3
@@ -129,7 +117,7 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	rotTime = time.Since(t1)
 
 	// Build result
-	result := InferResult{
+	result := MapTrackerInferResult{
 		MapName:   mapName,
 		X:         locX,
 		Y:         locY,
@@ -141,7 +129,7 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	}
 
 	// Determine if recognition hit
-	hit := locConf > threshold && rotConf > threshold
+	hit := locConf > param.Threshold && rotConf > param.Threshold
 
 	// Serialize result to JSON
 	detailJSON, err := json.Marshal(result)
@@ -168,8 +156,36 @@ func (i *Infer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.Custo
 	}, hit
 }
 
+func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, error) {
+	if paramStr != "" {
+		var param MapTrackerInferParam
+		if err := json.Unmarshal([]byte(paramStr), &param); err == nil {
+			if param.MapNameRegex == "" {
+				param.MapNameRegex = DEFAULT_INFERENCE_PARAM.MapNameRegex
+			}
+
+			if param.Precision == 0.0 {
+				param.Precision = DEFAULT_INFERENCE_PARAM.Precision
+			} else if param.Precision < 0.0 || param.Precision > 1.0 {
+				return nil, fmt.Errorf("invalid precision value: %f", param.Precision)
+			}
+
+			if param.Threshold == 0.0 {
+				param.Threshold = DEFAULT_INFERENCE_PARAM.Threshold
+			} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
+				return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
+			}
+		} else {
+			return nil, fmt.Errorf("failed to unmarshal parameters: %w", err)
+		}
+		return &param, nil
+	} else {
+		return &DEFAULT_INFERENCE_PARAM, nil
+	}
+}
+
 // initMaps initializes the map cache (thread-safe, runs once)
-func (i *Infer) initMaps(ctx *maa.Context) {
+func (i *MapTrackerInfer) initMaps(ctx *maa.Context) {
 	i.mapsOnce.Do(func() {
 		i.maps, i.mapsErr = i.loadMaps(ctx)
 		if i.mapsErr != nil {
@@ -181,7 +197,7 @@ func (i *Infer) initMaps(ctx *maa.Context) {
 }
 
 // initPointer initializes the pointer template cache (thread-safe, runs once)
-func (i *Infer) initPointer(ctx *maa.Context) {
+func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
 	i.pointerOnce.Do(func() {
 		i.pointer, i.pointerErr = i.loadPointer(ctx)
 		if i.pointerErr != nil {
@@ -194,7 +210,7 @@ func (i *Infer) initPointer(ctx *maa.Context) {
 
 // loadMaps loads all map images from the resource directory
 // and try crops them if map_rect.json exists
-func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
+func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 	// Find map directory using search strategy
 	mapDir := findResource(MAP_DIR)
 	if mapDir == "" {
@@ -219,7 +235,7 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 	}
 
 	// Load all PNG files
-	maps := make([]MapData, 0)
+	maps := make([]MapCache, 0)
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
@@ -268,7 +284,7 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 		// Precompute integral image
 		integral := NewIntegralImage(imgRGBA)
 
-		maps = append(maps, MapData{
+		maps = append(maps, MapCache{
 			Name:     name,
 			Img:      imgRGBA,
 			Integral: integral,
@@ -285,7 +301,7 @@ func (i *Infer) loadMaps(ctx *maa.Context) ([]MapData, error) {
 }
 
 // loadPointer loads the pointer template image
-func (i *Infer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
+func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 	// Find pointer template using search strategy
 	pointerPath := findResource(POINTER_PATH)
 	if pointerPath == "" {
@@ -310,7 +326,7 @@ func (i *Infer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 
 // inferLocation infers the player's location on the map
 // Returns (x, y, confidence, mapName)
-func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
+func (i *MapTrackerInfer) inferLocation(screenImg image.Image, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
 	// Use cached scaled maps
 	scaledMaps := i.getScaledMaps(locScale)
 	if len(scaledMaps) == 0 {
@@ -378,7 +394,7 @@ func (i *Infer) inferLocation(screenImg image.Image, locScale float64, mapNameRe
 }
 
 // getScaledMaps returns cached scaled maps or recomputes them
-func (i *Infer) getScaledMaps(scale float64) []MapData {
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 	i.scaledMu.Lock()
 	defer i.scaledMu.Unlock()
 
@@ -387,11 +403,11 @@ func (i *Infer) getScaledMaps(scale float64) []MapData {
 	}
 
 	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
-	newScaled := make([]MapData, 0, len(i.maps))
+	newScaled := make([]MapCache, 0, len(i.maps))
 	for _, m := range i.maps {
 		sImg := scaleImage(m.Img, scale)
 		sRGBA := ToRGBA(sImg)
-		newScaled = append(newScaled, MapData{
+		newScaled = append(newScaled, MapCache{
 			Name:     m.Name,
 			Img:      sRGBA,
 			Integral: NewIntegralImage(sRGBA),
@@ -406,7 +422,7 @@ func (i *Infer) getScaledMaps(scale float64) []MapData {
 
 // inferRotation infers the player's rotation angle
 // Returns (angle, confidence)
-func (i *Infer) inferRotation(screenImg image.Image, rotStep int) (int, float64) {
+func (i *MapTrackerInfer) inferRotation(screenImg image.Image, rotStep int) (int, float64) {
 	if i.pointer == nil {
 		return 0, 0.0
 	}

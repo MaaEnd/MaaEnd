@@ -86,13 +86,13 @@
 
 #### 注意事项
 
-使用这个节点时，务必确保玩家初始所处的位置能够抵达 `path` 中的第一个坐标点（即玩家必须处于指定的地图中并且可以直线抵达该坐标点）。
+使用这个节点时，务必确保玩家初始所处的位置**能够直线抵达** `path` 中的第一个坐标点，并且玩家始终处于指定的地图中。推荐使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点来进行前置检查。
 
-## Recognition: MapTrackerInfer
+### Recognition: MapTrackerInfer
 
 📍获取玩家当前所处的地图名称、位置坐标和朝向。
 
-### 节点参数
+#### 节点参数
 
 必填参数：无
 
@@ -122,6 +122,56 @@
         "custom_recognition": "MapTrackerInfer",
         "custom_recognition_param": {
             "map_name_regex": "^map\\d+_lv\\d+$"
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+#### 注意事项
+
+MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
+
+### Recognition: MapTrackerAssertLocation
+
+✅判断玩家当前所处的地图名称和位置坐标是否满足任一预期条件。
+
+#### 节点参数
+
+必填参数：
+
+- `expected`: 由一个或多个条件组成的列表。每个条件对象需要包含以下字段：
+    - `map_name`: 预期地图的唯一名称。
+    - `target`: 由 4 个整数组成的列表 `[x, y, w, h]`，表示预期坐标所处的矩形区域。
+
+<details>
+<summary>高级可选参数：</summary>
+
+- `precision`: 含义同 [MapTrackerInfer](#recognition-maptrackerinfer) 节点中的 `precision` 参数。
+
+- `threshold`: 含义同 [MapTrackerInfer](#recognition-maptrackerinfer) 节点中的 `threshold` 参数。
+
+</details>
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map002_lv002",
+                    "target": [
+                        670,
+                        350,
+                        20,
+                        20
+                    ]
+                }
+            ]
         },
         "action": "DoNothing"
     }
