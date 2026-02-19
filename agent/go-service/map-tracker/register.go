@@ -8,5 +8,6 @@ func Register() {
 	ensureResourcePathSink()
 
 	maa.AgentServerRegisterCustomRecognition("MapTrackerInfer", &MapTrackerInfer{})
+	maa.AgentServerRegisterCustomRecognition("MapTrackerAssertLocation", &MapTrackerAssertLocation{})
 	maa.AgentServerRegisterCustomAction("MapTrackerMove", &MapTrackerMove{})
 }
