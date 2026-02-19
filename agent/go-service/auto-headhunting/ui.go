@@ -3,6 +3,7 @@ package autoheadhunting
 import (
 	"fmt"
 	"html"
+	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
@@ -121,20 +122,38 @@ func logFinalSummaryHTML(ctx *maa.Context, usedPulls int, targetCount int, targe
 	b.WriteString(`<table style="width: 100%; border-collapse: collapse; font-size: 12px;">`)
 	fmt.Fprintf(&b, `<tr><th style="text-align:left; padding: 2px 4px;">%s</th><th style="text-align:right; padding: 2px 4px;">%s</th></tr>`,
 		escapeHTML(t("target_operator")), escapeHTML(t("target_num")))
+
+	// 收集干员条目并按星级降序排列
+	type operatorEntry struct {
+		name  string
+		stars string
+		count int
+	}
+	entries := make([]operatorEntry, 0)
 	for name, count := range mp {
 		// 跳过星级统计条目（key 为纯数字星级如 "4", "5", "6"）
 		if _, exists := starColors[name]; exists {
 			continue
 		}
 		_, stars := o(t(name))
-		coloredName := formatOperatorNameColoredHTML(name, stars)
+		entries = append(entries, operatorEntry{name: name, stars: stars, count: count})
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		if entries[i].stars != entries[j].stars {
+			return entries[i].stars > entries[j].stars
+		}
+		return entries[i].count > entries[j].count
+	})
+
+	for _, entry := range entries {
+		coloredName := formatOperatorNameColoredHTML(entry.name, entry.stars)
 		starLabel := ""
-		if stars != "0" {
-			starLabel = fmt.Sprintf(` <span style="color: %s;">★%s</span>`, getColorForStars(stars), stars)
+		if entry.stars != "0" {
+			starLabel = fmt.Sprintf(` <span style="color: %s;">★%s</span>`, getColorForStars(entry.stars), entry.stars)
 		}
 		b.WriteString("<tr>")
 		fmt.Fprintf(&b, `<td style="padding: 2px 4px;">%s%s</td>`, coloredName, starLabel)
-		fmt.Fprintf(&b, `<td style="padding: 2px 4px; text-align: right;">%d</td>`, count)
+		fmt.Fprintf(&b, `<td style="padding: 2px 4px; text-align: right;">%d</td>`, entry.count)
 		b.WriteString("</tr>")
 	}
 	b.WriteString(`</table>`)
