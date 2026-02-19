@@ -60,6 +60,10 @@ func logTaskParamsHTML(ctx *maa.Context, targetPulls int, targetLabel string, ta
 
 	// 查找目标干员的星级，生成带颜色和星级标注的干员名称 HTML
 	_, stars := oByLocalName(targetLabel)
+	// 当 targetLabel 为"任意★6干员"时，oByLocalName 找不到匹配，手动设置为六星
+	if stars == "0" && targetLabel == t("any_6_stars") {
+		stars = "6"
+	}
 	var targetValueHTML string
 	if targetLabel == "None" {
 		targetValueHTML = escapeHTML(targetLabel)

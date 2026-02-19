@@ -86,7 +86,7 @@ var locals = map[string]map[string]string{
 		"unenough_pulls":   "剩余抽数不足，已终止任务。",
 		"task_unknown_err": "未知错误",
 		"done":             "完成 %d 次抽取，共获取 %d 个目标干员（%s）",
-		"any_6_stars":      "任意★6干员",
+		"any_6_stars":      "任意6★干员",
 	},
 }
 
