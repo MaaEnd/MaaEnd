@@ -204,6 +204,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 400,
         "next": [
             "GrowthChamberCheck",
             "SkipConfirmBackToFriendList",
@@ -212,8 +213,8 @@
     },
     "ProductionAssistCheckPriorStealRetry": {
         "doc": "子菜单未打开时重试点击",
-        "max_hit": 5,
-        "pre_wait_freezes": 200,
+        "max_hit": 10,
+        "pre_wait_freezes": 500,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -221,6 +222,7 @@
                 "threshold": 0.95
             }
         },
+        "post_wait_freezes": 400,
         "action": {
             "type": "Click",
             "param": {}
