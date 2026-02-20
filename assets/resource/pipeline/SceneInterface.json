@@ -221,12 +221,30 @@
         ]
     },
     "SceneEnterMenuBackpackWithDepot": {
-        "doc": "从任意界面进入背包界面，左侧包含仓库",
+        "doc": "从任意界面进入背包界面，左侧包含所有仓库",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
             "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterMenuBaker": {
+        "doc": "从任意界面进入Baker界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuBaker",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuWiki": {
+        "doc": "从任意界面进入百科界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuWiki",
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "SceneDialogConfirm": {

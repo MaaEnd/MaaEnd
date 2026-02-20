@@ -1,35 +1,11 @@
 {
-    "ReadAllWiki": {
+    "WikiReadAll": {
         "next": [
-            "OnWikiHomePage",
-            "OnESCPageForWiki",
-            "ClickEscForWiki"
+            "WikiOnHomePage",
+            "[JumpBack]SceneEnterMenuWiki"
         ]
     },
-    "OnESCPageForWiki": {
-        "recognition": "OCR",
-        "roi": [
-            708,
-            220,
-            566,
-            489
-        ],
-        "expected": "百科",
-        "action": "Click",
-        "next": [
-            "ReadAllWiki"
-        ]
-    },
-    "ClickEscForWiki": {
-        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
-        "action": "ClickKey",
-        "key": 27, // ESC 键
-        "post_wait_freezes": 1,
-        "next": [
-            "ReadAllWiki"
-        ]
-    },
-    "OnWikiHomePage": {
+    "WikiOnHomePage": {
         "recognition": "OCR",
         "expected": "终末地百科",
         "roi": [
@@ -39,8 +15,8 @@
             100
         ],
         "next": [
-            "ClickWikiHomePageUnreadBadge",
-            "ClickChapterUnreadBadge",
+            "WikiClickHomePageUnreadBadge",
+            "WikiClickChapterUnreadBadge",
             "WikiBackButton",
             "WikiExitButton"
         ]
@@ -62,8 +38,8 @@
             "type": "Click"
         },
         "next": [
-            "ClickWikiHomePageUnreadBadge",
-            "ClickChapterUnreadBadge",
+            "WikiClickHomePageUnreadBadge",
+            "WikiClickChapterUnreadBadge",
             "WikiExitButton"
         ]
     },
@@ -83,7 +59,7 @@
         "action": "Click"
         // 任务结束
     },
-    "ClickWikiHomePageUnreadBadge": {
+    "WikiClickHomePageUnreadBadge": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -109,13 +85,13 @@
             ]
         },
         "next": [
-            "ClickChapterUnreadBadge",
-            "ScrollListForNextUnreadWiki",
-            "ClickRealUnreadPage",
+            "WikiClickChapterUnreadBadge",
+            "WikiScrollListForNextUnread",
+            "WikiClickRealUnreadPage",
             "WikiBackButton"
         ]
     },
-    "ClickChapterUnreadBadge": {
+    "WikiClickChapterUnreadBadge": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -140,13 +116,13 @@
             }
         },
         "next": [
-            "ClickRealUnreadPage",
-            "ScrollListForNextUnreadWiki",
-            "ClickChapterUnreadBadge",
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
             "WikiBackButton"
         ]
     },
-    "ClickRealUnreadPage": {
+    "WikiClickRealUnreadPage": {
         "post_wait_freezes": {
             "time": 50,
             "target": [
@@ -181,13 +157,13 @@
         },
         "next": [
             "[JumpBack]WikiNextPage",
-            "ClickRealUnreadPage",
-            "ScrollListForNextUnreadWiki",
-            "ClickChapterUnreadBadge",
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
             "WikiBackButton"
         ]
     },
-    "ScrollListForNextUnreadWiki": {
+    "WikiScrollListForNextUnread": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -218,9 +194,9 @@
             }
         },
         "next": [
-            "ClickRealUnreadPage",
-            "ScrollListForNextUnreadWiki",
-            "ClickChapterUnreadBadge",
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
             "WikiBackButton"
         ]
     },
