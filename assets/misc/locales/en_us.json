@@ -5,6 +5,8 @@
     "global.region.OriginLodespring": "Origin Lodespring",
     "global.region.PowerPlateau": "Power Plateau",
     "global.region.WulingCity": "Wuling City",
+    "task.EnvironmentMonitoring.description": "Automatically complete environment monitoring tasks",
+    "task.EnvironmentMonitoring.label": "Environment Monitoring",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
     "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
     "option.AutoSkip.label": "Auto Story",
