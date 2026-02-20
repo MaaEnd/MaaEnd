@@ -5,6 +5,8 @@
     "global.region.OriginLodespring": "광맥 구역",
     "global.region.PowerPlateau": "에너지 공급 고지",
     "global.region.WulingCity": "무릉성 도심",
+    "task.EnvironmentMonitoring.description": "환경 모니터링 작업을 자동으로 완료합니다",
+    "task.EnvironmentMonitoring.label": "환경 모니터링",
     "task.RealTimeTask.label": "🤖 실시간 지원",
     "task.RealTimeTask.description": "항상 실행되며 게임 화면을 실시간으로 모니터링하고 필요한 키 입력을 자동으로 수행합니다.",
     "option.AutoSkip.label": "스토리 자동",

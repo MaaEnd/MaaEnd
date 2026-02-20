@@ -1,0 +1,104 @@
+{
+    "GoToAncientTree": {
+        "doc": "在古树最近的传送点附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToAncientTreeMapTrackerMove"
+        ]
+    },
+    "GoToAncientTreeMapTrackerMove": {
+        "doc": "前往古树",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    302,
+                    560
+                ],
+                [
+                    304,
+                    545
+                ],
+                [
+                    339,
+                    539
+                ],
+                [
+                    368,
+                    532
+                ],
+                [
+                    372,
+                    539
+                ],
+                [
+                    364,
+                    561
+                ],
+                [
+                    353,
+                    570
+                ]
+
+            ],
+            "arrival_threshold": 3.5
+        }
+    },
+    "GoToCisternOriginiumSlugs": {
+        "doc": "在蓄水源石虫最近的传送点附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsMapTrackerMove"
+        ]
+    },
+    "GoToCisternOriginiumSlugsMapTrackerMove": {
+        "doc": "前往蓄水源石虫",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    297,
+                    580
+                ],
+                [
+                    317,
+                    592
+                ]
+
+            ],
+            "arrival_threshold": 3.5
+        }
+    }
+}

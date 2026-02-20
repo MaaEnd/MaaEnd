@@ -1,0 +1,34 @@
+{
+    "EnvironmentMonitoringMain": {
+        "doc": "环境监测",
+        "next": [
+            "EnvironmentMonitoringGoToMonitoringTerminal",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "EnvironmentMonitoringGoToMonitoringTerminal": {
+        "doc": "前往监测终端",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
+            "EnvironmentMonitoringLoop",
+            "[JumpBack]EnvironmentMonitoringButton"
+        ]
+    },
+    "EnvironmentMonitoringLoop": {
+        "doc": "主循环，确保在环境监测界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckOutskirtsMonitoringTerminal"
+        ],
+        "next": [
+            "EnvironmentMonitoringFinish"
+        ]
+    },
+
+    "EnvironmentMonitoringFinish": {
+        "doc": "环境监测完成"
+    }
+}
