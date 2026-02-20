@@ -143,7 +143,7 @@
         ]
     },
     "ClueExchangeOCR": {
-        "doc": "线索交流 - 剩余次数大于0",
+        "doc": "线索交流 - 剩余次数大于0,在偷菜模式下仍然可生效",
         "recognition": {
             "type": "OCR",
             "param": {
