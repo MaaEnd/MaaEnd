@@ -33,7 +33,7 @@
                     "description": "$option.BatchAddFriends.inputs.MaxCount.description",
                     "pipeline_type": "int",
                     "verify": "^\\d+$",
-                    "default": 20
+                    "default": "20"
                 }
             ],
             "pipeline_override": {
