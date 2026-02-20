@@ -1,5 +1,96 @@
 {
     "SimSpaceEntry": {
+        "desc": "任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SimSpaceOperationalManualIn",
+            "[JumpBack]SceneEnterMenuOperationalManual"
+        ]
+    },
+    "SimSpaceOperationalManualIn": {
+        "desc": "当前在行动手册界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "行动手册",
+                    "Operational Manual",
+                    "案内所",
+                    "작전 매뉴얼",
+                    "行動手冊"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SimSpaceOperationalManualSwitchTab"
+        ]
+    },
+    "SimSpaceOperationalManualSwitchTab": {
+        "desc": "在行动手册界面，切换到模拟空间标签页",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    750,
+                    100,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "模拟"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "SimSpaceChooseSimulation"
+        ]
+    },
+    "SimSpaceChooseSimulation": {
+        "desc": "在模拟空间标签页，选择模拟地区",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    100,
+                    201,
+                    1000,
+                    402
+                ],
+                "expected": [
+                    "四号谷地"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "SimSpaceStart"
+        ]
+    },
+    "SimSpaceStart": {
         "doc": "第一步：识别模拟空间主界面",
         "recognition": "OCR",
         "expected": [
@@ -7,10 +98,10 @@
             "模拟"
         ],
         "roi": [
-            28,
-            6,
-            150,
-            50
+            0,
+            0,
+            240,
+            100
         ],
         "next": [
             "SimClickFilter"
