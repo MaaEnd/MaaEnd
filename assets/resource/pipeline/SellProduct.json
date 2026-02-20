@@ -4,13 +4,8 @@
         "post_delay": 500,
         "doc": "虚节点",
         "next": [
-            "SellProductAtHome1",
-            "SellProductAtHome2",
             "SellProductAtDevelopment",
-            "SellProductAtFriend",
-            "SellProductAtFriendExit",
-            "[JumpBack]SellProductBack2Home",
-            "SellProductBack2HomeFailed"
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "SellProductMain": {
@@ -28,42 +23,6 @@
         "next": [
             "SellProductBegin"
         ]
-    },
-    "SellProductAtHome1": {
-        "pre_delay": 0,
-        "post_delay": 200,
-        "doc": "根据标志得知在大世界，进入地区建设",
-        "recognition": "Or",
-        "any_of": [
-            "RegionalDevelopmentButton"
-        ],
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    89
-                ]
-            }
-        },
-        "next": [
-            "SellProductAtDevelopment",
-            "SellProductAtHome1"
-        ]
-    },
-    "SellProductBack2Home": {
-        "pre_delay": 0,
-        "post_delay": 500,
-        "max_hit": 5,
-        "focus": {
-            "Node.Action.Starting": "当前位置不在主界面或据点管理界面，正在尝试返回"
-        },
-        "doc": "按右键返回主界面",
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        }
     },
     "SellProductAtDevelopment": {
         "pre_delay": 0,
@@ -734,195 +693,6 @@
             "SellProductSell"
         ]
     },
-    "SellProductAtHome2": {
-        "pre_delay": 0,
-        "post_delay": 200,
-        "doc": "根据左上tab得知在大世界，进入地区建设",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 工业
-                    "工业",
-                    "工業",
-                    "Factory",
-                    "factory",
-                    "工業",
-                    "공업",
-                    // 探索
-                    "探索",
-                    "探索",
-                    "Exploration",
-                    "exploration",
-                    "探索",
-                    "탐색"
-                ],
-                "roi": [
-                    0,
-                    0,
-                    400,
-                    100
-                ]
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    89
-                ]
-            }
-        },
-        "next": [
-            "SellProductAtDevelopment",
-            "SellProductAtHome2"
-        ]
-    },
-    "SellProductAtFriend": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
-        },
-        "doc": "在好友家，特殊处理",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 离开
-                    "离开",
-                    "離開",
-                    "Leave",
-                    "leave",
-                    "離れる",
-                    "退出",
-                    "떠나기"
-                ],
-                "roi": [
-                    0,
-                    0,
-                    400,
-                    100
-                ]
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    27
-                ]
-            }
-        },
-        "next": [
-            "SellProductAtFriendExit",
-            "SellProductAtFriend"
-        ]
-    },
-    "SellProductAtFriendExit": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "检测到在好友家内，正在尝试返回"
-        },
-        "doc": "在好友家返回界面，特殊处理",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 结束拜访
-                    "结束拜访",
-                    "結束拜訪",
-                    "End Visit",
-                    "訪問終了",
-                    "방문 종료"
-                ],
-                "roi": [
-                    1029,
-                    629,
-                    245,
-                    87
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SellProductAtFriendExitConfirm",
-            "SellProductAtFriendExit"
-        ]
-    },
-    "SellProductAtFriendExitConfirm": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "返回自己家的确认",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 确认
-                    "确认",
-                    "確定",
-                    "Confirm",
-                    "confirm",
-                    "確定",
-                    "확인"
-                ],
-                "roi": [
-                    621,
-                    416,
-                    282,
-                    105
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SellProductAtFriendBack",
-            "SellProductAtFriendExitConfirm"
-        ]
-    },
-    "SellProductAtFriendBack": {
-        "pre_delay": 0,
-        "post_delay": 200,
-        "doc": "成功返回自己家",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 拜访好友
-                    "拜访好友",
-                    "拜訪好友",
-                    "Visit Friends",
-                    "フレンド訪問",
-                    "친구 방문"
-                ],
-                "roi": [
-                    800,
-                    429,
-                    268,
-                    109
-                ]
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    89
-                ]
-            }
-        },
-        "next": [
-            "SellProductAtDevelopment",
-            "SellProductAtFriendBack"
-        ]
-    },
     "SellProductSellPressed": {
         "pre_delay": 0,
         "post_delay": 0,
@@ -955,17 +725,6 @@
         },
         "next": [
             "SellProductSellCheck"
-        ]
-    },
-    "SellProductBack2HomeFailed": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "抱歉，未能成功回到大世界，请回到大世界后重新启动本任务"
-        },
-        "doc": "回到大世界，失败了",
-        "next": [
-            "SellProductEnd"
         ]
     },
     "SellProductWuling": {

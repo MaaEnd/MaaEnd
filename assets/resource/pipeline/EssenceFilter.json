@@ -1,0 +1,32 @@
+{
+    "EssenceFilterMain": {
+        "desc": "入口点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]EssenceFilterSwitchTab",
+            "EssenceFilterCheckInInventory",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "EssenceFilterSwitchTab": {
+        "desc": "切换到武器基质标签页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceFilter/EssenceTabNotChoose.png",
+                "roi": [
+                    350,
+                    0,
+                    500,
+                    80
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400
+    }
+}

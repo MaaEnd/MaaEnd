@@ -3,7 +3,7 @@
         {
             "name": "ReadAllWiki",
             "label": "$task.ReadAllWiki.label",
-            "entry": "ReadAllWiki",
+            "entry": "WikiReadAll",
             "description": "$task.ReadAllWiki.description"
         }
     ],
