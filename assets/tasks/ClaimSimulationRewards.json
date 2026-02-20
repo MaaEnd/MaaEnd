@@ -3,7 +3,7 @@
         {
             "name": "ClaimSimulationRewards",
             "label": "$task.ClaimSimulationRewards.label",
-            "entry": "SimulationSpaceEntry",
+            "entry": "SimSpaceEntry",
             "description": "$task.ClaimSimulationRewards.description",
             "controller": [
                 "Win32",
