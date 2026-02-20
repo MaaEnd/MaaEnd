@@ -1,0 +1,116 @@
+{
+    "VFOriginLodespringLocationAssertion": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFOriginLodespringWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的重度淤积点：\n**矿脉源区重度淤积点**"
+        },
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "recognition": {
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map01_lv006",
+                            "target": [
+                                243,
+                                528,
+                                32,
+                                32
+                            ]
+                        }
+                    ]
+                }
+            },
+            "type": "Custom"
+        }
+    },
+    "VFOriginLodespringMoveToTriggerPoint": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv006",
+                    "path": [
+                        [
+                            249,
+                            544
+                        ],
+                        [
+                            262,
+                            540
+                        ]
+
+                    ],
+                    "arrival_threshold": 3.5
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        },
+        "next": [
+            "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ]
+    },
+    "VFOriginLodespringWalkAround1": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv006",
+                    "path": [
+                        [
+                            252,
+                            532
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "VFOriginLodespringWalkAround2"
+        ]
+    },
+    "VFOriginLodespringWalkAround2": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv006",
+                    "path": [
+                        [
+                            271,
+                            552
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "VFOriginLodespringWalkAround1"
+        ]
+    }
+}
