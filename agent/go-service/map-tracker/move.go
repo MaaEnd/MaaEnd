@@ -307,7 +307,8 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 			"recognition":        "Custom",
 			"custom_recognition": "MapTrackerInfer",
 			"custom_recognition_param": map[string]any{
-				"precision":      0.6,
+				"precision":      0.7,
+				"threshold":      0.3,
 				"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
 			},
 		},
