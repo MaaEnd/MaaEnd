@@ -304,8 +304,34 @@
         "doc": "处理搜索结果",
         "recognition": "DirectHit",
         "next": [
+            "BatchAddFriendsSearchUidNotFound",
             "BatchAddFriendsClickAddButton",
             "BatchAddFriendsSearchEmptyResult"
+        ]
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "doc": "UID 不存在",
+        "focus": {
+            "Node.Recognition.Succeeded": "UID 不存在，尝试下一个"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    102,
+                    209,
+                    43
+                ],
+                "expected": [
+                    "搜索的UID不存在"
+                ],
+                "threshold": 0.7,
+                "order_by": "Expected"
+            }
+        },
+        "next": [
+            "BatchAddFriendsUIDLoopTop"
         ]
     },
     "BatchAddFriendsSearchEmptyResult": {
