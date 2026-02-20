@@ -224,7 +224,7 @@
     "option.DailyTaskCreation.label": "简易制作",
     "option.DailyTaskCreation.desc": "自动一次制作来刷活跃度",
     "task.AutoHeadhunting.label": "自动寻访(Beta)",
-    "task.AutoHeadhunting.description": "**注意 这是真正的抽卡**\n**功能仍在迭代中，欢迎反馈使用中遇到的问题。**\n自动进行寻访，直到满足指定的抽卡次数或干员数量。\n请在对应卡池的寻访界面启动此任务",
+    "task.AutoHeadhunting.description": "**注意 这是真正的抽卡**\n**功能仍在迭代中，欢迎反馈使用中遇到的问题。**\n自动进行寻访，直到满足指定的抽卡次数或干员数量。\n该功能不会消耗源石，如有需要请提前兑换足够的合成玉。\n**请在对应卡池的寻访界面启动此任务。**",
     "option.TargetPulls.label": "目标抽数",
     "option.TargetPulls.inputs.TargetPulls.description": "达到该抽数后停止抽卡",
     "option.TargetOperator.label": "目标干员",

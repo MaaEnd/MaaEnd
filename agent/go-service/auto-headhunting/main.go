@@ -218,7 +218,7 @@ func (a *AutoHeadhunting) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// 在 MXU 显示结果
 				starLabel := ""
 				if stars != "0" {
-					starLabel = fmt.Sprintf(" ★%s", stars)
+					starLabel = fmt.Sprintf(" %s★", stars)
 				}
 				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf(t("results"), ocr.Text+starLabel), getColorForStars(stars))
 
