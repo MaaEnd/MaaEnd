@@ -2,31 +2,7 @@
     "ReadAllWiki": {
         "next": [
             "OnWikiHomePage",
-            "OnESCPageForWiki",
-            "ClickEscForWiki"
-        ]
-    },
-    "OnESCPageForWiki": {
-        "recognition": "OCR",
-        "roi": [
-            708,
-            220,
-            566,
-            489
-        ],
-        "expected": "百科",
-        "action": "Click",
-        "next": [
-            "ReadAllWiki"
-        ]
-    },
-    "ClickEscForWiki": {
-        "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
-        "action": "ClickKey",
-        "key": 27, // ESC 键
-        "post_wait_freezes": 1,
-        "next": [
-            "ReadAllWiki"
+            "[JumpBack]SceneEnterMenuWiki"
         ]
     },
     "OnWikiHomePage": {
