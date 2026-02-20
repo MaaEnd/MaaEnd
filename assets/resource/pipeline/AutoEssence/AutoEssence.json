@@ -1,0 +1,411 @@
+{
+    "AutoEssenceMain": {
+        "anchor": {
+            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
+        },
+        "focus": {
+            "Node.Action.Starting": "🔍正在寻找附近的淤积点"
+        },
+        "next": [
+            "AutoEssenceClickEssenceStartButton",
+            "AutoEssenceChooseScaling1",
+            "VFTheHubLocationAssertion",
+            "VFOriginiumScienceParkLocationAssertion",
+            // "VFOriginLodespringLocationAssertion", // Will be enabled in future versions
+            "VFPowerPlateauLocationAssertion",
+            "WLWulingCityLocationAssertion"
+        ],
+        "rate_limit": 1000
+    },
+    "AutoEssenceAltKeyUp": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "[Anchor]AutoEssenceAfterAltKeyUp"
+        ]
+    },
+    "AutoEssenceClickTriggerButtonPre": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "next": [
+            "AutoEssenceClickTriggerButton"
+        ],
+        "on_error": [
+            "AutoEssenceClickTriggerButtonFailedPre"
+        ],
+        "timeout": 1000
+    },
+    "AutoEssenceClickTriggerButton": {
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceClickEssenceStartButton"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击激发按钮"
+        },
+        "next": [
+            "AutoEssenceAltKeyUp"
+        ],
+        "recognition": {
+            "param": {
+                "green_mask": true,
+                "roi": [
+                    800,
+                    450,
+                    100,
+                    180
+                ],
+                "template": "AutoEssence/EssenceTrigger.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceClickTriggerButtonFailedPre": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "AutoEssenceClickTriggerButtonFailed"
+        ]
+    },
+    "AutoEssenceClickTriggerButtonFailed": {
+        "max_hit": 8,
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ]
+    },
+    "AutoEssenceClickEssenceStartButton": {
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterWalkAround": "AutoEssenceCheckOngoing"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击开启挑战按钮"
+        },
+        "next": [
+            "AutoEssenceDismissWarning1",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "pre_wait_freezes": 3000,
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1155,
+                    590,
+                    125,
+                    130
+                ],
+                "template": "Common/Button/WhiteConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceDismissWarning1": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        },
+        "next": [
+            "AutoEssenceDismissWarning2",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    730,
+                    390,
+                    200,
+                    150
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceDismissWarning2": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        },
+        "next": [
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    730,
+                    390,
+                    200,
+                    150
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceCheckOngoing": {
+        "anchor": {
+            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickObtainButtonPre"
+        },
+        "focus": {
+            "Node.Recognition.Starting": "🔍检查挑战是否结束",
+            "Node.Action.Starting": "👌识别到挑战结束"
+        },
+        "inverse": true,
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "recognition": {
+            "param": {
+                "green_mask": true,
+                "roi": [
+                    0,
+                    40,
+                    260,
+                    330
+                ],
+                "template": "AutoEssence/EssenceOngoing.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceClickObtainButtonPre": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "next": [
+            "AutoEssenceClickObtainButton"
+        ],
+        "on_error": [
+            "AutoEssenceClickObtainButtonFailed"
+        ],
+        "timeout": 1000
+    },
+    "AutoEssenceClickObtainButton": {
+        "action": {
+            "param": {
+                "target_offset": [
+                    -7,
+                    15,
+                    -7,
+                    -60
+                ]
+            },
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScaling1"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击领取奖励按钮"
+        },
+        "next": [
+            "AutoEssenceAltKeyUp"
+        ],
+        "recognition": {
+            "param": {
+                "green_mask": true,
+                "order_by": "Score",
+                "roi": [
+                    780,
+                    340,
+                    170,
+                    310
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "threshold": 0.45
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceClickObtainButtonFailedPre": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "focus": {
+            "Node.Action.Starting": "❓未能找到领取奖励按钮"
+        },
+        "next": [
+            "AutoEssenceClickObtainButtonFailed"
+        ]
+    },
+    "AutoEssenceClickObtainButtonFailed": {
+        "max_hit": 8,
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ]
+    },
+    "AutoEssenceChooseScaling1": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击单倍领取按钮"
+        },
+        "next": [
+            "[JumpBack]AutoEssenceChooseOverrideOff",
+            "[JumpBack]AutoEssenceChooseOverrideOn",
+            "AutoEssenceConfirmObtain"
+        ],
+        "recognition": {
+            "param": {
+                "order_by": "Score",
+                "roi": [
+                    260,
+                    190,
+                    490,
+                    360
+                ],
+                "template": "AutoEssence/EssenceScaling1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceChooseOverrideOff": {
+        "action": {
+            "type": "Click"
+        },
+        "enabled": false,
+        "focus": {
+            "Node.Action.Starting": "👆点击关闭刻写按钮"
+        },
+        "recognition": {
+            "param": {
+                "order_by": "Score",
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOn.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceChooseOverrideOn": {
+        "action": {
+            "type": "Click"
+        },
+        "enabled": false,
+        "focus": {
+            "Node.Action.Starting": "👆点击开启刻写按钮"
+        },
+        "recognition": {
+            "param": {
+                "order_by": "Score",
+                "roi": [
+                    66,
+                    124,
+                    472,
+                    460
+                ],
+                "template": "AutoEssence/EssenceOverrideOff.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceConfirmObtain": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击确认领取按钮"
+        },
+        "next": [
+            "AutoEssenceLowSp",
+            "AutoEssenceCloseObtainDialog"
+        ],
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "template": "Common/Button/YellowConfirmButtonType1.png",
+                "roi": [
+                    630,
+                    430,
+                    420,
+                    260
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceLowSp": {
+        "action": {
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
+        },
+        "recognition": {
+            "param": {
+                "roi": [
+                    440,
+                    200,
+                    160,
+                    160
+                ],
+                "template": "AutoEssence/SpDialog.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceCloseObtainDialog": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击离开按钮"
+        },
+        "next": [
+            "AutoEssenceOnSuccess"
+        ],
+        "pre_wait_freezes": 3000,
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "template": "Common/Button/CancelButtonType1.png",
+                "roi": [
+                    630,
+                    430,
+                    420,
+                    260
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceOnSuccess": {
+        "focus": {
+            "Node.Action.Starting": "✅已完成一次基质刷取"
+        }
+    }
+}
