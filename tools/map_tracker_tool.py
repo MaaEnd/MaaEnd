@@ -1,3 +1,9 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "opencv-python>=4.13.0.92",
+# ]
+# ///
 import os
 import math
 import re
