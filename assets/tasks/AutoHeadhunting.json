@@ -1,0 +1,366 @@
+{
+    "task": [
+        {
+            "name": "AutoHeadhunting",
+            "label": "$task.AutoHeadhunting.label",
+            "entry": "AutoHeadhunting",
+            "description": "$task.AutoHeadhunting.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Front"
+            ],
+            "option": [
+                "TargetPulls",
+                "TargetOperator",
+                "TargetOperatorNum",
+                "PreferMode"
+            ]
+        }
+    ],
+    "option": {
+        "TargetPulls": {
+            "type": "input",
+            "label": "$option.TargetPulls.label",
+            "inputs": [
+                {
+                    "name": "TargetPulls",
+                    "label": "$option.TargetPulls.label",
+                    "description": "$option.TargetPulls.inputs.TargetPulls.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "AutoHeadhunting": {
+                    "attach": {
+                        "TargetPulls": "{TargetPulls}"
+                    }
+                }
+            }
+        },
+        "TargetOperatorNum": {
+            "type": "input",
+            "label": "$option.TargetOperatorNum.label",
+            "inputs": [
+                {
+                    "name": "TargetOperatorNum",
+                    "label": "$option.TargetOperatorNum.label",
+                    "description": "$option.TargetOperatorNum.inputs.TargetOperatorNum.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "1"
+                }
+            ],
+            "pipeline_override": {
+                "AutoHeadhunting": {
+                    "attach": {
+                        "TargetOperatorNum": "{TargetOperatorNum}"
+                    }
+                }
+            }
+        },
+        "PreferMode": {
+            "type": "select",
+            "label": "$option.PreferMode.label",
+            "default_case": "1x",
+            "cases": [
+                {
+                    "name": "1x",
+                    "label": "$option.PreferMode.cases.1x.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "PreferMode": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "10x",
+                    "label": "$option.PreferMode.cases.10x.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "PreferMode": 10
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "TargetOperator": {
+            "type": "select",
+            "label": "$option.TargetOperator.label",
+            "description": "$option.TargetOperator.inputs.TargetOperator.description",
+            "default_case": "6stars",
+            "cases": [
+                {
+                    "name": "None",
+                    "label": "$option.TargetOperator.cases.None.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "6stars",
+                    "label": "$option.TargetOperator.cases.ANY_6_STARS_OP.label",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "ANY_6_STARS_OP"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ardelia",
+                    "label": "$operator.Ardelia",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Ardelia"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ember",
+                    "label": "$operator.Ember",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Ember"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Gilberta",
+                    "label": "$operator.Gilberta",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Gilberta"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Laevatain",
+                    "label": "$operator.Laevatain",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Laevatain"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "LastRite",
+                    "label": "$operator.LastRite",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "LastRite"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Lifeng",
+                    "label": "$operator.Lifeng",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Lifeng"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Pogranichnik",
+                    "label": "$operator.Pogranichnik",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Pogranichnik"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yvonne",
+                    "label": "$operator.Yvonne",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Yvonne"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Alesh",
+                    "label": "$operator.Alesh",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Alesh"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Arclight",
+                    "label": "$operator.Arclight",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Arclight"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Avywenna",
+                    "label": "$operator.Avywenna",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Avywenna"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ChenQianyu",
+                    "label": "$operator.ChenQianyu",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "ChenQianyu"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DaPan",
+                    "label": "$operator.DaPan",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "DaPan"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Perlica",
+                    "label": "$operator.Perlica",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Perlica"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Snowshine",
+                    "label": "$operator.Snowshine",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Snowshine"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wulfgard",
+                    "label": "$operator.Wulfgard",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Wulfgard"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Xaihi",
+                    "label": "$operator.Xaihi",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Xaihi"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Akekuri",
+                    "label": "$operator.Akekuri",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Akekuri"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Antal",
+                    "label": "$operator.Antal",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Antal"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Catcher",
+                    "label": "$operator.Catcher",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Catcher"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Estella",
+                    "label": "$operator.Estella",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Estella"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fluorite",
+                    "label": "$operator.Fluorite",
+                    "pipeline_override": {
+                        "AutoHeadhunting": {
+                            "attach": {
+                                "TargetOperator": "Fluorite"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

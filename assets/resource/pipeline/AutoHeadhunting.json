@@ -1,0 +1,261 @@
+{
+    "AutoHeadhunting": {
+        "action": "Custom",
+        "custom_action": "AutoHeadhunting",
+        "attach": {
+            /* 
+            "TargetPulls": 10,
+            "TargetOperator": "",
+            "TargetOperatorNum": 1,
+            "PreferMode": 1,
+            */
+            "Language": "zh_cn"
+        }
+    },
+    "AutoHeadhunting:Click10x": {
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/10x.png"],
+        "roi": [
+            1035,
+            622,
+            99,
+            80
+        ],
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "AutoHeadhunting:Confirm"
+        ]
+    },
+    "AutoHeadhunting:Click1x": {
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/1x.png"],
+        "roi": [
+            808,
+            614,
+            119,
+            91
+        ],
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "AutoHeadhunting:Confirm"
+        ]
+    },
+
+    "AutoHeadhunting:Confirm": {
+        "recognition": "OCR",
+        "expected": ["确认"],
+        "roi": [
+            644,
+            424,
+            236,
+            89
+        ],
+        "action": "Click",
+        "post_delay": 1500
+    },
+    "AutoHeadhunting:DetectOrigeometry": {
+        // 检测源石图标
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/Origeometry.png"],
+        "roi": [
+            332,
+            231,
+            396,
+            260
+        ]
+    },
+    "AutoHeadhunting:Skip1": {
+        // 跳过拉杆动画
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/skip.png"],
+        "roi": [
+            1196,
+            0,
+            74,
+            70
+        ],
+        "action": "Click",
+        "post_delay": 500,
+        "timeout": 2500,
+        "next": ["AutoHeadhunting:Skip2"]
+    },
+    "AutoHeadhunting:Skip2": {
+        // 跳过落地动画
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/skip.png"],
+        "roi": [
+            1196,
+            0,
+            74,
+            70
+        ],
+        "action": "Click",
+        "post_delay": 500,
+        "timeout": 2500
+    },
+    "AutoHeadhunting:Waiting": {
+        // 部分六星动画无法跳过 当未检测到跳过键时 进入等待
+        "post_delay": 20000
+    },
+
+    "AutoHeadhunting:DetectedArsenalTicket": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            12,
+            126,
+            100,
+            93
+        ],
+        "pre_delay": 100,
+        "post_delay": 200,
+        "template": ["AutoHeadhunting/ArsenalTicket.png"]
+    },
+    "AutoHeadhunting:UndetectedArsenalTicket": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            12,
+            126,
+            100,
+            93
+        ],
+        "template": ["AutoHeadhunting/ArsenalTicket.png"],
+        "inverse": true,
+        "pre_delay": 100,
+        "post_delay": 200
+    },
+    "AutoHeadhunting:SS_UndetectedArsenalTicket": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            12,
+            126,
+            100,
+            93
+        ],
+        "template": ["AutoHeadhunting/ArsenalTicket.png"],
+        "inverse": true,
+        "action": "Click",
+        "target": [
+            178,
+            132,
+            304,
+            199
+        ],
+        "pre_delay": 0,
+        "post_delay": 200,
+        "next": ["AutoHeadhunting:SkipStars"]
+    },
+    "AutoHeadhunting:Next_DetectedArsenalTicket": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            12,
+            126,
+            100,
+            93
+        ],
+        "template": ["AutoHeadhunting/ArsenalTicket.png"],
+        "action": "Click",
+        "target": [
+            178,
+            132,
+            304,
+            199
+        ],
+        "pre_delay": 100,
+        "post_delay": 300,
+        "next": ["AutoHeadhunting:NextOperator"]
+    },
+
+    "AutoHeadhunting:Close": {
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/close.png"],
+        "roi": [
+            1200,
+            0,
+            80,
+            70
+        ],
+        "green_mask": true,
+        "post_delay": 1200,
+        "action": "Click",
+        "next": [
+            "AutoHeadhunting:Done",
+            "AutoHeadhunting:Close"
+        ]
+    },
+    "AutoHeadhunting:Done": {
+        "recognition": "TemplateMatch",
+        "template": ["AutoHeadhunting/done.png"],
+        "roi": [
+            623,
+            648,
+            34,
+            34
+        ],
+        "green_mask": true,
+        "post_delay": 800,
+        "action": "Click"
+    },
+    "AutoHeadhunting:SkipStars": {
+        // 跳过星级动画
+        "next": [
+            "AutoHeadhunting:DetectedArsenalTicket",
+            "AutoHeadhunting:SS_UndetectedArsenalTicket"
+        ],
+        "pre_delay": 0,
+        "post_delay": 300
+    },
+    "AutoHeadhunting:NextOperator": {
+        // 前往下一个干员
+        "next": [
+            "AutoHeadhunting:Next_DetectedArsenalTicket",
+            "AutoHeadhunting:UndetectedArsenalTicket"
+        ],
+        "pre_delay": 0,
+        "post_delay": 300
+    },
+    "AutoHeadhunting:DetectOperatorName": {
+        "recognition": "OCR",
+        "roi": [
+            771,
+            430,
+            343,
+            146
+        ],
+        "expected": [
+            "伊冯",
+            "余烬",
+            "别礼",
+            "洁尔佩塔",
+            "管理员",
+            "艾尔黛拉",
+            "莱万汀",
+            "骏卫",
+            "黎风",
+            "佩丽卡",
+            "大潘",
+            "弧光",
+            "昼雪",
+            "狼卫",
+            "艾维文娜",
+            "赛希",
+            "阿列什",
+            "陈千语",
+            "卡契尔",
+            "埃特拉",
+            "安塔尔",
+            "秋栗",
+            "萤石",
+            ".*" // 用于捕获意外结果
+
+        ],
+        "replace": [
+            [
+                "陈干语",
+                "陈千语"
+            ]
+        ],
+        "timeout": 3000
+    }
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	autoheadhunting "github.com/MaaXYZ/MaaEnd/agent/go-service/auto-headhunting"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -24,7 +25,7 @@ func registerAll() {
 	creditshopping.Register()
 	dailyrewards.Register()
 	maptracker.Register()
-
+	autoheadhunting.Register()
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
 
