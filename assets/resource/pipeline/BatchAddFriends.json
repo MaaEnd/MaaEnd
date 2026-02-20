@@ -61,29 +61,6 @@
             "BatchAddFriendsTriggerSearch"
         ]
     },
-    "BatchAddFriendsFocusSearchBox": {
-        "doc": "聚焦搜索框",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    36,
-                    66,
-                    191,
-                    26
-                ],
-                "expected": [
-                    "搜索玩家名称或UID添加好友"
-                ],
-                "threshold": 0.7,
-                "order_by": "Expected"
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        }
-    },
     "BatchAddFriendsTriggerSearch": {
         "doc": "点击搜索按钮",
         "recognition": {
