@@ -227,7 +227,7 @@
     "task.BatchAddFriends.description": "UID 指定または陌生人追加に対応してフレンド申請を一括送信",
     "option.BatchAddFriends.label": "一括追加設定",
     "option.BatchAddFriends.inputs.UidList.label": "UID リスト",
-    "option.BatchAddFriends.inputs.UidList.description": "UID は空白または読点で区切り、空欄なら陌生人モード",
+    "option.BatchAddFriends.inputs.UidList.description": "複数の UID はスペースまたは「、」で区切ります。空欄の場合は見知らぬ人を追加します。",
     "option.BatchAddFriends.inputs.MaxCount.label": "最大追加数",
     "option.BatchAddFriends.inputs.MaxCount.description": "指定数に達したら停止",
     "resource.CN.label": "中国サーバー (官服)",
