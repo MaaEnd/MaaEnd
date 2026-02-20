@@ -1,0 +1,16 @@
+{
+    "MD033": {
+        "allowed_elements": [
+            "details",
+            "summary",
+            "br"
+        ]
+    },
+    "MD024": {
+        "siblings_only": true
+    },
+    "MD007": {
+        "indent": 4
+    },
+    "MD013": false
+}
