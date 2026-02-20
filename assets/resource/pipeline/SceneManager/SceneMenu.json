@@ -955,6 +955,59 @@
             "ScenePrivateMenuListBottomEnterMenuBackpack"
         ]
     },
+    "ScenePrivateWorldEnterMenuBaker": {
+        "doc": "从大世界进入Baker界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 72 // H
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuBakerSuccess"
+        ]
+    },
+    "ScenePrivateAnyEnterMenuBakerSuccess": {
+        "doc": "成功进入Baker界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "BAKER"
+                ]
+            }
+        }
+    },
     "ScenePrivateMenuListScrollToBottom": {
         "desc": "菜单列表滚动到最底部",
         "recognition": {
