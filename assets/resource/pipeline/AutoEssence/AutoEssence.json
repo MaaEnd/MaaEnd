@@ -202,7 +202,7 @@
             "AutoEssenceClickObtainButton"
         ],
         "on_error": [
-            "AutoEssenceClickObtainButtonFailed"
+            "AutoEssenceClickObtainButtonFailedPre"
         ],
         "timeout": 1000
     },
