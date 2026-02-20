@@ -96,7 +96,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -150,7 +149,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -234,12 +232,11 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "LasCarbinColor",
-                "roi_offset": [
-                    0,
-                    0,
-                    150,
-                    0
+                "roi": [
+                    914,
+                    495,
+                    171,
+                    21
                 ],
                 "expected": [
                     "培养舱"
@@ -302,7 +299,7 @@
             "time": 500,
             "timeout": 2000
         },
-        "max_hit": 5, //滑动次数过多直接判定失败，避免死循环
+        "max_hit": 3, //滑动次数过多直接判定失败，避免死循环
         "recognition": {
             "type": "TemplateMatch",
             "param": {
