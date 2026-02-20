@@ -212,7 +212,7 @@
     },
     "ProductionAssistCheckPriorStealRetry": {
         "doc": "子菜单未打开时重试点击",
-        "max_hit": 5,
+        "max_hit": 100,
         "pre_wait_freezes": 200,
         "recognition": {
             "type": "TemplateMatch",
