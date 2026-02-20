@@ -1,41 +1,13 @@
 {
     "DebugShipEntry": {
-        "doc": "调试入口：直接从等待飞船加载开始",
+        "doc": "调试入口：在点击进入好友飞船开始",
         "recognition": {
             "type": "DirectHit"
         },
-        "next": ["WaitingForLoading"]
+        "next": [
+            "ResellEnterShip"
+        ]
     },
-    "ResellShipLoaded": {
-        "doc": "检测飞船加载完成（黑屏消失）",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    640,
-                    360,
-                    100,
-                    100
-                ],
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    30,
-                    30,
-                    30
-                ],
-                "count": 5000
-            }
-        },
-        "inverse": true,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": ["ResellShipWalkAS_KeyDownA"]
-    },
-
     "ResellShipWalkAS_KeyDownA": {
         "doc": "按下A键（开始A+S走路撞墙）",
         "recognition": {
@@ -48,7 +20,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAS_KeyDownS"]
+        "next": [
+            "ResellShipWalkAS_KeyDownS"
+        ]
     },
     "ResellShipWalkAS_KeyDownS": {
         "doc": "按下S键",
@@ -72,7 +46,9 @@
             ],
             "timeout": 15000
         },
-        "next": ["ResellShipWalkAS_KeyUpA"]
+        "next": [
+            "ResellShipWalkAS_KeyUpA"
+        ]
     },
     "ResellShipWalkAS_KeyUpA": {
         "doc": "松开A键（撞墙后停止）",
@@ -86,7 +62,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAS_KeyUpS"]
+        "next": [
+            "ResellShipWalkAS_KeyUpS"
+        ]
     },
     "ResellShipWalkAS_KeyUpS": {
         "doc": "松开S键",
@@ -100,9 +78,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAW_KeyDownA"]
+        "next": [
+            "ResellShipWalkAW_KeyDownA"
+        ]
     },
-
     "ResellShipWalkAW_KeyDownA": {
         "doc": "按下A键（开始A+W走向终端）",
         "recognition": {
@@ -115,7 +94,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAW_KeyDownW"]
+        "next": [
+            "ResellShipWalkAW_KeyDownW"
+        ]
     },
     "ResellShipWalkAW_KeyDownW": {
         "doc": "按下W键",
@@ -129,7 +110,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipDetectTerminal"]
+        "next": [
+            "ResellShipDetectTerminal"
+        ]
     },
     "ResellShipDetectTerminal": {
         "doc": "检测物资调度终端（持续检测直到找到）",
@@ -147,10 +130,11 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAW_KeyUpA"],
+        "next": [
+            "ResellShipWalkAW_KeyUpA"
+        ],
         "timeout": 20000
     },
-
     "ResellShipWalkAW_KeyUpA": {
         "doc": "找到终端，松开A键",
         "recognition": {
@@ -163,7 +147,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipWalkAW_KeyUpW"]
+        "next": [
+            "ResellShipWalkAW_KeyUpW"
+        ]
     },
     "ResellShipWalkAW_KeyUpW": {
         "doc": "松开W键",
@@ -177,9 +163,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipInteract"]
+        "next": [
+            "ResellShipInteract"
+        ]
     },
-
     "ResellShipWalkAW_KeyUpA_Timeout": {
         "doc": "超时，松开A键",
         "recognition": {
@@ -191,7 +178,9 @@
                 "key": 65
             }
         },
-        "next": ["ResellShipWalkAW_KeyUpW_Timeout"]
+        "next": [
+            "ResellShipWalkAW_KeyUpW_Timeout"
+        ]
     },
     "ResellShipWalkAW_KeyUpW_Timeout": {
         "doc": "超时，松开W键",
@@ -205,9 +194,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipInteract"]
+        "next": [
+            "ResellShipInteract"
+        ]
     },
-
     "ResellShipInteract": {
         "doc": "交互终端（按F键）",
         "recognition": {
@@ -220,7 +210,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipInTerminal"]
+        "next": [
+            "ResellShipInTerminal"
+        ]
     },
     "ResellShipInTerminal": {
         "doc": "检测是否进入终端界面",
@@ -238,10 +230,11 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage1Click"],
+        "next": [
+            "ResellShipPage1Click"
+        ],
         "timeout": 5000
     },
-
     "ResellShipPage1Click": {
         "doc": "【第一页】点击第一个商品",
         "recognition": {
@@ -274,7 +267,6 @@
             "ResellShipPage1NoStock"
         ]
     },
-
     "ResellShipPage1SellSwipe": {
         "doc": "【第一页】拉满数量滑条",
         "recognition": {
@@ -304,7 +296,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage1SellExecute"]
+        "next": [
+            "ResellShipPage1SellExecute"
+        ]
     },
     "ResellShipPage1SellExecute": {
         "doc": "【第一页】点击确认售卖",
@@ -350,7 +344,9 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "next": ["ResellShipSwitchPage"]
+        "next": [
+            "ResellShipSwitchPage"
+        ]
     },
     "ResellShipPage1NoStock": {
         "doc": "【第一页】没有库存，按ESC关闭弹窗",
@@ -374,9 +370,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipSwitchPage"]
+        "next": [
+            "ResellShipSwitchPage"
+        ]
     },
-
     "ResellShipSwitchPage": {
         "doc": "按E翻到第二页",
         "recognition": {
@@ -389,9 +386,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage2Click"]
+        "next": [
+            "ResellShipPage2Click"
+        ]
     },
-
     "ResellShipPage2Click": {
         "doc": "【第二页】点击第一个商品",
         "recognition": {
@@ -424,7 +422,6 @@
             "ResellShipPage2NoStock"
         ]
     },
-
     "ResellShipPage2SellSwipe": {
         "doc": "【第二页】拉满数量滑条",
         "recognition": {
@@ -454,7 +451,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipPage2SellExecute"]
+        "next": [
+            "ResellShipPage2SellExecute"
+        ]
     },
     "ResellShipPage2SellExecute": {
         "doc": "【第二页】点击确认售卖",
@@ -500,7 +499,9 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "next": ["ResellShipExitSell"]
+        "next": [
+            "ResellShipExitSell"
+        ]
     },
     "ResellShipPage2NoStock": {
         "doc": "【第二页】没有库存，按ESC关闭弹窗",
@@ -524,9 +525,10 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipExitSell"]
+        "next": [
+            "ResellShipExitSell"
+        ]
     },
-
     "ResellShipExitSell": {
         "doc": "ESC退出出售界面，开始检测环境",
         "recognition": {
@@ -594,7 +596,9 @@
             }
         },
         "post_delay": 0,
-        "next": ["ResellShipEndVisitCheck"]
+        "next": [
+            "ResellShipEndVisitCheck"
+        ]
     },
     "ResellShipEndVisitCheck": {
         "doc": "检测结束拜访按钮（右下角）",
@@ -617,7 +621,9 @@
         "post_delay": 0,
         "timeout": 5000,
         "max_hit": 3,
-        "next": ["ResellShipEndVisitConfirm"]
+        "next": [
+            "ResellShipEndVisitConfirm"
+        ]
     },
     "ResellShipEndVisitConfirm": {
         "doc": "确认结束拜访弹窗",
@@ -639,7 +645,10 @@
         },
         "post_delay": 0,
         "timeout": 5000,
-        "next": ["ResellShipReturnOwnShip"]
+        "next": [
+            "ResellShipReturnOwnShip",
+            "[JumpBack]WaitLoadingColor"
+        ]
     },
     "ResellShipReturnOwnShip": {
         "doc": "等待返回自己的飞船（检测黑屏加载）",
@@ -658,6 +667,8 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "next": ["ResellMain"]
+        "next": [
+            "ResellMain"
+        ]
     }
 }
