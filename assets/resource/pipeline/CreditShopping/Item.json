@@ -1,0 +1,128 @@
+{
+    "CreditIcon": {
+        "doc": "信用点商店图标",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/CreditIcon.png",
+        "roi": [
+            74,
+            103,
+            1131,
+            538
+        ],
+        "order_by": "Horizontal"
+    },
+    "NotSoldOut": {
+        "doc": "非售罄",
+        "recognition": "ColorMatch",
+        "method": 6,
+        "roi": "CreditIcon",
+        "roi_offset": [
+            -95,
+            -145,
+            150,
+            200
+        ],
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 20000
+    },
+    "BuyFirstOCR": {
+        "doc": "按用户指定顺序购买",
+        "recognition": "OCR",
+        "roi": "NotSoldOut",
+        "roi_offset": [
+            0,
+            170,
+            0,
+            -160
+        ],
+        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
+        "order_by": "Expected"
+    },
+    "BlacklistOCR": {
+        "doc": "不是黑名单物品",
+        "recognition": "OCR",
+        "roi": "NotSoldOut",
+        "roi_offset": [
+            0,
+            170,
+            0,
+            -160
+        ],
+        "order_by": "Horizontal",
+        "expected": "^(?!(折金票|协议棱柱组)$).*$" //这里是具体执行参数，匹配价格位置非空的商品
+    },
+    "CanNotAfford": {
+        "doc": "买不起（价格是红色）",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstOCR",
+        "roi_offset": [
+            65,
+            -40,
+            -20,
+            1
+        ],
+        "lower": [
+            255,
+            131,
+            131
+        ],
+        "upper": [
+            255,
+            192,
+            192
+        ],
+        "count": 20,
+        "order_by": "Horizontal"
+    },
+    "CanAfford": {
+        "doc": "买得起（价格不是红色）",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstOCR",
+        "roi_offset": [
+            65,
+            -40,
+            -20,
+            1
+        ],
+        "lower": [
+            76,
+            76,
+            76
+        ],
+        "upper": [
+            108,
+            108,
+            108
+        ],
+        "count": 20,
+        "order_by": "Horizontal"
+    },
+    "IsDiscount": {
+        "doc": "有折扣",
+        "recognition": "ColorMatch",
+        "roi": "CanAfford",
+        "roi_offset": [
+            171,
+            108,
+            57,
+            27
+        ],
+        "lower": [
+            255,
+            220,
+            0
+        ],
+        "upper": [
+            255,
+            220,
+            0
+        ],
+        "count": 500,
+        "order_by": "Horizontal"
+    }
+}
