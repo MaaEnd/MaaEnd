@@ -57,8 +57,8 @@
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
-            "BuyFirstOCR",
-            "CanNotAfford"
+            "CanNotAfford",
+            "BuyFirstOCR"
         ],
         "next": [
             "[JumpBack]NeedCredit",
@@ -70,14 +70,17 @@
         "recognition": "And",
         "box_index": 3,
         "all_of": [
-            //这里的是模板内容,interface中会覆盖具体的执行参数
             "CreditIcon",
             "NotSoldOut",
-            "BuyFirstOCR",
-            "CanAfford"
+            "CanAfford",
+            "BuyFirstOCR"
         ],
-        "next": [
-            "CreditShoppingBuyFirstItem"
+        "action": "Click",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
         ]
     },
     "CreditShoppingBuyNormalNoDiscount": {
@@ -85,14 +88,17 @@
         "recognition": "And",
         "box_index": 3,
         "all_of": [
-            //这里的是模板内容,interface中会覆盖具体的执行参数
             "CreditIcon",
             "NotSoldOut",
-            "BlacklistOCR",
-            "CanAfford"
+            "CanAfford",
+            "BlacklistOCR"
         ],
-        "next": [
-            "CreditShoppingBuyNormalItemNoDiscount"
+        "action": "Click",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
@@ -102,37 +108,34 @@
         "all_of": [
             "CreditIcon",
             "NotSoldOut",
-            "BlacklistOCR",
             "CanAfford",
+            "BlacklistOCR",
             "IsDiscount"
         ],
-        "next": [
-            "CreditShoppingBuyNormalItemWithDiscount"
-        ]
+        "action": "Click"
     },
     "CreditShoppingBuyBlacklist": {
         "doc": "信用点溢出时购买黑名单物品",
         "recognition": "And",
         "box_index": 2,
         "all_of": [
-            {
-                "sub_name": "CreditNum",
-                "doc": "信用点溢出（>300）",
-                "recognition": "OCR",
-                "roi": [
-                    1083,
-                    17,
-                    76,
-                    26
-                ],
-                "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
-            },
+            "CreditNum",
             "CreditIcon",
             "NotSoldOut"
         ],
-        "next": [
-            "CreditShoppingBuyBlacklistItem"
-        ]
+        "action": "Click"
+    },
+    "CreditNum": {
+        "doc": "信用点溢出（>300）",
+        "recognition": "OCR",
+        "roi": [
+            1083,
+            17,
+            76,
+            26
+        ],
+        "only_rec": true,
+        "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
     },
     "CreditShoppingNothingToBuy": {
         "recognition": "DirectHit",
