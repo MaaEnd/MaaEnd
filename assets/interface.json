@@ -127,10 +127,16 @@
             ]
         }
     ],
-    "agent": {
-        "child_exec": "agent/go-service",
-        "child_args": []
-    },
+    "agent": [
+        {
+            "child_exec": "agent/go-service",
+            "child_args": []
+        },
+        {
+            "child_exec": "agent/cpp-algo",
+            "child_args": []
+        }
+    ],
     "task": [],
     "import": [
         "tasks/RealTimeTask.json",

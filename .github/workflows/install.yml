@@ -83,22 +83,54 @@ jobs:
 
   build_and_install:
     needs: meta
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [win, macos, linux]
         arch: [aarch64, x86_64]
       fail-fast: false
+    runs-on: ${{ matrix.os == 'win' && 'windows-latest' || (matrix.os == 'macos' && 'macos-latest' || 'ubuntu-latest') }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
 
+      - name: Install Linux dependencies
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build cmake
+
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos'
+        run: |
+          brew install ninja cmake
+
+      - name: Setup Windows 10 SDK
+        if: matrix.os == 'win'
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.2
+        with:
+          sdk-version: 26100
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: "agent/go-service/go.mod"
+
+      - name: Cache MaaDeps
+        id: cache-maadeps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
+
+      - name: Bootstrap MaaDeps
+        if: steps.cache-maadeps.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
@@ -106,7 +138,7 @@ jobs:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
           tag: ${{ needs.meta.outputs.maafw_version }}
-          out-file-path: "downloads/MaaFramework"
+          out-file-path: "deps"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -124,13 +156,13 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          # 运行安装脚本（构建 Go Agent + 复制资源）
-          python tools/build_and_install.py --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+          # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
+          python tools/build_and_install.py --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
-          cp -r downloads/MaaFramework/bin/* install/maafw/
-          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
+          cp -r deps/bin/* install/maafw/
+          cp -r deps/share/MaaAgentBinary install/maafw/
           rm -rf install/maafw/MaaNode*
 
           # 安装 MXU 并重命名为 MaaEnd
@@ -180,6 +212,9 @@ jobs:
           fi
           if [[ -f install/agent/go-service ]]; then
             chmod +x install/agent/go-service
+          fi
+          if [[ -f install/agent/cpp-algo ]]; then
+            chmod +x install/agent/cpp-algo
           fi
           # 给 maafw 目录下的可执行文件添加权限
           find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
@@ -277,6 +312,9 @@ jobs:
           chmod +x "$APP_NAME/Contents/MacOS/MaaEnd"
           if [[ -f "$APP_NAME/Contents/MacOS/agent/go-service" ]]; then
             chmod +x "$APP_NAME/Contents/MacOS/agent/go-service"
+          fi
+          if [[ -f "$APP_NAME/Contents/MacOS/agent/cpp-algo" ]]; then
+            chmod +x "$APP_NAME/Contents/MacOS/agent/cpp-algo"
           fi
           codesign --force --deep --sign - "$APP_NAME"
 
