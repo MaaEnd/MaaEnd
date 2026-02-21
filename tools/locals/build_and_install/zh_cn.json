@@ -59,5 +59,7 @@
     "arg_ci": "CI 模式：复制文件而非链接",
     "arg_os": "目标操作系统 (win/macos/linux)",
     "arg_arch": "目标架构 (x86_64/aarch64)",
-    "arg_version": "版本号（写入 Go Agent）"
+    "arg_version": "版本号（写入 Go Agent）",
+    "arg_cpp_algo": "同时编译 C++ Algo Agent（默认不编译）",
+    "step_skip_cpp": "[4/5] 跳过 C++ Algo Agent（未指定 --cpp-algo）"
 }

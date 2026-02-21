@@ -466,6 +466,7 @@ def main():
     parser.add_argument("--os", dest="target_os", help=t("arg_os"))
     parser.add_argument("--arch", dest="target_arch", help=t("arg_arch"))
     parser.add_argument("--version", help=t("arg_version"))
+    parser.add_argument("--cpp-algo", action="store_true", help=t("arg_cpp_algo"))
     args = parser.parse_args()
 
     use_copy = args.ci
@@ -513,11 +514,14 @@ def main():
         print(f"  {t('error')} {t('build_go_failed')}")
         sys.exit(1)
 
-    # 4. 构建 C++ Algo Agent
-    print(t("step_build_cpp"))
-    if not build_cpp_algo(root_dir, install_dir, args.target_os, args.target_arch, use_copy):
-        print(f"  {t('error')} {t('build_cpp_failed')}")
-        sys.exit(1)
+    # 4. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
+    if args.cpp_algo:
+        print(t("step_build_cpp"))
+        if not build_cpp_algo(root_dir, install_dir, args.target_os, args.target_arch, use_copy):
+            print(f"  {t('error')} {t('build_cpp_failed')}")
+            sys.exit(1)
+    else:
+        print(t("step_skip_cpp"))
 
     # 5. 链接/复制项目根目录文件并创建 maafw 目录
     print(t("step_prepare_files"))

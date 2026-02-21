@@ -59,5 +59,7 @@
     "arg_ci": "CI 模式：複製檔案而非連結",
     "arg_os": "目標作業系統 (win/macos/linux)",
     "arg_arch": "目標架構 (x86_64/aarch64)",
-    "arg_version": "版本號（寫入 Go Agent）"
+    "arg_version": "版本號（寫入 Go Agent）",
+    "arg_cpp_algo": "同時編譯 C++ Algo Agent（預設不編譯）",
+    "step_skip_cpp": "[4/5] 跳過 C++ Algo Agent（未指定 --cpp-algo）"
 }

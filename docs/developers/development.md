@@ -42,11 +42,17 @@ python tools/setup_workspace.py
     python tools/download_maadeps.py
     ```
 
-3. 编译 go-service 、编译 cpp-algo 、配置路径。
+3. 编译 go-service 、配置路径。
 
     ```bash
     python tools/build_and_install.py
     ```
+
+    > 如需同时编译 cpp-algo，请加上 `--cpp-algo` 参数：
+    >
+    > ```bash
+    > python tools/build_and_install.py --cpp-algo
+    > ```
 
 4. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
 

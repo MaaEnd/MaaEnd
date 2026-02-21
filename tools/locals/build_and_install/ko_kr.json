@@ -59,5 +59,7 @@
     "arg_ci": "CI 모드: 링크 대신 파일 복사",
     "arg_os": "대상 운영 체제 (win/macos/linux)",
     "arg_arch": "대상 아키텍처 (x86_64/aarch64)",
-    "arg_version": "버전 번호 (Go Agent에 기록됨)"
+    "arg_version": "버전 번호 (Go Agent에 기록됨)",
+    "arg_cpp_algo": "C++ Algo Agent도 함께 빌드 (기본적으로 빌드하지 않음)",
+    "step_skip_cpp": "[4/5] C++ Algo Agent 건너뜀 (--cpp-algo 미지정)"
 }

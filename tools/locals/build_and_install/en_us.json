@@ -59,5 +59,7 @@
     "arg_ci": "CI mode: copy files instead of linking",
     "arg_os": "Target operating system (win/macos/linux)",
     "arg_arch": "Target architecture (x86_64/aarch64)",
-    "arg_version": "Version number (written to Go Agent)"
+    "arg_version": "Version number (written to Go Agent)",
+    "arg_cpp_algo": "Also build C++ Algo Agent (not built by default)",
+    "step_skip_cpp": "[4/5] Skipping C++ Algo Agent (--cpp-algo not specified)"
 }

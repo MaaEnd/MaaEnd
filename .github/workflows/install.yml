@@ -156,8 +156,8 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          # 运行安装脚本（构建 Go Agent + 复制资源）
-          python tools/build_and_install.py --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+          # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
+          python tools/build_and_install.py --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
