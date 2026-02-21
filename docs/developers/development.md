@@ -101,6 +101,11 @@ python tools/setup_workspace.py
 
 - Go Service 仅用于处理某些特殊动作/识别，整体流程仍请使用 Pipeline 串联。请勿使用 Go Service 编写大量流程代码。
 
+### Cpp Algo 代码规范
+
+- Cpp Algo 支持原生 opencv 和 onnxruntime，但仅推荐用于实现单个识别算法，各类操作等业务逻辑推荐用 Go Service 编写。
+- 其余代码规范请参考 [MaaFramework 开发规范](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83)。
+
 ## 交流
 
 开发 QQ 群: [1072587329](https://qm.qq.com/q/EyirQpBiW4) （干活群，欢迎加入一起开发，但不受理用户问题）
