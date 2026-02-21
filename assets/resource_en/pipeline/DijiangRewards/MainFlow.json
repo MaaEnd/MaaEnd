@@ -5,6 +5,12 @@
         ]
     },
     "LastCarbinText": {
+        "roi_offset": [
+            0,
+            0,
+            120,
+            0
+        ],
         "expected": [
             "Growth Chamber"
         ]

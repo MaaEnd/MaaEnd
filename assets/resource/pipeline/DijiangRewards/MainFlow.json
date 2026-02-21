@@ -96,7 +96,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -150,7 +149,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -234,11 +232,13 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    914,
-                    495,
-                    171,
-                    21
+                "roi": "LasCarbinColor",
+                "only_rec": true,
+                "roi_offset": [
+                    0,
+                    0,
+                    70,
+                    0
                 ],
                 "expected": [
                     "培养舱"
@@ -319,7 +319,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 240,
+                "dx": 180,
                 "target_offset": [
                     600,
                     20,
