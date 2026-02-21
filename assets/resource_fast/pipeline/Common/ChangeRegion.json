@@ -1,28 +1,28 @@
 {
     "GoToValleyIV": {
-        "doc": "前往四号谷地",
-        "recognition": "Or",
-        "any_of": [
-            "IncomeReportButton"
+        "doc": "前往四号谷地地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
         ],
         "next": [
             "InValleyIVRegionalDevelopment",
             "[JumpBack]ConfirmChangeToValleyIV",
-            "[JumpBack]ChangeToValleyIV",
+            "[JumpBack]EnterChangeRegionMenu",
             "[JumpBack]ChangeRegionButton"
         ]
     },
     "GoToWuling": {
-        "doc": "前往武陵",
-        "recognition": "Or",
-        "any_of": [
-            "IncomeReportButton"
+        "doc": "前往武陵地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
         ],
         "next": [
             "InWulingRegionalDevelopment",
             "[JumpBack]ConfirmChangeToWuling",
             "[JumpBack]ChangeToWuling",
-            "[JumpBack]ChangeRegionButton",
+            "[JumpBack]EnterChangeRegionMenu",
             "[JumpBack]BackFromEnvironmentMonitoringTerminal" // 只有从其他地方切换到武陵双击时，才可能会意外进入环境监测终端
 
         ]
@@ -179,6 +179,25 @@
         "all_of": [
             "CloseButtonType1",
             "CheckOutskirtsMonitoringTerminal"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnterChangeRegionMenu": {
+        "doc": "进入更改地区界面",
+        "recognition": "And",
+        "all_of": [
+            "ChangeRegionButton",
+            // 需要尽量避免在中间状态
+            "InRegionalDevelopment"
         ],
         "action": "Click",
         "post_wait_freezes": {
