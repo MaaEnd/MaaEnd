@@ -108,7 +108,6 @@
                 {
                     "name": "-99%",
                     "label": "$option.DiscountValue.cases.-99%.label",
-                    "description": "$option.DiscountValue.cases.-99%.description",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
@@ -123,7 +122,6 @@
                 {
                     "name": "-75%",
                     "label": "$option.DiscountValue.cases.-75%.label",
-                    "description": "$option.DiscountValue.cases.-75%.description",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
@@ -137,7 +135,6 @@
                 {
                     "name": "-50%",
                     "label": "$option.DiscountValue.cases.-50%.label",
-                    "description": "$option.DiscountValue.cases.-50%.description",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
@@ -150,7 +147,6 @@
                 {
                     "name": "-25%",
                     "label": "$option.DiscountValue.cases.-25%.label",
-                    "description": "$option.DiscountValue.cases.-25%.description",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
