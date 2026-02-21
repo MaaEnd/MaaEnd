@@ -47,7 +47,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -75,7 +75,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -128,7 +128,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -146,7 +146,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -182,7 +182,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,

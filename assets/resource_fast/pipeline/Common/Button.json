@@ -35,7 +35,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -80,7 +80,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -125,7 +125,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -147,7 +147,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -169,7 +169,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -192,7 +192,7 @@
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -215,7 +215,7 @@
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -238,7 +238,7 @@
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -265,7 +265,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -433,6 +433,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "YellowConfirmButtonType2": {
@@ -465,6 +474,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "CancelButton": {
@@ -498,6 +516,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "GrayCancelButton": {
@@ -531,6 +558,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "WhiteConfirmButtonType1": {
@@ -564,6 +600,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "TeleportButton": {
@@ -585,6 +630,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "CloseRewardsButton": {
@@ -607,6 +661,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "CloseButtonType1": {
@@ -630,6 +693,15 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     },
     "CloseButtonType2": {
@@ -648,6 +720,15 @@
             "param": {
                 "contact": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
         }
     }
 }
