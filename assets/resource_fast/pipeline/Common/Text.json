@@ -36,8 +36,26 @@
             "무릉"
         ]
     },
-    "CheckDepotNodeOriginiumScienceParkText": {
-        "doc": "检查仓储节点中是否有源石研究园",
+    "CheckLocalDepotNodeText": {
+        "doc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            55,
+            62,
+            191,
+            63
+        ],
+        "expected": [
+            "本地仓储节点",
+            "本地區倉儲節點",
+            "Local Depot Node",
+            "地域保管ボックス",
+            "현재 지역 저장고 노드"
+        ]
+    },
+    "CheckLocalDepotNodeOriginiumScienceParkText": {
+        "doc": "检查本地仓储节点中是否有源石研究园",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -54,8 +72,8 @@
             "오리지늄 연구 구역"
         ]
     },
-    "CheckDepotNodeOriginLodespringText": {
-        "doc": "检查仓储节点中是否有矿脉源区",
+    "CheckLocalDepotNodeOriginLodespringText": {
+        "doc": "检查本地仓储节点中是否有矿脉源区",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -72,8 +90,8 @@
             "광맥 구역"
         ]
     },
-    "CheckDepotNodePowerPlateauText": {
-        "doc": "检查仓储节点中是否有供能高地",
+    "CheckLocalDepotNodePowerPlateauText": {
+        "doc": "检查本地仓储节点中是否有供能高地",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
@@ -90,8 +108,8 @@
             "에너지 공급 고지"
         ]
     },
-    "CheckDepotNodeWulingCityText": {
-        "doc": "检查仓储节点中是否有武陵城区",
+    "CheckLocalDepotNodeWulingCityText": {
+        "doc": "检查本地仓储节点中是否有武陵城区",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [

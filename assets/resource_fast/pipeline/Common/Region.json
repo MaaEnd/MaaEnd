@@ -39,38 +39,27 @@
             "RegionalDevelopmentLevelButton"
         ]
     },
-    "InDepotNode": {
-        "doc": "在仓储节点界面",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            57,
-            115,
-            233,
-            105
-        ],
-        "expected": [
-            "节点一览",
-            "節點一覽",
-            "Node Overview",
-            "ボックス一覧",
-            "노드 목록"
-        ]
-    },
-    "InValleyIVDepotNode": {
-        "doc": "在四号谷地仓储节点界面",
+    "InLocalDepotNode": {
+        "doc": "在本地仓储节点界面",
         "recognition": "And",
         "all_of": [
-            "InDepotNode",
-            "CheckDepotNodeOriginiumScienceParkText"
+            "CheckLocalDepotNodeText"
         ]
     },
-    "InWulingDepotNode": {
-        "doc": "在武陵仓储节点界面",
+    "InValleyIVLocalDepotNode": {
+        "doc": "在四号谷地本地仓储节点界面",
         "recognition": "And",
         "all_of": [
-            "InDepotNode",
-            "CheckDepotNodeWulingCityText"
+            "InLocalDepotNode",
+            "CheckLocalDepotNodeOriginiumScienceParkText"
+        ]
+    },
+    "InWulingLocalDepotNode": {
+        "doc": "在武陵本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "CheckLocalDepotNodeWulingCityText"
         ]
     }
 }
