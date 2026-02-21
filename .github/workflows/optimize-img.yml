@@ -14,7 +14,7 @@ on:
         required: false
   pull_request:
     types:
-      - closed  
+      - closed
     paths:
       - "**/*.png"
     branches:
@@ -86,7 +86,7 @@ jobs:
       - name: Optimize png images
         if: steps.check_push.outputs.is_pr != 'True'
         run: |
-          python3 tools/OptimizeTemplates/optimize_templates.py
+          python3 tools/optimize_templates/optimize_templates.py
 
       - name: Commit changes
         id: commit_changes
