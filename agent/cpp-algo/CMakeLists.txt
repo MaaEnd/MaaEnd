@@ -12,10 +12,10 @@ if(NOT EXISTS ${DEPS_DIR})
 endif()
 
 # MaaFramework only ships RelWithDebInfo config, map all other configs to it
-set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Debug)
-set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL Debug)
-set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE Debug)
-set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG Debug)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO RelWithDebInfo)
+set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL RelWithDebInfo)
+set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE RelWithDebInfo)
+set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG RelWithDebInfo)
 
 set(MaaFramework_DIR ${DEPS_DIR}/share/cmake/MaaFramework)
 find_package(MaaFramework REQUIRED)
