@@ -23,11 +23,11 @@
             "[JumpBack]DeliveryJobsEnterDeliveryJobMission",
             "DeliveryJobsEnterDeliveryJob",
             // 如果没有任务但是在仓储节点/大世界，说明送货任务处理完毕，跳出循环
-            "DeliveryJobsCheckDepotNode",
-            "DeliveryJobsBackToHome"
+            "InLocalDepotNode",
+            "InWorld"
         ],
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -55,7 +55,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -77,7 +77,7 @@
         "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -105,7 +105,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,

@@ -1,3 +1,4 @@
+//该adb流水线逻辑无效,请勿使用,后面也许可以基于这些节点重写一个新的VisitFriends任务的adb逻辑
 {
     "OnAssist": {
         "next": [

@@ -138,7 +138,7 @@
         "recognition": "DirectHit",
         "next": [
             "InMainWindow",
-            "[JumpBack]BackButton"
+            "[JumpBack]CloseButtonType1"
         ]
     }
 }

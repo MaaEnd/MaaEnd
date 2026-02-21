@@ -139,6 +139,7 @@
         "tasks/DailyRewards.json",
         "tasks/SellProduct.json",
         "tasks/AutoResell.json",
+        "tasks/AutoEssence.json",
         "tasks/EssenceFilter.json",
         "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
@@ -152,9 +153,9 @@
         "tasks/GearAssembly.json",
         "tasks/Crafting.json",
         "tasks/ItemTransfer.json",
+        "tasks/BatchAddFriends.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
-        "tasks/PCOpenGame.json",
         "tasks/AndroidOpenGame.json"
     ]
 }

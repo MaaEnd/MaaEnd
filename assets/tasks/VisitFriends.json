@@ -7,6 +7,13 @@
             "description": "$task.VisitFriends.description",
             "option": [
                 "PriorStealVegetables"
+            ],
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Background",
+                "Win32-Window-Background",
+                "Win32-Front"
             ]
         }
     ],
@@ -20,11 +27,11 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "PriorStealGate": {
+                        "PriorStealGateProductionAndClueCheck": {
                             "enabled": true
                         },
-                        "PriorStealGateClueCheck": {
-                            "enabled": true
+                        "ProductionAssistOCR": {
+                            "enabled": false
                         },
                         "ProductionAssistCheckPriorSteal": {
                             "enabled": true
@@ -64,14 +71,14 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "PriorStealGate": {
-                            "enabled": false
-                        },
-                        "PriorStealGateClueCheck": {
+                        "PriorStealGateProductionAndClueCheck": {
                             "enabled": false
                         },
                         "ProductionAssistCheckPriorSteal": {
                             "enabled": false
+                        },
+                        "ProductionAssistOCR": {
+                            "enabled": true
                         },
                         "ProductionAssistCheck": {
                             "enabled": true

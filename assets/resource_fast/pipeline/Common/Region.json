@@ -1,9 +1,10 @@
 {
     "InWorld": {
         "doc": "在大世界界面",
-        "recognition": "And",
-        "all_of": [
-            "ProtosyncMenuButton"
+        "recognition": "Or",
+        "any_of": [
+            "ProtosyncMenuButton",
+            "RegionalDevelopmentButton"
         ]
     },
     "InDijiangWorld": {
@@ -11,6 +12,53 @@
         "recognition": "And",
         "all_of": [
             "ControlNexusButton"
+        ]
+    },
+    "InRegionalDevelopment": {
+        "doc": "在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton",
+            "RegionalDevelopmentLevelButton"
+        ]
+    },
+    "InValleyIVRegionalDevelopment": {
+        "doc": "在四号谷地地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentValleyIVText"
+        ]
+    },
+    "InWulingRegionalDevelopment": {
+        "doc": "在武陵地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentWulingText"
+        ]
+    },
+    "InLocalDepotNode": {
+        "doc": "在本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckLocalDepotNodeText"
+        ]
+    },
+    "InValleyIVLocalDepotNode": {
+        "doc": "在四号谷地本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "CheckLocalDepotNodeOriginiumScienceParkText"
+        ]
+    },
+    "InWulingLocalDepotNode": {
+        "doc": "在武陵本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "CheckLocalDepotNodeWulingCityText"
         ]
     }
 }
