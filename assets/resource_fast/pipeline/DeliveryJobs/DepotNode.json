@@ -78,7 +78,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
-            "InValleyIVRegionalDevelopment"
+            "InWulingRegionalDevelopment"
         ],
         "focus": {
             "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
