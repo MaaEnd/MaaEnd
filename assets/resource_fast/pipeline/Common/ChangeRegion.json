@@ -6,7 +6,7 @@
             "IncomeReportButton"
         ],
         "next": [
-            "CheckValleyIV",
+            "InValleyIVRegionalDevelopment",
             "[JumpBack]ConfirmChangeToValleyIV",
             "[JumpBack]ChangeToValleyIV",
             "[JumpBack]ChangeRegionButton"
@@ -19,65 +19,12 @@
             "IncomeReportButton"
         ],
         "next": [
-            "CheckWuling",
+            "InWulingRegionalDevelopment",
             "[JumpBack]ConfirmChangeToWuling",
             "[JumpBack]ChangeToWuling",
             "[JumpBack]ChangeRegionButton",
             "[JumpBack]BackFromEnvironmentMonitoringTerminal" // 只有从其他地方切换到武陵双击时，才可能会意外进入环境监测终端
 
-        ]
-    },
-    "CheckValleyIVText": {
-        "doc": "检查四号谷地左边的文字",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            23,
-            155,
-            183,
-            93
-        ],
-        "expected": [
-            "四号谷地",
-            "四號谷地",
-            "Valley IV",
-            "Valley",
-            "四号谷地",
-            "4번 협곡"
-        ]
-    },
-    "CheckWulingText": {
-        "doc": "检查武陵左边的文字",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            23,
-            155,
-            183,
-            93
-        ],
-        "expected": [
-            "武陵",
-            "武陵",
-            "Wuling",
-            "武陵",
-            "무릉"
-        ]
-    },
-    "CheckValleyIV": {
-        "doc": "检查是否在四号谷地",
-        "recognition": "And",
-        "all_of": [
-            "CheckValleyIVText",
-            "RegionalDevelopmentLevelButton"
-        ]
-    },
-    "CheckWuling": {
-        "doc": "检查是否在武陵",
-        "recognition": "And",
-        "all_of": [
-            "CheckWulingText",
-            "RegionalDevelopmentLevelButton"
         ]
     },
     "ChangeToValleyIV": {

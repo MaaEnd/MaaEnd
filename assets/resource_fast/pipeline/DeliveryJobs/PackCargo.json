@@ -15,7 +15,7 @@
         "action": "Click",
         "next": [
             "DeliveryJobsClickScreenToContinue",
-            "DeliveryJobsBackToHome",
+            "InWorld",
             "DeliveryJobsProceedToNextStep",
             "[JumpBack]DeliveryJobsCargoBid",
             "[JumpBack]DeliveryJobsCargoFillToMax"
@@ -92,12 +92,5 @@
                 0
             ]
         }
-    },
-    "DeliveryJobsBackToHome": {
-        "doc": "已回到大世界（左上角出现地区建设入口）。跳出循环",
-        "recognition": "Or",
-        "any_of": [
-            "RegionalDevelopmentButton"
-        ]
     }
 }

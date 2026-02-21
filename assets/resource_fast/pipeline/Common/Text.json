@@ -1,0 +1,129 @@
+{
+    "CheckRegionalDevelopmentValleyIVText": {
+        "doc": "检查四号谷地地区建设左边的文字",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "Valley",
+            "四号谷地",
+            "4번 협곡"
+        ]
+    },
+    "CheckRegionalDevelopmentWulingText": {
+        "doc": "检查武陵地区建设左边的文字",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            23,
+            155,
+            183,
+            93
+        ],
+        "expected": [
+            "武陵",
+            "武陵",
+            "Wuling",
+            "武陵",
+            "무릉"
+        ]
+    },
+    "CheckLocalDepotNodeText": {
+        "doc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            55,
+            62,
+            191,
+            63
+        ],
+        "expected": [
+            "本地仓储节点",
+            "本地區倉儲節點",
+            "Local Depot Node",
+            "地域保管ボックス",
+            "현재 지역 저장고 노드"
+        ]
+    },
+    "CheckLocalDepotNodeOriginiumScienceParkText": {
+        "doc": "检查本地仓储节点中是否有源石研究园",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "Originium Science Park",
+            "源石研究パーク",
+            "오리지늄 연구 구역"
+        ]
+    },
+    "CheckLocalDepotNodeOriginLodespringText": {
+        "doc": "检查本地仓储节点中是否有矿脉源区",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "Origin Lodespring",
+            "鉱山エリア",
+            "광맥 구역"
+        ]
+    },
+    "CheckLocalDepotNodePowerPlateauText": {
+        "doc": "检查本地仓储节点中是否有供能高地",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "供能高地",
+            "供能高地",
+            "Power Plateau",
+            "エネルギー高地",
+            "에너지 공급 고지"
+        ]
+    },
+    "CheckLocalDepotNodeWulingCityText": {
+        "doc": "检查本地仓储节点中是否有武陵城区",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "武陵城区",
+            "武陵城區",
+            "Wuling City",
+            "武陵城内",
+            "무릉성 도심"
+        ]
+    }
+}
