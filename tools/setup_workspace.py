@@ -364,7 +364,8 @@ def install_maafw(
     """安装 MaaFramework，若遇占用则提示用户手动处理"""
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
-    maafw_installed = (maafw_dest / MFW_DIST_NAME).exists()
+    maafw_deps = PROJECT_BASE / "deps"
+    maafw_installed = maafw_deps.exists() and any(maafw_deps.iterdir())
 
     if skip_if_exist and maafw_installed:
         print(t("inf_maafw_installed_skip"))
@@ -417,26 +418,38 @@ def install_maafw(
             # 使用 shutil.unpack_archive 自动识别格式进行解压
             shutil.unpack_archive(str(download_path), extract_root)
 
-            maafw_dest.mkdir(parents=True, exist_ok=True)
-            bin_found = False
+            # 找到包含 bin 目录的 SDK 根目录
+            sdk_root = None
             for root, dirs, _ in os.walk(extract_root):
                 if "bin" in dirs:
-                    bin_path = Path(root) / "bin"
-                    print(t("inf_copy_components", dest=maafw_dest))
-                    for item in bin_path.iterdir():
-                        dest_item = maafw_dest / item.name
-                        if item.is_dir():
-                            if dest_item.exists():
-                                shutil.rmtree(dest_item)
-                            shutil.copytree(item, dest_item)
-                        else:
-                            shutil.copy2(item, dest_item)
-                    bin_found = True
+                    sdk_root = Path(root)
                     break
 
-            if not bin_found:
+            if not sdk_root:
                 print(t("err_bin_not_found"))
                 return False, local_version, False
+
+            # 先将完整 SDK 复制到项目根目录 deps/
+            maafw_deps = PROJECT_BASE / "deps"
+            print(f"[MaaFW] Copying full SDK to {maafw_deps} ...")
+            if maafw_deps.exists():
+                shutil.rmtree(maafw_deps)
+            shutil.copytree(sdk_root, maafw_deps)
+            print(f"[MaaFW] Full SDK copied to {maafw_deps}")
+
+            # 再将 bin 目录内容复制到 install/maafw
+            maafw_dest.mkdir(parents=True, exist_ok=True)
+            bin_path = sdk_root / "bin"
+            print(t("inf_copy_components", dest=maafw_dest))
+            for item in bin_path.iterdir():
+                dest_item = maafw_dest / item.name
+                if item.is_dir():
+                    if dest_item.exists():
+                        shutil.rmtree(dest_item)
+                    shutil.copytree(item, dest_item)
+                else:
+                    shutil.copy2(item, dest_item)
+
             print(t("inf_maafw_install_complete"))
             return True, remote_version or local_version, True
         except Exception as e:

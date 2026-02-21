@@ -449,6 +449,7 @@ enc_temp_folder/*
 install/
 maafw/*
 mxu*
+deps
 
 config
 debug
