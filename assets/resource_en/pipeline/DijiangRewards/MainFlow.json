@@ -5,11 +5,22 @@
         ]
     },
     "LastCarbinText": {
+        "roi_offset": [
+            0,
+            0,
+            120,
+            0
+        ],
         "expected": [
             "Growth Chamber"
         ]
     },
     "CloseAssist": {
+        "expected": [
+            "Invite Friend"
+        ]
+    },
+    "InviteFriend": {
         "expected": [
             "Invite Friend"
         ]

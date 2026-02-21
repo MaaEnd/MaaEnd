@@ -33,6 +33,40 @@
             "[JumpBack]CloseAssist"
         ]
     },
+    "ExitInviteFriend": {
+        "doc": "错误进入邀请好友界面,需要退出",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "InviteFriend"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "InviteFriend": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -105,
+                    -24,
+                    105,
+                    51
+                ],
+                "expected": [
+                    "邀请好友"
+                ]
+            }
+        }
+    },
     "CloseAssist": {
         "doc": "[意外进入生产助力] 识别进入生产助力界面，点击返回控制中枢",
         "recognition": {
@@ -96,7 +130,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -150,7 +183,6 @@
                         }
                     },
                     "InControlNexus"
-
                 ]
             }
         },
@@ -234,11 +266,13 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    914,
-                    495,
-                    171,
-                    21
+                "roi": "LasCarbinColor",
+                "only_rec": true,
+                "roi_offset": [
+                    0,
+                    0,
+                    70,
+                    0
                 ],
                 "expected": [
                     "培养舱"
@@ -319,7 +353,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 240,
+                "dx": 180,
                 "target_offset": [
                     600,
                     20,

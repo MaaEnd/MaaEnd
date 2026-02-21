@@ -419,7 +419,7 @@
         }
     },
     "SendTheMostClues": {
-        "doc": "[会客室·线索] 在赠予界面识别自有库存数量 4–20 的线索并点击，以便发送",
+        "doc": "[会客室·线索] 在赠予界面识别自有库存数量 3–20 的线索并点击，以便发送",
         "recognition": {
             "type": "And",
             "param": {
@@ -455,7 +455,7 @@
                                     0
                                 ],
                                 "expected": [
-                                    "^(20|[4-9]|1[0-9])$"
+                                    "^(20|[3-9]|1[0-9])$"
                                 ]
                             }
                         }
@@ -599,6 +599,7 @@
         "next": [
             "CloseRewardsButton",
             "ReceiveClues",
+            "WhiteConfirmButtonType1",
             "EndExchange"
         ]
     },
