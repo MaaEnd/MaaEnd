@@ -15,7 +15,7 @@
         "doc": "已切换到四号谷地",
         "recognition": "Or",
         "any_of": [
-            "CheckValleyIV"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "DoNothing",
         "next": [
@@ -101,7 +101,7 @@
         "doc": "切换到武陵继续售卖",
         "recognition": "Or",
         "any_of": [
-            "CheckValleyIV"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "DoNothing",
         "next": [
@@ -113,7 +113,7 @@
         "doc": "已切换到武陵",
         "recognition": "Or",
         "any_of": [
-            "CheckWuling"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "DoNothing",
         "next": [

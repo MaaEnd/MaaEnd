@@ -5,7 +5,7 @@
         "recognition": "And",
         "all_of": [
             "DepotButton",
-            "CheckValleyIV"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "Click",
         "next": [
@@ -30,7 +30,7 @@
         "recognition": "And",
         "all_of": [
             "DepotButton",
-            "CheckWuling"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "Click",
         "next": [
@@ -82,7 +82,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
-            "CheckValleyIV"
+            "InValleyIVRegionalDevelopment"
         ],
         "focus": {
             "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
@@ -96,7 +96,7 @@
         "recognition": "And",
         "all_of": [
             "DeliveryJobsDepotLocked",
-            "CheckWuling"
+            "InValleyIVRegionalDevelopment"
         ],
         "focus": {
             "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"

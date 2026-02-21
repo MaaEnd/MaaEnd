@@ -6,7 +6,7 @@
             "IncomeReportButton"
         ],
         "next": [
-            "CheckValleyIV",
+            "InValleyIVRegionalDevelopment",
             "[JumpBack]ConfirmChangeToValleyIV",
             "[JumpBack]ChangeToValleyIV",
             "[JumpBack]ChangeRegionButton"
@@ -19,7 +19,7 @@
             "IncomeReportButton"
         ],
         "next": [
-            "CheckWuling",
+            "InWulingRegionalDevelopment",
             "[JumpBack]ConfirmChangeToWuling",
             "[JumpBack]ChangeToWuling",
             "[JumpBack]ChangeRegionButton",
@@ -62,22 +62,6 @@
             "Wuling",
             "武陵",
             "무릉"
-        ]
-    },
-    "CheckValleyIV": {
-        "doc": "检查是否在四号谷地",
-        "recognition": "And",
-        "all_of": [
-            "CheckValleyIVText",
-            "RegionalDevelopmentLevelButton"
-        ]
-    },
-    "CheckWuling": {
-        "doc": "检查是否在武陵",
-        "recognition": "And",
-        "all_of": [
-            "CheckWulingText",
-            "RegionalDevelopmentLevelButton"
         ]
     },
     "ChangeToValleyIV": {

@@ -12,5 +12,31 @@
         "all_of": [
             "ControlNexusButton"
         ]
+    },
+    "InRegionalDevelopment": {
+        "doc": "在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton",
+            "RegionalDevelopmentLevelButton"
+        ]
+    },
+    "InValleyIVRegionalDevelopment": {
+        "doc": "在四号谷地地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckValleyIVText",
+            "IncomeReportButton",
+            "RegionalDevelopmentLevelButton"
+        ]
+    },
+    "InWulingRegionalDevelopment": {
+        "doc": "在武陵地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckWulingText",
+            "IncomeReportButton",
+            "RegionalDevelopmentLevelButton"
+        ]
     }
 }
