@@ -138,7 +138,7 @@ jobs:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-${{ matrix.os }}-${{ matrix.arch }}*"
           tag: ${{ needs.meta.outputs.maafw_version }}
-          out-file-path: "downloads/MaaFramework"
+          out-file-path: "deps"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,8 +161,8 @@ jobs:
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
-          cp -r downloads/MaaFramework/bin/* install/maafw/
-          cp -r downloads/MaaFramework/share/MaaAgentBinary install/maafw/
+          cp -r deps/bin/* install/maafw/
+          cp -r deps/share/MaaAgentBinary install/maafw/
           rm -rf install/maafw/MaaNode*
 
           # 安装 MXU 并重命名为 MaaEnd
