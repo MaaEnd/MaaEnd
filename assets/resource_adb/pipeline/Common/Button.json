@@ -4,7 +4,7 @@
         "action": "Click",
         "next": [],
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -17,7 +17,7 @@
         "action": "Click",
         "next": [],
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,

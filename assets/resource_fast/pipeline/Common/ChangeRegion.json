@@ -47,7 +47,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -75,7 +75,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -128,7 +128,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -146,7 +146,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -177,12 +177,12 @@
         "doc": "从环境监测终端返回上一级",
         "recognition": "And",
         "all_of": [
-            "BackButton",
+            "CloseButtonType1",
             "CheckOutskirtsMonitoringTerminal"
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,

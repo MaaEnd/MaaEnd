@@ -2,7 +2,7 @@
     "ProtosyncMenuButton": {
         "doc": "大世界中的协议同步器按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ProtosyncMenuButton.png",
+        "template": "Common/Button/ProtosyncMenuButton.png",
         "roi": [
             -200,
             0,
@@ -35,7 +35,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -47,7 +47,7 @@
     "RegionalDevelopmentButton": {
         "doc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/RegionalDevelopmentButton.png",
+        "template": "Common/Button/RegionalDevelopmentButton.png",
         "threshold": 0.8,
         "roi": [
             164,
@@ -80,7 +80,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -92,7 +92,7 @@
     "ControlNexusButton": {
         "doc": "帝江号大世界中的控制枢纽按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ControlNexusButton.png",
+        "template": "Common/Button/ControlNexusButton.png",
         "threshold": 0.8,
         "roi": [
             185,
@@ -125,7 +125,7 @@
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -137,7 +137,7 @@
     "IncomeReportButton": {
         "doc": "地区建设中的收支简报按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/IncomeReportButton.png",
+        "template": "Common/Button/IncomeReportButton.png",
         "threshold": 0.8,
         "roi": [
             1173,
@@ -147,7 +147,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -159,7 +159,7 @@
     "DepotButton": {
         "doc": "地区建设中的仓储节点按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/DepotButton.png",
+        "template": "Common/Button/DepotButton.png",
         "threshold": 0.8,
         "roi": [
             1007,
@@ -169,7 +169,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -181,7 +181,7 @@
     "ChangeRegionButton": {
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ChangeRegionButton.png",
+        "template": "Common/Button/ChangeRegionButton.png",
         "threshold": 0.9,
         "roi": [
             139,
@@ -192,7 +192,7 @@
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -204,7 +204,7 @@
     "ChangeRegionConfirmButton": {
         "doc": "地区建设中的确认更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ChangeRegionConfirmButton.png",
+        "template": "Common/Button/ChangeRegionConfirmButton.png",
         "threshold": 0.9,
         "roi": [
             784,
@@ -215,30 +215,7 @@
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
-    "BackButton": {
-        "doc": "返回按钮",
-        "recognition": "TemplateMatch",
-        "template": "Common/BackButton.png",
-        "roi": [
-            1195,
-            3,
-            70,
-            54
-        ],
-        "threshold": 0.9,
-        "method": 10001,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -265,7 +242,464 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "YellowButtonBackground": {
+        "doc": "黄色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        253,
+                        237,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        209,
+                        207,
+                        13
+                    ]
+
+                ],
+                "upper": [
+                    [
+                        255,
+                        239,
+                        1
+                    ],
+                    [
+                        255,
+                        245,
+                        104
+                    ],
+                    [
+                        244,
+                        241,
+                        48
+                    ]
+
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "WhiteButtonBackground": {
+        "doc": "白色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+
+                ],
+                "upper": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        154,
+                        153,
+                        153
+                    ]
+
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "GrayButtonBackground": {
+        "doc": "灰色按钮背景色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        69,
+                        68,
+                        68
+                    ],
+                    [
+                        83,
+                        82,
+                        82
+                    ]
+
+                ],
+                "upper": [
+                    [
+                        70,
+                        69,
+                        69
+                    ],
+                    [
+                        84,
+                        83,
+                        83
+                    ]
+
+                ],
+                "count": 100,
+                "connected": true
+            }
+        }
+    },
+    "YellowConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，黄色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/YellowConfirmButtonType1.png",
+                                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "YellowConfirmButtonType2": {
+        "doc": "通用确认按钮，有文字，黄色底，对号标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/YellowConfirmButtonType2.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CancelButton": {
+        "doc": "通用取消按钮，有文字，白色底，X标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType1.png",
+                                    "Common/Button/CancelButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "GrayCancelButton": {
+        "doc": "通用取消按钮，有文字，灰色底，X标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "GrayButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "GrayButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType2.png",
+                                    "Common/Button/CancelButtonType2Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "WhiteConfirmButtonType1": {
+        "doc": "通用确认按钮，有文字，白色底，圆环形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/WhiteConfirmButtonType1.png",
+                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "TeleportButton": {
+        "doc": "传送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CloseRewardsButton": {
+        "doc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CloseButtonType1": {
+        "doc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    882,
+                    0,
+                    398,
+                    335
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType1.png",
+                    "Common/Button/CloseButtonType2.png",
+                    "Common/Button/CloseButtonType3.png",
+                    "Common/Button/CloseButtonType4.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CloseButtonType2": {
+        "doc": "通用退出按钮，位于界面右上角的X,兼容ESC菜单",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ESCMenu"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
             "target": [
                 0,
                 0,

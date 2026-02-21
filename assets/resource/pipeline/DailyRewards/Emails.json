@@ -33,11 +33,11 @@
         },
         "recognition": {
             "param": {
-                "template": [
-                    "Common/BackButton.png"
+                "all_of": [
+                    "CloseButtonType1"
                 ]
             },
-            "type": "TemplateMatch"
+            "type": "And"
         },
         "repeat": 2,
         "repeat_wait_freezes": 1000
