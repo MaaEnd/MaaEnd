@@ -9,7 +9,7 @@
         ],
         "action": "Click",
         "next": [
-            "CheckLocalDepotNodeOriginiumScienceParkText",
+            "InValleyIVLocalDepotNode",
             "DeliveryJobsEnterValleyIVDepot",
             // 可能因为双击进入货物界面
             "[JumpBack]DeliveryJobsBackFromCargo"
@@ -34,8 +34,9 @@
         ],
         "action": "Click",
         "next": [
-            "CheckLocalDepotNodeWulingCityText",
-            "DeliveryJobsEnterWulingDepot"
+            "InWulingLocalDepotNode",
+            "DeliveryJobsEnterWulingDepot",
+            "[JumpBack]DeliveryJobsBackFromCargo"
         ],
         "post_wait_freezes": {
             "time": 1,
