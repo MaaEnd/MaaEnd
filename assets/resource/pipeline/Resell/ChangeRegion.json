@@ -101,7 +101,7 @@
         "doc": "切换到武陵继续售卖",
         "recognition": "Or",
         "any_of": [
-            "InWulingRegionalDevelopment"
+            "InValleyIVRegionalDevelopment"
         ],
         "action": "DoNothing",
         "next": [
