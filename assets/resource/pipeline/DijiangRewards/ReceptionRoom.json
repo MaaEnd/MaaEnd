@@ -599,6 +599,7 @@
         "next": [
             "CloseRewardsButton",
             "ReceiveClues",
+            "WhiteConfirmButtonType1",
             "EndExchange"
         ]
     },
