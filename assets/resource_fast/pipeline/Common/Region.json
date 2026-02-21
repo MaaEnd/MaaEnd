@@ -1,9 +1,10 @@
 {
     "InWorld": {
         "doc": "在大世界界面",
-        "recognition": "And",
-        "all_of": [
-            "ProtosyncMenuButton"
+        "recognition": "Or",
+        "any_of": [
+            "ProtosyncMenuButton",
+            "RegionalDevelopmentButton"
         ]
     },
     "InDijiangWorld": {
