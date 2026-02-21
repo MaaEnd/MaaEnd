@@ -27,43 +27,6 @@
 
         ]
     },
-    "CheckValleyIVText": {
-        "doc": "检查四号谷地左边的文字",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            23,
-            155,
-            183,
-            93
-        ],
-        "expected": [
-            "四号谷地",
-            "四號谷地",
-            "Valley IV",
-            "Valley",
-            "四号谷地",
-            "4번 협곡"
-        ]
-    },
-    "CheckWulingText": {
-        "doc": "检查武陵左边的文字",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            23,
-            155,
-            183,
-            93
-        ],
-        "expected": [
-            "武陵",
-            "武陵",
-            "Wuling",
-            "武陵",
-            "무릉"
-        ]
-    },
     "ChangeToValleyIV": {
         "doc": "更改至四号谷地",
         "recognition": "OCR",

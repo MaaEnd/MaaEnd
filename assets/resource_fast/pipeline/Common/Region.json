@@ -25,7 +25,7 @@
         "doc": "在四号谷地地区建设界面",
         "recognition": "And",
         "all_of": [
-            "CheckValleyIVText",
+            "CheckRegionalDevelopmentValleyIVText",
             "IncomeReportButton",
             "RegionalDevelopmentLevelButton"
         ]
@@ -34,9 +34,43 @@
         "doc": "在武陵地区建设界面",
         "recognition": "And",
         "all_of": [
-            "CheckWulingText",
+            "CheckRegionalDevelopmentWulingText",
             "IncomeReportButton",
             "RegionalDevelopmentLevelButton"
+        ]
+    },
+    "InDepotNode": {
+        "doc": "在仓储节点界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            57,
+            115,
+            233,
+            105
+        ],
+        "expected": [
+            "节点一览",
+            "節點一覽",
+            "Node Overview",
+            "ボックス一覧",
+            "노드 목록"
+        ]
+    },
+    "InValleyIVDepotNode": {
+        "doc": "在四号谷地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InDepotNode",
+            "CheckDepotNodeOriginiumScienceParkText"
+        ]
+    },
+    "InWulingDepotNode": {
+        "doc": "在武陵仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InDepotNode",
+            "CheckDepotNodeWulingCityText"
         ]
     }
 }

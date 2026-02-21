@@ -9,7 +9,7 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsCheckOriginiumSciencePark",
+            "CheckDepotNodeOriginiumScienceParkText",
             "DeliveryJobsEnterValleyIVDepot",
             // 可能因为双击进入货物界面
             "[JumpBack]DeliveryJobsBackFromCargo"
@@ -34,7 +34,7 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsCheckWulingCity",
+            "CheckDepotNodeWulingCityText",
             "DeliveryJobsEnterWulingDepot"
         ],
         "post_wait_freezes": {
@@ -46,24 +46,6 @@
                 0
             ]
         }
-    },
-    "DeliveryJobsCheckDepotNode": {
-        "doc": "检查是否在仓储节点界面",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            57,
-            115,
-            233,
-            105
-        ],
-        "expected": [
-            "节点一览",
-            "節點一覽",
-            "Node Overview",
-            "ボックス一覧",
-            "노드 목록"
-        ]
     },
     "DeliveryJobsDepotLocked": {
         "doc": "仓储节点未解锁",
@@ -105,83 +87,11 @@
             "DeliveryJobsLoop"
         ]
     },
-    "DeliveryJobsCheckOriginiumSciencePark": {
-        "doc": "检查是否在源石研究园",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "源石研究园",
-            "源石研究園",
-            "Originium Science Park",
-            "源石研究パーク",
-            "오리지늄 연구 구역"
-        ]
-    },
-    "DeliveryJobsCheckOriginLodespring": {
-        "doc": "检查是否在矿脉源区",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "矿脉源区",
-            "礦脈源區",
-            "Origin Lodespring",
-            "鉱山エリア",
-            "광맥 구역"
-        ]
-    },
-    "DeliveryJobsCheckPowerPlateau": {
-        "doc": "检查是否在供能高地",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "供能高地",
-            "供能高地",
-            "Power Plateau",
-            "エネルギー高地",
-            "에너지 공급 고지"
-        ]
-    },
-    "DeliveryJobsCheckWulingCity": {
-        "doc": "检查是否在武陵城区",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "武陵城区",
-            "武陵城區",
-            "Wuling City",
-            "武陵城内",
-            "무릉성 도심"
-        ]
-    },
     "DeliveryJobsCheckOriginiumScienceParkCargo": {
         "doc": "检查源石研究园的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "DeliveryJobsCheckOriginiumSciencePark",
+        "roi": "CheckDepotNodeOriginiumScienceParkText",
         "roi_offset": [
             -39,
             286,
@@ -205,7 +115,7 @@
         "doc": "检查矿脉源区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "DeliveryJobsCheckOriginLodespring",
+        "roi": "CheckDepotNodeOriginLodespringText",
         "roi_offset": [
             -39,
             286,
@@ -229,7 +139,7 @@
         "doc": "检查供能高地的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "DeliveryJobsCheckPowerPlateau",
+        "roi": "CheckDepotNodePowerPlateauText",
         "roi_offset": [
             -39,
             286,
@@ -253,7 +163,7 @@
         "doc": "检查武陵城区的货物是否准备好",
         "recognition": "OCR",
         "order_by": "Expected",
-        "roi": "DeliveryJobsCheckWulingCity",
+        "roi": "CheckDepotNodeWulingCityText",
         "roi_offset": [
             -39,
             286,
@@ -277,7 +187,7 @@
         "doc": "进入源石研究园货物",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckOriginiumSciencePark",
+            "CheckDepotNodeOriginiumScienceParkText",
             "DeliveryJobsCheckOriginiumScienceParkCargo"
         ],
         "box_index": 1,
@@ -291,7 +201,7 @@
         "doc": "进入矿脉源区货物",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckOriginLodespring",
+            "CheckDepotNodeOriginLodespringText",
             "DeliveryJobsCheckOriginLodespringCargo"
         ],
         "box_index": 1,
@@ -305,7 +215,7 @@
         "doc": "进入供能高地货物",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckPowerPlateau",
+            "CheckDepotNodePowerPlateauText",
             "DeliveryJobsCheckPowerPlateauCargo"
         ],
         "box_index": 1,
@@ -319,7 +229,7 @@
         "doc": "进入武陵城区货物",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckWulingCity",
+            "CheckDepotNodeWulingCityText",
             "DeliveryJobsCheckWulingCityCargo"
         ],
         "box_index": 1,
@@ -333,8 +243,7 @@
         "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckDepotNode",
-            "DeliveryJobsCheckOriginiumSciencePark"
+            "InValleyIVDepotNode"
         ],
         "next": [
             "DeliveryJobsBackToRegionalConstruction",
@@ -345,8 +254,7 @@
         "doc": "武陵进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsCheckDepotNode",
-            "DeliveryJobsCheckWulingCity"
+            "InWulingDepotNode"
         ],
         "next": [
             "DeliveryJobsBackToRegionalConstruction",
@@ -358,7 +266,7 @@
         "recognition": "And",
         "all_of": [
             "BackButton",
-            "DeliveryJobsCheckDepotNode"
+            "InDepotNode"
         ],
         "action": "Click",
         "next": [
