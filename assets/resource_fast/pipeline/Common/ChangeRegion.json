@@ -177,7 +177,7 @@
         "doc": "从环境监测终端返回上一级",
         "recognition": "And",
         "all_of": [
-            "BackButton",
+            "CloseButtonType1",
             "CheckOutskirtsMonitoringTerminal"
         ],
         "action": "Click",

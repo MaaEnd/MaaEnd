@@ -2,7 +2,7 @@
     "ProtosyncMenuButton": {
         "doc": "大世界中的协议同步器按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ProtosyncMenuButton.png",
+        "template": "Common/Button/ProtosyncMenuButton.png",
         "roi": [
             -200,
             0,
@@ -47,7 +47,7 @@
     "RegionalDevelopmentButton": {
         "doc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/RegionalDevelopmentButton.png",
+        "template": "Common/Button/RegionalDevelopmentButton.png",
         "threshold": 0.8,
         "roi": [
             164,
@@ -92,7 +92,7 @@
     "ControlNexusButton": {
         "doc": "帝江号大世界中的控制枢纽按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ControlNexusButton.png",
+        "template": "Common/Button/ControlNexusButton.png",
         "threshold": 0.8,
         "roi": [
             185,
@@ -137,7 +137,7 @@
     "IncomeReportButton": {
         "doc": "地区建设中的收支简报按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/IncomeReportButton.png",
+        "template": "Common/Button/IncomeReportButton.png",
         "threshold": 0.8,
         "roi": [
             1173,
@@ -159,7 +159,7 @@
     "DepotButton": {
         "doc": "地区建设中的仓储节点按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/DepotButton.png",
+        "template": "Common/Button/DepotButton.png",
         "threshold": 0.8,
         "roi": [
             1007,
@@ -181,7 +181,7 @@
     "ChangeRegionButton": {
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ChangeRegionButton.png",
+        "template": "Common/Button/ChangeRegionButton.png",
         "threshold": 0.9,
         "roi": [
             139,
@@ -204,7 +204,7 @@
     "ChangeRegionConfirmButton": {
         "doc": "地区建设中的确认更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/ChangeRegionConfirmButton.png",
+        "template": "Common/Button/ChangeRegionConfirmButton.png",
         "threshold": 0.9,
         "roi": [
             784,
@@ -212,29 +212,6 @@
             118,
             115
         ],
-        "method": 10001,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
-    "BackButton": {
-        "doc": "返回按钮",
-        "recognition": "TemplateMatch",
-        "template": "Common/BackButton.png",
-        "roi": [
-            1195,
-            3,
-            70,
-            54
-        ],
-        "threshold": 0.9,
         "method": 10001,
         "action": "Click",
         "post_wait_freezes": {

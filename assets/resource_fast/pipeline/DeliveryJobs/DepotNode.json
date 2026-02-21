@@ -266,7 +266,7 @@
         "doc": "返回地区建设界面",
         "recognition": "And",
         "all_of": [
-            "BackButton",
+            "CloseButtonType1",
             "InLocalDepotNode"
         ],
         "action": "Click",
@@ -290,7 +290,7 @@
         "doc": "从货物界面返回仓储节点界面",
         "recognition": "And",
         "all_of": [
-            "BackButton",
+            "CloseButtonType1",
             "DeliveryJobsInCargo"
         ],
         "action": "Click",
