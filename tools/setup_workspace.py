@@ -18,6 +18,38 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 
+
+def create_directory_link(src: Path, dst: Path) -> bool:
+    """
+    在指定位置创建一个指定目录的链接
+    - Windows：Junction
+    - Unix/macOS：symlink
+    """
+    if dst.exists() or dst.is_symlink():
+        if dst.is_dir() and not dst.is_symlink():
+            try:
+                dst.rmdir()
+            except OSError:
+                shutil.rmtree(dst)
+        else:
+            dst.unlink(missing_ok=True)
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if platform.system() == "Windows":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print(f"[MaaFW] Error: Failed to create junction: {result.stderr}")
+            return False
+    else:
+        dst.symlink_to(src)
+
+    return True
+
 LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
 LANG_MAP = {
     "Chinese (Simplified)_China": "zh_cn",
@@ -394,21 +426,24 @@ def install_maafw(
         if not download_file(url, download_path):
             return False, local_version, False
 
-        if maafw_dest.exists():
-            while True:
-                try:
-                    print(t("inf_delete_old_dir", path=maafw_dest))
-                    shutil.rmtree(maafw_dest)
-                    break
-                except PermissionError as e:
-                    print(t("err_permission_denied", error=e))
-                    print(t("err_cannot_delete_maafw", path=maafw_dest))
-                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                    if cmd == "q":
+        if maafw_dest.exists() or maafw_dest.is_symlink():
+            if maafw_dest.is_dir() and not maafw_dest.is_symlink():
+                while True:
+                    try:
+                        print(t("inf_delete_old_dir", path=maafw_dest))
+                        shutil.rmtree(maafw_dest)
+                        break
+                    except PermissionError as e:
+                        print(t("err_permission_denied", error=e))
+                        print(t("err_cannot_delete_maafw", path=maafw_dest))
+                        cmd = input(t("prompt_retry_or_quit")).strip().lower()
+                        if cmd == "q":
+                            return False, local_version, False
+                    except Exception as e:
+                        print(t("err_unknown_error_delete", error=e))
                         return False, local_version, False
-                except Exception as e:
-                    print(t("err_unknown_error_delete", error=e))
-                    return False, local_version, False
+            else:
+                maafw_dest.unlink(missing_ok=True)
 
         print(t("inf_extract_maafw"))
         try:
@@ -437,18 +472,12 @@ def install_maafw(
             shutil.copytree(sdk_root, maafw_deps)
             print(f"[MaaFW] Full SDK copied to {maafw_deps}")
 
-            # 再将 bin 目录内容复制到 install/maafw
-            maafw_dest.mkdir(parents=True, exist_ok=True)
-            bin_path = sdk_root / "bin"
-            print(t("inf_copy_components", dest=maafw_dest))
-            for item in bin_path.iterdir():
-                dest_item = maafw_dest / item.name
-                if item.is_dir():
-                    if dest_item.exists():
-                        shutil.rmtree(dest_item)
-                    shutil.copytree(item, dest_item)
-                else:
-                    shutil.copy2(item, dest_item)
+            # 创建 install/maafw -> deps/bin 的目录链接
+            bin_path = maafw_deps / "bin"
+            print(f"[MaaFW] Creating link: {maafw_dest} -> {bin_path}")
+            if not create_directory_link(bin_path, maafw_dest):
+                print("[MaaFW] Error: Failed to create directory link for maafw")
+                return False, local_version, False
 
             print(t("inf_maafw_install_complete"))
             return True, remote_version or local_version, True
