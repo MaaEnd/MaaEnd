@@ -25,18 +25,16 @@
         "doc": "在四号谷地地区建设界面",
         "recognition": "And",
         "all_of": [
-            "CheckRegionalDevelopmentValleyIVText",
-            "IncomeReportButton",
-            "RegionalDevelopmentLevelButton"
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentValleyIVText"
         ]
     },
     "InWulingRegionalDevelopment": {
         "doc": "在武陵地区建设界面",
         "recognition": "And",
         "all_of": [
-            "CheckRegionalDevelopmentWulingText",
-            "IncomeReportButton",
-            "RegionalDevelopmentLevelButton"
+            "InRegionalDevelopment",
+            "CheckRegionalDevelopmentWulingText"
         ]
     },
     "InLocalDepotNode": {
