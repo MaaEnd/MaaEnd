@@ -8,8 +8,8 @@
         "next": [
             "InValleyIVRegionalDevelopment",
             "[JumpBack]ConfirmChangeToValleyIV",
-            "[JumpBack]EnterChangeRegionMenu",
-            "[JumpBack]ChangeRegionButton"
+            "[JumpBack]ChangeToValleyIV",
+            "[JumpBack]EnterChangeRegionMenu"
         ]
     },
     "GoToWuling": {
