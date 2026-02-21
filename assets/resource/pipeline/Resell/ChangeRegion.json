@@ -113,7 +113,7 @@
         "doc": "已切换到武陵",
         "recognition": "Or",
         "any_of": [
-            "InValleyIVRegionalDevelopment"
+            "InWulingRegionalDevelopment"
         ],
         "action": "DoNothing",
         "next": [
