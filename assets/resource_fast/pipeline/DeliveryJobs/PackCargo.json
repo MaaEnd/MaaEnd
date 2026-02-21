@@ -1,6 +1,19 @@
 {
     // 装箱货物的流程如下：
     // 选择装箱货物类型（下一步）->装满货物（下一步）->货物竞价->调度申请（下一步）->单击屏幕继续->回到大世界界面
+    "DeliveryJobsPackCargo": {
+        "doc": "装箱货物",
+        "recognition": "And",
+        "all_of": ["DeliveryJobsInCargo"],
+        "next": [
+            "DeliveryJobsClickScreenToContinue",
+            "InWorld",
+            "DeliveryJobsOngoingDelivery",
+            "[JumpBack]DeliveryJobsProceedToNextStep",
+            "[JumpBack]DeliveryJobsCargoBid",
+            "[JumpBack]DeliveryJobsCargoFillToMax"
+        ]
+    },
     "DeliveryJobsProceedToNextStep": {
         "doc": "进入下一步",
         "recognition": "TemplateMatch",
@@ -13,14 +26,6 @@
         ],
         "threshold": 0.8,
         "action": "Click",
-        "next": [
-            "DeliveryJobsClickScreenToContinue",
-            "InWorld",
-            "DeliveryJobsProceedToNextStep",
-            "DeliveryJobsOngoingDelivery",
-            "[JumpBack]DeliveryJobsCargoBid",
-            "[JumpBack]DeliveryJobsCargoFillToMax"
-        ],
         "post_wait_freezes": {
             "time": 80,
             "target": [
