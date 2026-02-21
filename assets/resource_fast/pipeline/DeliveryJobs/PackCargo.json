@@ -4,7 +4,9 @@
     "DeliveryJobsPackCargo": {
         "doc": "装箱货物",
         "recognition": "And",
-        "all_of": ["DeliveryJobsInCargo"],
+        "all_of": [
+            "DeliveryJobsInCargo"
+        ],
         "next": [
             "DeliveryJobsClickScreenToContinue",
             "InWorld",
