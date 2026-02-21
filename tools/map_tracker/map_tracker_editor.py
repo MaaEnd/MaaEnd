@@ -1,98 +1,11 @@
+from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
 import os
 import math
 import re
 import json
-import sys
-
-_R = "\033[31m"
-_G = "\033[32m"
-_Y = "\033[33m"
-_C = "\033[36m"
-_0 = "\033[0m"
-_A = "\033[90m"
-
-Point = tuple[int, int]
-Color = tuple[int, int, int]
-
-try:
-    import numpy as np
-except ImportError:
-    print(f"{_R}Cannot import 'numpy'!{_0}")
-    print(f"  Please run 'pip install numpy' first.")
-    sys.exit(1)
-
-try:
-    import cv2
-except ImportError:
-    print(f"{_R}Cannot import 'opencv-python'!{_0}")
-    print(f"  Please run 'pip install opencv-python' first.")
-    sys.exit(1)
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
-
-
-class Drawer:
-    def __init__(self, img: cv2.Mat, font_face: int = cv2.FONT_HERSHEY_SIMPLEX):
-        self._img = img
-        self._font_face = font_face
-
-    @property
-    def w(self):
-        return self._img.shape[1]
-
-    @property
-    def h(self):
-        return self._img.shape[0]
-
-    def get_image(self):
-        return self._img
-
-    def get_text_size(self, text: str, font_scale: float, *, thickness: int):
-        return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
-
-    def text(
-        self,
-        text: str,
-        pos: Point,
-        font_scale: float,
-        *,
-        color: Color,
-        thickness: int,
-        bg_color: Color | None = None,
-        bg_padding: int = 5,
-    ):
-        if bg_color is not None:
-            text_size = self.get_text_size(text, font_scale, thickness=thickness)
-            cv2.rectangle(
-                self._img,
-                (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
-                (pos[0] + text_size[0] + bg_padding, pos[1] + bg_padding),
-                bg_color,
-                -1,
-            )
-        cv2.putText(self._img, text, pos, self._font_face, font_scale, color, thickness)
-
-    def text_centered(
-        self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
-    ):
-        text_size = self.get_text_size(text, font_scale, thickness=thickness)
-        x = pos[0] - text_size[0] // 2
-        self.text(text, (x, pos[1]), font_scale, color=color, thickness=thickness)
-
-    def rect(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.rectangle(self._img, pt1, pt2, color, thickness)
-
-    def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
-        cv2.circle(self._img, center, radius, color, thickness)
-
-    def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.line(self._img, pt1, pt2, color, thickness)
-
-    @staticmethod
-    def new(w: int, h: int, **kwargs) -> "Drawer":
-        img = np.zeros((h, w, 3), dtype=np.uint8)
-        return Drawer(img, **kwargs)
 
 
 class SelectMapPage:
@@ -399,8 +312,7 @@ class PathEditPage:
         src_y2 = min(self.img.shape[0], int(self.offset_y + self.window_h / self.scale))
 
         patch = self.img[src_y1:src_y2, src_x1:src_x2]
-        display_img = np.zeros((self.window_h, self.window_w, 3), dtype=np.uint8)
-        drawer = Drawer(display_img)
+        drawer = Drawer.new(self.window_w, self.window_h)
 
         if patch.size > 0:
             view_w = int((src_x2 - src_x1) * self.scale)
@@ -414,7 +326,7 @@ class PathEditPage:
             dst_y = int(max(0, -self.offset_y * self.scale))
 
             h, w = resized_patch.shape[:2]
-            display_img[dst_y : dst_y + h, dst_x : dst_x + w] = resized_patch
+            drawer.get_image()[dst_y : dst_y + h, dst_x : dst_x + w] = resized_patch
 
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
@@ -464,19 +376,17 @@ class PathEditPage:
         legend_w = max_width + 2 * padding
         legend_h = len(legend_lines) * line_height + 2 * padding
 
-        cv2.rectangle(
-            display_img,
+        drawer.rect(
             (legend_x, legend_y),
             (legend_x + legend_w, legend_y + legend_h),
-            (0, 0, 0),
-            -1,
+            color=(0, 0, 0),
+            thickness=-1,
         )
-        cv2.rectangle(
-            display_img,
+        drawer.rect(
             (legend_x, legend_y),
             (legend_x + legend_w, legend_y + legend_h),
-            (255, 255, 255),
-            1,
+            color=(255, 255, 255),
+            thickness=1,
         )
 
         for i, line in enumerate(legend_lines):
@@ -518,7 +428,7 @@ class PathEditPage:
             bg_padding=10,
         )
 
-        cv2.imshow(self.window_name, display_img)
+        cv2.imshow(self.window_name, drawer.get_image())
 
     def _handle_mouse(self, event, x, y, flags, param):
         mx, my = self._get_map_coords(x, y)
