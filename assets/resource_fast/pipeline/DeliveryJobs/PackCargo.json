@@ -8,9 +8,9 @@
             "DeliveryJobsInCargo"
         ],
         "next": [
-            "DeliveryJobsClickScreenToContinue",
             "InWorld",
             "DeliveryJobsOngoingDelivery",
+            "DeliveryJobsClickScreenToContinue",
             "[JumpBack]DeliveryJobsProceedToNextStep",
             "[JumpBack]DeliveryJobsCargoBid",
             "[JumpBack]DeliveryJobsCargoFillToMax"
