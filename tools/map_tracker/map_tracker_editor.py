@@ -372,8 +372,6 @@ class PathEditPage:
     # ------------------------------------------------------------------
 
     def _render(self):
-        self.window_w = self.window_w
-
         src_x1 = max(0, int(self.offset_x))
         src_y1 = max(0, int(self.offset_y))
         src_x2 = min(self.img.shape[1], int(self.offset_x + self.window_w / self.scale))
@@ -669,12 +667,11 @@ class PathEditPage:
         elif event == cv2.EVENT_LBUTTONDOWN:
             # ── Sidebar clicks ────────────────────────────────────────
             if x < self.SIDEBAR_W:
-                if event == cv2.EVENT_LBUTTONDOWN:
-                    if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
-                        self._do_save()
-                        self._render()
-                    elif self._hit_button(x, y, self._btn_finish_rect):
-                        self.done = True
+                if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
+                    self._do_save()
+                    self._render()
+                elif self._hit_button(x, y, self._btn_finish_rect):
+                    self.done = True
                 return  # Prevent event propagation
 
             # ── Map area clicks ─────────────────────────────────

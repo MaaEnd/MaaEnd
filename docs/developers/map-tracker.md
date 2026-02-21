@@ -13,7 +13,7 @@
 
 ### 工具支持
 
-在仓库内提供了一个 GUI 工具，可以非常方便地**生成路径点列表**，并且支持从现有的 pipeline 文件中加载和编辑路径点。请安装 Python 和 `opencv-python`，然后运行 `/tools/map_tracker_tool.py`。
+在仓库内提供了一个 GUI 工具，可以非常方便地**生成路径点列表**，并且支持从现有的 pipeline 文件中加载和编辑路径点。请安装 Python 和 `opencv-python`，然后运行 `/tools/map_tracker/map_tracker_editor.py`。
 
 ## 节点说明
 
