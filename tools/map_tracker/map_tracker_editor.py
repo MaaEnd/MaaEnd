@@ -1,98 +1,18 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "opencv-python>=4",
+# ]
+# ///
 import os
 import math
 import re
 import json
-import sys
-
-_R = "\033[31m"
-_G = "\033[32m"
-_Y = "\033[33m"
-_C = "\033[36m"
-_0 = "\033[0m"
-_A = "\033[90m"
-
-Point = tuple[int, int]
-Color = tuple[int, int, int]
-
-try:
-    import numpy as np
-except ImportError:
-    print(f"{_R}Cannot import 'numpy'!{_0}")
-    print(f"  Please run 'pip install numpy' first.")
-    sys.exit(1)
-
-try:
-    import cv2
-except ImportError:
-    print(f"{_R}Cannot import 'opencv-python'!{_0}")
-    print(f"  Please run 'pip install opencv-python' first.")
-    sys.exit(1)
+import numpy as np
+from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
-
-
-class Drawer:
-    def __init__(self, img: cv2.Mat, font_face: int = cv2.FONT_HERSHEY_SIMPLEX):
-        self._img = img
-        self._font_face = font_face
-
-    @property
-    def w(self):
-        return self._img.shape[1]
-
-    @property
-    def h(self):
-        return self._img.shape[0]
-
-    def get_image(self):
-        return self._img
-
-    def get_text_size(self, text: str, font_scale: float, *, thickness: int):
-        return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
-
-    def text(
-        self,
-        text: str,
-        pos: Point,
-        font_scale: float,
-        *,
-        color: Color,
-        thickness: int,
-        bg_color: Color | None = None,
-        bg_padding: int = 5,
-    ):
-        if bg_color is not None:
-            text_size = self.get_text_size(text, font_scale, thickness=thickness)
-            cv2.rectangle(
-                self._img,
-                (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
-                (pos[0] + text_size[0] + bg_padding, pos[1] + bg_padding),
-                bg_color,
-                -1,
-            )
-        cv2.putText(self._img, text, pos, self._font_face, font_scale, color, thickness)
-
-    def text_centered(
-        self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
-    ):
-        text_size = self.get_text_size(text, font_scale, thickness=thickness)
-        x = pos[0] - text_size[0] // 2
-        self.text(text, (x, pos[1]), font_scale, color=color, thickness=thickness)
-
-    def rect(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.rectangle(self._img, pt1, pt2, color, thickness)
-
-    def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
-        cv2.circle(self._img, center, radius, color, thickness)
-
-    def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.line(self._img, pt1, pt2, color, thickness)
-
-    @staticmethod
-    def new(w: int, h: int, **kwargs) -> "Drawer":
-        img = np.zeros((h, w, 3), dtype=np.uint8)
-        return Drawer(img, **kwargs)
 
 
 class SelectMapPage:
@@ -334,7 +254,25 @@ class SelectMapPage:
 class PathEditPage:
     """Path editing page"""
 
-    def __init__(self, map_name, initial_points=None, map_dir=MAP_DIR):
+    # Sidebar layout constants
+    SIDEBAR_W = 210
+
+    def __init__(
+        self,
+        map_name,
+        initial_points=None,
+        map_dir=MAP_DIR,
+        *,
+        pipeline_context: dict | None = None,
+    ):
+        """
+        Args:
+            pipeline_context: Optional dict with keys:
+                ``handler``    – PipelineHandler instance
+                ``node_name``  – str, node to save back
+                ``file_path``  – str, for display
+            If None the editor runs in "N mode" (no save button).
+        """
         self.map_name = map_name
         self.map_path = os.path.join(map_dir, map_name)
         if not os.path.exists(self.map_path):
@@ -345,6 +283,11 @@ class PathEditPage:
             raise ValueError(f"Cannot load map: {self.map_path}")
 
         self.points = [list(p) for p in initial_points] if initial_points else []
+        # Snapshot for dirty-tracking; deep copy of initial state
+        self._initial_snapshot: list[list] = [list(p) for p in self.points]
+
+        self.pipeline_context = pipeline_context  # None → N mode
+
         self.scale = 1.0
         self.offset_x, self.offset_y = 0, 0
         self.window_w, self.window_h = 1280, 720
@@ -365,14 +308,52 @@ class PathEditPage:
         self.action_dragging = False
         self.done = False
 
+        # Status feedback shown in sidebar
+        self._save_status: str = ""  # e.g. "Saved!" or "Save failed."
+        self._last_render_start_time = None
+
+        # Current mouse position in screen coords (for crosshair)
+        self.mouse_x: int = -1
+        self.mouse_y: int = -1
+
+        # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
+        self._btn_save_rect: tuple | None = None
+        self._btn_finish_rect: tuple | None = None
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    @property
+    def is_dirty(self) -> bool:
+        """True when current points differ from the initial snapshot."""
+        return self.points != self._initial_snapshot
+
+    def _do_save(self):
+        """Save the current path to the pipeline file (I mode only)."""
+        if self.pipeline_context is None:
+            return
+        handler: PipelineHandler = self.pipeline_context["handler"]
+        node_name: str = self.pipeline_context["node_name"]
+        if handler.replace_path(node_name, self.points):
+            self._initial_snapshot = [list(p) for p in self.points]
+            self._save_status = "Saved!"
+            print(f"  {_G}Path saved to file.{_0}")
+        else:
+            self._save_status = "Save failed."
+            print(f"  {_Y}Failed to save path to file.{_0}")
+
     def _get_map_coords(self, screen_x, screen_y):
-        """Convert screen (viewport) coordinates to original map coordinates"""
+        """Convert screen (viewport) coordinates to original map coordinates.
+
+        The usable map area starts at x = SIDEBAR_W.
+        """
         mx = round(screen_x / self.scale + self.offset_x)
         my = round(screen_y / self.scale + self.offset_y)
         return mx, my
 
     def _get_screen_coords(self, map_x, map_y):
-        """Convert original map coordinates to screen (viewport) coordinates"""
+        """Convert original map coordinates to screen (viewport) coordinates."""
         sx = round((map_x - self.offset_x) * self.scale)
         sy = round((map_y - self.offset_y) * self.scale)
         return sx, sy
@@ -392,6 +373,10 @@ class PathEditPage:
         dist = math.hypot(px - closest_x, py - closest_y)
         return dist < threshold
 
+    # ------------------------------------------------------------------
+    # Rendering
+    # ------------------------------------------------------------------
+
     def _render(self):
         src_x1 = max(0, int(self.offset_x))
         src_y1 = max(0, int(self.offset_y))
@@ -399,8 +384,7 @@ class PathEditPage:
         src_y2 = min(self.img.shape[0], int(self.offset_y + self.window_h / self.scale))
 
         patch = self.img[src_y1:src_y2, src_x1:src_x2]
-        display_img = np.zeros((self.window_h, self.window_w, 3), dtype=np.uint8)
-        drawer = Drawer(display_img)
+        drawer = Drawer.new(self.window_w, self.window_h)
 
         if patch.size > 0:
             view_w = int((src_x2 - src_x1) * self.scale)
@@ -408,14 +392,22 @@ class PathEditPage:
             view_w = min(view_w, self.window_w)
             view_h = min(view_h, self.window_h)
 
-            interp = cv2.INTER_NEAREST if self.scale > 1.0 else cv2.INTER_AREA
-            resized_patch = cv2.resize(patch, (view_w, view_h), interpolation=interp)
+            resized_patch = cv2.resize(
+                patch, (view_w, view_h), interpolation=cv2.INTER_AREA
+            )
             dst_x = int(max(0, -self.offset_x * self.scale))
             dst_y = int(max(0, -self.offset_y * self.scale))
 
             h, w = resized_patch.shape[:2]
-            display_img[dst_y : dst_y + h, dst_x : dst_x + w] = resized_patch
+            # Clamp to map area
+            copy_h = min(h, self.window_h - dst_y)
+            copy_w = min(w, self.window_w - dst_x)
+            if copy_h > 0 and copy_w > 0:
+                drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
+                    resized_patch[:copy_h, :copy_w]
+                )
 
+        # Draw path lines
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             if i > 0:
@@ -429,6 +421,7 @@ class PathEditPage:
                     thickness=max(1, int(self.line_width * self.scale**0.5)),
                 )
 
+        # Draw point circles
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             drawer.circle(
@@ -438,89 +431,189 @@ class PathEditPage:
                 thickness=-1,
             )
 
+        # Draw point index labels
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             drawer.text(
                 str(i), (sx + 5, sy - 5), 0.5, color=(255, 255, 255), thickness=1
             )
 
-        legend_x, legend_y = 10, 10
-        legend_lines = [
-            "[ Tips ]",
-            "Mouse Left Click: Add/Delete Point",
-            "Mouse Left Drag: Move Point",
-            "Mouse Right Drag: Drag Map",
-            "Close Window: Finish",
-        ]
-        font_scale = 0.5
-        thickness = 1
-        padding = 10
-        line_height = 25
-
-        max_width = 0
-        for line in legend_lines:
-            text_size = drawer.get_text_size(line, font_scale, thickness=thickness)
-            max_width = max(max_width, text_size[0])
-        legend_w = max_width + 2 * padding
-        legend_h = len(legend_lines) * line_height + 2 * padding
-
-        cv2.rectangle(
-            display_img,
-            (legend_x, legend_y),
-            (legend_x + legend_w, legend_y + legend_h),
-            (0, 0, 0),
-            -1,
-        )
-        cv2.rectangle(
-            display_img,
-            (legend_x, legend_y),
-            (legend_x + legend_w, legend_y + legend_h),
-            (255, 255, 255),
-            1,
-        )
-
-        for i, line in enumerate(legend_lines):
-            y_pos = legend_y + padding + (i + 1) * line_height - 5
-            drawer.text(
-                line,
-                (legend_x + padding, y_pos),
-                font_scale=font_scale,
-                color=(255, 255, 255),
-                thickness=thickness,
-            )
-
-        # Draw bottom-left status display
-        drawer.text(
-            f"Zoom: {self.scale:.2f}x",
-            (20, self.window_h - 45),
-            font_scale=0.5,
+        # Draw crosshair at current mouse position
+        drawer.line(
+            (self.mouse_x, 0),
+            (self.mouse_x, self.window_h),
             color=(0, 255, 255),
             thickness=1,
-            bg_color=(0, 0, 0),
-            bg_padding=10,
+        )
+        drawer.line(
+            (0, self.mouse_y),
+            (self.window_w, self.mouse_y),
+            color=(0, 255, 255),
+            thickness=1,
+        )
+
+        self._render_sidebar(drawer)
+        cv2.imshow(self.window_name, drawer.get_image())
+
+    def _render_sidebar(self, drawer: "Drawer"):
+        """Draw the left sidebar with a 90%-opaque black background.
+
+        Strategy: Extract the existing sidebar pixels, blend them with
+        semi-transparent black, then render UI directly on top.
+        """
+        sw = self.SIDEBAR_W
+        h = self.window_h
+        pad = 15
+
+        # ── Extract and blend sidebar background ──────────────────────────
+        canvas = drawer.get_image()
+        sidebar_region = canvas[:h, :sw].copy()
+
+        # Blend with semi-transparent black
+        sidebar_alpha = 0.9
+        sidebar_blended = (
+            sidebar_region * (1 - sidebar_alpha) + np.uint8(0) * sidebar_alpha
+        ).astype(np.uint8)
+        # sidebar_blended = cv2.GaussianBlur(sidebar_blended, (0, 0), sigmaX=5, sigmaY=5)
+        canvas[:h, :sw] = sidebar_blended
+
+        # ── Right border ─────────────────────────────────────────────────
+        drawer.line((sw - 1, 0), (sw - 1, h), color=(255, 255, 255), thickness=1)
+
+        # ── Tips section ─────────────────────────────────────────────────
+        cy = pad + 15
+        drawer.text(
+            "[ Mouse Tips ]",
+            (pad, cy),
+            0.5,
+            color=(255, 255, 64),
+            thickness=1,
+        )
+        cy += 10
+        tips = [
+            "Left Click: Add/Delete Point",
+            "Left Drag: Move Point",
+            "Right Drag: Move Map",
+            "Scroll: Zoom",
+        ]
+        for line in tips:
+            cy += 20
+            drawer.text(line, (pad, cy), 0.4, color=(200, 200, 200), thickness=1)
+        cy += 15  # small gap after tips
+
+        # ── Buttons ──────────────────────────────────────────────────────
+        btn_h = 30
+        btn_w = sw - pad * 2
+        btn_x0 = pad
+        has_pipeline = self.pipeline_context is not None
+        dirty = self.is_dirty
+
+        if has_pipeline:
+            # Save button
+            save_y0 = cy
+            save_y1 = cy + btn_h
+            self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
+
+            save_color = (0, 200, 100) if dirty else (60, 100, 60)
+            save_text_color = (255, 255, 255) if dirty else (100, 130, 100)
+            drawer.rect(
+                (btn_x0, save_y0),
+                (btn_x0 + btn_w, save_y1),
+                color=save_color,
+                thickness=-1,
+            )
+            drawer.rect(
+                (btn_x0, save_y0),
+                (btn_x0 + btn_w, save_y1),
+                color=(180, 180, 180),
+                thickness=1,
+            )
+            drawer.text_centered(
+                "[S] Save",
+                (btn_x0 + btn_w // 2, save_y0 + btn_h - 8),
+                0.45,
+                color=save_text_color,
+                thickness=1,
+            )
+            cy = save_y1 + 8
+
+        # Finish button – always present
+        finish_y0 = cy
+        finish_y1 = cy + btn_h
+        self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
+        drawer.rect(
+            (btn_x0, finish_y0),
+            (btn_x0 + btn_w, finish_y1),
+            color=(50, 80, 180),
+            thickness=-1,
+        )
+        drawer.rect(
+            (btn_x0, finish_y0),
+            (btn_x0 + btn_w, finish_y1),
+            color=(180, 180, 180),
+            thickness=1,
+        )
+        drawer.text_centered(
+            "[F] Finish",
+            (btn_x0 + btn_w // 2, finish_y0 + btn_h - 8),
+            0.45,
+            color=(255, 255, 255),
+            thickness=1,
+        )
+
+        # Save status feedback (shown below buttons)
+        if self._save_status:
+            status_color = (
+                (80, 220, 80) if "Saved" in self._save_status else (80, 80, 220)
+            )
+            drawer.text(
+                self._save_status,
+                (pad, finish_y1 + 18),
+                0.4,
+                color=status_color,
+                thickness=1,
+            )
+
+        # ── Status section (bottom) ──────────────────────────────────────
+        drawer.text(
+            f"Zoom: {self.scale:.2f}x",
+            (pad, h - 75),
+            0.45,
+            color=(0, 210, 210),
+            thickness=1,
         )
 
         if 0 <= self.selected_idx < len(self.points):
             p = self.points[self.selected_idx]
-            info = (
-                f"Point: Index={self.selected_idx}, Location=({int(p[0])}, {int(p[1])})"
-            )
+            line = f"Point #{self.selected_idx} ({int(p[0])}, {int(p[1])})"
         else:
-            info = f"Total Points: {len(self.points)}"
+            line = f"Points: {len(self.points)}"
+        drawer.text(line, (pad, h - 50), 0.45, color=(255, 255, 255), thickness=1)
 
-        drawer.text(
-            info,
-            (20, self.window_h - 20),
-            font_scale=0.5,
-            color=(255, 255, 255),
-            thickness=1,
-            bg_color=(0, 0, 0),
-            bg_padding=10,
-        )
+    # ------------------------------------------------------------------
+    # Mouse / keyboard handling
+    # ------------------------------------------------------------------
 
-        cv2.imshow(self.window_name, display_img)
+    def _hit_button(self, x, y, rect) -> bool:
+        if rect is None:
+            return False
+        x1, y1, x2, y2 = rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def _get_point_at(self, x, y) -> int:
+        for i, p in enumerate(self.points):
+            sx, sy = self._get_screen_coords(p[0], p[1])
+            dist = math.hypot(x - sx, y - sy)
+            if dist < self.selection_threshold:
+                return i
+        return -1
 
     def _handle_mouse(self, event, x, y, flags, param):
+        # Track mouse position for crosshair
+        self.mouse_x = x
+        self.mouse_y = y
+
+        # ── Map area events ──────────────────────────────────────────────
         mx, my = self._get_map_coords(x, y)
         if event == cv2.EVENT_MOUSEWHEEL:
             if flags > 0:
@@ -546,19 +639,16 @@ class PathEditPage:
 
             # Action (left button) dragging
             if self.action_mouse_down:
-                # If dragging started on a point, move it
                 if self.action_dragging and self.drag_idx != -1:
                     self.points[self.drag_idx] = [mx, my]
                     self.action_moved = True
                     self._render()
                     return
 
-                # Otherwise record small movement to distinguish click vs drag
                 dx = x - self.action_down_pos[0]
                 dy = y - self.action_down_pos[1]
                 if dx * dx + dy * dy > 25:
                     self.action_moved = True
-                    # if press was on a point, begin dragging
                     if self.action_down_idx != -1:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
@@ -566,51 +656,49 @@ class PathEditPage:
                         self._render()
                         return
 
-            # If left button held and drag_idx set, start move point
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [mx, my]
                 self.action_dragging = True
-                self._render()
+            self._render()
 
         elif event == cv2.EVENT_RBUTTONDOWN:
-            # Right button starts panning
+            if x < self.SIDEBAR_W:
+                return  # Ignore right-clicks on sidebar
             self.panning = True
             self.pan_start = (x, y)
 
         elif event == cv2.EVENT_RBUTTONUP:
-            # Right button stop panning
             self.panning = False
 
         elif event == cv2.EVENT_LBUTTONDOWN:
-            # Left button: prepare add/delete/move
-            found_idx = -1
-            for i, p in enumerate(self.points):
-                sx, sy = self._get_screen_coords(p[0], p[1])
-                dist = math.hypot(x - sx, y - sy)
-                if dist < self.selection_threshold:
-                    found_idx = i
-                    break
+            # ── Sidebar clicks ────────────────────────────────────────
+            if x < self.SIDEBAR_W:
+                if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
+                    self._do_save()
+                    self._render()
+                elif self._hit_button(x, y, self._btn_finish_rect):
+                    self.done = True
+                return  # Prevent event propagation
 
-            self.action_down_idx = found_idx
+            # ── Map area clicks ─────────────────────────────────
+
+            self.action_down_idx = self._get_point_at(x, y)
             self.action_mouse_down = True
             self.action_down_pos = (x, y)
             self.action_moved = False
             self.action_dragging = False
-            if found_idx != -1:
-                self.drag_idx = found_idx
-                self.selected_idx = found_idx
+            if self.action_down_idx != -1:
+                self.drag_idx = self.action_down_idx
+                self.selected_idx = self.action_down_idx
 
         elif event == cv2.EVENT_LBUTTONUP:
-            # If was dragging a point, finish
             if self.action_dragging and self.drag_idx != -1:
                 self.drag_idx = -1
             else:
-                # If moved in empty area, do nothing
                 if self.action_moved and self.action_down_idx == -1:
                     pass
                 else:
                     if self.action_down_idx != -1:
-                        # delete point
                         del_idx = self.action_down_idx
                         if 0 <= del_idx < len(self.points):
                             self.points.pop(del_idx)
@@ -623,7 +711,6 @@ class PathEditPage:
                             elif self.selected_idx > del_idx:
                                 self.selected_idx -= 1
                     elif self.action_down_pos == (x, y):
-                        # insert on line or append
                         inserted = False
                         for i in range(1, len(self.points)):
                             map_threshold = self.selection_threshold / max(
@@ -644,7 +731,6 @@ class PathEditPage:
                             self.points.append([mx, my])
                             self.selected_idx = len(self.points) - 1
 
-            # Reset action state and render
             self.action_down_idx = -1
             self.action_mouse_down = False
             self.action_down_pos = (0, 0)
@@ -652,23 +738,34 @@ class PathEditPage:
             self.action_dragging = False
             self._render()
 
+    # ------------------------------------------------------------------
+    # Main loop
+    # ------------------------------------------------------------------
+
     def run(self):
         cv2.namedWindow(self.window_name)
         cv2.setMouseCallback(self.window_name, self._handle_mouse)
 
         self._render()
         while not self.done:
-            # Check if the window is closed
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
-            if cv2.waitKey(1) & 0xFF == 27:
+            key = cv2.waitKey(30) & 0xFF
+            if key == 27 or key == ord("f") or key == ord("F"):  # ESC / F → Finish
                 break
+            if (
+                (key == ord("s") or key == ord("S"))
+                and self.pipeline_context
+                and self.is_dirty
+            ):
+                self._do_save()
+                self._render()
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
 
 
-def find_map_file(name, map_dir=MAP_DIR):
+def find_map_file(name: str, map_dir: str = MAP_DIR) -> str | None:
     """Find the filename corresponding to the given name on disk (keeping the suffix), return the filename or None."""
     if not os.path.isdir(map_dir):
         return None
@@ -681,91 +778,148 @@ def find_map_file(name, map_dir=MAP_DIR):
     return None
 
 
+def norm_map_name(name: str) -> str:
+    """Normalize a map name by stripping suffixes and extensions."""
+    return re.sub(r"(_merged)?\.png$", "", name)
+
+
 class PipelineHandler:
-    """Handle reading and writing of Pipeline JSON, using regex to preserve comments and formatting"""
+    """Handle reading and writing of Pipeline JSON, using regex to preserve comments and formatting.
+
+    All node data parsed from the file is stored in ``self.nodes`` (a dict keyed by node
+    name).  Each entry is a dict with at minimum the raw ``content`` text and, for
+    MapTrackerMove nodes, the structured fields (``map_name``, ``path``, …).
+    """
 
     def __init__(self, file_path):
         self.file_path = file_path
         self._content = ""
+        # Full node registry: node_name -> {content, map_name?, path?, is_new_structure?}
+        self.nodes: dict[str, dict] = {}
 
-    def read_nodes(self):
-        """Read all MapTrackerMove nodes"""
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _load(self):
+        """Load file content into ``self._content``.  Returns True on success."""
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 self._content = f.read()
+            return True
         except Exception as e:
             print(f"{_R}Error reading file:{_0} {e}")
-            return []
+            return False
 
-        # First split into nodes
-        # Match top-level nodes: "name": { ... }
+    @staticmethod
+    def _parse_tracker_fields(node_content: str) -> dict | None:
+        """Extract MapTrackerMove fields from a node body.  Returns None if not a tracker node."""
+        if '"custom_action": "MapTrackerMove"' not in node_content:
+            return None
+
+        is_new_structure = re.search(r'"action"\s*:\s*\{', node_content) is not None
+
+        m_match = re.search(r'"map_name"\s*:\s*"([^"]+)"', node_content)
+        map_name = m_match.group(1) if m_match else "Unknown"
+
+        t_match = re.search(r'"path"\s*:\s*(\[[\s\S]*?\]\s*\]|\[\s*\])', node_content)
+        if not t_match:
+            return None
+        try:
+            path = json.loads(t_match.group(1))
+        except Exception:
+            return None
+
+        return {
+            "map_name": map_name,
+            "path": path,
+            "is_new_structure": is_new_structure,
+        }
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def read_all_nodes(self) -> bool:
+        """Parse **all** top-level nodes from the file into ``self.nodes``.
+
+        Returns True on success.  MapTrackerMove nodes get the extra tracker fields.
+        """
+        if not self._load():
+            return False
+
+        self.nodes.clear()
         node_pattern = re.compile(
             r'^\s*"([^"]+)"\s*:\s*(\{[\s\S]*?\n\s*\})', re.MULTILINE
         )
-        results = []
         for match in node_pattern.finditer(self._content):
             node_name = match.group(1)
             node_content = match.group(2)
-            # Check if the node contains MapTrackerMove
-            if '"custom_action": "MapTrackerMove"' in node_content:
-                # Detect structure type
-                # Old structure: "action": "Custom", "custom_action": "MapTrackerMove", "custom_action_param": { ... }
-                # New structure: "action": { "custom_action": "MapTrackerMove", "custom_action_param": { ... } }
-                is_new_structure = (
-                    re.search(r'"action"\s*:\s*\{', node_content) is not None
-                )
+            entry: dict = {"content": node_content}
+            tracker = self._parse_tracker_fields(node_content)
+            if tracker is not None:
+                entry.update(tracker)
+                entry["is_tracker"] = True
+            else:
+                entry["is_tracker"] = False
+            self.nodes[node_name] = entry
+        return True
 
-                # Extract map_name
-                m_match = re.search(r'"map_name"\s*:\s*"([^"]+)"', node_content)
-                map_name = m_match.group(1) if m_match else "Unknown"
-                # Extract path
-                t_match = re.search(
-                    r'"path"\s*:\s*(\[[\s\S]*?\]\s*\]|\[\s*\])', node_content
+    def read_nodes(self) -> list[dict]:
+        """Read all MapTrackerMove nodes.  Populates ``self.nodes`` as a side-effect.
+
+        Returns a list of dicts compatible with the original interface.
+        """
+        self.read_all_nodes()
+        results = []
+        for node_name, entry in self.nodes.items():
+            if entry.get("is_tracker"):
+                results.append(
+                    {
+                        "node_name": node_name,
+                        "map_name": entry["map_name"],
+                        "path": entry["path"],
+                        "is_new_structure": entry["is_new_structure"],
+                    }
                 )
-                if t_match:
-                    path_str = t_match.group(1)
-                    try:
-                        path = json.loads(path_str)
-                        results.append(
-                            {
-                                "node_name": node_name,
-                                "map_name": map_name,
-                                "path": path,
-                                "is_new_structure": is_new_structure,
-                            }
-                        )
-                    except:
-                        continue
         return results
 
-    def replace_path(self, node_name, new_path):
-        """Regex replace the path list in the pipeline file, ensuring the target node's structure is maintained"""
-        try:
-            with open(self.file_path, "r", encoding="utf-8") as f:
-                self._content = f.read()
-        except:
+    def get_tracker_nodes(self) -> list[dict]:
+        """Return a list of all MapTrackerMove node summaries (same shape as read_nodes)."""
+        return [
+            {
+                "node_name": name,
+                "map_name": entry["map_name"],
+                "path": entry["path"],
+                "is_new_structure": entry["is_new_structure"],
+            }
+            for name, entry in self.nodes.items()
+            if entry.get("is_tracker")
+        ]
+
+    def replace_path(self, node_name: str, new_path: list) -> bool:
+        """Regex-replace the path list for *node_name* in the pipeline file.
+
+        Updates ``self.nodes`` on success so the in-memory state stays current.
+        """
+        if not self._load():
             return False
 
-        # Find the node block first to isolate the "path" update within it
         node_pattern = re.compile(
             r'^(\s*"' + re.escape(node_name) + r'"\s*:\s*\{)([\s\S]*?\n\s*\})',
             re.MULTILINE,
         )
-
         node_match = node_pattern.search(self._content)
         if not node_match:
             print(f"{_R}Error: Node {node_name} not found in file when saving.{_0}")
             return False
 
-        header = node_match.group(1)
         body = node_match.group(2)
 
-        # Look for the "path" field specifically within this node body
         path_pattern = re.compile(
             r'("path"\s*:\s*)(\[[\s\S]*?\]\s*\]|\[\s*\])',
             re.MULTILINE,
         )
-
         path_match = path_pattern.search(body)
         if not path_match:
             print(
@@ -773,15 +927,22 @@ class PipelineHandler:
             )
             return False
 
-        # Format new path, following multi-line array convention
+        # Format new path following multi-line array convention
+        if self.nodes.get(node_name, {}).get("is_new_structure", False):
+            indent_sm = " " * 20
+            indent_lg = " " * 24
+        else:
+            indent_sm = " " * 12
+            indent_lg = " " * 16
+
         if not new_path:
             formatted_path = "[]"
         else:
             formatted_path = "[\n"
             for i, p in enumerate(new_path):
                 comma = "," if i < len(new_path) - 1 else ""
-                formatted_path += f"                [{p[0]}, {p[1]}]{comma}\n"
-            formatted_path += "            ]"
+                formatted_path += f"{indent_lg}[{p[0]}, {p[1]}]{comma}\n"
+            formatted_path += f"{indent_sm}]"
 
         new_body = (
             body[: path_match.start(2)] + formatted_path + body[path_match.end(2) :]
@@ -795,10 +956,14 @@ class PipelineHandler:
         try:
             with open(self.file_path, "w", encoding="utf-8") as f:
                 f.write(new_content)
-            return True
         except Exception as e:
             print(f"{_R}Error writing file:{_0} {e}")
             return False
+
+        # Keep in-memory state consistent
+        if node_name in self.nodes:
+            self.nodes[node_name]["path"] = [[int(p[0]), int(p[1])] for p in new_path]
+        return True
 
 
 def main():
@@ -837,7 +1002,8 @@ def main():
             return
 
     elif mode == "I":
-        print(f"\n{_Y}Where's your pipeline JSON file path?{_0}")
+        print("\n----------\n")
+        print(f"{_Y}Where's your pipeline JSON file path?{_0}")
         file_path = input("> ").strip()
         file_path = file_path.strip('"').strip("'")
 
@@ -878,8 +1044,22 @@ def main():
             print("  Close the window when done.")
 
             try:
-                editor = PathEditPage(editor_map_name, initial_points)
+                editor = PathEditPage(
+                    editor_map_name,
+                    initial_points,
+                    pipeline_context={
+                        "handler": handler,
+                        "node_name": selected_node["node_name"],
+                        "file_path": file_path,
+                    },
+                )
                 points = editor.run()
+
+                if not editor.is_dirty:
+                    print("\n----------\n")
+                    print(f"{_G}Finished editing.{_0}")
+                    print("  All done! No unsaved changes.")
+                    return
 
                 # Setup context for Replace; keep original name from node for export normalization
                 import_context = {
@@ -908,8 +1088,8 @@ def main():
     print(f"  Total {len(points)} points")
     print(f"\n{_Y}Select an export mode:{_0}")
     if import_context:
-        print(f"  {_C}[R]{_0} Replace original path in pipeline")
-        print(f"      {_A}and write the changes back to your pipeline file.{_0}")
+        print(f"  {_C}[S]{_0} Save the changes back to file")
+        print(f"      {_A}which will replace the path in the pipeline node.{_0}")
     print(f"  {_C}[J]{_0} Print the node JSON string")
     print(f"      {_A}which represents a new pipeline node.{_0}")
     print(f"  {_C}[D]{_0} Print the parameters dict")
@@ -919,37 +1099,28 @@ def main():
 
     export_mode = input("> ").strip().upper()
 
+    raw_map_name = (
+        import_context.get("original_map_name", map_name)
+        if import_context
+        else map_name
+    )
     param_data = {
-        "map_name": map_name,
+        "map_name": norm_map_name(raw_map_name),
         "path": [[int(p[0]), int(p[1])] for p in points],
     }
 
-    if export_mode == "R" and import_context:
+    if export_mode == "S" and import_context:
         handler = import_context["handler"]
         node_name = import_context["node_name"]
         if handler.replace_path(node_name, points):
-            print(
-                f"\n{_G}Successfully updated node '{node_name}' in {import_context['file_path']}.{_0}"
-            )
+            print(f"\n{_G}Successfully updated node {_0}'{node_name}'")
         else:
             print(f"\n{_R}Failed to update node.{_0}")
 
     elif export_mode == "J":
-        raw_name = (
-            import_context.get("original_map_name", map_name)
-            if import_context
-            else map_name
-        )
         is_new = (
             import_context.get("is_new_structure", False) if import_context else False
         )
-        norm = raw_name
-        if isinstance(norm, str):
-            if norm.endswith("_merged.png"):
-                norm = norm[: -len("_merged.png")]
-            elif norm.endswith(".png"):
-                norm = norm[:-4]
-
         if is_new:
             node_data = {
                 "action": {
