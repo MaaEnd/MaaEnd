@@ -75,12 +75,8 @@
             "CanAfford",
             "BuyFirstOCR"
         ],
-        "action": "Click",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
+        "next": [
+            "CreditShoppingBuyFirstItem"
         ]
     },
     "CreditShoppingBuyNormalNoDiscount": {
@@ -93,12 +89,8 @@
             "CanAfford",
             "BlacklistOCR"
         ],
-        "action": "Click",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
+        "next": [
+            "CreditShoppingBuyNormalItemNoDiscount"
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
@@ -112,7 +104,9 @@
             "BlacklistOCR",
             "IsDiscount"
         ],
-        "action": "Click"
+        "next": [
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ]
     },
     "CreditShoppingBuyBlacklist": {
         "doc": "信用点溢出时购买黑名单物品",
@@ -123,7 +117,9 @@
             "CreditIcon",
             "NotSoldOut"
         ],
-        "action": "Click"
+        "next": [
+            "CreditShoppingBuyBlacklistItem"
+        ]
     },
     "CreditNum": {
         "doc": "信用点溢出（>300）",
