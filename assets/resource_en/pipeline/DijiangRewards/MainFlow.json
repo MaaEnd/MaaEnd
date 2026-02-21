@@ -19,5 +19,10 @@
         "expected": [
             "Invite Friend"
         ]
+    },
+    "InviteFriend": {
+        "expected": [
+            "Invite Friend"
+        ]
     }
 }
