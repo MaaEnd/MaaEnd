@@ -36,13 +36,15 @@ python tools/setup_workspace.py
     git submodule update --init --recursive
     ```
 
-2. 下载 MaaDeps pre-built。
+2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压内容到 `deps` 文件夹。
+
+3. 下载 MaaDeps pre-built。
 
     ```bash
     python tools/download_maadeps.py
     ```
 
-3. 编译 go-service 、配置路径。
+4. 编译 go-service 、配置路径。
 
     ```bash
     python tools/build_and_install.py
@@ -54,9 +56,9 @@ python tools/setup_workspace.py
     > python tools/build_and_install.py --cpp-algo
     > ```
 
-4. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
+5. 将步骤 2 中解压的 `deps/bin` 内容到 `install/maafw/` 。
 
-5. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
+6. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
 
 </details>
 
