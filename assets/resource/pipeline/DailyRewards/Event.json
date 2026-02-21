@@ -135,7 +135,8 @@
             "param": {
                 "template": [
                     "DailyRewards/EventRedDot.png",
-                    "DailyRewards/EventRedDot2.png"
+                    "DailyRewards/EventRedDot2.png",
+                    "DailyRewards/EventRedDot3.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.9
@@ -164,7 +165,6 @@
                 "threshold": 0.7,
                 "expected": [
                     ".{3,}" // 匹配三个及以上字符
-
                 ]
             }
         }
