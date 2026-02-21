@@ -55,77 +55,10 @@
         "recognition": "And",
         "box_index": 3,
         "all_of": [
-            //这里的是模板内容,interface中会覆盖具体的执行参数
-            {
-                "sub_name": "CreditIcon",
-                "recognition": "TemplateMatch",
-                "template": "CreditShopping/CreditIcon.png",
-                "roi": [
-                    74,
-                    103,
-                    1131,
-                    538
-                ],
-                "order_by": "vertical"
-            },
-            {
-                "doc": "非售罄",
-                "sub_name": "NotSoldOut",
-                "recognition": "ColorMatch",
-                "method": 6,
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    -145,
-                    150,
-                    200
-                ],
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 20000
-            },
-            {
-                "doc": "按用户指定顺序购买",
-                "sub_name": "BuyFirstOCR",
-                "recognition": "OCR",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    0,
-                    170,
-                    0,
-                    -160
-                ],
-                "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
-                "order_by": "Expected"
-            },
-            {
-                "doc": "买不（价格是红色）",
-                "sub_name": "Affordable",
-                "recognition": "ColorMatch",
-                "roi": "BuyFirstOCR",
-                "roi_offset": [
-                    65,
-                    -40,
-                    -20,
-                    1
-                ],
-                "lower": [
-                    255,
-                    131,
-                    131
-                ],
-                "upper": [
-                    255,
-                    192,
-                    192
-                ],
-                "count": 20,
-                "order_by": "vertical"
-            }
+            "CreditIcon",
+            "NotSoldOut",
+            "CanNotAfford",
+            "BuyFirstOCR"
         ],
         "next": [
             "[JumpBack]NeedCredit",
@@ -137,77 +70,10 @@
         "recognition": "And",
         "box_index": 3,
         "all_of": [
-            //这里的是模板内容,interface中会覆盖具体的执行参数
-            {
-                "sub_name": "CreditIcon",
-                "recognition": "TemplateMatch",
-                "template": "CreditShopping/CreditIcon.png",
-                "roi": [
-                    74,
-                    103,
-                    1131,
-                    538
-                ],
-                "order_by": "vertical"
-            },
-            {
-                "doc": "非售罄",
-                "sub_name": "NotSoldOut",
-                "recognition": "ColorMatch",
-                "method": 6,
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    -145,
-                    150,
-                    200
-                ],
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 20000
-            },
-            {
-                "doc": "按用户指定顺序购买",
-                "sub_name": "BuyFirstOCR",
-                "recognition": "OCR",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    0,
-                    170,
-                    0,
-                    -160
-                ],
-                "expected": "^(嵌晶玉|武库配额)$", //这里是具体执行参数
-                "order_by": "Expected"
-            },
-            {
-                "doc": "买得起（价格不是红色）",
-                "sub_name": "Affordable",
-                "recognition": "ColorMatch",
-                "roi": "BuyFirstOCR",
-                "roi_offset": [
-                    65,
-                    -40,
-                    -20,
-                    1
-                ],
-                "lower": [
-                    76,
-                    76,
-                    76
-                ],
-                "upper": [
-                    108,
-                    108,
-                    108
-                ],
-                "count": 20,
-                "order_by": "vertical"
-            }
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "BuyFirstOCR"
         ],
         "next": [
             "CreditShoppingBuyFirstItem"
@@ -218,76 +84,10 @@
         "recognition": "And",
         "box_index": 3,
         "all_of": [
-            //这里的是模板内容,interface中会覆盖具体的执行参数
-            {
-                "sub_name": "CreditIcon",
-                "recognition": "TemplateMatch",
-                "template": "CreditShopping/CreditIcon.png",
-                "roi": [
-                    74,
-                    103,
-                    1131,
-                    538
-                ],
-                "order_by": "vertical"
-            },
-            {
-                "doc": "非售罄",
-                "sub_name": "NotSoldOut",
-                "recognition": "ColorMatch",
-                "method": 6,
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    -133,
-                    130,
-                    160
-                ],
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 20000
-            },
-            {
-                "sub_name": "BlacklistOCR",
-                "recognition": "OCR",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    0,
-                    170,
-                    0,
-                    -160
-                ],
-                "order_by": "vertical",
-                "expected": "^(?!(折金票|协议棱柱组)$).*$" //这里是具体执行参数，匹配价格位置非空的商品
-            },
-            {
-                "doc": "买得起（价格不是红色）",
-                "sub_name": "Affordable",
-                "recognition": "ColorMatch",
-                "roi": "BlacklistOCR",
-                "roi_offset": [
-                    65,
-                    -40,
-                    -20,
-                    1
-                ],
-                "lower": [
-                    76,
-                    76,
-                    76
-                ],
-                "upper": [
-                    108,
-                    108,
-                    108
-                ],
-                "count": 20,
-                "order_by": "vertical"
-            }
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "BlacklistOCR"
         ],
         "next": [
             "CreditShoppingBuyNormalItemNoDiscount"
@@ -298,99 +98,11 @@
         "recognition": "And",
         "box_index": 4,
         "all_of": [
-            {
-                "sub_name": "CreditIcon",
-                "recognition": "TemplateMatch",
-                "template": "CreditShopping/CreditIcon.png",
-                "roi": [
-                    74,
-                    103,
-                    1131,
-                    538
-                ],
-                "order_by": "vertical"
-            },
-            {
-                "doc": "非售罄",
-                "sub_name": "NotSoldOut",
-                "recognition": "ColorMatch",
-                "method": 6,
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    -133,
-                    130,
-                    160
-                ],
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 20000
-            },
-            {
-                "sub_name": "BlacklistOCR",
-                "recognition": "OCR",
-                "roi": "NotSoldOut",
-                "roi_offset": [
-                    0,
-                    170,
-                    0,
-                    -160
-                ],
-                "order_by": "vertical",
-                "expected": "^(?!(折金票|协议棱柱组)$).*$"
-            },
-            {
-                "doc": "买得起（价格不是红色）",
-                "sub_name": "Affordable",
-                "recognition": "ColorMatch",
-                "roi": "BlacklistOCR",
-                "roi_offset": [
-                    65,
-                    -40,
-                    -20,
-                    1
-                ],
-                "lower": [
-                    76,
-                    76,
-                    76
-                ],
-                "upper": [
-                    108,
-                    108,
-                    108
-                ],
-                "count": 20,
-                "order_by": "vertical"
-            },
-            {
-                "doc": "有折扣（价格是黄色）",
-                "sub_name": "IsDiscount",
-                "recognition": "ColorMatch",
-                "roi": "Affordable",
-                "roi_offset": [
-                    171,
-                    108,
-                    57,
-                    27
-                ],
-                "lower": [
-                    255,
-                    220,
-                    0
-                ],
-                "upper": [
-                    255,
-                    220,
-                    0
-                ],
-                "count": 500,
-                "order_by": "vertical"
-            }
+            "CreditIcon",
+            "NotSoldOut",
+            "CanAfford",
+            "BlacklistOCR",
+            "IsDiscount"
         ],
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
@@ -401,54 +113,25 @@
         "recognition": "And",
         "box_index": 2,
         "all_of": [
-            {
-                "sub_name": "CreditNum",
-                "doc": "信用点溢出（>300）",
-                "recognition": "OCR",
-                "roi": [
-                    1083,
-                    17,
-                    76,
-                    26
-                ],
-                "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
-            },
-            {
-                "sub_name": "CreditIcon",
-                "recognition": "TemplateMatch",
-                "template": "CreditShopping/CreditIcon.png",
-                "roi": [
-                    74,
-                    103,
-                    1131,
-                    538
-                ],
-                "order_by": "vertical"
-            },
-            {
-                "doc": "非售罄",
-                "sub_name": "NotSoldOut",
-                "recognition": "ColorMatch",
-                "method": 6,
-                "roi": "CreditIcon",
-                "roi_offset": [
-                    -95,
-                    -133,
-                    130,
-                    160
-                ],
-                "lower": [
-                    120
-                ],
-                "upper": [
-                    255
-                ],
-                "count": 20000
-            }
+            "CreditNum",
+            "CreditIcon",
+            "NotSoldOut"
         ],
         "next": [
             "CreditShoppingBuyBlacklistItem"
         ]
+    },
+    "CreditNum": {
+        "doc": "信用点溢出（>300）",
+        "recognition": "OCR",
+        "roi": [
+            1083,
+            17,
+            76,
+            26
+        ],
+        "only_rec": true,
+        "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
     },
     "CreditShoppingNothingToBuy": {
         "recognition": "DirectHit",
