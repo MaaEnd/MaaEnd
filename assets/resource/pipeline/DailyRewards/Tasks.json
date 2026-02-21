@@ -1,5 +1,6 @@
 {
     "DailyTaskStart": {
+        "desc": "日常任务入口",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -56,6 +57,7 @@
         "next": [
             "[JumpBack]DailyTaskClaimSingleReward",
             "[JumpBack]DailyTaskClaimActivityRewards",
+            "CheckActivityStatus",
             "DailyTaskComplete"
         ]
     },
@@ -115,6 +117,297 @@
         },
         "next": [
             "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyTaskScrollDown": {
+        "desc": "日常任务界面向下滚动",
+        "action": "Swipe",
+        "begin": [
+            627,
+            528
+        ],
+        "end": [
+            627,
+            238
+        ],
+        "end_hold": 300,
+        "post_wait_freezes": 1
+    },
+    "DailyTaskScrollFinished": {
+        "desc": "日常任务滑到底了，结束",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "DailyRewards/FinishedTaskIcon.png"
+                ],
+                "roi": [
+                    927,
+                    474,
+                    160,
+                    115
+                ]
+            }
+        },
+        "next": [
+            "DailyTaskComplete"
+        ]
+    },
+    "ActivityLimitReached": {
+        "desc": "OCR,活跃度达到上限，结束任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "今日活跃度已达上限"
+                ],
+                "roi": [
+                    800,
+                    200,
+                    400,
+                    380
+                ]
+            }
+        },
+        "next": [
+            "DailyTaskComplete"
+        ]
+    },
+    "CheckActivityStatus": {
+        "enabled": false,
+        "desc": "检查活跃度是否完成",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ActivityLimitReached",
+            "ActivityLimitNotReached"
+        ]
+    },
+    "ActivityLimitNotReached": {
+        "desc": "活跃度未达上限，继续检测",
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskUpgradeWeapon",
+            "DailyTaskCreation",
+            "DailyTaskAssemble",
+            "DailyTaskScrollFinished",
+            "[JumpBack]DailyTaskScrollDown"
+        ]
+    },
+    "DailyTaskUpgradeWeapon": {
+        "desc": "检测是否有升级武器任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "武器等级"
+                ],
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskUpgradeWeaponIsValid"
+        ]
+    },
+    "DailyTaskCreation": {
+        "desc": "检测是否有简易制作任务",
+        "enabled": true,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "简易制作"
+                ],
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskCreationIsValid"
+        ]
+    },
+    "DailyTaskAssemble": {
+        "desc": "检测是否有制造装备任务",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "装备制造"
+                ],
+                "roi": [
+                    343,
+                    191,
+                    469,
+                    409
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskAssembleIsValid"
+        ]
+    },
+    "DailyTaskCreationIsValid": {
+        "desc": "检测简易制作任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "前往"
+                ],
+                "roi": "DailyTaskCreation",
+                "roi_offset": [
+                    429,
+                    -10,
+                    94,
+                    20
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 100,
+        "next": [
+            "DailyTaskCraftingCreationFinish",
+            "[JumpBack]CraftingStart"
+        ]
+    },
+    "DailyTaskCraftingCreationFinish": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskAssembleIsValid": {
+        "desc": "检测制造装备任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "前往"
+                ],
+                "roi": "DailyTaskAssemble",
+                "roi_offset": [
+                    429,
+                    -10,
+                    94,
+                    20
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskGearAssemblyCreationFinish",
+            "[JumpBack]GearAssemblyStart"
+        ]
+    },
+    "DailyTaskGearAssemblyCreationFinish": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "DailyTaskStart"
+        ]
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "desc": "检测升级武器任务是否可以执行",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "前往"
+                ],
+                "roi": "DailyTaskUpgradeWeapon",
+                "roi_offset": [
+                    429,
+                    -10,
+                    94,
+                    20
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyTaskWeaponUpgradeWeaponFinished",
+            "[JumpBack]WeaponUpgradeStart"
+        ]
+    },
+    "DailyTaskWeaponUpgradeWeaponFinished": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "next": [
+            "DailyTaskStart"
         ]
     },
     "DailyTaskComplete": {

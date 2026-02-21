@@ -75,7 +75,12 @@
                         "DailyTaskRewardSub": {
                             "enabled": true
                         }
-                    }
+                    },
+                    "option": [
+                        "DailyTaskUpgradeWeapon",
+                        "DailyTaskCreation",
+                        "DailyTaskAssemble"
+                    ]
                 },
                 {
                     "name": "No",
@@ -103,6 +108,87 @@
                     "name": "No",
                     "pipeline_override": {
                         "DailyProtocolPassRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskUpgradeWeapon": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$option.DailyTaskUpgradeWeapon.label",
+            "description": "$option.DailyTaskUpgradeWeapon.desc",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskUpgradeWeapon": {
+                            "enabled": true
+                        },
+                        "CheckActivityStatus": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskUpgradeWeapon": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskAssemble": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$option.DailyTaskAssemble.label",
+            "description": "$option.DailyTaskAssemble.desc",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskAssemble": {
+                            "enabled": true
+                        },
+                        "CheckActivityStatus": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskAssemble": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyTaskCreation": {
+            "type": "switch",
+            "default_case": "No",
+            "label": "$option.DailyTaskCreation.label",
+            "description": "$option.DailyTaskCreation.desc",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyTaskCreation": {
+                            "enabled": true
+                        },
+                        "CheckActivityStatus": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyTaskCreation": {
                             "enabled": false
                         }
                     }
