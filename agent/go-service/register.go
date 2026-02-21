@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
@@ -21,7 +23,9 @@ func registerAll() {
 	puzzle.Register()
 	essencefilter.Register()
 	creditshopping.Register()
+	dailyrewards.Register()
 	maptracker.Register()
+	batchaddfriends.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()

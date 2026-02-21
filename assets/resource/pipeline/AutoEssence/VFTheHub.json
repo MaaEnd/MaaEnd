@@ -1,0 +1,116 @@
+{
+    "VFTheHubLocationAssertion": {
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的重度淤积点：\n**枢纽区重度淤积点**"
+        },
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "recognition": {
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map01_lv001",
+                            "target": [
+                                385,
+                                496,
+                                32,
+                                42
+                            ]
+                        }
+                    ]
+                }
+            },
+            "type": "Custom"
+        }
+    },
+    "VFTheHubMoveToTriggerPoint": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        [
+                            398,
+                            524
+                        ],
+                        [
+                            406,
+                            531
+                        ]
+
+                    ],
+                    "arrival_threshold": 3.5
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        },
+        "next": [
+            "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ]
+    },
+    "VFTheHubWalkAround1": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        [
+                            414,
+                            518
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "VFTheHubWalkAround2"
+        ]
+    },
+    "VFTheHubWalkAround2": {
+        "action": {
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv001",
+                    "path": [
+                        [
+                            396,
+                            542
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            },
+            "type": "Custom"
+        },
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "VFTheHubWalkAround1"
+        ]
+    }
+}

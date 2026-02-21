@@ -28,6 +28,78 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMapValleyIVTheHub": {
+        "doc": "从任意界面进入四号谷地-枢纽区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVTheHub",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVValleyPass": {
+        "doc": "从任意界面进入四号谷地-谷地通道地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginiumSciencePark": {
+        "doc": "从任意界面进入四号谷地-源石研究园地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVAburreyQuarry": {
+        "doc": "从任意界面进入四号谷地-阿伯莉采石场地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginLodespring": {
+        "doc": "从任意界面进入四号谷地-矿脉源区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVPowerPlateau": {
+        "doc": "从任意界面进入四号谷地-供能高地地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapWulingWulingCity": {
+        "doc": "从任意界面进入武陵-武陵城地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapWulingWulingCity",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapWulingJingyuValley": {
+        "doc": "从任意界面进入武陵-景玉谷地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMapWulingJingyuValley",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneEnterWorldDijiang": {
         "doc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
@@ -112,13 +184,13 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
-    "SceneEnterGearAssembly": {
+    "SceneEnterMenuGearAssembly": {
         "doc": "从任意界面进入装备加工界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuGearAssembly",
-            "[JumpBack]SceneAnyEnterWorld"
+            "ScenePrivateWorldFactoryEnterMenuGearAssembly",
+            "[JumpBack]SceneEnterWorldFactory"
         ]
     },
     "SceneEnterMenuBluePrint": {
@@ -136,6 +208,42 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpack": {
+        "doc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuBackpack",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "doc": "从任意界面进入背包界面，左侧包含所有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterMenuBaker": {
+        "doc": "从任意界面进入Baker界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuBaker",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuWiki": {
+        "doc": "从任意界面进入百科界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuWiki",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -229,6 +337,54 @@
                     }
                 ],
                 "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneNoticeRewardsConfirm": {
+        "doc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    0,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsIcon.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    540,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
             }
         },
         "action": {

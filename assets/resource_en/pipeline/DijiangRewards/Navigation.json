@@ -1,0 +1,44 @@
+{
+    "AlreadyInCarbin": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "MFG Cabin",
+                                    "Growth Chamber"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    170,
+                                    104,
+                                    121,
+                                    77
+                                ],
+                                "expected": [
+                                    "Production Assist"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

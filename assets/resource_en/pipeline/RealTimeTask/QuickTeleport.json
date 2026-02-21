@@ -1,8 +1,5 @@
 {
     "RealTimeQuickTeleportList": {
-        "expected": [
-            "Teleport",
-            "Beacon"
-        ]
+        "expected": "TP Point"
     }
 }

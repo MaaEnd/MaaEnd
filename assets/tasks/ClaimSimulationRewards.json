@@ -3,14 +3,60 @@
         {
             "name": "ClaimSimulationRewards",
             "label": "$task.ClaimSimulationRewards.label",
-            "entry": "SimulationSpaceEntry",
-            "description": "$task.ClaimSimulationRewards.description",
+            "entry": "SimSpaceEntry",
             "controller": [
                 "Win32",
-                "Win32-Front",
-                "Win32-Window"
+                "Win32-Window",
+                "Win32-Background",
+                "Win32-Window-Background",
+                "Win32-Front"
+            ],
+            "option": [
+                "ClaimSimulationArea"
             ]
         }
     ],
-    "option": {}
+    "option": {
+        "ClaimSimulationArea": {
+            "type": "select",
+            "label": "$option.ClaimSimulationArea.label",
+            "default_case": "ValleyIV",
+            "cases": [
+                {
+                    "name": "ValleyIV",
+                    "label": "$global.region.ValleyIV",
+                    "pipeline_override": {
+                        "SimSpaceChooseSimulation": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "四号谷地",
+                                        "四號谷地",
+                                        "Valley IV",
+                                        "Valley"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$global.region.Wuling",
+                    "pipeline_override": {
+                        "SimSpaceChooseSimulation": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "武陵",
+                                        "Wuling"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

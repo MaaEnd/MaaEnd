@@ -78,6 +78,4 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 你的支持是我们持续更新的最大动力！💖
 
-<!-- markdownlint-disable MD045 -->
-
-[<img width="200" src="https://pic1.afdiancdn.com/static/img/welcome/button-sponsorme.png">](https://afdian.com/a/misteo)
+[<img width="200" alt="赞助我们" src="https://pic1.afdiancdn.com/static/img/welcome/button-sponsorme.png">](https://afdian.com/a/misteo)

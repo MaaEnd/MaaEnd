@@ -1,17 +1,22 @@
 {
     "EssenceFilterMain": {
         "doc": "入口点",
-        "next": ["EssenceFilterCheckInInventory"],
+        "next": [
+            "EssenceFilterCheckInInventory"
+        ],
         "on_error": "EssenceFilterMainFailed"
     },
-
     "EssenceFilterMainFailed": {
         "doc": "入口点失败",
-        "action": {"type": "DoNothing"},
+        "action": {
+            "type": "DoNothing"
+        },
         "focus": {
             "Node.Action.Failed": "未能进入基质界面，结束任务"
         },
-        "next": ["EssenceFilterFinish"]
+        "next": [
+            "EssenceFilterFinish"
+        ]
     },
     "EssenceFilterCheckInInventory": {
         "doc": "检查是否在背包Essence页",
@@ -28,8 +33,11 @@
                 ]
             }
         },
+        "timeout": 2000,
         "next": [
-            "FirstSwipeToTop",
+            "FirstSwipeToTop"
+        ],
+        "on_error": [
             "EssenceFilterNavigateToInventory"
         ],
         "focus": {
@@ -55,7 +63,9 @@
         },
         "repeat": 3,
         "post_delay": 500,
-        "next": ["EssenceFilterInit"],
+        "next": [
+            "EssenceFilterInit"
+        ],
         "focus": {
             "Node.Action.Succeeded": "滑动到顶端"
         }
@@ -63,7 +73,9 @@
     "EssenceFilterNavigateToInventory": {
         "doc": "导航",
         "action": "DoNothing",
-        "next": ["EssenceFilterFinish"],
+        "next": [
+            "EssenceFilterFinish"
+        ],
         "focus": {
             "Node.Action.Succeeded": "不在基质界面"
         }
@@ -73,10 +85,7 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "EssenceFilterInitAction",
-                "custom_action_param": {
-                    "preset_name": "Rarity6Weapons"
-                }
+                "custom_action": "EssenceFilterInitAction"
             }
         },
         "next": [
@@ -98,7 +107,6 @@
             ]
         }
     },
-
     "OCREssenceInventoryNumber": {
         "doc": "OCR 识别背包中的基质数量",
         "rate_limit": 300,
@@ -112,7 +120,9 @@
                     74,
                     22
                 ],
-                "expected": ["\\d+(\\/\\d+)?"],
+                "expected": [
+                    "\\d+(\\/\\d+)?"
+                ],
                 "threshold": 0.3,
                 "only_rec": true
             }
@@ -129,15 +139,13 @@
             "EssenceFilterFinish"
         ]
     },
-
     "EssenceRowDetect": {
         "doc": "整行模板匹配，收集所有格子",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.45,
-                // "threshold": 0.55,
+                "threshold": 0.35,
                 "roi": [
                     18,
                     72,
@@ -164,8 +172,7 @@
             "type": "TemplateMatch",
             "param": {
                 "template": "EssenceFilter/EssenceGeneral.png",
-                "threshold": 0.45,
-                // "threshold": 0.55,
+                "threshold": 0.35,
                 "roi": [
                     18,
                     72,
@@ -185,7 +192,6 @@
             "EssenceFilterRowNextItem"
         ]
     },
-
     "EssenceFilterCheckItemSlot1": {
         "doc": "OCR 识别技能槽 1",
         "rate_limit": 300,
@@ -199,7 +205,9 @@
                     115,
                     27
                 ],
-                "expected": [".*"],
+                "expected": [
+                    ".*"
+                ],
                 "threshold": 0.3,
                 "only_rec": true
             }
@@ -232,7 +240,9 @@
                     115,
                     27
                 ],
-                "expected": [".*"],
+                "expected": [
+                    ".*"
+                ],
                 "threshold": 0.3,
                 "only_rec": true
             }
@@ -265,7 +275,9 @@
                     115,
                     27
                 ],
-                "expected": [".*"],
+                "expected": [
+                    ".*"
+                ],
                 "threshold": 0.3,
                 "only_rec": true
             }
@@ -287,12 +299,20 @@
     },
     "EssenceFilterCheckItemOCRFallback": {
         "doc": "OCR 超时：跳过",
-        "recognition": {"type": "DirectHit", "param": {}},
-        "action": {"type": "DoNothing"},
-        "next": ["EssenceFilterRowNextItem"],
-        "focus": {"Node.Action.Failed": "OCR 超时：跳过"}
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "action": {
+            "type": "DoNothing"
+        },
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Failed": "OCR 超时：跳过"
+        }
     },
-
     "EssenceFilterSkillDecision": {
         "doc": "匹配技能并决定是否上锁",
         "action": {
@@ -301,9 +321,10 @@
                 "custom_action": "EssenceFilterSkillDecisionAction"
             }
         },
-        "next": ["EssenceFilterRowNextItem"]
+        "next": [
+            "EssenceFilterRowNextItem"
+        ]
     },
-
     "EssenceFilterLockItemLog": {
         "doc": "日志：即将锁定Essence",
         "action": {
@@ -320,7 +341,6 @@
             "EssenceFilterLockItem"
         ]
     },
-
     "EssenceFilterLockItem": {
         "doc": "锁定Essence",
         "recognition": {
@@ -363,13 +383,16 @@
                 ]
             }
         },
-        "next": ["EssenceFilterRowNextItem"],
-        "on_error": ["EssenceFilterLockItem"],
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterLockItem"
+        ],
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
         }
     },
-
     "EssenceFilterRowNextItem": {
         "doc": "处理下一个命中的格子，或滑动/结束",
         "action": {
@@ -378,9 +401,10 @@
                 "custom_action": "EssenceFilterRowNextItemAction"
             }
         },
-        "next": ["EssenceFilterFinish"]
+        "next": [
+            "EssenceFilterFinish"
+        ]
     },
-
     "EssenceFilterSwipeFirst": {
         "doc": "首行滑动",
         "action": {
@@ -427,7 +451,6 @@
             "EssenceDetectFinal"
         ]
     },
-
     "EssenceFilterFinish": {
         "doc": "任务完成",
         "action": {

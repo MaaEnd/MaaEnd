@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -61,7 +62,8 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	overflowAmount := 0
 	log.Info().Msg("Checking quota overflow status...")
-	time.Sleep(500 * time.Millisecond)
+	Resell_delay_freezes_time(ctx, 500)
+	MoveMouseSafe(controller)
 	controller.PostScreencap().Wait()
 
 	// OCR and parse quota from two regions
@@ -90,6 +92,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
@@ -97,6 +100,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 				if !success {
@@ -111,6 +115,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
@@ -119,12 +124,14 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				continue
 			}
 			//商品详情页右下角识别的成本价格为准
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
 				if success {
@@ -141,11 +148,13 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
 			//等加载好友价格
 			Resell_delay_freezes_time(ctx, 600)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
 			if !success {
 				//失败就重试一遍
+				MoveMouseSafe(controller)
 				controller.PostScreencap().Wait()
 				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
 				if !success {
@@ -175,6 +184,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
 			log.Info().Msg("[Resell]第四步：返回商品详情页")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ReturnButton", "返回")
@@ -186,6 +196,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
 			Resell_delay_freezes_time(ctx, 200)
+			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
 			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
@@ -204,7 +215,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	// Check if sold out
 	if len(records) == 0 {
 		log.Info().Msg("库存已售罄，无可购买商品")
-		ResellShowMessage(ctx, "⚠️ 库存已售罄，无可购买商品")
+		maafocus.NodeActionStarting(ctx, "⚠️ 库存已售罄，无可购买商品")
 		return true
 	}
 
@@ -235,7 +246,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		// Show message with focus
 		message := fmt.Sprintf("⚠️ 配额溢出提醒\n剩余配额明天将超出上限，建议购买%d件商品\n推荐购买: 第%d行第%d列 (最高利润: %d)",
 			overflowAmount, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
-		ResellShowMessage(ctx, message)
+		maafocus.NodeActionStarting(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -257,9 +268,17 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			MinimumProfit, showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
 
 		// Show message with focus
-		message := fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
-			showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
-		ResellShowMessage(ctx, message)
+		var message string
+		if MinimumProfit >= 999999 {
+			// Auto buy/sell is disabled (MinimumProfit set to 999999)
+			message = fmt.Sprintf("💡 已禁用自动购买/出售\n推荐购买: 第%d行第%d列 (利润: %d)",
+				showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
+		} else {
+			// Normal case: profit threshold not met
+			message = fmt.Sprintf("💡 没有达到最低利润的商品，建议把配额留至明天\n推荐购买: 第%d行第%d列 (利润: %d)",
+				showMaxRecord.Row, showMaxRecord.Col, showMaxRecord.Profit)
+		}
+		maafocus.NodeActionStarting(ctx, message)
 		//进入下个地区
 		taskName := "ChangeNextRegionPrepare"
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
@@ -284,6 +303,15 @@ func extractNumbersFromText(text string) (int, bool) {
 		}
 	}
 	return 0, false
+}
+
+// MoveMouseSafe moves the mouse to a safe location (10, 10) to avoid blocking OCR
+func MoveMouseSafe(controller *maa.Controller) {
+	// Use PostClick to move mouse to a safe corner
+	// We use (10, 10) to avoid title bar buttons or window borders
+	controller.PostTouchMove(0, 10, 10, 0)
+	// Small delay to ensure mouse move completes
+	time.Sleep(50 * time.Millisecond)
 }
 
 // ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
@@ -518,20 +546,6 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	return x, y, hoursLater, b
-}
-
-// ResellShowMessage - Show message to user with focus
-func ResellShowMessage(ctx *maa.Context, text string) bool {
-	ctx.RunTask("Resell_TaskShowMessage", map[string]interface{}{
-		"Resell_TaskShowMessage": map[string]interface{}{
-			"recognition": "DirectHit",
-			"action":      "DoNothing",
-			"focus": map[string]interface{}{
-				"Node.Action.Starting": text,
-			},
-		},
-	})
-	return true
 }
 
 func processMaxRecord(record ProfitRecord) ProfitRecord {

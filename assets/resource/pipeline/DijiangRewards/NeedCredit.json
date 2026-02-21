@@ -1,0 +1,142 @@
+{
+    "EntryReceptionRoom_NeedCredit": {
+        "doc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
+        "max_hit": 1,
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室失败"
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "_ReceptionRoomBackground",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    363,
+                                    12,
+                                    538,
+                                    278
+                                ],
+                                "lower": [
+                                    151,
+                                    132,
+                                    235
+                                ],
+                                "upper": [
+                                    158,
+                                    138,
+                                    249
+                                ],
+                                "count": 400,
+                                "connected": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_ReceptionRoomBackground",
+                                "lower": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "upper": [
+                                    35,
+                                    35,
+                                    35
+                                ],
+                                "count": 50,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ReceptionRoom_NeedCredit",
+            "[JumpBack]EndExchange",
+            "EntryReceptionRoom_NeedCredit"
+        ]
+    },
+    "ReceptionRoom_NeedCredit": {
+        "doc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
+        "focus": {
+            "Node.PipelineNode.Failed": "线索交流开启失败"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus_NeedCredit",
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]StartExchange",
+            "[JumpBack]ExitReceptionRoom"
+        ]
+    },
+    "InControlNexus_NeedCredit": {
+        "doc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    143,
+                    467,
+                    77,
+                    77
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
+        },
+        "next": [
+            "InMainWindow",
+            "[JumpBack]CloseButtonType2",
+            "[JumpBack]CancelExit"
+        ]
+    },
+    "StartExchange": {
+        "doc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    633,
+                    476,
+                    444,
+                    175
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}

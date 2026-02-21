@@ -1,0 +1,17 @@
+{
+    "task": [
+        {
+            "name": "Crafting",
+            "label": "$task.Crafting.label",
+            "entry": "CraftingStart",
+            "description": "$task.Crafting.description",
+            "controller": [
+                "Win32",
+                "Win32-Window",
+                "Win32-Background",
+                "Win32-Window-Background",
+                "Win32-Front"
+            ]
+        }
+    ]
+}

@@ -151,5 +151,96 @@
                 "green_mask": true
             }
         }
+    },
+    "ScenePrivateMapAnyEnterMapOverview": {
+        "desc": "在任意地图界面，进入地区总览地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateMapDijiangEnterMapOverview",
+            "ScenePrivateMapOtherAreaEnterMapOverview"
+        ]
+    },
+    "ScenePrivateMapDijiangEnterMapOverview": {
+        "doc": "在帝江号地图，进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -250,
+                    0,
+                    250,
+                    160
+                ],
+                "template": [
+                    "SceneManager/MapExitDijiang.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ScenePrivateMapAnyEnterMapOverviewSuccess"
+        ]
+    },
+    "ScenePrivateMapOtherAreaEnterMapOverview": {
+        "doc": "在其他区域，进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -400,
+                    -200,
+                    400,
+                    200
+                ],
+                "template": [
+                    "SceneManager/MapOverviewEnter.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "ScenePrivateMapAnyEnterMapOverviewSuccess"
+        ]
+    },
+    "ScenePrivateMapAnyEnterMapOverviewSuccess": {
+        "doc": "在任意地图界面，成功进入地区总览界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -350,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewValleyIVChoose.png",
+                    "SceneManager/MapOverviewValleyIVNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        }
     }
 }

@@ -1,0 +1,100 @@
+{
+    "MFG_ReceiveRewards": {
+        "doc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
+        },
+        "next": [
+            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]YellowConfirmButtonType1",
+            "ReStock"
+        ]
+    },
+    "ReStock": {
+        "doc": "[制造舱·操作] 点击最右侧补货按钮打开补货界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    892,
+                    437,
+                    154,
+                    118
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Restock.png"
+                ],
+                "order_by": "Horizontal",
+                "index": -1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmRestock",
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "ConfirmRestock": {
+        "doc": "[制造舱·操作] 在补货弹窗中点击白确认按钮确认补货",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    847,
+                    416,
+                    416,
+                    277
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "Exit_MFG_Cabin": {
+        "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
+    }
+}

@@ -1,0 +1,194 @@
+{
+    "DailyProtocolPassStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyProtocolPassInMenu",
+            "[JumpBack]SceneEnterMenuProtocolPass"
+        ]
+    },
+    "DailyProtocolPassInMenu": {
+        "desc": "在通行证界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    100,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MenuPassRewardsChoose.png",
+                    "SceneManager/MenuPassRewardsNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]DailyProtocolMissionsEnter",
+            "[JumpBack]DailyProtocolRewardsEnter",
+            "DailyProtocolFinish"
+        ]
+    },
+    "DailyProtocolFinish": {
+        "desc": "结束任务",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "DailyProtocolMissionsEnter": {
+        "desc": "在通行证界面点击进入任务界面",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "通行证任务",
+                    "Pass Missions",
+                    "通行証クエスト",
+                    "통행증 임무",
+                    "通行證任務"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "[JumpBack]DailyProtocolMissionsSwitch",
+            "DailyProtocolFinish"
+        ]
+    },
+    "DailyProtocolMissionsSwitch": {
+        "desc": "在任务界面点击切换列表，找红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    150,
+                    120,
+                    300,
+                    500
+                ],
+                "lower": [
+                    245,
+                    107,
+                    0
+                ],
+                "upper": [
+                    255,
+                    127,
+                    10
+                ],
+                "connected": true,
+                "count": 15
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "DailyProtocolMissionsPick"
+        ]
+    },
+    "DailyProtocolMissionsPick": {
+        "desc": "在任务界面点击领取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    -400,
+                    -200,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "一键领取",
+                    "Claim All",
+                    "一括受取",
+                    "일괄 획득",
+                    "快速領取"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 500
+    },
+    "DailyProtocolRewardsEnter": {
+        "desc": "在任务界面点击进入奖励界面",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    500,
+                    100
+                ],
+                "expected": [
+                    "通行证奖励",
+                    "Pass Rewards",
+                    "通行証報酬",
+                    "통행증 보상",
+                    "通行證獎勵"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "[JumpBack]DailyProtocolRewardsPick",
+            "DailyProtocolFinish"
+        ]
+    },
+    "DailyProtocolRewardsPick": {
+        "desc": "在任务界面点击领取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    -200,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "一键领取",
+                    "Claim All",
+                    "一括受取",
+                    "일괄 획득",
+                    "快速領取"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    }
+}

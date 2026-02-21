@@ -5,65 +5,65 @@
             "Storage"
         ]
     },
-    "SwitchRepoToOrigin": {
+    "ItemTransferSwitchRepoToOrigin": {
         "expected": [
             "Switch",
             "Depot"
         ]
     },
-    "ClickConfirmOrigin": {
+    "ItemTransferClickConfirmOrigin": {
         "expected": [
             "Confirm"
         ]
     },
-    "AtOrigin": {
+    "ItemTransferAtOrigin": {
         "expected": [
             "Connected"
         ]
     },
-    "ClickSortDescending": {
+    "ItemTransferClickSortDescending": {
         "expected": [
             "Desc"
         ]
     },
-    "ClickSortAscending": {
+    "ItemTransferClickSortAscending": {
         "expected": [
             "Asc"
         ]
     },
-    "SwitchRepoToDestination": {
+    "ItemTransferSwitchRepoToDestination": {
         "expected": [
             "Switch",
             "Depot"
         ]
     },
-    "ClickConfirmDestination": {
+    "ItemTransferClickConfirmDestination": {
         "expected": [
             "Confirm"
         ]
     },
-    "AtDestination": {
+    "ItemTransferAtDestination": {
         "expected": [
             "Connected"
         ]
     },
-    "CheckIfFull": {
+    "ItemTransferCheckIfFull": {
         "expected": [
             "Full"
         ]
     },
-    "SwitchRepoToOriginReturn": {
+    "ItemTransferSwitchRepoToOriginReturn": {
         "expected": [
             "Switch",
             "Depot"
         ]
     },
-    "ClickConfirmOriginReturn": {
+    "ItemTransferClickConfirmOriginReturn": {
         "expected": [
             "Confirm"
         ]
     },
-    "AtOriginReturn": {
+    "ItemTransferAtOriginReturn": {
         "expected": [
             "Connected"
         ]

@@ -4,7 +4,7 @@
         "action": "Click",
         "next": [],
         "post_wait_freezes": {
-            "time": 1,
+            "time": 80,
             "target": [
                 0,
                 0,
@@ -14,12 +14,24 @@
         }
     },
     "ControlNexusButton": {
-        "roi": [
-            332,
-            3,
-            62,
-            52
-        ],
-        "action": "Click"
+        "action": "Click",
+        "next": [],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CloseButtonType2": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
     }
 }

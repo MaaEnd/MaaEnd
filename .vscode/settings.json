@@ -1,4 +1,6 @@
 {
+    "files.insertFinalNewline": true,
+    "files.eol": "\n",
     "json.schemas": [
         {
             "fileMatch": [
@@ -19,6 +21,13 @@
                 "/install/interface.json"
             ],
             "url": "/tools/schema/interface.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/assets/tasks/**/*.json",
+                "/install/tasks/**/*.json"
+            ],
+            "url": "/tools/schema/task.schema.json"
         },
         {
             "fileMatch": [

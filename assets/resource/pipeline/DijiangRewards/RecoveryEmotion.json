@@ -1,0 +1,347 @@
+{
+    "ProductionAssistInDijiang": {
+        "doc": "[控制中枢·红点] 制造舱有红点时点击好友辅助入口，可能进入助力或恢复心情界面",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    43,
+                                    0,
+                                    96,
+                                    64
+                                ],
+                                "expected": [
+                                    "制造舱"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]YellowConfirmButtonType1",
+            "CloseButtonType1",
+            "ExitRecoveryEmotion"
+        ]
+    },
+    "ExitRecoveryEmotion": {
+        "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
+        "focus": {
+            "Node.PipelineNode.Failed": "从恢复心情界面返回控制中枢失败"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    278,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "RecoveryEmotion": {
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "doc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
+        "focus": {
+            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "InControlNexus",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1112,
+                                    0,
+                                    168,
+                                    74
+                                ],
+                                "lower": [
+                                    224,
+                                    105,
+                                    0
+                                ],
+                                "upper": [
+                                    255,
+                                    117,
+                                    4
+                                ],
+                                "count": 40,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]EmotionFull",
+            "[JumpBack]YellowConfirmButtonType1",
+            "StartRecoveryEmotion",
+            "CloseButtonType1"
+        ]
+    },
+    "EmotionFull": {
+        "doc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
+        "focus": {
+            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    416,
+                    65,
+                    428,
+                    119
+                ],
+                "expected": [
+                    "干员心情已满",
+                    "无法使用助力"
+                ]
+            }
+        },
+        "next": [
+            "BackToControlNexus"
+        ]
+    },
+    "StartRecoveryEmotion": {
+        "doc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    278,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员"
+                ]
+            }
+        },
+        "next": [
+            "CouldNotAssistEmotion",
+            "[JumpBack]SelectLowEmotion"
+        ]
+    },
+    "SelectLowEmotion": {
+        "doc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 2,
+                "all_of": [
+                    {
+                        "sub_name": "_EmotionIcon",
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    467,
+                                    236,
+                                    620,
+                                    282
+                                ],
+                                "template": [
+                                    "ClaimDijiangRewards/LowEmotion.png",
+                                    "ClaimDijiangRewards/NormalEmotion.png",
+                                    "ClaimDijiangRewards/HighEmotion.png"
+                                ],
+                                "order_by": "Vertical"
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_EmotionBar",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionIcon",
+                                "roi_offset": [
+                                    19,
+                                    7,
+                                    45,
+                                    -14
+                                ],
+                                "lower": [
+                                    255,
+                                    253,
+                                    253
+                                ],
+                                "upper": [
+                                    255,
+                                    253,
+                                    253
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "sub_name": "_EmotionBar_Empty",
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": "_EmotionBar",
+                                "roi_offset": [
+                                    0,
+                                    0,
+                                    10,
+                                    0
+                                ],
+                                "lower": [
+                                    26,
+                                    26,
+                                    24
+                                ],
+                                "upper": [
+                                    27,
+                                    27,
+                                    25
+                                ],
+                                "count": 30,
+                                "connected": true
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    -70,
+                    -10,
+                    0
+                ]
+            }
+        }
+    },
+    "CouldNotAssistEmotion": {
+        "doc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
+        "focus": {
+            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
+        },
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    432,
+                    74,
+                    428,
+                    92
+                ],
+                "expected": [
+                    "没有更多的心情激励点数，无法选择更多干员"
+                ]
+            }
+        },
+        "next": [
+            "InControlNexus",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]BackToControlNexus",
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "BackToControlNexus": {
+        "doc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "Resell/back.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    }
+}
