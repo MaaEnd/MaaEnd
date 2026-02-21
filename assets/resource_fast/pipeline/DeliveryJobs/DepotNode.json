@@ -30,7 +30,7 @@
         "recognition": "And",
         "all_of": [
             "DepotButton",
-            "InValleyIVRegionalDevelopment"
+            "InWulingRegionalDevelopment"
         ],
         "action": "Click",
         "next": [
