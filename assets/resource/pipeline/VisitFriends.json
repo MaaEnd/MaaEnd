@@ -97,58 +97,21 @@
             }
         },
         "next": [
-            "PriorStealGate",
+            "PriorStealGateProductionAndClueCheck",
             "ProductionAssistOCR",
             "ClueExchangeOCR",
             "VisitEnd"
         ]
     },
-    "PriorStealGate": {
-        "doc": "偷菜模式：助力生产 - 剩余次数大于0",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1221,
-                    71,
-                    14,
-                    18
-                ],
-                "expected": [
-                    "[1-5]"
-                ],
-                "threshold": 0.6
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "PriorStealGateClueCheck",
-            "VisitEnd"
-        ]
-    },
-    "PriorStealGateClueCheck": {
-        "doc": "偷菜模式：线索交流 - 剩余次数大于0",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1167,
-                    71,
-                    10,
-                    16
-                ],
-                "expected": [
-                    "[1-5]"
-                ],
-                "threshold": 0.6
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
+    "PriorStealGateProductionAndClueCheck": {
+        "doc": "偷菜模式：助力生产和线索交流 - 剩余次数均大于0",
+        "recognition": "And",
+        "all_of": [
+            "ProductionAssistOCR",
+            "ClueExchangeOCR"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "助力生产和线索交流剩余次数均大于0,进入偷菜模式"
         },
         "next": [
             "ProductionAssist"
@@ -177,6 +140,31 @@
         },
         "next": [
             "ProductionAssist"
+        ]
+    },
+    "ClueExchangeOCR": {
+        "doc": "线索交流 - 剩余次数大于0,在偷菜模式下仍然可生效",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1167,
+                    72,
+                    12,
+                    17
+                ],
+                "expected": [
+                    "[1-5]"
+                ],
+                "threshold": 0.6
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "ClueExchange"
         ]
     },
     "ProductionAssist": {
@@ -209,6 +197,48 @@
             "GrowthChamberCheck",
             "SkipConfirmBackToFriendList",
             "ProductionAssistCheckPriorStealRetry"
+        ]
+    },
+    "GrowthChamberCheck": {
+        "doc": "偷菜模式：有菜可偷",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/GrowthChamberOpen.png",
+                "roi": [
+                    821,
+                    382,
+                    105,
+                    42
+                ],
+                "threshold": 0.95
+            }
+        },
+        "action": {
+            "type": "DoNothing",
+            "param": {}
+        },
+        "next": [
+            "ConfirmVisitToAssist"
+        ]
+    },
+    "SkipConfirmBackToFriendList": {
+        "doc": "没有菜可偷时，不点确认，按 Esc 返回好友列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "VisitFriends/Confirm.png",
+                "threshold": 0.8
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "next": [
+            "ProductionAssistSwipe"
         ]
     },
     "ProductionAssistCheckPriorStealRetry": {
@@ -257,52 +287,13 @@
             "ConfirmVisitToAssist"
         ]
     },
-    "GrowthChamberCheck": {
-        "doc": "偷菜模式：有菜可偷",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/GrowthChamberOpen.png",
-                "roi": [
-                    821,
-                    382,
-                    105,
-                    42
-                ],
-                "threshold": 0.95
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "ConfirmVisitToAssist",
-            "SkipConfirmBackToFriendList"
-        ]
-    },
-    "SkipConfirmBackToFriendList": {
-        "doc": "不点确认，按 Esc 返回好友列表",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "next": [
-            "ProductionAssistSwipe"
-        ]
-    },
     "ProductionAssistSwipe": {
         "doc": "好友界面向下滑找更多好友",
-        "recognition": "DirectHit",
+        "recognition": "Or",
+        "any_of": [
+            "ProductionAssistOCR",
+            "ClueExchangeOCR"
+        ],
         "action": {
             "type": "Swipe",
             "param": {
@@ -317,6 +308,7 @@
                 "end_hold": 200
             }
         },
+        "max_hit": 20,
         "next": [
             "ProductionAssist"
         ]
@@ -612,31 +604,6 @@
         },
         "next": [
             "OnFriendList"
-        ]
-    },
-    "ClueExchangeOCR": {
-        "doc": "线索交流 - 剩余次数大于0",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1167,
-                    72,
-                    12,
-                    17
-                ],
-                "expected": [
-                    "[1-5]"
-                ],
-                "threshold": 0.6
-            }
-        },
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "ClueExchange"
         ]
     },
     "ClueExchange": {
