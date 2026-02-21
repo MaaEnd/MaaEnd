@@ -112,6 +112,7 @@
     "option.ImportBluePrints.inputs.ImportBluePrintsText.description": "请输入文本，可以夹杂任意字符，将智能拆分蓝图分享码",
     "task.DeliveryJobs.ValleyIVDepotLocked": "四号谷地仓储节点未解锁",
     "task.DeliveryJobs.WulingDepotLocked": "武陵仓储节点未解锁",
+    "task.DeliveryJobs.OngoingDelivery": "有待运送的货物，请先完成送货，再重新运行任务",
     "task.DeliveryJobs.label": "🚚自动转交送货任务",
     "task.DeliveryJobs.description": "自动接取并转交送货任务。\n请选择需要启用的地区：",
     "task.ClaimSimulationRewards.label": "📦自动领取模拟空间奖励",

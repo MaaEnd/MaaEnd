@@ -17,6 +17,7 @@
             "DeliveryJobsClickScreenToContinue",
             "InWorld",
             "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsOngoingDelivery",
             "[JumpBack]DeliveryJobsCargoBid",
             "[JumpBack]DeliveryJobsCargoFillToMax"
         ],
@@ -91,6 +92,27 @@
                 0,
                 0
             ]
+        }
+    },
+    "DeliveryJobsOngoingDelivery": {
+        "doc": "有待运送的货物，无法继续装箱流程，退出任务",
+        "recognition": "OCR",
+        "roi": [
+            882,
+            575,
+            398,
+            143
+        ],
+        "expected": [
+            "有待运送的货物",
+            "有待運送的貨物",
+            "Finish the ongoing delivery first",
+            "配達待ちの荷物を先に届けてください",
+            "운송 대기 중인 화물 있음"
+        ],
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
         }
     }
 }
