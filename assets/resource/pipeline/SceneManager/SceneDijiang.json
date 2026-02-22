@@ -244,6 +244,26 @@
             "param": {
                 "key": 73 // I
             }
+        },
+        "next": [
+            "ScenePrivateWorldEnterMenuControlNexusSuccess"
+        ]
+    },
+    "ScenePrivateWorldEnterMenuControlNexusSuccess": {
+        "doc": "识别处于帝江号总控中枢界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
         }
     }
 }
