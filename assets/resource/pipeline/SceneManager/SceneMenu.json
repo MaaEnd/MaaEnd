@@ -1200,7 +1200,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CreditShopping/Expand.png",
+                "template": "SceneManager/Expand.png",
                 "threshold": 0.8,
                 "green_mask": true,
                 "roi": [
@@ -1227,7 +1227,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CreditShopping/ShoppingEntry.png",
+                "template": "SceneManager/ShoppingEntry.png",
                 "roi": [
                     700,
                     0,
