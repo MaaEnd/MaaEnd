@@ -194,7 +194,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsPackCargo",
             "DeliveryJobsEnterOriginiumScienceParkCargo"
         ]
     },
@@ -208,7 +208,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsPackCargo",
             "DeliveryJobsEnterOriginLodespringCargo"
         ]
     },
@@ -222,7 +222,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsPackCargo",
             "DeliveryJobsEnterPowerPlateauCargo"
         ]
     },
@@ -236,7 +236,7 @@
         "box_index": 1,
         "action": "Click",
         "next": [
-            "DeliveryJobsProceedToNextStep",
+            "DeliveryJobsPackCargo",
             "DeliveryJobsEnterWulingCityCargo"
         ]
     },
@@ -315,11 +315,18 @@
             54
         ],
         "expected": [
+            // 货物装箱时进入是货物装箱
             "货物装箱",
             "貨物裝箱",
             "Pack Goods",
             "パッキング",
-            "화물 포장"
+            "화물 포장",
+            // 查看报价时进入是调度申请
+            "调度申请",
+            "調度申請",
+            "Redistribution Bid",
+            "取引申請",
+            "관리 신청"
         ]
     }
 }
