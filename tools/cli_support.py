@@ -37,6 +37,9 @@ def _enable_windows_virtual_terminal() -> bool:
 
         kernel32 = ctypes.windll.kernel32
         handle = kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+
+        # GetStdHandle returns NULL (0) for an invalid handle and INVALID_HANDLE_VALUE (-1) on error.
+        # Treat both cases as "no usable console output handle" (for example, in a GUI app without a console).
         if handle in (0, -1):
             return False
         mode = ctypes.c_uint32()
