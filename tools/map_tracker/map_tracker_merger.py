@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "opencv-python>=4",
+# ]
+# ///
+
 # MapTracker - Merger Tool
 # This tool helps merge map tile image files into complete maps.
 

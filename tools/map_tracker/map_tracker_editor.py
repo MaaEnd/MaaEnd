@@ -4,15 +4,22 @@
 #     "opencv-python>=4",
 # ]
 # ///
+
+# MapTracker - Editor Tool
+# This tool provides a GUI to view and edit paths for MapTracker.
+
 import os
 import math
 import re
 import json
+import time
+from typing import NamedTuple
 import numpy as np
-from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
+from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
+SERVICE_LOG_FILE = "install/debug/go-service.log"
 
 
 class SelectMapPage:
@@ -256,6 +263,12 @@ class PathEditPage:
 
     # Sidebar layout constants
     SIDEBAR_W = 210
+    STATUS_BAR_H = 32
+
+    class StatusRecord(NamedTuple):
+        timestamp: float
+        color: Color
+        message: str
 
     def __init__(
         self,
@@ -287,6 +300,7 @@ class PathEditPage:
         self._initial_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
+        self.location_service = LocationService()
 
         self.scale = 1.0
         self.offset_x, self.offset_y = 0, 0
@@ -308,9 +322,10 @@ class PathEditPage:
         self.action_dragging = False
         self.done = False
 
-        # Status feedback shown in sidebar
-        self._save_status: str = ""  # e.g. "Saved!" or "Save failed."
-        self._last_render_start_time = None
+        # Status feedback shown in map area status bar
+        self._status: PathEditPage.StatusRecord | None = None
+        self._modal_active: bool = False
+        self._modal_text: str = ""
 
         # Current mouse position in screen coords (for crosshair)
         self.mouse_x: int = -1
@@ -318,6 +333,7 @@ class PathEditPage:
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
+        self._btn_loc_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
 
     # ------------------------------------------------------------------
@@ -337,11 +353,46 @@ class PathEditPage:
         node_name: str = self.pipeline_context["node_name"]
         if handler.replace_path(node_name, self.points):
             self._initial_snapshot = [list(p) for p in self.points]
-            self._save_status = "Saved!"
+            self._status = self.StatusRecord(
+                time.time(), (80, 220, 80), "Saved changes!"
+            )
             print(f"  {_G}Path saved to file.{_0}")
         else:
-            self._save_status = "Save failed."
+            self._status = self.StatusRecord(
+                time.time(), (80, 80, 220), "Failed to save changes!"
+            )
             print(f"  {_Y}Failed to save path to file.{_0}")
+
+    def _apply_realtime_location(self):
+        """Append the latest realtime location from service log."""
+        self._modal_active = True
+        self._modal_text = "Connecting to service"
+        self._render()
+
+        result = self.location_service.wait_for_new_location(
+            norm_map_name(self.map_name), timeout_seconds=5.0
+        )
+
+        self._modal_active = False
+        self._modal_text = ""
+        if result.status == "ok":
+            x = result.payload["x"]
+            y = result.payload["y"]
+            self.points.append([x, y])
+            self.selected_idx = len(self.points) - 1
+            self._status = self.StatusRecord(
+                time.time(), (255, 220, 120), f"Realtime location added: ({x}, {y})"
+            )
+        elif result.status == "mismatch":
+            self._status = self.StatusRecord(
+                time.time(),
+                (80, 80, 220),
+                f"Error located map mismatch ({result.payload})",
+            )
+        else:
+            self._status = self.StatusRecord(
+                time.time(), (80, 80, 220), str(result.payload)
+            )
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates.
@@ -452,8 +503,50 @@ class PathEditPage:
             thickness=1,
         )
 
+        if self._modal_active:
+            canvas = drawer.get_image()
+            x1 = self.SIDEBAR_W
+            x2 = self.window_w
+            y1 = 0
+            y2 = self.window_h
+            region = canvas[y1:y2, x1:x2].copy()
+            alpha = 0.7
+            black = np.zeros_like(region)
+            blended = (region * (1 - alpha) + black * alpha).astype(np.uint8)
+            canvas[y1:y2, x1:x2] = blended
+            drawer.text_centered(
+                self._modal_text or "Connecting to service",
+                (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2),
+                0.7,
+                color=(255, 255, 255),
+                thickness=2,
+            )
+
+        self._render_status_bar(drawer)
         self._render_sidebar(drawer)
         cv2.imshow(self.window_name, drawer.get_image())
+
+    def _render_status_bar(self, drawer: "Drawer"):
+        canvas = drawer.get_image()
+        x1 = self.SIDEBAR_W
+        x2 = self.window_w
+        y2 = self.window_h
+        y1 = max(0, y2 - self.STATUS_BAR_H)
+        region = canvas[y1:y2, x1:x2].copy()
+        alpha = 0.8
+        black = np.zeros_like(region)
+        blended = (region * (1 - alpha) + black * alpha).astype(np.uint8)
+        canvas[y1:y2, x1:x2] = blended
+        if not self._status:
+            return
+
+        drawer.text(
+            self._status.message,
+            (x1 + 10, y2 - 10),
+            0.45,
+            color=self._status.color,
+            thickness=1,
+        )
 
     def _render_sidebar(self, drawer: "Drawer"):
         """Draw the left sidebar with a 90%-opaque black background.
@@ -474,7 +567,6 @@ class PathEditPage:
         sidebar_blended = (
             sidebar_region * (1 - sidebar_alpha) + np.uint8(0) * sidebar_alpha
         ).astype(np.uint8)
-        # sidebar_blended = cv2.GaussianBlur(sidebar_blended, (0, 0), sigmaX=5, sigmaY=5)
         canvas[:h, :sw] = sidebar_blended
 
         # ── Right border ─────────────────────────────────────────────────
@@ -537,6 +629,31 @@ class PathEditPage:
             )
             cy = save_y1 + 8
 
+        # Realtime location button
+        loc_y0 = cy
+        loc_y1 = cy + btn_h
+        self._btn_loc_rect = (btn_x0, loc_y0, btn_x0 + btn_w, loc_y1)
+        drawer.rect(
+            (btn_x0, loc_y0),
+            (btn_x0 + btn_w, loc_y1),
+            color=(80, 90, 200),
+            thickness=-1,
+        )
+        drawer.rect(
+            (btn_x0, loc_y0),
+            (btn_x0 + btn_w, loc_y1),
+            color=(180, 180, 180),
+            thickness=1,
+        )
+        drawer.text_centered(
+            "[G] Get Realtime Location",
+            (btn_x0 + btn_w // 2, loc_y0 + btn_h - 8),
+            0.42,
+            color=(255, 255, 255),
+            thickness=1,
+        )
+        cy = loc_y1 + 8
+
         # Finish button – always present
         finish_y0 = cy
         finish_y1 = cy + btn_h
@@ -561,18 +678,7 @@ class PathEditPage:
             thickness=1,
         )
 
-        # Save status feedback (shown below buttons)
-        if self._save_status:
-            status_color = (
-                (80, 220, 80) if "Saved" in self._save_status else (80, 80, 220)
-            )
-            drawer.text(
-                self._save_status,
-                (pad, finish_y1 + 18),
-                0.4,
-                color=status_color,
-                thickness=1,
-            )
+        # Status messages moved to map area status bar
 
         # ── Status section (bottom) ──────────────────────────────────────
         drawer.text(
@@ -676,6 +782,9 @@ class PathEditPage:
                 if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
                     self._do_save()
                     self._render()
+                elif self._hit_button(x, y, self._btn_loc_rect):
+                    self._apply_realtime_location()
+                    self._render()
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
                 return  # Prevent event propagation
@@ -701,6 +810,7 @@ class PathEditPage:
                     if self.action_down_idx != -1:
                         del_idx = self.action_down_idx
                         if 0 <= del_idx < len(self.points):
+                            deleted_point = self.points[del_idx]
                             self.points.pop(del_idx)
                             if self.drag_idx == del_idx:
                                 self.drag_idx = -1
@@ -710,6 +820,11 @@ class PathEditPage:
                                 self.selected_idx = -1
                             elif self.selected_idx > del_idx:
                                 self.selected_idx -= 1
+                            self._status = self.StatusRecord(
+                                time.time(),
+                                (255, 220, 120),
+                                f"Deleted Point #{del_idx} ({int(deleted_point[0])}, {int(deleted_point[1])})",
+                            )
                     elif self.action_down_pos == (x, y):
                         inserted = False
                         for i in range(1, len(self.points)):
@@ -725,11 +840,21 @@ class PathEditPage:
                             ):
                                 self.points.insert(i, [mx, my])
                                 self.selected_idx = i
+                                self._status = self.StatusRecord(
+                                    time.time(),
+                                    (255, 220, 120),
+                                    f"Added Point #{i} ({int(mx)}, {int(my)})",
+                                )
                                 inserted = True
                                 break
                         if not inserted:
                             self.points.append([mx, my])
                             self.selected_idx = len(self.points) - 1
+                            self._status = self.StatusRecord(
+                                time.time(),
+                                (255, 220, 120),
+                                f"Added Point #{self.selected_idx} ({int(mx)}, {int(my)})",
+                            )
 
             self.action_down_idx = -1
             self.action_mouse_down = False
@@ -760,6 +885,9 @@ class PathEditPage:
             ):
                 self._do_save()
                 self._render()
+            if key == ord("g") or key == ord("G"):
+                self._apply_realtime_location()
+                self._render()
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
@@ -781,6 +909,199 @@ def find_map_file(name: str, map_dir: str = MAP_DIR) -> str | None:
 def norm_map_name(name: str) -> str:
     """Normalize a map name by stripping suffixes and extensions."""
     return re.sub(r"(_merged)?\.png$", "", name)
+
+
+class LocationService:
+    """Read realtime location from a jsonl service log."""
+
+    class LocationServiceResult(NamedTuple):
+        status: str
+        payload: dict | str
+
+    MAX_LOOKBACK_LINES = 600
+    READ_CHUNK_SIZE = 8192
+    MESSAGE_KEYWORDS = ("Map tracking inference completed",)
+
+    def __init__(self, log_file: str = SERVICE_LOG_FILE):
+        self.log_file = log_file
+
+    def _read_last_lines(self) -> list[str]:
+        if not os.path.exists(self.log_file):
+            return []
+        try:
+            with open(self.log_file, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                end_pos = f.tell()
+                if end_pos == 0:
+                    return []
+
+                buffer = b""
+                pos = end_pos
+                lines: list[bytes] = []
+                while pos > 0 and len(lines) <= self.MAX_LOOKBACK_LINES:
+                    read_size = min(self.READ_CHUNK_SIZE, pos)
+                    pos -= read_size
+                    f.seek(pos, os.SEEK_SET)
+                    chunk = f.read(read_size)
+                    if not chunk:
+                        break
+                    buffer = chunk + buffer
+                    while b"\n" in buffer:
+                        head, buffer = buffer.rsplit(b"\n", 1)
+                        lines.append(buffer)
+                        buffer = head
+                        if len(lines) > self.MAX_LOOKBACK_LINES:
+                            break
+                if buffer and len(lines) <= self.MAX_LOOKBACK_LINES:
+                    lines.append(buffer)
+                lines = list(reversed(lines))
+                return [
+                    line.decode("utf-8", errors="ignore")
+                    for line in lines[-self.MAX_LOOKBACK_LINES :]
+                    if line
+                ]
+        except Exception:
+            return []
+
+    def _is_target_message(self, message: str | None) -> bool:
+        if not message:
+            return False
+        return any(key in message for key in self.MESSAGE_KEYWORDS)
+
+    def wait_for_new_location(
+        self, expected_map_name: str, timeout_seconds: float = 5.0
+    ) -> "LocationService.LocationServiceResult":
+        if not os.path.exists(self.log_file):
+            return self.LocationServiceResult("not_found", "Log file not found.")
+
+        try:
+            with open(self.log_file, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                pos = f.tell()
+                buffer = b""
+                start_time = time.time()
+
+                while time.time() - start_time <= timeout_seconds:
+                    try:
+                        f.seek(0, os.SEEK_END)
+                        end_pos = f.tell()
+                        if end_pos < pos:
+                            pos = end_pos
+                            buffer = b""
+                        if end_pos > pos:
+                            f.seek(pos, os.SEEK_SET)
+                            data = f.read(end_pos - pos)
+                            pos = end_pos
+                            if data:
+                                buffer += data
+                                while b"\n" in buffer:
+                                    line, buffer = buffer.split(b"\n", 1)
+                                    if not line:
+                                        continue
+                                    try:
+                                        text = line.decode("utf-8", errors="ignore")
+                                        data_obj = json.loads(text)
+                                    except Exception:
+                                        continue
+
+                                    if not isinstance(data_obj, dict):
+                                        continue
+                                    if not self._is_target_message(
+                                        data_obj.get("message")
+                                    ):
+                                        continue
+                                    if data_obj.get("hit") is False:
+                                        continue
+
+                                    log_map_name = data_obj.get(
+                                        "mapName"
+                                    ) or data_obj.get("map_name")
+                                    if not log_map_name:
+                                        continue
+                                    if norm_map_name(log_map_name) != norm_map_name(
+                                        expected_map_name
+                                    ):
+                                        return self.LocationServiceResult(
+                                            "mismatch", str(log_map_name)
+                                        )
+
+                                    x = data_obj.get("x")
+                                    y = data_obj.get("y")
+                                    if x is None or y is None:
+                                        continue
+
+                                    print(f"  {_G}Realtime location fetched.{_0}")
+                                    return self.LocationServiceResult(
+                                        "ok",
+                                        {
+                                            "x": int(round(x)),
+                                            "y": int(round(y)),
+                                            "raw": data_obj,
+                                        },
+                                    )
+                    except Exception:
+                        pass
+
+                    cv2.waitKey(1)
+                    time.sleep(0.05)
+
+        except Exception:
+            print(f"  {_R}Location service unavailable because error reading log file.")
+            print(
+                f"    {_Y}Please ensure the node 'MapTrackerTestLoop' is running.{_0}"
+            )
+            print("  Check the documentation for more details.")
+            return self.LocationServiceResult("not_found", "Log file unavailable.")
+
+        print(f"  {_R}Timeout connecting to location service. Please ensure:{_0}")
+        print(f"    {_Y}- The node 'MapTrackerTestLoop' is running.{_0}")
+        print(f"    {_Y}- The game window can be fully captured.{_0}")
+        print("    Check the documentation for more details.")
+        return self.LocationServiceResult(
+            "not_found",
+            "Timeout connecting to location service. Check the console for details.",
+        )
+
+    def get_latest_location(
+        self, expected_map_name: str
+    ) -> "LocationService.LocationServiceResult":
+        lines = self._read_last_lines()
+        if not lines:
+            return self.LocationServiceResult(
+                "not_found", "Log file not found or empty."
+            )
+
+        for line in reversed(lines):
+            try:
+                data = json.loads(line)
+            except Exception:
+                continue
+
+            if not isinstance(data, dict):
+                continue
+
+            if not self._is_target_message(data.get("message")):
+                continue
+
+            if data.get("hit") is False:
+                continue
+
+            log_map_name = data.get("mapName") or data.get("map_name")
+            if not log_map_name:
+                continue
+            if norm_map_name(log_map_name) != norm_map_name(expected_map_name):
+                return self.LocationServiceResult("mismatch", str(log_map_name))
+
+            x = data.get("x")
+            y = data.get("y")
+            if x is None or y is None:
+                continue
+
+            return self.LocationServiceResult(
+                "ok", {"x": int(round(x)), "y": int(round(y)), "raw": data}
+            )
+
+        return self.LocationServiceResult("not_found", "No matching log entry.")
 
 
 class PipelineHandler:
