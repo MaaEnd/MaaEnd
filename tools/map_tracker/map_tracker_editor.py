@@ -123,14 +123,14 @@ class SelectMapPage:
                 drawer.rect(
                     (x1, y1 + self.cell_size - 30),
                     (x1 + self.cell_size, y1 + self.cell_size),
-                    color=(0, 0, 0),
+                    color=0x000000,
                     thickness=-1,
                 )
                 drawer.text_centered(
                     label,
                     (x1 + self.cell_size // 2, y1 + self.cell_size - 10),
                     0.4,
-                    color=(255, 255, 255),
+                    color=0xFFFFFF,
                     thickness=1,
                 )
 
@@ -138,7 +138,7 @@ class SelectMapPage:
         drawer.line(
             (0, content_h),
             (self.window_w, content_h),
-            color=(128, 128, 128),
+            color=0x808080,
             thickness=2,
         )
 
@@ -147,7 +147,7 @@ class SelectMapPage:
             "Please click a map to continue",
             (drawer.w // 2, content_h + 30),
             0.7,
-            color=(255, 255, 255),
+            color=0xFFFFFF,
             thickness=1,
         )
 
@@ -156,7 +156,7 @@ class SelectMapPage:
             "< PREV",
             (150, self.window_h - 20),
             0.6,
-            color=(0, 255, 0) if self.current_page > 0 else (128, 128, 128),
+            color=0x00FF00 if self.current_page > 0 else 0x808080,
             thickness=2,
         )
 
@@ -166,7 +166,7 @@ class SelectMapPage:
             page_text,
             (drawer.w // 2, self.window_h - 20),
             0.5,
-            color=(255, 255, 255),
+            color=0xFFFFFF,
             thickness=1,
         )
 
@@ -175,11 +175,7 @@ class SelectMapPage:
             "NEXT >",
             (self.window_w - 200, self.window_h - 20),
             0.6,
-            color=(
-                (0, 255, 0)
-                if self.current_page < self.total_pages - 1
-                else (128, 128, 128)
-            ),
+            color=0x00FF00 if self.current_page < self.total_pages - 1 else 0x808080,
             thickness=2,
         )
 
@@ -261,9 +257,11 @@ class SelectMapPage:
 class PathEditPage:
     """Path editing page"""
 
-    # Sidebar layout constants
-    SIDEBAR_W = 210
+    SIDEBAR_W = 240
     STATUS_BAR_H = 32
+    LINE_WIDTH = 1.75
+    POINT_RADIUS = 4.5
+    POINT_SELECTION_THRESHOLD = 10
 
     class StatusRecord(NamedTuple):
         timestamp: float
@@ -296,8 +294,7 @@ class PathEditPage:
             raise ValueError(f"Cannot load map: {self.map_path}")
 
         self.points = [list(p) for p in initial_points] if initial_points else []
-        # Snapshot for dirty-tracking; deep copy of initial state
-        self._initial_snapshot: list[list] = [list(p) for p in self.points]
+        self._point_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
         self.location_service = LocationService()
@@ -311,10 +308,11 @@ class PathEditPage:
         self.selected_idx = -1
         self.panning = False
         self.pan_start = (0, 0)
-        self.line_width = 1.75
-        self.point_radius = 4.5
-        self.selection_threshold = 10
-        # Action state for point interactions (left button):
+        self.mouse_pos: tuple[int, int] = (-1, -1)  # For crosshair display
+        self._scaled_img: np.ndarray | None = None
+        self._scaled_scale: float | None = None
+
+        # Action state for point interactions (left button)
         self.action_down_idx = -1
         self.action_mouse_down = False
         self.action_down_pos = (0, 0)
@@ -323,13 +321,11 @@ class PathEditPage:
         self.done = False
 
         # Status feedback shown in map area status bar
-        self._status: PathEditPage.StatusRecord | None = None
+        self._status: PathEditPage.StatusRecord = self.StatusRecord(
+            0, 0xFFFFFF, "Welcome to MapTracker Editor!"
+        )
         self._modal_active: bool = False
         self._modal_text: str = ""
-
-        # Current mouse position in screen coords (for crosshair)
-        self.mouse_x: int = -1
-        self.mouse_y: int = -1
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
@@ -343,7 +339,10 @@ class PathEditPage:
     @property
     def is_dirty(self) -> bool:
         """True when current points differ from the initial snapshot."""
-        return self.points != self._initial_snapshot
+        return self.points != self._point_snapshot
+
+    def _update_status(self, color: Color, message: str) -> None:
+        self._status = self.StatusRecord(time.time(), color, message)
 
     def _do_save(self):
         """Save the current path to the pipeline file (I mode only)."""
@@ -352,15 +351,11 @@ class PathEditPage:
         handler: PipelineHandler = self.pipeline_context["handler"]
         node_name: str = self.pipeline_context["node_name"]
         if handler.replace_path(node_name, self.points):
-            self._initial_snapshot = [list(p) for p in self.points]
-            self._status = self.StatusRecord(
-                time.time(), (80, 220, 80), "Saved changes!"
-            )
+            self._point_snapshot = [list(p) for p in self.points]
+            self._update_status(0x50DC50, "Saved changes!")
             print(f"  {_G}Path saved to file.{_0}")
         else:
-            self._status = self.StatusRecord(
-                time.time(), (80, 80, 220), "Failed to save changes!"
-            )
+            self._update_status(0xFC4040, "Failed to save changes!")
             print(f"  {_Y}Failed to save path to file.{_0}")
 
     def _apply_realtime_location(self):
@@ -380,19 +375,13 @@ class PathEditPage:
             y = result.payload["y"]
             self.points.append([x, y])
             self.selected_idx = len(self.points) - 1
-            self._status = self.StatusRecord(
-                time.time(), (255, 220, 120), f"Realtime location added: ({x}, {y})"
-            )
+            self._update_status(0x78DCFF, f"Realtime location added: ({x}, {y})")
         elif result.status == "mismatch":
-            self._status = self.StatusRecord(
-                time.time(),
-                (80, 80, 220),
-                f"Error located map mismatch ({result.payload})",
+            self._update_status(
+                0xFC4040, f"Error located map mismatch ({result.payload})"
             )
         else:
-            self._status = self.StatusRecord(
-                time.time(), (80, 80, 220), str(result.payload)
-            )
+            self._update_status(0xD2D200, str(result.payload))
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates.
@@ -429,33 +418,33 @@ class PathEditPage:
     # ------------------------------------------------------------------
 
     def _render(self):
-        src_x1 = max(0, int(self.offset_x))
-        src_y1 = max(0, int(self.offset_y))
-        src_x2 = min(self.img.shape[1], int(self.offset_x + self.window_w / self.scale))
-        src_y2 = min(self.img.shape[0], int(self.offset_y + self.window_h / self.scale))
-
-        patch = self.img[src_y1:src_y2, src_x1:src_x2]
         drawer = Drawer.new(self.window_w, self.window_h)
 
-        if patch.size > 0:
-            view_w = int((src_x2 - src_x1) * self.scale)
-            view_h = int((src_y2 - src_y1) * self.scale)
-            view_w = min(view_w, self.window_w)
-            view_h = min(view_h, self.window_h)
-
-            resized_patch = cv2.resize(
-                patch, (view_w, view_h), interpolation=cv2.INTER_AREA
+        if self._scaled_img is None or self._scaled_scale != self.scale:
+            scaled_w = max(1, int(self.img.shape[1] * self.scale))
+            scaled_h = max(1, int(self.img.shape[0] * self.scale))
+            self._scaled_img = cv2.resize(
+                self.img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
             )
-            dst_x = int(max(0, -self.offset_x * self.scale))
-            dst_y = int(max(0, -self.offset_y * self.scale))
+            self._scaled_scale = self.scale
 
-            h, w = resized_patch.shape[:2]
-            # Clamp to map area
-            copy_h = min(h, self.window_h - dst_y)
-            copy_w = min(w, self.window_w - dst_x)
-            if copy_h > 0 and copy_w > 0:
+        scaled_img = self._scaled_img
+        if scaled_img is not None:
+            scaled_h, scaled_w = scaled_img.shape[:2]
+            src_x1 = int(round(self.offset_x * self.scale))
+            src_y1 = int(round(self.offset_y * self.scale))
+            dst_x = max(0, -src_x1)
+            dst_y = max(0, -src_y1)
+            src_x1 = max(0, src_x1)
+            src_y1 = max(0, src_y1)
+            src_x2 = min(scaled_w, src_x1 + self.window_w - dst_x)
+            src_y2 = min(scaled_h, src_y1 + self.window_h - dst_y)
+
+            copy_w = src_x2 - src_x1
+            copy_h = src_y2 - src_y1
+            if copy_w > 0 and copy_h > 0:
                 drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
-                    resized_patch[:copy_h, :copy_w]
+                    scaled_img[src_y1:src_y2, src_x1:src_x2]
                 )
 
         # Draw path lines
@@ -468,8 +457,8 @@ class PathEditPage:
                 drawer.line(
                     (psx, psy),
                     (sx, sy),
-                    color=(0, 0, 255),
-                    thickness=max(1, int(self.line_width * self.scale**0.5)),
+                    color=0xFF0000,
+                    thickness=max(1, int(self.LINE_WIDTH * self.scale**0.5)),
                 )
 
         # Draw point circles
@@ -477,48 +466,41 @@ class PathEditPage:
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
             drawer.circle(
                 (sx, sy),
-                int(self.point_radius * max(0.5, self.scale**0.5)),
-                color=(0, 165, 255) if i == self.drag_idx else (0, 0, 255),
+                int(self.POINT_RADIUS * max(0.5, self.scale**0.5)),
+                color=0xFFA500 if i == self.drag_idx else 0xFF0000,
                 thickness=-1,
             )
 
         # Draw point index labels
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            drawer.text(
-                str(i), (sx + 5, sy - 5), 0.5, color=(255, 255, 255), thickness=1
-            )
+            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
 
         # Draw crosshair at current mouse position
         drawer.line(
-            (self.mouse_x, 0),
-            (self.mouse_x, self.window_h),
-            color=(0, 255, 255),
+            (self.mouse_pos[0], 0),
+            (self.mouse_pos[0], self.window_h),
+            color=0xFFFF00,
             thickness=1,
         )
         drawer.line(
-            (0, self.mouse_y),
-            (self.window_w, self.mouse_y),
-            color=(0, 255, 255),
+            (0, self.mouse_pos[1]),
+            (self.window_w, self.mouse_pos[1]),
+            color=0xFFFF00,
             thickness=1,
         )
 
         if self._modal_active:
-            canvas = drawer.get_image()
             x1 = self.SIDEBAR_W
             x2 = self.window_w
             y1 = 0
             y2 = self.window_h
-            region = canvas[y1:y2, x1:x2].copy()
-            alpha = 0.7
-            black = np.zeros_like(region)
-            blended = (region * (1 - alpha) + black * alpha).astype(np.uint8)
-            canvas[y1:y2, x1:x2] = blended
+            drawer.mask((x1, y1), (x2, y2), color=0x000000, alpha=0.7)
             drawer.text_centered(
                 self._modal_text or "Connecting to service",
                 (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2),
                 0.7,
-                color=(255, 255, 255),
+                color=0xFFFFFF,
                 thickness=2,
             )
 
@@ -527,16 +509,11 @@ class PathEditPage:
         cv2.imshow(self.window_name, drawer.get_image())
 
     def _render_status_bar(self, drawer: "Drawer"):
-        canvas = drawer.get_image()
         x1 = self.SIDEBAR_W
         x2 = self.window_w
         y2 = self.window_h
         y1 = max(0, y2 - self.STATUS_BAR_H)
-        region = canvas[y1:y2, x1:x2].copy()
-        alpha = 0.8
-        black = np.zeros_like(region)
-        blended = (region * (1 - alpha) + black * alpha).astype(np.uint8)
-        canvas[y1:y2, x1:x2] = blended
+        drawer.mask((x1, y1), (x2, y2), color=0x000000, alpha=0.8)
         if not self._status:
             return
 
@@ -559,18 +536,11 @@ class PathEditPage:
         pad = 15
 
         # ── Extract and blend sidebar background ──────────────────────────
-        canvas = drawer.get_image()
-        sidebar_region = canvas[:h, :sw].copy()
-
         # Blend with semi-transparent black
-        sidebar_alpha = 0.9
-        sidebar_blended = (
-            sidebar_region * (1 - sidebar_alpha) + np.uint8(0) * sidebar_alpha
-        ).astype(np.uint8)
-        canvas[:h, :sw] = sidebar_blended
+        drawer.mask((0, 0), (sw, h), color=0x000000, alpha=0.9)
 
         # ── Right border ─────────────────────────────────────────────────
-        drawer.line((sw - 1, 0), (sw - 1, h), color=(255, 255, 255), thickness=1)
+        drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
 
         # ── Tips section ─────────────────────────────────────────────────
         cy = pad + 15
@@ -578,7 +548,7 @@ class PathEditPage:
             "[ Mouse Tips ]",
             (pad, cy),
             0.5,
-            color=(255, 255, 64),
+            color=0x40FFFF,
             thickness=1,
         )
         cy += 10
@@ -590,7 +560,7 @@ class PathEditPage:
         ]
         for line in tips:
             cy += 20
-            drawer.text(line, (pad, cy), 0.4, color=(200, 200, 200), thickness=1)
+            drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8, thickness=1)
         cy += 15  # small gap after tips
 
         # ── Buttons ──────────────────────────────────────────────────────
@@ -606,8 +576,8 @@ class PathEditPage:
             save_y1 = cy + btn_h
             self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
 
-            save_color = (0, 200, 100) if dirty else (60, 100, 60)
-            save_text_color = (255, 255, 255) if dirty else (100, 130, 100)
+            save_color = 0x64C800 if dirty else 0x3C643C
+            save_text_color = 0xFFFFFF if dirty else 0x648264
             drawer.rect(
                 (btn_x0, save_y0),
                 (btn_x0 + btn_w, save_y1),
@@ -617,7 +587,7 @@ class PathEditPage:
             drawer.rect(
                 (btn_x0, save_y0),
                 (btn_x0 + btn_w, save_y1),
-                color=(180, 180, 180),
+                color=0xB4B4B4,
                 thickness=1,
             )
             drawer.text_centered(
@@ -636,20 +606,20 @@ class PathEditPage:
         drawer.rect(
             (btn_x0, loc_y0),
             (btn_x0 + btn_w, loc_y1),
-            color=(80, 90, 200),
+            color=0x1A40B8,
             thickness=-1,
         )
         drawer.rect(
             (btn_x0, loc_y0),
             (btn_x0 + btn_w, loc_y1),
-            color=(180, 180, 180),
+            color=0xB4B4B4,
             thickness=1,
         )
         drawer.text_centered(
             "[G] Get Realtime Location",
             (btn_x0 + btn_w // 2, loc_y0 + btn_h - 8),
             0.42,
-            color=(255, 255, 255),
+            color=0xFFFFFF,
             thickness=1,
         )
         cy = loc_y1 + 8
@@ -661,20 +631,20 @@ class PathEditPage:
         drawer.rect(
             (btn_x0, finish_y0),
             (btn_x0 + btn_w, finish_y1),
-            color=(50, 80, 180),
+            color=0xB44022,
             thickness=-1,
         )
         drawer.rect(
             (btn_x0, finish_y0),
             (btn_x0 + btn_w, finish_y1),
-            color=(180, 180, 180),
+            color=0xB4B4B4,
             thickness=1,
         )
         drawer.text_centered(
             "[F] Finish",
             (btn_x0 + btn_w // 2, finish_y0 + btn_h - 8),
             0.45,
-            color=(255, 255, 255),
+            color=0xFFFFFF,
             thickness=1,
         )
 
@@ -685,7 +655,7 @@ class PathEditPage:
             f"Zoom: {self.scale:.2f}x",
             (pad, h - 75),
             0.45,
-            color=(0, 210, 210),
+            color=0xD2D200,
             thickness=1,
         )
 
@@ -694,7 +664,7 @@ class PathEditPage:
             line = f"Point #{self.selected_idx} ({int(p[0])}, {int(p[1])})"
         else:
             line = f"Points: {len(self.points)}"
-        drawer.text(line, (pad, h - 50), 0.45, color=(255, 255, 255), thickness=1)
+        drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF, thickness=1)
 
     # ------------------------------------------------------------------
     # Mouse / keyboard handling
@@ -710,26 +680,28 @@ class PathEditPage:
         for i, p in enumerate(self.points):
             sx, sy = self._get_screen_coords(p[0], p[1])
             dist = math.hypot(x - sx, y - sy)
-            if dist < self.selection_threshold:
+            if dist < self.POINT_SELECTION_THRESHOLD:
                 return i
         return -1
 
     def _handle_mouse(self, event, x, y, flags, param):
         # Track mouse position for crosshair
-        self.mouse_x = x
-        self.mouse_y = y
+        self.mouse_pos = (x, y)
+        if self._modal_active:
+            if event == cv2.EVENT_MOUSEMOVE:
+                self._render()
+            return  # Prevent all interactions when modal is active
 
         # ── Map area events ──────────────────────────────────────────────
         mx, my = self._get_map_coords(x, y)
         if event == cv2.EVENT_MOUSEWHEEL:
-            if flags > 0:
-                self.scale *= 1.14514
-            else:
-                self.scale /= 1.14514
+            self.scale *= 1.14514 if flags > 0 else 1 / 1.14514
             self.scale = max(0.5, min(self.scale, 10.0))
 
             self.offset_x = mx - x / self.scale
             self.offset_y = my - y / self.scale
+            self._scaled_img = None
+            self._scaled_scale = None
             self._render()
 
         elif event == cv2.EVENT_MOUSEMOVE:
@@ -820,15 +792,14 @@ class PathEditPage:
                                 self.selected_idx = -1
                             elif self.selected_idx > del_idx:
                                 self.selected_idx -= 1
-                            self._status = self.StatusRecord(
-                                time.time(),
-                                (255, 220, 120),
+                            self._update_status(
+                                0x78DCFF,
                                 f"Deleted Point #{del_idx} ({int(deleted_point[0])}, {int(deleted_point[1])})",
                             )
                     elif self.action_down_pos == (x, y):
                         inserted = False
                         for i in range(1, len(self.points)):
-                            map_threshold = self.selection_threshold / max(
+                            map_threshold = self.POINT_SELECTION_THRESHOLD / max(
                                 0.01, self.scale
                             )
                             if self._is_on_line(
@@ -840,9 +811,8 @@ class PathEditPage:
                             ):
                                 self.points.insert(i, [mx, my])
                                 self.selected_idx = i
-                                self._status = self.StatusRecord(
-                                    time.time(),
-                                    (255, 220, 120),
+                                self._update_status(
+                                    0x78DCFF,
                                     f"Added Point #{i} ({int(mx)}, {int(my)})",
                                 )
                                 inserted = True
@@ -850,9 +820,8 @@ class PathEditPage:
                         if not inserted:
                             self.points.append([mx, my])
                             self.selected_idx = len(self.points) - 1
-                            self._status = self.StatusRecord(
-                                time.time(),
-                                (255, 220, 120),
+                            self._update_status(
+                                0x78DCFF,
                                 f"Added Point #{self.selected_idx} ({int(mx)}, {int(my)})",
                             )
 
