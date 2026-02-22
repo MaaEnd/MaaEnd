@@ -179,14 +179,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					// Stop and rotate for large misalignment
 					aw.KeyUpSync(KEY_W, 0)
 					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100, 100)
-					aw.KeyDownSync(KEY_W, 0)
+					aw.KeyDownSync(KEY_W, 100)
 				} else {
 					// Just rotate for small misalignment
-					aw.KeyDownSync(KEY_W, 0)
 					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100, 100)
+					aw.KeyDownSync(KEY_W, 100)
 				}
 			} else {
-				aw.KeyDownSync(KEY_W, 0)
+				aw.KeyDownSync(KEY_W, 100)
 				if dist > param.SprintThreshold {
 					// Sprint if target is far enough
 					aw.KeyTypeSync(KEY_SHIFT, 100)
@@ -316,9 +316,9 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 			"recognition":        "Custom",
 			"custom_recognition": "MapTrackerInfer",
 			"custom_recognition_param": map[string]any{
-				"precision":      0.7,
-				"threshold":      0.3,
 				"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
+				"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
+				"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
 			},
 		},
 	}
@@ -328,9 +328,9 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		log.Error().Err(err).Msg("Failed to run MapTrackerInfer")
 		return nil, err
 	}
-	if res == nil || res.DetailJson == "" {
-		log.Error().Msg("Inference result is empty")
-		return nil, fmt.Errorf("inference result is empty")
+	if res == nil || res.DetailJson == "" || res.Hit == false {
+		log.Error().Msg("Location inference not hit or result is empty")
+		return nil, fmt.Errorf("location inference not hit or result is empty")
 	}
 
 	// Extract result
