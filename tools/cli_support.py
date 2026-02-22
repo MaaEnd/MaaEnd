@@ -54,6 +54,21 @@ def _enable_windows_virtual_terminal() -> bool:
 
 
 def supports_color() -> bool:
+    """
+    Return True if ANSI color output should be used on the current stdout.  
+
+    This helper centralizes the logic for deciding whether to emit ANSI escape  
+    sequences. It respects common environment variables and platform-specific  
+    behavior:  
+
+    * `NO_COLOR` (if set) unconditionally disables color output.  
+    * `FORCE_COLOR` (if set) unconditionally enables color output.  
+    * Color is only enabled when `sys.stdout` is a TTY (interactive terminal).  
+    * On Windows, virtual terminal processing must be available or successfully  
+      enabled via `_enable_windows_virtual_terminal()`.  
+    * On non-Windows platforms, `TERM` must be set to a non-empty value other  
+      than `"dumb"` for color to be considered supported.  
+    """
     if os.environ.get("NO_COLOR") is not None:
         return False
     if os.environ.get("FORCE_COLOR") is not None:
@@ -66,31 +81,61 @@ def supports_color() -> bool:
 
 
 class Console:
+    """
+    Helper for producing optionally colorized console text using ANSI escape codes.  
+
+    The console can be configured to enable or disable color output. When disabled,  
+    all helpers return the original text without any ANSI sequences.  
+    """ 
     def __init__(self, enabled: bool | None = None) -> None:
+        """
+        Initialize a new Console.  
+
+        Args:  
+            enabled: If True, always emit ANSI color codes. If False, never emit  
+                ANSI color codes. If None, automatically detect terminal color  
+                support via :func:`supports_color`.  
+        """ 
         self.enabled = supports_color() if enabled is None else enabled
 
-    def colorize(self, text: str, color: str) -> str:
-        if not self.enabled:
-            return text
-        return f"{color}{text}{Ansi.RESET}"
+    def colorize(self, text: str, color: str) -> str:  
+        """Wrap ``text`` in the given ANSI ``color`` code if color output is enabled.  
 
-    def hdr(self, text: str) -> str:
-        return self.colorize(text, Ansi.MAGENTA)
+        Args:  
+            text: The text to be colorized.  
+            color: The ANSI color escape sequence to prefix the text with.  
 
-    def step(self, text: str) -> str:
-        return self.colorize(text, Ansi.MAGENTA)
+        Returns:  
+            The colorized text when colors are enabled; otherwise the original text.  
+        """  
+        if not self.enabled:  
+            return text  
+        return f"{color}{text}{Ansi.RESET}"  
 
-    def ok(self, text: str) -> str:
-        return self.colorize(text, Ansi.GREEN)
+    def hdr(self, text: str) -> str:  
+        """Return a header-style string, typically used for section titles."""  
+        return self.colorize(text, Ansi.MAGENTA)  
 
-    def warn(self, text: str) -> str:
-        return self.colorize(text, Ansi.YELLOW)
+    def step(self, text: str) -> str:  
+        """Return a step label string, e.g. for multi-step CLI workflows."""  
+        return self.colorize(text, Ansi.MAGENTA)  
 
-    def err(self, text: str) -> str:
-        return self.colorize(text, Ansi.RED)
+    def ok(self, text: str) -> str:  
+        """Return a success-style string."""  
+        return self.colorize(text, Ansi.GREEN)  
 
-    def info(self, text: str) -> str:
+    def warn(self, text: str) -> str:  
+        """Return a warning-style string."""  
+        return self.colorize(text, Ansi.YELLOW)  
+
+    def err(self, text: str) -> str:  
+        """Return an error-style string."""  
+        return self.colorize(text, Ansi.RED)  
+
+    def info(self, text: str) -> str:  
+        """Return an informational-style string."""  
         return self.colorize(text, Ansi.CYAN)
+
 
 
 def init_localization(
@@ -98,7 +143,36 @@ def init_localization(
     lang_map: dict[str, str] = LANG_MAP,
     default_lang: str = "en_us",
 ) -> tuple[Callable[..., str], str | None]:
-    lang = str(locale.getlocale()[0])
+    """
+    Initialize localization by loading language resources for the current locale.
+    This function determines the active language from the system locale and the
+    provided `lang_map`, then attempts to load a corresponding JSON file from
+    `locals_dir`. The file name is expected to be `<lang>.json`, where `<lang>`
+    is the resolved language code (for example, ``en_us`` or ``zh_cn``).
+    Parameters
+    ----------
+    locals_dir:
+        Directory containing localization JSON files.
+    lang_map:
+        Mapping from system locale identifiers (e.g. ``"English_United States"``)
+        or language codes (e.g. ``"en_us"``) to normalized language codes used
+        to select the JSON file.
+    default_lang:
+        Language code to fall back to when the system locale cannot be mapped.
+    Returns
+    -------
+    tuple[Callable[..., str], str | None]
+        A pair ``(t, load_error_path)`` where:
+        * ``t`` is a translation function that takes a string key and optional
+          keyword arguments and returns a localized, ``str.format``-formatted
+          string. If the key is missing or formatting fails, it returns the key
+          or unformatted template.
+        * ``load_error_path`` is the path to the locale file that failed to load,
+          or ``None`` if the localization file was loaded successfully.
+    """
+    loc = locale.getlocale()
+    lang = (loc[0] or "") if loc else ""
+
     if lang in lang_map:
         lang = lang_map[lang]
     elif lang.lower() in lang_map:

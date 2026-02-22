@@ -11,7 +11,6 @@ from cli_support import console, init_localization
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
 
 
-
 _local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
 
 
