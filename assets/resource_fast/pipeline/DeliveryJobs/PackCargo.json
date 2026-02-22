@@ -119,7 +119,7 @@
         ],
         "action": "StopTask",
         "focus": {
-            "Node.Action.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
         }
     }
 }
