@@ -96,7 +96,8 @@
             "[JumpBack]ExitReceptionRoom",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]EndExchange",
-            "ReceptionRoom"
+            "ReceptionRoom",
+            "[JumpBack]WhiteConfirmButtonType2" //防止领取好友赠送线索动作点击失效
         ]
     },
     "ReceptionRoomClickTips": {
@@ -172,7 +173,7 @@
         "next": [
             "ReadySetClues",
             "EndExchange",
-            "WhiteConfirmButtonType1"
+            "WhiteConfirmButtonType2"
         ]
     },
     "ReadySetClues": {
