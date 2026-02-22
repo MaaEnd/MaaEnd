@@ -220,6 +220,10 @@
     },
     "OpenDijiangControlNexus": {
         "doc": "[导航·帝江号] 从主界面按 I 键打开帝江号总控中枢入口",
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {

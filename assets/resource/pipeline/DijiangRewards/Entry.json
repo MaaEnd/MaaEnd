@@ -16,7 +16,7 @@
             "Node.PipelineNode.Failed": "未识别到进入基建入口"
         },
         "next": [
-            "InControlNexus",
+            "ControlNexus",
             "[JumpBack]SceneEnterWorldDijiangControlNexus"
         ]
     }
