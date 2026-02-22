@@ -16,6 +16,7 @@ import (
 
 type MapTrackerMove struct{}
 
+// MapTrackerMoveParam represents the custom_action_param for MapTrackerMove
 type MapTrackerMoveParam struct {
 	// MapName is the name of the map to navigate (required).
 	MapName string `json:"map_name"`
@@ -39,6 +40,8 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
+	// Whether to suppress status printing for GUI.
+	NoPrint bool `json:"no_print,omitempty"`
 }
 
 //go:embed messages/emergency_stop.html
@@ -75,10 +78,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// Show navigation UI
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
 			initDist := math.Hypot(float64(initRes.X-targetX), float64(initRes.Y-targetY))
-			maafocus.NodeActionStarting(
-				aw.ctx,
-				fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
-			)
+			if !param.NoPrint {
+				maafocus.NodeActionStarting(
+					aw.ctx,
+					fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
+				)
+			}
 		} else if err != nil {
 			log.Debug().Err(err).Msg("Initial infer failed for moving UI")
 		}
@@ -111,7 +116,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			deltaArrivalMs := now.Sub(lastArrivalTime).Milliseconds()
 			if deltaArrivalMs > param.ArrivalTimeout {
 				log.Error().Msg("Arrival timeout, stopping task")
-				doEmergencyStop(aw)
+				doEmergencyStop(aw, param.NoPrint)
 				return false
 			}
 
@@ -131,7 +136,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				deltaLocationMs := now.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
-					doEmergencyStop(aw)
+					doEmergencyStop(aw, param.NoPrint)
 					return false
 				}
 				if deltaLocationMs > param.StuckThreshold {
@@ -164,7 +169,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				deltaRotationAdjustMs := now.Sub(lastRotationAdjustTime).Milliseconds()
 				if deltaRotationAdjustMs > param.RotationTimeout {
 					log.Error().Msg("Rotation adjustment timeout, stopping task")
-					doEmergencyStop(aw)
+					doEmergencyStop(aw, param.NoPrint)
 					return false
 				}
 
@@ -195,10 +200,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// Show finished UI summary
-	maafocus.NodeActionStarting(
-		aw.ctx,
-		fmt.Sprintf(navigationFinishedHTML, len(param.Path)),
-	)
+	if !param.NoPrint {
+		maafocus.NodeActionStarting(
+			aw.ctx,
+			fmt.Sprintf(navigationFinishedHTML, len(param.Path)),
+		)
+	}
 
 	return true
 }
@@ -280,9 +287,11 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	return &param, nil
 }
 
-func doEmergencyStop(aw *ActionWrapper) {
+func doEmergencyStop(aw *ActionWrapper, noPrint bool) {
 	log.Warn().Msg("Emergency stop triggered")
-	maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
+	if !noPrint {
+		maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
+	}
 	aw.KeyUpSync(KEY_W, 100)
 	aw.ctx.GetTasker().PostStop()
 }
