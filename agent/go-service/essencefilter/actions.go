@@ -272,7 +272,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> OCR empty")
 		return false
 	}
-	currentSkills[params.Slot-1] = text
+	currentSkills[params.Slot-1] = cleanChinese(text)
 	log.Info().Int("slot", params.Slot).Str("skill", text).Bool("is_last", params.IsLast).Msg("<EssenceFilter> OCR ok")
 
 	if !params.IsLast {
