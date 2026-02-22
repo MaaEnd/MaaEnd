@@ -153,7 +153,7 @@
             "DailyTaskComplete"
         ]
     },
-    "ActivityLimitReached": {
+    "DailyTaskActivityLimitReached": {
         "desc": "OCR,活跃度达到上限，结束任务",
         "recognition": {
             "type": "OCR",
@@ -179,11 +179,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ActivityLimitReached",
-            "ActivityLimitNotReached"
+            "DailyTaskActivityLimitReached",
+            "DailyTaskActivityLimitNotReached"
         ]
     },
-    "ActivityLimitNotReached": {
+    "DailyTaskActivityLimitNotReached": {
         "desc": "活跃度未达上限，继续检测",
         "action": {
             "type": "DoNothing",
