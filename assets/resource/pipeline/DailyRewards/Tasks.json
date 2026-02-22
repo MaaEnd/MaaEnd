@@ -57,7 +57,7 @@
         "next": [
             "[JumpBack]DailyTaskClaimSingleReward",
             "[JumpBack]DailyTaskClaimActivityRewards",
-            "CheckActivityStatus",
+            "DailyTaskCheckActivityStatus",
             "DailyTaskComplete"
         ]
     },
@@ -173,7 +173,7 @@
             "DailyTaskComplete"
         ]
     },
-    "CheckActivityStatus": {
+    "DailyTaskCheckActivityStatus": {
         "enabled": false,
         "desc": "检查活跃度是否完成",
         "pre_delay": 0,
