@@ -1241,6 +1241,30 @@
             "param": {
                 "key": 116 // F5
             }
+        },
+        "next": [
+            "ScenePrivateAnyEnterMenuShopSuccess"
+        ]
+    },
+    "ScenePrivateAnyEnterMenuShopSuccess": {
+        "doc": "成功进入商店菜单",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "采购中心",
+                    "採購中心",
+                    "Acquisition Center",
+                    "購買部",
+                    "구매 센터"
+                ]
+            }
         }
     }
 }
