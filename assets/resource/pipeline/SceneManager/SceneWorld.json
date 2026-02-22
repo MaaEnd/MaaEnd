@@ -2,18 +2,11 @@
     "ScenePrivateAnyEnterWorldSuccess": {
         "doc": "从任意界面进入大世界成功",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         }
     },

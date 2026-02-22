@@ -1,4 +1,22 @@
 {
+    "CheckRegionalDevelopmentText": {
+        "doc": "检查地区建设界面左上角的文字",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "expected": [
+            "地区建设",
+            "地區建設",
+            "Regional Development",
+            "地域建設",
+            "지역 건설"
+        ]
+    },
     "CheckRegionalDevelopmentValleyIVText": {
         "doc": "检查四号谷地地区建设左边的文字",
         "recognition": "OCR",
