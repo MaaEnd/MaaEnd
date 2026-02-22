@@ -15,7 +15,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuListSuccess",
             "ScenePrivateWorldEnterMenuList",
             "[JumpBack]SceneAnyEnterWorld"
         ]
@@ -25,7 +24,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapDijiangSuccess",
             "ScenePrivateMapNotDijiangEnterMapDijiang",
             "ScenePrivateWorldEnterMapDijiang",
             "[JumpBack]SceneAnyEnterWorld"
@@ -36,7 +34,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVTheHub",
             "ScenePrivateWorldEnterMapValleyIVTheHub",
             "[JumpBack]SceneAnyEnterWorld"
@@ -47,7 +44,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVValleyPass",
             "ScenePrivateWorldEnterMapValleyIVValleyPass",
             "[JumpBack]SceneAnyEnterWorld"
@@ -58,7 +54,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark",
             "ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
             "[JumpBack]SceneAnyEnterWorld"
@@ -69,7 +64,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry",
             "ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
             "[JumpBack]SceneAnyEnterWorld"
@@ -80,7 +74,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring",
             "ScenePrivateWorldEnterMapValleyIVOriginLodespring",
             "[JumpBack]SceneAnyEnterWorld"
@@ -91,7 +84,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess",
             "ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau",
             "ScenePrivateWorldEnterMapValleyIVPowerPlateau",
             "[JumpBack]SceneAnyEnterWorld"
@@ -102,7 +94,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingWulingCitySuccess",
             "ScenePrivateMapOverviewEnterMapWulingWulingCity",
             "ScenePrivateWorldEnterMapWulingWulingCity",
             "[JumpBack]SceneAnyEnterWorld"
@@ -113,7 +104,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess",
             "ScenePrivateMapOverviewEnterMapWulingJingyuValley",
             "ScenePrivateWorldEnterMapWulingJingyuValley",
             "[JumpBack]SceneAnyEnterWorld"
@@ -124,7 +114,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterWorldDijiangSuccess",
             "ScenePrivateWorldEnterWorldDijiang",
             "[JumpBack]SceneAnyEnterWorld"
         ]
@@ -155,7 +144,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuRegionalDevelopment",
             "ScenePrivateWorldEnterMenuRegionalDevelopment",
@@ -167,7 +155,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuEventSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuEvent",
             "ScenePrivateWorldEnterMenuEvent",
@@ -179,7 +166,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuValuablesSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuValuables",
             "ScenePrivateWorldEnterMenuValuables",
@@ -191,7 +177,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuOperationalManualSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuOperationalManual",
             "ScenePrivateWorldEnterMenuOperationalManual",
@@ -203,7 +188,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuProtocolPassSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuProtocolPass",
             "ScenePrivateWorldEnterMenuProtocolPass",
@@ -215,7 +199,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuFriendsSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuFriends",
             "ScenePrivateWorldEnterMenuFriends",
@@ -227,7 +210,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuGearAssemblySuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuGearAssembly",
             "ScenePrivateWorldFactoryEnterMenuGearAssembly",
@@ -239,7 +221,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuBluePrintSuccess",
             "ScenePrivateWorldFactoryEnterMenuBluePrint",
             "[JumpBack]SceneEnterWorldFactory"
         ]
@@ -249,7 +230,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuEmailSuccess",
             "ScenePrivateWorldEnterMenuEmail",
             "[JumpBack]SceneAnyEnterWorld"
         ]
@@ -259,7 +239,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuBackpackSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuBackpack",
             "ScenePrivateWorldEnterMenuBackpack",
@@ -271,7 +250,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuBackpackSuccess",
             "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
             "[JumpBack]SceneEnterWorldDijiang"
         ]
@@ -281,7 +259,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuBakerSuccess",
             "ScenePrivateWorldEnterMenuBaker",
             "[JumpBack]SceneAnyEnterWorld"
         ]
@@ -291,7 +268,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterMenuWikiSuccess",
             // 临时禁用：菜单总列表入口当前稳定性不足，优先使用大世界直达入口
             // "ScenePrivateMenuListEnterMenuWiki",
             "ScenePrivateWorldEnterMenuWiki",
