@@ -11,7 +11,6 @@ import json
 import numpy as np
 from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2
 
-
 MAP_DIR = "assets/resource/image/MapTracker/map"
 
 

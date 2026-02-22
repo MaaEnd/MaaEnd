@@ -4,45 +4,27 @@ import platform
 import shutil
 import subprocess
 import sys
-import json
-import locale
 from pathlib import Path
 
+from cli_support import console, init_localization
+
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
-LANG_MAP = {
-    "Chinese (Simplified)_China": "zh_cn",
-    "Chinese (Traditional)_Taiwan": "zh_tw",
-    "English_United States": "en_us",
-    "Japanese_Japan": "ja_jp",
-    "Korean_Korea": "ko_kr",
-    "zh_cn": "zh_cn",
-    "zh_tw": "zh_tw",
-    "en_us": "en_us",
-    "ja_jp": "ja_jp",
-    "ko_kr": "ko_kr",
-}
-LANG_RES = {}
+
+
+
+_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
-    lang = str(locale.getlocale()[0])
-    if lang in LANG_MAP:
-        lang = LANG_MAP[lang]
-    elif lang.lower() in LANG_MAP:
-        lang = LANG_MAP[lang.lower()]
-    else:
-        lang = "en_us"
-
-    global LANG_RES
-    try:
-        with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
-            LANG_RES = json.load(f)
-    except:
-        print(t("error_load_locale", path=str(LOCALS_DIR / f"{lang}.json")))
+    global _local_t
+    t_func, load_error_path = init_localization(LOCALS_DIR)
+    _local_t = t_func
+    if load_error_path:
+        print(console.err(t("error_load_locale", path=load_error_path)))
 
 
 def t(key: str, **kwargs) -> str:
-    return LANG_RES.get(key, key).format(**kwargs)
+    return _local_t(key, **kwargs)
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -69,7 +51,9 @@ def create_directory_link(src: Path, dst: Path) -> bool:
             text=True,
         )
         if result.returncode != 0:
-            print(f"  {t('error')} {t('create_junction_failed')}: {result.stderr}")
+            print(
+                f"  {console.err(t('error'))} {t('create_junction_failed')}: {result.stderr}"
+            )
             return False
     else:
         dst.symlink_to(src)
@@ -97,7 +81,9 @@ def create_file_link(src: Path, dst: Path) -> bool:
                 text=True,
             )
             if result.returncode != 0:
-                print(f"  {t('error')} {t('create_file_link_failed')}: {result.stderr}")
+                print(
+                    f"  {console.err(t('error'))} {t('create_file_link_failed')}: {result.stderr}"
+                )
                 return False
     else:
         try:
@@ -132,12 +118,12 @@ def check_go_environment() -> bool:
             text=True,
         )
         if result.returncode == 0:
-            print(f"  {t('go_version')}: {result.stdout.strip()}")
+            print(f"  {console.info(t('go_version'))}: {result.stdout.strip()}")
             return True
     except FileNotFoundError:
         pass
 
-    print(f"  {t('error')} {t('go_not_found')}")
+    print(f"  {console.err(t('error'))} {t('go_not_found')}")
     print()
     print(f"  {t('go_install_prompt')}")
     print(f"    - {t('go_install_official')}")
@@ -153,7 +139,7 @@ def configure_ocr_model(assets_dir: Path) -> bool:
     """配置 OCR 模型，逐个复制文件，已存在则跳过"""
     assets_ocr_src = assets_dir / "MaaCommonAssets" / "OCR" / "ppocr_v5" / "zh_cn"
     if not assets_ocr_src.exists():
-        print(f"  {t('error')} {t('ocr_not_found')}: {assets_ocr_src}")
+        print(f"  {console.err(t('error'))} {t('ocr_not_found')}: {assets_ocr_src}")
         print(f"  {t('ocr_submodule_hint')}")
         return False
 
@@ -173,7 +159,7 @@ def configure_ocr_model(assets_dir: Path) -> bool:
             shutil.copy2(src_file, dst_file)
             copied_count += 1
 
-    print(f"  -> {ocr_dir}")
+    print(f"  {console.ok('->')} {ocr_dir}")
     print(f"  {t('ocr_copied', copied=copied_count, skipped=skipped_count)}")
     return True
 
@@ -192,7 +178,7 @@ def build_go_agent(
 
     go_service_dir = root_dir / "agent" / "go-service"
     if not go_service_dir.exists():
-        print(f"  {t('error')} {t('go_source_not_found')}: {go_service_dir}")
+        print(f"  {console.err(t('error'))} {t('go_source_not_found')}: {go_service_dir}")
         return False
 
     # 检测或使用指定的系统和架构
@@ -220,8 +206,8 @@ def build_go_agent(
     agent_dir.mkdir(parents=True, exist_ok=True)
     output_path = agent_dir / f"go-service{ext}"
 
-    print(f"  {t('target_platform')}: {goos}/{goarch}")
-    print(f"  {t('output_path')}: {output_path}")
+    print(f"  {console.info(t('target_platform'))}: {goos}/{goarch}")
+    print(f"  {console.info(t('output_path'))}: {output_path}")
 
     env = {**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}
 
@@ -235,7 +221,7 @@ def build_go_agent(
         env=env,
     )
     if result.returncode != 0:
-        print(f"  {t('error')} {t('go_mod_tidy_failed')}: {result.stderr}")
+        print(f"  {console.err(t('error'))} {t('go_mod_tidy_failed')}: {result.stderr}")
         return False
 
     # go build
@@ -252,6 +238,7 @@ def build_go_agent(
 
     if version:
         ldflags += f" -X main.Version={version}"
+        
     ldflags = ldflags.strip()
 
     build_cmd = [
@@ -271,8 +258,8 @@ def build_go_agent(
     build_cmd.extend(["-o", str(output_path), "."])
 
     build_mode_text = t("build_mode_ci") if ci_mode else t("build_mode_dev")
-    print(f"  {t('build_mode')}: {build_mode_text}")
-    print(f"  {t('build_command')}: {' '.join(build_cmd)}")
+    print(f"  {console.warn(t('build_mode'))}: {build_mode_text}")
+    print(f"  {console.info(t('build_command'))}: {' '.join(build_cmd)}")
 
     result = subprocess.run(
         build_cmd,
@@ -283,10 +270,10 @@ def build_go_agent(
         env=env,
     )
     if result.returncode != 0:
-        print(f"  {t('error')} {t('go_build_failed')}: {result.stderr}")
+        print(f"  {console.err(t('error'))} {t('go_build_failed')}: {result.stderr}")
         return False
 
-    print(f"  -> {output_path}")
+    print(f"  {console.ok('->')} {output_path}")
     return True
 
 
@@ -307,9 +294,9 @@ def main():
     install_dir = root_dir / "install"
 
     mode_text = t("mode_ci") if use_copy else t("mode_dev")
-    print(f"{t('root_dir')}: {root_dir}")
-    print(f"{t('install_dir')}:   {install_dir}")
-    print(f"{t('mode')}:       {mode_text}")
+    print(f"{console.info(t('root_dir'))}: {root_dir}")
+    print(f"{console.info(t('install_dir'))}:   {install_dir}")
+    print(f"{console.warn(t('mode'))}:       {mode_text}")
     print()
 
     install_dir.mkdir(parents=True, exist_ok=True)
@@ -319,53 +306,53 @@ def main():
     link_or_copy_file = copy_file if use_copy else create_file_link
 
     # 1. 配置 OCR 模型
-    print(t("step_configure_ocr"))
+    print(console.step(t("step_configure_ocr")))
     if not configure_ocr_model(assets_dir):
-        print(f"  {t('error')} {t('configure_ocr_failed')}")
+        print(f"  {console.err(t('error'))} {t('configure_ocr_failed')}")
         sys.exit(1)
 
     # 2. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
-    print(t("step_process_assets"))
+    print(console.step(t("step_process_assets")))
     for item in assets_dir.iterdir():
         if item.name == "MaaCommonAssets":
             continue
         dst = install_dir / item.name
         if item.is_dir():
             if link_or_copy_dir(item, dst):
-                print(f"  -> {dst}")
+                print(f"  {console.ok('->')} {dst}")
         elif item.is_file():
             if link_or_copy_file(item, dst):
-                print(f"  -> {dst}")
+                print(f"  {console.ok('->')} {dst}")
 
     # 3. 构建 Go Agent
-    print(t("step_build_go"))
+    print(console.step(t("step_build_go")))
     if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
     ):
-        print(f"  {t('error')} {t('build_go_failed')}")
+        print(f"  {console.err(t('error'))} {t('build_go_failed')}")
         sys.exit(1)
 
     # 4. 链接/复制项目根目录文件并创建 maafw 目录
-    print(t("step_prepare_files"))
+    print(console.step(t("step_prepare_files")))
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename
         dst = install_dir / filename
         if src.exists():
             if link_or_copy_file(src, dst):
-                print(f"  -> {dst}")
+                print(f"  {console.ok('->')} {dst}")
 
     maafw_dir = install_dir / "maafw"
     maafw_dir.mkdir(parents=True, exist_ok=True)
-    print(f"  -> {maafw_dir}")
+    print(f"  {console.ok('->')} {maafw_dir}")
 
     print()
     print("=" * 50)
-    print(t("install_complete"))
+    print(console.ok(t("install_complete")))
 
     if not use_copy:
         if not any(maafw_dir.iterdir()):
             print()
-            print(t("maafw_download_hint"))
+            print(console.warn(t("maafw_download_hint")))
             print(f"  {t('maafw_download_step')}")
             print(f"  {t('maafw_download_url')}")
         if (
@@ -373,7 +360,7 @@ def main():
             and not (install_dir / "mxu.exe").exists()
         ):
             print()
-            print(t("mxu_download_hint"))
+            print(console.warn(t("mxu_download_hint")))
             print(f"  {t('mxu_download_step')}")
             print(f"  {t('mxu_download_url')}")
 
