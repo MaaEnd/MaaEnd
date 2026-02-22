@@ -112,8 +112,18 @@ def init_localization(
             data = json.load(f)
         if isinstance(data, dict):
             lang_res = {str(k): str(v) for k, v in data.items()}
-    except Exception:
+    except FileNotFoundError:
         load_error_path = str(locale_file)
+        print(f"[localization] locale file not found: {locale_file}", file=sys.stderr)
+    except json.JSONDecodeError as e:
+        load_error_path = str(locale_file)
+        print(f"[localization] failed to decode locale json: {locale_file}: {e}", file=sys.stderr)
+    except OSError as e:
+        load_error_path = str(locale_file)
+        print(f"[localization] failed to read locale file: {locale_file}: {e}", file=sys.stderr)
+    except Exception as e:
+        load_error_path = str(locale_file)
+        print(f"[localization] unexpected error while loading locale file: {locale_file}: {e}", file=sys.stderr)
 
     def t(key: str, **kwargs) -> str:
         template = lang_res.get(key, key)
