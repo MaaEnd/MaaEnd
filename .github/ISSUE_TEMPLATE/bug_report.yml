@@ -42,6 +42,14 @@ body:
       required: true
 
   - type: textarea
+    id: game_screenshot
+    attributes:
+      label: 游戏画面截图
+      description: 请提供出现问题时的游戏画面截图，以便定位识别或操作相关问题。
+    validations:
+      required: true
+
+  - type: textarea
     id: version
     attributes:
       label: 版本信息截图
