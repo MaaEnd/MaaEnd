@@ -171,7 +171,8 @@
         },
         "next": [
             "ReadySetClues",
-            "EndExchange"
+            "EndExchange",
+            "WhiteConfirmButtonType1"
         ]
     },
     "ReadySetClues": {

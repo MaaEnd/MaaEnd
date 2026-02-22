@@ -270,7 +270,6 @@
                         207,
                         13
                     ]
-
                 ],
                 "upper": [
                     [
@@ -288,7 +287,6 @@
                         241,
                         48
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -316,7 +314,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "upper": [
                     [
@@ -334,7 +331,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -357,7 +353,6 @@
                         82,
                         82
                     ]
-
                 ],
                 "upper": [
                     [
@@ -370,7 +365,6 @@
                         83,
                         83
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -566,6 +560,48 @@
                                 "template": [
                                     "Common/Button/WhiteConfirmButtonType1.png",
                                     "Common/Button/WhiteConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "WhiteConfirmButtonType2": {
+        "doc": "通用确认按钮，有文字，白色底，对号形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/WhiteConfirmButtonType2.png",
+                                    "Common/Button/WhiteConfirmButtonType2Hover.png"
                                 ]
                             }
                         }
