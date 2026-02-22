@@ -238,7 +238,7 @@ def build_go_agent(
 
     if version:
         ldflags += f" -X main.Version={version}"
-        
+
     ldflags = ldflags.strip()
 
     build_cmd = [
