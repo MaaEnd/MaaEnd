@@ -138,14 +138,14 @@
 
 **说明**：通用关闭/退出按钮，同样是右上角 X，但**兼容 ESC 菜单**（识别到 X 或 ESC 菜单都会点击，可关闭界面也可关闭 ESC 菜单，避免因无法关闭 ESC 导致卡死）。
 
-<!-- 截图：与 CloseButtonType1 共用，见 CloseButtonType1.png -->
-![CloseButtonType2](images/common-buttons/CloseButtonType1.png)
+<!-- 截图：docs/developers/images/common-buttons/CloseButtonType2.png -->
+![CloseButtonType2](images/common-buttons/CloseButtonType2.png)
 
 | 项目 | 说明 |
 |------|------|
-| **识别方式** | `Or`：任意命中 `CloseButtonType1`（右上角 X）或 `ESCMenu`。 |
+| **识别方式** | `Or`：任意命中 `CloseButtonType1`（右上角蓝色区域）或 `ESCMenu`（左下角蓝色区域内的探索等级文字）。 |
 | **搜索范围** | **限定区域**，由子节点 `CloseButtonType1`、`ESCMenu` 的 ROI 决定，仅在各子节点指定区域内识别。 |
-| **动作** | 单击（`contact: 1`）。 |
+| **动作** | 右键单击（`contact: 1`）。 |
 | **使用条件** | 需要**统一处理“关界面”和“关 ESC 菜单”**时使用。例如：点击关闭后可能是关掉弹窗，也可能打开 ESC 菜单，下一帧再点一次即可关 ESC。若场景绝不会出现 ESC 菜单，用 `CloseButtonType1` 即可。 |
 
 ---
