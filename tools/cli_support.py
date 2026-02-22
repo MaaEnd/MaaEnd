@@ -34,21 +34,35 @@ def _enable_windows_virtual_terminal() -> bool:
         return False
     try:
         import ctypes
+        from ctypes import wintypes
+
+        STD_OUTPUT_HANDLE = -11
+        ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+        INVALID_HANDLE_VALUE = ctypes.c_void_p(-1).value
 
         kernel32 = ctypes.windll.kernel32
-        handle = kernel32.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+        kernel32.GetStdHandle.argtypes = [wintypes.DWORD]
+        kernel32.GetStdHandle.restype = wintypes.HANDLE
+        kernel32.GetConsoleMode.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+        kernel32.GetConsoleMode.restype = wintypes.BOOL
+        kernel32.SetConsoleMode.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        kernel32.SetConsoleMode.restype = wintypes.BOOL
 
-        # GetStdHandle returns NULL (0) for an invalid handle and INVALID_HANDLE_VALUE (-1) on error.
-        # Treat both cases as "no usable console output handle" (for example, in a GUI app without a console).
-        if handle in (0, -1):
+        handle = kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+        handle_value = ctypes.c_void_p(handle).value
+
+        # GetStdHandle may return NULL (0) for no handle and INVALID_HANDLE_VALUE on error.
+        if handle_value in (None, 0, INVALID_HANDLE_VALUE):
             return False
-        mode = ctypes.c_uint32()
-        if kernel32.GetConsoleMode(handle, ctypes.byref(mode)) == 0:
+
+        mode = wintypes.DWORD()
+        if not kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
             return False
-        enable_vt = 0x0004  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
-        if mode.value & enable_vt:
+
+        if mode.value & ENABLE_VIRTUAL_TERMINAL_PROCESSING:
             return True
-        return kernel32.SetConsoleMode(handle, mode.value | enable_vt) != 0
+
+        return bool(kernel32.SetConsoleMode(handle, mode.value | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
     except Exception:
         return False
 
