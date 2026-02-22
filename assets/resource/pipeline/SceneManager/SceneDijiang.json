@@ -234,8 +234,8 @@
                     77
                 ],
                 "template": [
-                    "ClaimDijiangRewards/ControlNexus.png",
-                    "ClaimDijiangRewards/ControlNexusWithTips.png"
+                    "SceneManager/ControlNexus.png",
+                    "SceneManager/ControlNexusWithTips.png"
                 ]
             }
         },
