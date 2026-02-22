@@ -87,18 +87,10 @@ class Console:
     The console can be configured to enable or disable color output. When disabled,  
     all helpers return the original text without any ANSI sequences.  
     """ 
-    def __init__(self, enabled: bool | None = None) -> None:
-        """
-        Initialize a new Console.  
+    enabled = supports_color()
 
-        Args:  
-            enabled: If True, always emit ANSI color codes. If False, never emit  
-                ANSI color codes. If None, automatically detect terminal color  
-                support via :func:`supports_color`.  
-        """ 
-        self.enabled = supports_color() if enabled is None else enabled
-
-    def colorize(self, text: str, color: str) -> str:  
+    @classmethod
+    def colorize(cls, text: str, color: str) -> str:  
         """Wrap ``text`` in the given ANSI ``color`` code if color output is enabled.  
 
         Args:  
@@ -108,33 +100,39 @@ class Console:
         Returns:  
             The colorized text when colors are enabled; otherwise the original text.  
         """  
-        if not self.enabled:  
+        if not cls.enabled:  
             return text  
         return f"{color}{text}{Ansi.RESET}"  
 
-    def hdr(self, text: str) -> str:  
+    @classmethod
+    def hdr(cls, text: str) -> str:  
         """Return a header-style string, typically used for section titles."""  
-        return self.colorize(text, Ansi.MAGENTA)  
+        return cls.colorize(text, Ansi.MAGENTA)  
 
-    def step(self, text: str) -> str:  
+    @classmethod
+    def step(cls, text: str) -> str:  
         """Return a step label string, e.g. for multi-step CLI workflows."""  
-        return self.colorize(text, Ansi.MAGENTA)  
+        return cls.colorize(text, Ansi.MAGENTA)  
 
-    def ok(self, text: str) -> str:  
+    @classmethod
+    def ok(cls, text: str) -> str:  
         """Return a success-style string."""  
-        return self.colorize(text, Ansi.GREEN)  
+        return cls.colorize(text, Ansi.GREEN)  
 
-    def warn(self, text: str) -> str:  
+    @classmethod
+    def warn(cls, text: str) -> str:  
         """Return a warning-style string."""  
-        return self.colorize(text, Ansi.YELLOW)  
+        return cls.colorize(text, Ansi.YELLOW)  
 
-    def err(self, text: str) -> str:  
+    @classmethod
+    def err(cls, text: str) -> str:  
         """Return an error-style string."""  
-        return self.colorize(text, Ansi.RED)  
+        return cls.colorize(text, Ansi.RED)  
 
-    def info(self, text: str) -> str:  
+    @classmethod
+    def info(cls, text: str) -> str:  
         """Return an informational-style string."""  
-        return self.colorize(text, Ansi.CYAN)
+        return cls.colorize(text, Ansi.CYAN)
 
 
 
@@ -211,4 +209,3 @@ def init_localization(
 
     return t, load_error_path
 
-console = Console()
