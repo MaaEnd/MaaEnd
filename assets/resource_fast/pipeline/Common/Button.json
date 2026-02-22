@@ -227,7 +227,10 @@
     "RegionalDevelopmentLevelButton": {
         "doc": "地区建设中的地区建设等级按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/RegionalDevelopmentLevelButton.png",
+        "template": [
+            "Common/Button/RegionalDevelopmentLevelButton.png",
+            "Common/Button/RegionalDevelopmentLevelButtonHover.png"
+        ],
         "threshold": 0.9,
         "roi": [
             491,
