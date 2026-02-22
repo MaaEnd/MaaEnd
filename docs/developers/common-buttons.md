@@ -164,5 +164,3 @@
 | `CloseButtonType1` | 仅关界面、无法关闭 ESC 菜单（ESC 下会卡死）的右上角 X |
 | `CloseButtonType2` | 关界面或关 ESC 的通用右上角 X（有 ESC 时用此节点避免卡死） |
 <!-- markdownlint-enable MD060 -->
-
-**图片说明**：文档中每节使用了 `docs/developers/images/common-buttons/` 下的截图路径。若该目录或图片尚未创建，请维护者在 720p 下截取对应按钮并放入该目录，便于其他开发者对照“什么条件下可以使用”该节点。
