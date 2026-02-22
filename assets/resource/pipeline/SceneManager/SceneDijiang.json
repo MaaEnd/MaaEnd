@@ -224,6 +224,9 @@
             "time": 500,
             "timeout": 2000
         },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号总控中枢界面失败"
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
