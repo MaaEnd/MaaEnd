@@ -1224,6 +1224,9 @@
             "time": 500,
             "timeout": 2000
         },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入商店菜单失败"
+        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
