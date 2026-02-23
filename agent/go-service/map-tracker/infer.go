@@ -36,12 +36,12 @@ type MapTrackerInferResult struct {
 type MapTrackerInferParam struct {
 	// MapNameRegex is a regex pattern to filter which maps to consider during inference.
 	MapNameRegex string `json:"map_name_regex,omitempty"`
+	// Print controls whether to print inference results to the GUI.
+	Print bool `json:"print,omitempty"`
 	// Precision controls the inference precision/speed tradeoff.
 	Precision float64 `json:"precision,omitempty"`
 	// Threshold controls the minimum confidence required to consider the inference successful.
 	Threshold float64 `json:"threshold,omitempty"`
-	// Whether to print status to GUI.
-	Print bool `json:"print,omitempty"`
 }
 
 // MapCache represents a preloaded map image

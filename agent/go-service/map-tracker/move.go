@@ -24,6 +24,8 @@ type MapTrackerMoveParam struct {
 	Path [][2]int `json:"path"`
 	// PathTrim trims the path to start from the nearest point to the current location when enabled.
 	PathTrim bool `json:"path_trim,omitempty"`
+	// NoPrint controls whether to suppress printing navigation status to the GUI.
+	NoPrint bool `json:"no_print,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -42,8 +44,6 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
-	// Whether to suppress status printing for GUI.
-	NoPrint bool `json:"no_print,omitempty"`
 }
 
 //go:embed messages/emergency_stop.html
