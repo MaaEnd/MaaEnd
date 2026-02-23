@@ -256,6 +256,15 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterMenuShop": {
+        "doc": "从任意界面进入商店界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuShop",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "SceneDialogConfirm": {
         "doc": "点击对话框的确认按钮",
         "recognition": {
