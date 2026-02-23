@@ -7,8 +7,8 @@
             "description": "$task.CreditShopping.description",
             "option": [
                 "CreditShoppingOptions",
-                "CreditShoppingForce",
-                "AutoGetCredits"
+                "AutoGetCredits",
+                "CreditShoppingForce"
             ]
         }
     ],

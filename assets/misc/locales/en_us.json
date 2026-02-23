@@ -111,7 +111,7 @@
     "option.CreditShoppingOptions.inputs.blacklist.label": "Blacklist",
     "option.CreditShoppingOptions.inputs.blacklist.description": "Substring Just `|` Separate",
     "option.CreditShoppingForce.label": "When credits overflow",
-    "option.CreditShoppingForce.description": "Buy blacklist items: ignores blacklist when overflowing\nExecute refresh: executes refresh when overflowing and strictly follows whitelist\nNote! Refresh mode may lose some credits above 300",
+    "option.CreditShoppingForce.description": "- Buy blacklist items: ignores blacklist when overflowing\n- Execute refresh: executes refresh when overflowing and strictly follows whitelist\n\nNote! Refresh mode may lose some credits above 300",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "Buy blacklist items",
     "option.CreditShoppingForce.cases.Reflash.label": "Execute refresh",
     "option.CreditShoppingOnlyDiscount.label": "Only buy discounted credit items",
