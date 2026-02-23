@@ -23,9 +23,9 @@ type LocationCondition struct {
 type MapTrackerAssertLocationParam struct {
 	// Expected is a list of conditions to check, using OR logic.
 	Expected []LocationCondition `json:"expected"`
-	// Precision is a value controls the inference precision/speed tradeoff.
+	// Precision controls the inference precision/speed tradeoff.
 	Precision float64 `json:"precision,omitempty"`
-	// Threshold is the minimum confidence required to consider the inference successful.
+	// Threshold controls the minimum confidence required to consider the inference successful.
 	Threshold float64 `json:"threshold,omitempty"`
 	// Whether to enable fast mode for matching.
 	FastMode bool `json:"fast_mode,omitempty"`
