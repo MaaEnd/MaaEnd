@@ -268,9 +268,15 @@ def build_go_agent(
         encoding="utf-8",
         env=env,
     )
+    if result.stdout:
+        print(result.stdout)
     if result.returncode != 0:
-        print(f"  {Console.err(t('error'))} {t('go_build_failed')}: {result.stderr}")
+        print(f"  {Console.err(t('error'))} {t('go_build_failed')}:")
+        if result.stderr:
+            print(result.stderr)
         return False
+    if result.stderr:
+        print(result.stderr)
 
     print(f"  {Console.ok('->')} {output_path}")
     return True
@@ -387,10 +393,15 @@ def build_cpp_algo(
         text=True,
         encoding="utf-8",
     )
+    if result.stdout:
+        print(result.stdout)
     if result.returncode != 0:
         print(f"  {t('error')} {t('cmake_configure_failed')}:")
-        print(result.stderr)
+        if result.stderr:
+            print(result.stderr)
         return False
+    if result.stderr:
+        print(result.stderr)
 
     # cmake --build build --preset <build_preset>
     build_preset = f"{configure_preset} - {build_type}"
@@ -410,10 +421,15 @@ def build_cpp_algo(
         text=True,
         encoding="utf-8",
     )
+    if result.stdout:
+        print(result.stdout)
     if result.returncode != 0:
         print(f"  {t('error')} {t('cmake_build_failed')}:")
-        print(result.stderr)
+        if result.stderr:
+            print(result.stderr)
         return False
+    if result.stderr:
+        print(result.stderr)
 
     # cmake --install build --prefix <install_dir> --config <build_type>
     install_cmd = [
@@ -434,10 +450,15 @@ def build_cpp_algo(
         text=True,
         encoding="utf-8",
     )
+    if result.stdout:
+        print(result.stdout)
     if result.returncode != 0:
         print(f"  {t('error')} {t('cmake_install_failed')}:")
-        print(result.stderr)
+        if result.stderr:
+            print(result.stderr)
         return False
+    if result.stderr:
+        print(result.stderr)
 
     agent_dir = install_dir / "agent"
     print(f"  -> {agent_dir}")
