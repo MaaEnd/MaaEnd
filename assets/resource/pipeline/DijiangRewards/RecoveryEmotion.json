@@ -91,7 +91,7 @@
             }
         },
         "next": [
-            "InControlNexus",
+            "ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
@@ -111,7 +111,7 @@
             "param": {
                 "box_index": 1,
                 "all_of": [
-                    "InControlNexus",
+                    "ScenePrivateWorldEnterMenuControlNexusSuccess",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -318,7 +318,7 @@
             }
         },
         "next": [
-            "InControlNexus",
+            "ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
