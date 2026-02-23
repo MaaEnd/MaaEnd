@@ -82,7 +82,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 			}
 			if closestIdx > 0 {
-				log.Info().Int("closet_index", closestIdx).Float64("closest_dist", minDist).Msg("Path trim enabled, skipping earlier targets")
+				log.Info().Int("closest_index", closestIdx).Float64("closest_dist", minDist).Msg("Path trim enabled, skipping earlier targets")
 				param.Path = param.Path[closestIdx:]
 			}
 		} else {
