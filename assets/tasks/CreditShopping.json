@@ -103,28 +103,15 @@
             "type": "select",
             "label": "$option.DiscountValue.label",
             "description": "$option.DiscountValue.description",
-            "default_case": "-99%",
+            "default_case": "-25%",
             "cases": [
                 {
-                    "name": "-99%",
-                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "name": "-25%",
+                    "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
                                 "[-－]\\s*99\\s*%|99\\s*%",
-                                "[-－]\\s*75\\s*%|75\\s*%",
-                                "[-－]\\s*50\\s*%|50\\s*%",
-                                "[-－]\\s*25\\s*%|25\\s*%"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "-75%",
-                    "label": "$option.DiscountValue.cases.-75%.label",
-                    "pipeline_override": {
-                        "IsDiscount": {
-                            "expected": [
                                 "[-－]\\s*75\\s*%|75\\s*%",
                                 "[-－]\\s*50\\s*%|50\\s*%",
                                 "[-－]\\s*25\\s*%|25\\s*%"
@@ -138,19 +125,32 @@
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
-                                "[-－]\\s*50\\s*%|50\\s*%",
-                                "[-－]\\s*25\\s*%|25\\s*%"
+                                "[-－]\\s*99\\s*%|99\\s*%",
+                                "[-－]\\s*75\\s*%|75\\s*%",
+                                "[-－]\\s*50\\s*%|50\\s*%"
                             ]
                         }
                     }
                 },
                 {
-                    "name": "-25%",
-                    "label": "$option.DiscountValue.cases.-25%.label",
+                    "name": "-75%",
+                    "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
                         "IsDiscount": {
                             "expected": [
-                                "[-－]\\s*25\\s*%|25\\s*%"
+                                "[-－]\\s*99\\s*%|99\\s*%",
+                                "[-－]\\s*75\\s*%|75\\s*%"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "-99%",
+                    "label": "$option.DiscountValue.cases.-99%.label",
+                    "pipeline_override": {
+                        "IsDiscount": {
+                            "expected": [
+                                "[-－]\\s*99\\s*%|99\\s*%"
                             ]
                         }
                     }
