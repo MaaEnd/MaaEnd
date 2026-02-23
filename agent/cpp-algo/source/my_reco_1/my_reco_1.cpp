@@ -6,8 +6,8 @@
 
 #include <MaaFramework/MaaAPI.h>
 
-// MaaUtils ���кܶ�ͨ�ù��ߣ������ȿ���ʹ�á�
-// ����ͨ������Ҳ��ӭ�ύ issue �� PR �� MaaUtils �ֿ⡣
+// MaaUtils 里有很多通用工具，请优先考虑使用。
+// 对于通用需求，也欢迎提交 issue 或 PR 给 MaaUtils 仓库。
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
