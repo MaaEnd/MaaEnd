@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "opencv-python>=4",
+# ]
+# ///
+
 # MapTracker - Merger Tool
 # This tool helps merge map tile image files into complete maps.
 
@@ -185,13 +192,13 @@ class MergeMapPage:
                 x_pos = x_offset + (i - 1) * sw * scale + sw * scale / 2
                 y_pos = y_offset + new_h + 15
                 drawer.text_centered(
-                    str(i), (x_pos, y_pos), 0.5, color=(0, 255, 255), thickness=1
+                    str(i), (x_pos, y_pos), 0.5, color=0xFFFF00, thickness=1
                 )
             for j in range(1, max_y + 1):
                 x_pos = x_offset - 20
                 y_pos = y_offset + (max_y - j) * sh * scale + sh * scale / 2
                 drawer.text_centered(
-                    str(j), (x_pos, y_pos), 0.5, color=(0, 255, 255), thickness=1
+                    str(j), (x_pos, y_pos), 0.5, color=0xFFFF00, thickness=1
                 )
 
             # Draw yellow overlay and adjustment indicators for manual tiles
@@ -204,17 +211,11 @@ class MergeMapPage:
                 tile_h = int(sh * scale)
 
                 # Semi-transparent yellow overlay
-                overlay = np.zeros((tile_h, tile_w, 3), dtype=np.uint8)
-                overlay[:, :] = (0, 255, 255)  # Yellow
-                alpha = 0.2
-                drawer._img[tile_y : tile_y + tile_h, tile_x : tile_x + tile_w] = (
-                    cv2.addWeighted(
-                        drawer._img[tile_y : tile_y + tile_h, tile_x : tile_x + tile_w],
-                        1 - alpha,
-                        overlay,
-                        alpha,
-                        0,
-                    )
+                drawer.mask(
+                    (tile_x, tile_y),
+                    (tile_x + tile_w, tile_y + tile_h),
+                    color=0xFFFF00,
+                    alpha=0.2,
                 )
 
                 # Draw alignment indicator lines
@@ -257,14 +258,14 @@ class MergeMapPage:
                         (tile_x + tile_w, tile_y + tile_h),
                     ]
 
-                drawer.line(*args1, color=(0, 255, 255), thickness=1)
-                drawer.line(*args2, color=(0, 255, 255), thickness=1)
+                drawer.line(*args1, color=0xFFFF00, thickness=1)
+                drawer.line(*args2, color=0xFFFF00, thickness=1)
 
         # Bottom bar
         drawer.line(
             (0, self.window_h - 100),
             (self.window_w, self.window_h - 100),
-            color=(128, 128, 128),
+            color=0x808080,
             thickness=2,
         )
 
@@ -274,7 +275,7 @@ class MergeMapPage:
                 current_group,
                 (self.window_w // 2, self.window_h - 50),
                 0.7,
-                color=(255, 255, 255),
+                color=0xFFFFFF,
                 thickness=2,
             )
 
@@ -286,14 +287,14 @@ class MergeMapPage:
         drawer.rect(
             (bar_x, bar_y),
             (bar_x + bar_w, bar_y + bar_h),
-            color=(255, 255, 255),
+            color=0xFFFFFF,
             thickness=2,
         )
         fill_w = int(bar_w * progress)
         drawer.rect(
             (bar_x, bar_y),
             (bar_x + fill_w, bar_y + bar_h),
-            color=(0, 255, 0),
+            color=0x00FF00,
             thickness=-1,
         )
 
@@ -303,7 +304,7 @@ class MergeMapPage:
                 "Click highlighted tiles to adjust alignment, press ENTER to continue",
                 (self.window_w // 2, self.window_h - 10),
                 0.5,
-                color=(255, 255, 255),
+                color=0xFFFFFF,
                 thickness=1,
             )
 

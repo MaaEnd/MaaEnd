@@ -110,7 +110,7 @@ jobs:
           fi
 
       - name: Push changes
-        if: steps.check_push.outputs.is_pr != 'True' && steps.commit_changes.outputs.have_commits == 'True' && github.repository_owner == 'MAA1999'
+        if: steps.check_push.outputs.is_pr != 'True' && steps.commit_changes.outputs.have_commits == 'True' && github.repository_owner == 'MaaEnd'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
