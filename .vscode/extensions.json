@@ -3,6 +3,7 @@
         "ms-python.black-formatter",
         "nekosu.maa-support",
         "davidanson.vscode-markdownlint",
-        "golang.go"
+        "golang.go",
+        "vadimcn.vscode-lldb"
     ]
 }
