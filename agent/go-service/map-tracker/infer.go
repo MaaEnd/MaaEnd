@@ -36,9 +36,9 @@ type MapTrackerInferResult struct {
 type MapTrackerInferParam struct {
 	// MapNameRegex is a regex pattern to filter which maps to consider during inference.
 	MapNameRegex string `json:"map_name_regex,omitempty"`
-	// Precision is a value controls the inference precision/speed tradeoff.
+	// Precision controls the inference precision/speed tradeoff.
 	Precision float64 `json:"precision,omitempty"`
-	// Threshold is the minimum confidence required to consider the inference successful.
+	// Threshold controls the minimum confidence required to consider the inference successful.
 	Threshold float64 `json:"threshold,omitempty"`
 	// Whether to print status to GUI.
 	Print bool `json:"print,omitempty"`
@@ -282,8 +282,8 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 			continue
 		}
 
-		// Extract map name (remove "_merged.png" suffix)
-		name := strings.TrimSuffix(filename, "_merged.png")
+		// Extract map name (remove ".png" suffix)
+		name := strings.TrimSuffix(filename, ".png")
 
 		var imgRGBA *image.RGBA
 		offsetX, offsetY := 0, 0
