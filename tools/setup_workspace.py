@@ -19,6 +19,38 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 
+
+def create_directory_link(src: Path, dst: Path) -> bool:
+    """
+    在指定位置创建一个指定目录的链接
+    - Windows：Junction
+    - Unix/macOS：symlink
+    """
+    if dst.exists() or dst.is_symlink():
+        if dst.is_dir() and not dst.is_symlink():
+            try:
+                dst.rmdir()
+            except OSError:
+                shutil.rmtree(dst)
+        else:
+            dst.unlink(missing_ok=True)
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if platform.system() == "Windows":
+        result = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(dst), str(src)],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            print(Console.err(f"Failed to create junction: {result.stderr}"))
+            return False
+    else:
+        dst.symlink_to(src)
+
+    return True
+
 LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
 
 
@@ -81,7 +113,7 @@ def configure_token() -> None:
         print(Console.ok(t("inf_github_token_configured")))
     else:
         print(Console.warn(t("wrn_github_token_not_configured")))
-        print(t("inf_github_token_hint"))
+        print(Console.info(t("inf_github_token_hint")))
     print("-" * 40)
 
 
@@ -105,11 +137,26 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     if (
         not skip_if_exist
         or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
+        or not (PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").exists()
     ):
         print(Console.info(t("inf_updating_submodules")))
         return run_command(["git", "submodule", "update", "--init", "--recursive"])
     print(Console.ok(t("inf_submodules_exist")))
     return True
+
+
+def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
+    """下载 MaaDeps 预编译依赖"""
+    maadeps_dir = (
+        PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaDeps" / "vcpkg" / "installed"
+    )
+    if skip_if_exist and maadeps_dir.exists() and any(maadeps_dir.iterdir()):
+        print(Console.ok(t("inf_maadeps_exist")))
+        return True
+
+    print(Console.info(t("inf_bootstrap_maadeps")))
+    script_path = PROJECT_BASE / "tools" / "maadeps-download.py"
+    return run_command([sys.executable, str(script_path)])
 
 
 def run_build_script() -> bool:
@@ -332,7 +379,8 @@ def install_maafw(
     """安装 MaaFramework，若遇占用则提示用户手动处理"""
     real_install_root = install_root.resolve()
     maafw_dest = real_install_root / "maafw"
-    maafw_installed = (maafw_dest / MFW_DIST_NAME).exists()
+    maafw_deps = PROJECT_BASE / "deps"
+    maafw_installed = maafw_deps.exists() and any(maafw_deps.iterdir())
 
     if skip_if_exist and maafw_installed:
         print(Console.ok(t("inf_maafw_installed_skip")))
@@ -361,21 +409,24 @@ def install_maafw(
         if not download_file(url, download_path):
             return False, local_version, False
 
-        if maafw_dest.exists():
-            while True:
-                try:
-                    print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
-                    shutil.rmtree(maafw_dest)
-                    break
-                except PermissionError as e:
-                    print(Console.err(t("err_permission_denied", error=e)))
-                    print(Console.err(t("err_cannot_delete_maafw", path=maafw_dest)))
-                    cmd = input(t("prompt_retry_or_quit")).strip().lower()
-                    if cmd == "q":
+        if maafw_dest.exists() or maafw_dest.is_symlink():
+            if maafw_dest.is_dir() and not maafw_dest.is_symlink():
+                while True:
+                    try:
+                        print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
+                        shutil.rmtree(maafw_dest)
+                        break
+                    except PermissionError as e:
+                        print(Console.err(t("err_permission_denied", error=e)))
+                        print(Console.err(t("err_cannot_delete_maafw", path=maafw_dest)))
+                        cmd = input(t("prompt_retry_or_quit")).strip().lower()
+                        if cmd == "q":
+                            return False, local_version, False
+                    except Exception as e:
+                        print(Console.err(t("err_unknown_error_delete", error=e)))
                         return False, local_version, False
-                except Exception as e:
-                    print(Console.err(t("err_unknown_error_delete", error=e)))
-                    return False, local_version, False
+            else:
+                maafw_dest.unlink(missing_ok=True)
 
         print(Console.info(t("inf_extract_maafw")))
         try:
@@ -385,26 +436,32 @@ def install_maafw(
             # 使用 shutil.unpack_archive 自动识别格式进行解压
             shutil.unpack_archive(str(download_path), extract_root)
 
-            maafw_dest.mkdir(parents=True, exist_ok=True)
-            bin_found = False
+            # 找到包含 bin 目录的 SDK 根目录
+            sdk_root = None
             for root, dirs, _ in os.walk(extract_root):
                 if "bin" in dirs:
-                    bin_path = Path(root) / "bin"
-                    print(Console.info(t("inf_copy_components", dest=maafw_dest)))
-                    for item in bin_path.iterdir():
-                        dest_item = maafw_dest / item.name
-                        if item.is_dir():
-                            if dest_item.exists():
-                                shutil.rmtree(dest_item)
-                            shutil.copytree(item, dest_item)
-                        else:
-                            shutil.copy2(item, dest_item)
-                    bin_found = True
+                    sdk_root = Path(root)
                     break
 
-            if not bin_found:
+            if not sdk_root:
                 print(Console.err(t("err_bin_not_found")))
                 return False, local_version, False
+
+            # 先将完整 SDK 复制到项目根目录 deps/
+            maafw_deps = PROJECT_BASE / "deps"
+            print(Console.info(f"Copying full SDK to {maafw_deps} ..."))
+            if maafw_deps.exists():
+                shutil.rmtree(maafw_deps)
+            shutil.copytree(sdk_root, maafw_deps)
+            print(Console.ok(f"Full SDK copied to {maafw_deps}"))
+
+            # 创建 install/maafw -> deps/bin 的目录链接
+            bin_path = maafw_deps / "bin"
+            print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
+            if not create_directory_link(bin_path, maafw_dest):
+                print(Console.err("Failed to create directory link for maafw"))
+                return False, local_version, False
+
             print(Console.ok(t("inf_maafw_install_complete")))
             return True, remote_version or local_version, True
         except Exception as e:
@@ -513,6 +570,10 @@ def main() -> None:
     configure_token()
     if not update_submodules(skip_if_exist=not args.update):
         print(Console.err(t("fatal_submodule_failed")))
+        sys.exit(1)
+    print(Console.hdr(t("header_bootstrap_maadeps")))
+    if not bootstrap_maadeps(skip_if_exist=not args.update):
+        print(Console.err(t("fatal_maadeps_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_build_go")))
     if not run_build_script():
