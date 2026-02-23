@@ -169,10 +169,10 @@ func (r *DailyEventUnreadDetailInitRecognition) Run(ctx *maa.Context, arg *maa.C
 		}
 
 		clickBox := maa.Rect{
-			redDotBox.X() - 20,
-			redDotBox.Y() + 20,
-			5,
-			5,
+			redDotBox.X() - 2,
+			redDotBox.Y() + 10,
+			2,
+			2,
 		}
 		dailyEventUnreadDetails = append(dailyEventUnreadDetails, dailyEventUnreadDetail{
 			Box: clickBox,
