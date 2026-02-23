@@ -1,4 +1,12 @@
 {
+    "ScenePrivateWorldEnterMenuRegionalDevelopment": {
+        "doc": "从世界界面进入菜单界面，点击地区建设按钮",
+        "recognition": "And",
+        "all_of": [
+            "RegionalDevelopmentButton"
+        ],
+        "action": "Click"
+    },
     "ScenePrivateWorldEnterMenuCheckMainUI": {
         "action": {
             "type": "Click"
