@@ -46,7 +46,7 @@
             }
         },
         "next": [
-            "InControlNexus",
+            "ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]CloseButtonType1"
         ]
     },
@@ -129,14 +129,13 @@
                             }
                         }
                     },
-                    "InControlNexus"
-
+                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "ControlNexus",
-            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -183,14 +182,13 @@
                             }
                         }
                     },
-                    "InControlNexus"
-
+                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]OpenDijiangControlNexus",
+            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -361,23 +359,6 @@
                     20,
                     0,
                     0
-                ]
-            }
-        }
-    },
-    "InControlNexus": {
-        "doc": "[主流程·状态] 识别处于帝江号总控中枢界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    15,
-                    437,
-                    225,
-                    153
-                ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
         }
