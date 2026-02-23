@@ -1,0 +1,33 @@
+{
+    "MapTrackerTestLoop": {
+        "next": [
+            "MapTrackerTestLoop"
+        ],
+        "pre_delay": 1000,
+        "rate_limit": 1000,
+        "recognition": {
+            "param": {
+                "custom_recognition": "MapTrackerInfer",
+                "custom_recognition_param": {
+                    "map_name_regex": ".*",
+                    "precision": 0.8,
+                    "print": true
+                }
+            },
+            "type": "Custom"
+        }
+    },
+    "MapTrackerTest": {
+        "recognition": {
+            "param": {
+                "custom_recognition": "MapTrackerInfer",
+                "custom_recognition_param": {
+                    "map_name_regex": ".*",
+                    "precision": 0.8,
+                    "print": true
+                }
+            },
+            "type": "Custom"
+        }
+    }
+}
