@@ -140,10 +140,10 @@
         "template": "Common/Button/IncomeReportButton.png",
         "threshold": 0.8,
         "roi": [
-            1173,
-            91,
-            68,
-            87
+            -220,
+            0,
+            220,
+            220
         ],
         "action": "Click",
         "post_wait_freezes": {
