@@ -196,7 +196,16 @@
         "next": [
             "DeliveryJobsPackCargo",
             "DeliveryJobsEnterOriginiumScienceParkCargo"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterOriginLodespringCargo": {
         "doc": "进入矿脉源区货物",
@@ -210,7 +219,16 @@
         "next": [
             "DeliveryJobsPackCargo",
             "DeliveryJobsEnterOriginLodespringCargo"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterPowerPlateauCargo": {
         "doc": "进入供能高地货物",
@@ -224,7 +242,16 @@
         "next": [
             "DeliveryJobsPackCargo",
             "DeliveryJobsEnterPowerPlateauCargo"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsEnterWulingCityCargo": {
         "doc": "进入武陵城区货物",
@@ -238,7 +265,16 @@
         "next": [
             "DeliveryJobsPackCargo",
             "DeliveryJobsEnterWulingCityCargo"
-        ]
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsValleyIVCargoNotReady": {
         "doc": "四号谷地进入仓储节点后，如果上面都没匹配说明没准备好，返回上一级菜单，去下一个区域",
