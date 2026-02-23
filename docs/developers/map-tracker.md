@@ -8,8 +8,8 @@
 
 ### 重要概念
 
-1. **地图名称**：每张大地图在游戏中都有唯一名称，例如 "map001_lv001"，其中 "map001" 表示地区是“四号谷地”，"lv001" 表示子区域是“枢纽区”。请查看 `/assets/resource/image/MapTracker/map` 以获取完整的地图名称列表。
-2. **坐标系统**：MapTracker 使用的坐标是小地图的图片像素坐标 $(x, y)$，以图片的左上角作为原点 $(0, 0)$。
+1. **地图名称**：每张大地图在游戏中都有唯一名称，例如 "map001_lv001"，其中 "map001" 表示地区是“四号谷地”，"lv001" 表示子区域是“枢纽区”。请查看 `/assets/resource/image/MapTracker/map` 以获取所有地图名称和图片（这些图片已被缩放处理，以适配 720P 分辨率的游戏中的小地图 UI）。
+2. **坐标系统**：MapTracker 使用的坐标是上述大地图的图片像素坐标 $(x, y)$，以图片的左上角作为原点 $(0, 0)$。
 
 ## 节点说明
 
@@ -90,9 +90,12 @@
 }
 ```
 
-#### 注意事项
+> [!TIP]
+> 执行此节点之前，推荐使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点来检查玩家的**初始位置**是否满足要求，以便抵达首个路径点。
 
-使用这个节点时，务必确保玩家初始所处的位置**能够直线抵达** `path` 中的第一个坐标点，并且玩家始终处于指定的地图中。推荐使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点来进行前置检查。
+> [!WARNING]
+> 
+> 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
 ### Recognition: MapTrackerInfer
 
@@ -136,9 +139,13 @@
 }
 ```
 
-#### 注意事项
+> [!TIP]
+>
+> MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
 
-MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
+> [!WARNING]
+>
+> 该节点不适合放在 pipeline 中进行低代码开发。如需判断玩家所处的位置是否符合条件，请使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点。
 
 ### Recognition: MapTrackerAssertLocation
 
