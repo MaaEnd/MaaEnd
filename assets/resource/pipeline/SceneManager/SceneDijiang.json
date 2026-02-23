@@ -217,5 +217,56 @@
                 ]
             }
         }
+    },
+    "ScenePrivateWorldEnterMenuControlNexus": {
+        "doc": "从主界面按 I 键打开帝江号总控中枢入口",
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号总控中枢界面失败"
+        },
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    247,
+                    0,
+                    172,
+                    77
+                ],
+                "template": [
+                    "SceneManager/ControlNexus.png",
+                    "SceneManager/ControlNexusWithTips.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 73 // I
+            }
+        },
+        "next": [
+            "ScenePrivateWorldEnterMenuControlNexusSuccess"
+        ]
+    },
+    "ScenePrivateWorldEnterMenuControlNexusSuccess": {
+        "doc": "识别处于帝江号总控中枢界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        }
     }
 }
