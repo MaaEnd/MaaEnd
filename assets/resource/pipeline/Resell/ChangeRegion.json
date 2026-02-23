@@ -78,11 +78,12 @@
         "key": 89
     },
     "ResellEscGoBack": {
-        "doc": "未在地区建设界面，按ESC返回",
-        "recognition": "DirectHit",
-        "action": "ClickKey",
-        "post_wait_freezes": 400,
-        "key": 27
+        "doc": "未在地区建设界面，点击关闭按钮返回",
+        "recognition": "Or",
+        "any_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click"
     },
     "ChangeNextRegion": {
         "doc": "更换到下一个地区",
