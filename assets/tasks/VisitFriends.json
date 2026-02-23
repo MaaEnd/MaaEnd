@@ -33,6 +33,9 @@
                         "ProductionAssistOCR": {
                             "enabled": false
                         },
+                        "ClueExchangeOCR": {
+                            "enabled": false
+                        },
                         "ProductionAssistCheckPriorSteal": {
                             "enabled": true
                         },
@@ -78,6 +81,9 @@
                             "enabled": false
                         },
                         "ProductionAssistOCR": {
+                            "enabled": true
+                        },
+                        "ClueExchangeOCR": {
                             "enabled": true
                         },
                         "ProductionAssistCheck": {
