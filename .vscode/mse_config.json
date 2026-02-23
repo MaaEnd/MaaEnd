@@ -1,5 +1,6 @@
 {
     "agent.debug": {
-        "agent/go-service": "launch-agent"
+        "agent/go-service": "launch-go-agent",
+        "agent/cpp-algo": "launch-cpp-agent"
     }
 }

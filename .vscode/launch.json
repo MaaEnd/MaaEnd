@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "launch-agent",
+            "name": "launch-go-agent",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -10,6 +10,31 @@
                 "{AGENT_ID}"
             ],
             "cwd": "${workspaceFolder}/install"
+        },
+        {
+            "name": "launch-cpp-agent",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/install/agent/cpp-algo",
+            "args": [
+                "{AGENT_ID}"
+            ],
+            "cwd": "${workspaceFolder}/install",
+            "windows": {
+                "env": {
+                    "PATH": "${workspaceFolder}/install/maafw;${env:PATH}"
+                }
+            },
+            "linux": {
+                "env": {
+                    "PATH": "${workspaceFolder}/install/maafw:${env:PATH}"
+                }
+            },
+            "osx": {
+                "env": {
+                    "PATH": "${workspaceFolder}/install/maafw:${env:PATH}"
+                }
+            }
         }
     ]
 }
