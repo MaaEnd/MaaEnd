@@ -6,7 +6,7 @@
     "global.region.PowerPlateau": "供能高地",
     "global.region.WulingCity": "武陵城区",
     "task.EnvironmentMonitoring.description": "自动完成环境监测任务",
-    "task.EnvironmentMonitoring.label": "环境监测",
+    "task.EnvironmentMonitoring.label": "🌿环境监测",
     "task.RealTimeTask.label": "🤖实时开荒辅助",
     "task.RealTimeTask.description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
     "option.AutoSkip.label": "自动剧情",
