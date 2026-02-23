@@ -1,4 +1,228 @@
 {
+    "CheckEternalSunsetText": {
+        "doc": "检查是否有“栖霞驻影”文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "栖霞驻影",
+            "棲霞駐影",
+            "Eternal Sunset",
+            "棲霞留影",
+            "노을의 그림자"
+        ]
+    },
+    "CheckAncientTreeText": {
+        "doc": "检查是否有古树文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "古树",
+            "古樹",
+            "Ancient Tree",
+            "古木",
+            "고목"
+        ]
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "doc": "检查是否有蓄水源石虫文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "蓄水源石虫",
+            "蓄水源石蟲",
+            "Cistern Originium Slugs",
+            "貯水オリジムシ",
+            "저수 원석충"
+        ]
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "doc": "检查是否有倒塌的天师桩文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "倒塌的天师桩",
+            "倒塌的天師樁",
+            "Collapsed Tianshi Pillar",
+            "倒れた天師杭",
+            "무너진 천사장"
+        ]
+    },
+    "CheckEternalSunsetJob": {
+        "doc": "检查“栖霞驻影”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckEternalSunsetText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "AcceptEternalSunsetJob": {
+        "doc": "接取“栖霞驻影”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CheckAncientTreeJob": {
+        "doc": "检查“古树”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckAncientTreeText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "AcceptAncientTreeJob": {
+        "doc": "接取“古树”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckAncientTreeText",
+            "CheckAncientTreeJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "doc": "检查“蓄水源石虫”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCisternOriginiumSlugsText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "AcceptCisternOriginiumSlugsJob": {
+        "doc": "接取“蓄水源石虫”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "doc": "检查“倒塌的天师桩”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "AcceptCollapsedTianshiPillarJob": {
+        "doc": "接取“倒塌的天师桩”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
     "GoToAncientTree": {
         "doc": "在古树最近的传送点附近",
         "recognition": "Custom",
