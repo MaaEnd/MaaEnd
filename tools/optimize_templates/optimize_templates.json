@@ -300,5 +300,10 @@
     "resource/image/Resell/inTerminal": "8f894de35158e78d10847969a926f34b0bd1050b8d0698c2c26c6e91a1c2c474",
     "resource/image/SimpleProductionBatch/ProduceBtn": "e7ea470efb79fca402294a5c432a768dbc92fe0401e05b2a7bb80bb811f98460",
     "resource/image/SimpleProductionBatch/MaxProductionBtn": "a31f00e45fc0f88f92906b1e3a52971bca66af37c7c353d190ea6b0cb8d02759",
-    "resource/image/SceneManager/LoginExit": "5217724931a772792a81ecd5f7fec876bfe54ef924cfc5194c120974784f9dc5"
+    "resource/image/SceneManager/LoginExit": "5217724931a772792a81ecd5f7fec876bfe54ef924cfc5194c120974784f9dc5",
+    "resource/image/SceneManager/ControlNexusWithTips": "9d84b36d4b3b4bf94a48b7b97a472f7f698973f0466ca002f28fdae1246d5125",
+    "resource/image/SceneManager/ShoppingEntry": "941008e6c2eae013bada9d94353b4d0dfb5c3f769da8484e8a48d47bf8b981ef",
+    "resource/image/SceneManager/ControlNexus": "152eea5e8873f4528bd52c23bce4607d3afd92e497816a454adbbf9cee55b3bb",
+    "resource/image/SceneManager/Expand": "50c016f34a0451c7836f6cd1defeadb7f919eae09462311c1afd3fd2b07060bb",
+    "resource/image/MapTracker/map/base01_lv003": "f4d797996d16947ad809ae57a76b28e2074bd5b4661bcd7007b94249c29d23bf"
 }
