@@ -101,7 +101,7 @@
     "option.CreditShoppingForce.label": "クレジットオーバーフロー時",
     "option.CreditShoppingForce.description": "- ブラックリスト購入：オーバーフロー時はブラックリストを無視\n- 刷新実行：オーバーフロー時は刷新を実行し、ホワイトリストを厳守\n\n注意！刷新モードでは300を超えるクレジットを一部失う場合があります",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "ブラックリスト物品を購入",
-    "option.CreditShoppingForce.cases.Reflash.label": "刷新を実行",
+    "option.CreditShoppingForce.cases.Reflash.label": "ホワイトリスト厳守で購入し、刷新を有効化",
     "option.CreditShoppingOnlyDiscount.label": "割引クレジット商品のみ購入",
     "option.CreditShoppingOnlyDiscount.description": "⚠️注意：クレジットオーバーフローの原因になる可能性があります！割引なしでもホワイトリスト商品は購入されます！",
     "option.DiscountValue.label": "割引率",
