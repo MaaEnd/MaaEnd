@@ -90,25 +90,6 @@
             "의뢰 수령"
         ]
     },
-    "AcceptEternalSunsetJob": {
-        "doc": "接取“栖霞驻影”委托",
-        "recognition": "And",
-        "all_of": [
-            "CheckEternalSunsetText",
-            "CheckEternalSunsetJob"
-        ],
-        "box_index": 1,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
     "CheckAncientTreeJob": {
         "doc": "检查“古树”委托是否可以接取",
         "recognition": "OCR",
@@ -127,25 +108,6 @@
             "引き受ける",
             "의뢰 수령"
         ]
-    },
-    "AcceptAncientTreeJob": {
-        "doc": "接取“古树”委托",
-        "recognition": "And",
-        "all_of": [
-            "CheckAncientTreeText",
-            "CheckAncientTreeJob"
-        ],
-        "box_index": 1,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
     },
     "CheckCisternOriginiumSlugsJob": {
         "doc": "检查“蓄水源石虫”委托是否可以接取",
@@ -166,25 +128,6 @@
             "의뢰 수령"
         ]
     },
-    "AcceptCisternOriginiumSlugsJob": {
-        "doc": "接取“蓄水源石虫”委托",
-        "recognition": "And",
-        "all_of": [
-            "CheckCisternOriginiumSlugsText",
-            "CheckCisternOriginiumSlugsJob"
-        ],
-        "box_index": 1,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
     "CheckCollapsedTianshiPillarJob": {
         "doc": "检查“倒塌的天师桩”委托是否可以接取",
         "recognition": "OCR",
@@ -203,6 +146,63 @@
             "引き受ける",
             "의뢰 수령"
         ]
+    },
+    "AcceptEternalSunsetJob": {
+        "doc": "接取“栖霞驻影”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "AcceptAncientTreeJob": {
+        "doc": "接取“古树”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckAncientTreeText",
+            "CheckAncientTreeJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "AcceptCisternOriginiumSlugsJob": {
+        "doc": "接取“蓄水源石虫”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "AcceptCollapsedTianshiPillarJob": {
         "doc": "接取“倒塌的天师桩”委托",
@@ -224,7 +224,31 @@
         }
     },
     "GoToEternalSunset": {
-        "doc": "在栖霞驻影最近的传送点附近",
+        "doc": "前往栖霞驻影",
+        "next": [
+            "GoToEternalSunsetStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToAncientTree": {
+        "doc": "前往古树",
+        "next": [
+            "GoToAncientTreeStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToCisternOriginiumSlugs": {
+        "doc": "前往蓄水源石虫",
+        "next": [
+            "GoToCisternOriginiumSlugsStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToEternalSunsetStartPos": {
+        "doc": "在栖霞驻影任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -244,24 +268,7 @@
             "GoToEternalSunsetMapTrackerMove"
         ]
     },
-    "GoToEternalSunsetMapTrackerMove": {
-        "doc": "前往栖霞驻影",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv001",
-            "path": [
-                [471, 318],
-                [442, 316],
-                [443, 283],
-                [417, 273],
-                [405, 267],
-                [397, 257]
-            ]
-        }
-    },
-
-    "GoToAncientTree": {
+    "GoToAncientTreeStartPos": {
         "doc": "在古树最近的传送点附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
@@ -281,6 +288,62 @@
         "next": [
             "GoToAncientTreeMapTrackerMove"
         ]
+    },
+    "GoToCisternOriginiumSlugsStartPos": {
+        "doc": "在蓄水源石虫最近的传送点附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        280,
+                        580,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsMapTrackerMove"
+        ]
+    },
+    "GoToEternalSunsetMapTrackerMove": {
+        "doc": "前往栖霞驻影",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    471,
+                    318
+                ],
+                [
+                    442,
+                    316
+                ],
+                [
+                    443,
+                    283
+                ],
+                [
+                    417,
+                    273
+                ],
+                [
+                    405,
+                    267
+                ],
+                [
+                    397,
+                    257
+                ]
+
+            ]
+        }
     },
     "GoToAncientTreeMapTrackerMove": {
         "doc": "前往古树",
@@ -318,30 +381,8 @@
                     570
                 ]
 
-            ],
-            "arrival_threshold": 3.5
-        }
-    },
-    "GoToCisternOriginiumSlugs": {
-        "doc": "在蓄水源石虫最近的传送点附近",
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
-        "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        280,
-                        580,
-                        10,
-                        10
-                    ]
-                }
             ]
-        },
-        "next": [
-            "GoToCisternOriginiumSlugsMapTrackerMove"
-        ]
+        }
     },
     "GoToCisternOriginiumSlugsMapTrackerMove": {
         "doc": "前往蓄水源石虫",
@@ -359,8 +400,7 @@
                     592
                 ]
 
-            ],
-            "arrival_threshold": 3.5
+            ]
         }
     }
 }
