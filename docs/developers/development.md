@@ -56,7 +56,7 @@ python tools/setup_workspace.py
     > python tools/build_and_install.py --cpp-algo
     > ```
 
-5. 将步骤 2 中解压的 `deps/bin` 内容到 `install/maafw/` 。
+5. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/` 。
 
 6. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
 
@@ -103,7 +103,7 @@ python tools/setup_workspace.py
 
 ### Cpp Algo 代码规范
 
-- Cpp Algo 支持原生 opencv 和 onnxruntime，但仅推荐用于实现单个识别算法，各类操作等业务逻辑推荐用 Go Service 编写。
+- Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，但仅推荐用于实现单个识别算法，各类操作等业务逻辑推荐用 Go Service 编写。
 - 其余代码规范请参考 [MaaFramework 开发规范](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83)。
 
 ## 交流
