@@ -2,7 +2,7 @@
 
 **MaaEnd** 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，采用 [方案二](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) 进行开发。
 我们的主体流程采用 [Pipeline JSON 低代码](/assets/resource/pipeline)，复杂逻辑通过 [go-service](/agent/go-service) 编码实现。
-若有意加入 MaaEnd 开发，可以先阅读 [MaaFramework 相关文档](https://maafw.com/)，了解低代码逻辑、相关编辑调试工具的使用，也可以查看 [MaaFramework 教学视频](https://www.bilibili.com/video/BV1yr421E7MW/?spm_id_from=333.337.search-card.all.click&vd_source=a5872e0d4a0b37458b32c03d1bea7259)，但视频较旧，请以文档为主哦~
+若有意加入 MaaEnd 开发，可以先阅读 [MaaFramework 相关文档](https://maafw.com/)，了解低代码逻辑、相关编辑调试工具的使用，也可以查看 [MaaFramework 教学视频](https://www.bilibili.com/video/BV1yr421E7MW)，但视频较旧，请以文档为主哦~
 
 ## 本地部署
 
