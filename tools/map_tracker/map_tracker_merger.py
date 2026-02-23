@@ -487,9 +487,7 @@ class MergeMapPage:
         bg_drawer = Drawer(final_bg)
         bg_drawer.paste(scaled, (0, 0), with_alpha=True)
 
-        output_path = os.path.join(
-            default_config.default_output_dir, f"{name}_merged.png"
-        )
+        output_path = os.path.join(default_config.default_output_dir, f"{name}.png")
         cv2.imwrite(output_path, final_bg)
         print(f"{_G}Saved to {output_path}{_0}")
 

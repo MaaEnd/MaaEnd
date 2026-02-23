@@ -869,15 +869,15 @@ def find_map_file(name: str, map_dir: str = MAP_DIR) -> str | None:
     files = os.listdir(map_dir)
     if name in files:
         return name
-    for suffix in [".png", "_merged.png"]:
+    for suffix in [".png"]:
         if name + suffix in files:
             return name + suffix
     return None
 
 
 def norm_map_name(name: str) -> str:
-    """Normalize a map name by stripping suffixes and extensions."""
-    return re.sub(r"(_merged)?\.png$", "", name)
+    """Normalize a map name by stripping extensions."""
+    return re.sub(r"\.png$", "", name)
 
 
 class LocationService:

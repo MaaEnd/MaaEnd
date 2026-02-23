@@ -282,8 +282,8 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 			continue
 		}
 
-		// Extract map name (remove "_merged.png" suffix)
-		name := strings.TrimSuffix(filename, "_merged.png")
+		// Extract map name (remove ".png" suffix)
+		name := strings.TrimSuffix(filename, ".png")
 
 		var imgRGBA *image.RGBA
 		offsetX, offsetY := 0, 0
