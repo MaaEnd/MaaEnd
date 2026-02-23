@@ -24,6 +24,22 @@
             "CheckOutskirtsMonitoringTerminal"
         ],
         "next": [
+            "GoToEternalSunset",
+            "AcceptEternalSunsetThenGoTo",
+            "GoToAncientTree",
+            "AcceptAncientTreeThenGoTo",
+            "GoToCisternOriginiumSlugs",
+            "AcceptCisternOriginiumSlugsThenGoTo",
+            "GoToCollapsedTianshiPillar",
+            "AcceptCollapsedTianshiPillarThenGoTo",
+            "GoToIndoorCrops",
+            "AcceptIndoorCropsThenGoTo",
+            "GoToBeaconDamagedInBlightTide",
+            "AcceptBeaconDamagedInBlightTideThenGoTo",
+            "GoToPhotoRainbowFinInWater",
+            "AcceptPhotoRainbowFinInWaterThenGoTo",
+            "GoToCleansingJade",
+            "AcceptCleansingJadeThenGoTo",
             "EnvironmentMonitoringFinish"
         ]
     },
