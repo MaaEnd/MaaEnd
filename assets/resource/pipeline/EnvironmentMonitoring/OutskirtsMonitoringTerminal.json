@@ -71,6 +71,78 @@
             "무너진 천사장"
         ]
     },
+    "CheckIndoorCropsText": {
+        "doc": "检查是否有室内作物文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "室内作物",
+            "室內作物",
+            "Indoor Crops",
+            "室内の作物",
+            "실내 작물"
+        ]
+    },
+    "CheckBeaconDamagedInBlightTideText": {
+        "doc": "检查是否有侵蚀潮中损坏的信标文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "侵蚀潮中损坏的信标",
+            "侵蝕潮中損壞的信標",
+            "Beacon Damaged in the Blight Tide",
+            "侵蝕潮で壊れたビーコン",
+            "침식 조류로 인해 훼손된 신호기"
+        ]
+    },
+    "CheckPhotoRainbowFinInWaterText": {
+        "doc": "检查是否有拍摄水中的七彩鳞文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "拍摄水中的七彩鳞",
+            "拍攝水中的七彩鱗",
+            "Photo: Rainbow Fin in Water",
+            "水中にいる七色鱗獣の撮影",
+            "물속의 무지개 린수를 촬영하기"
+        ]
+    },
+    "CheckCleansingJadeText": {
+        "doc": "检查是否有「漱玉」文本",
+        "order_by": "Expected",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            35
+        ],
+        "expected": [
+            "\"漱玉\"",
+            "「漱玉」",
+            "\"Cleansing Jade\"",
+            "「漱玉」",
+            "'수옥'"
+        ]
+    },
     "CheckEternalSunsetJob": {
         "doc": "检查“栖霞驻影”委托是否可以接取",
         "recognition": "OCR",
@@ -133,6 +205,82 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckIndoorCropsJob": {
+        "doc": "检查“室内作物”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckBeaconDamagedInBlightTideJob": {
+        "doc": "检查“侵蚀潮中损坏的信标”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckPhotoRainbowFinInWaterJob": {
+        "doc": "检查“拍摄水中的七彩鳞”委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckPhotoRainbowFinInWaterText",
+        "roi_offset": [
+            -12,
+            408,
+            247,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckCleansingJadeJob": {
+        "doc": "检查「漱玉」委托是否可以接取",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCleansingJadeText",
         "roi_offset": [
             -12,
             408,
@@ -223,6 +371,82 @@
             ]
         }
     },
+    "AcceptIndoorCropsJob": {
+        "doc": "接取“室内作物”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "AcceptBeaconDamagedInBlightTideJob": {
+        "doc": "接取“侵蚀潮中损坏的信标”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "AcceptPhotoRainbowFinInWaterJob": {
+        "doc": "接取“拍摄水中的七彩鳞”委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckPhotoRainbowFinInWaterText",
+            "CheckPhotoRainbowFinInWaterJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "AcceptCleansingJadeJob": {
+        "doc": "接取「漱玉」委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
     "GoToEternalSunset": {
         "doc": "前往栖霞驻影",
         "next": [
@@ -243,6 +467,38 @@
         "doc": "前往蓄水源石虫",
         "next": [
             "GoToCisternOriginiumSlugsStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToIndoorCrops": {
+        "doc": "前往室内作物",
+        "next": [
+            "GoToIndoorCropsStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTide": {
+        "doc": "前往侵蚀潮中损坏的信标",
+        "next": [
+            "GoToBeaconDamagedInBlightTideStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToPhotoRainbowFinInWater": {
+        "doc": "前往拍摄水中的七彩鳞",
+        "next": [
+            "GoToPhotoRainbowFinInWaterStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
+    "GoToCleansingJade": {
+        "doc": "前往「漱玉」",
+        "next": [
+            "GoToCleansingJadeStartPos",
             // TODO: 缺少进入指定协议传送点的节点
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
@@ -308,6 +564,90 @@
         },
         "next": [
             "GoToCisternOriginiumSlugsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsStartPos": {
+        "doc": "在室内作物任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        0,
+                        0,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTideStartPos": {
+        "doc": "在侵蚀潮中损坏的信标任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        0,
+                        0,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToBeaconDamagedInBlightTideMapTrackerMove"
+        ]
+    },
+    "GoToPhotoRainbowFinInWaterStartPos": {
+        "doc": "在拍摄水中的七彩鳞任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        0,
+                        0,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToPhotoRainbowFinInWaterMapTrackerMove"
+        ]
+    },
+    "GoToCleansingJadeStartPos": {
+        "doc": "在「漱玉」任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        0,
+                        0,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeMapTrackerMove"
         ]
     },
     "GoToEternalSunsetMapTrackerMove": {
@@ -400,6 +740,62 @@
                     592
                 ]
 
+            ]
+        }
+    },
+    "GoToIndoorCropsMapTrackerMove": {
+        "doc": "前往室内作物。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        }
+    },
+    "GoToBeaconDamagedInBlightTideMapTrackerMove": {
+        "doc": "前往侵蚀潮中损坏的信标。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        }
+    },
+    "GoToPhotoRainbowFinInWaterMapTrackerMove": {
+        "doc": "前往拍摄水中的七彩鳞。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        }
+    },
+    "GoToCleansingJadeMapTrackerMove": {
+        "doc": "前往「漱玉」。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    0,
+                    0
+                ]
             ]
         }
     }
