@@ -223,6 +223,44 @@
             ]
         }
     },
+    "GoToEternalSunset": {
+        "doc": "在栖霞驻影最近的传送点附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        466,
+                        313,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToEternalSunsetMapTrackerMove"
+        ]
+    },
+    "GoToEternalSunsetMapTrackerMove": {
+        "doc": "前往栖霞驻影",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [471, 318],
+                [442, 316],
+                [443, 283],
+                [417, 273],
+                [405, 267],
+                [397, 257]
+            ]
+        }
+    },
+
     "GoToAncientTree": {
         "doc": "在古树最近的传送点附近",
         "recognition": "Custom",
