@@ -1,0 +1,12 @@
+{
+    "EnterCameraMode": {
+        "doc": "进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeButton",
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 70 // F 0x46
+    }
+}

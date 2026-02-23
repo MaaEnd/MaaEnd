@@ -745,5 +745,27 @@
                 0
             ]
         }
+    },
+    "EnterCameraModeButton": {
+        "doc": "进入拍照按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
+        "roi": [
+            755,
+            387,
+            310,
+            178
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     }
 }
