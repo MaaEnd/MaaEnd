@@ -6,12 +6,12 @@
             "param": {
                 "roi": [
                     0,
-                    0,
+                    -100,
                     100,
                     100
                 ],
                 "template": [
-                    "SceneManager/LoginIcon.png"
+                    "SceneManager/LoginExit.png"
                 ]
             }
         },
