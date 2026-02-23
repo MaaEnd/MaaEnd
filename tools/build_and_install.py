@@ -124,13 +124,13 @@ def check_go_environment() -> bool:
 
     print(f"  {Console.err(t('error'))} {t('go_not_found')}")
     print()
-    print(f"  {t('go_install_prompt')}")
-    print(f"    - {t('go_install_official')}")
-    print(f"    - {t('go_install_windows')}")
-    print(f"    - {t('go_install_macos')}")
-    print(f"    - {t('go_install_linux')}")
+    print(f"  {Console.info(t('go_install_prompt'))}")
+    print(f"    - {Console.info(t('go_install_official'))}")
+    print(f"    - {Console.info(t('go_install_windows'))}")
+    print(f"    - {Console.info(t('go_install_macos'))}")
+    print(f"    - {Console.info(t('go_install_linux'))}")
     print()
-    print(f"  {t('go_install_path')}")
+    print(f"  {Console.info(t('go_install_path'))}")
     return False
 
 

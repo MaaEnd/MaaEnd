@@ -44,7 +44,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
             text=True,
         )
         if result.returncode != 0:
-            print(f"[MaaFW] Error: Failed to create junction: {result.stderr}")
+            print(Console.err(f"Failed to create junction: {result.stderr}"))
             return False
     else:
         dst.symlink_to(src)
@@ -113,7 +113,7 @@ def configure_token() -> None:
         print(Console.ok(t("inf_github_token_configured")))
     else:
         print(Console.warn(t("wrn_github_token_not_configured")))
-        print(t("inf_github_token_hint"))
+        print(Console.info(t("inf_github_token_hint")))
     print("-" * 40)
 
 
@@ -151,10 +151,10 @@ def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
         PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaDeps" / "vcpkg" / "installed"
     )
     if skip_if_exist and maadeps_dir.exists() and any(maadeps_dir.iterdir()):
-        print(t("inf_maadeps_exist"))
+        print(Console.ok(t("inf_maadeps_exist")))
         return True
 
-    print(t("inf_bootstrap_maadeps"))
+    print(Console.info(t("inf_bootstrap_maadeps")))
     script_path = PROJECT_BASE / "tools" / "maadeps-download.py"
     return run_command([sys.executable, str(script_path)])
 
@@ -444,25 +444,25 @@ def install_maafw(
                     break
 
             if not sdk_root:
-                print(t("err_bin_not_found"))
+                print(Console.err(t("err_bin_not_found")))
                 return False, local_version, False
 
             # 先将完整 SDK 复制到项目根目录 deps/
             maafw_deps = PROJECT_BASE / "deps"
-            print(f"[MaaFW] Copying full SDK to {maafw_deps} ...")
+            print(Console.info(f"Copying full SDK to {maafw_deps} ..."))
             if maafw_deps.exists():
                 shutil.rmtree(maafw_deps)
             shutil.copytree(sdk_root, maafw_deps)
-            print(f"[MaaFW] Full SDK copied to {maafw_deps}")
+            print(Console.ok(f"Full SDK copied to {maafw_deps}"))
 
             # 创建 install/maafw -> deps/bin 的目录链接
             bin_path = maafw_deps / "bin"
-            print(f"[MaaFW] Creating link: {maafw_dest} -> {bin_path}")
+            print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
             if not create_directory_link(bin_path, maafw_dest):
-                print("[MaaFW] Error: Failed to create directory link for maafw")
+                print(Console.err("Failed to create directory link for maafw"))
                 return False, local_version, False
 
-            print(t("inf_maafw_install_complete"))
+            print(Console.ok(t("inf_maafw_install_complete")))
             return True, remote_version or local_version, True
         except Exception as e:
             print(Console.err(t("err_maafw_install_failed", error=e)))
@@ -571,9 +571,9 @@ def main() -> None:
     if not update_submodules(skip_if_exist=not args.update):
         print(Console.err(t("fatal_submodule_failed")))
         sys.exit(1)
-    print(t("header_bootstrap_maadeps"))
+    print(Console.hdr(t("header_bootstrap_maadeps")))
     if not bootstrap_maadeps(skip_if_exist=not args.update):
-        print(t("fatal_maadeps_failed"))
+        print(Console.err(t("fatal_maadeps_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_build_go")))
     if not run_build_script():
