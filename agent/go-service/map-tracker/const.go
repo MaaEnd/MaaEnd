@@ -37,12 +37,19 @@ const (
 var DEFAULT_INFERENCE_PARAM = MapTrackerInferParam{
 	MapNameRegex: "^map\\d+_lv\\d+$",
 	Precision:    0.4,
-	Threshold:    0.5,
+	Threshold:    0.4,
+}
+
+// MapTrackerInfer parameters for MapTrackerMove action default values
+// (MapNameRegex is omitted here since MapTrackerMove always sets it)
+var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
+	Precision: 0.8,
+	Threshold: 0.4,
 }
 
 // MapTrackerMove parameters default values
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
-	ArrivalThreshold:       4.5,
+	ArrivalThreshold:       3.5,
 	ArrivalTimeout:         60000,
 	RotationLowerThreshold: 8.0,
 	RotationUpperThreshold: 60.0,

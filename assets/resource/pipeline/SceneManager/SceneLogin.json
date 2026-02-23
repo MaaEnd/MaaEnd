@@ -6,12 +6,12 @@
             "param": {
                 "roi": [
                     0,
-                    0,
+                    -100,
                     100,
                     100
                 ],
                 "template": [
-                    "SceneManager/LoginIcon.png"
+                    "SceneManager/LoginExit.png"
                 ]
             }
         },
@@ -96,18 +96,11 @@
     "ScenePrivateLoginSuccess": {
         "doc": "进入大世界成功",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
+                "all_of": [
+                    "InWorld"
+                ]
             }
         }
     }

@@ -8,10 +8,11 @@ import platform
 import urllib.request
 import urllib.error
 import json
-import locale
 import tempfile
 from pathlib import Path
 import time
+
+from cli_support import Console, init_localization
 
 
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
@@ -51,40 +52,21 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     return True
 
 LOCALS_DIR = Path(__file__).parent / "locals" / "setup_workspace"
-LANG_MAP = {
-    "Chinese (Simplified)_China": "zh_cn",
-    "Chinese (Traditional)_Taiwan": "zh_tw",
-    "English_United States": "en_us",
-    "Japanese_Japan": "ja_jp",
-    "Korean_Korea": "ko_kr",
-    "zh_cn": "zh_cn",
-    "zh_tw": "zh_tw",
-    "en_us": "en_us",
-    "ja_jp": "ja_jp",
-    "ko_kr": "ko_kr",
-}
-LANG_RES = {}
+
+
+_local_t = lambda key, **kwargs: key.format(**kwargs) if kwargs else key
 
 
 def init_local() -> None:
-    lang = str(locale.getlocale()[0])
-    if lang in LANG_MAP:
-        lang = LANG_MAP[lang]
-    elif lang.lower() in LANG_MAP:
-        lang = LANG_MAP[lang.lower()]
-    else:
-        lang = "en_us"
-
-    global LANG_RES
-    try:
-        with open(LOCALS_DIR / f"{lang}.json", "r", encoding="utf-8") as f:
-            LANG_RES = json.load(f)
-    except:
-        print(t("error_load_locale", path=str(LOCALS_DIR / f"{lang}.json")))
+    global _local_t
+    t_func, load_error_path = init_localization(LOCALS_DIR)
+    _local_t = t_func
+    if load_error_path:
+        print(Console.err(t("error_load_locale", path=load_error_path)))
 
 
 def t(key: str, **kwargs) -> str:
-    return LANG_RES.get(key, key).format(**kwargs)
+    return _local_t(key, **kwargs)
 
 
 try:
@@ -128,9 +110,9 @@ def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     if token:
-        print(t("inf_github_token_configured"))
+        print(Console.ok(t("inf_github_token_configured")))
     else:
-        print(t("wrn_github_token_not_configured"))
+        print(Console.warn(t("wrn_github_token_not_configured")))
         print(t("inf_github_token_hint"))
     print("-" * 40)
 
@@ -140,26 +122,26 @@ def run_command(
 ) -> bool:
     """执行命令并输出日志，返回是否成功"""
     cmd_str = " ".join(cmd) if isinstance(cmd, list) else str(cmd)
-    print(f"{t('cmd_prefix')} {cmd_str}")
+    print(f"{Console.info(t('cmd_prefix'))} {cmd_str}")
     try:
         subprocess.check_call(cmd, cwd=cwd or PROJECT_BASE, shell=shell)
-        print(t("inf_command_success", cmd=cmd_str))
+        print(Console.ok(t("inf_command_success", cmd=cmd_str)))
         return True
     except subprocess.CalledProcessError as e:
-        print(t("err_command_failed", cmd=cmd_str, error=e))
+        print(Console.err(t("err_command_failed", cmd=cmd_str, error=e)))
         return False
 
 
 def update_submodules(skip_if_exist: bool = True) -> bool:
-    print(t("inf_check_submodules"))
+    print(Console.hdr(t("inf_check_submodules")))
     if (
         not skip_if_exist
         or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
         or not (PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").exists()
     ):
-        print(t("inf_updating_submodules"))
+        print(Console.info(t("inf_updating_submodules")))
         return run_command(["git", "submodule", "update", "--init", "--recursive"])
-    print(t("inf_submodules_exist"))
+    print(Console.ok(t("inf_submodules_exist")))
     return True
 
 
@@ -178,7 +160,7 @@ def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
 
 
 def run_build_script() -> bool:
-    print(t("inf_run_build_script"))
+    print(Console.hdr(t("inf_run_build_script")))
     script_path = PROJECT_BASE / "tools" / "build_and_install.py"
     return run_command([sys.executable, str(script_path)])
 
@@ -195,7 +177,7 @@ def get_latest_release_url(
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     try:
-        print(t("inf_get_latest_release", repo=repo))
+        print(Console.info(t("inf_get_latest_release", repo=repo)))
 
         req = urllib.request.Request(api_url)
         if token:
@@ -225,13 +207,13 @@ def get_latest_release_url(
                 assert isinstance(asset, dict)
                 name = asset["name"].lower()
                 if all(k.lower() in name for k in keywords):
-                    print(t("inf_matched_asset", name=asset["name"]))
+                    print(Console.ok(t("inf_matched_asset", name=asset["name"])))
                     tag_name = tag.get("tag_name") or tag.get("name")
                     return asset["browser_download_url"], asset["name"], tag_name
 
         raise ValueError("No matching asset found in the latest release (GitHub API)")
     except Exception as e:
-        print(t("err_get_release_failed", error_type=type(e).__name__, error=e))
+        print(Console.err(t("err_get_release_failed", error_type=type(e).__name__, error=e)))
 
     return None, None, None
 
@@ -246,7 +228,7 @@ def read_versions_file(path: Path) -> dict[str, str]:
         if isinstance(versions, dict):
             return {str(k): str(v) for k, v in versions.items()}
     except Exception as e:
-        print(t("wrn_read_version_failed", error=e))
+        print(Console.warn(t("wrn_read_version_failed", error=e)))
     return {}
 
 
@@ -255,10 +237,10 @@ def write_versions_file(path: Path, versions: dict[str, str]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump({"versions": versions}, f, ensure_ascii=False, indent=4)
-        print(t("inf_write_version_file", path=path))
-        print(t("inf_current_versions", versions=versions))
+        print(Console.ok(t("inf_write_version_file", path=path)))
+        print(Console.info(t("inf_current_versions", versions=versions)))
     except Exception as e:
-        print(t("wrn_write_version_failed", error=e))
+        print(Console.warn(t("wrn_write_version_failed", error=e)))
 
 
 def parse_semver(version: str) -> list[int]:
@@ -341,8 +323,8 @@ def download_file(url: str, dest_path: Path) -> bool:
         return f"{h:02d}:{m:02d}:{s:02d}"
 
     try:
-        print(t("inf_start_download", url=url))
-        print(t("inf_connecting"), end="", flush=True)
+        print(Console.info(t("inf_start_download", url=url)))
+        print(Console.info(t("inf_connecting")), end="", flush=True)
         with (
             urllib.request.urlopen(url, timeout=TIMEOUT) as res,
             open(dest_path, "wb") as out_file,
@@ -373,18 +355,18 @@ def download_file(url: str, dest_path: Path) -> bool:
 
                 if progress_str != cached_progress_str:
                     print(
-                        f"\r{t('inf_downloading', progress=progress_str)}",
+                        f"\r{Console.info(t('inf_downloading', progress=progress_str))}",
                         end="",
                         flush=True,
                     )
                     cached_progress_str = progress_str
             print()
-        print(t("inf_download_complete", path=dest_path))
+        print(Console.ok(t("inf_download_complete", path=dest_path)))
         return True
     except urllib.error.URLError as e:
-        print(t("err_network_error", reason=e.reason))
+        print(Console.err(t("err_network_error", reason=e.reason)))
     except Exception as e:
-        print(t("err_download_failed", error_type=type(e).__name__, error=e))
+        print(Console.err(t("err_download_failed", error_type=type(e).__name__, error=e)))
     return False
 
 
@@ -401,14 +383,14 @@ def install_maafw(
     maafw_installed = maafw_deps.exists() and any(maafw_deps.iterdir())
 
     if skip_if_exist and maafw_installed:
-        print(t("inf_maafw_installed_skip"))
+        print(Console.ok(t("inf_maafw_installed_skip")))
         return True, local_version, False
 
     url, filename, remote_version = get_latest_release_url(
         MFW_REPO, ["maa", OS_KEYWORD, ARCH_KEYWORD]
     )
     if not url or not filename:
-        print(t("err_maafw_url_not_found"))
+        print(Console.err(t("err_maafw_url_not_found")))
         return False, local_version, False
 
     if (
@@ -418,7 +400,7 @@ def install_maafw(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
-        print(t("inf_maafw_latest_version", version=local_version))
+        print(Console.ok(t("inf_maafw_latest_version", version=local_version)))
         return True, local_version, False
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -431,22 +413,22 @@ def install_maafw(
             if maafw_dest.is_dir() and not maafw_dest.is_symlink():
                 while True:
                     try:
-                        print(t("inf_delete_old_dir", path=maafw_dest))
+                        print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
                         shutil.rmtree(maafw_dest)
                         break
                     except PermissionError as e:
-                        print(t("err_permission_denied", error=e))
-                        print(t("err_cannot_delete_maafw", path=maafw_dest))
+                        print(Console.err(t("err_permission_denied", error=e)))
+                        print(Console.err(t("err_cannot_delete_maafw", path=maafw_dest)))
                         cmd = input(t("prompt_retry_or_quit")).strip().lower()
                         if cmd == "q":
                             return False, local_version, False
                     except Exception as e:
-                        print(t("err_unknown_error_delete", error=e))
+                        print(Console.err(t("err_unknown_error_delete", error=e)))
                         return False, local_version, False
             else:
                 maafw_dest.unlink(missing_ok=True)
 
-        print(t("inf_extract_maafw"))
+        print(Console.info(t("inf_extract_maafw")))
         try:
             extract_root = tmp_path / "extracted"
             extract_root.mkdir(parents=True, exist_ok=True)
@@ -483,7 +465,7 @@ def install_maafw(
             print(t("inf_maafw_install_complete"))
             return True, remote_version or local_version, True
         except Exception as e:
-            print(t("err_maafw_install_failed", error=e))
+            print(Console.err(t("err_maafw_install_failed", error=e)))
             return False, local_version, False
 
 
@@ -499,14 +481,14 @@ def install_mxu(
     mxu_installed = mxu_path.exists()
 
     if skip_if_exist and mxu_installed:
-        print(t("inf_mxu_installed_skip"))
+        print(Console.ok(t("inf_mxu_installed_skip")))
         return True, local_version, False
 
     url, filename, remote_version = get_latest_release_url(
         MXU_REPO, ["mxu", OS_KEYWORD, ARCH_KEYWORD]
     )
     if not url or not filename:
-        print(t("err_mxu_url_not_found"))
+        print(Console.err(t("err_mxu_url_not_found")))
         return False, local_version, False
 
     if (
@@ -516,7 +498,7 @@ def install_mxu(
         and remote_version
         and compare_semver(local_version, remote_version) >= 0
     ):
-        print(t("inf_mxu_latest_version", version=local_version))
+        print(Console.ok(t("inf_mxu_latest_version", version=local_version)))
         return True, local_version, False
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -528,20 +510,20 @@ def install_mxu(
         if mxu_path.exists():
             while True:
                 try:
-                    print(t("inf_delete_old_file", path=mxu_path))
+                    print(Console.info(t("inf_delete_old_file", path=mxu_path)))
                     mxu_path.unlink()
                     break
                 except PermissionError as e:
-                    print(t("err_permission_denied", error=e))
-                    print(t("err_cannot_delete_mxu", name=MXU_DIST_NAME))
+                    print(Console.err(t("err_permission_denied", error=e)))
+                    print(Console.err(t("err_cannot_delete_mxu", name=MXU_DIST_NAME)))
                     cmd = input(t("prompt_retry_or_quit")).strip().lower()
                     if cmd == "q":
                         return False, local_version, False
                 except Exception as e:
-                    print(t("err_unknown_error_delete_file", error=e))
+                    print(Console.err(t("err_unknown_error_delete_file", error=e)))
                     return False, local_version, False
 
-        print(t("inf_extract_install_mxu"))
+        print(Console.info(t("inf_extract_install_mxu")))
         try:
             extract_root = tmp_path / "extracted"
             extract_root.mkdir(parents=True, exist_ok=True)
@@ -559,17 +541,17 @@ def install_mxu(
                 if item.name.lower() in [f.lower() for f in target_files]:
                     dest = real_install_root / item.name
                     shutil.copy2(item, dest)
-                    print(t("inf_updated_file", name=item.name))
+                    print(Console.ok(t("inf_updated_file", name=item.name)))
                     if item.name.lower() == MXU_DIST_NAME.lower():
                         copied = True
 
             if not copied:
-                print(t("err_mxu_not_found", name=MXU_DIST_NAME))
+                print(Console.err(t("err_mxu_not_found", name=MXU_DIST_NAME)))
                 return False, local_version, False
-            print(t("inf_mxu_install_complete"))
+            print(Console.ok(t("inf_mxu_install_complete")))
             return True, remote_version or local_version, True
         except Exception as e:
-            print(t("err_mxu_install_failed", error=e))
+            print(Console.err(t("err_mxu_install_failed", error=e)))
             return False, local_version, False
 
 
@@ -584,43 +566,43 @@ def main() -> None:
     install_dir = PROJECT_BASE / "install"
     version_file = install_dir / VERSION_FILE_NAME
     local_versions = read_versions_file(version_file)
-    print(t("header_workspace_init"))
+    print(Console.hdr(t("header_workspace_init")))
     configure_token()
     if not update_submodules(skip_if_exist=not args.update):
-        print(t("fatal_submodule_failed"))
+        print(Console.err(t("fatal_submodule_failed")))
         sys.exit(1)
     print(t("header_bootstrap_maadeps"))
     if not bootstrap_maadeps(skip_if_exist=not args.update):
         print(t("fatal_maadeps_failed"))
         sys.exit(1)
-    print(t("header_build_go"))
+    print(Console.hdr(t("header_build_go")))
     if not run_build_script():
-        print(t("fatal_build_failed"))
+        print(Console.err(t("fatal_build_failed")))
         sys.exit(1)
-    print(t("header_download_deps"))
+    print(Console.hdr(t("header_download_deps")))
     versions: dict[str, str] = dict(local_versions)
     any_downloaded = False
-    ok, maafw_version, maafw_downloaded = install_maafw(
+    maafw_ok, maafw_version, maafw_downloaded = install_maafw(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
         local_version=local_versions.get("maafw"),
     )
-    if not ok:
-        print(t("fatal_maafw_failed"))
+    if not maafw_ok:
+        print(Console.err(t("fatal_maafw_failed")))
         sys.exit(1)
     if maafw_version:
         versions["maafw"] = maafw_version
     any_downloaded = any_downloaded or maafw_downloaded
 
-    ok, mxu_version, mxu_downloaded = install_mxu(
+    mxu_ok, mxu_version, mxu_downloaded = install_mxu(
         install_dir,
         skip_if_exist=not args.update,
         update_mode=args.update,
         local_version=local_versions.get("mxu"),
     )
-    if not ok:
-        print(t("fatal_mxu_failed"))
+    if not mxu_ok:
+        print(Console.err(t("fatal_mxu_failed")))
         sys.exit(1)
     if mxu_version:
         versions["mxu"] = mxu_version
@@ -628,12 +610,12 @@ def main() -> None:
 
     if not args.ci and any_downloaded:
         write_versions_file(version_file, versions)
-    print(t("header_setup_complete"))
-    print(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME))
-    print(t("inf_install_dir_hint", install_dir=install_dir))
+    print(Console.ok(t("header_setup_complete")))
+    print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))
+    print(Console.info(t("inf_install_dir_hint", install_dir=install_dir)))
 
     dev_doc = PROJECT_BASE / "docs/developers/development.md"
-    print(t("inf_read_dev_doc", doc_path=dev_doc))
+    print(Console.info(t("inf_read_dev_doc", doc_path=dev_doc)))
 
 
 if __name__ == "__main__":

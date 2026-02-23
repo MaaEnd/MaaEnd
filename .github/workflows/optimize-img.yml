@@ -14,7 +14,7 @@ on:
         required: false
   pull_request:
     types:
-      - closed  
+      - closed
     paths:
       - "**/*.png"
     branches:
@@ -69,13 +69,13 @@ jobs:
       #   continue-on-error: true
       #   with:
       #     path: ${{ env.pythonLocation }}/lib/python3.11/site-packages
-      #     key: ${{ runner.os }}-pip-optimize-templates-${{ hashFiles('./tools/OptimizeTemplates/requirements.txt') }}
+      #     key: ${{ runner.os }}-pip-optimize-templates-${{ hashFiles('./tools/optimize_templates/requirements.txt') }}
 
       - name: Install dependencies
         # if: steps.check_push.outputs.is_pr != 'True' && steps.cache_python.outputs.cache-hit != 'true'
         if: steps.check_push.outputs.is_pr != 'True'
         run: |
-          pip install -r tools/OptimizeTemplates/requirements.txt
+          pip install -r tools/optimize_templates/requirements.txt
 
       - name: Setup oxipng
         if: steps.check_push.outputs.is_pr != 'True'
@@ -86,7 +86,7 @@ jobs:
       - name: Optimize png images
         if: steps.check_push.outputs.is_pr != 'True'
         run: |
-          python3 tools/OptimizeTemplates/optimize_templates.py
+          python3 tools/optimize_templates/optimize_templates.py
 
       - name: Commit changes
         id: commit_changes
@@ -110,7 +110,7 @@ jobs:
           fi
 
       - name: Push changes
-        if: steps.check_push.outputs.is_pr != 'True' && steps.commit_changes.outputs.have_commits == 'True' && github.repository_owner == 'MAA1999'
+        if: steps.check_push.outputs.is_pr != 'True' && steps.commit_changes.outputs.have_commits == 'True' && github.repository_owner == 'MaaEnd'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

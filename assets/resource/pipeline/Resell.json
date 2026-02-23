@@ -8,41 +8,6 @@
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
-    "ResellStageCheckInGame": {
-        "doc": "检查当前界面是否在大世界中，然后进入地区建设管理",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "template": "Resell/inGame1.png",
-                "threshold": 0.8,
-                "roi": [
-                    172,
-                    0,
-                    133,
-                    118
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "template": "Resell/inGame2.png",
-                "threshold": 0.8,
-                "roi": [
-                    1182,
-                    0,
-                    98,
-                    128
-                ]
-            }
-        ],
-        "pre_delay": 0,
-        "post_delay": 500,
-        "action": "ClickKey",
-        "key": 89,
-        "next": [
-            "ResellStageCheckArea"
-        ]
-    },
     "ResellStageCheckArea": {
         "doc": "检查当前地区",
         "recognition": "TemplateMatch",

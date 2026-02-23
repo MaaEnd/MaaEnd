@@ -140,10 +140,10 @@
         "template": "Common/Button/IncomeReportButton.png",
         "threshold": 0.8,
         "roi": [
-            1173,
-            91,
-            68,
-            87
+            -220,
+            0,
+            220,
+            220
         ],
         "action": "Click",
         "post_wait_freezes": {
@@ -226,19 +226,17 @@
     },
     "RegionalDevelopmentLevelButton": {
         "doc": "地区建设中的地区建设等级按钮",
-        "recognition": "OCR",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Common/Button/RegionalDevelopmentLevelButton.png",
+            "Common/Button/RegionalDevelopmentLevelButtonHover.png"
+        ],
+        "threshold": 0.9,
         "roi": [
             491,
             337,
             219,
             116
-        ],
-        "expected": [
-            "地区建设等级",
-            "地區建設等級",
-            "Regional Development Level",
-            "地域建設レベル",
-            "지역 건설 레벨"
         ],
         "action": "Click",
         "post_wait_freezes": {
@@ -272,7 +270,6 @@
                         207,
                         13
                     ]
-
                 ],
                 "upper": [
                     [
@@ -290,7 +287,6 @@
                         241,
                         48
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -318,7 +314,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "upper": [
                     [
@@ -336,7 +331,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -359,7 +353,6 @@
                         82,
                         82
                     ]
-
                 ],
                 "upper": [
                     [
@@ -372,7 +365,6 @@
                         83,
                         83
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -568,6 +560,48 @@
                                 "template": [
                                     "Common/Button/WhiteConfirmButtonType1.png",
                                     "Common/Button/WhiteConfirmButtonType1Hover.png"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "WhiteConfirmButtonType2": {
+        "doc": "通用确认按钮，有文字，白色底，对号形标志",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "WhiteButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    40,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/WhiteConfirmButtonType2.png",
+                                    "Common/Button/WhiteConfirmButtonType2Hover.png"
                                 ]
                             }
                         }

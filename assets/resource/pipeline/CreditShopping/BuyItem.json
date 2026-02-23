@@ -5,6 +5,12 @@
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyFirst",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
+        ],
         "next": [
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm",
@@ -16,6 +22,12 @@
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyNormalNoDiscount",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
+        ],
         "next": [
             "CreditShoppingBuyFailed",
             "CreditShoppingBuyConfirm",

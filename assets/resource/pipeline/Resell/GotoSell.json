@@ -93,18 +93,8 @@
         "post_delay": 500,
         "action": "Click",
         "next": [
-            "WaitingForLoading"
-        ]
-    },
-    "WaitingForLoading": {
-        "doc": "等待加载完成",
-        "recognition": "DirectHit",
-        "pre_delay": 500,
-        "post_delay": 500,
-        "action": "DoNothing",
-        "next": [
             "ResellinShip",
-            "WaitingForLoading"
+            "[JumpBack]WaitLoadingColor"
         ]
     },
     "ResellinShip": {
@@ -122,7 +112,7 @@
         "post_delay": 500,
         "action": "DoNothing",
         "next": [
-            "ResellShipLoaded"
+            "ResellShipWalkAS_KeyDownA"
         ]
     }
 }

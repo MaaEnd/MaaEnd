@@ -1,0 +1,127 @@
+{
+    "CreditIcon": {
+        "doc": "信用点商店图标",
+        "recognition": "TemplateMatch",
+        "template": "CreditShopping/CreditIcon.png",
+        "roi": [
+            74,
+            103,
+            1131,
+            538
+        ],
+        "order_by": "Vertical"
+    },
+    "NotSoldOut": {
+        "doc": "非售罄",
+        "recognition": "ColorMatch",
+        "method": 6,
+        "roi": "CreditIcon",
+        "roi_offset": [
+            -94,
+            -135,
+            140,
+            152
+        ],
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 20000,
+        "order_by": "Vertical"
+    },
+    "CanNotAfford": {
+        "doc": "买不起（价格是红色）",
+        "recognition": "ColorMatch",
+        "roi": "NotSoldOut",
+        "roi_offset": [
+            94,
+            133,
+            -94,
+            -147
+        ],
+        "lower": [
+            255,
+            131,
+            131
+        ],
+        "upper": [
+            255,
+            192,
+            192
+        ],
+        "count": 20,
+        "order_by": "Vertical"
+    },
+    "CanAfford": {
+        "doc": "买得起（价格不是红色）",
+        "recognition": "ColorMatch",
+        "roi": "NotSoldOut",
+        "roi_offset": [
+            94,
+            133,
+            -94,
+            -147
+        ],
+        "lower": [
+            76,
+            76,
+            76
+        ],
+        "upper": [
+            108,
+            108,
+            108
+        ],
+        "count": 20,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR": {
+        "doc": "按用户指定顺序购买",
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "only_rec": true,
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR": {
+        "doc": "不是黑名单物品",
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "only_rec": true,
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "^(?!(协议棱柱组)$).*$", //这里是具体执行参数，匹配价格位置非空的商品
+        "order_by": "Vertical"
+    },
+    "IsDiscount": {
+        "doc": "有折扣",
+        "recognition": "OCR",
+        "roi": "BlacklistOCR",
+        "only_rec": true,
+        "roi_offset": [
+            62,
+            -172,
+            -34,
+            7
+        ],
+        "expected": [
+            "[-－]\\s*99\\s*%|99\\s*%",
+            "[-－]\\s*75\\s*%|75\\s*%",
+            "[-－]\\s*50\\s*%|50\\s*%",
+            "[-－]\\s*25\\s*%|25\\s*%"
+        ],
+        "order_by": "Expected"
+    }
+}
