@@ -8,6 +8,7 @@
             "option": [
                 "DailyEmailRewards",
                 "DailyTaskRewards",
+                "DailyClaimDeliveryJobsRewards",
                 "DailyEventRewards",
                 "DailyProtocolPassRewards"
             ],
@@ -86,6 +87,28 @@
                     "name": "No",
                     "pipeline_override": {
                         "DailyTaskRewardSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DailyClaimDeliveryJobsRewards": {
+            "type": "switch",
+            "label": "$option.DailyClaimDeliveryJobsRewards.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DailyClaimDeliveryJobsRewardSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DailyClaimDeliveryJobsRewardSub": {
                             "enabled": false
                         }
                     }

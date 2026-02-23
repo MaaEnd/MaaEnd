@@ -72,6 +72,24 @@
             "현재 지역 저장고 노드"
         ]
     },
+    "CheckCourierInfoText": {
+        "doc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            67,
+            125,
+            233,
+            36
+        ],
+        "expected": [
+            "运送人信息",
+            "運送人資訊",
+            "Courier Info",
+            "配達員詳細",
+            "운송인 정보"
+        ]
+    },
     "CheckLocalDepotNodeOriginiumScienceParkText": {
         "doc": "检查本地仓储节点中是否有源石研究园",
         "recognition": "OCR",
