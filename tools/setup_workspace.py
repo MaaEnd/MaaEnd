@@ -155,6 +155,7 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     if (
         not skip_if_exist
         or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
+        or not (PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").exists()
     ):
         print(t("inf_updating_submodules"))
         return run_command(["git", "submodule", "update", "--init", "--recursive"])
