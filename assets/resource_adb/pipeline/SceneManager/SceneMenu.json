@@ -1,0 +1,12 @@
+{
+    "ScenePrivateWorldEnterMenuCheckMainUI": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "ScenePrivateWorldEnterMenuEntryShop": {
+        "action": {
+            "type": "Click"
+        }
+    }
+}

@@ -2,9 +2,9 @@
     "CreditShoppingMain": {
         "doc": "信用点购物主入口",
         "next": [
-            "[JumpBack]CancelExit",
-            "InMainWindowCreditShipping",
-            "[JumpBack]CloseButtonType2"
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
         ]
     },
     "InMainWindowCreditShipping": {
@@ -61,53 +61,7 @@
                 ]
             }
         },
-        "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "EntryCreeditShop",
-            "CreditShoppingCheckMainUI"
-        ]
-    },
-    "CreditShoppingCheckMainUI": {
-        "doc": "检测主界面（未展开），点击 F5 展开",
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 1000
-        },
-        "recognition": "TemplateMatch",
-        "template": "CreditShopping/Expand.png",
-        "threshold": 0.8,
-        "green_mask": true,
-        "roi": [
-            700,
-            0,
-            580,
-            83
-        ],
-        "action": "ClickKey",
-        "key": 192,
-        "next": [
-            "CreditShoppingCheckShopPage",
-            "EntryCreeditShop",
-            "CreditShoppingCheckMainUI"
-        ]
-    },
-    "EntryCreeditShop": {
-        "doc": "进入商店",
-        "recognition": "TemplateMatch",
-        "template": "CreditShopping/ShoppingEntry.png",
-        "roi": [
-            700,
-            0,
-            425,
-            80
-        ],
-        "action": "ClickKey",
-        "key": 116,
-        "next": [
-            "CreditShoppingCheckShopPage",
-            "EntryCreeditShop"
-        ]
+        "next": []
     },
     "CreditShoppingCheckShopPage": {
         "doc": "检测商店页面，点击信用交易所 Tab",

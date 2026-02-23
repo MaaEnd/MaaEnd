@@ -109,6 +109,15 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterWorldDijiangControlNexus": {
+        "doc": "从任意界面进入帝江号大世界控制中枢",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
     "SceneEnterWorldValleyIVTheHub": {
         "doc": "从任意界面进入四号谷地-枢纽区大世界",
         "pre_delay": 0,
@@ -244,6 +253,15 @@
         "post_delay": 0,
         "next": [
             "ScenePrivateWorldEnterMenuWiki",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuShop": {
+        "doc": "从任意界面进入商店界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ScenePrivateWorldEnterMenuShop",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },

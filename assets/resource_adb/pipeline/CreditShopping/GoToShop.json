@@ -1,11 +1,10 @@
 {
     "CreditShoppingMain": {
+        "doc": "信用点购物主入口",
         "next": [
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "EntryCreeditShop",
-            "CreditShoppingCheckMainUI"
-            //"[JumpBack]SceneTestEnterWorld"
+            "[JumpBack]CancelExit",
+            "InMainWindowCreditShipping",
+            "[JumpBack]CloseButtonType2"
         ]
     },
     "CreditShoppingCheckMainUI": {

@@ -6,8 +6,9 @@
         },
         "max_hit": 1,
         "next": [
-            "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]SceneEnterWorldDijiangControlNexus"
+            "[JumpBack]CancelExit",
+            "InMainWindow_NeedCredit",
+            "[JumpBack]CloseButtonType2"
         ]
     },
     "DijiangRewards": {
@@ -16,8 +17,9 @@
             "Node.PipelineNode.Failed": "未识别到进入基建入口"
         },
         "next": [
-            "ControlNexus",
-            "[JumpBack]SceneEnterWorldDijiangControlNexus"
+            "[JumpBack]CancelExit",
+            "InMainWindow_Normal",
+            "[JumpBack]CloseButtonType2"
         ]
     }
 }
