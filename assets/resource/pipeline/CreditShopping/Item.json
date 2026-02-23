@@ -91,6 +91,20 @@
         "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
         "order_by": "Vertical"
     },
+    "BuyFirstOCR_CanNotAfford": {
+        "doc": "有商品,但是买不起",
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "only_rec": true,
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
+        "order_by": "Vertical"
+    },
     "BlacklistOCR": {
         "doc": "不是黑名单物品",
         "recognition": "OCR",
