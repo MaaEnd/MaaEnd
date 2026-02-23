@@ -2,7 +2,7 @@
 
 **MaaEnd** 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，采用 [方案二](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) 进行开发。
 我们的主体流程采用 [Pipeline JSON 低代码](/assets/resource/pipeline)，复杂逻辑通过 [go-service](/agent/go-service) 编码实现。
-若有意加入 MaaEnd 开发，可以先阅读 MaaFramework 相关文档，了解低代码逻辑、相关编辑调试工具的使用~
+若有意加入 MaaEnd 开发，可以先阅读 [MaaFramework 相关文档](https://maafw.com/)，了解低代码逻辑、相关编辑调试工具的使用，也可以查看 [MaaFramework 教学视频](https://www.bilibili.com/video/BV1yr421E7MW)，但视频较旧，请以文档为主哦~
 
 ## 本地部署
 
@@ -36,15 +36,29 @@ python tools/setup_workspace.py
     git submodule update --init --recursive
     ```
 
-2. 编译 go-service 、配置路径。
+2. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压内容到 `deps` 文件夹。
+
+3. 下载 MaaDeps pre-built。
+
+    ```bash
+    python tools/download_maadeps.py
+    ```
+
+4. 编译 go-service 、配置路径。
 
     ```bash
     python tools/build_and_install.py
     ```
 
-3. 下载 [MaaFramework](https://github.com/MaaXYZ/MaaFramework/releases) 并解压 `bin` 内容到 `install/maafw/` 。
+    > 如需同时编译 cpp-algo，请加上 `--cpp-algo` 参数：
+    >
+    > ```bash
+    > python tools/build_and_install.py --cpp-algo
+    > ```
 
-4. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
+5. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/` 。
+
+6. 下载 [MXU](https://github.com/MistEO/MXU/releases) 并解压到 `install/` 。
 
 </details>
 
@@ -88,6 +102,11 @@ python tools/setup_workspace.py
 ### Go Service 代码规范
 
 - Go Service 仅用于处理某些特殊动作/识别，整体流程仍请使用 Pipeline 串联。请勿使用 Go Service 编写大量流程代码。
+
+### Cpp Algo 代码规范
+
+- Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，但仅推荐用于实现单个识别算法，各类操作等业务逻辑推荐用 Go Service 编写。
+- 其余代码规范请参考 [MaaFramework 开发规范](https://github.com/MaaXYZ/MaaFramework/blob/main/AGENTS.md#%E5%BC%80%E5%8F%91%E8%A7%84%E8%8C%83)。
 
 ## 交流
 

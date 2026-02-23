@@ -1,0 +1,136 @@
+{
+    "DailyTaskClaimDeliveryJobsMain": {
+        "doc": "开始自动领取委托",
+        "next": [
+            "DailyTaskClaimDeliveryJobsLoop",
+            "[JumpBack]RegionalDevelopmentButton"
+        ]
+    },
+    "DailyTaskClaimDeliveryJobsLoop": {
+        "doc": "主循环，确保在地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "IncomeReportButton"
+        ],
+        "next": [
+            "ClaimDeliveryJobsValleyIV",
+            "ClaimDeliveryJobsFinished"
+        ]
+    },
+    "ClaimDeliveryJobsValleyIV": {
+        "doc": "四号谷地仓储节点内领我转送的委托，领取完退回主界面完成",
+        "max_hit": 1,
+        "next": [
+            "ClaimDeliveryJobsClickMyTransferredTab",
+            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
+            "[JumpBack]GoToValleyIV",
+            "[JumpBack]RegionalDevelopmentButton"
+        ]
+    },
+    "ClaimDeliveryJobsMyTransferredTabText": {
+        "doc": "仓储节点内「我转送的委托」标签 OCR",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            59,
+            67,
+            576,
+            57
+        ],
+        "expected": [
+            "我转交的委托",
+            "我轉交的委託",
+            "My Transferred Jobs",
+            "転送した依頼",
+            "내가 위탁한 의뢰"
+        ]
+    },
+    "ClaimDeliveryJobsClickMyTransferredTab": {
+        "doc": "在仓储节点内点击「我转交的委托」标签",
+        "recognition": "And",
+        "all_of": [
+            "ClaimDeliveryJobsMyTransferredTabText",
+            "InLocalDepotNode"
+        ],
+        "action": "Click",
+        "next": [
+            "ClaimDeliveryJobsInMyTransferredTab",
+            "ClaimDeliveryJobsClickMyTransferredTab"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ClaimDeliveryJobsInMyTransferredTab": {
+        "doc": "确认已经进入「我转交的委托」界面",
+        "recognition": "And",
+        "all_of": [
+            "InClaimDeliveryJobsNode"
+        ],
+        "next": [
+            "[JumpBack]ClaimDeliveryJobsClaimButton",
+            "ClaimDeliveryJobsBackAfterClaim"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "ClaimDeliveryJobsClaimButton": {
+        "doc": "在我转送的委托内点击领取按钮（模板匹配）",
+        "recognition": "TemplateMatch",
+        "template": "DailyRewards/ClaimDeliveryJobsButton.png",
+        "threshold": 0.8,
+        "roi": [
+            1077,
+            649,
+            168,
+            39
+        ],
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm",
+            "ClaimDeliveryJobsClaimButton"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ClaimDeliveryJobsBackAfterClaim": {
+        "doc": "领取后关闭仓储节点，回到主界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "ClaimDeliveryJobsBackAfterClaim",
+            "ClaimDeliveryJobsFinished"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ClaimDeliveryJobsFinished": {
+        "doc": "领取转送奖励完成",
+        "focus": {
+            "Node.Action.Starting": "$task.DailyRewards.ClaimDeliveryJobsFinished"
+        }
+    }
+}

@@ -46,6 +46,14 @@
             "CheckLocalDepotNodeText"
         ]
     },
+    "InClaimDeliveryJobsNode": {
+        "doc": "在[我转交的委托]界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckLocalDepotNodeText",
+            "CheckCourierInfoText"
+        ]
+    },
     "InValleyIVLocalDepotNode": {
         "doc": "在四号谷地本地仓储节点界面",
         "recognition": "And",
