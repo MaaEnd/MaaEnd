@@ -503,6 +503,14 @@
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
+    "GoToCollapsedTianshiPillar": {
+        "doc": "前往倒塌的天师桩",
+        "next": [
+            "GoToCollapsedTianshiPillarStartPos",
+            // TODO: 缺少进入指定协议传送点的节点
+            "[JumpBack]SceneEnterMapWulingJingyuValley"
+        ]
+    },
     "GoToEternalSunsetStartPos": {
         "doc": "在栖霞驻影任务开始位置附近",
         "recognition": "Custom",
@@ -650,6 +658,27 @@
             "GoToCleansingJadeMapTrackerMove"
         ]
     },
+    "GoToCollapsedTianshiPillarStartPos": {
+        "doc": "在倒塌的天师桩任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        0,
+                        0,
+                        10,
+                        10
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarMapTrackerMove"
+        ]
+    },
     "GoToEternalSunsetMapTrackerMove": {
         "doc": "前往栖霞驻影",
         "action": "Custom",
@@ -787,6 +816,20 @@
     },
     "GoToCleansingJadeMapTrackerMove": {
         "doc": "前往「漱玉」。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    0,
+                    0
+                ]
+            ]
+        }
+    },
+    "GoToCollapsedTianshiPillarMapTrackerMove": {
+        "doc": "前往倒塌的天师桩。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
