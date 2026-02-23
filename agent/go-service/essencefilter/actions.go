@@ -266,14 +266,15 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	}
 
 	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
-	text := ocr.Text
+	rawText := ocr.Text
+	text := cleanChinese(rawText)
 
 	if text == "" {
-		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> OCR empty")
+		log.Error().Int("slot", params.Slot).Str("raw", rawText).Msg("<EssenceFilter> OCR empty")
 		return false
 	}
 	currentSkills[params.Slot-1] = text
-	log.Info().Int("slot", params.Slot).Str("skill", text).Bool("is_last", params.IsLast).Msg("<EssenceFilter> OCR ok")
+	log.Info().Int("slot", params.Slot).Str("skill", rawText).Bool("is_last", params.IsLast).Msg("<EssenceFilter> OCR ok")
 
 	if !params.IsLast {
 		// wait for next slot
