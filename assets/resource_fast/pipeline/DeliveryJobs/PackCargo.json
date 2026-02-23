@@ -1,6 +1,7 @@
 {
     // 装箱货物的流程如下：
     // 选择装箱货物类型（下一步）->装满货物（下一步）->货物竞价->调度申请（下一步）->单击屏幕继续->回到大世界界面
+    // 这里的所有单击都不怕双击，所以不需要将 post_wait_freezes 的时间设置得过长
     "DeliveryJobsPackCargo": {
         "doc": "装箱货物",
         "recognition": "And",
@@ -29,7 +30,7 @@
         "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 80,
+            "time": 1,
             "target": [
                 0,
                 0,
@@ -51,7 +52,7 @@
         "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 80,
+            "time": 1,
             "target": [
                 0,
                 0,
@@ -71,7 +72,16 @@
             143
         ],
         "threshold": 0.8,
-        "action": "Click"
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
     },
     "DeliveryJobsClickScreenToContinue": {
         "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
@@ -92,7 +102,7 @@
         ],
         "action": "Click",
         "post_wait_freezes": {
-            "time": 80,
+            "time": 1,
             "target": [
                 0,
                 0,
