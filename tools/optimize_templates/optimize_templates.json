@@ -299,5 +299,6 @@
     "resource/image/Resell/endVisitConfirm": "1ac436bcc52104fb34be3b05a6fdbd6a713442f4fccaeb7d98a86db0ac8bb40f",
     "resource/image/Resell/inTerminal": "8f894de35158e78d10847969a926f34b0bd1050b8d0698c2c26c6e91a1c2c474",
     "resource/image/SimpleProductionBatch/ProduceBtn": "e7ea470efb79fca402294a5c432a768dbc92fe0401e05b2a7bb80bb811f98460",
-    "resource/image/SimpleProductionBatch/MaxProductionBtn": "a31f00e45fc0f88f92906b1e3a52971bca66af37c7c353d190ea6b0cb8d02759"
+    "resource/image/SimpleProductionBatch/MaxProductionBtn": "a31f00e45fc0f88f92906b1e3a52971bca66af37c7c353d190ea6b0cb8d02759",
+    "resource/image/SceneManager/LoginExit": "5217724931a772792a81ecd5f7fec876bfe54ef924cfc5194c120974784f9dc5"
 }
