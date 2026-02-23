@@ -23,7 +23,7 @@ except ImportError:
 
 
 Point = tuple[int, int]
-Color = tuple[int, int, int]
+Color = int  # 0xRRGGBB
 
 
 class Drawer:
@@ -45,6 +45,13 @@ class Drawer:
     def get_text_size(self, text: str, font_scale: float, *, thickness: int):
         return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
 
+    @staticmethod
+    def _to_bgr(color: Color) -> tuple[int, int, int]:
+        r = (color >> 16) & 0xFF
+        g = (color >> 8) & 0xFF
+        b = color & 0xFF
+        return (b, g, r)
+
     def text(
         self,
         text: str,
@@ -62,10 +69,18 @@ class Drawer:
                 self._img,
                 (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
                 (pos[0] + text_size[0] + bg_padding, pos[1] + bg_padding),
-                bg_color,
+                self._to_bgr(bg_color),
                 -1,
             )
-        cv2.putText(self._img, text, pos, self._font_face, font_scale, color, thickness)
+        cv2.putText(
+            self._img,
+            text,
+            pos,
+            self._font_face,
+            font_scale,
+            self._to_bgr(color),
+            thickness,
+        )
 
     def text_centered(
         self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
@@ -77,13 +92,35 @@ class Drawer:
         )
 
     def rect(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.rectangle(self._img, pt1, pt2, color, thickness)
+        cv2.rectangle(self._img, pt1, pt2, self._to_bgr(color), thickness)
 
     def circle(self, center: Point, radius: int, *, color: Color, thickness: int):
-        cv2.circle(self._img, center, radius, color, thickness)
+        cv2.circle(self._img, center, radius, self._to_bgr(color), thickness)
 
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
-        cv2.line(self._img, pt1, pt2, color, thickness)
+        cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
+
+    def mask(self, pt1: Point, pt2: Point, *, color: Color, alpha: float) -> None:
+        x1, y1 = pt1
+        x2, y2 = pt2
+        if x1 == x2 or y1 == y2:
+            return
+        if x1 > x2:
+            x1, x2 = x2, x1
+        if y1 > y2:
+            y1, y2 = y2, y1
+        h, w = self._img.shape[:2]
+        x1 = max(0, min(w, x1))
+        x2 = max(0, min(w, x2))
+        y1 = max(0, min(h, y1))
+        y2 = max(0, min(h, y2))
+        if x2 <= x1 or y2 <= y1:
+            return
+
+        region = self._img[y1:y2, x1:x2]
+        overlay = np.empty_like(region)
+        overlay[:, :] = self._to_bgr(color)
+        cv2.addWeighted(region, 1 - alpha, overlay, alpha, 0, dst=region)
 
     def paste(
         self,
@@ -94,15 +131,6 @@ class Drawer:
         scale_h: int | None = None,
         with_alpha: bool = False,
     ) -> None:
-        """Paste an image onto the canvas with optional scaling and alpha blending.
-
-        Args:
-            img: The image to paste (BGR or BGRA format)
-            pos: Position (x, y) where to paste
-            scale_w: Scale width to this value (optional)
-            scale_h: Scale height to this value (optional)
-            with_alpha: If True, use alpha channel for transparency blending
-        """
         # Scale if needed
         if scale_w is not None or scale_h is not None:
             h, w = img.shape[:2]

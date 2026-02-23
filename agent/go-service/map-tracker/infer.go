@@ -2,6 +2,7 @@
 package maptracker
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -14,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -30,11 +32,16 @@ type MapTrackerInferResult struct {
 	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
 }
 
-// MapTrackerInferParam represents the parameters for map tracking inference
+// MapTrackerInferParam represents the custom_recognition_param for MapTrackerInfer
 type MapTrackerInferParam struct {
-	MapNameRegex string  `json:"map_name_regex,omitempty"`
-	Precision    float64 `json:"precision,omitempty"`
-	Threshold    float64 `json:"threshold,omitempty"`
+	// MapNameRegex is a regex pattern to filter which maps to consider during inference.
+	MapNameRegex string `json:"map_name_regex,omitempty"`
+	// Precision is a value controls the inference precision/speed tradeoff.
+	Precision float64 `json:"precision,omitempty"`
+	// Threshold is the minimum confidence required to consider the inference successful.
+	Threshold float64 `json:"threshold,omitempty"`
+	// Whether to print status to GUI.
+	Print bool `json:"print,omitempty"`
 }
 
 // MapCache represents a preloaded map image
@@ -61,6 +68,12 @@ type MapTrackerInfer struct {
 	scaledScale float64
 	scaledMaps  []MapCache
 }
+
+//go:embed messages/inference_failed.html
+var inferenceFailedHTML string
+
+//go:embed messages/inference_finished.html
+var inferenceFinishedHTML string
 
 var _ maa.CustomRecognitionRunner = &MapTrackerInfer{}
 
@@ -149,6 +162,14 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("rotConf", rotConf).
 		Bool("hit", hit).
 		Msg("Map tracking inference completed")
+
+	if param.Print {
+		if hit {
+			maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, locX, locY, rot, mapName))
+		} else {
+			maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFailedHTML, locConf, rotConf))
+		}
+	}
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
