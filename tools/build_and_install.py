@@ -311,7 +311,7 @@ def build_cpp_algo(
         print(f"  {t('error')} {t('cpp_source_not_found')}: {cpp_algo_dir}")
         return False
 
-    build_type = "Release" if ci_mode else "Debug"
+    build_type = "RelWithDebInfo"
 
     # 确定目标操作系统
     if target_os:
