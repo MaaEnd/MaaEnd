@@ -2,7 +2,7 @@
     "SellProductBegin": {
         "pre_delay": 0,
         "post_delay": 500,
-        "doc": "虚节点",
+        "doc": "虚节点.",
         "next": [
             "SellProductAtDevelopment",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
