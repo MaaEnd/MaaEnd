@@ -103,7 +103,7 @@
     "option.CreditShoppingOptions.inputs.blacklist.label": "黑名单",
     "option.CreditShoppingOptions.inputs.blacklist.description": "子串即可 `|`分隔",
     "option.CreditShoppingForce.label": "信用溢出时",
-    "option.CreditShoppingForce.description": "- 购买黑名单物品：溢出时会忽视黑名单\n- 执行刷新：溢出时会执行刷新\n\n注意！执行刷新模式下可能会损失部分大于300的信用点",
+    "option.CreditShoppingForce.description": "- 购买黑名单物品：溢出时会忽视黑名单\n- 执行刷新：溢出时会执行刷新\n\n注意！执行刷新模式如果遇信用点不足以购买目标物品的情况下会直接退出，即使当前可能大于300信用点",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "购买黑名单物品",
     "option.CreditShoppingForce.cases.Refresh.label": "执行刷新",
     "option.CreditShoppingOtherItems.label": "可以购买非白名单物品",

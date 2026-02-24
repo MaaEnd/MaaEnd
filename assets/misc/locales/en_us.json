@@ -115,7 +115,7 @@
     "option.CreditShoppingOptions.inputs.blacklist.label": "Blacklist",
     "option.CreditShoppingOptions.inputs.blacklist.description": "Substring Just `|` Separate",
     "option.CreditShoppingForce.label": "When credits overflow",
-    "option.CreditShoppingForce.description": "- Buy blacklist items: ignores blacklist when overflowing\n- Execute refresh: executes refresh when overflowing and strictly follows whitelist\n\nNote! Refresh mode may lose some credits above 300",
+    "option.CreditShoppingForce.description": "- Buy blacklist items: ignores blacklist when overflowing\n- Execute refresh: executes refresh when overflowing\n\nNote! In refresh mode, if credits are not enough to buy the target item, the task will exit immediately, even if current credits may still be above 300",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "Buy blacklist items",
     "option.CreditShoppingForce.cases.Refresh.label": "Strictly buy by whitelist and enable refresh",
     "option.CreditShoppingOtherItems.label": "Allow buying non-whitelist items",
