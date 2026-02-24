@@ -1,3 +1,6 @@
 [submodule "agent/cpp-algo/MaaUtils"]
 	path = agent/cpp-algo/MaaUtils
 	url = https://github.com/MaaXYZ/MaaUtils.git
+[submodule "assets/resource/model"]
+	path = assets/resource/model
+	url = https://github.com/MaaEnd/MaaEnd-AI.git

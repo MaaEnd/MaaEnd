@@ -136,7 +136,7 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     print(Console.hdr(t("inf_check_submodules")))
     if (
         not skip_if_exist
-        or not (PROJECT_BASE / "assets" / "MaaCommonAssets" / "LICENSE").exists()
+        or not (PROJECT_BASE / "assets" / "resource" / "model" / "LICENSE").exists()
         or not (PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").exists()
     ):
         print(Console.info(t("inf_updating_submodules")))
