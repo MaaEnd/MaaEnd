@@ -32,6 +32,7 @@
     "option.AutoFightSkill.label": "Auto Use Skills",
     "option.AutoFightEndSkill.label": "Auto Use Ultimate",
     "option.AutoFightCombo.label": "Auto Trigger Link Skills",
+    "option.AutoFightDodge.label": "Auto Dodge",
     "option.AutoFightLockTarget.label": "Auto Lock Target",
     "option.AutoFightSaveDamage.label": "Auto Save Damage Images (Test)",
     "option.AutoPick.label": "Auto Pick Up",
