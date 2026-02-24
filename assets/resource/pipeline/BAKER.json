@@ -36,7 +36,6 @@
             "BakerCheckMsg", // Baker 会话信息
             "BakerCheckTask", // Baker 事务通讯
             "BakerOverCheck" // Baker 任务结束
-
         ]
     },
     "BakerSwitchTasks": {
@@ -68,7 +67,6 @@
             "BakerOpenFilter", // 只会执行一次, 后续走打开确认流程可以少一步
             "BakerExpend",
             "BakerOverCheck" // Baker 任务结束
-
         ]
     },
     "BakerCheckTask": {
@@ -88,7 +86,6 @@
             "BakerTalkWith", // 和会话信息流程相比不需要进行下拉
             "BakerTalkWithHint",
             "BakerOverCheck" // Baker 任务结束
-
         ]
     },
     "BakerOverCheck": {
@@ -234,7 +231,6 @@
         "template": [
             "Baker/TalkWith.png",
             "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
-
         ],
         "roi": [
             31,
