@@ -25,6 +25,13 @@
                     "description": "$option.CreditShoppingOptions.inputs.buy_first.description",
                     "pipeline_type": "string",
                     "default": "嵌晶玉|武库配额"
+                },
+                {
+                    "name": "blacklist",
+                    "label": "$option.CreditShoppingOptions.inputs.blacklist.label",
+                    "description": "$option.CreditShoppingOptions.inputs.blacklist.description",
+                    "pipeline_type": "string",
+                    "default": ""
                 }
             ],
             "pipeline_override": {
@@ -33,6 +40,9 @@
                 },
                 "BuyFirstOCR_CanNotAfford": {
                     "expected": "^({buy_first})$"
+                },
+                "BlacklistOCR": {
+                    "expected": "^(?!({blacklist})$).*$"
                 }
             }
         },
@@ -91,7 +101,6 @@
                         }
                     },
                     "option": [
-                        "CreditShoppingBlacklist",
                         "DiscountValue"
                     ]
                 },
@@ -107,24 +116,6 @@
                     }
                 }
             ]
-        },
-        "CreditShoppingBlacklist": {
-            "type": "input",
-            "label": "$option.CreditShoppingBlacklist.label",
-            "inputs": [
-                {
-                    "name": "blacklist",
-                    "label": "$option.CreditShoppingOptions.inputs.blacklist.label",
-                    "description": "$option.CreditShoppingOptions.inputs.blacklist.description",
-                    "pipeline_type": "string",
-                    "default": ""
-                }
-            ],
-            "pipeline_override": {
-                "BlacklistOCR": {
-                    "expected": "^(?!({blacklist})$).*$"
-                }
-            }
         },
         "DiscountValue": {
             "type": "select",
