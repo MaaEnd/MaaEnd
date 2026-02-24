@@ -24,7 +24,6 @@
             "[JumpBack]ChangeToWuling",
             "[JumpBack]EnterChangeRegionMenu",
             "[JumpBack]BackFromEnvironmentMonitoringTerminal" // 只有从其他地方切换到武陵双击时，才可能会意外进入环境监测终端
-
         ]
     },
     "ChangeToValleyIV": {

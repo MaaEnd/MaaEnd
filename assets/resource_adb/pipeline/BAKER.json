@@ -16,7 +16,6 @@
         "next": [
             "ClickTopTak",
             "BakerEntry" // ClickTopTak 若是没匹配到，则回到 BakerEntry]
-
         ]
     },
     "ClickTopTak": {
@@ -94,7 +93,6 @@
         "template": [
             "Baker/TalkWith.png",
             "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
-
         ],
         "roi": [
             90,

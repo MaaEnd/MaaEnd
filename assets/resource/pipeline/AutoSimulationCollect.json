@@ -229,7 +229,6 @@
             "SimSaveFilter",
             "[JumpBack]SimLoopNextReward",
             "SimLoopNoReward"
-
         ]
     },
     "SimLoopClickFilter": {
@@ -281,7 +280,6 @@
             "SimLoopSaveFilter",
             "[JumpBack]SimLoopNextReward",
             "SimLoopNoReward"
-
         ]
     },
     "SimLoopNextReward": {
@@ -341,7 +339,6 @@
         "next": [
             "SimComfirmReward", // 领取完去关弹窗
             "SimLoopClaimReward"
-
         ]
     },
     "SimComfirmReward": {
@@ -361,7 +358,6 @@
         "next": [
             "SimCloseRewardPopup", // 领取完去关弹窗
             "SimComfirmReward"
-
         ]
     },
     "SimCloseRewardPopup": {
@@ -387,7 +383,6 @@
             "SimLoopClickFilter", // 回去继续找下一个奖励
             "SimCheckEmpty", // 找不到了？去检查是不是空了
             "SimCloseRewardPopup"
-
         ]
     },
     "SimCheckEmpty": {

@@ -75,7 +75,6 @@
             "CheckCantProduceAnyMore", // 进行材料退出判断，在这里直接判断到就直接退出
             "ClickMaxBtn", // 点击最大制造数量
             "ClickProduceBtn" // 如果提前点过了 maxBtn 直接点生产
-
         ]
     },
     "ClickMaxBtn": {

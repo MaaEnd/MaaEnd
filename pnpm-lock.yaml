@@ -12,92 +12,165 @@ importers:
         specifier: 3.5.3
         version: 3.5.3
       prettier-plugin-multiline-arrays:
-        specifier: 3.0.6
-        version: 3.0.6(prettier@3.5.3)
+        specifier: 4.1.4
+        version: 4.1.4(prettier@3.5.3)
 
 packages:
 
-  '@augment-vir/common@23.4.0':
-    resolution: {integrity: sha512-QIrJ1doD00TNbOzeVrk9KgPTzRlIjayxERnhtbQjK/AFPj5yElcB03GbnGdQZPzws/R+5gfMM5cZiH7QyBP+Kg==}
+  '@augment-vir/assert@31.65.0':
+    resolution: {integrity: sha512-Nalb1u9PZ+YWmvwIQ7NamsFHfUXACxS+1MfeOC0Q2S/TPf66QZUN/RDZxXMgyf8BypIxCZILJbakh/B+Of66Ew==}
+    engines: {node: '>=22'}
 
-  '@augment-vir/common@28.2.4':
-    resolution: {integrity: sha512-5Ib0OX7YlxAuFrG+MAoTsz6RlKMcbdMdoNGcEEKH/ezc/ZKMy/IHZ9Z/ZcCHYopZ4ocGXzVY4KUOiJ8+CXXvTA==}
+  '@augment-vir/common@31.65.0':
+    resolution: {integrity: sha512-ncFzmfhBMvVFT9AL+XZa1dU/uW3ekn5j5by+y+THDYKyFkVL4uhPx+t95MsR7hLSdQPdcCIcZAvgmyTO97lCJQ==}
+    engines: {node: '>=22'}
 
-  '@augment-vir/common@29.3.0':
-    resolution: {integrity: sha512-k3OX35/576thmGUzQUBcCKGarb7ONBfiu07+iV2vxmjl7VoB1rOB0vu8WqgB1ceJq2EMLDPXY18hHpJ9WeTHXQ==}
+  '@augment-vir/core@31.65.0':
+    resolution: {integrity: sha512-EeuSiPc0RCLOQk+2NnLC8hpWg+fHvWibjASUKEhsEpORrDX9yn4WFXKXev1SlymT2/TylEYyZFmiJv8DFjo6ww==}
+    engines: {node: '>=22'}
 
-  browser-or-node@2.1.1:
-    resolution: {integrity: sha512-8CVjaLJGuSKMVTxJ2DpBl5XnlNDiT4cQFeuCJJrvJmts9YrTZDizTX7PjC2s6W4x+MBGZeEY6dGMrF04/6Hgqg==}
+  '@date-vir/duration@8.1.1':
+    resolution: {integrity: sha512-Yyy843MnUPsyGaDt07b4/Y8Sbh9Vcka1XwxVI5eWV7x8kigF+NtH5onsLlHELfF/rsjchVOnWRlBCkCpjltoJA==}
+    engines: {node: '>=22'}
+
+  '@types/luxon@3.7.1':
+    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
+
+  ansi-styles@6.2.3:
+    resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
+    engines: {node: '>=12'}
 
   browser-or-node@3.0.0:
     resolution: {integrity: sha512-iczIdVJzGEYhP5DqQxYM9Hh7Ztpqqi+CXZpSmX8ALFs9ecXkQIeqRyM6TfxEfMVpwhl3dSuDvxdzzo9sUOIVBQ==}
 
-  expect-type@0.15.0:
-    resolution: {integrity: sha512-yWnriYB4e8G54M5/fAFj7rCIBiKs1HAACaY13kCz6Ku0dezjS9aMcfcdVK2X8Tv2tEV1BPz/wKfQ7WA4S/d8aA==}
+  deep-eql@5.0.2:
+    resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
+    engines: {node: '>=6'}
 
-  prettier-plugin-multiline-arrays@3.0.6:
-    resolution: {integrity: sha512-FrWVa7MoDQo9b5XoLPrqIDClb0k+O8wOIsIr1DutRXhcerLY8PfIe/yYeTVD/vpRISkSXCBEYmj5Voe0wb5dEQ==}
+  deepcopy-esm@2.1.1:
+    resolution: {integrity: sha512-0lopQd/gi3excE3sgBrjuR3gJv6ZElk027i30pUgdjtvSJl/OoZ8B6L42GUBm6C3G8hD1EB5ir2gTYnINzWx4g==}
+    engines: {node: '>=22'}
+
+  diff@8.0.3:
+    resolution: {integrity: sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ==}
+    engines: {node: '>=0.3.1'}
+
+  expect-type@1.3.0:
+    resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
+    engines: {node: '>=12.0.0'}
+
+  json5@2.2.3:
+    resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
+    engines: {node: '>=6'}
+    hasBin: true
+
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
+    engines: {node: '>=12'}
+
+  prettier-plugin-multiline-arrays@4.1.4:
+    resolution: {integrity: sha512-33xcBKg7UC5rEKCkPn5LyB3f0mqK4wd+W5rzGO6gbps8jxAHnO/t95SuGqz6TR09ysXUjaKu1m5rknBVzlhKlw==}
+    engines: {node: '>=20'}
     peerDependencies:
-      prettier: '>=3.0.0'
+      prettier: '>=3.0.0 <4.0.0'
 
   prettier@3.5.3:
     resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
     engines: {node: '>=14'}
     hasBin: true
 
-  proxy-vir@1.0.0:
-    resolution: {integrity: sha512-WV1gkBxUOwLSz0Bn09tisIqLK7leAqtFm/474t3L0hQKJw7/gdrkGcWw0/OT1PhSy+TDS6swfq7Niuoq3XJhkQ==}
+  proxy-vir@2.0.2:
+    resolution: {integrity: sha512-YgV6c/9aJ7RyNZDTPqLQ6SdqBocWHGUa5rU3hyEsHj2kg4/b0y0EMWp3dNNUEJQrw6BoywonNINEVyFvj97YXQ==}
+    engines: {node: '>=22'}
 
-  run-time-assertions@1.5.2:
-    resolution: {integrity: sha512-ccfwvjGuNU14cSSXLlmPRiqEgMfA7w3J2TViO79zMnzXGvE6FJ0dxnhIQGwe5r/vwySOJ4sqZksexo9wyAlA8g==}
-    deprecated: Use @augment-vir/assert instead.
+  tagged-tag@1.0.0:
+    resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
+    engines: {node: '>=20'}
 
-  type-fest@4.41.0:
-    resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
-    engines: {node: '>=16'}
+  type-fest@5.4.4:
+    resolution: {integrity: sha512-JnTrzGu+zPV3aXIUhnyWJj4z/wigMsdYajGLIYakqyOW1nPllzXEJee0QQbHj+CTIQtXGlAjuK0UY+2xTyjVAw==}
+    engines: {node: '>=20'}
+
+  typed-event-target@4.1.0:
+    resolution: {integrity: sha512-fDFhZb7ofywLsVv8mYePD6ONfCpVHyM1t2dboEJx/XMsnflljnu3GQ5qH09hS1USuypGMR7wRbdWQPydgJ8nGQ==}
+    engines: {node: '>=22'}
 
 snapshots:
 
-  '@augment-vir/common@23.4.0':
+  '@augment-vir/assert@31.65.0':
     dependencies:
-      browser-or-node: 2.1.1
-      run-time-assertions: 1.5.2
-      type-fest: 4.41.0
+      '@augment-vir/core': 31.65.0
+      '@date-vir/duration': 8.1.1
+      deep-eql: 5.0.2
+      expect-type: 1.3.0
+      type-fest: 5.4.4
 
-  '@augment-vir/common@28.2.4':
+  '@augment-vir/common@31.65.0':
     dependencies:
+      '@augment-vir/assert': 31.65.0
+      '@augment-vir/core': 31.65.0
+      '@date-vir/duration': 8.1.1
+      ansi-styles: 6.2.3
+      deepcopy-esm: 2.1.1
+      json5: 2.2.3
+      type-fest: 5.4.4
+      typed-event-target: 4.1.0
+
+  '@augment-vir/core@31.65.0':
+    dependencies:
+      '@date-vir/duration': 8.1.1
       browser-or-node: 3.0.0
-      run-time-assertions: 1.5.2
-      type-fest: 4.41.0
+      diff: 8.0.3
+      json5: 2.2.3
+      type-fest: 5.4.4
 
-  '@augment-vir/common@29.3.0':
+  '@date-vir/duration@8.1.1':
     dependencies:
-      browser-or-node: 3.0.0
-      run-time-assertions: 1.5.2
-      type-fest: 4.41.0
+      '@augment-vir/assert': 31.65.0
+      '@types/luxon': 3.7.1
+      luxon: 3.7.2
+      type-fest: 5.4.4
 
-  browser-or-node@2.1.1: {}
+  '@types/luxon@3.7.1': {}
+
+  ansi-styles@6.2.3: {}
 
   browser-or-node@3.0.0: {}
 
-  expect-type@0.15.0: {}
+  deep-eql@5.0.2: {}
 
-  prettier-plugin-multiline-arrays@3.0.6(prettier@3.5.3):
+  deepcopy-esm@2.1.1: {}
+
+  diff@8.0.3: {}
+
+  expect-type@1.3.0: {}
+
+  json5@2.2.3: {}
+
+  luxon@3.7.2: {}
+
+  prettier-plugin-multiline-arrays@4.1.4(prettier@3.5.3):
     dependencies:
-      '@augment-vir/common': 28.2.4
+      '@augment-vir/assert': 31.65.0
+      '@augment-vir/common': 31.65.0
       prettier: 3.5.3
-      proxy-vir: 1.0.0
+      proxy-vir: 2.0.2
 
   prettier@3.5.3: {}
 
-  proxy-vir@1.0.0:
+  proxy-vir@2.0.2:
     dependencies:
-      '@augment-vir/common': 23.4.0
+      '@augment-vir/assert': 31.65.0
+      '@augment-vir/common': 31.65.0
 
-  run-time-assertions@1.5.2:
+  tagged-tag@1.0.0: {}
+
+  type-fest@5.4.4:
     dependencies:
-      '@augment-vir/common': 29.3.0
-      expect-type: 0.15.0
-      type-fest: 4.41.0
+      tagged-tag: 1.0.0
 
-  type-fest@4.41.0: {}
+  typed-event-target@4.1.0:
+    dependencies:
+      '@augment-vir/assert': 31.65.0
+      '@augment-vir/common': 31.65.0
+      '@augment-vir/core': 31.65.0
