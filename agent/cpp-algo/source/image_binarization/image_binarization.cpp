@@ -1,6 +1,5 @@
 #include "image_binarization.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -12,6 +11,9 @@
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
+#include "cv_utils.h"
+#include "ocr_utils.h"
+
 static cv::Mat to_mat(const MaaImageBuffer* buffer)
 {
     return cv::Mat(
@@ -19,46 +21,6 @@ static cv::Mat to_mat(const MaaImageBuffer* buffer)
         MaaImageBufferWidth(buffer),
         MaaImageBufferType(buffer),
         MaaImageBufferGetRawData(buffer));
-}
-
-static cv::Scalar parse_hex_color(const std::string& hex)
-{
-    std::string h = hex;
-    if (!h.empty() && h[0] == '#') {
-        h = h.substr(1);
-    }
-    if (h.size() != 6) {
-        LogWarn << "Invalid hex color:" << hex;
-        return { 0, 0, 0 };
-    }
-
-    int r = std::stoi(h.substr(0, 2), nullptr, 16);
-    int g = std::stoi(h.substr(2, 2), nullptr, 16);
-    int b = std::stoi(h.substr(4, 2), nullptr, 16);
-    return { static_cast<double>(b), static_cast<double>(g), static_cast<double>(r) };
-}
-
-static void mask_colors_as_background(
-    cv::Mat& img,
-    const std::vector<std::string>& bg_colors,
-    int tolerance,
-    const cv::Scalar& bg_fill)
-{
-    for (const auto& hex : bg_colors) {
-        cv::Scalar target = parse_hex_color(hex);
-        cv::Scalar lower(
-            std::max(0.0, target[0] - tolerance),
-            std::max(0.0, target[1] - tolerance),
-            std::max(0.0, target[2] - tolerance));
-        cv::Scalar upper(
-            std::min(255.0, target[0] + tolerance),
-            std::min(255.0, target[1] + tolerance),
-            std::min(255.0, target[2] + tolerance));
-
-        cv::Mat mask;
-        cv::inRange(img, lower, upper, mask);
-        img.setTo(bg_fill, mask);
-    }
 }
 
 static cv::Mat binarize(
@@ -94,104 +56,6 @@ static cv::Mat binarize(
     cv::Mat result;
     cv::cvtColor(inverted, result, cv::COLOR_GRAY2BGR);
     return result;
-}
-
-struct OcrItem
-{
-    std::string text;
-
-    MEO_JSONIZATION(MEO_OPT text);
-};
-
-struct OcrDetail
-{
-    OcrItem best;
-    std::vector<OcrItem> filtered;
-    std::vector<OcrItem> all;
-
-    MEO_JSONIZATION(MEO_OPT best, MEO_OPT filtered, MEO_OPT all);
-};
-
-// Extracts the best OCR text from the recognition detail and writes it
-// directly to the detail buffer as a plain string.
-// Go side expects customResult.Detail to be a simple text like "1843",
-// because MaaFramework wraps out_detail into the Custom result's detail field.
-static void extract_best_text_for_custom(MaaStringBuffer* detail_buf)
-{
-    auto raw = MaaStringBufferGet(detail_buf);
-    if (!raw) {
-        return;
-    }
-
-    auto parsed = json::parse(raw);
-    if (!parsed.has_value()) {
-        return;
-    }
-
-    auto detail = parsed->as<OcrDetail>();
-    std::string text;
-
-    // Try "best" first (single object), then first item of "filtered", then "all"
-    if (!detail.best.text.empty()) {
-        text = detail.best.text;
-    }
-    if (text.empty()) {
-        for (const auto& item : detail.filtered) {
-            if (!item.text.empty()) {
-                text = item.text;
-                break;
-            }
-        }
-    }
-    if (text.empty()) {
-        for (const auto& item : detail.all) {
-            if (!item.text.empty()) {
-                text = item.text;
-                break;
-            }
-        }
-    }
-
-    MaaStringBufferSet(detail_buf, text.c_str());
-}
-
-static json::value build_ocr_params(const json::value& params, const MaaRect* roi)
-{
-    json::value ocr;
-
-    if (params.contains("expected")) {
-        ocr["expected"] = params.at("expected");
-    }
-    if (params.contains("threshold")) {
-        ocr["threshold"] = params.at("threshold");
-    }
-    if (params.contains("order_by")) {
-        ocr["order_by"] = params.at("order_by");
-    }
-    if (params.contains("replace")) {
-        ocr["replace"] = params.at("replace");
-    }
-    if (params.contains("index")) {
-        ocr["index"] = params.at("index");
-    }
-    if (params.contains("only_rec")) {
-        ocr["only_rec"] = params.at("only_rec");
-    }
-    if (params.contains("model")) {
-        ocr["model"] = params.at("model");
-    }
-
-    if (roi) {
-        int x = MaaRectGetX(roi);
-        int y = MaaRectGetY(roi);
-        int w = MaaRectGetW(roi);
-        int h = MaaRectGetH(roi);
-        if (w > 0 && h > 0) {
-            ocr["roi"] = json::array { x, y, w, h };
-        }
-    }
-
-    return ocr;
 }
 
 MaaBool ImageBinarizationCallback(
