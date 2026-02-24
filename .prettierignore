@@ -4,6 +4,7 @@ node_modules/
 
 # 子模块
 assets/MaaCommonAssets/
+agent/cpp-algo/MaaUtils/
 
 # 跳过 schema 目录，避免与 sync_schema_files 冲突
 tools/schema/
