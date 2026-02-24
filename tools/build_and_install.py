@@ -134,35 +134,6 @@ def check_go_environment() -> bool:
     return False
 
 
-def configure_ocr_model(assets_dir: Path) -> bool:
-    """配置 OCR 模型，逐个复制文件，已存在则跳过"""
-    assets_ocr_src = assets_dir / "MaaCommonAssets" / "OCR" / "ppocr_v5" / "zh_cn"
-    if not assets_ocr_src.exists():
-        print(f"  {Console.err(t('error'))} {t('ocr_not_found')}: {assets_ocr_src}")
-        print(f"  {t('ocr_submodule_hint')}")
-        return False
-
-    ocr_dir = assets_dir / "resource" / "model" / "ocr"
-    ocr_dir.mkdir(parents=True, exist_ok=True)
-
-    copied_count = 0
-    skipped_count = 0
-
-    for src_file in assets_ocr_src.iterdir():
-        if not src_file.is_file():
-            continue
-        dst_file = ocr_dir / src_file.name
-        if dst_file.exists():
-            skipped_count += 1
-        else:
-            shutil.copy2(src_file, dst_file)
-            copied_count += 1
-
-    print(f"  {Console.ok('->')} {ocr_dir}")
-    print(f"  {t('ocr_copied', copied=copied_count, skipped=skipped_count)}")
-    return True
-
-
 def build_go_agent(
     root_dir: Path,
     install_dir: Path,
@@ -494,17 +465,9 @@ def main():
     link_or_copy_dir = copy_directory if use_copy else create_directory_link
     link_or_copy_file = copy_file if use_copy else create_file_link
 
-    # 1. 配置 OCR 模型
-    print(Console.step(t("step_configure_ocr")))
-    if not configure_ocr_model(assets_dir):
-        print(f"  {Console.err(t('error'))} {t('configure_ocr_failed')}")
-        sys.exit(1)
-
-    # 2. 链接/复制 assets 目录内容（排除 MaaCommonAssets）
+    # 1. 链接/复制 assets 目录内容
     print(Console.step(t("step_process_assets")))
     for item in assets_dir.iterdir():
-        if item.name == "MaaCommonAssets":
-            continue
         dst = install_dir / item.name
         if item.is_dir():
             if link_or_copy_dir(item, dst):
@@ -513,7 +476,7 @@ def main():
             if link_or_copy_file(item, dst):
                 print(f"  {Console.ok('->')} {dst}")
 
-    # 3. 构建 Go Agent
+    # 2. 构建 Go Agent
     print(Console.step(t("step_build_go")))
     if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
@@ -521,7 +484,7 @@ def main():
         print(f"  {Console.err(t('error'))} {t('build_go_failed')}")
         sys.exit(1)
 
-    # 4. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
+    # 3. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
     if args.cpp_algo:
         print(Console.step(t("step_build_cpp")))
         if not build_cpp_algo(root_dir, install_dir, args.target_os, args.target_arch, use_copy):
@@ -530,7 +493,7 @@ def main():
     else:
         print(Console.step(t("step_skip_cpp")))
 
-    # 5. 链接/复制项目根目录文件并创建 maafw 目录
+    # 4. 链接/复制项目根目录文件并创建 maafw 目录
     print(Console.step(t("step_prepare_files")))
     for filename in ["README.md", "LICENSE"]:
         src = root_dir / filename

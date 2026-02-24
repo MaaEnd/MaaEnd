@@ -9,6 +9,8 @@
     "inf_check_submodules": "[INF] 서브모듈 확인 중...",
     "inf_updating_submodules": "[INF] 서브모듈 업데이트 중...",
     "inf_submodules_exist": "[INF] 서브모듈이 이미 존재합니다",
+    "wrn_model_not_submodule": "[WRN] model 디렉토리가 서브모듈이 아닌 것으로 감지되었습니다 (.git 누락). 서브모듈의 정상적인 클론을 위해 삭제합니다: {path}",
+    "inf_model_dir_removed": "[INF] 이전 model 디렉토리를 삭제했습니다: {path}",
     "inf_run_build_script": "[INF] build_and_install.py 실행 중 ...",
     "inf_get_latest_release": "[INF] {repo}의 최신 릴리스 정보 가져오는 중...",
     "inf_matched_asset": "[INF] 일치하는 에셋: {name}",
