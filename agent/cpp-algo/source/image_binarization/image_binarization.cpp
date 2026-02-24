@@ -96,6 +96,22 @@ static cv::Mat binarize(
     return result;
 }
 
+struct OcrItem
+{
+    std::string text;
+
+    MEO_JSONIZATION(MEO_OPT text);
+};
+
+struct OcrDetail
+{
+    OcrItem best;
+    std::vector<OcrItem> filtered;
+    std::vector<OcrItem> all;
+
+    MEO_JSONIZATION(MEO_OPT best, MEO_OPT filtered, MEO_OPT all);
+};
+
 // Extracts the best OCR text from the recognition detail and writes it
 // directly to the detail buffer as a plain string.
 // Go side expects customResult.Detail to be a simple text like "1843",
@@ -112,28 +128,25 @@ static void extract_best_text_for_custom(MaaStringBuffer* detail_buf)
         return;
     }
 
-    const auto& root = parsed.value();
+    auto detail = parsed->as<OcrDetail>();
     std::string text;
 
     // Try "best" first (single object), then first item of "filtered", then "all"
-    if (root.contains("best") && root.at("best").is_object()) {
-        const auto& best = root.at("best");
-        if (best.contains("text") && best.at("text").is_string()) {
-            text = best.at("text").as_string();
-        }
+    if (!detail.best.text.empty()) {
+        text = detail.best.text;
     }
-    if (text.empty() && root.contains("filtered") && root.at("filtered").is_array()) {
-        for (const auto& item : root.at("filtered").as_array()) {
-            if (item.contains("text") && item.at("text").is_string()) {
-                text = item.at("text").as_string();
+    if (text.empty()) {
+        for (const auto& item : detail.filtered) {
+            if (!item.text.empty()) {
+                text = item.text;
                 break;
             }
         }
     }
-    if (text.empty() && root.contains("all") && root.at("all").is_array()) {
-        for (const auto& item : root.at("all").as_array()) {
-            if (item.contains("text") && item.at("text").is_string()) {
-                text = item.at("text").as_string();
+    if (text.empty()) {
+        for (const auto& item : detail.all) {
+            if (!item.text.empty()) {
+                text = item.text;
                 break;
             }
         }
