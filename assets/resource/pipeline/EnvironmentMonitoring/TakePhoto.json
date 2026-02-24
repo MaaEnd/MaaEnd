@@ -4,12 +4,13 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack]EnvironmentMonitoringEnterCameraMode",
+            "[JumpBack]EnvironmentMonitoringEnterCameraModeDirectly",
             // 如果任务目标没有达成则重试一次
             "[JumpBack]CloseButtonType1"
         ]
     },
     "EnvironmentMonitoringEnterCameraMode": {
-        "doc": "进入拍照模式",
+        "doc": "进入拍照模式，会自动朝向任务目标",
         "recognition": "And",
         "max_hit": 3,
         "all_of": [
@@ -18,6 +19,16 @@
         ],
         "action": "ClickKey",
         "key": 70 // F 0x46
+    },
+    "EnvironmentMonitoringEnterCameraModeDirectly": {
+        "doc": "直接进入拍照模式，如果朝向不对会失败",
+        "recognition": "And",
+        "max_hit": 3,
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 82 // R 0x52
     },
     "EnvironmentMonitoringShutterButtonHighlighted": {
         "doc": "拍照按钮高亮，拍照",

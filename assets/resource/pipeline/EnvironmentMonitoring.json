@@ -37,8 +37,8 @@
             "AcceptIndoorCropsThenGoTo",
             "GoToBeaconDamagedInBlightTide",
             "AcceptBeaconDamagedInBlightTideThenGoTo",
-            "GoToPhotoRainbowFinInWater",
-            "AcceptPhotoRainbowFinInWaterThenGoTo",
+            "GoToRainbowFin",
+            "AcceptRainbowFinThenGoTo",
             "GoToCleansingJade",
             "AcceptCleansingJadeThenGoTo",
             "EnvironmentMonitoringFinish"
