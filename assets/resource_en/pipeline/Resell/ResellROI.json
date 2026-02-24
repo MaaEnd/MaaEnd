@@ -3,11 +3,5 @@
         "expected": [
             "Friend"
         ]
-    },
-    "Resell_ROI_ReturnButton": {
-        "expected": [
-            "Back",
-            "Return"
-        ]
     }
 }

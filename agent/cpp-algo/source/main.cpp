@@ -3,6 +3,7 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "image_binarization/image_binarization.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
     MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
+    MaaAgentServerRegisterCustomRecognition("ImageBinarization", ImageBinarizationCallback, nullptr);
 
     const char* identifier = argv[argc - 1];
 
