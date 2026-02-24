@@ -189,17 +189,10 @@
     },
     "EnterGame": {
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "expected": [
-                    "探索",
-                    "工业"
-                ],
-                "roi": [
-                    54,
-                    19,
-                    110,
-                    32
+                "all_of": [
+                    "InWorld"
                 ]
             }
         }
