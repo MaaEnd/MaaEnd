@@ -72,6 +72,18 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			continue
 		}
 
+		duplicate := false
+		for _, existing := range dailyEventUnreadItems {
+			if existing.Text == ocrResult.Text {
+				duplicate = true
+				break
+			}
+		}
+		if duplicate {
+			log.Debug().Str("text", ocrResult.Text).Msg("Skipping duplicate unread event")
+			continue
+		}
+
 		dailyEventUnreadItems = append(dailyEventUnreadItems, dailyEventUnreadItem{
 			Box:  ocrResult.Box,
 			Text: ocrResult.Text,
