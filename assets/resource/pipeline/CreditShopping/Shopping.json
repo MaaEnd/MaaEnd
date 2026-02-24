@@ -28,14 +28,57 @@
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
+            "CreditShippingCanNotToBuy",
+            "RefreshItem",
             "CreditShoppingBuyNormalNoDiscount",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShoppingNothingToBuy"
         ]
     },
+    "CreditShippingCanNotToBuy": {
+        "doc": "刷新流程中无法购买",
+        "focus": {
+            "Node.Action.Succeeded": "信用点不足"
+        },
+        "enabled": false,
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCredits",
+            "CanNotFlash"
+        ],
+        "next": [
+            "CreditShoppingNothingToBuy"
+        ]
+    },
+    "RefreshItem": {
+        "doc": "刷新商品",
+        "enabled": false,
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000,
+            "target": [
+                66,
+                97,
+                1153,
+                544
+            ]
+        },
+        "recognition": "And",
+        "all_of": [
+            "RefreshText"
+        ],
+        "action": "Click",
+        "next": [
+            "CreditShoppingShopping",
+            "[JumpBack]YellowConfirmButtonType1"
+        ]
+    },
     "CreditShoppingReserveCredit": {
         "doc": "信用点 < 300",
+        "focus": {
+            "Node.Action.Succeeded": "信用点小于300, 退出购买流程"
+        },
         "recognition": "OCR",
         "roi": [
             1083,
@@ -50,6 +93,9 @@
     },
     "AutoGetCredits": {
         "doc": "额度不足时候自动去基建获取",
+        "focus": {
+            "Node.Action.Succeeded": "信用点不足,尝试从帝江号会客室获取"
+        },
         "max_hit": 1,
         "recognition": "And",
         "box_index": 3,
@@ -57,11 +103,13 @@
             "CreditIcon",
             "NotSoldOut",
             "CanNotAfford",
-            "BuyFirstOCR"
+            "BuyFirstOCR_CanNotAfford"
         ],
         "next": [
             "[JumpBack]NeedCredit",
-            "CreditShoppingMain"
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
         ]
     },
     "CreditShoppingBuyFirst": {
@@ -93,6 +141,7 @@
         ]
     },
     "CreditShoppingBuyNormalWithDiscount": {
+        "enabled": false,
         "doc": "普通购买(折扣)",
         "recognition": "And",
         "box_index": 4,
