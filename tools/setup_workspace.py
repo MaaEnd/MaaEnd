@@ -134,9 +134,17 @@ def run_command(
 
 def update_submodules(skip_if_exist: bool = True) -> bool:
     print(Console.hdr(t("inf_check_submodules")))
+
+    # 兼容旧版本：model 可能是普通文件夹而非子模块，需要删除以确保子模块正常 clone
+    model_path = PROJECT_BASE / "assets" / "resource" / "model"
+    if model_path.is_dir() and not (model_path / "LICENSE").exists():
+        print(Console.warn(t("wrn_model_not_submodule", path=model_path)))
+        shutil.rmtree(model_path)
+        print(Console.ok(t("inf_model_dir_removed", path=model_path)))
+
     if (
         not skip_if_exist
-        or not (PROJECT_BASE / "assets" / "resource" / "model" / "LICENSE").exists()
+        or not (model_path / "LICENSE").exists()
         or not (PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaUtils.cmake").exists()
     ):
         print(Console.info(t("inf_updating_submodules")))

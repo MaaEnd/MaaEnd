@@ -9,6 +9,8 @@
     "inf_check_submodules": "[INF] Checking submodules...",
     "inf_updating_submodules": "[INF] Updating submodules...",
     "inf_submodules_exist": "[INF] Submodules already exist",
+    "wrn_model_not_submodule": "[WRN] Detected model directory is not a submodule (missing .git), removing to ensure proper submodule clone: {path}",
+    "inf_model_dir_removed": "[INF] Removed old model directory: {path}",
     "inf_run_build_script": "[INF] Running build_and_install.py ...",
     "inf_get_latest_release": "[INF] Fetching latest release info for {repo}...",
     "inf_matched_asset": "[INF] Matched asset: {name}",

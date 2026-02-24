@@ -9,6 +9,8 @@
     "inf_check_submodules": "[INF] サブモジュールを確認中...",
     "inf_updating_submodules": "[INF] サブモジュールを更新中...",
     "inf_submodules_exist": "[INF] サブモジュールは既に存在します",
+    "wrn_model_not_submodule": "[WRN] model ディレクトリがサブモジュールではないことを検出しました（.git が見つかりません）。サブモジュールの正常なクローンを確保するために削除します: {path}",
+    "inf_model_dir_removed": "[INF] 古い model ディレクトリを削除しました: {path}",
     "inf_run_build_script": "[INF] build_and_install.py を実行中 ...",
     "inf_get_latest_release": "[INF] {repo} の最新リリース情報を取得中...",
     "inf_matched_asset": "[INF] 一致するアセット: {name}",
