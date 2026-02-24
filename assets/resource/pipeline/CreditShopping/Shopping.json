@@ -37,7 +37,6 @@
     "CreditShoppingReserveCredit": {
         "doc": "信用点 < 300",
         "recognition": "OCR",
-        "only_rec": true,
         "roi": [
             1083,
             17,
@@ -130,7 +129,6 @@
             76,
             26
         ],
-        "only_rec": true,
         "expected": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
     },
     "CreditShoppingNothingToBuy": {
