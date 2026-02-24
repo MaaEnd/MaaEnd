@@ -435,6 +435,9 @@
     },
     "SceneCheckYellowColor": {
         "doc": "检查颜色准确性:黄色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "max_hit": 1,
         "next": [
             "SceneCheckYellowColorSuccess",
@@ -443,8 +446,11 @@
     },
     "SceneCheckYellowColorSuccess": {
         "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:黄色"
+            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #807F00\">黄色 (#807F00)</span>"
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -469,11 +475,17 @@
     },
     "SceneCheckYellowColorFailed": {
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:黄色</span>"
-        }
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0
     },
     "SceneCheckTealColor": {
         "doc": "检查颜色准确性:青色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "max_hit": 1,
         "next": [
             "SceneCheckTealColorSuccess",
@@ -482,8 +494,11 @@
     },
     "SceneCheckTealColorSuccess": {
         "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:青色"
+            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #007F7F\">青色 (#007F7F)</span>"
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -508,11 +523,17 @@
     },
     "SceneCheckTealColorFailed": {
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:青色</span>"
-        }
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0
     },
     "SceneCheckPurpleColor": {
         "doc": "检查颜色准确性:紫色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "max_hit": 1,
         "next": [
             "SceneCheckPurpleColorSuccess",
@@ -521,8 +542,11 @@
     },
     "SceneCheckPurpleColorSuccess": {
         "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:紫色"
+            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #80007F\">紫色 (#80007F)</span>"
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -547,7 +571,10 @@
     },
     "SceneCheckPurpleColorFailed": {
         "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:紫色</span>"
-        }
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0
     }
 }
