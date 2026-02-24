@@ -6,8 +6,7 @@
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
-                "SeizeEntrustTaskisSwipeMiddle",
-                "SeizeEntrustTaskSetLowThreshold"
+                "SeizeEntrustTaskisSwipeMiddle"
             ]
         }
     ],
@@ -85,35 +84,6 @@
                                 ],
                                 "template": "SeizeEntrustTask/InUp.png"
                             }
-                        }
-                    }
-                }
-            ]
-        },
-        "SeizeEntrustTaskSetLowThreshold": {
-            "type": "switch",
-            "label": "降低阈值，如果出现见到7.31w订单不抢的情况，尝试开启此开关以降低模板阈值到0.94，默认为0.95，注意非必要不要开启！！！",
-            "description": "开启此选项后，有极小概率抢非7.31w订单，谨慎开启！！！！！",
-            "cases": [
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskFound7.31wMoneyF1": {
-                            "threshold": 0.95
-                        },
-                        "SeizeEntrustTaskFound7.31wMoney": {
-                            "threshold": 0.95
-                        }
-                    }
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SeizeEntrustTaskFound7.31wMoneyF1": {
-                            "threshold": 0.94
-                        },
-                        "SeizeEntrustTaskFound7.31wMoney": {
-                            "threshold": 0.94
                         }
                     }
                 }

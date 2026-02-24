@@ -38,7 +38,7 @@
                     "SeizeEntrustTask/7.31wMoney.png"
                 ],
                 "threshold": [
-                    0.95
+                    0.94
                 ]
             },
             "type": "TemplateMatch"
@@ -57,7 +57,7 @@
                     "SeizeEntrustTask/7.31wMoney.png"
                 ],
                 "threshold": [
-                    0.95
+                    0.94
                 ]
             },
             "type": "TemplateMatch"
