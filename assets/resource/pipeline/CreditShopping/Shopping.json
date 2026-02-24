@@ -27,12 +27,12 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
-            "CreditShoppingReserveCredit",
-            "CreditShippingCanNotToBuy",
-            "RefreshItem",
             "CreditShoppingBuyNormalNoDiscount",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
+            "CreditShippingCanNotToBuy",
+            "CreditShoppingReserveCredit",
+            "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
     },
