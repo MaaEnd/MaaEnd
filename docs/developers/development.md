@@ -41,7 +41,7 @@ python tools/setup_workspace.py
 3. 下载 MaaDeps pre-built。
 
     ```bash
-    python tools/download_maadeps.py
+    python tools/maadeps-download.py
     ```
 
 4. 编译 go-service 、配置路径。
