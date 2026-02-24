@@ -98,7 +98,6 @@
             "[JumpBack]EndExchange",
             "ReceptionRoom",
             "[JumpBack]WhiteConfirmButtonType2" //防止领取好友赠送线索动作点击失效
-
         ]
     },
     "ReceptionRoomClickTips": {
@@ -276,7 +275,6 @@
                                         70,
                                         95
                                     ]
-
                                 ],
                                 "lower": [
                                     [
@@ -289,7 +287,6 @@
                                         65,
                                         85
                                     ]
-
                                 ],
                                 "count": 20,
                                 "connected": true
@@ -335,10 +332,10 @@
                             "type": "ColorMatch",
                             "param": {
                                 "roi": [
-                                    1117,
-                                    82,
-                                    163,
-                                    517
+                                    1223,
+                                    102,
+                                    57,
+                                    80
                                 ],
                                 "lower": [
                                     224,
@@ -572,10 +569,10 @@
                             "type": "ColorMatch",
                             "param": {
                                 "roi": [
-                                    1117,
-                                    82,
-                                    163,
-                                    517
+                                    1185,
+                                    190,
+                                    95,
+                                    60
                                 ],
                                 "lower": [
                                     224,
