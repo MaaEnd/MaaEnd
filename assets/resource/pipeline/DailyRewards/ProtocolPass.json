@@ -64,9 +64,39 @@
         },
         "post_wait_freezes": 500,
         "next": [
+            "[JumpBack]DailyProtocolNewSwitch",
             "[JumpBack]DailyProtocolMissionsSwitch",
             "DailyProtocolFinish"
         ]
+    },
+    "DailyProtocolNewSwitch": {
+        "desc": "在任务界面点击切换列表，找new那他点掉，否则影响红点显示",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    150,
+                    120,
+                    300,
+                    500
+                ],
+                "template": [
+                    "DailyRewards/ProtocolNewSwitch.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        }
     },
     "DailyProtocolMissionsSwitch": {
         "desc": "在任务界面点击切换列表，找红点",
