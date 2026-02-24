@@ -227,15 +227,16 @@
                 "any_of": [
                     {
                         "doc": "识别线索的删除按钮",
+                        "sub_name": "_DeleteButton",
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
                                 "roi": "ReadySetClues",
                                 "roi_offset": [
-                                    1,
-                                    -17,
-                                    180,
-                                    17
+                                    0,
+                                    -19,
+                                    238,
+                                    22
                                 ],
                                 "upper": [
                                     221,
@@ -254,6 +255,7 @@
                     },
                     {
                         "doc": "识别线索的剩余天数",
+                        "sub_name": "_TimeLabel",
                         "recognition": {
                             "type": "ColorMatch",
                             "param": {
@@ -619,7 +621,7 @@
         "next": [
             "CloseRewardsButton",
             "ReceiveClues",
-            "WhiteConfirmButtonType1",
+            "WhiteConfirmButtonType2",
             "EndExchange"
         ]
     },
