@@ -143,7 +143,7 @@
         ]
     },
     "ClueExchangeOCR": {
-        "doc": "线索交流 - 剩余次数大于0,",
+        "doc": "线索交流 - 剩余次数大于0",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -175,6 +175,7 @@
             "ProductionAssistCheck",
             "ProductionAssistSwipe",
             "ClueExchangeOCR",
+            "VisitFailed",
             "VisitEnd"
         ]
     },
@@ -613,6 +614,7 @@
         "next": [
             "ClueExchangeCheck",
             "ClueExchangeSwipe",
+            "VisitFailed",
             "VisitEnd"
         ]
     },
@@ -788,6 +790,20 @@
         },
         "next": [
             "OnFriendList"
+        ]
+    },
+    "VisitFailed": {
+        "recognition": "Or",
+        "doc": "当执行完助力生产和线索交流逻辑后,还有助力生产和线索交流次数未消耗完,回调任务失败日志",
+        "any_of": [
+            "ProductionAssistOCR",
+            "ClueExchangeOCR"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "任务失败,有助力生产或线索交流次数未消耗完,建议手动进行剩余次数的助力和线索"
+        },
+        "next": [
+            "VisitEnd"
         ]
     },
     "VisitEnd": {
