@@ -7,10 +7,8 @@
             "description": "$task.CreditShopping.description",
             "option": [
                 "CreditShoppingOptions",
-                "CreditShoppingForce",
-                "CreditShoppingOnlyDiscount",
-                "CreditShoppingReserve",
-                "AutoGetCredits"
+                "AutoGetCredits",
+                "CreditShoppingForce"
             ]
         }
     ],
@@ -38,29 +36,60 @@
                 "BuyFirstOCR": {
                     "expected": "^({buy_first})$"
                 },
+                "BuyFirstOCR_CanNotAfford": {
+                    "expected": "^({buy_first})$"
+                },
                 "BlacklistOCR": {
                     "expected": "^(?!({blacklist})$).*$"
                 }
             }
         },
         "CreditShoppingForce": {
-            "type": "switch",
+            "type": "select",
             "label": "$option.CreditShoppingForce.label",
-            "default_case": "No",
+            "description": "$option.CreditShoppingForce.description",
+            "default_case": "IgnoreBlackList",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "IgnoreBlackList",
+                    "label": "$option.CreditShoppingForce.cases.IgnoreBlackList.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "enabled": true
+                            "enabled": true //允许购买黑名单物品
+                        },
+                        "RefreshItem": {
+                            "enabled": false //不刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": false //不进入刷新的无法购买流程
                         }
-                    }
+                    },
+                    "option": [
+                        "CreditShoppingOnlyDiscount",
+                        "CreditShoppingReserve"
+                    ]
                 },
                 {
-                    "name": "No",
+                    "name": "Refresh",
+                    "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
-                            "enabled": false
+                            "enabled": false //不购买黑名单物品
+                        },
+                        "CreditShoppingBuyNormalNoDiscount": {
+                            "enabled": false //不购买普通物品（无折扣）
+                        },
+                        "CreditShoppingBuyNormalWithDiscount": {
+                            "enabled": false //不购买普通物品（有折扣）
+                        },
+                        "CreditShoppingReserveCredit": {
+                            "enabled": true //信用点小于300时直接退出
+                        },
+                        "RefreshItem": {
+                            "enabled": true //允许刷新
+                        },
+                        "CreditShippingCanNotToBuy": {
+                            "enabled": true //进入刷新的无法购买流程
                         }
                     }
                 }

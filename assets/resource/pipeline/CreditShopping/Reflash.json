@@ -1,0 +1,50 @@
+{
+    "RefreshText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    619,
+                    202,
+                    93
+                ],
+                "expected": [
+                    "立即刷新"
+                ]
+            }
+        }
+    },
+    "RefreshColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "RefreshText",
+                "roi_offset": [
+                    0,
+                    0,
+                    60,
+                    0
+                ],
+                "upper": [
+                    255,
+                    168,
+                    168
+                ],
+                "lower": [
+                    243,
+                    0,
+                    0
+                ]
+            }
+        }
+    },
+    "CanNotFlash": {
+        "doc": "无法刷新（信用点不足）",
+        "recognition": "And",
+        "all_of": [
+            "RefreshText",
+            "RefreshColor"
+        ]
+    }
+}
