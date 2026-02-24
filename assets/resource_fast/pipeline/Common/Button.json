@@ -270,7 +270,6 @@
                         207,
                         13
                     ]
-
                 ],
                 "upper": [
                     [
@@ -288,7 +287,6 @@
                         241,
                         48
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -316,7 +314,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "upper": [
                     [
@@ -334,7 +331,6 @@
                         153,
                         153
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -357,7 +353,6 @@
                         82,
                         82
                     ]
-
                 ],
                 "upper": [
                     [
@@ -370,7 +365,6 @@
                         83,
                         83
                     ]
-
                 ],
                 "count": 100,
                 "connected": true
@@ -399,7 +393,8 @@
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -440,7 +435,8 @@
                                 ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType2.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -482,7 +478,8 @@
                                 "template": [
                                     "Common/Button/CancelButtonType1.png",
                                     "Common/Button/CancelButtonType1Hover.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -524,7 +521,8 @@
                                 "template": [
                                     "Common/Button/CancelButtonType2.png",
                                     "Common/Button/CancelButtonType2Hover.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -566,7 +564,8 @@
                                 "template": [
                                     "Common/Button/WhiteConfirmButtonType1.png",
                                     "Common/Button/WhiteConfirmButtonType1Hover.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -608,7 +607,8 @@
                                 "template": [
                                     "Common/Button/WhiteConfirmButtonType2.png",
                                     "Common/Button/WhiteConfirmButtonType2Hover.png"
-                                ]
+                                ],
+                                "threshold": 0.9
                             }
                         }
                     }
@@ -642,7 +642,8 @@
                 "template": [
                     "Common/Button/TeleportButton.png",
                     "Common/Button/TeleportButtonHover.png"
-                ]
+                ],
+                "threshold": 0.9
             }
         },
         "action": {
@@ -705,7 +706,8 @@
                     "Common/Button/CloseButtonType2.png",
                     "Common/Button/CloseButtonType3.png",
                     "Common/Button/CloseButtonType4.png"
-                ]
+                ],
+                "threshold": 0.9
             }
         },
         "action": {
