@@ -1,5 +1,5 @@
 {
-    "ReflashText": {
+    "RefreshText": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -15,11 +15,11 @@
             }
         }
     },
-    "ReflashColor": {
+    "RefreshColor": {
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "ReflashText",
+                "roi": "RefreshText",
                 "roi_offset": [
                     0,
                     0,
@@ -43,8 +43,8 @@
         "doc": "无法刷新（信用点不足）",
         "recognition": "And",
         "all_of": [
-            "ReflashText",
-            "ReflashColor"
+            "RefreshText",
+            "RefreshColor"
         ]
     }
 }

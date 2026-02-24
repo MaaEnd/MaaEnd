@@ -57,7 +57,7 @@
                         "CreditShoppingBuyBlacklist": {
                             "enabled": true //允许购买黑名单物品
                         },
-                        "ReflashItem": {
+                        "RefreshItem": {
                             "enabled": false //不刷新
                         },
                         "CreditShippingCanNotToBuy": {
@@ -70,8 +70,8 @@
                     ]
                 },
                 {
-                    "name": "Reflash",
-                    "label": "$option.CreditShoppingForce.cases.Reflash.label",
+                    "name": "Refresh",
+                    "label": "$option.CreditShoppingForce.cases.Refresh.label",
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
                             "enabled": false //不购买黑名单物品
@@ -85,7 +85,7 @@
                         "CreditShoppingReserveCredit": {
                             "enabled": true //信用点小于300时直接退出
                         },
-                        "ReflashItem": {
+                        "RefreshItem": {
                             "enabled": true //允许刷新
                         },
                         "CreditShippingCanNotToBuy": {

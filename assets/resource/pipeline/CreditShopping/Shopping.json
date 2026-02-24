@@ -29,7 +29,7 @@
             "CreditShoppingBuyFirst",
             "CreditShoppingReserveCredit",
             "CreditShippingCanNotToBuy",
-            "ReflashItem",
+            "RefreshItem",
             "CreditShoppingBuyNormalNoDiscount",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
@@ -51,7 +51,7 @@
             "CreditShoppingNothingToBuy"
         ]
     },
-    "ReflashItem": {
+    "RefreshItem": {
         "doc": "刷新商品",
         "enabled": false,
         "post_wait_freezes": {
@@ -66,7 +66,7 @@
         },
         "recognition": "And",
         "all_of": [
-            "ReflashText"
+            "RefreshText"
         ],
         "action": "Click",
         "next": [
