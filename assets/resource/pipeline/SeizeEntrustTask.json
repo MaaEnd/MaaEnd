@@ -38,7 +38,7 @@
                     "SeizeEntrustTask/7.31wMoney.png"
                 ],
                 "threshold": [
-                    0.95
+                    0.94
                 ]
             },
             "type": "TemplateMatch"
@@ -57,12 +57,43 @@
                     "SeizeEntrustTask/7.31wMoney.png"
                 ],
                 "threshold": [
-                    0.95
+                    0.94
                 ]
             },
             "type": "TemplateMatch"
         },
         "timeout": 3000
+    },
+    "SeizeEntrustTaskInDownSwipeMiddle": {
+        "action": {
+            "param": {
+                "dy": 240,
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ]
+            },
+            "type": "Scroll"
+        },
+        "doc": "顶部为列表中部，不滑动到顶部",
+        "enabled": false,
+        "inverse": true,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1245,
+                    154,
+                    24,
+                    37
+                ],
+                "template": [
+                    "SeizeEntrustTask/InMiddle.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
     },
     "SeizeEntrustTaskInDownSwipeUp": {
         "action": {
@@ -78,7 +109,6 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往下翻一页",
-        "enabled": false,
         "inverse": true,
         "recognition": {
             "param": {
@@ -109,7 +139,6 @@
             "type": "Scroll"
         },
         "doc": "没找到武陵城就往上翻一页",
-        "enabled": false,
         "inverse": true,
         "recognition": {
             "param": {
@@ -126,38 +155,6 @@
             "type": "TemplateMatch"
         }
     },
-    "AndroidSeizeEntrustTaskInUpSwipeDown": {
-        "action": {
-            "param": {
-                "dy": 240,
-                "target": [
-                    763,
-                    424,
-                    5,
-                    5
-                ]
-            },
-            "type": "Scroll"
-        },
-        "doc": "没找到武陵城就往上翻一页(Android)",
-        "enabled": false,
-        "inverse": true,
-        "recognition": {
-            "param": {
-                "roi": [
-                    1246,
-                    388,
-                    23,
-                    40
-                ],
-                "template": [
-                    "SeizeEntrustTask/InMiddle.png"
-                ]
-            },
-            "type": "TemplateMatch"
-        }
-    },
-
     "SeizeEntrustTaskMain": {
         "focus": {
             "Node.Recognition.Succeeded": "进入抢武陵城委托任务"
@@ -235,10 +232,12 @@
         }
     },
     "SeizeEntrustTaskNewsStatus1": {
+        "doc": "等待刷新完成",
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]SeizeEntrustTaskInDownSwipeMiddle",
             "[JumpBack]SeizeEntrustTaskNews2"
         ],
         "recognition": {
@@ -257,6 +256,7 @@
         }
     },
     "SeizeEntrustTaskNewsStatus2": {
+        "doc": "等待刷新完成",
         "next": [
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
@@ -284,8 +284,10 @@
             "Node.Action.Succeeded": "点击抢单~"
         },
         "next": [
-            "SeizeEntrustTaskStopTask"
+            "isSeizeEntrustTaskSuccessful",
+            "SeizeEntrustTaskNews"
         ],
+        "post_wait_freezes": 200,
         "recognition": {
             "param": {
                 "expected": [
@@ -327,5 +329,31 @@
             "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
             "[JumpBack]SeizeEntrustTaskNews"
         ]
-    }
+    },
+    "isSeizeEntrustTaskSuccessful": {
+        "focus": {
+            "Node.Recognition.Failed": "诶，好像失败了(｡•́︿•̀｡)",
+            "Node.Recognition.Succeeded": "抢到啦！！！"
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "点击屏幕继续",
+                    "请尽快送达",
+                    "已接取运送任务"
+                ],
+                "roi": [
+                    540,
+                    573,
+                    576,
+                    143
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AndroidSeizeEntrustTaskInUpSwipeDown": {}
 }

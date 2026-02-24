@@ -27,6 +27,9 @@
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
                             "enabled": true
+                        },
+                        "SeizeEntrustTaskInDownSwipeMiddle": {
+                            "enabled": true
                         }
                     }
                 },
@@ -37,6 +40,9 @@
                             "enabled": false
                         },
                         "SeizeEntrustTaskInUpSwipeDown": {
+                            "enabled": false
+                        },
+                        "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": false
                         }
                     }
@@ -52,13 +58,10 @@
                     "name": "No",
                     "pipeline_override": {
                         "SeizeEntrustTaskInUpSwipeDown": {
-                            "roi": [
-                                1246,
-                                388,
-                                23,
-                                40
-                            ],
-                            "template": "SeizeEntrustTask/InMiddle.png"
+                            "enabled": true
+                        },
+                        "SeizeEntrustTaskInDownSwipeMiddle": {
+                            "enabled": false
                         }
                     }
                 },
@@ -66,13 +69,10 @@
                     "name": "Yes",
                     "pipeline_override": {
                         "SeizeEntrustTaskInUpSwipeDown": {
-                            "roi": [
-                                1245,
-                                154,
-                                24,
-                                37
-                            ],
-                            "template": "SeizeEntrustTask/InUp.png"
+                            "enabled": false
+                        },
+                        "SeizeEntrustTaskInDownSwipeMiddle": {
+                            "enabled": true
                         },
                         "AndroidSeizeEntrustTaskInUpSwipeDown": {
                             "param": {
