@@ -22,6 +22,10 @@ type MapTrackerMoveParam struct {
 	MapName string `json:"map_name"`
 	// Path is a sequence of [x, y] coordinate points to follow (required).
 	Path [][2]int `json:"path"`
+	// PathTrim trims the path to start from the nearest point to the current location when enabled.
+	PathTrim bool `json:"path_trim,omitempty"`
+	// NoPrint controls whether to suppress printing navigation status to the GUI.
+	NoPrint bool `json:"no_print,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -40,8 +44,6 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
-	// Whether to suppress status printing for GUI.
-	NoPrint bool `json:"no_print,omitempty"`
 }
 
 //go:embed messages/emergency_stop.html
@@ -67,6 +69,26 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	ctrl := ctx.GetTasker().GetController()
 	aw := NewActionWrapper(ctx, ctrl)
 	inferIntervalDuration := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
+
+	if param.PathTrim && len(param.Path) > 1 {
+		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
+			closestIdx := 0
+			minDist := math.MaxFloat64
+			for i, p := range param.Path {
+				dist := math.Hypot(float64(initRes.X-p[0]), float64(initRes.Y-p[1]))
+				if dist < minDist {
+					minDist = dist
+					closestIdx = i
+				}
+			}
+			if closestIdx > 0 {
+				log.Info().Int("closest_index", closestIdx).Float64("closest_dist", minDist).Msg("Path trim enabled, skipping earlier targets")
+				param.Path = param.Path[closestIdx:]
+			}
+		} else {
+			log.Warn().Err(err).Msg("Path trim enabled but failed to infer current location; using full path")
+		}
+	}
 
 	log.Info().Str("map", param.MapName).Int("targets_count", len(param.Path)).Msg("Starting navigation to targets")
 
