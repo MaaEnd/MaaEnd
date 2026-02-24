@@ -32,6 +32,7 @@
     "option.AutoFightSkill.label": "スキル自動使用",
     "option.AutoFightEndSkill.label": "必殺技自動使用",
     "option.AutoFightCombo.label": "連携スキル自動発動",
+    "option.AutoFightDodge.label": "自動回避",
     "option.AutoFightLockTarget.label": "ターゲット自動ロック",
     "option.AutoFightSaveDamage.label": "被ダメージ画像を自動保存（テスト用）",
     "option.AutoPick.label": "自動拾取",

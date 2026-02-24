@@ -32,6 +32,7 @@
     "option.AutoFightSkill.label": "自動釋放技能",
     "option.AutoFightEndSkill.label": "自動釋放終結技",
     "option.AutoFightCombo.label": "自動觸發連攜技能",
+    "option.AutoFightDodge.label": "自動閃避",
     "option.AutoFightLockTarget.label": "自動鎖定目標",
     "option.AutoFightSaveDamage.label": "自動保存受擊圖片(測試用)",
     "option.AutoPick.label": "自動拾取",

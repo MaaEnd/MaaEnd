@@ -164,6 +164,40 @@ func (r *RealTimeAutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.Custo
 	}, true
 }
 
+type RealTimeAutoFightDodgeRecognition struct{}
+
+func (r *RealTimeAutoFightDodgeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	detailExpected, err := ctx.RunRecognitionDirect("NeuralNetworkDetect", maa.NodeNeuralNetworkDetectParam{
+		Model:    "yolo/fight.onnx",
+		Expected: []int{0},
+	}, arg.Img)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to run recognition for NeuralNetworkDetect dodge")
+		return nil, false
+	}
+	if detailExpected == nil || !detailExpected.Hit {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{
+		Box:    detailExpected.Box,
+		Detail: detailExpected.DetailJson,
+	}, true
+}
+
+type RealTimeAutoFightDodgeAction struct{}
+
+func (a *RealTimeAutoFightDodgeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// 使用左 Shift 长按
+	_, errC := ctx.RunActionDirect("LongPressKey", maa.NodeLongPressKeyParam{
+		Key:      []int{160},
+		Duration: 120,
+	}, maa.Rect{0, 0, 0, 0}, arg.RecognitionDetail)
+	if errC != nil {
+		log.Error().Err(errC).Msg("Failed to run action LongPressKey for left shift dodge")
+	}
+	return true
+}
+
 type RealTimeAutoFightExitRecognition struct{}
 
 func (r *RealTimeAutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {

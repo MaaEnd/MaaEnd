@@ -23,10 +23,43 @@
         "post_delay": 0,
         "next": [
             "RealTimeAutoFightCombo",
+            "RealTimeAutoFightDodge",
             "RealTimeAutoFightEndSkill",
             "RealTimeAutoFightSkill",
             "RealTimeAutoFightExit",
             "RealTimeAutoFightAttack",
+            "RealTimeAutoFightEntry"
+        ]
+    },
+    "RealTimeAutoFightDodge": {
+        "doc": "自动闪避提示识别",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "RealTimeAutoFightDodgeRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "RealTimeAutoFightDodgeAction"
+        ]
+    },
+    "RealTimeAutoFightDodgeAction": {
+        "doc": "检测到闪避提示后延时触发 Shift",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RealTimeAutoFightDodgeAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "触发自动闪避"
+        },
+        "next": [
             "RealTimeAutoFightEntry"
         ]
     },
