@@ -3,14 +3,14 @@
         "doc": "开始自动领取委托",
         "next": [
             "DailyTaskClaimDeliveryJobsLoop",
-            "[JumpBack]RegionalDevelopmentButton"
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "DailyTaskClaimDeliveryJobsLoop": {
         "doc": "主循环，确保在地区建设界面",
         "recognition": "And",
         "all_of": [
-            "IncomeReportButton"
+            "InRegionalDevelopment"
         ],
         "next": [
             "ClaimDeliveryJobsValleyIV",
