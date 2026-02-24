@@ -726,7 +726,7 @@
     "EnvironmentMonitoringButton": {
         "doc": "环境监测按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/EnvironmentMonitoringButton.png",
+        "template": "Common/Button/EnvironmentMonitoringButton.png",
         "threshold": 0.9,
         "roi": [
             749,
@@ -756,6 +756,28 @@
             387,
             310,
             178
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ShutterButton": {
+        "doc": "快门按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/ShutterButton.png",
+        "threshold": 0.9,
+        "roi": [
+            1029,
+            509,
+            145,
+            139
         ],
         "action": "Click",
         "post_wait_freezes": {

@@ -10,11 +10,12 @@
         "doc": "前往监测终端",
         "recognition": "And",
         "all_of": [
-            "IncomeReportButton"
+            "InRegionalDevelopment"
         ],
         "next": [
             "EnvironmentMonitoringLoop",
-            "[JumpBack]EnvironmentMonitoringButton"
+            "[JumpBack]EnvironmentMonitoringButton",
+            "[JumpBack]GoToWuling"
         ]
     },
     "EnvironmentMonitoringLoop": {

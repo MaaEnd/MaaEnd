@@ -1,12 +1,66 @@
 {
-    "EnterCameraMode": {
+    "EnvironmentMonitoringTakePhoto": {
+        "doc": "环境监测拍照",
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "[JumpBack]EnvironmentMonitoringEnterCameraMode",
+            // 如果任务目标没有达成则重试一次
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "EnvironmentMonitoringEnterCameraMode": {
         "doc": "进入拍照模式",
         "recognition": "And",
+        "max_hit": 3,
         "all_of": [
             "EnterCameraModeButton",
             "InWorld"
         ],
         "action": "ClickKey",
         "key": 70 // F 0x46
+    },
+    "EnvironmentMonitoringShutterButtonHighlighted": {
+        "doc": "拍照按钮高亮，拍照",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ShutterButton",
+                "roi_offset": [
+                    -31,
+                    -36,
+                    63,
+                    75
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    100,
+                    160
+                ],
+                "upper": [
+                    38,
+                    255,
+                    255
+                ],
+                "count": 140,
+                "connected": true
+            }
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "EnvironmentMonitoringMain"
+        ]
     }
 }
