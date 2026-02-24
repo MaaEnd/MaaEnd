@@ -36,7 +36,7 @@
         "recognition": {
             "type": "NeuralNetworkDetect",
             "param": {
-                "model": "yolo/fight.onnx",
+                "model": "AutoFightDodge/fight.onnx",
                 "expected": 0
             }
         },
