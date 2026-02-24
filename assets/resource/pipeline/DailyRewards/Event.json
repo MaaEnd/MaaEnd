@@ -130,7 +130,8 @@
                 "template": [
                     "DailyRewards/EventRedDot.png",
                     "DailyRewards/EventRedDot2.png",
-                    "DailyRewards/EventRedDot3.png"
+                    "DailyRewards/EventRedDot3.png",
+                    "DailyRewards/EventRedDot4.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.9
