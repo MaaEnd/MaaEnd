@@ -93,7 +93,7 @@
 > 执行此节点之前，推荐使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点来检查玩家的**初始位置**是否满足要求，以便抵达首个路径点。
 
 > [!WARNING]
-> 
+>
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
 ### Recognition: MapTrackerInfer
@@ -107,6 +107,7 @@
 可选参数：
 
 - `map_name_regex`: 用于筛选地图名称的[正则表达式](https://regexr.com/)。仅匹配该正则表达式的地图会参与识别。例如：
+
     - `^map\\d+_lv\\d+$`: 默认值。匹配所有常规地图。
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: 匹配所有常规地图和分层地图（Tier）。
     - `^map001_lv001$`: 仅匹配 "map001_lv001"（四号谷地-枢纽区）。
