@@ -9,6 +9,8 @@
     "inf_check_submodules": "[INF] 检查子模块...",
     "inf_updating_submodules": "[INF] 正在更新子模块...",
     "inf_submodules_exist": "[INF] 子模块已存在",
+    "wrn_model_not_submodule": "[WRN] 检测到 model 目录不是子模块（缺少 .git），将删除以确保子模块正常克隆: {path}",
+    "inf_model_dir_removed": "[INF] 已删除旧的 model 目录: {path}",
     "inf_run_build_script": "[INF] 执行 build_and_install.py ...",
     "inf_get_latest_release": "[INF] 获取 {repo} 的最新发布信息...",
     "inf_matched_asset": "[INF] 匹配到资源: {name}",

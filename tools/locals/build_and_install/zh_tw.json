@@ -16,9 +16,6 @@
     "go_install_macos": "macOS:   brew install go",
     "go_install_linux": "Linux:   參考發行版套件管理器或官方指南",
     "go_install_path": "安裝後請確保 'go' 命令在 PATH 中可用",
-    "ocr_not_found": "OCR 資源不存在",
-    "ocr_submodule_hint": "請確保已初始化 submodule：git submodule update --init",
-    "ocr_copied": "複製 {copied} 個檔案，跳過 {skipped} 個已存在檔案",
     "go_source_not_found": "Go 原始碼目錄不存在",
     "target_platform": "目標平台",
     "output_path": "輸出路徑",
@@ -28,12 +25,10 @@
     "build_mode_dev": "Dev",
     "build_command": "建置命令",
     "go_build_failed": "go build 失敗",
-    "step_configure_ocr": "[1/5] 設定 OCR 模型...",
-    "step_process_assets": "[2/5] 處理 assets 目錄...",
-    "step_build_go": "[3/5] 建置 Go Agent...",
-    "step_build_cpp": "[4/5] 建置 C++ Algo Agent...",
-    "step_prepare_files": "[5/5] 準備專案檔案...",
-    "configure_ocr_failed": "設定 OCR 模型失敗",
+    "step_process_assets": "[1/4] 處理 assets 目錄...",
+    "step_build_go": "[2/4] 建置 Go Agent...",
+    "step_build_cpp": "[3/4] 建置 C++ Algo Agent...",
+    "step_prepare_files": "[4/4] 準備專案檔案...",
     "build_go_failed": "建置 Go Agent 失敗",
     "build_cpp_failed": "建置 C++ Algo Agent 失敗",
     "cmake_version": "CMake 版本",
@@ -61,5 +56,5 @@
     "arg_arch": "目標架構 (x86_64/aarch64)",
     "arg_version": "版本號（寫入 Go Agent）",
     "arg_cpp_algo": "同時編譯 C++ Algo Agent（預設不編譯）",
-    "step_skip_cpp": "[4/5] 跳過 C++ Algo Agent（未指定 --cpp-algo）"
+    "step_skip_cpp": "[3/4] 跳過 C++ Algo Agent（未指定 --cpp-algo）"
 }

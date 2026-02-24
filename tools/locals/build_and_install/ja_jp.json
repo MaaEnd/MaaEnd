@@ -16,9 +16,6 @@
     "go_install_macos": "macOS:   brew install go",
     "go_install_linux": "Linux:   ディストリビューションのパッケージマネージャーまたは公式ガイドを参照",
     "go_install_path": "インストール後、'go' コマンドが PATH で利用可能であることを確認してください",
-    "ocr_not_found": "OCR リソースが見つかりません",
-    "ocr_submodule_hint": "サブモジュールが初期化されていることを確認してください：git submodule update --init",
-    "ocr_copied": "コピー {copied} ファイル、スキップ {skipped} ファイル",
     "go_source_not_found": "Go ソースディレクトリが見つかりません",
     "target_platform": "ターゲットプラットフォーム",
     "output_path": "出力パス",
@@ -28,12 +25,10 @@
     "build_mode_dev": "Dev",
     "build_command": "ビルドコマンド",
     "go_build_failed": "go build が失敗しました",
-    "step_configure_ocr": "[1/5] OCR モデルを設定中...",
-    "step_process_assets": "[2/5] assets ディレクトリを処理中...",
-    "step_build_go": "[3/5] Go Agent をビルド中...",
-    "step_build_cpp": "[4/5] C++ Algo Agent をビルド中...",
-    "step_prepare_files": "[5/5] プロジェクトファイルを準備中...",
-    "configure_ocr_failed": "OCR モデルの設定に失敗しました",
+    "step_process_assets": "[1/4] assets ディレクトリを処理中...",
+    "step_build_go": "[2/4] Go Agent をビルド中...",
+    "step_build_cpp": "[3/4] C++ Algo Agent をビルド中...",
+    "step_prepare_files": "[4/4] プロジェクトファイルを準備中...",
     "build_go_failed": "Go Agent のビルドに失敗しました",
     "build_cpp_failed": "C++ Algo Agent のビルドに失敗しました",
     "cmake_version": "CMake バージョン",
@@ -61,5 +56,5 @@
     "arg_arch": "ターゲットアーキテクチャ (x86_64/aarch64)",
     "arg_version": "バージョン番号（Go Agent に書き込まれます）",
     "arg_cpp_algo": "C++ Algo Agent も同時にビルドする（デフォルトではビルドしない）",
-    "step_skip_cpp": "[4/5] C++ Algo Agent をスキップ（--cpp-algo 未指定）"
+    "step_skip_cpp": "[3/4] C++ Algo Agent をスキップ（--cpp-algo 未指定）"
 }
