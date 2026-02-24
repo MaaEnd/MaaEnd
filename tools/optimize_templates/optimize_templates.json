@@ -307,5 +307,6 @@
     "resource/image/SceneManager/Expand": "50c016f34a0451c7836f6cd1defeadb7f919eae09462311c1afd3fd2b07060bb",
     "resource/image/MapTracker/map/base01_lv003": "f4d797996d16947ad809ae57a76b28e2074bd5b4661bcd7007b94249c29d23bf",
     "resource/image/DailyRewards/ClaimDeliveryJobsButton": "ce83a5bf90b5ddd9f8390bc77561536ed1bb3b2b227356293dc117ca4649e1ed",
-    "resource/image/DailyRewards/EventRedDot4": "9a0274818f0a2f597c678ff1216815b6d5191d16a491d683cf89f0268d42ded8"
+    "resource/image/DailyRewards/EventRedDot4": "9a0274818f0a2f597c678ff1216815b6d5191d16a491d683cf89f0268d42ded8",
+    "resource/image/DailyRewards/ProtocolNewSwitch": "04e2d7cab29acd454d5c8bc59ebf4578b7097eebe67d7e3d425233edb8c32868"
 }
