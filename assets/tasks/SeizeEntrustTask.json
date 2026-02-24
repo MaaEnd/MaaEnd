@@ -73,17 +73,6 @@
                         },
                         "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": true
-                        },
-                        "AndroidSeizeEntrustTaskInUpSwipeDown": {
-                            "param": {
-                                "roi": [
-                                    1245,
-                                    173,
-                                    24,
-                                    37
-                                ],
-                                "template": "SeizeEntrustTask/InUp.png"
-                            }
                         }
                     }
                 }

@@ -150,7 +150,7 @@
                 ],
                 "end": [
                     776,
-                    448
+                    348
                 ]
             },
             "type": "Swipe"
@@ -164,39 +164,7 @@
                     1246,
                     388,
                     23,
-                    40
-                ],
-                "template": [
-                    "SeizeEntrustTask/InMiddle.png"
-                ]
-            },
-            "type": "TemplateMatch"
-        }
-    },
-    "AndroidSeizeEntrustTaskInUpSwipeDown": {
-        "action": {
-            "param": {
-                "begin": [
-                    776,
-                    208
-                ],
-                "end": [
-                    776,
-                    448
-                ]
-            },
-            "type": "Swipe"
-        },
-        "doc": "没找到武陵城就往上翻一页",
-        "enabled": false,
-        "inverse": true,
-        "recognition": {
-            "param": {
-                "roi": [
-                    1246,
-                    388,
-                    23,
-                    40
+                    60
                 ],
                 "template": [
                     "SeizeEntrustTask/InMiddle.png"
@@ -285,7 +253,7 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]AndroidSeizeEntrustTaskInUpSwipeDown",
+            "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskNews2"
         ],
         "recognition": {
