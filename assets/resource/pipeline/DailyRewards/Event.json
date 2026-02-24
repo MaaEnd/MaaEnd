@@ -61,15 +61,9 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                -300,
-                0,
-                300,
-                200
-            ]
-        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "post_wait_freezes": 400,
         "focus": {
             "Node.Recognition.Succeeded": "切换活动"
         },
