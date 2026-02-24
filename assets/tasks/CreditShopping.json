@@ -8,7 +8,9 @@
             "option": [
                 "CreditShoppingOptions",
                 "AutoGetCredits",
-                "CreditShoppingForce"
+                "CreditShoppingForce",
+                "CreditShoppingReserve",
+                "CreditShoppingOtherItems"
             ]
         }
     ],
@@ -63,11 +65,7 @@
                         "CreditShippingCanNotToBuy": {
                             "enabled": false //不进入刷新的无法购买流程
                         }
-                    },
-                    "option": [
-                        "CreditShoppingOnlyDiscount",
-                        "CreditShoppingReserve"
-                    ]
+                    }
                 },
                 {
                     "name": "Refresh",
@@ -75,15 +73,6 @@
                     "pipeline_override": {
                         "CreditShoppingBuyBlacklist": {
                             "enabled": false //不购买黑名单物品
-                        },
-                        "CreditShoppingBuyNormalNoDiscount": {
-                            "enabled": false //不购买普通物品（无折扣）
-                        },
-                        "CreditShoppingBuyNormalWithDiscount": {
-                            "enabled": false //不购买普通物品（有折扣）
-                        },
-                        "CreditShoppingReserveCredit": {
-                            "enabled": true //信用点小于300时直接退出
                         },
                         "RefreshItem": {
                             "enabled": true //允许刷新
@@ -95,10 +84,10 @@
                 }
             ]
         },
-        "CreditShoppingOnlyDiscount": {
+        "CreditShoppingOtherItems": {
             "type": "switch",
-            "label": "$option.CreditShoppingOnlyDiscount.label",
-            "description": "$option.CreditShoppingOnlyDiscount.description",
+            "label": "$option.CreditShoppingOtherItems.label",
+            "description": "$option.CreditShoppingOtherItems.description",
             "default_case": "No",
             "cases": [
                 {
@@ -119,7 +108,7 @@
                     "name": "No",
                     "pipeline_override": {
                         "CreditShoppingBuyNormalNoDiscount": {
-                            "enabled": true
+                            "enabled": false
                         },
                         "CreditShoppingBuyNormalWithDiscount": {
                             "enabled": false
@@ -131,9 +120,20 @@
         "DiscountValue": {
             "type": "select",
             "label": "$option.DiscountValue.label",
-            "description": "$option.DiscountValue.description",
-            "default_case": "-25%",
+            "default_case": "Any",
             "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.DiscountValue.cases.Any.label",
+                    "pipeline_override": {
+                        "CreditShoppingBuyNormalNoDiscount": {
+                            "enabled": true
+                        },
+                        "CreditShoppingBuyNormalWithDiscount": {
+                            "enabled": false
+                        }
+                    }
+                },
                 {
                     "name": "-25%",
                     "label": "$option.DiscountValue.cases.-25%.label",
