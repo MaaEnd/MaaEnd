@@ -47,7 +47,8 @@
         },
         "next": [
             "ConfirmRestock",
-            "Exit_MFG_Cabin"
+            "Exit_MFG_Cabin",
+            "[JumpBack]CloseRewardsButton"
         ]
     },
     "ConfirmRestock": {

@@ -130,7 +130,6 @@
                         }
                     },
                     "ScenePrivateWorldEnterMenuControlNexusSuccess"
-
                 ]
             }
         },
@@ -184,7 +183,6 @@
                         }
                     },
                     "ScenePrivateWorldEnterMenuControlNexusSuccess"
-
                 ]
             }
         },
@@ -201,6 +199,10 @@
     },
     "InMainWindow": {
         "doc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "Or",
             "param": {
@@ -237,7 +239,11 @@
                     }
                 ]
             }
-        }
+        },
+        "next": [
+            "GrayCancelButton",
+            "EmptyNode"
+        ]
     },
     "LasCarbinColor": {
         "recognition": {
