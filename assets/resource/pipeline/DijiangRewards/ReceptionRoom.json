@@ -558,6 +558,10 @@
     },
     "ReceiveClues": {
         "doc": "[会客室·线索] 点击「接收」红点接收好友赠送线索",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "recognition": {
             "type": "And",
             "param": {
