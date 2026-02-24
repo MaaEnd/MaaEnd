@@ -34,9 +34,10 @@
     "RealTimeAutoFightDodge": {
         "doc": "自动闪避提示识别",
         "recognition": {
-            "type": "Custom",
+            "type": "NeuralNetworkDetect",
             "param": {
-                "custom_recognition": "RealTimeAutoFightDodgeRecognition"
+                "model": "yolo/fight.onnx",
+                "expected": 0
             }
         },
         "pre_delay": 0,
@@ -48,12 +49,13 @@
     "RealTimeAutoFightDodgeAction": {
         "doc": "检测到闪避提示后延时触发 Shift",
         "recognition": "DirectHit",
-        "pre_delay": 0,
+        "pre_delay": 100,
         "post_delay": 0,
         "action": {
-            "type": "Custom",
+            "type": "LongPressKey",
             "param": {
-                "custom_action": "RealTimeAutoFightDodgeAction"
+                "key": 160,
+                "duration": 120
             }
         },
         "focus": {
