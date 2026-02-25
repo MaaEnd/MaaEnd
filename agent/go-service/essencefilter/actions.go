@@ -194,7 +194,7 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 		return false
 	}
 	var text string
-	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+	for _, results := range [][]*maa.RecognitionResult{{arg.RecognitionDetail.Results.Best}, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
 		if len(results) > 0 {
 			if ocrResult, ok := results[0].AsOCR(); ok && strings.TrimSpace(ocrResult.Text) != "" {
 				text = strings.TrimSpace(ocrResult.Text)
@@ -269,7 +269,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		return false
 	}
 	var rawText string
-	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+	for _, results := range [][]*maa.RecognitionResult{{arg.RecognitionDetail.Results.Best}, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
 		if len(results) > 0 {
 			if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
 				rawText = ocrResult.Text
@@ -322,7 +322,7 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 	var rawText string
-	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+	for _, results := range [][]*maa.RecognitionResult{{arg.RecognitionDetail.Results.Best}, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
 		if len(results) > 0 {
 			if ocrResult, ok := results[0].AsOCR(); ok && strings.TrimSpace(ocrResult.Text) != "" {
 				rawText = strings.TrimSpace(ocrResult.Text)
