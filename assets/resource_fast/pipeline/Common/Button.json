@@ -705,7 +705,8 @@
                     "Common/Button/CloseButtonType1.png",
                     "Common/Button/CloseButtonType2.png",
                     "Common/Button/CloseButtonType3.png",
-                    "Common/Button/CloseButtonType4.png"
+                    "Common/Button/CloseButtonType4.png",
+                    "Common/Button/CloseButtonType5.png"
                 ],
                 "threshold": 0.9
             }
