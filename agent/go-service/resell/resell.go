@@ -60,7 +60,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	overflowAmount := 0
 	log.Info().Msg("Checking quota overflow status...")
-	ReselldelayFreezestime(ctx, 500)
+	ResellDelayFreezesTime(ctx, 500)
 	MoveMouseSafe(controller)
 	controller.PostScreencap().Wait()
 
@@ -89,7 +89,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]商品位置")
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
-			ReselldelayFreezestime(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
@@ -112,7 +112,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
-			ReselldelayFreezestime(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
@@ -184,7 +184,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
 			log.Info().Msg("[Resell]第四步：返回商品详情页")
-			ReselldelayFreezestime(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
@@ -196,7 +196,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 5: 识别商品详情页关闭按钮，直接点击关闭
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
-			ReselldelayFreezestime(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
@@ -288,4 +288,3 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 }
-
