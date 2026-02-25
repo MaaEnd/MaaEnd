@@ -411,8 +411,8 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 10,
         "next": [
-            "SellProductSellCheck",
             "SellProductSellPressed",
             "SellProductSell"
         ]
@@ -463,31 +463,19 @@
     "SellProductZeroProduct": {
         "pre_delay": 0,
         "post_delay": 0,
-        "doc": "货物数量是0，先尝试更换货品，失败则换据点",
+        "doc": "货物数量<1000视为没商品，先尝试更换货品，失败则换据点",
         "recognition": {
-            "type": "ColorMatch",
+            "type": "OCR",
             "param": {
-                "lower": [
-                    [
-                        255,
-                        110,
-                        110
-                    ]
-                ],
-                "upper": [
-                    [
-                        255,
-                        130,
-                        130
-                    ]
-                ],
                 "roi": [
-                    1118,
-                    286,
-                    75,
-                    86
+                    1108,
+                    317,
+                    81,
+                    36
                 ],
-                "count": 10
+                "expected": [
+                    "^[0-9]{1,3}$"
+                ]
             }
         },
         "next": [
@@ -595,34 +583,22 @@
     "SellProductZeroProductRetry": {
         "pre_delay": 0,
         "post_delay": 0,
-        "doc": "更换货品后仍为0，进入换据点流程",
+        "doc": "更换货品后仍<1000，进入换据点流程",
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
         },
         "recognition": {
-            "type": "ColorMatch",
+            "type": "OCR",
             "param": {
-                "lower": [
-                    [
-                        255,
-                        110,
-                        110
-                    ]
-                ],
-                "upper": [
-                    [
-                        255,
-                        130,
-                        130
-                    ]
-                ],
                 "roi": [
-                    1118,
-                    286,
-                    75,
-                    86
+                    1108,
+                    317,
+                    81,
+                    36
                 ],
-                "count": 10
+                "expected": [
+                    "^[0-9]{1,3}$"
+                ]
             }
         },
         "next": [
