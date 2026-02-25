@@ -11,7 +11,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col2_Price": {
         "doc": "第一行第二列商品价格区域",
@@ -24,7 +25,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col3_Price": {
         "doc": "第一行第三列商品价格区域",
@@ -37,7 +39,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col4_Price": {
         "doc": "第一行第四列商品价格区域",
@@ -50,7 +53,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col5_Price": {
         "doc": "第一行第五列商品价格区域",
@@ -63,7 +67,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col6_Price": {
         "doc": "第一行第六列商品价格区域",
@@ -76,7 +81,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col7_Price": {
         "doc": "第一行第七列商品价格区域",
@@ -89,7 +95,8 @@
             360,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row1_Col8_Price": {
         "doc": "第一行第八列商品价格区域",
@@ -116,7 +123,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col2_Price": {
         "doc": "第二行第二列商品价格区域",
@@ -129,7 +137,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col3_Price": {
         "doc": "第二行第三列商品价格区域",
@@ -142,7 +151,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col4_Price": {
         "doc": "第二行第四列商品价格区域",
@@ -155,7 +165,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col5_Price": {
         "doc": "第二行第五列商品价格区域",
@@ -181,7 +192,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col7_Price": {
         "doc": "第二行第七列商品价格区域",
@@ -194,7 +206,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row2_Col8_Price": {
         "doc": "第二行第八列商品价格区域",
@@ -207,7 +220,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col1_Price": {
         //当商品有两行时，可以用这个区域识别第二行价格，标记为第三行
@@ -221,7 +235,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col2_Price": {
         "doc": "第三行第二列商品价格区域",
@@ -234,7 +249,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col3_Price": {
         "doc": "第三行第三列商品价格区域",
@@ -260,7 +276,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col5_Price": {
         "doc": "第三行第五列商品价格区域",
@@ -273,7 +290,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col6_Price": {
         "doc": "第三行第六列商品价格区域",
@@ -286,7 +304,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col7_Price": {
         "doc": "第三行第七列商品价格区域",
@@ -299,7 +318,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_Product_Row3_Col8_Price": {
         "doc": "第三行第八列商品价格区域",
@@ -312,7 +332,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_ViewFriendPrice": {
         "doc": "查看好友价格按钮区域",
@@ -334,12 +355,13 @@
         "expected": "[0-9]+",
         "threshold": 0.8,
         "roi": [
-            990,
-            490,
-            57,
-            27
+            1002,
+            240,
+            71,
+            26
         ],
-        "only_rec": true
+        "only_rec": true,
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_FriendSalePrice": {
         "doc": "好友出售价格区域",
@@ -353,20 +375,22 @@
             45,
             28
         ],
-        "only_rec": true
+        "only_rec": true,
+        "color_filter": "Resell_ROI_Text_Color_Grey"
     },
     "Resell_ROI_ReturnButton": {
-        "doc": "返回按钮区域",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "返回",
-        "threshold": 0.8,
+        "doc": "好友价格页返回按钮区域",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Resell/back.png"
+        ],
         "roi": [
-            1039,
-            135,
-            47,
-            21
-        ]
+            962,
+            110,
+            72,
+            75
+        ],
+        "action": "Click"
     },
     "Resell_ROI_Quota_Current": {
         "doc": "当前配额区域 (x/y格式)",
@@ -390,8 +414,29 @@
         "roi": [
             250,
             130,
-            110,
+            140,
             30
+        ]
+    },
+    "Resell_ROI_Text_Color_Grey": {
+        "doc": "文本颜色为灰色区域",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            0,
+            5,
+            150
         ]
     }
 }
