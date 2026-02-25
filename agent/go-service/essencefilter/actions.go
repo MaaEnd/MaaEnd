@@ -189,12 +189,19 @@ type OCREssenceInventoryNumberAction struct{}
 func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	const maxSinglePage = 45 // 单页可见格子上限：9列×5行
 
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Best) == 0 {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil {
 		log.Error().Msg("<EssenceFilter> CheckTotal: no OCR detail")
 		return false
 	}
-	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
-	text := strings.TrimSpace(ocr.Text)
+	var text string
+	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+		if len(results) > 0 {
+			if ocrResult, ok := results[0].AsOCR(); ok && strings.TrimSpace(ocrResult.Text) != "" {
+				text = strings.TrimSpace(ocrResult.Text)
+				break
+			}
+		}
+	}
 	if text == "" {
 		log.Error().Msg("<EssenceFilter> CheckTotal: empty text")
 		return false
@@ -257,21 +264,20 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		currentSkillLevels = [3]int{}
 	}
 
-	// Use pipeline recognition result
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.DetailJson == "" || arg.RecognitionDetail.Hit == false {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil {
 		log.Error().Msg("<EssenceFilter> OCR detail missing from pipeline")
 		return false
 	}
-
-	if len(arg.RecognitionDetail.Results.Best) == 0 {
-		log.Error().Msg("<EssenceFilter> OCR detail has no results")
-		return false
+	var rawText string
+	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+		if len(results) > 0 {
+			if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+				rawText = ocrResult.Text
+				break
+			}
+		}
 	}
-
-	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
-	rawText := ocr.Text
 	text := cleanChinese(rawText)
-
 	if text == "" {
 		log.Error().Int("slot", params.Slot).Str("raw", rawText).Msg("<EssenceFilter> OCR empty")
 		return false
@@ -311,13 +317,23 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Best) == 0 {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil {
 		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> level OCR detail missing")
 		return false
 	}
-
-	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
-	rawText := strings.TrimSpace(ocr.Text)
+	var rawText string
+	for _, results := range [][]*maa.RecognitionResult{arg.RecognitionDetail.Results.Best, arg.RecognitionDetail.Results.Filtered, arg.RecognitionDetail.Results.All} {
+		if len(results) > 0 {
+			if ocrResult, ok := results[0].AsOCR(); ok && strings.TrimSpace(ocrResult.Text) != "" {
+				rawText = strings.TrimSpace(ocrResult.Text)
+				break
+			}
+		}
+	}
+	if rawText == "" {
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> level OCR empty")
+		return false
+	}
 	if m := levelParseRe.FindStringSubmatch(rawText); len(m) >= 2 {
 		if lv, err := strconv.Atoi(m[1]); err == nil && lv >= 1 && lv <= 6 {
 			currentSkillLevels[params.Slot-1] = lv
