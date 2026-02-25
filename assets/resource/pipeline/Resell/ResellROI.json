@@ -418,6 +418,19 @@
             30
         ]
     },
+    "Resell_ROI_Friend_Loading": {
+        "doc": "好友加载中区域",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "expected": ".*加载中.*",
+        "threshold": 0.85,
+        "roi": [
+            694,
+            376,
+            145,
+            95
+        ]
+    },
     "Resell_ROI_Text_Color_Grey": {
         "doc": "文本颜色为灰色区域",
         "recognition": "ColorMatch",
