@@ -1,5 +1,5 @@
 {
-    "Resell_ROI_Product_Row1_Col1_Price": {
+    "ResellROIProductRow1Col1Price": {
         //当商品有两行时，可以用这个区域识别第一行价格，标记为第一行
         "doc": "第一行第一列商品价格区域",
         "recognition": "OCR",
@@ -12,9 +12,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col2_Price": {
+    "ResellROIProductRow1Col2Price": {
         "doc": "第一行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -26,9 +26,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col3_Price": {
+    "ResellROIProductRow1Col3Price": {
         "doc": "第一行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -40,9 +40,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col4_Price": {
+    "ResellROIProductRow1Col4Price": {
         "doc": "第一行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -54,9 +54,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col5_Price": {
+    "ResellROIProductRow1Col5Price": {
         "doc": "第一行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -68,9 +68,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col6_Price": {
+    "ResellROIProductRow1Col6Price": {
         "doc": "第一行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -82,9 +82,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col7_Price": {
+    "ResellROIProductRow1Col7Price": {
         "doc": "第一行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -96,9 +96,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row1_Col8_Price": {
+    "ResellROIProductRow1Col8Price": {
         "doc": "第一行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -111,7 +111,7 @@
             40
         ]
     },
-    "Resell_ROI_Product_Row2_Col1_Price": {
+    "ResellROIProductRow2Col1Price": {
         //当商品只有一行时，可以用这个区域识别第一行价格，标记为第二行
         "doc": "第二行第一列商品价格区域",
         "recognition": "OCR",
@@ -124,9 +124,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col2_Price": {
+    "ResellROIProductRow2Col2Price": {
         "doc": "第二行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -138,9 +138,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col3_Price": {
+    "ResellROIProductRow2Col3Price": {
         "doc": "第二行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -152,9 +152,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col4_Price": {
+    "ResellROIProductRow2Col4Price": {
         "doc": "第二行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -166,9 +166,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col5_Price": {
+    "ResellROIProductRow2Col5Price": {
         "doc": "第二行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -181,7 +181,7 @@
             40
         ]
     },
-    "Resell_ROI_Product_Row2_Col6_Price": {
+    "ResellROIProductRow2Col6Price": {
         "doc": "第二行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -193,9 +193,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col7_Price": {
+    "ResellROIProductRow2Col7Price": {
         "doc": "第二行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -207,9 +207,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row2_Col8_Price": {
+    "ResellROIProductRow2Col8Price": {
         "doc": "第二行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -221,9 +221,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col1_Price": {
+    "ResellROIProductRow3Col1Price": {
         //当商品有两行时，可以用这个区域识别第二行价格，标记为第三行
         "doc": "第三行第一列商品价格区域",
         "recognition": "OCR",
@@ -236,9 +236,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col2_Price": {
+    "ResellROIProductRow3Col2Price": {
         "doc": "第三行第二列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -250,9 +250,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col3_Price": {
+    "ResellROIProductRow3Col3Price": {
         "doc": "第三行第三列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -265,7 +265,7 @@
             40
         ]
     },
-    "Resell_ROI_Product_Row3_Col4_Price": {
+    "ResellROIProductRow3Col4Price": {
         "doc": "第三行第四列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -277,9 +277,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col5_Price": {
+    "ResellROIProductRow3Col5Price": {
         "doc": "第三行第五列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -291,9 +291,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col6_Price": {
+    "ResellROIProductRow3Col6Price": {
         "doc": "第三行第六列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -305,9 +305,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col7_Price": {
+    "ResellROIProductRow3Col7Price": {
         "doc": "第三行第七列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -319,9 +319,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_Product_Row3_Col8_Price": {
+    "ResellROIProductRow3Col8Price": {
         "doc": "第三行第八列商品价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -333,9 +333,9 @@
             141,
             40
         ],
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_ViewFriendPrice": {
+    "ResellROIViewFriendPrice": {
         "doc": "查看好友价格按钮区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -348,7 +348,7 @@
             26
         ]
     },
-    "Resell_ROI_DetailCostPrice": {
+    "ResellROIDetailCostPrice": {
         "doc": "商品详情页成本价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -361,9 +361,9 @@
             26
         ],
         "only_rec": true,
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_FriendSalePrice": {
+    "ResellROIFriendSalePrice": {
         "doc": "好友出售价格区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -376,9 +376,9 @@
             28
         ],
         "only_rec": true,
-        "color_filter": "Resell_ROI_Text_Color_Grey"
+        "color_filter": "ResellROITextColorGrey"
     },
-    "Resell_ROI_ReturnButton": {
+    "ResellROIReturnButton": {
         "doc": "好友价格页返回按钮区域",
         "recognition": "TemplateMatch",
         "template": [
@@ -392,7 +392,7 @@
         ],
         "action": "Click"
     },
-    "Resell_ROI_Quota_Current": {
+    "ResellROIQuotaCurrent": {
         "doc": "当前配额区域 (x/y格式)",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -405,7 +405,7 @@
             30
         ]
     },
-    "Resell_ROI_Quota_NextAdd": {
+    "ResellROIQuotaNextAdd": {
         "doc": "下次增加配额区域 (a小时后+b 或 a分钟后+b)",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -418,7 +418,7 @@
             30
         ]
     },
-    "Resell_ROI_Friend_Loading": {
+    "ResellROIFriendLoading": {
         "doc": "好友加载中区域",
         "recognition": "OCR",
         "order_by": "Expected",
@@ -431,7 +431,7 @@
             95
         ]
     },
-    "Resell_ROI_Text_Color_Grey": {
+    "ResellROITextColorGrey": {
         "doc": "文本颜色为灰色区域",
         "recognition": "ColorMatch",
         "roi": [

@@ -187,7 +187,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 1: 使用预定义的配额当前值Pipeline
-	detail1, err := ctx.RunRecognition("Resell_ROI_Quota_Current", img, nil)
+	detail1, err := ctx.RunRecognition("ResellROIQuotaCurrent", img, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -213,7 +213,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2, err := ctx.RunRecognition("Resell_ROI_Quota_NextAdd", img, nil)
+	detail2, err := ctx.RunRecognition("ResellROIQuotaNextAdd", img, nil)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -265,7 +265,7 @@ func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
 		if err != nil || img == nil {
 			return false
 		}
-		detail, err := ctx.RunRecognition("Resell_ROI_Friend_Loading", img, nil)
+		detail, err := ctx.RunRecognition("ResellROIFriendLoading", img, nil)
 		if err != nil || detail == nil || detail.Results == nil || (detail.Results.Best == nil && len(detail.Results.Filtered) == 0) {
 			return true
 		}

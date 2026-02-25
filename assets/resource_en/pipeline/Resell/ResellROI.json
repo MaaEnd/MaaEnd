@@ -1,13 +1,7 @@
 {
-    "Resell_ROI_ViewFriendPrice": {
+    "ResellROIViewFriendPrice": {
         "expected": [
             "Friend"
-        ]
-    },
-    "Resell_ROI_ReturnButton": {
-        "expected": [
-            "Back",
-            "Return"
         ]
     }
 }
