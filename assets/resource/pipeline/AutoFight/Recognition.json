@@ -100,7 +100,8 @@
         "connected": true
     },
     "AutoFightRecognitionComboUsable": {
-        "doc": "识别连携技是否可用，纯白颜色",
+        "doc": "识别连携技是否可用",
+        // 蓝血纯白、红血时受红色border影响 #FFC5C5 #FFE9E9 #FFFCFC
         "recognition": "ColorMatch",
         "roi": [
             28,
@@ -110,8 +111,8 @@
         ],
         "lower": [
             240,
-            240,
-            240
+            180,
+            180
         ],
         "upper": [
             255,
@@ -121,8 +122,23 @@
         "count": 30, //自测50x1~50x3波动
         "connected": true
     },
+    "AutoFightRecognitionCharactorLevelShow": {
+        "doc": "识别角色是否显示等级",
+        "recognition": "OCR",
+        "roi": [
+            26,
+            644,
+            32,
+            16
+        ],
+        "expected": [
+            "[Ll]?[Vv]?\\d+"
+        ],
+        "only_rec": true
+    },
     "AutoFightRecognitionComboCooldown1": {
         "doc": "识别连携技冷却中，[166,166,166],",
+        // 蓝血#A6A6A6，红血#B69F9F #CF9494
         "recognition": "ColorMatch",
         "roi": [
             28,
@@ -132,11 +148,11 @@
         ],
         "lower": [
             150,
-            150,
-            150
+            140,
+            140
         ],
         "upper": [
-            180,
+            215,
             180,
             180
         ],
@@ -144,7 +160,8 @@
         "connected": true
     },
     "AutoFightRecognitionComboCooldown2": {
-        "doc": "识别连携技冷却中，背景[9-15, 9-15, 9-15]",
+        "doc": "识别连携技冷却中，背景[9-15, 9-15, 9-15]，此方法不准",
+        // 红血#321C1C #773D3D
         "recognition": "ColorMatch",
         "roi": [
             28,

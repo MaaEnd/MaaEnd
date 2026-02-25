@@ -7,6 +7,35 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func getCharactorShowLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) bool {
+	var roiX int
+	switch index {
+	case 1:
+		roiX = 25
+	case 2:
+		roiX = 102
+	case 3:
+		roiX = 180
+	case 4:
+		roiX = 258
+	default:
+		log.Warn().Int("index", index).Msg("Invalid combo index")
+		return false
+	}
+
+	override := map[string]any{
+		"AutoFightRecognitionCharactorLevelShow": map[string]any{
+			"roi": maa.Rect{roiX, 644, 32, 16},
+		},
+	}
+	detail, err := ctx.RunRecognition("AutoFightRecognitionCharactorLevelShow", arg.Img, override)
+	if err != nil {
+		log.Error().Err(err).Int("index", index).Msg("Failed to run recognition for charactor level show")
+		return false
+	}
+	return detail != nil && detail.Hit
+}
+
 func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) bool {
 	var roiX int
 	switch index {
@@ -92,7 +121,7 @@ func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 		return 1
 	}
 
-	// 第一格能量空（白色 [255, 255, 255]）
+	// 第一格能量空
 	detail, err = ctx.RunRecognition("AutoFightRecognitionEnergyLevel0", arg.Img)
 	if err != nil {
 		return -1
@@ -129,18 +158,18 @@ func isEntryFightScene(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 		return false
 	}
 
-	comboUsable := false
-	if getComboUsable(ctx, arg, 1) ||
-		getComboUsable(ctx, arg, 2) ||
-		getComboUsable(ctx, arg, 3) ||
-		getComboUsable(ctx, arg, 4) {
-		comboUsable = true
+	characterLevelShow := false
+	if getCharactorShowLevel(ctx, arg, 1) ||
+		getCharactorShowLevel(ctx, arg, 2) ||
+		getCharactorShowLevel(ctx, arg, 3) ||
+		getCharactorShowLevel(ctx, arg, 4) {
+		characterLevelShow = true
 	}
-	if !comboUsable {
+	if characterLevelShow {
 		return false
 	}
 
-	return hasCharacterBar && comboUsable
+	return hasCharacterBar && !characterLevelShow
 
 	// 先尝试用简单逻辑判断是否在战斗中，实在没办法再启用以下复杂逻辑
 	// // 左上角菜单折叠，进入战斗模式
@@ -235,18 +264,14 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		}, true
 	}
 
-	// 没有显示连携技可用，退出战斗
-	if !getComboUsable(ctx, arg, 1) &&
-		!getComboUsable(ctx, arg, 2) &&
-		!getComboUsable(ctx, arg, 3) &&
-		!getComboUsable(ctx, arg, 4) &&
-		!getComboCooldown(ctx, arg, 1) &&
-		!getComboCooldown(ctx, arg, 2) &&
-		!getComboCooldown(ctx, arg, 3) &&
-		!getComboCooldown(ctx, arg, 4) {
+	// 显示角色等级，退出战斗
+	if getCharactorShowLevel(ctx, arg, 1) ||
+		getCharactorShowLevel(ctx, arg, 2) ||
+		getCharactorShowLevel(ctx, arg, 3) ||
+		getCharactorShowLevel(ctx, arg, 4) {
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
-			Detail: `{"custom": "exit no combo usable or cooldown"}`,
+			Detail: `{"custom": "charactor level show"}`,
 		}, true
 	}
 

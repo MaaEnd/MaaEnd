@@ -7,7 +7,7 @@
     },
     "AutoFightTest2": {
         "next": [
-            // "[JumpBack]AutoFightRecognitionMenuOperators",
+            "[JumpBack]AutoFightRecognitionCharactorLevelShow",
             "AutoFightTest2"
         ]
     }
