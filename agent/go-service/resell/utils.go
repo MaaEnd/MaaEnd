@@ -257,6 +257,23 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	return x, y, hoursLater, b
 }
 
+func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
+	for attempt := 0; attempt < 10; attempt++ {
+		MoveMouseSafe(controller)
+		controller.PostScreencap().Wait()
+		img, err := controller.CacheImage()
+		if err != nil || img == nil {
+			return false
+		}
+		detail, err := ctx.RunRecognition("Resell_ROI_Friend_Loading", img, nil)
+		if err != nil || detail == nil || detail.Results == nil || len(detail.Results.All) == 0 {
+			return true
+		}
+		log.Info().Int("attempt", attempt+1).Msg("[Resell]好友价格加载中，等待...")
+	}
+	return false
+}
+
 func processMaxRecord(record ProfitRecord) ProfitRecord {
 	result := record
 	if result.Row >= 2 {

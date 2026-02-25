@@ -144,8 +144,11 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
-			//等加载好友价格
-			Resell_delay_freezes_time(ctx, 600)
+			//等加载好友价格：循环检测"加载中"字样消失
+			if !waitFriendLoading(ctx, controller) {
+				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
+				continue
+			}
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
