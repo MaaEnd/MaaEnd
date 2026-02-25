@@ -263,8 +263,8 @@
                 ],
                 "lower": [
                     30,
-                    0,
-                    0
+                    100,
+                    100
                 ],
                 "count": 200,
                 "connected": true
