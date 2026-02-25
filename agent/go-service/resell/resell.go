@@ -121,7 +121,7 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
 				continue
 			}
-			//商品详情页右下角识别的成本价格为准
+			//商品详情页右上角识别的成本价格为准
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIDetailCostPrice")

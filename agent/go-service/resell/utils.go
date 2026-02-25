@@ -258,6 +258,7 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 }
 
 func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
+	notLoadingCount := 0
 	for attempt := 0; attempt < 10; attempt++ {
 		MoveMouseSafe(controller)
 		controller.PostScreencap().Wait()
@@ -267,9 +268,15 @@ func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
 		}
 		detail, err := ctx.RunRecognition("ResellROIFriendLoading", img, nil)
 		if err != nil || detail == nil || detail.Results == nil || (detail.Results.Best == nil && len(detail.Results.Filtered) == 0) {
-			return true
+			notLoadingCount++
+			//连续两次未识别到“加载中”后，再确认加载已结束，防止过早判断已加载完成
+			if notLoadingCount >= 2 {
+				return true
+			}
+		} else {
+			notLoadingCount = 0
 		}
-		log.Info().Int("attempt", attempt+1).Msg("[Resell]好友价格加载中，等待...")
+		log.Info().Int("attempt", attempt+1).Int("notLoadingCount", notLoadingCount).Msg("[Resell]好友价格加载中，等待...")
 	}
 	return false
 }
