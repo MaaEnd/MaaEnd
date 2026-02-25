@@ -154,9 +154,9 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 	return nil
 }
 
-func Resell_delay_freezes_time(ctx *maa.Context, time int) bool {
-	ctx.RunTask("Resell_TaskDelay", map[string]interface{}{
-		"Resell_TaskDelay": map[string]interface{}{
+func ReselldelayFreezestime(ctx *maa.Context, time int) bool {
+	ctx.RunTask("ResellTaskDelay", map[string]interface{}{
+		"ResellTaskDelay": map[string]interface{}{
 			"pre_wait_freezes": time,
 		},
 	},

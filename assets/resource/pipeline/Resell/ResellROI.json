@@ -109,7 +109,8 @@
             350,
             141,
             40
-        ]
+        ],
+        "color_filter": "ResellROITextColorGrey"
     },
     "ResellROIProductRow2Col1Price": {
         //当商品只有一行时，可以用这个区域识别第一行价格，标记为第二行
@@ -179,7 +180,8 @@
             484,
             141,
             40
-        ]
+        ],
+        "color_filter": "ResellROITextColorGrey"
     },
     "ResellROIProductRow2Col6Price": {
         "doc": "第二行第六列商品价格区域",
@@ -263,7 +265,8 @@
             567,
             141,
             40
-        ]
+        ],
+        "color_filter": "ResellROITextColorGrey"
     },
     "ResellROIProductRow3Col4Price": {
         "doc": "第三行第四列商品价格区域",
