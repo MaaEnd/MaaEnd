@@ -257,15 +257,15 @@
                 "method": 40,
                 "lower": [
                     28,
-                    0,
-                    0
+                    100,
+                    100
                 ],
                 "upper": [
-                    28,
+                    30,
                     255,
                     255
                 ],
-                "count": 5000,
+                "count": 3000,
                 "connected": true
             }
         }
@@ -361,12 +361,6 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    40,
-                                    40
-                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
