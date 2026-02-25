@@ -422,7 +422,7 @@
         "doc": "好友加载中区域",
         "recognition": "OCR",
         "order_by": "Expected",
-        "expected": ".*加载中.*",
+        "expected": "加载中",
         "threshold": 0.85,
         "roi": [
             694,

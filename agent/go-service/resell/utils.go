@@ -63,8 +63,8 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 	}
 
 	// 优先从 Best 结果中提取，然后是 All
-	for _, results := range [][]*maa.RecognitionResult{detail.Results.Best, detail.Results.All} {
-		if len(results) > 0 {
+	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
+		if len(results) > 0 && results[0] != nil {
 			if ocrResult, ok := results[0].AsOCR(); ok {
 				if num, success := extractNumbersFromText(ocrResult.Text); success {
 					// 计算中心坐标
@@ -108,8 +108,8 @@ func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipe
 	}
 
 	// 优先从 Filtered 结果中提取，然后是 Best、All
-	for _, results := range [][]*maa.RecognitionResult{detail.Results.Filtered, detail.Results.Best, detail.Results.All} {
-		if len(results) > 0 {
+	for _, results := range [][]*maa.RecognitionResult{detail.Results.Filtered, {detail.Results.Best}, detail.Results.All} {
+		if len(results) > 0 && results[0] != nil {
 			if ocrResult, ok := results[0].AsOCR(); ok {
 				if containsKeyword(ocrResult.Text, keyword) {
 					// 计算中心坐标
@@ -195,8 +195,8 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 	if detail1 != nil && detail1.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{detail1.Results.Best, detail1.Results.All} {
-			if len(results) > 0 {
+		for _, results := range [][]*maa.RecognitionResult{{detail1.Results.Best}, detail1.Results.All} {
+			if len(results) > 0 && results[0] != nil {
 				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
 					log.Info().Msgf("Quota region 1 OCR: %s", ocrResult.Text)
 					// Parse "x/y" format
@@ -221,8 +221,8 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 	if detail2 != nil && detail2.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{detail2.Results.Best, detail2.Results.All} {
-			if len(results) > 0 {
+		for _, results := range [][]*maa.RecognitionResult{{detail2.Results.Best}, detail2.Results.All} {
+			if len(results) > 0 && results[0] != nil {
 				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
 					log.Info().Msgf("Quota region 2 OCR: %s", ocrResult.Text)
 					// Try pattern with hours
@@ -266,7 +266,7 @@ func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
 			return false
 		}
 		detail, err := ctx.RunRecognition("Resell_ROI_Friend_Loading", img, nil)
-		if err != nil || detail == nil || detail.Results == nil || len(detail.Results.All) == 0 {
+		if err != nil || detail == nil || detail.Results == nil || (detail.Results.Best == nil && len(detail.Results.Filtered) == 0) {
 			return true
 		}
 		log.Info().Int("attempt", attempt+1).Msg("[Resell]好友价格加载中，等待...")
