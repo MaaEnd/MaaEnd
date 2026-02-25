@@ -57,8 +57,9 @@ type SkillCombinationSummary struct {
 
 // MatcherConfig - 匹配器配置结构
 type MatcherConfig struct {
-	SimilarWordMap  map[string]string `json:"similarWordMap"`
-	SuffixStopwords []string          `json:"suffixStopwords"`
+	SimilarWordMap      map[string]string `json:"similarWordMap"`
+	SuffixStopwords     []string          `json:"suffixStopwords"`
+	PlugAndPlaySlot3IDs []int             `json:"plugAndPlaySlot3Ids"`
 }
 
 type EssenceFilterOptions struct {
@@ -67,6 +68,13 @@ type EssenceFilterOptions struct {
 	Rarity4Weapon   bool `json:"rarity4_weapon"`
 	FlawlessEssence bool `json:"flawless_essence"`
 	PureEssence     bool `json:"pure_essence"`
+
+	// 保留未来可期基质：三种词条且总等级 >= n
+	KeepFuturePromising     bool `json:"keep_future_promising"`
+	FuturePromisingMinTotal int  `json:"future_promising_min_total"`
+	// 保留实用基质：词条3等级 >= n 且为辅助即插即用技能
+	KeepSlot3Level3Practical bool `json:"keep_slot3_level3_practical"`
+	Slot3MinLevel            int  `json:"slot3_min_level"`
 }
 
 type ColorRange struct {
@@ -83,8 +91,10 @@ type EssenceMeta struct {
 var (
 	weaponDB                WeaponDatabase
 	targetSkillCombinations []SkillCombination
-	visitedCount            int
-	matchedCount            int
+	visitedCount                int
+	matchedCount                int
+	extFuturePromisingCount     int
+	extSlot3PracticalCount      int
 	filteredSkillStats      [3]map[int]int
 	statsLogged             bool
 
@@ -99,7 +109,8 @@ var (
 	finalLargeScanUsed bool // true if final large scan has been used
 
 	// Current item's three skills cache
-	currentSkills [3]string
+	currentSkills      [3]string
+	currentSkillLevels [3]int // 从 OCR 解析出的等级 (+1/+2/+3)，0 表示未识别
 
 	// Row processing: collected boxes and index
 	rowBoxes       [][4]int

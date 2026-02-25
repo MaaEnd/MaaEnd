@@ -12,6 +12,7 @@ func Register() {
 	maa.AgentServerAddResourceSink(&resourcePathSink{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterInitAction", &EssenceFilterInitAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemAction", &EssenceFilterCheckItemAction{})
+	maa.AgentServerRegisterCustomAction("EssenceFilterCheckItemLevelAction", &EssenceFilterCheckItemLevelAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterRowCollectAction", &EssenceFilterRowCollectAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterRowNextItemAction", &EssenceFilterRowNextItemAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterSkillDecisionAction", &EssenceFilterSkillDecisionAction{})

@@ -252,6 +252,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	}
 	if params.Slot == 1 {
 		currentSkills = [3]string{}
+		currentSkillLevels = [3]int{}
 	}
 
 	// Use pipeline recognition result
@@ -291,6 +292,40 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 
 	// Let SkillDecision action handle match/lock routing
 	return true
+}
+
+// EssenceFilterCheckItemLevelAction - 识别技能等级（独立 level ROI）
+type EssenceFilterCheckItemLevelAction struct{}
+
+func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params struct {
+		Slot int `json:"slot"`
+	}
+	if arg.CustomActionParam != "" {
+		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
+	}
+	if params.Slot < 1 || params.Slot > 3 {
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> invalid level slot param")
+		return false
+	}
+
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
+		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> level OCR detail missing")
+		return false
+	}
+
+	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	rawText := strings.TrimSpace(ocr.Text)
+	levelRe := regexp.MustCompile(`\+?(\d+)`)
+	if m := levelRe.FindStringSubmatch(rawText); len(m) >= 2 {
+		if lv, err := strconv.Atoi(m[1]); err == nil && lv >= 1 && lv <= 6 {
+			currentSkillLevels[params.Slot-1] = lv
+			log.Info().Int("slot", params.Slot).Int("level", lv).Str("raw", rawText).Msg("<EssenceFilter> OCR level ok")
+			return true
+		}
+	}
+	log.Error().Int("slot", params.Slot).Str("raw", rawText).Msg("<EssenceFilter> level parse fail")
+	return false
 }
 
 // EssenceFilterRowCollectAction - collect boxes in a row (TemplateMatch detail) + ColorMatch filter, click first
@@ -474,8 +509,55 @@ type EssenceFilterSkillDecisionAction struct{}
 
 func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	skills := []string{currentSkills[0], currentSkills[1], currentSkills[2]}
+	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	if opts == nil {
+		opts = &EssenceFilterOptions{}
+	}
 
+	// 优先：原始技能组合匹配
 	matchResult, matched := MatchEssenceSkills(ctx, skills)
+
+	// 次优先：保留未来可期基质、保留实用基质
+	extendedReason := ""
+	if !matched && opts != nil {
+		if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
+			if MatchFuturePromising(skills, currentSkillLevels, opts.FuturePromisingMinTotal) {
+				matched = true
+				sum := currentSkillLevels[0] + currentSkillLevels[1] + currentSkillLevels[2]
+				matchResult = &SkillCombinationMatch{
+					SkillIDs:      []int{0, 0, 0},
+					SkillsChinese: []string{skills[0], skills[1], skills[2]},
+					Weapons:       []WeaponData{},
+				}
+				extendedReason = fmt.Sprintf("未来可期：总等级 %d ≥ %d", sum, opts.FuturePromisingMinTotal)
+				extFuturePromisingCount++
+				log.Info().
+					Strs("skills", skills).
+					Ints("levels", currentSkillLevels[:]).
+					Int("sum", sum).
+					Int("min_total", opts.FuturePromisingMinTotal).
+					Msg("<EssenceFilter> MatchFuturePromising: 保留未来可期基质")
+			}
+		}
+		slot3MinLv := opts.Slot3MinLevel
+		if slot3MinLv <= 0 {
+			slot3MinLv = 3
+		}
+		if !matched && opts.KeepSlot3Level3Practical {
+			var slot3Match bool
+			matchResult, slot3Match = MatchSlot3Level3Practical(skills, currentSkillLevels, slot3MinLv)
+			if slot3Match {
+				matched = true
+				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", skills[2], currentSkillLevels[2], slot3MinLv)
+				extSlot3PracticalCount++
+				log.Info().
+					Str("slot3_skill", skills[2]).
+					Int("slot3_level", currentSkillLevels[2]).
+					Int("min_level", slot3MinLv).
+					Msg("<EssenceFilter> MatchSlot3Level3Practical: 保留实用基质")
+			}
+		}
+	}
 	MatchedMessageColor := "#00bfff"
 	if matched {
 		MatchedMessageColor = "#064d7c"
@@ -483,13 +565,33 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 
 	LogMXUSimpleHTMLWithColor(
 		ctx,
-		fmt.Sprintf("OCR到技能：%s | %s | %s", skills[0], skills[1], skills[2]),
+		fmt.Sprintf("OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)",
+			skills[0], currentSkillLevels[0],
+			skills[1], currentSkillLevels[1],
+			skills[2], currentSkillLevels[2]),
 		MatchedMessageColor,
 	)
-	if matched {
+	if matched && extendedReason != "" {
+		// 扩展规则命中：无武器列表，独立处理
+		matchedCount++
+		log.Info().
+			Strs("skills", skills).
+			Str("reason", extendedReason).
+			Int("matched_count", matchedCount).
+			Msg("<EssenceFilter> extended rule hit, lock next")
+
+		LogMXUHTML(ctx, fmt.Sprintf(
+			`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中：%s</div>`,
+			escapeHTML(extendedReason),
+		))
+
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			{Name: "EssenceFilterLockItemLog"},
+		})
+	} else if matched {
+		// 武器匹配命中
 		matchedCount++
 
-		// 提取所有可能武器名，交给 UI 层做展示格式化
 		weaponNames := make([]string, 0, len(matchResult.Weapons))
 		for _, w := range matchResult.Weapons {
 			weaponNames = append(weaponNames, w.ChineseName)
@@ -502,7 +604,6 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			Int("matched_count", matchedCount).
 			Msg("<EssenceFilter> match ok, lock next")
 
-		// 按各自稀有度为每把武器单独着色
 		var weaponsHTML strings.Builder
 		for i, w := range matchResult.Weapons {
 			if i > 0 {
@@ -514,13 +615,11 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 				weaponColor, escapeHTML(w.ChineseName),
 			))
 		}
-		MatchedMessage := fmt.Sprintf(
+		LogMXUHTML(ctx, fmt.Sprintf(
 			`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`,
 			weaponsHTML.String(),
-		)
-		LogMXUHTML(ctx, MatchedMessage)
+		))
 
-		// 更新本轮运行的技能组合统计信息
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
 			if s, ok := matchedCombinationSummary[key]; ok {
@@ -550,10 +649,10 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
 			{Name: "EssenceFilterRowNextItem"},
 		})
-
 	}
 
 	currentSkills = [3]string{}
+	currentSkillLevels = [3]int{}
 	return true
 }
 
@@ -573,9 +672,28 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	// 追加本轮战利品摘要
 	logMatchSummary(ctx)
 
+	// 扩展规则统计
+	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	if opts != nil {
+		if opts.KeepFuturePromising {
+			LogMXUSimpleHTMLWithColor(ctx,
+				fmt.Sprintf("扩展规则「未来可期」锁定：%d 个", extFuturePromisingCount),
+				"#064d7c",
+			)
+		}
+		if opts.KeepSlot3Level3Practical {
+			LogMXUSimpleHTMLWithColor(ctx,
+				fmt.Sprintf("扩展规则「实用基质」锁定：%d 个", extSlot3PracticalCount),
+				"#064d7c",
+			)
+		}
+	}
+
 	targetSkillCombinations = nil
 	matchedCount = 0
 	visitedCount = 0
+	extFuturePromisingCount = 0
+	extSlot3PracticalCount = 0
 	for i := range filteredSkillStats {
 		filteredSkillStats[i] = nil
 	}
