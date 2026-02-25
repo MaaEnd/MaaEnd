@@ -15,6 +15,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "[JumpBack]BakerSwitchMsg", // BakerSwitchMsg提到外面，可以保证不重复触发
             "BakerCheckHome",
             "[JumpBack]SceneEnterMenuBaker"
         ]
@@ -32,16 +33,15 @@
             117
         ],
         "next": [
-            "[JumpBack]BakerSwitchTasks",
             "BakerCheckMsg", // Baker 会话信息
             "BakerCheckTask", // Baker 事务通讯
             "BakerOverCheck" // Baker 任务结束
         ]
     },
-    "BakerSwitchTasks": {
-        "desc": "切换到事务通讯界面",
+    "BakerSwitchMsg": {
+        "desc": "切换到会话信息界面",
         "recognition": "TemplateMatch",
-        "template": "Baker/TasksNotChoose.png",
+        "template": "Baker/SessionOptions.png",
         "roi": [
             400,
             0,
@@ -102,17 +102,14 @@
             235
         ],
         "next": [
-            "BakerCheckTopHint",
+            "BakerSwitchTask",
             "BakerOverEnd"
         ]
     },
     "BakerOverEnd": {
-        "action": {
-            "type": "ClickKey", // 点击一下 ESC
-            "param": {
-                "key": 27
-            }
-        },
+        "next": [
+            "CloseButtonType1"
+        ],
         "doc": "真正的退出节点,在上面两种类型的会话都没有之后退出任务"
     },
     "BakerOpenFilter": {
@@ -415,18 +412,18 @@
         ]
     },
     /*      从这里开始，是事务通讯的逻辑     */
-    "BakerCheckTopHint": {
+    "BakerSwitchTask": {
         "doc": "点击 Baker 页面顶部的图标进行事务通讯页面切换",
-        "max_hit": 1,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    637,
-                    28
-                ]
-            }
-        },
+        "recognition": "TemplateMatch",
+        "template": "Baker/TaskOptions.png",
+        "roi": [
+            400,
+            0,
+            600,
+            100
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
         "next": [
             "BakerCheckHome"
         ]

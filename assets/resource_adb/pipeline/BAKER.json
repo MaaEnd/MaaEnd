@@ -1,4 +1,11 @@
 {
+    "BakerEntry": {
+        "next": [
+            "[JumpBack]BakerSwitchMsg", //BakerSwitchMsg提到外面，可以保证不重复触发
+            "BakerCheckHome",
+            "ClickH"
+        ]
+    },
     "ClickH": {
         "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
         "recognition": "TemplateMatch",
@@ -14,25 +21,22 @@
         ],
         "action": "Click",
         "next": [
-            "ClickTopTak",
+            "BakerSwitchMsg",
             "BakerEntry" // ClickTopTak 若是没匹配到，则回到 BakerEntry]
         ]
     },
-    "ClickTopTak": {
-        "doc": "开局先点一下会话信息图标,保证处于会话信息页面",
-        "max_hit": 1,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    55,
-                    108
-                ]
-            }
-        },
-        "next": [
-            "BakerEntry"
-        ]
+    "BakerSwitchMsg": {
+        "desc": "切换到会话信息界面",
+        "recognition": "TemplateMatch",
+        "template": "Baker/SessionOptions.png",
+        "roi": [
+            0,
+            51,
+            92,
+            273
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200
     },
     "BakerResetFilter": {
         "doc": "用于点击筛选栏目中的刷新",
@@ -170,18 +174,18 @@
         ]
     },
     /*      从这里开始，是事务通讯的逻辑     */
-    "BakerCheckTopHint": {
+    "BakerSwitchTask": {
         "doc": "点击 Baker 页面顶部的图标进行事务通讯页面切换",
-        "max_hit": 1,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    39,
-                    191
-                ]
-            }
-        },
+        "recognition": "TemplateMatch",
+        "template": "Baker/TaskOptions.png",
+        "roi": [
+            0,
+            51,
+            92,
+            273
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
         "next": [
             "BakerCheckHome"
         ]
