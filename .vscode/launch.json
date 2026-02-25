@@ -24,16 +24,6 @@
                 "env": {
                     "PATH": "${workspaceFolder}/install/maafw;${env:PATH}"
                 }
-            },
-            "linux": {
-                "env": {
-                    "PATH": "${workspaceFolder}/install/maafw:${env:PATH}"
-                }
-            },
-            "osx": {
-                "env": {
-                    "PATH": "${workspaceFolder}/install/maafw:${env:PATH}"
-                }
             }
         }
     ]
