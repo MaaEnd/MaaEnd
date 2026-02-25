@@ -13,6 +13,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var levelParseRe = regexp.MustCompile(`\+?(\d+)`)
+
 // EssenceFilterInitAction - initialize filter
 type EssenceFilterInitAction struct{}
 
@@ -316,8 +318,7 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 
 	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
 	rawText := strings.TrimSpace(ocr.Text)
-	levelRe := regexp.MustCompile(`\+?(\d+)`)
-	if m := levelRe.FindStringSubmatch(rawText); len(m) >= 2 {
+	if m := levelParseRe.FindStringSubmatch(rawText); len(m) >= 2 {
 		if lv, err := strconv.Atoi(m[1]); err == nil && lv >= 1 && lv <= 6 {
 			currentSkillLevels[params.Slot-1] = lv
 			log.Info().Int("slot", params.Slot).Int("level", lv).Str("raw", rawText).Msg("<EssenceFilter> OCR level ok")

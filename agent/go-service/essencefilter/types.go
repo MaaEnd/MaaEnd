@@ -57,9 +57,8 @@ type SkillCombinationSummary struct {
 
 // MatcherConfig - 匹配器配置结构
 type MatcherConfig struct {
-	SimilarWordMap      map[string]string `json:"similarWordMap"`
-	SuffixStopwords     []string          `json:"suffixStopwords"`
-	PlugAndPlaySlot3IDs []int             `json:"plugAndPlaySlot3Ids"`
+	SimilarWordMap  map[string]string `json:"similarWordMap"`
+	SuffixStopwords []string          `json:"suffixStopwords"`
 }
 
 type EssenceFilterOptions struct {
