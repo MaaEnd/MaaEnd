@@ -188,10 +188,10 @@
             "param": {
                 "roi": "ReadySetClues",
                 "roi_offset": [
-                    -136,
+                    -200,
                     71,
-                    11,
-                    18
+                    58,
+                    41
                 ],
                 "expected": [
                     "\\d+[小时|天]"
