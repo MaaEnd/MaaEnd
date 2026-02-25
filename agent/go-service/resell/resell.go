@@ -3,9 +3,7 @@ package resell
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strconv"
-	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -187,22 +185,22 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ReturnButton", "返回")
-			if success {
-				log.Info().Msg("[Resell]第四步：发现返回按钮，按ESC返回")
-				controller.PostClickKey(27)
+			if _, err := ctx.RunTask("Resell_ROI_ReturnButton", nil); err != nil {
+				log.Warn().Err(err).Msg("[Resell]第四步：返回按钮点击失败")
+			} else {
+				log.Info().Msg("[Resell]第四步：发现返回按钮，点击返回")
 			}
 
-			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
+			// Step 5: 识别商品详情页关闭按钮，直接点击关闭
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
 			Resell_delay_freezes_time(ctx, 200)
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
-			if success {
+			if _, err := ctx.RunTask("CloseButtonType1", nil); err != nil {
+				log.Warn().Err(err).Msg("[Resell]第五步：关闭页面失败")
+			} else {
 				log.Info().Msg("[Resell]第五步：关闭页面")
-				controller.PostClickKey(27)
 			}
 		}
 	}
@@ -287,3 +285,4 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 }
+
