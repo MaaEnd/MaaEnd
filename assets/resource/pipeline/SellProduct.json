@@ -25,6 +25,45 @@
         ]
     },
     "SellProductAtDevelopment": {
+        "doc": "位于地区建设界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InRegionalDevelopment"
+                ]
+            }
+        },
+        "post_wait_freezes": 80,
+        "next": [
+            "SellProductEnterManagementLocked",
+            "SellProductEnterOutpostManagement"
+        ]
+    },
+    "SellProductEnterManagementLocked": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductDevelopmentLocked.png"
+                ],
+                "roi": [
+                    1178,
+                    185,
+                    35,
+                    48
+                ]
+            }
+        },
+        "doc": "识别据点管理是否未解锁",
+        "focus": {
+            "Node.Recognition.Succeeded": "据点管理未解锁"
+        },
+        "next": [
+            "SellProductLocalCounter"
+        ]
+    },
+    "SellProductEnterOutpostManagement": {
         "pre_delay": 0,
         "post_delay": 500,
         "doc": "位于地区建设，进入据点管理",
@@ -54,7 +93,7 @@
         },
         "next": [
             "SellProductAtSell",
-            "SellProductAtDevelopment"
+            "SellProductEnterOutpostManagement"
         ]
     },
     "SellProductDragBar": {
@@ -377,7 +416,7 @@
         "focus": {
             "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
         },
-        "doc": "max_hit为地区数-1",
+        "doc": "当前区域任务已完成，前往下一区域,该节点max_hit为地区数-1",
         "next": [
             "SellProductForthValley",
             "SellProductWuling"
