@@ -189,11 +189,11 @@ type OCREssenceInventoryNumberAction struct{}
 func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	const maxSinglePage = 45 // 单页可见格子上限：9列×5行
 
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Best) == 0 {
 		log.Error().Msg("<EssenceFilter> CheckTotal: no OCR detail")
 		return false
 	}
-	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
 	text := strings.TrimSpace(ocr.Text)
 	if text == "" {
 		log.Error().Msg("<EssenceFilter> CheckTotal: empty text")
@@ -263,12 +263,12 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		return false
 	}
 
-	if len(arg.RecognitionDetail.Results.Filtered) == 0 {
-		log.Error().Msg("<EssenceFilter> OCR detail has no filtered results")
+	if len(arg.RecognitionDetail.Results.Best) == 0 {
+		log.Error().Msg("<EssenceFilter> OCR detail has no results")
 		return false
 	}
 
-	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
 	rawText := ocr.Text
 	text := cleanChinese(rawText)
 
@@ -311,12 +311,12 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 
-	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Filtered) == 0 {
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || len(arg.RecognitionDetail.Results.Best) == 0 {
 		log.Error().Int("slot", params.Slot).Msg("<EssenceFilter> level OCR detail missing")
 		return false
 	}
 
-	ocr, _ := arg.RecognitionDetail.Results.Filtered[0].AsOCR()
+	ocr, _ := arg.RecognitionDetail.Results.Best[0].AsOCR()
 	rawText := strings.TrimSpace(ocr.Text)
 	if m := levelParseRe.FindStringSubmatch(rawText); len(m) >= 2 {
 		if lv, err := strconv.Atoi(m[1]); err == nil && lv >= 1 && lv <= 6 {
