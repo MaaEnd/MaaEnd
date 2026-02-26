@@ -70,7 +70,8 @@
         "next": [
             "[JumpBack]WhiteConfirmButtonType1",
             "ExtractSeed",
-            "ExitGrow"
+            "ExitGrow",
+            "FinishAllDijiangTask"
         ]
     },
     "ExitGrow": {
