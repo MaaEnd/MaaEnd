@@ -242,7 +242,7 @@
         },
         "next": [
             "GrayCancelButton",
-            "EmptyNode"
+            "StopNode"
         ]
     },
     "LasCarbinColor": {

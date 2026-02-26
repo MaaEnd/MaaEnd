@@ -438,13 +438,6 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "GrowthChamber": {
-                            "next": [
-                                "[JumpBack]ClickGrow",
-                                "SelectGrow",
-                                "ExitGrowthChamber"
-                            ]
-                        },
                         "ExtractSeed": {
                             "enabled": false
                         }

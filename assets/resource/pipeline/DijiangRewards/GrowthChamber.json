@@ -20,7 +20,7 @@
         },
         "next": [
             "[JumpBack]ClickGrow",
-            "[JumpBack]SelectGrow", //这个任务会在interface中改变jumpback状态,启用自动提取基核时候会是JumpBack
+            "[JumpBack]SelectGrow",
             "ExitGrowthChamber"
         ]
     },
@@ -106,7 +106,29 @@
         },
         "next": [
             "[JumpBack]WhiteConfirmButtonType1",
-            "CloseRewardsButton"
+            "CloseRewardsButton",
+            "NoMaterials"
+        ]
+    },
+    "NoMaterials": {
+        "doc": "缺少原料无法获取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    640,
+                    464,
+                    368,
+                    143
+                ],
+                "expected": [
+                    "缺少原料",
+                    "无法获取"
+                ]
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
         ]
     },
     "InSelectGrowSwipe": {
