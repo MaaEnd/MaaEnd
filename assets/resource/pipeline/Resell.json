@@ -238,5 +238,14 @@
         "post_delay": 500,
         "action": "Custom",
         "custom_action": "ResellInitAction"
+    },
+    "ResellWaitFriendPrice": {
+        "doc": "轮询等待好友价格加载完成（加载中消失或售价可见）",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "ResellROIFriendSalePrice",
+            "ResellROIFriendLoading"
+        ]
     }
 }

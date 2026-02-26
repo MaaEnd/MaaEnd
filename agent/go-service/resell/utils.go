@@ -36,6 +36,7 @@ func MoveMouseSafe(controller *maa.Controller) {
 
 // ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
 func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
+	controller.PostScreencap().Wait()
 	img, err := controller.CacheImage()
 	if err != nil {
 		log.Error().
@@ -82,6 +83,7 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 // ocrExtractTextWithCenter - OCR region using pipeline name and check if pipeline filtered results exist, return center coordinates.
 // Keyword matching is delegated to the pipeline's "expected" field, so no redundant check is needed in Go.
 func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (bool, int, int, bool) {
+	controller.PostScreencap().Wait()
 	img, err := controller.CacheImage()
 	if err != nil {
 		log.Error().
@@ -261,30 +263,6 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 	}
 
 	return x, y, hoursLater, b
-}
-
-func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
-	notLoadingCount := 0
-	for attempt := 0; attempt < 10; attempt++ {
-		MoveMouseSafe(controller)
-		controller.PostScreencap().Wait()
-		img, err := controller.CacheImage()
-		if err != nil || img == nil {
-			return false
-		}
-		detail, err := ctx.RunRecognition("ResellROIFriendLoading", img, nil)
-		if err != nil || detail == nil || detail.Results == nil || (detail.Results.Best == nil && len(detail.Results.Filtered) == 0) {
-			notLoadingCount++
-			//连续两次未识别到“加载中”后，再确认加载已结束，防止过早判断已加载完成
-			if notLoadingCount >= 2 {
-				return true
-			}
-		} else {
-			notLoadingCount = 0
-		}
-		log.Info().Int("attempt", attempt+1).Int("notLoadingCount", notLoadingCount).Msg("[Resell]好友价格加载中，等待...")
-	}
-	return false
 }
 
 func processMaxRecord(record ProfitRecord) ProfitRecord {

@@ -379,7 +379,9 @@
             28
         ],
         "only_rec": true,
-        "color_filter": "ResellROITextColorGrey"
+        "color_filter": "ResellROITextColorGrey",
+        "action": "DoNothing",
+        "next": []
     },
     "ResellROIReturnButton": {
         "doc": "好友价格页返回按钮区域",
@@ -458,6 +460,11 @@
             376,
             145,
             95
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellROIFriendSalePrice",
+            "ResellROIFriendLoading"
         ]
     },
     "ResellROITextColorGrey": {

@@ -91,7 +91,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第一步：识别商品价格")
 			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
 			pricePipelineName := fmt.Sprintf("ResellROIProductRow%dCol%dPrice", rowIdx+1, col)
@@ -99,7 +98,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			if !success {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
 				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 				if !success {
 					log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
@@ -114,7 +112,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第二步：查看好友价格")
 			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "ResellROIViewFriendPrice")
 			if !success {
@@ -123,14 +120,12 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			}
 			//商品详情页右上角识别的成本价格为准
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIDetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
 				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIDetailCostPrice")
 				if success {
 					costPrice = ConfirmcostPrice
@@ -144,19 +139,17 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
-			//等加载好友价格：循环检测"加载中"字样消失
-			if !waitFriendLoading(ctx, controller) {
-				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
+			// 等加载好友价格：Pipeline next 轮询 ResellROIFriendSalePrice / ResellROIFriendLoading
+			if _, err := ctx.RunTask("ResellWaitFriendPrice", nil); err != nil {
+				log.Info().Err(err).Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
 				continue
 			}
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIFriendSalePrice")
 			if !success {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
 				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "ResellROIFriendSalePrice")
 				if !success {
 					log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
@@ -186,7 +179,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第四步：返回商品详情页")
 			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			if _, err := ctx.RunTask("ResellROIReturnButton", nil); err != nil {
 				log.Warn().Err(err).Msg("[Resell]第四步：返回按钮点击失败")
@@ -198,7 +190,6 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
 			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			if _, err := ctx.RunTask("CloseButtonType1", nil); err != nil {
 				log.Warn().Err(err).Msg("[Resell]第五步：关闭页面失败")
