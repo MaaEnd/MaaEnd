@@ -1,7 +1,7 @@
 {
     "SellProductBegin": {
         "pre_delay": 0,
-        "post_delay": 500,
+        "post_delay": 0,
         "doc": "虚节点.",
         "next": [
             "SellProductAtDevelopment",
@@ -10,16 +10,8 @@
     },
     "SellProductMain": {
         "pre_delay": 0,
-        "post_delay": 200,
+        "post_delay": 0,
         "doc": "脚本入口",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    89
-                ]
-            }
-        },
         "next": [
             "SellProductBegin"
         ]
@@ -34,6 +26,8 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
         "post_wait_freezes": 80,
         "next": [
             "SellProductEnterManagementLocked",
@@ -65,7 +59,7 @@
     },
     "SellProductEnterOutpostManagement": {
         "pre_delay": 0,
-        "post_delay": 500,
+        "post_delay": 0,
         "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
@@ -91,6 +85,7 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 10,
         "next": [
             "SellProductAtSell",
             "SellProductEnterOutpostManagement"
