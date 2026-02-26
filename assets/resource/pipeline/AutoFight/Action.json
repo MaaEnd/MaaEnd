@@ -16,6 +16,15 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "AutoFightActionDodge": {
+        "action": "ClickKey",
+        "key": 160, // Shift键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发闪避"
+        }
+    },
     "AutoFightActionLockTarget": {
         "action": "Click",
         "target": [

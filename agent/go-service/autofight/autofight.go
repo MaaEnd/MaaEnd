@@ -104,6 +104,24 @@ func hasComboShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 	return detail.Hit
 }
 
+func hasEnemyAttack(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
+	detail, err := ctx.RunRecognition("AutoFightRecognitionEnemyAttack", arg.Img)
+	if err != nil || detail == nil {
+		log.Error().Err(err).Msg("Failed to run recognition for enemy attack")
+		return false
+	}
+	return detail.Hit
+}
+
+func hasEnemyInScreen(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
+	detail, err := ctx.RunRecognition("AutoFightRecognitionEnemyInScreen", arg.Img)
+	if err != nil || detail == nil {
+		log.Error().Err(err).Msg("Failed to run recognition for enemy in screen")
+		return false
+	}
+	return detail.Hit
+}
+
 func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 	// 第一格能量满
 	detail, err := ctx.RunRecognition("AutoFightRecognitionEnergyLevel1", arg.Img)
@@ -226,7 +244,7 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	if !pauseNotInFightSince.IsZero() && time.Since(pauseNotInFightSince) >= 10*time.Second {
 		log.Info().Dur("elapsed", time.Since(pauseNotInFightSince)).Msg("Pause timeout, exiting fight")
 		pauseNotInFightSince = time.Time{}
-		firstExecuteSinceEntry = true // 下次进入 entry 后首次 Execute 再执行 LockTarget
+		enemyInScreen = false // 下次进入 entry 后首次 Execute 再执行 LockTarget
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{"custom": "exit pause timeout"}`,
@@ -236,8 +254,8 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	// 显示角色等级，退出战斗
 	// 只要在战斗，一定会显示左下角干员条
 	if getCharactorLevelShow(ctx, arg) {
-		// saveExitImage(arg.Img, "character_level_show")
-		firstExecuteSinceEntry = true // 下次进入 entry 后首次 Execute 再执行 LockTarget
+		saveExitImage(arg.Img, "character_level_show")
+		enemyInScreen = false // 下次进入 entry 后首次 Execute 再执行 LockTarget
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{"custom": "charactor level show"}`,
@@ -280,6 +298,8 @@ const (
 	ActionEndSkillKeyDown
 	ActionEndSkillKeyUp
 	ActionLockTarget
+	ActionDodge
+	ActionSleep
 )
 
 func (t ActionType) String() string {
@@ -296,6 +316,8 @@ func (t ActionType) String() string {
 		return "EndSkillKeyUp"
 	case ActionLockTarget:
 		return "LockTarget"
+	case ActionDodge:
+		return "Dodge"
 	default:
 		return "Unknown"
 	}
@@ -308,9 +330,9 @@ type fightAction struct {
 }
 
 var (
-	actionQueue            []fightAction
-	skillCycleIndex        = 1
-	firstExecuteSinceEntry = true // 以进入 entry 算第一次，首次执行 ExecuteRecognition 时先执行 LockTarget
+	actionQueue     []fightAction
+	skillCycleIndex = 1
+	enemyInScreen   = false // 检查敌人是是否首次出现在屏幕
 )
 
 func enqueueAction(a fightAction) {
@@ -342,25 +364,13 @@ func dequeueAction() (fightAction, bool) {
 	return a, true
 }
 
-type AutoFightExecuteRecognition struct{}
-
-func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if firstExecuteSinceEntry {
-		firstExecuteSinceEntry = false
-		enqueueAction(fightAction{
-			executeAt: time.Now().Add(-time.Millisecond), // 确保排在队列最前
-			action:    ActionLockTarget,
-		})
-	}
+// 识别干员技能释放
+func recognitionSkill(ctx *maa.Context, arg *maa.CustomRecognitionArg) {
 	if hasComboShow(ctx, arg) {
 		// 连携技能
 		enqueueAction(fightAction{
 			executeAt: time.Now(),
 			action:    ActionCombo,
-		})
-		enqueueAction(fightAction{
-			executeAt: time.Now(),
-			action:    ActionAttack,
 		})
 	} else if endSkillUsable := getEndSkillUsable(ctx, arg); len(endSkillUsable) > 0 {
 		// 终结技可用
@@ -377,10 +387,6 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 			})
 			break
 		}
-		enqueueAction(fightAction{
-			executeAt: time.Now(),
-			action:    ActionAttack,
-		})
 	} else if getEnergyLevel(ctx, arg) >= 1 {
 		idx := skillCycleIndex
 		enqueueAction(fightAction{
@@ -393,15 +399,40 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 		} else {
 			skillCycleIndex = idx + 1
 		}
+	}
+}
+
+func recognitionAttack(ctx *maa.Context, arg *maa.CustomRecognitionArg) {
+	// 识别闪避、普攻
+	if hasEnemyAttack(ctx, arg) {
 		enqueueAction(fightAction{
-			executeAt: time.Now(),
-			action:    ActionAttack,
+			executeAt: time.Now().Add(100 * time.Millisecond),
+			action:    ActionDodge,
 		})
 	} else {
 		enqueueAction(fightAction{
 			executeAt: time.Now(),
 			action:    ActionAttack,
 		})
+	}
+}
+
+type AutoFightExecuteRecognition struct{}
+
+func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if !enemyInScreen && hasEnemyInScreen(ctx, arg) {
+		enemyInScreen = true
+		enqueueAction(fightAction{
+			executeAt: time.Now().Add(time.Millisecond),
+			action:    ActionLockTarget,
+		})
+	}
+
+	if enemyInScreen {
+		recognitionSkill(ctx, arg)
+		recognitionAttack(ctx, arg)
+	} else {
+		recognitionAttack(ctx, arg)
 	}
 
 	return &maa.CustomRecognitionResult{
@@ -425,6 +456,8 @@ func actionName(action ActionType, operator int) string {
 		return fmt.Sprintf("AutoFightActionEndSkillOperators%dKeyUp", operator)
 	case ActionLockTarget:
 		return "AutoFightActionLockTarget"
+	case ActionDodge:
+		return "AutoFightActionDodge"
 	default:
 		return ""
 	}

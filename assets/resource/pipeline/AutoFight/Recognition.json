@@ -133,7 +133,7 @@
             18
         ],
         "expected": [
-            "\\d"
+            "\\d.*\\d"
         ],
         "only_rec": true
     },
@@ -276,5 +276,36 @@
             "干",
             "员"
         ]
+    },
+    "AutoFightRecognitionEnemyAttack": {
+        "doc": "识别敌人攻击",
+        "recognition": "NeuralNetworkDetect",
+        "model": "AutoFightDodge/fight.onnx",
+        "expected": 0
+    },
+    "AutoFightRecognitionEnemyInScreen": {
+        "doc": "识别敌人是否在屏幕内",
+        "recognition": "ColorMatch",
+        "roi": [
+            280,
+            150,
+            750,
+            370
+        ],
+        "lower": [
+            240,
+            40,
+            80
+        ],
+        "upper": [
+            255,
+            80,
+            120
+        ],
+        "count": 100,
+        "connected": true,
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到敌人"
+        }
     }
 }
