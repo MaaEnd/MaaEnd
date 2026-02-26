@@ -452,6 +452,8 @@
         "next": [
             "SellProductSellCheck",
             "SellProductSellPressed",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
             "SellProductSell"
         ]
     },
