@@ -2,7 +2,6 @@ package resell
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -11,17 +10,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// extractNumbersFromText - Extract all digits from text and return as integer
 func extractNumbersFromText(text string) (int, bool) {
-	re := regexp.MustCompile(`\d+`)
-	matches := re.FindAllString(text, -1)
-	if len(matches) > 0 {
-		// Concatenate all digit sequences found
-		digitsOnly := ""
-		for _, match := range matches {
-			digitsOnly += match
+	var digitsOnly []byte
+	for i := 0; i < len(text); i++ {
+		if text[i] >= '0' && text[i] <= '9' {
+			digitsOnly = append(digitsOnly, text[i])
 		}
-		if num, err := strconv.Atoi(digitsOnly); err == nil {
+	}
+	if len(digitsOnly) > 0 {
+		if num, err := strconv.Atoi(string(digitsOnly)); err == nil {
 			return num, true
 		}
 	}
