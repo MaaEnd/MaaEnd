@@ -1,13 +1,139 @@
 {
-    "AutoFightActionAttack": {
-        "desc": "攻击",
-        "recognition": "TemplateMatch",
-        "template": "AutoFight/CharacterBar.png",
-        "roi": [
-            0,
-            -140,
-            360,
-            60
-        ]
+    "AutoFightActionAttackClick": {
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoFightActionComboClick": {
+        "action": "ClickKey",
+        "key": 69, // E键
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoFightActionLockTarget": {
+        "action": "Click",
+        "target": [
+            600,
+            320,
+            80,
+            80
+        ],
+        "contact": 2,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "锁定目标"
+        }
+    },
+    "AutoFightActionAttackKeyPress": {
+        "action": "ClickKey",
+        "key": 48, // 0键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发普攻"
+        }
+    },
+    "AutoFightActionSkillOperators1": {
+        "action": "ClickKey",
+        "key": 49, // 1键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员1技能"
+        }
+    },
+    "AutoFightActionSkillOperators2": {
+        "action": "ClickKey",
+        "key": 50, // 2键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员2技能"
+        }
+    },
+    "AutoFightActionSkillOperators3": {
+        "action": "ClickKey",
+        "key": 51, // 3键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员3技能"
+        }
+    },
+    "AutoFightActionSkillOperators4": {
+        "action": "ClickKey",
+        "key": 52, // 4键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员4技能"
+        }
+    },
+    "AutoFightActionEndSkillOperators1KeyDown": {
+        "action": "KeyDown",
+        "key": 49, // 1键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员1终结技"
+        }
+    },
+    "AutoFightActionEndSkillOperators1KeyUp": {
+        "action": "KeyUp",
+        "key": 49, // 1键
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoFightActionEndSkillOperators2KeyDown": {
+        "action": "KeyDown",
+        "key": 50, // 2键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员2终结技"
+        }
+    },
+    "AutoFightActionEndSkillOperators2KeyUp": {
+        "action": "KeyUp",
+        "key": 50, // 2键
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoFightActionEndSkillOperators3KeyDown": {
+        "action": "KeyDown",
+        "key": 51, // 3键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员3终结技"
+        }
+    },
+    "AutoFightActionEndSkillOperators3KeyUp": {
+        "action": "KeyUp",
+        "key": 51, // 3键
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoFightActionEndSkillOperators4KeyDown": {
+        "action": "KeyDown",
+        "key": 52, // 4键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "触发干员4终结技"
+        }
+    },
+    "AutoFightActionEndSkillOperators4KeyUp": {
+        "action": "KeyUp",
+        "key": 52, // 4键
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

@@ -47,7 +47,7 @@
         "action": "Custom",
         "custom_action": "AutoFightExecuteAction",
         "pre_delay": 0,
-        "post_delay": 100
+        "post_delay": 0
     },
     "AutoFightCombo": {
         "doc": "自动触发连携技能",

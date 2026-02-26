@@ -1,39 +1,25 @@
 package autofight
 
 import (
+	"fmt"
+	"image"
+	"image/png"
+	"os"
+	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-func getCharactorShowLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) bool {
-	var roiX int
-	switch index {
-	case 1:
-		roiX = 25
-	case 2:
-		roiX = 102
-	case 3:
-		roiX = 180
-	case 4:
-		roiX = 258
-	default:
-		log.Warn().Int("index", index).Msg("Invalid combo index")
+func getCharactorLevelShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
+	detail, err := ctx.RunRecognition("AutoFightRecognitionCharactorLevelShow", arg.Img)
+	if err != nil || detail == nil {
+		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
 		return false
 	}
-
-	override := map[string]any{
-		"AutoFightRecognitionCharactorLevelShow": map[string]any{
-			"roi": maa.Rect{roiX, 644, 32, 16},
-		},
-	}
-	detail, err := ctx.RunRecognition("AutoFightRecognitionCharactorLevelShow", arg.Img, override)
-	if err != nil {
-		log.Error().Err(err).Int("index", index).Msg("Failed to run recognition for charactor level show")
-		return false
-	}
-	return detail != nil && detail.Hit
+	return detail.Hit
 }
 
 func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) bool {
@@ -65,49 +51,57 @@ func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) 
 	return detail != nil && detail.Hit
 }
 
-func getComboCooldown(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) bool {
-	var roiX int
-	switch index {
-	case 1:
-		roiX = 28
-	case 2:
-		roiX = 105
-	case 3:
-		roiX = 184
-	case 4:
-		roiX = 262
-	default:
-		log.Warn().Int("index", index).Msg("Invalid combo index")
-		return false
-	}
-
-	roiOverride := map[string]any{
-		"roi": maa.Rect{roiX, 657, 56, 4},
-	}
+func getEndSkillUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg) []int {
+	usableIndexes := []int{}
+	const roiX, roiWidth = 1010, 270
 	override := map[string]any{
-		"AutoFightRecognitionComboCooldown1": roiOverride,
-		"AutoFightRecognitionComboCooldown2": roiOverride,
+		"AutoFightRecognitionEndSkill": map[string]any{
+			"roi": maa.Rect{roiX, 535, roiWidth, 65},
+		},
+	}
+	detail, err := ctx.RunRecognition("AutoFightRecognitionEndSkill", arg.Img, override)
+	if err != nil || detail == nil {
+		log.Error().Err(err).Msg("Failed to run recognition for end skill")
+		return usableIndexes
+	}
+	if !detail.Hit || detail.Results == nil || len(detail.Results.Filtered) == 0 {
+		return usableIndexes
 	}
 
-	detail, err := ctx.RunRecognition("AutoFightRecognitionComboCooldown1", arg.Img, override)
+	quarterWidth := roiWidth / 4
+	for _, m := range detail.Results.Filtered {
+		detail, ok := m.AsTemplateMatch()
+		if !ok {
+			continue
+		}
+		x := detail.Box[0]
+		relativeX := x - roiX
+		if relativeX < 0 || relativeX > roiWidth {
+			continue
+		}
+		var idx int
+		switch {
+		case relativeX < quarterWidth:
+			idx = 1
+		case relativeX < quarterWidth*2:
+			idx = 2
+		case relativeX < quarterWidth*3:
+			idx = 3
+		default:
+			idx = 4
+		}
+		usableIndexes = append(usableIndexes, idx)
+	}
+	return usableIndexes
+}
+
+func hasComboShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
+	detail, err := ctx.RunRecognition("AutoFightRecognitionComboNotice", arg.Img)
 	if err != nil || detail == nil {
-		log.Error().Err(err).Int("index", index).Msg("Failed to run recognition for combo cooldown 1")
+		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
 		return false
 	}
-	if detail.Hit {
-		return true
-	}
-
-	detail, err = ctx.RunRecognition("AutoFightRecognitionComboCooldown2", arg.Img, override)
-	if err != nil || detail == nil {
-		log.Error().Err(err).Int("index", index).Msg("Failed to run recognition for combo cooldown 2")
-		return false
-	}
-	if detail.Hit {
-		return true
-	}
-
-	return false
+	return detail.Hit
 }
 
 func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
@@ -133,9 +127,9 @@ func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 }
 
 func hasCharacterBar(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionCharacterBar", arg.Img)
+	detail, err := ctx.RunRecognition("AutoFightRecognitionSwitchOperatorsTip", arg.Img)
 	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionCharacterBar")
+		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionSwitchOperatorsTip")
 		return false
 	}
 	return detail.Hit
@@ -152,64 +146,22 @@ func inFightSpace(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 
 func isEntryFightScene(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 	// 先找左下角角色上方选中图标，表示进入操控状态
-	hasCharacterBar := hasCharacterBar(ctx, arg)
+	// hasCharacterBar := hasCharacterBar(ctx, arg)
 
-	if !hasCharacterBar {
+	// if !hasCharacterBar {
+	// 	return false
+	// }
+	energyLevel := getEnergyLevel(ctx, arg)
+	if energyLevel < 0 {
 		return false
 	}
 
-	characterLevelShow := false
-	if getCharactorShowLevel(ctx, arg, 1) ||
-		getCharactorShowLevel(ctx, arg, 2) ||
-		getCharactorShowLevel(ctx, arg, 3) ||
-		getCharactorShowLevel(ctx, arg, 4) {
-		characterLevelShow = true
-	}
+	characterLevelShow := getCharactorLevelShow(ctx, arg)
 	if characterLevelShow {
 		return false
 	}
 
-	return hasCharacterBar && !characterLevelShow
-
-	// 先尝试用简单逻辑判断是否在战斗中，实在没办法再启用以下复杂逻辑
-	// // 左上角菜单折叠，进入战斗模式
-	// {
-	// 	detail, err := ctx.RunRecognition("AutoFightLeftMenuHide", arg.Img)
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightLeftMenuHide")
-	// 		return false
-	// 	}
-	// 	if detail != nil && detail.Hit {
-	// 		return true
-	// 	}
-	// }
-
-	// hasEnemy := false
-	// {
-	// 	// 屏幕中央找敌人
-	// 	detail, err := ctx.RunRecognition("AutoFightRecognitionHasEnemy", arg.Img)
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionHasEnemy")
-	// 		return false
-	// 	}
-	// 	if detail != nil && detail.Hit && detail.Results != nil && len(detail.Results.Filtered) > 0 {
-	// 		for _, item := range detail.Results.Filtered {
-	// 			result, ok := item.AsColorMatch()
-	// 			if !ok {
-	// 				continue
-	// 			}
-	// 			width := result.Box[2]
-	// 			height := result.Box[3]
-	// 			if width > 10 && height < 20 {
-	// 				hasEnemy = true
-	// 				break
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// if !hasEnemy {
-	// 	return false
-	// }
+	return true
 }
 
 type AutoFightEntryRecognition struct{}
@@ -242,6 +194,31 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 
 var pauseNotInFightSince time.Time
 
+// saveExitImage 将当前画面保存到 debug/autofight_exit 目录，用于排查退出时的画面。
+func saveExitImage(img image.Image, reason string) {
+	if img == nil {
+		return
+	}
+	dir := filepath.Join("debug", "autofight_exit")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		log.Debug().Err(err).Str("dir", dir).Msg("Failed to create debug dir for exit image")
+		return
+	}
+	name := fmt.Sprintf("%s_%s.png", reason, time.Now().Format("20060102_150405"))
+	path := filepath.Join(dir, name)
+	f, err := os.Create(path)
+	if err != nil {
+		log.Debug().Err(err).Str("path", path).Msg("Failed to create file for exit image")
+		return
+	}
+	defer f.Close()
+	if err := png.Encode(f, img); err != nil {
+		log.Debug().Err(err).Str("path", path).Msg("Failed to encode exit image")
+		return
+	}
+	log.Info().Str("path", path).Str("reason", reason).Msg("Saved exit frame to disk")
+}
+
 type AutoFightExitRecognition struct{}
 
 func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -249,26 +226,18 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	if !pauseNotInFightSince.IsZero() && time.Since(pauseNotInFightSince) >= 10*time.Second {
 		log.Info().Dur("elapsed", time.Since(pauseNotInFightSince)).Msg("Pause timeout, exiting fight")
 		pauseNotInFightSince = time.Time{}
+		firstExecuteSinceEntry = true // 下次进入 entry 后首次 Execute 再执行 LockTarget
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{"custom": "exit pause timeout"}`,
 		}, true
 	}
 
-	// 角色没有显示，退出战斗
-	hasCharacterBar := hasCharacterBar(ctx, arg)
-	if !hasCharacterBar {
-		return &maa.CustomRecognitionResult{
-			Box:    arg.Roi,
-			Detail: `{"custom": "exit no character bar"}`,
-		}, true
-	}
-
 	// 显示角色等级，退出战斗
-	if getCharactorShowLevel(ctx, arg, 1) ||
-		getCharactorShowLevel(ctx, arg, 2) ||
-		getCharactorShowLevel(ctx, arg, 3) ||
-		getCharactorShowLevel(ctx, arg, 4) {
+	// 只要在战斗，一定会显示左下角干员条
+	if getCharactorLevelShow(ctx, arg) {
+		saveExitImage(arg.Img, "character_level_show")
+		firstExecuteSinceEntry = true // 下次进入 entry 后首次 Execute 再执行 LockTarget
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
 			Detail: `{"custom": "charactor level show"}`,
@@ -302,138 +271,182 @@ func (r *AutoFightPauseRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	}, true
 }
 
+type ActionType int
+
+const (
+	ActionAttack ActionType = iota
+	ActionCombo
+	ActionSkill
+	ActionEndSkillKeyDown
+	ActionEndSkillKeyUp
+	ActionLockTarget
+)
+
+func (t ActionType) String() string {
+	switch t {
+	case ActionAttack:
+		return "Attack"
+	case ActionCombo:
+		return "Combo"
+	case ActionSkill:
+		return "Skill"
+	case ActionEndSkillKeyDown:
+		return "EndSkillKeyDown"
+	case ActionEndSkillKeyUp:
+		return "EndSkillKeyUp"
+	case ActionLockTarget:
+		return "LockTarget"
+	default:
+		return "Unknown"
+	}
+}
+
+type fightAction struct {
+	executeAt time.Time
+	action    ActionType
+	operator  int
+}
+
+var (
+	actionQueue            []fightAction
+	skillCycleIndex        = 1
+	firstExecuteSinceEntry = true // 以进入 entry 算第一次，首次执行 ExecuteRecognition 时先执行 LockTarget
+)
+
+func enqueueAction(a fightAction) {
+	actionQueue = append(actionQueue, a)
+	sort.Slice(actionQueue, func(i, j int) bool {
+		return actionQueue[i].executeAt.Before(actionQueue[j].executeAt)
+	})
+	log.Debug().
+		Str("action", a.action.String()).
+		Int("operator", a.operator).
+		Str("executeAt", a.executeAt.Format("15:04:05.000")).
+		Int("queueLen", len(actionQueue)).
+		Msg("AutoFight enqueue action")
+}
+
+func dequeueAction() (fightAction, bool) {
+	if len(actionQueue) == 0 {
+		return fightAction{}, false
+	}
+
+	a := actionQueue[0]
+	actionQueue = actionQueue[1:]
+	log.Debug().
+		Str("action", a.action.String()).
+		Int("operator", a.operator).
+		Str("executeAt", a.executeAt.Format("15:04:05.000")).
+		Int("queueLen", len(actionQueue)).
+		Msg("AutoFight dequeue action")
+	return a, true
+}
+
 type AutoFightExecuteRecognition struct{}
 
 func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if firstExecuteSinceEntry {
+		firstExecuteSinceEntry = false
+		enqueueAction(fightAction{
+			executeAt: time.Now().Add(-time.Millisecond), // 确保排在队列最前
+			action:    ActionLockTarget,
+		})
+	}
+	if hasComboShow(ctx, arg) {
+		// 连携技能
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionCombo,
+		})
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionAttack,
+		})
+	} else if endSkillUsable := getEndSkillUsable(ctx, arg); len(endSkillUsable) > 0 {
+		// 终结技可用
+		for _, idx := range endSkillUsable {
+			enqueueAction(fightAction{
+				executeAt: time.Now(),
+				action:    ActionEndSkillKeyDown,
+				operator:  idx,
+			})
+			enqueueAction(fightAction{
+				executeAt: time.Now().Add(1500 * time.Millisecond),
+				action:    ActionEndSkillKeyUp,
+				operator:  idx,
+			})
+			break
+		}
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionAttack,
+		})
+	} else if getEnergyLevel(ctx, arg) >= 1 {
+		idx := skillCycleIndex
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionSkill,
+			operator:  idx,
+		})
+		if idx >= 4 {
+			skillCycleIndex = 1
+		} else {
+			skillCycleIndex = idx + 1
+		}
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionAttack,
+		})
+	} else {
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    ActionAttack,
+		})
+	}
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: `{"custom": "fake result"}`,
 	}, true
+}
+
+// actionName 根据动作类型和干员下标返回 Pipeline 中的 action 名称
+func actionName(action ActionType, operator int) string {
+	switch action {
+	case ActionAttack:
+		return "AutoFightActionAttackClick"
+	case ActionCombo:
+		return "AutoFightActionComboClick"
+	case ActionSkill:
+		return fmt.Sprintf("AutoFightActionSkillOperators%d", operator)
+	case ActionEndSkillKeyDown:
+		return fmt.Sprintf("AutoFightActionEndSkillOperators%dKeyDown", operator)
+	case ActionEndSkillKeyUp:
+		return fmt.Sprintf("AutoFightActionEndSkillOperators%dKeyUp", operator)
+	case ActionLockTarget:
+		return "AutoFightActionLockTarget"
+	default:
+		return ""
+	}
 }
 
 type AutoFightExecuteAction struct{}
 
 func (a *AutoFightExecuteAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// count := autoFightCharacterCount
-	// if count == 0 || count > 4 {
-	// 	return true
-	// }
+	now := time.Now()
 
-	// var keycode int
-	// if count == 1 {
-	// 	// 只有 1 个角色时，只按 1
-	// 	keycode = 49
-	// } else {
-	// 	// 多个角色时，轮换 2、3、4...（跳过 1）
-	// 	// 例如 4 个角色时，轮换 keycode 50, 51, 52（键 '2', '3', '4'）
-	// 	keycode = 50 + (autoFightSkillLastIndex % (count - 1))
-	// }
-
-	// ctx.GetTasker().GetController().PostClickKey(int32(keycode))
-	// log.Info().Int("skillIndex", autoFightSkillLastIndex).Int("keycode", keycode).Msg("AutoFightSkillAction triggered")
-
-	// if count > 1 {
-	// 	autoFightSkillLastIndex = (autoFightSkillLastIndex + 1) % (count - 1)
-	// }
-	return true
-}
-
-type AutoFightEndSkillRecognition struct{}
-
-func (r *AutoFightEndSkillRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	// // ROI 定义
-	// const roiX = 1010
-	// const roiWidth = 270
-
-	// detail, err := ctx.RunRecognitionDirect("TemplateMatch", maa.NodeTemplateMatchParam{
-	// 	Threshold: []float64{0.7},
-	// 	Template:  []string{"RealTimeTask/AutoFightEndSkill.png"},
-	// 	ROI:       maa.NewTargetRect(maa.Rect{roiX, 535, roiWidth, 65}),
-	// 	GreenMask: true,
-	// }, arg.Img)
-	// if err != nil {
-	// 	log.Error().
-	// 		Err(err).
-	// 		Msg("Failed to run recognition for TemplateMatch end skill")
-	// 	return nil, false
-	// }
-	// if detail == nil || !detail.Hit {
-	// 	return nil, false
-	// }
-
-	// // 解析模板匹配结果
-	// var templateMatchDetail struct {
-	// 	Filtered []struct {
-	// 		Box [4]int `json:"box"` // [x, y, w, h]
-	// 	} `json:"filtered"`
-	// }
-	// if err := json.Unmarshal([]byte(detail.DetailJson), &templateMatchDetail); err != nil {
-	// 	log.Error().Err(err).Msg("Failed to parse TemplateMatch detail for EndSkill")
-	// 	return nil, false
-	// }
-
-	// if len(templateMatchDetail.Filtered) == 0 {
-	// 	return nil, false
-	// }
-
-	// // 取第一个匹配结果
-	// firstMatch := templateMatchDetail.Filtered[0]
-	// x := firstMatch.Box[0]
-
-	// // 计算相对于 ROI 的位置，确定长按哪个键
-	// // x 在 0-1/4 范围内：长按 1
-	// // x 在 1/4-2/4 范围内：长按 2
-	// // x 在 2/4-3/4 范围内：长按 3
-	// // x 在 3/4-4/4 范围内：长按 4
-	// relativeX := x - roiX
-	// quarterWidth := roiWidth / 4
-
-	// var keyIndex int
-	// switch {
-	// case relativeX < quarterWidth:
-	// 	keyIndex = 1
-	// case relativeX < quarterWidth*2:
-	// 	keyIndex = 2
-	// case relativeX < quarterWidth*3:
-	// 	keyIndex = 3
-	// default:
-	// 	keyIndex = 4
-	// }
-	// // 将按键索引传递给 Action
-	// autoFightEndSkillIndex = keyIndex
-
-	// return &maa.CustomRecognitionResult{
-	// 	Box:    detail.Box,
-	// 	Detail: `{"custom": "fake result"}`,
-	// }, true
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: `{"custom": "fake result"}`,
-	}, true
-}
-
-type AutoFightEndSkillAction struct{}
-
-func (a *AutoFightEndSkillAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// // 记录触发时间，用于 ExitRecognition 冷却判断
-	// autoFightEndSkillLastTime = time.Now()
-
-	// if autoFightEndSkillIndex < 1 || autoFightEndSkillIndex > 4 {
-	// 	log.Error().Int("keyIndex", autoFightEndSkillIndex).Msg("Invalid keyIndex")
-	// 	return true
-	// }
-
-	// // keycode: 1->49, 2->50, 3->51, 4->52
-	// keycode := int(48 + autoFightEndSkillIndex)
-	// ctx.RunActionDirect("LongPressKey", maa.NodeLongPressKeyParam{
-	// 	Key:      []int{keycode},
-	// 	Duration: 1000, // 长按 1 秒
-	// }, maa.Rect{0, 0, 0, 0}, arg.RecognitionDetail)
-
-	// log.Info().
-	// 	Int("keycode", keycode).
-	// 	Msg("AutoFightEndSkillAction long press 1s")
+	// 取出已到期的队列动作并依次执行（按 executeAt 顺序）
+	for len(actionQueue) > 0 && !actionQueue[0].executeAt.After(now) {
+		fa, ok := dequeueAction()
+		if !ok {
+			break
+		}
+		name := actionName(fa.action, fa.operator)
+		if name == "" {
+			continue
+		}
+		ctx.RunAction(name, maa.Rect{0, 0, 0, 0}, "")
+	}
 
 	return true
 }

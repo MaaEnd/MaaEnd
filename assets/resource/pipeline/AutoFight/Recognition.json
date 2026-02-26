@@ -2,6 +2,7 @@
     "AutoFightRecognitionCharacterBar": {
         "doc": "查找左下角角色图标",
         "recognition": "TemplateMatch",
+        // 目前纯白背景匹配能力差，干员死亡切换时有1秒左右不显示
         "template": "AutoFight/CharacterBar.png",
         "roi": [
             0,
@@ -126,13 +127,13 @@
         "doc": "识别角色是否显示等级",
         "recognition": "OCR",
         "roi": [
-            26,
-            644,
-            32,
-            16
+            20,
+            646,
+            300,
+            18
         ],
         "expected": [
-            "[Ll]?[Vv]?\\d+"
+            "\\d"
         ],
         "only_rec": true
     },
@@ -258,6 +259,22 @@
             250,
             100,
             100
+        ]
+    },
+    "AutoFightRecognitionSwitchOperatorsTip": {
+        "doc": "识别干员栏",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -170,
+            150,
+            55
+        ],
+        "expected": [
+            "切",
+            "换",
+            "干",
+            "员"
         ]
     }
 }
