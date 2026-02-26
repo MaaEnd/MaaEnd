@@ -591,7 +591,8 @@
             "param": {
                 "custom_action": "ScreenShot",
                 "custom_action_param": {
-                    "type": "ColorCheckFailed"
+                    "type": "ColorCheckFailed",
+                    "dir": "debug/color_check_failed"
                 }
             }
         }

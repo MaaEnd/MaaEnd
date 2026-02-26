@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
@@ -23,7 +22,6 @@ func registerAll() {
 	resell.Register()
 	puzzle.Register()
 	essencefilter.Register()
-	creditshopping.Register()
 	dailyrewards.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
