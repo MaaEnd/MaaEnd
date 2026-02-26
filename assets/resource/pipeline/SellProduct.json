@@ -131,7 +131,9 @@
             }
         },
         "next": [
-            "SellProductSell"
+            "SellProductSell",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney"
         ]
     },
     "SellProductAtSell": {
@@ -482,7 +484,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 10,
+        "post_wait_freezes": 100,
         "next": [
             "SellProductZeroMoney",
             "SellProductCanSell",
@@ -508,10 +510,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    1108,
-                    317,
-                    81,
-                    36
+                    1083,
+                    327,
+                    109,
+                    24
                 ],
                 "expected": [
                     "^[0-9]{1,3}$"
@@ -631,10 +633,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    1108,
-                    317,
-                    81,
-                    36
+                    1083,
+                    327,
+                    109,
+                    24
                 ],
                 "expected": [
                     "^[0-9]{1,3}$"
@@ -666,9 +668,9 @@
                 ],
                 "roi": [
                     900,
-                    550,
+                    639,
                     350,
-                    150
+                    49
                 ]
             }
         },
@@ -840,7 +842,9 @@
             }
         },
         "next": [
-            "SellProductSell"
+            "SellProductSell",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney"
         ]
     },
     "SellProductSellPressed": {
