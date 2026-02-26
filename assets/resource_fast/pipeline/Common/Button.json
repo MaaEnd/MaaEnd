@@ -352,6 +352,12 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -40,
+                                    -20,
+                                    80,
+                                    40
+                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
@@ -390,9 +396,9 @@
                             "param": {
                                 "roi": "YellowButtonBackground",
                                 "roi_offset": [
+                                    -40,
                                     -20,
-                                    -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -432,9 +438,9 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
+                                    -40,
                                     -20,
-                                    -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -475,9 +481,9 @@
                             "param": {
                                 "roi": "GrayButtonBackground",
                                 "roi_offset": [
+                                    -40,
                                     -20,
-                                    -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -518,9 +524,9 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
+                                    -40,
                                     -20,
-                                    -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -561,9 +567,9 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
+                                    -40,
                                     -20,
-                                    -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
