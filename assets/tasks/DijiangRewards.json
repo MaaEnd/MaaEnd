@@ -9,7 +9,8 @@
                 "AutoStartExchange",
                 "ProductionAssistanceWithoutTheControlNexus",
                 "ClueSetting",
-                "SelectToGrow"
+                "SelectToGrow",
+                "AutoExtractSeed"
             ]
         }
     ],
