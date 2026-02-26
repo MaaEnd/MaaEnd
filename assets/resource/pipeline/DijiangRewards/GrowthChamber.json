@@ -19,26 +19,137 @@
             "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
         },
         "next": [
-            "[JumpBack]CloseRewardsButton",
-            "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]YellowConfirmButtonType2",
-            "[JumpBack]GrowAgain",
+            "[JumpBack]ClickGrow",
+            "[JumpBack]SelectGrow", //这个任务会在interface中改变jumpback状态,启用自动提取基核时候会是JumpBack
             "ExitGrowthChamber"
         ]
     },
-    "GrowAgain": {
-        "doc": "[培养舱·操作] 点击「再次培养」开始下一轮培养",
+    "SelectGrow": {
+        "doc": "选择培养对象",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    793,
-                    505,
-                    222,
-                    121
+                    0,
+                    0,
+                    296,
+                    111
                 ],
                 "expected": [
-                    "再次培养"
+                    "选择培养对象"
+                ]
+            }
+        },
+        "next": [
+            "SelectGrowTarget",
+            "[JumpBack]InSelectGrowSwipe"
+        ]
+    },
+    "SelectGrowTarget": {
+        "doc": "选择培养对象",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    80,
+                    200,
+                    301,
+                    383
+                ],
+                "expected": []
+            }
+        },
+        "next": [
+            "[JumpBack]WhiteConfirmButtonType1",
+            "ExtractSeed",
+            "ExitGrow"
+        ]
+    },
+    "ExitGrow": {
+        "doc": "选择培养对象界面点击返回",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    749,
+                    480,
+                    217,
+                    123
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
+    },
+    "ExtractSeed": {
+        "doc": "提取基核",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    749,
+                    480,
+                    217,
+                    123
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]WhiteConfirmButtonType1",
+            "CloseRewardsButton"
+        ]
+    },
+    "InSelectGrowSwipe": {
+        "doc": "在选择培养对象界面滑动",
+        "max_hit": 50,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    296,
+                    111
+                ],
+                "expected": [
+                    "选择培养对象"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 120,
+                "target": [
+                    231,
+                    381
+                ]
+            }
+        }
+    },
+    "ClickGrow": {
+        "doc": "点击培养按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "培养"
                 ]
             }
         },

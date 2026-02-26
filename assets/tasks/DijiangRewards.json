@@ -8,8 +8,8 @@
             "option": [
                 "AutoStartExchange",
                 "ProductionAssistanceWithoutTheControlNexus",
-                "ClueSend",
-                "ClueStockLimit"
+                "ClueSetting",
+                "SelectToGrow"
             ]
         }
     ],
@@ -57,6 +57,32 @@
                     "pipeline_override": {
                         "RecoveryEmotion": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "ClueSetting": {
+            "type": "switch",
+            "label": "$option.ClueSetting.label",
+            "description": "$option.ClueSetting.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "ClueSend",
+                        "ClueStockLimit"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SendTheMostClues": {
+                            "max_hit": 3
+                        },
+                        "ClueItemCount": {
+                            "expected": "^(?:[4-9]|[1-9]\\d+)$"
                         }
                     }
                 }
@@ -121,6 +147,306 @@
                     "pipeline_override": {
                         "ClueItemCount": {
                             "expected": "^(?:[5-9]|[1-9]\\d+)$"
+                        }
+                    }
+                }
+            ]
+        },
+        "SelectToGrow": {
+            "type": "select",
+            "label": "$option.SelectToGrow.label",
+            "description": "$option.SelectToGrow.description",
+            "default_case": "Any",
+            "cases": [
+                {
+                    "name": "Any",
+                    "label": "$option.SelectToGrow.cases.Any.label",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "武陵石",
+                                "燎石",
+                                "岩天使叶",
+                                "受蚀玉化叶",
+                                "星门菌",
+                                "血菌",
+                                "重黯石",
+                                "中黯石",
+                                "轻黯石",
+                                "至晶多齿叶",
+                                "纯晶多齿叶",
+                                "晶化多齿叶",
+                                "重红柱状菌",
+                                "中红柱状菌",
+                                "轻红柱状菌",
+                                "Wulingstone",
+                                "Igneosite",
+                                "False Aggela",
+                                "Blighted Jadeleaf",
+                                "Cosmagaric",
+                                "Bloodcap",
+                                "Umbronyx",
+                                "Auronyx",
+                                "Kalkonyx",
+                                "Vitrodendra",
+                                "Chrysodendra",
+                                "Kalkodendra",
+                                "Ruby Bolete",
+                                "Red Bolete",
+                                "Pink Bolete",
+                                "岩アンゲロス葉",
+                                "侵蝕玉化葉",
+                                "星門茸",
+                                "血潮茸",
+                                "重闇石",
+                                "中闇石",
+                                "軽闇石",
+                                "至晶鋭葉",
+                                "純晶鋭葉",
+                                "晶華鋭葉",
+                                "深紅茸",
+                                "紅色茸",
+                                "薄紅茸",
+                                "岩天使葉",
+                                "受蝕玉化葉",
+                                "星門菌",
+                                "輕黯石",
+                                "至晶多齒葉",
+                                "純晶多齒葉",
+                                "晶華多齒葉",
+                                "重紅柱狀菌",
+                                "中紅柱狀菌",
+                                "輕紅柱狀菌"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Wulingstone",
+                    "label": "$item.Wulingstone",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "武陵石",
+                                "Wulingstone"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Igneosite",
+                    "label": "$item.Igneosite",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "燎石",
+                                "Igneosite"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "FalseAggela",
+                    "label": "$item.FalseAggela",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "岩天使叶",
+                                "False Aggela",
+                                "岩アンゲロス葉",
+                                "岩天使葉"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "BlightedJadeleaf",
+                    "label": "$item.BlightedJadeleaf",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "受蚀玉化叶",
+                                "Blighted Jadeleaf",
+                                "侵蝕玉化葉",
+                                "受蝕玉化葉"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Cosmagaric",
+                    "label": "$item.Cosmagaric",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "星门菌",
+                                "Cosmagaric",
+                                "星門茸",
+                                "星門菌"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Bloodcap",
+                    "label": "$item.Bloodcap",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "血菌",
+                                "Bloodcap",
+                                "血潮茸"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Umbronyx",
+                    "label": "$item.Umbronyx",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "重黯石",
+                                "Umbronyx",
+                                "重闇石"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Auronyx",
+                    "label": "$item.Auronyx",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "中黯石",
+                                "Auronyx",
+                                "中闇石"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Kalkonyx",
+                    "label": "$item.Kalkonyx",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "轻黯石",
+                                "Kalkonyx",
+                                "軽闇石",
+                                "輕黯石"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Vitrodendra",
+                    "label": "$item.Vitrodendra",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "至晶多齿叶",
+                                "Vitrodendra",
+                                "至晶鋭葉",
+                                "至晶多齒葉"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Chrysodendra",
+                    "label": "$item.Chrysodendra",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "纯晶多齿叶",
+                                "Chrysodendra",
+                                "純晶鋭葉",
+                                "純晶多齒葉"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Kalkodendra",
+                    "label": "$item.Kalkodendra",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "晶化多齿叶",
+                                "Kalkodendra",
+                                "晶華鋭葉",
+                                "晶華多齒葉"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RubyBolete",
+                    "label": "$item.RubyBolete",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "重红柱状菌",
+                                "Ruby Bolete",
+                                "深紅茸",
+                                "重紅柱狀菌"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RedBolete",
+                    "label": "$item.RedBolete",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "中红柱状菌",
+                                "Red Bolete",
+                                "紅色茸",
+                                "中紅柱狀菌"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PinkBolete",
+                    "label": "$item.PinkBolete",
+                    "pipeline_override": {
+                        "SelectGrowTarget": {
+                            "expected": [
+                                "轻红柱状菌",
+                                "Pink Bolete",
+                                "薄紅茸",
+                                "輕紅柱狀菌"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoExtractSeed": {
+            "type": "switch",
+            "label": "$option.AutoExtrachSeed.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "GrowthChamber": {
+                            "next": [
+                                "[JumpBack]ClickGrow",
+                                "SelectGrow",
+                                "ExitGrowthChamber"
+                            ]
+                        },
+                        "ExtractSeed": {
+                            "enabled": false
                         }
                     }
                 }
