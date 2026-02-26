@@ -85,6 +85,7 @@ python tools/setup_workspace.py
 
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
+- [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
 
 ## 代码规范
 

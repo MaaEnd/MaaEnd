@@ -15,8 +15,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// ScreenShot 将当前截图保存为 PNG 到 debug 目录，可用于调试。
-// custom_action_param 为 JSON，可选字段 "type" 作为文件名前缀。
+// ScreenShot 将当前截图保存为 PNG 到指定目录，可用于调试。
+// custom_action_param 为 JSON，可选字段：
+// - "type": 文件名前缀；
+// - "dir": 保存目录（默认 "debug"）；
+// - "clean_days": 清理 N 天前旧文件（默认 3 天）。
 type ScreenShot struct{}
 
 var _ maa.CustomActionRunner = (*ScreenShot)(nil)
@@ -25,7 +28,9 @@ var _ maa.CustomActionRunner = (*ScreenShot)(nil)
 func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 解析参数，如有格式错误会记录日志，方便排查配置问题
 	var params struct {
-		Type string `json:"type"`
+		Type      string `json:"type"`
+		Dir       string `json:"dir"`
+		CleanDays int    `json:"clean_days"`
 	}
 	rawParam := strings.TrimSpace(arg.CustomActionParam)
 	if rawParam != "" {
@@ -42,6 +47,16 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		typePrefix = typePrefix + "_"
 	}
 
+	dir := strings.TrimSpace(params.Dir)
+	if dir == "" {
+		dir = "debug"
+	}
+
+	cleanDays := params.CleanDays
+	if cleanDays <= 0 {
+		cleanDays = 3
+	}
+
 	ctrl := ctx.GetTasker().GetController()
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
@@ -54,21 +69,21 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	debugDir, err := filepath.Abs("debug")
+	outputDir, err := filepath.Abs(dir)
 	if err != nil {
-		log.Error().Err(err).Msg("[ScreenShot] 解析 debug 目录失败")
+		log.Error().Err(err).Str("dir", dir).Msg("[ScreenShot] 解析截图目录失败")
 		return false
 	}
-	if err := os.MkdirAll(debugDir, 0o755); err != nil {
-		log.Error().Err(err).Str("dir", debugDir).Msg("[ScreenShot] 创建 debug 目录失败")
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		log.Error().Err(err).Str("dir", outputDir).Msg("[ScreenShot] 创建截图目录失败")
 		return false
 	}
 
-	// 清理 3 天前的 PNG 文件；若清理目录读取失败，也会记录日志
-	threeDaysAgo := time.Now().Add(-3 * 24 * time.Hour)
-	entries, err := os.ReadDir(debugDir)
+	// 清理 N 天前的 PNG 文件；若清理目录读取失败，也会记录日志
+	cleanBefore := time.Now().Add(time.Duration(-cleanDays) * 24 * time.Hour)
+	entries, err := os.ReadDir(outputDir)
 	if err != nil {
-		log.Error().Err(err).Str("dir", debugDir).Msg("[ScreenShot] 读取 debug 目录失败，跳过清理旧文件")
+		log.Error().Err(err).Str("dir", outputDir).Msg("[ScreenShot] 读取截图目录失败，跳过清理旧文件")
 	} else {
 		for _, e := range entries {
 			if e.IsDir() {
@@ -84,7 +99,8 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				continue
 			}
 			if info.ModTime().Before(threeDaysAgo) {
-				p := filepath.Join(debugDir, e.Name())
+			if info.ModTime().Before(cleanBefore) {
+				p := filepath.Join(outputDir, e.Name())
 				if err := os.Remove(p); err != nil {
 					log.Debug().Err(err).Str("path", p).Msg("[ScreenShot] 清理旧文件失败")
 				}
@@ -99,7 +115,7 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		now.Format("2006-01-02_15-04-05"),
 		now.Nanosecond(),
 	)
-	debugPath := filepath.Join(debugDir, fileName)
+	debugPath := filepath.Join(outputDir, fileName)
 
 	// 若 CacheImage 返回的是非 *image.RGBA，转为 RGBA 以便编码
 	toEncode := image.Image(img)
