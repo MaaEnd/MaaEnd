@@ -236,7 +236,7 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	// 显示角色等级，退出战斗
 	// 只要在战斗，一定会显示左下角干员条
 	if getCharactorLevelShow(ctx, arg) {
-		saveExitImage(arg.Img, "character_level_show")
+		// saveExitImage(arg.Img, "character_level_show")
 		firstExecuteSinceEntry = true // 下次进入 entry 后首次 Execute 再执行 LockTarget
 		return &maa.CustomRecognitionResult{
 			Box:    arg.Roi,
