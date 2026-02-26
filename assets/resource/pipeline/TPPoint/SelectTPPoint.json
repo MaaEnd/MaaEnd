@@ -1,0 +1,434 @@
+{
+    "ReturnToMap": {
+        "doc": "返回地图",
+        "recognition": "DirectHit",
+        "anchor": {
+            "EnableSTPPoint0": "",
+            "EnableSTPPoint1": "",
+            "EnableSTPPoint2": "",
+            "EnableSTPPoint3": "",
+            "EnableSTPPoint4": "",
+            "EnableSTPPoint5": "",
+            "EnableSTPPoint6": "",
+            "EnableSTPPoint7": "",
+            "EnableMarkerTagsButton": "",
+            "EnableMapValleyIVAburryQuarry": "",
+            "EnableMapValleyIVPowerPlateau": "",
+            "EnableMapValleyIVOriginiumSciencePark": "",
+            "EnableMapValleyIVOriginLodespring": "",
+            "EnableMapValleyIVTheHub": "",
+            "EnableMapValleyIVValleyPass": "",
+            "EnableMapWulingJingyuValley": "",
+            "EnableMapWulingWulingCity": ""
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "next": []
+    },
+    "UseTPButton": {
+        "doc": "使用传送点",
+        "recognition": "DirectHit",
+        "anchor": {
+            "EnableSUTPPoint0": "",
+            "EnableSUTPPoint1": "",
+            "EnableSUTPPoint2": "",
+            "EnableSUTPPoint3": "",
+            "EnableSUTPPoint4": "",
+            "EnableSUTPPoint5": "",
+            "EnableSUTPPoint6": "",
+            "EnableSUTPPoint7": "",
+            "EnableSTPPoint0": "",
+            "EnableSTPPoint1": "",
+            "EnableSTPPoint2": "",
+            "EnableSTPPoint3": "",
+            "EnableSTPPoint4": "",
+            "EnableSTPPoint5": "",
+            "EnableSTPPoint6": "",
+            "EnableSTPPoint7": "",
+            "EnableMarkerTagsButton": "",
+            "EnableMapValleyIVAburryQuarry": "",
+            "EnableMapValleyIVPowerPlateau": "",
+            "EnableMapValleyIVOriginiumSciencePark": "",
+            "EnableMapValleyIVOriginLodespring": "",
+            "EnableMapValleyIVTheHub": "",
+            "EnableMapValleyIVValleyPass": "",
+            "EnableMapWulingJingyuValley": "",
+            "EnableMapWulingWulingCity": ""
+        },
+        "next": [
+            "TeleportButton"
+        ]
+    },
+    "STPPoint0": {
+        "doc": "选择当前屏幕最顶端可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 0
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint0": {
+        "doc": "选择当前屏幕最顶端可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 0
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint1": {
+        "doc": "选择当前屏幕从上至下第二个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint1": {
+        "doc": "选择当前屏幕从上至下第二个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint2": {
+        "doc": "选择当前屏幕从上至下第三个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint2": {
+        "doc": "选择当前屏幕从上至下第三个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 2
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint3": {
+        "doc": "选择当前屏幕从上至下第四个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 3
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint3": {
+        "doc": "选择当前屏幕从上至下第四个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 3
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint4": {
+        "doc": "选择当前屏幕从上至下第五个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 4
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint4": {
+        "doc": "选择当前屏幕从上至下第五个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 4
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint5": {
+        "doc": "选择当前屏幕从上至下第六个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 5
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint5": {
+        "doc": "选择当前屏幕从上至下第六个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 5
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint6": {
+        "doc": "选择当前屏幕从上至下第七个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 6
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint6": {
+        "doc": "选择当前屏幕从上至下第七个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 6
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    },
+    "STPPoint7": {
+        "doc": "选择当前屏幕从上至下第八个可识别传送点但不使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ReturnToMap"
+        ]
+    },
+    "SUTPPoint7": {
+        "doc": "选择当前屏幕从上至下第八个可识别传送点并使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/MapTeleport.png"
+                ],
+                "threshold": 0.64,
+                "order_by": "Vertical",
+                "index": 7
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "UseTPButton"
+        ]
+    }
+}
