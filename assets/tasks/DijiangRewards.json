@@ -95,7 +95,6 @@
                 {
                     "name": "MaxClueSend",
                     "label": "$option.ClueSend.MaxClueSend.label",
-                    "description": "$option.ClueSend.MaxClueSend.description",
                     "pipeline_type": "int",
                     "default": "3"
                 }
