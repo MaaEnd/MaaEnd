@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -81,8 +82,9 @@ func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pi
 	return 0, 0, 0, false
 }
 
-// ocrExtractTextWithCenter - OCR region using pipeline name and check if recognized text contains keyword, return center coordinates
-func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, keyword string) (bool, int, int, bool) {
+// ocrExtractTextWithCenter - OCR region using pipeline name and check if pipeline filtered results exist, return center coordinates.
+// Keyword matching is delegated to the pipeline's "expected" field, so no redundant check is needed in Go.
+func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (bool, int, int, bool) {
 	img, err := controller.CacheImage()
 	if err != nil {
 		log.Error().
@@ -104,32 +106,22 @@ func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipe
 		return false, 0, 0, false
 	}
 	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
 		return false, 0, 0, false
 	}
 
-	// 优先从 Filtered 结果中提取，然后是 Best、All
-	for _, results := range [][]*maa.RecognitionResult{detail.Results.Filtered, {detail.Results.Best}, detail.Results.All} {
-		if len(results) > 0 && results[0] != nil {
-			if ocrResult, ok := results[0].AsOCR(); ok {
-				if containsKeyword(ocrResult.Text, keyword) {
-					// 计算中心坐标
-					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
-					return true, centerX, centerY, true
-				}
-			}
+	// Pipeline 的 expected 字段已负责文本过滤，Filtered 非空即表示匹配成功
+	if len(detail.Results.Filtered) > 0 && detail.Results.Filtered[0] != nil {
+		if ocrResult, ok := detail.Results.Filtered[0].AsOCR(); ok {
+			centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
+			centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+			log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Msg("[OCR] 区域找到对应字符")
+			return true, centerX, centerY, true
 		}
 	}
 
-	log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
+	log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
 	return false, 0, 0, false
-}
-
-// containsKeyword - Check if text contains keyword
-func containsKeyword(text, keyword string) bool {
-	return regexp.MustCompile(keyword).MatchString(text)
 }
 
 // ResellFinishAction - Finish Resell task custom action
@@ -165,6 +157,20 @@ func ResellDelayFreezesTime(ctx *maa.Context, time int) bool {
 	return true
 }
 
+func extractOCRText(detail *maa.RecognitionDetail) string {
+	if detail == nil || detail.Results == nil {
+		return ""
+	}
+	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
+		if len(results) > 0 && results[0] != nil {
+			if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+				return ocrResult.Text
+			}
+		}
+	}
+	return ""
+}
+
 // ocrAndParseQuota - OCR and parse quota from two regions
 // Region 1 [180, 135, 75, 30]: "x/y" format (current/total quota)
 // Region 2 [250, 130, 110, 30]: "a小时后+b" or "a分钟后+b" format (time + increment)
@@ -187,71 +193,73 @@ func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y in
 		return x, y, hoursLater, b
 	}
 
-	// OCR region 1: 使用预定义的配额当前值Pipeline
+	// Region 1: 配额当前值 "x/y" 格式，由 Pipeline expected 过滤
 	detail1, err := ctx.RunRecognition("ResellROIQuotaCurrent", img, nil)
 	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to run recognition for region 1")
+		log.Error().Err(err).Msg("Failed to run recognition for region 1")
 		return x, y, hoursLater, b
 	}
-	if detail1 != nil && detail1.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{{detail1.Results.Best}, detail1.Results.All} {
-			if len(results) > 0 && results[0] != nil {
-				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
-					log.Info().Msgf("Quota region 1 OCR: %s", ocrResult.Text)
-					// Parse "x/y" format
-					re := regexp.MustCompile(`(\d+)/(\d+)`)
-					if matches := re.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						x, _ = strconv.Atoi(matches[1])
-						y, _ = strconv.Atoi(matches[2])
-						log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
-					}
-					break
-				}
+	if text := extractOCRText(detail1); text != "" {
+		log.Info().Msgf("Quota region 1 OCR: %s", text)
+		parts := strings.Split(text, "/")
+		if len(parts) >= 2 {
+			if val, ok := extractNumbersFromText(parts[0]); ok {
+				x = val
 			}
+			if val, ok := extractNumbersFromText(parts[1]); ok {
+				y = val
+			}
+			log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
 		}
 	}
 
-	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2, err := ctx.RunRecognition("ResellROIQuotaNextAdd", img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to run recognition for region 2")
-		return x, y, hoursLater, b
-	}
-	if detail2 != nil && detail2.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{{detail2.Results.Best}, detail2.Results.All} {
-			if len(results) > 0 && results[0] != nil {
-				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
-					log.Info().Msgf("Quota region 2 OCR: %s", ocrResult.Text)
-					// Try pattern with hours
-					reHours := regexp.MustCompile(`(\d+)\s*小时.*?[+]\s*(\d+)`)
-					if matches := reHours.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						hoursLater, _ = strconv.Atoi(matches[1])
-						b, _ = strconv.Atoi(matches[2])
-						log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
-						break
-					}
-					// Try pattern with minutes
-					reMinutes := regexp.MustCompile(`(\d+)\s*分钟.*?[+]\s*(\d+)`)
-					if matches := reMinutes.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						b, _ = strconv.Atoi(matches[2])
-						hoursLater = 0
-						log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
-						break
-					}
-					// Fallback: just find "+b"
-					reFallback := regexp.MustCompile(`[+]\s*(\d+)`)
-					if matches := reFallback.FindStringSubmatch(ocrResult.Text); len(matches) >= 2 {
-						b, _ = strconv.Atoi(matches[1])
-						hoursLater = 0
-						log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
-					}
-					break
-				}
+	// Region 2: 配额下次增加，依次尝试三个 Pipeline 节点（小时 / 分钟 / 兜底）
+	// 尝试 "a小时后+b" 格式
+	if detail2h, err := ctx.RunRecognition("ResellROIQuotaNextAddHours", img, nil); err != nil {
+		log.Error().Err(err).Msg("Failed to run recognition for region 2 (hours)")
+	} else if text := extractOCRText(detail2h); text != "" {
+		log.Info().Msgf("Quota region 2 OCR (hours): %s", text)
+		parts := strings.Split(text, "+")
+		if len(parts) >= 2 {
+			if val, ok := extractNumbersFromText(parts[0]); ok {
+				hoursLater = val
 			}
+			if val, ok := extractNumbersFromText(parts[1]); ok {
+				b = val
+			}
+			log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
+			return x, y, hoursLater, b
+		}
+	}
+
+	// 尝试 "a分钟后+b" 格式
+	if detail2m, err := ctx.RunRecognition("ResellROIQuotaNextAddMinutes", img, nil); err != nil {
+		log.Error().Err(err).Msg("Failed to run recognition for region 2 (minutes)")
+	} else if text := extractOCRText(detail2m); text != "" {
+		log.Info().Msgf("Quota region 2 OCR (minutes): %s", text)
+		parts := strings.Split(text, "+")
+		if len(parts) >= 2 {
+			if val, ok := extractNumbersFromText(parts[1]); ok {
+				b = val
+			}
+			hoursLater = 0
+			log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
+			return x, y, hoursLater, b
+		}
+	}
+
+	// 兜底：仅匹配 "+b"
+	if detail2f, err := ctx.RunRecognition("ResellROIQuotaNextAddFallback", img, nil); err != nil {
+		log.Error().Err(err).Msg("Failed to run recognition for region 2 (fallback)")
+	} else if text := extractOCRText(detail2f); text != "" {
+		log.Info().Msgf("Quota region 2 OCR (fallback): %s", text)
+		parts := strings.Split(text, "+")
+		if len(parts) >= 2 {
+			if val, ok := extractNumbersFromText(parts[len(parts)-1]); ok {
+				b = val
+			}
+			hoursLater = 0
+			log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
 		}
 	}
 

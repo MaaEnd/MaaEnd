@@ -399,7 +399,7 @@
         "doc": "当前配额区域 (x/y格式)",
         "recognition": "OCR",
         "order_by": "Expected",
-        "expected": ".*",
+        "expected": "(\\d+)/(\\d+)",
         "threshold": 0.3,
         "roi": [
             180,
@@ -408,11 +408,37 @@
             30
         ]
     },
-    "ResellROIQuotaNextAdd": {
-        "doc": "下次增加配额区域 (a小时后+b 或 a分钟后+b)",
+    "ResellROIQuotaNextAddHours": {
+        "doc": "下次增加配额区域 - 小时格式 (a小时后+b)",
         "recognition": "OCR",
         "order_by": "Expected",
-        "expected": ".*",
+        "expected": "(\\d+)\\s*小时.*?[+]\\s*(\\d+)",
+        "threshold": 0.3,
+        "roi": [
+            250,
+            130,
+            140,
+            30
+        ]
+    },
+    "ResellROIQuotaNextAddMinutes": {
+        "doc": "下次增加配额区域 - 分钟格式 (a分钟后+b)",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "expected": "(\\d+)\\s*分钟.*?[+]\\s*(\\d+)",
+        "threshold": 0.3,
+        "roi": [
+            250,
+            130,
+            140,
+            30
+        ]
+    },
+    "ResellROIQuotaNextAddFallback": {
+        "doc": "下次增加配额区域 - 兜底格式 (+b)",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "expected": "[+]\\s*(\\d+)",
         "threshold": 0.3,
         "roi": [
             250,

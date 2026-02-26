@@ -19,5 +19,15 @@
         "expected": [
             "Cannot Purchase"
         ]
+    },
+    "ResellWaitForStableStore": {
+        "expected": [
+            "Staple"
+        ]
+    },
+    "ResellClickToUnstableStore": {
+        "expected": [
+            "Elastic"
+        ]
     }
 }

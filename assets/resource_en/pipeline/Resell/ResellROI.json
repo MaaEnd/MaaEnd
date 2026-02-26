@@ -3,5 +3,20 @@
         "expected": [
             "Friend"
         ]
+    },
+    "ResellROIQuotaNextAddHours": {
+        "expected": [
+            "(\\d+)\\s*h.*?[+]\\s*(\\d+)"
+        ]
+    },
+    "ResellROIQuotaNextAddMinutes": {
+        "expected": [
+            "(\\d+)\\s*min.*?[+]\\s*(\\d+)"
+        ]
+    },
+    "ResellROIFriendLoading": {
+        "expected": [
+            "Loading"
+        ]
     }
 }

@@ -116,9 +116,9 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			MoveMouseSafe(controller)
 			controller.PostScreencap().Wait()
 
-			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "ResellROIViewFriendPrice", "好友")
+			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "ResellROIViewFriendPrice")
 			if !success {
-				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
+				log.Info().Msg("[Resell]第二步：未找到查看好友价格按钮")
 				continue
 			}
 			//商品详情页右上角识别的成本价格为准
