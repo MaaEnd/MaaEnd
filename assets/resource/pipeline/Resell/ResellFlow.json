@@ -10,7 +10,9 @@
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "ResellCheckQuotaAction",
-        "next": []
+        "next": [
+            "ResellScan"
+        ]
     },
     "ResellDecide": {
         "doc": "根据利润和配额决策购买或切换地区",

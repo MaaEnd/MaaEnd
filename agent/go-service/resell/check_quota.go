@@ -37,6 +37,5 @@ func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 			},
 		},
 	})
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{{Name: "ResellScan"}})
 	return true
 }

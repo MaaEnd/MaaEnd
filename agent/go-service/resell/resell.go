@@ -49,7 +49,5 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	setMinProfit(MinimumProfit)
 	clearRecords()
 	log.Info().Int("MinimumProfit", MinimumProfit).Msg("[Resell]参数已解析")
-
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{{Name: "ResellCheckQuota"}})
 	return true
 }
