@@ -19,6 +19,19 @@
     },
     "controller": [
         {
+            "name": "Win32-Window-Background",
+            "label": "$controller.Win32-Window-Background.label",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "PrintWindow",
+                "mouse": "SendMessageWithWindowPos",
+                "keyboard": "SendMessageWithWindowPos"
+            },
+            "permission_required": true
+        },
+        {
             "name": "Win32",
             "label": "$controller.Win32.label",
             "type": "Win32",
@@ -26,8 +39,8 @@
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
                 "screencap": "FramePool",
-                "mouse": "SendMessageWithCursorPos",
-                "keyboard": "SendMessageWithCursorPos"
+                "mouse": "PostMessageWithCursorPos",
+                "keyboard": "PostMessageWithCursorPos"
             },
             "permission_required": true
         },
@@ -41,32 +54,6 @@
                 "screencap": "PrintWindow",
                 "mouse": "SendMessageWithCursorPos",
                 "keyboard": "SendMessageWithCursorPos"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32-Background",
-            "label": "$controller.Win32-Background.label",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "FramePool",
-                "mouse": "SendMessageWithWindowPos",
-                "keyboard": "SendMessageWithWindowPos"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32-Window-Background",
-            "label": "$controller.Win32-Window-Background.label",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "PrintWindow",
-                "mouse": "SendMessageWithWindowPos",
-                "keyboard": "SendMessageWithWindowPos"
             },
             "permission_required": true
         },
