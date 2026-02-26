@@ -1,0 +1,72 @@
+{
+    "preset": [
+        {
+            "name": "DailyFull",
+            "label": "$preset.DailyFull.label",
+            "description": "$preset.DailyFull.description",
+            "task": [
+                {
+                    "name": "DailyRewards",
+                    "option": {
+                        "DailyEmailRewards": "Yes",
+                        "DailyTaskRewards": "Yes",
+                        "DailyClaimDeliveryJobsRewards": "Yes",
+                        "DailyEventRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes"
+                    }
+                },
+                {
+                    "name": "DijiangRewards",
+                    "option": {
+                        "AutoStartExchange": "Yes",
+                        "ProductionAssistanceWithoutTheControlNexus": "No",
+                        "ClueStockLimit": "3"
+                    }
+                },
+                {
+                    "name": "CreditShoppingNew",
+                    "option": {
+                        "AutoGetCredits": "Yes",
+                        "CreditShoppingForce": "IgnoreBlackList",
+                        "CreditShoppingReserve": "No",
+                        "CreditShoppingOtherItems": "No"
+                    }
+                },
+                {
+                    "name": "DeliveryJobs",
+                    "option": {
+                        "ValleyIV": "Yes",
+                        "Wuling": "Yes"
+                    }
+                },
+                {
+                    "name": "SeizeEntrustTask",
+                    "option": {
+                        "SeizeEntrustTaskisSwipeMiddle": "Yes"
+                    }
+                },
+                {
+                    "name": "VisitFriends",
+                    "option": {
+                        "PriorStealVegetables": "No"
+                    }
+                },
+                {
+                    "name": "ClaimSimulationRewards",
+                    "option": {
+                        "ClaimSimulationArea": "ValleyIV"
+                    }
+                },
+                {
+                    "name": "ReceiveProdManual"
+                },
+                {
+                    "name": "SimpleProductionBatchStart"
+                },
+                {
+                    "name": "SellProduct"
+                }
+            ]
+        }
+    ]
+}

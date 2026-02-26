@@ -1,0 +1,16 @@
+{
+    "AutoFightTest": {
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoFightTest"
+        ]
+    },
+    "AutoFightTest2": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoFightRecognitionEnemyAttack",
+            "AutoFightTest2"
+        ]
+    }
+}

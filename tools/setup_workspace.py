@@ -417,8 +417,14 @@ def install_maafw(
         if not download_file(url, download_path):
             return False, local_version, False
 
-        if maafw_dest.exists() or maafw_dest.is_symlink():
-            if maafw_dest.is_dir() and not maafw_dest.is_symlink():
+        maafw_dest_is_link = maafw_dest.is_symlink()
+        if hasattr(maafw_dest, 'is_junction'):
+            maafw_dest_is_link = maafw_dest_is_link or maafw_dest.is_junction()
+
+        if maafw_dest_is_link:
+            print(Console.ok(f"Link already exists: {maafw_dest}, skipping link recreation"))
+        elif maafw_dest.exists():
+            if maafw_dest.is_dir():
                 while True:
                     try:
                         print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
@@ -463,12 +469,13 @@ def install_maafw(
             shutil.copytree(sdk_root, maafw_deps)
             print(Console.ok(f"Full SDK copied to {maafw_deps}"))
 
-            # 创建 install/maafw -> deps/bin 的目录链接
-            bin_path = maafw_deps / "bin"
-            print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
-            if not create_directory_link(bin_path, maafw_dest):
-                print(Console.err("Failed to create directory link for maafw"))
-                return False, local_version, False
+            if not maafw_dest_is_link:
+                # 创建 install/maafw -> deps/bin 的目录链接
+                bin_path = maafw_deps / "bin"
+                print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
+                if not create_directory_link(bin_path, maafw_dest):
+                    print(Console.err("Failed to create directory link for maafw"))
+                    return False, local_version, False
 
             print(Console.ok(t("inf_maafw_install_complete")))
             return True, remote_version or local_version, True
@@ -580,7 +587,7 @@ def main() -> None:
         print(Console.err(t("fatal_submodule_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_bootstrap_maadeps")))
-    if not bootstrap_maadeps(skip_if_exist=not args.update):
+    if not bootstrap_maadeps(skip_if_exist=True):   # 这玩意太慢了，也不常更新，没必要每次下载
         print(Console.err(t("fatal_maadeps_failed")))
         sys.exit(1)
     print(Console.hdr(t("header_build_go")))

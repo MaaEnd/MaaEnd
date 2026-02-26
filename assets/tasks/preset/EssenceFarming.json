@@ -1,0 +1,28 @@
+{
+    "preset": [
+        {
+            "name": "EssenceFarming",
+            "label": "$preset.EssenceFarming.label",
+            "description": "$preset.EssenceFarming.description",
+            "task": [
+                {
+                    "name": "AutoEssence",
+                    "option": {
+                        "AutoEssenceDoOverride": "Yes",
+                        "AutoEssenceRepeatCount": {
+                            "AutoEssenceRepeatCountValue": "5"
+                        }
+                    }
+                },
+                {
+                    "name": "EssenceFilter",
+                    "option": {
+                        "SelectWeaponRarity": "Yes",
+                        "SelectEssence": "Yes",
+                        "SelectExtraRules": "No"
+                    }
+                }
+            ]
+        }
+    ]
+}

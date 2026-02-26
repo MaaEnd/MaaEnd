@@ -229,6 +229,7 @@
             "Baker/TalkWith.png",
             "Baker/DialogWith.png" // 部分群组聊天框 TalkWith.png 检测不到
         ],
+        "threshold": 0.95,
         "roi": [
             31,
             61,

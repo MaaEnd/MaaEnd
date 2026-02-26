@@ -1,0 +1,115 @@
+{
+    "MarkerTagsButton": {
+        "doc": "检查标记显示管理状态",
+        "recognition": "And",
+        "all_of": [
+            "MarkerTagsOCR",
+            "MarkerTagsTemplate"
+        ],
+        "anchor": {
+            "EnableSUTPPoint0": "SUTPPoint0",
+            "EnableSUTPPoint1": "SUTPPoint1",
+            "EnableSUTPPoint2": "SUTPPoint2",
+            "EnableSUTPPoint3": "SUTPPoint3",
+            "EnableSUTPPoint4": "SUTPPoint4",
+            "EnableSUTPPoint5": "SUTPPoint5",
+            "EnableSUTPPoint6": "SUTPPoint6",
+            "EnableSUTPPoint7": "SUTPPoint7",
+            "EnableSTPPoint0": "STPPoint0",
+            "EnableSTPPoint1": "STPPoint1",
+            "EnableSTPPoint2": "STPPoint2",
+            "EnableSTPPoint3": "STPPoint3",
+            "EnableSTPPoint4": "STPPoint4",
+            "EnableSTPPoint5": "STPPoint5",
+            "EnableSTPPoint6": "STPPoint6",
+            "EnableSTPPoint7": "STPPoint7"
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "ClearAllMarkerTags"
+        ],
+        "timeout": 1000
+    },
+    "ClearAllMarkerTags": {
+        "doc": "清除所有标记标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    68,
+                    648,
+                    80,
+                    27
+                ],
+                "expected": [
+                    "清空选中"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": true
+            }
+        },
+        "next": [
+            "BacktoMap"
+        ]
+    },
+    "BacktoMap": {
+        "doc": "返回地图",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27
+            }
+        },
+        "next": []
+    },
+    "MarkerTagsOCR": {
+        "doc": "OCR识别标记标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    39,
+                    652,
+                    104,
+                    22
+                ],
+                "expected": [
+                    "Marker Tags",
+                    "标记显示管理"
+                ]
+            }
+        },
+        "action": "DoNothing",
+        "next": []
+    },
+    "MarkerTagsTemplate": {
+        "doc": "模板匹配标记标签",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    117,
+                    619,
+                    79,
+                    82
+                ],
+                "template": [
+                    "TPPoint/MarkerTagsFilter.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "DoNothing",
+        "next": []
+    }
+}

@@ -1,0 +1,156 @@
+{
+    "TPPointWulingCity0": {
+        "doc": "传送武陵城0，观测站",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint0",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity1": {
+        "doc": "传送武陵城1，界石坪",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint1",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity2": {
+        "doc": "传送武陵城2，待修缮区",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint2",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity3": {
+        "doc": "传送武陵城3，方兴衢",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint3",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity4": {
+        "doc": "传送武陵城4，天师府学院",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint4",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity5": {
+        "doc": "传送武陵城5，天井院",
+        "recognition": "DirectHit",
+        "next": [
+            "[Anchor]EnableSUTPPoint5",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity6": {
+        "doc": "传送武陵城6，储备站",
+        "recognition": "DirectHit",
+        "next": [
+            {
+                "name": "EnableSTPPoint5",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[Anchor]EnableSUTPPoint5",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    },
+    "TPPointWulingCity7": {
+        "doc": "传送武陵城7，孤喉泽",
+        "recognition": "DirectHit",
+        "next": [
+            {
+                "name": "EnableSTPPoint5",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[Anchor]EnableSUTPPoint6",
+            {
+                "name": "EnableMarkerTagsButton",
+                "anchor": true,
+                "jump_back": true
+            },
+            {
+                "name": "EnableMapWulingWulingCity",
+                "anchor": true,
+                "jump_back": true
+            },
+            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+        ]
+    }
+}

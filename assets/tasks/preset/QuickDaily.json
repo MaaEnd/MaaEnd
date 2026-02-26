@@ -1,0 +1,41 @@
+{
+    "preset": [
+        {
+            "name": "QuickDaily",
+            "label": "$preset.QuickDaily.label",
+            "description": "$preset.QuickDaily.description",
+            "task": [
+                {
+                    "name": "DailyRewards",
+                    "option": {
+                        "DailyEmailRewards": "Yes",
+                        "DailyTaskRewards": "Yes",
+                        "DailyClaimDeliveryJobsRewards": "Yes",
+                        "DailyEventRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes"
+                    }
+                },
+                {
+                    "name": "DijiangRewards",
+                    "option": {
+                        "AutoStartExchange": "No",
+                        "ProductionAssistanceWithoutTheControlNexus": "No",
+                        "ClueStockLimit": "3"
+                    }
+                },
+                {
+                    "name": "CreditShoppingNew",
+                    "option": {
+                        "AutoGetCredits": "Yes",
+                        "CreditShoppingForce": "IgnoreBlackList",
+                        "CreditShoppingReserve": "No",
+                        "CreditShoppingOtherItems": "No"
+                    }
+                },
+                {
+                    "name": "ReceiveProdManual"
+                }
+            ]
+        }
+    ]
+}
