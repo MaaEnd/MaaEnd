@@ -71,7 +71,8 @@
             "[JumpBack]WhiteConfirmButtonType1",
             "ExtractSeed",
             "ExitGrow",
-            "FinishAllDijiangTask"
+            "[JumpBack]GrayCancelButton",
+            "EmptyNode"
         ]
     },
     "ExitGrow": {
@@ -80,10 +81,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    749,
-                    480,
-                    217,
-                    123
+                    747,
+                    481,
+                    350,
+                    205
                 ],
                 "expected": [
                     "前往提取基核"
@@ -100,10 +101,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    749,
-                    480,
-                    217,
-                    123
+                    747,
+                    481,
+                    350,
+                    205
                 ],
                 "expected": [
                     "前往提取基核"
@@ -114,7 +115,7 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]WhiteConfirmButtonType2",
             "CloseRewardsButton",
             "NoMaterials"
         ]
