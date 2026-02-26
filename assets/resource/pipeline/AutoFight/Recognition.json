@@ -57,7 +57,7 @@
         "connected": true
     },
     "AutoFightRecognitionEnergyLevel2": {
-        "doc": "能量条2格，255, 255, 0] - [255, 220, 0] 交替闪烁",
+        "doc": "能量条2格，[255, 255, 0] - [255, 220, 0] 交替闪烁",
         "recognition": "ColorMatch",
         "roi": [
             600,
