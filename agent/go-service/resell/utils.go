@@ -267,7 +267,6 @@ func waitFriendLoading(ctx *maa.Context, controller *maa.Controller) bool {
 	notLoadingCount := 0
 	for attempt := 0; attempt < 10; attempt++ {
 		MoveMouseSafe(controller)
-		controller.PostScreencap().Wait()
 		img, err := controller.CacheImage()
 		if err != nil || img == nil {
 			return false
