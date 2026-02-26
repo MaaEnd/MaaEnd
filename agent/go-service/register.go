@@ -11,7 +11,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/realtime"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/screenshot"
 	"github.com/rs/zerolog/log"
@@ -19,7 +18,6 @@ import (
 
 func registerAll() {
 	// Register all custom components from each package
-	realtime.Register()
 	importtask.Register()
 	resell.Register()
 	puzzle.Register()

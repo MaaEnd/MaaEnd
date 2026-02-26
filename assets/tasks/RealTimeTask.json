@@ -299,15 +299,7 @@
                         "RealTimeAutoFight": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "AutoFightAttack",
-                        "AutoFightCombo",
-                        "AutoFightDodge",
-                        "AutoFightSkill",
-                        "AutoFightEndSkill",
-                        "AutoFightLockTarget"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
