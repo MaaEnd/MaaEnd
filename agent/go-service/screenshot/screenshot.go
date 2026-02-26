@@ -98,7 +98,6 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				log.Debug().Err(err).Str("name", e.Name()).Msg("[ScreenShot] 获取文件信息失败，跳过该文件的清理判断")
 				continue
 			}
-			if info.ModTime().Before(threeDaysAgo) {
 			if info.ModTime().Before(cleanBefore) {
 				p := filepath.Join(outputDir, e.Name())
 				if err := os.Remove(p); err != nil {
