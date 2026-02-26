@@ -7,7 +7,9 @@
             "description": "$task.DijiangRewards.description",
             "option": [
                 "AutoStartExchange",
-                "ProductionAssistanceWithoutTheControlNexus"
+                "ProductionAssistanceWithoutTheControlNexus",
+                "ClueSend",
+                "ClueStockLimit"
             ]
         }
     ],
@@ -55,6 +57,70 @@
                     "pipeline_override": {
                         "RecoveryEmotion": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "ClueSend": {
+            "type": "input",
+            "label": "$option.ClueSend.label",
+            "inputs": [
+                {
+                    "name": "MaxClueSend",
+                    "label": "$option.ClueSend.MaxClueSend.label",
+                    "description": "$option.ClueSend.MaxClueSend.description",
+                    "pipeline_type": "int",
+                    "default": "3",
+                    "verify": "^(?:[1-9]\\d*)$",
+                    "pattern_msg": "$option.ClueSend.MaxClueSend.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "SendTheMostClues": {
+                    "max_hit": "{MaxClueSend}"
+                }
+            }
+        },
+        "ClueStockLimit": {
+            "type": "select",
+            "label": "$option.ClueStockLimit.label",
+            "description": "$option.ClueStockLimit.description",
+            "default_case": "3",
+            "cases": [
+                {
+                    "name": "1",
+                    "label": "$option.ClueStockLimit.cases.1.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(?:[2-9]|[1-9]\\d+)$"
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "label": "$option.ClueStockLimit.cases.2.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(?:[3-9]|[1-9]\\d+)$"
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "label": "$option.ClueStockLimit.cases.3.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(?:[4-9]|[1-9]\\d+)$"
+                        }
+                    }
+                },
+                {
+                    "name": "4",
+                    "label": "$option.ClueStockLimit.cases.4.label",
+                    "pipeline_override": {
+                        "ClueItemCount": {
+                            "expected": "^(?:[5-9]|[1-9]\\d+)$"
                         }
                     }
                 }
