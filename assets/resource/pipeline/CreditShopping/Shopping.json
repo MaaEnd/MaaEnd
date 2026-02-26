@@ -29,11 +29,15 @@
             "CreditShoppingBuyFirst",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
+            "[JumpBack]CreditShoppingADBSwipe",
             "CreditShippingCanNotToBuy",
             "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
+    },
+    "CreditShoppingADBSwipe": {
+        "doc": "adb特殊流程"
     },
     "CreditShippingCanNotToBuy": {
         "doc": "刷新流程中无法购买",
