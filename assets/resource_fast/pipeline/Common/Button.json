@@ -353,7 +353,7 @@
                             "param": {
                                 "roi": "YellowButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
@@ -396,7 +396,7 @@
                             "param": {
                                 "roi": "YellowButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
@@ -438,7 +438,7 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
@@ -481,7 +481,7 @@
                             "param": {
                                 "roi": "GrayButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
@@ -524,7 +524,7 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
@@ -567,7 +567,7 @@
                             "param": {
                                 "roi": "WhiteButtonBackground",
                                 "roi_offset": [
-                                    -40,
+                                    -20,
                                     -20,
                                     80,
                                     40
