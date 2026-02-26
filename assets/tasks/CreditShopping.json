@@ -25,13 +25,6 @@
                     "description": "$option.CreditShoppingOptions.inputs.buy_first.description",
                     "pipeline_type": "string",
                     "default": "嵌晶玉|武库配额"
-                },
-                {
-                    "name": "blacklist",
-                    "label": "$option.CreditShoppingOptions.inputs.blacklist.label",
-                    "description": "$option.CreditShoppingOptions.inputs.blacklist.description",
-                    "pipeline_type": "string",
-                    "default": ""
                 }
             ],
             "pipeline_override": {
@@ -40,7 +33,22 @@
                 },
                 "BuyFirstOCR_CanNotAfford": {
                     "expected": "^({buy_first})$"
-                },
+                }
+            }
+        },
+        "CreditShoppingBlackOptions": {
+            "type": "input",
+            "label": "$option.CreditShoppingBlackOptions.label",
+            "inputs": [
+                {
+                    "name": "blacklist",
+                    "label": "$option.CreditShoppingBlackOptions.inputs.blacklist.label",
+                    "description": "$option.CreditShoppingBlackOptions.inputs.blacklist.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
                 "BlacklistOCR": {
                     "expected": "^(?!({blacklist})$).*$"
                 }
@@ -93,23 +101,18 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "CreditShoppingBuyNormalNoDiscount": {
-                            "enabled": false
-                        },
                         "CreditShoppingBuyNormalWithDiscount": {
                             "enabled": true
                         }
                     },
                     "option": [
+                        "CreditShoppingBlackOptions",
                         "DiscountValue"
                     ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "CreditShoppingBuyNormalNoDiscount": {
-                            "enabled": false
-                        },
                         "CreditShoppingBuyNormalWithDiscount": {
                             "enabled": false
                         }
@@ -126,11 +129,8 @@
                     "name": "Any",
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
-                        "CreditShoppingBuyNormalNoDiscount": {
-                            "enabled": true
-                        },
-                        "CreditShoppingBuyNormalWithDiscount": {
-                            "enabled": false
+                        "IsDiscount": {
+                            "recognition": "DirectHit"
                         }
                     }
                 },
@@ -139,12 +139,7 @@
                     "label": "$option.DiscountValue.cases.-25%.label",
                     "pipeline_override": {
                         "IsDiscount": {
-                            "expected": [
-                                "[-－]\\s*99\\s*%|99\\s*%",
-                                "[-－]\\s*75\\s*%|75\\s*%",
-                                "[-－]\\s*50\\s*%|50\\s*%",
-                                "[-－]\\s*25\\s*%|25\\s*%"
-                            ]
+                            "expected": "25|50|75|95|99"
                         }
                     }
                 },
@@ -153,11 +148,7 @@
                     "label": "$option.DiscountValue.cases.-50%.label",
                     "pipeline_override": {
                         "IsDiscount": {
-                            "expected": [
-                                "[-－]\\s*99\\s*%|99\\s*%",
-                                "[-－]\\s*75\\s*%|75\\s*%",
-                                "[-－]\\s*50\\s*%|50\\s*%"
-                            ]
+                            "expected": "50|75|95|99"
                         }
                     }
                 },
@@ -166,10 +157,16 @@
                     "label": "$option.DiscountValue.cases.-75%.label",
                     "pipeline_override": {
                         "IsDiscount": {
-                            "expected": [
-                                "[-－]\\s*99\\s*%|99\\s*%",
-                                "[-－]\\s*75\\s*%|75\\s*%"
-                            ]
+                            "expected": "75|95|99"
+                        }
+                    }
+                },
+                {
+                    "name": "-95%",
+                    "label": "$option.DiscountValue.cases.-95%.label",
+                    "pipeline_override": {
+                        "IsDiscount": {
+                            "expected": "95|99"
                         }
                     }
                 },
@@ -178,9 +175,7 @@
                     "label": "$option.DiscountValue.cases.-99%.label",
                     "pipeline_override": {
                         "IsDiscount": {
-                            "expected": [
-                                "[-－]\\s*99\\s*%|99\\s*%"
-                            ]
+                            "expected": "99"
                         }
                     }
                 }

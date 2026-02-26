@@ -64,7 +64,8 @@
         },
         "post_wait_freezes": 500,
         "next": [
-            "[JumpBack]DailyProtocolNewSwitch",
+            "[JumpBack]DailyProtocolMissionsPick", // 第一个tab可能有new在最后一周，但是切换列表会默认显示第一个tab，直接领取就行
+            "[JumpBack]DailyProtocolNewSwitch", // 找非第一个tab的new
             "[JumpBack]DailyProtocolMissionsSwitch",
             "DailyProtocolFinish"
         ]

@@ -125,6 +125,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 10,
         "next": [
             "SellProductSell",
             "SellProductZeroProductRetry",
@@ -451,6 +452,8 @@
         "next": [
             "SellProductSellCheck",
             "SellProductSellPressed",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
             "SellProductSell"
         ]
     },
@@ -490,6 +493,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "doc": "判断当前能不能出售的虚节点",
+        "post_wait_freezes": 10,
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -502,16 +506,81 @@
         "post_delay": 0,
         "doc": "货物数量是<1000，先尝试更换货品，失败则换据点",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [
-                    1083,
-                    327,
-                    109,
-                    24
-                ],
-                "expected": [
-                    "^[0-9]{1,3}$"
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1083,
+                                    327,
+                                    109,
+                                    24
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    30,
+                                    80
+                                ],
+                                "upper": [
+                                    5,
+                                    150,
+                                    200
+                                ],
+                                "count": 10
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    {
+                                        "sub_name": "_白色文字",
+                                        "recognition": {
+                                            "type": "ColorMatch",
+                                            "param": {
+                                                "roi": [
+                                                    1083,
+                                                    327,
+                                                    109,
+                                                    24
+                                                ],
+                                                "method": 4,
+                                                "lower": [
+                                                    190,
+                                                    190,
+                                                    190
+                                                ],
+                                                "upper": [
+                                                    255,
+                                                    255,
+                                                    255
+                                                ],
+                                                "count": 10
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "recognition": {
+                                            "type": "OCR",
+                                            "param": {
+                                                "roi": "_白色文字",
+                                                "expected": [
+                                                    "^[0-9]{1,3}$"
+                                                ],
+                                                "only_rec": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -610,6 +679,7 @@
         "pre_delay": 0,
         "post_delay": 200,
         "doc": "更换货品后重新判断能否售卖",
+        "post_wait_freezes": 10,
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -625,16 +695,81 @@
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
         },
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": [
-                    1083,
-                    327,
-                    109,
-                    24
-                ],
-                "expected": [
-                    "^[0-9]{1,3}$"
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1083,
+                                    327,
+                                    109,
+                                    24
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    30,
+                                    80
+                                ],
+                                "upper": [
+                                    5,
+                                    150,
+                                    200
+                                ],
+                                "count": 10
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    {
+                                        "sub_name": "_白色文字",
+                                        "recognition": {
+                                            "type": "ColorMatch",
+                                            "param": {
+                                                "roi": [
+                                                    1083,
+                                                    327,
+                                                    109,
+                                                    24
+                                                ],
+                                                "method": 4,
+                                                "lower": [
+                                                    190,
+                                                    190,
+                                                    190
+                                                ],
+                                                "upper": [
+                                                    255,
+                                                    255,
+                                                    255
+                                                ],
+                                                "count": 10
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "recognition": {
+                                            "type": "OCR",
+                                            "param": {
+                                                "roi": "_白色文字",
+                                                "expected": [
+                                                    "^[0-9]{1,3}$"
+                                                ],
+                                                "only_rec": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -802,6 +937,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 10,
         "next": [
             "SellProductLocalDone",
             "SellProductCanSell"

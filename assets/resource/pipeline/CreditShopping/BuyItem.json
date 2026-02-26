@@ -17,23 +17,6 @@
             "CreditShoppingBuyFirstItem"
         ]
     },
-    "CreditShoppingBuyNormalItemNoDiscount": {
-        "doc": "点击购买商品(无折扣)",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": "CreditShoppingBuyNormalNoDiscount",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
-        ],
-        "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm",
-            "CreditShoppingBuyNormalItemNoDiscount"
-        ]
-    },
     "CreditShoppingBuyNormalItemWithDiscount": {
         "doc": "点击购买商品(有折扣)",
         "recognition": "DirectHit",

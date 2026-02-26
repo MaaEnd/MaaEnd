@@ -97,9 +97,7 @@
                     "label": "$option.ClueSend.MaxClueSend.label",
                     "description": "$option.ClueSend.MaxClueSend.description",
                     "pipeline_type": "int",
-                    "default": "3",
-                    "verify": "^(?:[1-9]\\d*)$",
-                    "pattern_msg": "$option.ClueSend.MaxClueSend.pattern_msg"
+                    "default": "3"
                 }
             ],
             "pipeline_override": {

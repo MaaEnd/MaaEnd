@@ -14,5 +14,54 @@
             56,
             25
         ]
+    },
+    "CreditShoppingADBSwipe": {
+        "doc": "adb特殊流程",
+        "inverse": true,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "roi": [
+                    0,
+                    583,
+                    1280,
+                    36
+                ],
+                "upper": [
+                    0,
+                    4,
+                    68
+                ],
+                "lower": [
+                    0,
+                    4,
+                    68
+                ],
+                "connected": true,
+                "count": 100
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    950,
+                    530
+                ],
+                "end": [
+                    [
+                        950,
+                        500
+                    ],
+                    [
+                        900,
+                        500
+                    ]
+                ],
+                "duration": 500,
+                "end_hold": 100
+            }
+        }
     }
 }

@@ -27,14 +27,17 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
-            "CreditShoppingBuyNormalNoDiscount",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
+            "[JumpBack]CreditShoppingADBSwipe",
             "CreditShippingCanNotToBuy",
             "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
+    },
+    "CreditShoppingADBSwipe": {
+        "doc": "adb特殊流程"
     },
     "CreditShippingCanNotToBuy": {
         "doc": "刷新流程中无法购买",
@@ -126,23 +129,9 @@
             "CreditShoppingBuyFirstItem"
         ]
     },
-    "CreditShoppingBuyNormalNoDiscount": {
-        "doc": "普通购买(无折扣)",
-        "recognition": "And",
-        "box_index": 3,
-        "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "BlacklistOCR"
-        ],
-        "next": [
-            "CreditShoppingBuyNormalItemNoDiscount"
-        ]
-    },
     "CreditShoppingBuyNormalWithDiscount": {
-        "enabled": false,
-        "doc": "普通购买(折扣)",
+        //"enabled": false,
+        "doc": "普通购买",
         "recognition": "And",
         "box_index": 4,
         "all_of": [
@@ -152,6 +141,7 @@
             "BlacklistOCR",
             "IsDiscount"
         ],
+        "action": "Click",
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]
