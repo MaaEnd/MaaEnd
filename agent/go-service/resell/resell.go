@@ -3,9 +3,7 @@ package resell
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strconv"
-	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -62,9 +60,8 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	overflowAmount := 0
 	log.Info().Msg("Checking quota overflow status...")
-	Resell_delay_freezes_time(ctx, 500)
+	ResellDelayFreezesTime(ctx, 500)
 	MoveMouseSafe(controller)
-	controller.PostScreencap().Wait()
 
 	// OCR and parse quota from two regions
 	x, y, _, b := ocrAndParseQuota(ctx, controller)
@@ -91,17 +88,15 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]商品位置")
 			// Step 1: 识别商品价格
 			log.Info().Msg("[Resell]第一步：识别商品价格")
-			Resell_delay_freezes_time(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
 			// 构建Pipeline名称
-			pricePipelineName := fmt.Sprintf("Resell_ROI_Product_Row%d_Col%d_Price", rowIdx+1, col)
+			pricePipelineName := fmt.Sprintf("ResellROIProductRow%dCol%dPrice", rowIdx+1, col)
 			costPrice, clickX, clickY, success := ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 			if !success {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
 				costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 				if !success {
 					log.Info().Int("行", rowIdx+1).Int("列", col).Msg("[Resell]位置无数字，说明无商品，下一行")
@@ -114,26 +109,23 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 2: 识别“查看好友价格”，包含“好友”二字则继续
 			log.Info().Msg("[Resell]第二步：查看好友价格")
-			Resell_delay_freezes_time(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
-			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
+			_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "ResellROIViewFriendPrice")
 			if !success {
-				log.Info().Msg("[Resell]第二步：未找到“好友”字样")
+				log.Info().Msg("[Resell]第二步：未找到查看好友价格按钮")
 				continue
 			}
-			//商品详情页右下角识别的成本价格为准
+			//商品详情页右上角识别的成本价格为准
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
-			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
+			ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIDetailCostPrice")
 			if success {
 				costPrice = ConfirmcostPrice
 			} else {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
-				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_DetailCostPrice")
+				ConfirmcostPrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIDetailCostPrice")
 				if success {
 					costPrice = ConfirmcostPrice
 				} else {
@@ -146,17 +138,18 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 3: 检查好友列表第一位的出售价，即最高价格
 			log.Info().Msg("[Resell]第三步：识别好友出售价")
-			//等加载好友价格
-			Resell_delay_freezes_time(ctx, 600)
+			//等加载好友价格：循环检测"加载中"字样消失
+			if !waitFriendLoading(ctx, controller) {
+				log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
+				continue
+			}
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
-			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
+			salePrice, _, _, success := ocrExtractNumberWithCenter(ctx, controller, "ResellROIFriendSalePrice")
 			if !success {
 				//失败就重试一遍
 				MoveMouseSafe(controller)
-				controller.PostScreencap().Wait()
-				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "Resell_ROI_FriendSalePrice")
+				salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "ResellROIFriendSalePrice")
 				if !success {
 					log.Info().Msg("[Resell]第三步：未能识别好友出售价，跳过该商品")
 					continue
@@ -183,26 +176,24 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 			// Step 4: 检查页面右上角的“返回”按钮，按ESC返回
 			log.Info().Msg("[Resell]第四步：返回商品详情页")
-			Resell_delay_freezes_time(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ReturnButton", "返回")
-			if success {
-				log.Info().Msg("[Resell]第四步：发现返回按钮，按ESC返回")
-				controller.PostClickKey(27)
+			if _, err := ctx.RunTask("ResellROIReturnButton", nil); err != nil {
+				log.Warn().Err(err).Msg("[Resell]第四步：返回按钮点击失败")
+			} else {
+				log.Info().Msg("[Resell]第四步：发现返回按钮，点击返回")
 			}
 
-			// Step 5: 识别“查看好友价格”，包含“好友”二字则按ESC关闭页面
+			// Step 5: 识别商品详情页关闭按钮，直接点击关闭
 			log.Info().Msg("[Resell]第五步：关闭商品详情页")
-			Resell_delay_freezes_time(ctx, 200)
+			ResellDelayFreezesTime(ctx, 200)
 			MoveMouseSafe(controller)
-			controller.PostScreencap().Wait()
 
-			_, _, _, success = ocrExtractTextWithCenter(ctx, controller, "Resell_ROI_ViewFriendPrice", "好友")
-			if success {
+			if _, err := ctx.RunTask("CloseButtonType1", nil); err != nil {
+				log.Warn().Err(err).Msg("[Resell]第五步：关闭页面失败")
+			} else {
 				log.Info().Msg("[Resell]第五步：关闭页面")
-				controller.PostClickKey(27)
 			}
 		}
 	}
@@ -286,272 +277,4 @@ func (a *ResellInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		})
 		return true
 	}
-}
-
-// extractNumbersFromText - Extract all digits from text and return as integer
-func extractNumbersFromText(text string) (int, bool) {
-	re := regexp.MustCompile(`\d+`)
-	matches := re.FindAllString(text, -1)
-	if len(matches) > 0 {
-		// Concatenate all digit sequences found
-		digitsOnly := ""
-		for _, match := range matches {
-			digitsOnly += match
-		}
-		if num, err := strconv.Atoi(digitsOnly); err == nil {
-			return num, true
-		}
-	}
-	return 0, false
-}
-
-// MoveMouseSafe moves the mouse to a safe location (10, 10) to avoid blocking OCR
-func MoveMouseSafe(controller *maa.Controller) {
-	// Use PostClick to move mouse to a safe corner
-	// We use (10, 10) to avoid title bar buttons or window borders
-	controller.PostTouchMove(0, 10, 10, 0)
-	// Small delay to ensure mouse move completes
-	time.Sleep(50 * time.Millisecond)
-}
-
-// ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
-func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return 0, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
-		return 0, 0, 0, false
-	}
-
-	// 优先从 Best 结果中提取，然后是 All
-	for _, results := range [][]*maa.RecognitionResult{detail.Results.Best, detail.Results.All} {
-		if len(results) > 0 {
-			if ocrResult, ok := results[0].AsOCR(); ok {
-				if num, success := extractNumbersFromText(ocrResult.Text); success {
-					// 计算中心坐标
-					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					if num >= 7000 || num <= 100 {
-						//数字不合理，抛弃
-						log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 数字不合理，抛弃")
-						success = false
-						// 如果数字>=10000，则是误识别票券为1，只保留后四位，数据仍然可用
-						if num >= 10000 {
-							adjustedNum := num % 10000
-							log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("originalNum", num).Int("adjustedNum", adjustedNum).Msg("[OCR] 数字>=10000，已截取后四位")
-							num = adjustedNum
-							success = true
-						}
-					}
-					return num, centerX, centerY, success
-				}
-			}
-		}
-	}
-
-	return 0, 0, 0, false
-}
-
-// ocrExtractTextWithCenter - OCR region using pipeline name and check if recognized text contains keyword, return center coordinates
-func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string, keyword string) (bool, int, int, bool) {
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return false, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-		return false, 0, 0, false
-	}
-
-	// 优先从 Filtered 结果中提取，然后是 Best、All
-	for _, results := range [][]*maa.RecognitionResult{detail.Results.Filtered, detail.Results.Best, detail.Results.All} {
-		if len(results) > 0 {
-			if ocrResult, ok := results[0].AsOCR(); ok {
-				if containsKeyword(ocrResult.Text, keyword) {
-					// 计算中心坐标
-					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Str("keyword", keyword).Msg("[OCR] 区域找到对应字符")
-					return true, centerX, centerY, true
-				}
-			}
-		}
-	}
-
-	log.Info().Str("pipeline", pipelineName).Str("keyword", keyword).Msg("[OCR] 区域无对应字符")
-	return false, 0, 0, false
-}
-
-// containsKeyword - Check if text contains keyword
-func containsKeyword(text, keyword string) bool {
-	return regexp.MustCompile(keyword).MatchString(text)
-}
-
-// ResellFinishAction - Finish Resell task custom action
-type ResellFinishAction struct{}
-
-func (a *ResellFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("[Resell]运行结束")
-	return true
-}
-
-// ExecuteResellTask - Execute Resell main task
-func ExecuteResellTask(tasker *maa.Tasker) error {
-	if tasker == nil {
-		return fmt.Errorf("tasker is nil")
-	}
-
-	if !tasker.Initialized() {
-		return fmt.Errorf("tasker not initialized")
-	}
-
-	tasker.PostTask("ResellMain").Wait()
-
-	return nil
-}
-
-func Resell_delay_freezes_time(ctx *maa.Context, time int) bool {
-	ctx.RunTask("Resell_TaskDelay", map[string]interface{}{
-		"Resell_TaskDelay": map[string]interface{}{
-			"pre_wait_freezes": time,
-		},
-	},
-	)
-	return true
-}
-
-// ocrAndParseQuota - OCR and parse quota from two regions
-// Region 1 [180, 135, 75, 30]: "x/y" format (current/total quota)
-// Region 2 [250, 130, 110, 30]: "a小时后+b" or "a分钟后+b" format (time + increment)
-// Returns: x (current), y (max), hoursLater (0 for minutes, actual hours for hours), b (to be added)
-func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y int, hoursLater int, b int) {
-	x = -1
-	y = -1
-	hoursLater = -1
-	b = -1
-
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
-	if img == nil {
-		log.Error().Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
-
-	// OCR region 1: 使用预定义的配额当前值Pipeline
-	detail1, err := ctx.RunRecognition("Resell_ROI_Quota_Current", img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to run recognition for region 1")
-		return x, y, hoursLater, b
-	}
-	if detail1 != nil && detail1.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{detail1.Results.Best, detail1.Results.All} {
-			if len(results) > 0 {
-				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
-					log.Info().Msgf("Quota region 1 OCR: %s", ocrResult.Text)
-					// Parse "x/y" format
-					re := regexp.MustCompile(`(\d+)/(\d+)`)
-					if matches := re.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						x, _ = strconv.Atoi(matches[1])
-						y, _ = strconv.Atoi(matches[2])
-						log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
-					}
-					break
-				}
-			}
-		}
-	}
-
-	// OCR region 2: 使用预定义的配额下次增加Pipeline
-	detail2, err := ctx.RunRecognition("Resell_ROI_Quota_NextAdd", img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to run recognition for region 2")
-		return x, y, hoursLater, b
-	}
-	if detail2 != nil && detail2.Results != nil {
-		for _, results := range [][]*maa.RecognitionResult{detail2.Results.Best, detail2.Results.All} {
-			if len(results) > 0 {
-				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
-					log.Info().Msgf("Quota region 2 OCR: %s", ocrResult.Text)
-					// Try pattern with hours
-					reHours := regexp.MustCompile(`(\d+)\s*小时.*?[+]\s*(\d+)`)
-					if matches := reHours.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						hoursLater, _ = strconv.Atoi(matches[1])
-						b, _ = strconv.Atoi(matches[2])
-						log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
-						break
-					}
-					// Try pattern with minutes
-					reMinutes := regexp.MustCompile(`(\d+)\s*分钟.*?[+]\s*(\d+)`)
-					if matches := reMinutes.FindStringSubmatch(ocrResult.Text); len(matches) >= 3 {
-						b, _ = strconv.Atoi(matches[2])
-						hoursLater = 0
-						log.Info().Msgf("Parsed quota region 2 (minutes): b=%d", b)
-						break
-					}
-					// Fallback: just find "+b"
-					reFallback := regexp.MustCompile(`[+]\s*(\d+)`)
-					if matches := reFallback.FindStringSubmatch(ocrResult.Text); len(matches) >= 2 {
-						b, _ = strconv.Atoi(matches[1])
-						hoursLater = 0
-						log.Info().Msgf("Parsed quota region 2 (fallback): b=%d", b)
-					}
-					break
-				}
-			}
-		}
-	}
-
-	return x, y, hoursLater, b
-}
-
-func processMaxRecord(record ProfitRecord) ProfitRecord {
-	result := record
-	if result.Row >= 2 {
-		result.Row = result.Row - 1
-	}
-	return result
 }

@@ -115,8 +115,7 @@
             160
         ],
         "expected": [
-            "稳定需求",
-            "Stable"
+            "稳定需求"
         ],
         "threshold": 0.6,
         "action": "DoNothing",
@@ -136,8 +135,7 @@
             80
         ],
         "expected": [
-            "弹性需求",
-            "Flexible"
+            "弹性需求"
         ],
         "threshold": 0.6,
         "action": "Click",

@@ -1,8 +1,8 @@
 {
     "SellProductBegin": {
         "pre_delay": 0,
-        "post_delay": 500,
-        "doc": "虚节点",
+        "post_delay": 0,
+        "doc": "虚节点.",
         "next": [
             "SellProductAtDevelopment",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
@@ -10,23 +10,56 @@
     },
     "SellProductMain": {
         "pre_delay": 0,
-        "post_delay": 200,
+        "post_delay": 0,
         "doc": "脚本入口",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    89
-                ]
-            }
-        },
         "next": [
             "SellProductBegin"
         ]
     },
     "SellProductAtDevelopment": {
+        "doc": "位于地区建设界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InRegionalDevelopment"
+                ]
+            }
+        },
+        "post_delay": 0,
         "pre_delay": 0,
-        "post_delay": 500,
+        "post_wait_freezes": 80,
+        "next": [
+            "SellProductEnterManagementLocked",
+            "SellProductEnterOutpostManagement"
+        ]
+    },
+    "SellProductEnterManagementLocked": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductDevelopmentLocked.png"
+                ],
+                "roi": [
+                    1178,
+                    185,
+                    35,
+                    48
+                ]
+            }
+        },
+        "doc": "识别据点管理是否未解锁",
+        "focus": {
+            "Node.Recognition.Succeeded": "据点管理未解锁"
+        },
+        "next": [
+            "SellProductLocalCounter"
+        ]
+    },
+    "SellProductEnterOutpostManagement": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
@@ -52,9 +85,10 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 10,
         "next": [
             "SellProductAtSell",
-            "SellProductAtDevelopment"
+            "SellProductEnterOutpostManagement"
         ]
     },
     "SellProductDragBar": {
@@ -92,7 +126,9 @@
             }
         },
         "next": [
-            "SellProductSell"
+            "SellProductSell",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney"
         ]
     },
     "SellProductAtSell": {
@@ -377,7 +413,7 @@
         "focus": {
             "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
         },
-        "doc": "max_hit为地区数-1",
+        "doc": "当前区域任务已完成，前往下一区域,该节点max_hit为地区数-1",
         "next": [
             "SellProductForthValley",
             "SellProductWuling"
@@ -407,6 +443,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {}
@@ -423,7 +460,7 @@
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         },
-        "doc": "交易后确认",
+        "doc": "交易后确认，仅zeromoney时切区域，否则先尝试切货品",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -442,8 +479,10 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 100,
         "next": [
-            "SellProductNext",
+            "SellProductZeroMoney",
+            "SellProductCanSell",
             "SellProductSellCheck"
         ]
     },
@@ -461,34 +500,142 @@
     "SellProductZeroProduct": {
         "pre_delay": 0,
         "post_delay": 0,
+        "doc": "货物数量是<1000，先尝试更换货品，失败则换据点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1083,
+                    327,
+                    109,
+                    24
+                ],
+                "expected": [
+                    "^[0-9]{1,3}$"
+                ]
+            }
+        },
+        "next": [
+            "SellProductChangeProduct",
+            "SellProductNext"
+        ]
+    },
+    "SellProductChangeProduct": {
+        "pre_delay": 0,
+        "doc": "识别更换货品并点击，进入更换UI",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换货品
+                    "更换货品",
+                    "更換貨品",
+                    "Switch Goods",
+                    "商品変更",
+                    "상품 교체"
+                ],
+                "roi": [
+                    1115,
+                    410,
+                    172,
+                    83
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectNewProduct"
+        ]
+    },
+    "SellProductSelectNewProduct": {
+        "pre_delay": 0,
+        "doc": "在更换UI中识别新货物并点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 货品/商品相关
+                    "本地仓储",
+                    "本地區倉儲",
+                    "Local Depot",
+                    "地域在庫",
+                    "지역 저장고"
+                ],
+                "roi": [
+                    511,
+                    180,
+                    274,
+                    83
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectNewProductComfirm",
+            "SellProductSelectNewProduct"
+        ]
+    },
+    "SellProductSelectNewProductComfirm": {
+        "pre_delay": 0,
+        "doc": "点击确认",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "roi": [
+                    945,
+                    557,
+                    172,
+                    45
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductCanSellAfterChange"
+        ]
+    },
+    "SellProductCanSellAfterChange": {
+        "pre_delay": 0,
+        "post_delay": 200,
+        "doc": "更换货品后重新判断能否售卖",
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductClickBarRight",
+            "SellProductDragBar"
+        ]
+    },
+    "SellProductZeroProductRetry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "更换货品后仍为，进入换据点流程",
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
         },
-        "doc": "货物数量是0",
         "recognition": {
-            "type": "ColorMatch",
+            "type": "OCR",
             "param": {
-                "lower": [
-                    [
-                        255,
-                        110,
-                        110
-                    ]
-                ],
-                "upper": [
-                    [
-                        255,
-                        130,
-                        130
-                    ]
-                ],
                 "roi": [
-                    1118,
-                    286,
-                    75,
-                    86
+                    1083,
+                    327,
+                    109,
+                    24
                 ],
-                "count": 10
+                "expected": [
+                    "^[0-9]{1,3}$"
+                ]
             }
         },
         "next": [
@@ -516,9 +663,9 @@
                 ],
                 "roi": [
                     900,
-                    550,
+                    639,
                     350,
-                    150
+                    49
                 ]
             }
         },
@@ -690,7 +837,9 @@
             }
         },
         "next": [
-            "SellProductSell"
+            "SellProductSell",
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney"
         ]
     },
     "SellProductSellPressed": {

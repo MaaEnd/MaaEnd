@@ -81,6 +81,37 @@ func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombination
 	return nil, false
 }
 
+// MatchFuturePromising - 保留未来可期基质：三种词条齐全且总等级 >= minTotal
+// 优先度低于 MatchEssenceSkills
+func MatchFuturePromising(ocrSkills []string, levels [3]int, minTotal int) bool {
+	if len(ocrSkills) != 3 || minTotal <= 0 {
+		return false
+	}
+	for i, s := range ocrSkills {
+		if s == "" {
+			return false
+		}
+		if levels[i] < 1 {
+			return false
+		}
+	}
+	sum := levels[0] + levels[1] + levels[2]
+	return sum >= minTotal
+}
+
+// MatchSlot3Level3Practical - 保留实用基质：词条3等级 >= minLevel（仅看等级，不过滤技能 ID）
+// 优先度低于 MatchEssenceSkills
+func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) (*SkillCombinationMatch, bool) {
+	if len(ocrSkills) < 3 || minLevel <= 0 || levels[2] < minLevel {
+		return nil, false
+	}
+	return &SkillCombinationMatch{
+		SkillIDs:      []int{0, 0, 0},
+		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
+		Weapons:       []WeaponData{},
+	}, true
+}
+
 // 预处理后的技能条目
 type skillEntry struct {
 	ID            int

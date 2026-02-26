@@ -6,55 +6,16 @@
             "Node.PipelineNode.Failed": "进入会客室失败"
         },
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    {
-                        "sub_name": "_ReceptionRoomBackground",
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    363,
-                                    12,
-                                    538,
-                                    278
-                                ],
-                                "lower": [
-                                    151,
-                                    132,
-                                    235
-                                ],
-                                "upper": [
-                                    158,
-                                    138,
-                                    249
-                                ],
-                                "count": 400,
-                                "connected": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": "_ReceptionRoomBackground",
-                                "lower": [
-                                    35,
-                                    35,
-                                    35
-                                ],
-                                "upper": [
-                                    35,
-                                    35,
-                                    35
-                                ],
-                                "count": 50,
-                                "connected": true
-                            }
-                        }
-                    }
+                "roi": [
+                    484,
+                    80,
+                    302,
+                    179
+                ],
+                "expected": [
+                    "^会客室$"
                 ]
             }
         },

@@ -445,9 +445,6 @@
         ]
     },
     "SceneCheckYellowColorSuccess": {
-        "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #807F00\">黄色 (#807F00)</span>"
-        },
         "post_delay": 0,
         "pre_delay": 0,
         "rate_limit": 0,
@@ -460,15 +457,16 @@
                     65,
                     85
                 ],
+                "method": 40,
                 "upper": [
-                    128,
-                    127,
-                    0
+                    30,
+                    255,
+                    255
                 ],
                 "lower": [
-                    128,
-                    127,
-                    0
+                    30,
+                    255,
+                    1
                 ]
             }
         }
@@ -479,7 +477,10 @@
         },
         "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
     },
     "SceneCheckTealColor": {
         "doc": "检查颜色准确性:青色",
@@ -493,9 +494,6 @@
         ]
     },
     "SceneCheckTealColorSuccess": {
-        "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #007F7F\">青色 (#007F7F)</span>"
-        },
         "post_delay": 0,
         "pre_delay": 0,
         "rate_limit": 0,
@@ -508,15 +506,16 @@
                     65,
                     85
                 ],
+                "method": 40,
                 "upper": [
-                    0,
-                    127,
-                    127
+                    90,
+                    255,
+                    255
                 ],
                 "lower": [
-                    0,
-                    127,
-                    127
+                    90,
+                    255,
+                    1
                 ]
             }
         }
@@ -527,7 +526,10 @@
         },
         "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
     },
     "SceneCheckPurpleColor": {
         "doc": "检查颜色准确性:紫色",
@@ -541,9 +543,6 @@
         ]
     },
     "SceneCheckPurpleColorSuccess": {
-        "focus": {
-            "Node.Recognition.Succeeded": "识别颜色成功:<span style=\"color: #80007F\">紫色 (#80007F)</span>"
-        },
         "post_delay": 0,
         "pre_delay": 0,
         "rate_limit": 0,
@@ -556,15 +555,16 @@
                     65,
                     85
                 ],
+                "method": 40,
                 "upper": [
-                    128,
-                    0,
-                    127
+                    150,
+                    255,
+                    255
                 ],
                 "lower": [
-                    128,
-                    0,
-                    127
+                    150,
+                    255,
+                    1
                 ]
             }
         }
@@ -575,6 +575,25 @@
         },
         "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
+    },
+    "SceneCheckColorFailedScreenShot": {
+        "doc": "检查颜色准确性失败时，截图保存到 debug 目录",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ScreenShot",
+                "custom_action_param": {
+                    "type": "ColorCheckFailed"
+                }
+            }
+        }
     }
 }

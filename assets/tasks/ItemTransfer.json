@@ -1130,6 +1130,24 @@
                             "template": "Common/Items/荞花粉末.png"
                         }
                     }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringe",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "template": "Common/Items/芽针针剂.png"
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "template": "Common/Items/芽针针剂.png"
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "template": "Common/Items/芽针针剂.png"
+                        }
+                    }
                 }
             ],
             "default_case": "蓝铁矿"

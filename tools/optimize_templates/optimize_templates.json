@@ -308,5 +308,9 @@
     "resource/image/MapTracker/map/base01_lv003": "f4d797996d16947ad809ae57a76b28e2074bd5b4661bcd7007b94249c29d23bf",
     "resource/image/DailyRewards/ClaimDeliveryJobsButton": "ce83a5bf90b5ddd9f8390bc77561536ed1bb3b2b227356293dc117ca4649e1ed",
     "resource/image/DailyRewards/EventRedDot4": "9a0274818f0a2f597c678ff1216815b6d5191d16a491d683cf89f0268d42ded8",
-    "resource/image/DailyRewards/ProtocolNewSwitch": "04e2d7cab29acd454d5c8bc59ebf4578b7097eebe67d7e3d425233edb8c32868"
+    "resource/image/DailyRewards/ProtocolNewSwitch": "04e2d7cab29acd454d5c8bc59ebf4578b7097eebe67d7e3d425233edb8c32868",
+    "resource/image/SellProduct/SellProductDevelopmentLocked": "c38667d5042efff9da0f9289b5358a3b17bac2fe886ad21e3f75cf3c7274e02c",
+    "resource/image/Common/Items/\u82bd\u9488\u9488\u5242": "f1686dbc86a96adc53d21b87877392656766128110b95039f8268494d69a7c2f",
+    "resource/image/Baker/SessionOptions": "e4d61845de87fcb8022bab33c6d649899c40d5b8684c740ccf9dca421f12c6eb",
+    "resource/image/Baker/TaskOptions": "467689bde58630609ddfcd67526088687c8ec05b433cef75b031b2fd21115ebf"
 }

@@ -7,7 +7,8 @@
             "description": "$task.EssenceFilter.description",
             "option": [
                 "SelectWeaponRarity",
-                "SelectEssence"
+                "SelectEssence",
+                "SelectExtraRules"
             ],
             "controller": [
                 "Win32",
@@ -188,6 +189,129 @@
                     }
                 }
             ]
+        },
+        "SelectExtraRules": {
+            "type": "switch",
+            "label": "$option.SelectExtraRules.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "KeepFuturePromising",
+                        "KeepSlot3Level3Practical"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "KeepFuturePromising": {
+            "type": "switch",
+            "label": "$option.KeepFuturePromising.label",
+            "description": "$option.KeepFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "FuturePromisingMinTotal"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "keep_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "keep_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "FuturePromisingMinTotal": {
+            "type": "input",
+            "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+            "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+            "inputs": [
+                {
+                    "name": "FuturePromisingMinTotal",
+                    "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+                    "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+                    "pipeline_type": "int",
+                    "verify": "^[3-9]$|^1[0-5]$",
+                    "default": "6"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterInit": {
+                    "attach": {
+                        "future_promising_min_total": "{FuturePromisingMinTotal}"
+                    }
+                }
+            }
+        },
+        "KeepSlot3Level3Practical": {
+            "type": "switch",
+            "label": "$option.KeepSlot3Level3Practical.label",
+            "description": "$option.KeepSlot3Level3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "Slot3MinLevel"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "Slot3MinLevel": {
+            "type": "input",
+            "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+            "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+            "inputs": [
+                {
+                    "name": "Slot3MinLevel",
+                    "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+                    "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+                    "pipeline_type": "int",
+                    "verify": "^[1-3]$",
+                    "default": "3"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterInit": {
+                    "attach": {
+                        "slot3_min_level": "{Slot3MinLevel}"
+                    }
+                }
+            }
         }
     }
 }

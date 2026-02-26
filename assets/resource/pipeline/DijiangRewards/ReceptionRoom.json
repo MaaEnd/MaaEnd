@@ -6,55 +6,16 @@
             "Node.PipelineNode.Failed": "进入会客室识别"
         },
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    {
-                        "sub_name": "_ReceptionRoomBackground",
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    363,
-                                    12,
-                                    538,
-                                    278
-                                ],
-                                "lower": [
-                                    151,
-                                    132,
-                                    235
-                                ],
-                                "upper": [
-                                    158,
-                                    138,
-                                    249
-                                ],
-                                "count": 400,
-                                "connected": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": "_ReceptionRoomBackground",
-                                "lower": [
-                                    35,
-                                    35,
-                                    35
-                                ],
-                                "upper": [
-                                    35,
-                                    35,
-                                    35
-                                ],
-                                "count": 50,
-                                "connected": true
-                            }
-                        }
-                    }
+                "roi": [
+                    484,
+                    80,
+                    302,
+                    179
+                ],
+                "expected": [
+                    "^会客室$"
                 ]
             }
         },
@@ -124,15 +85,16 @@
                                     1116,
                                     485
                                 ],
+                                "method": 40,
                                 "lower": [
-                                    224,
-                                    105,
+                                    10,
+                                    255,
                                     0
                                 ],
                                 "upper": [
+                                    20,
                                     255,
-                                    117,
-                                    4
+                                    255
                                 ],
                                 "count": 40,
                                 "connected": true
@@ -219,82 +181,60 @@
             }
         }
     },
+    "ClueTimeLabel": {
+        "doc": "识别线索的剩余天数",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReadySetClues",
+                "roi_offset": [
+                    -200,
+                    71,
+                    58,
+                    41
+                ],
+                "expected": [
+                    "\\d+[小时|天]"
+                ]
+            }
+        }
+    },
+    "DeleteClue": {
+        "doc": "[会客室·线索] 识别「删除」红点，表示已有线索可点击替换",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ReadySetClues",
+                "roi_offset": [
+                    0,
+                    -19,
+                    238,
+                    22
+                ],
+                "method": 40,
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "lower": [
+                    170,
+                    100,
+                    100
+                ],
+                "count": 20,
+                "connected": true
+            }
+        }
+    },
     "SetClues": {
         "doc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
-                    {
-                        "doc": "识别线索的删除按钮",
-                        "sub_name": "_DeleteButton",
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": "ReadySetClues",
-                                "roi_offset": [
-                                    0,
-                                    -19,
-                                    238,
-                                    22
-                                ],
-                                "upper": [
-                                    221,
-                                    44,
-                                    76
-                                ],
-                                "lower": [
-                                    221,
-                                    44,
-                                    75
-                                ],
-                                "count": 20,
-                                "connected": true
-                            }
-                        }
-                    },
-                    {
-                        "doc": "识别线索的剩余天数",
-                        "sub_name": "_TimeLabel",
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": "ReadySetClues",
-                                "roi_offset": [
-                                    -102,
-                                    1,
-                                    -21,
-                                    85
-                                ],
-                                "upper": [
-                                    [
-                                        166,
-                                        189,
-                                        107
-                                    ],
-                                    [
-                                        255,
-                                        70,
-                                        95
-                                    ]
-                                ],
-                                "lower": [
-                                    [
-                                        109,
-                                        153,
-                                        0
-                                    ],
-                                    [
-                                        250,
-                                        65,
-                                        85
-                                    ]
-                                ],
-                                "count": 20,
-                                "connected": true
-                            }
-                        }
-                    }
+                    "DeleteClue",
+                    "ClueTimeLabel"
                 ]
             }
         },
@@ -339,15 +279,16 @@
                                     57,
                                     80
                                 ],
+                                "method": 40,
                                 "lower": [
-                                    224,
-                                    105,
-                                    0
+                                    10,
+                                    255,
+                                    100
                                 ],
                                 "upper": [
+                                    20,
                                     255,
-                                    117,
-                                    4
+                                    255
                                 ],
                                 "count": 40,
                                 "connected": true
@@ -580,15 +521,16 @@
                                     95,
                                     60
                                 ],
+                                "method": 40,
                                 "lower": [
-                                    224,
-                                    105,
-                                    0
+                                    10,
+                                    255,
+                                    100
                                 ],
                                 "upper": [
+                                    20,
                                     255,
-                                    117,
-                                    4
+                                    255
                                 ],
                                 "count": 40,
                                 "connected": true

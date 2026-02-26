@@ -254,41 +254,18 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "method": 40,
                 "lower": [
-                    [
-                        253,
-                        237,
-                        1
-                    ],
-                    [
-                        255,
-                        245,
-                        104
-                    ],
-                    [
-                        209,
-                        207,
-                        13
-                    ]
+                    28,
+                    100,
+                    100
                 ],
                 "upper": [
-                    [
-                        255,
-                        239,
-                        1
-                    ],
-                    [
-                        221,
-                        213,
-                        92
-                    ],
-                    [
-                        244,
-                        241,
-                        48
-                    ]
+                    30,
+                    255,
+                    255
                 ],
-                "count": 100,
+                "count": 3000,
                 "connected": true
             }
         }
@@ -298,41 +275,32 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "method": 40,
                 "lower": [
                     [
-                        255,
-                        253,
-                        253
+                        0,
+                        0,
+                        250
                     ],
                     [
-                        238,
-                        236,
-                        236
-                    ],
-                    [
-                        153,
-                        152,
-                        152
+                        0,
+                        0,
+                        150
                     ]
                 ],
                 "upper": [
                     [
-                        255,
-                        253,
-                        253
+                        0,
+                        2,
+                        255
                     ],
                     [
-                        239,
-                        237,
-                        237
-                    ],
-                    [
-                        167,
-                        165,
-                        165
+                        0,
+                        2,
+                        155
                     ]
                 ],
-                "count": 100,
+                "count": 3000,
                 "connected": true
             }
         }
@@ -384,12 +352,6 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    40,
-                                    40
-                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
@@ -705,7 +667,8 @@
                     "Common/Button/CloseButtonType1.png",
                     "Common/Button/CloseButtonType2.png",
                     "Common/Button/CloseButtonType3.png",
-                    "Common/Button/CloseButtonType4.png"
+                    "Common/Button/CloseButtonType4.png",
+                    "Common/Button/CloseButtonType5.png"
                 ],
                 "threshold": 0.9
             }
