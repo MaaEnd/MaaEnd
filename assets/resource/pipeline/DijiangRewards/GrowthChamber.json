@@ -56,8 +56,16 @@
                     301,
                     383
                 ],
-                "expected": []
+                "expected": [
+                    "轻红柱状菌",
+                    "Pink Bolete",
+                    "薄紅茸",
+                    "輕紅柱狀菌"
+                ]
             }
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "[JumpBack]WhiteConfirmButtonType1",
