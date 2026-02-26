@@ -71,7 +71,7 @@ jobs:
         uses: pozetroninc/github-action-get-latest-release@master
         with:
           repository: MistEO/MXU
-          excludes: "draft"
+          excludes: "prerelease, draft"
           token: ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
