@@ -185,6 +185,9 @@ func isEntryFightScene(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 type AutoFightEntryRecognition struct{}
 
 func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
 	if !isEntryFightScene(ctx, arg) {
 		return nil, false
 	}
@@ -240,6 +243,9 @@ func saveExitImage(img image.Image, reason string) {
 type AutoFightExitRecognition struct{}
 
 func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
 	// 暂停超时（不在战斗空间超过 10 秒），直接退出
 	if !pauseNotInFightSince.IsZero() && time.Since(pauseNotInFightSince) >= 10*time.Second {
 		log.Info().Dur("elapsed", time.Since(pauseNotInFightSince)).Msg("Pause timeout, exiting fight")
@@ -268,6 +274,9 @@ func (r *AutoFightExitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 type AutoFightPauseRecognition struct{}
 
 func (r *AutoFightPauseRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
 	if inFightSpace(ctx, arg) {
 		pauseNotInFightSince = time.Time{}
 		return nil, false
@@ -420,6 +429,9 @@ func recognitionAttack(ctx *maa.Context, arg *maa.CustomRecognitionArg) {
 type AutoFightExecuteRecognition struct{}
 
 func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil {
+		return nil, false
+	}
 	if !enemyInScreen && hasEnemyInScreen(ctx, arg) {
 		enemyInScreen = true
 		enqueueAction(fightAction{
