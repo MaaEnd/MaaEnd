@@ -125,6 +125,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 10,
         "next": [
             "SellProductSell",
             "SellProductZeroProductRetry",
@@ -490,6 +491,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "doc": "判断当前能不能出售的虚节点",
+        "post_wait_freezes": 10,
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -512,7 +514,8 @@
                 ],
                 "expected": [
                     "^[0-9]{1,3}$"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "next": [
@@ -610,6 +613,7 @@
         "pre_delay": 0,
         "post_delay": 200,
         "doc": "更换货品后重新判断能否售卖",
+        "post_wait_freezes": 10,
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -635,7 +639,8 @@
                 ],
                 "expected": [
                     "^[0-9]{1,3}$"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "next": [
@@ -666,7 +671,8 @@
                     639,
                     350,
                     49
-                ]
+                ],
+                "only_rec": true
             }
         },
         "next": [
