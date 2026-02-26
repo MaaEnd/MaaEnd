@@ -931,7 +931,10 @@
                     257
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     },
     "GoToAncientTreeMapTrackerMove": {
         "doc": "前往古树",
@@ -982,15 +985,22 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    297,
-                    580
+                    295,
+                    582
                 ],
                 [
-                    317,
-                    592
+                    309,
+                    593
+                ],
+                [
+                    318,
+                    593
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     },
     "GoToIndoorCropsMapTrackerMove": {
         "doc": "前往室内作物。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
@@ -1004,7 +1014,10 @@
                     0
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     },
     "GoToBeaconDamagedInBlightTideMapTrackerMove": {
         "doc": "前往侵蚀潮中损坏的信标。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
@@ -1018,7 +1031,10 @@
                     0
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     },
     "GoToRainbowFinMapTrackerMove": {
         "doc": "前往七彩鳞",
@@ -1027,13 +1043,34 @@
         "custom_action_param": {
             "map_name": "map02_lv001",
             "path": [
-                [130, 820],
-                [141, 818],
-                [159, 806],
-                [177, 798],
-                [190, 783],
-                [193, 767],
-                [205, 755]
+                [
+                    130,
+                    820
+                ],
+                [
+                    141,
+                    818
+                ],
+                [
+                    159,
+                    806
+                ],
+                [
+                    177,
+                    798
+                ],
+                [
+                    190,
+                    783
+                ],
+                [
+                    193,
+                    767
+                ],
+                [
+                    205,
+                    755
+                ]
             ]
         },
         "next": [
@@ -1052,7 +1089,10 @@
                     0
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     },
     "GoToCollapsedTianshiPillarMapTrackerMove": {
         "doc": "前往倒塌的天师桩。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
@@ -1066,6 +1106,9 @@
                     0
                 ]
             ]
-        }
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
     }
 }
