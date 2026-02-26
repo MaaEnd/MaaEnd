@@ -1,28 +1,32 @@
 package resell
 
 import (
+	"encoding/json"
 	"fmt"
-	"regexp"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-var scanNodeRe = regexp.MustCompile(`ResellScanRow(\d+)Col(\d+)`)
-
 // ResellScanProductAction 扫描单个 (row,col) 商品，追加利润记录，跳转到下一格或决策节点
+// row/col 通过 custom_action_param 传入，可由 OverridePipeline 运行时覆盖
 type ResellScanProductAction struct{}
 
 func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	matches := scanNodeRe.FindStringSubmatch(arg.CurrentTaskName)
-	if len(matches) != 3 {
-		log.Error().Str("task", arg.CurrentTaskName).Msg("[Resell]无法解析扫描节点名")
-		return false
+	rowIdx, col := 1, 1
+	if arg.CustomActionParam != "" {
+		var params struct {
+			Row int `json:"row"`
+			Col int `json:"col"`
+		}
+		if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+			log.Error().Err(err).Str("param", arg.CustomActionParam).Msg("[Resell]无法解析 custom_action_param")
+			return false
+		}
+		if params.Row >= 1 && params.Row <= 3 && params.Col >= 1 && params.Col <= 8 {
+			rowIdx, col = params.Row, params.Col
+		}
 	}
-	rowIdx := 0
-	col := 0
-	fmt.Sscanf(matches[1], "%d", &rowIdx)
-	fmt.Sscanf(matches[2], "%d", &col)
 
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
@@ -41,7 +45,7 @@ func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		costPrice, clickX, clickY, success = ocrExtractNumberWithCenter(ctx, controller, pricePipelineName)
 		if !success {
 			log.Info().Int("行", rowIdx).Int("列", col).Msg("[Resell]位置无数字，无商品，跳下一格")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{getNextScanNode(rowIdx, col, true)})
+			resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, true)
 			return true
 		}
 	}
@@ -54,7 +58,7 @@ func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	_, friendBtnX, friendBtnY, success := ocrExtractTextWithCenter(ctx, controller, "ResellROIViewFriendPrice")
 	if !success {
 		log.Info().Msg("[Resell]未找到查看好友价格按钮")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{getNextScanNode(rowIdx, col, false)})
+		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 		return true
 	}
 	MoveMouseSafe(controller)
@@ -72,7 +76,7 @@ func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	// Step 3: 等待并识别好友出售价
 	if _, err := ctx.RunTask("ResellWaitFriendPrice", nil); err != nil {
 		log.Info().Err(err).Msg("[Resell]未能识别好友出售价")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{getNextScanNode(rowIdx, col, false)})
+		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 		return true
 	}
 	MoveMouseSafe(controller)
@@ -82,7 +86,7 @@ func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		salePrice, _, _, success = ocrExtractNumberWithCenter(ctx, controller, "ResellROIFriendSalePrice")
 		if !success {
 			log.Info().Msg("[Resell]未能识别好友出售价")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{getNextScanNode(rowIdx, col, false)})
+			resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 			return true
 		}
 	}
@@ -102,22 +106,40 @@ func (a *ResellScanProductAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		log.Warn().Err(err).Msg("[Resell]关闭页面失败")
 	}
 
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{getNextScanNode(rowIdx, col, false)})
+	resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 	return true
 }
 
-func getNextScanNode(row, col int, breakRow bool) maa.NodeNextItem {
+// resellScanOverrideNext 设置下一格：通过 OverridePipeline 写入 row/col 到 ResellScan 的 custom_action_param，再 OverrideNext
+func resellScanOverrideNext(ctx *maa.Context, currentTask string, row, col int, breakRow bool) {
+	nextRow, nextCol, done := computeNextScanPos(row, col, breakRow)
+	if done {
+		ctx.OverrideNext(currentTask, []maa.NodeNextItem{{Name: "ResellDecide"}})
+		return
+	}
+	_ = ctx.OverridePipeline(map[string]any{
+		"ResellScan": map[string]any{
+			"custom_action_param": map[string]any{
+				"row": nextRow,
+				"col": nextCol,
+			},
+		},
+	})
+	ctx.OverrideNext(currentTask, []maa.NodeNextItem{{Name: "ResellScan"}})
+}
+
+func computeNextScanPos(row, col int, breakRow bool) (nextRow, nextCol int, done bool) {
 	if breakRow {
 		if row < 3 {
-			return maa.NodeNextItem{Name: fmt.Sprintf("ResellScanRow%dCol1", row+1)}
+			return row + 1, 1, false
 		}
-		return maa.NodeNextItem{Name: "ResellDecide"}
+		return 0, 0, true
 	}
 	if col < 8 {
-		return maa.NodeNextItem{Name: fmt.Sprintf("ResellScanRow%dCol%d", row, col+1)}
+		return row, col + 1, false
 	}
 	if row < 3 {
-		return maa.NodeNextItem{Name: fmt.Sprintf("ResellScanRow%dCol1", row+1)}
+		return row + 1, 1, false
 	}
-	return maa.NodeNextItem{Name: "ResellDecide"}
+	return 0, 0, true
 }

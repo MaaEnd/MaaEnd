@@ -29,6 +29,14 @@ func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	}
 
 	setOverflow(overflowAmount)
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{{Name: "ResellScanRow1Col1"}})
+	_ = ctx.OverridePipeline(map[string]any{
+		"ResellScan": map[string]any{
+			"custom_action_param": map[string]any{
+				"row": 1,
+				"col": 1,
+			},
+		},
+	})
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{{Name: "ResellScan"}})
 	return true
 }
