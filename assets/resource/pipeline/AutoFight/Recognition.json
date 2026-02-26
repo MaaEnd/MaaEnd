@@ -285,25 +285,53 @@
     },
     "AutoFightRecognitionEnemyInScreen": {
         "doc": "识别敌人是否在屏幕内",
-        "recognition": "ColorMatch",
-        "roi": [
-            280,
-            150,
-            750,
-            370
+        "recognition": "Or",
+        "any_of": [
+            {
+                // 小怪血条
+                "recognition": "ColorMatch",
+                "roi": [
+                    280,
+                    150,
+                    750,
+                    370
+                ],
+                "lower": [
+                    240,
+                    40,
+                    80
+                ],
+                "upper": [
+                    255,
+                    80,
+                    120
+                ],
+                "count": 100,
+                "connected": true
+            },
+            {
+                // boss血条 #E24B65 - #FE5F7C
+                "recognition": "ColorMatch",
+                "roi": [
+                    400,
+                    0,
+                    500,
+                    100
+                ],
+                "lower": [
+                    200,
+                    60,
+                    90
+                ],
+                "upper": [
+                    255,
+                    90,
+                    140
+                ],
+                "count": 200,
+                "connected": true
+            }
         ],
-        "lower": [
-            240,
-            40,
-            80
-        ],
-        "upper": [
-            255,
-            80,
-            120
-        ],
-        "count": 100,
-        "connected": true,
         "focus": {
             "Node.Recognition.Succeeded": "识别到敌人"
         }
