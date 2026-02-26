@@ -309,5 +309,15 @@
     "operator.Fluorite": "フローライト",
     "operator.Akekuri": "アケクリ",
     "operator.Estella": "エステーラ",
-    "operator.Endministrator": "管理人"
+    "operator.Endministrator": "管理人",
+    "preset.DailyFull.label": "フルデイリー",
+    "preset.DailyFull.description": "毎日のルーチンタスクをすべてカバーし、ログイン時のワンクリック実行に最適です。",
+    "preset.QuickDaily.label": "クイックデイリー",
+    "preset.QuickDaily.description": "主要な報酬受け取りタスクのみを実行し、時間と手間を省きます。",
+    "preset.RealtimeAssist.label": "リアルタイムアシスト",
+    "preset.RealtimeAssist.description": "放置時に有効にするリアルタイムアシスト機能のフルセット。",
+    "preset.AutoTrading.label": "自動転売",
+    "preset.AutoTrading.description": "自動売買および生産関連。",
+    "preset.EssenceFarming.label": "エッセンス周回",
+    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。"
 }

@@ -309,5 +309,15 @@
     "operator.Fluorite": "Fluorite",
     "operator.Akekuri": "Akekuri",
     "operator.Estella": "Estella",
-    "operator.Endministrator": "Endministrator"
+    "operator.Endministrator": "Endministrator",
+    "preset.DailyFull.label": "Full Daily Routine",
+    "preset.DailyFull.description": "Covers all daily routine tasks, perfect for one-click execution upon login.",
+    "preset.QuickDaily.label": "Quick Daily",
+    "preset.QuickDaily.description": "Only performs core reward-claiming tasks, saving time and effort.",
+    "preset.RealtimeAssist.label": "Real-time Assist",
+    "preset.RealtimeAssist.description": "Full suite of real-time assist features for AFK.",
+    "preset.AutoTrading.label": "Auto Trading",
+    "preset.AutoTrading.description": "Auto trading and production related tasks.",
+    "preset.EssenceFarming.label": "Essence Farming",
+    "preset.EssenceFarming.description": "Essence farming and filtering related tasks."
 }

@@ -309,5 +309,15 @@
     "operator.Fluorite": "螢石",
     "operator.Akekuri": "秋栗",
     "operator.Estella": "埃特拉",
-    "operator.Endministrator": "管理員"
+    "operator.Endministrator": "管理員",
+    "preset.DailyFull.label": "全套日常",
+    "preset.DailyFull.description": "覆蓋所有每日例行任務，適合每天上線時一鍵執行",
+    "preset.QuickDaily.label": "快速日常",
+    "preset.QuickDaily.description": "只做最核心的領獎任務，省時省力",
+    "preset.RealtimeAssist.label": "實時輔助",
+    "preset.RealtimeAssist.description": "掛機時開啟的實時輔助功能全套",
+    "preset.AutoTrading.label": "自動倒賣",
+    "preset.AutoTrading.description": "自動買賣及生產相關",
+    "preset.EssenceFarming.label": "靈素刷取",
+    "preset.EssenceFarming.description": "靈素養成及篩選相關"
 }

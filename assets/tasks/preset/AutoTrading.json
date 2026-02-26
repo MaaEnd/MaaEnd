@@ -1,0 +1,24 @@
+{
+    "preset": [
+        {
+            "name": "AutoTrading",
+            "label": "$preset.AutoTrading.label",
+            "description": "$preset.AutoTrading.description",
+            "task": [
+                {
+                    "name": "AutoResell",
+                    "option": {
+                        "AutoBuyAndSell": "Yes",
+                        "AutoChangeRegion": "Yes"
+                    }
+                },
+                {
+                    "name": "SellProduct"
+                },
+                {
+                    "name": "SimpleProductionBatchStart"
+                }
+            ]
+        }
+    ]
+}

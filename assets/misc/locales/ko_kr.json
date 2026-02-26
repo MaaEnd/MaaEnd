@@ -309,5 +309,15 @@
     "operator.Fluorite": "플루라이트",
     "operator.Akekuri": "아케쿠리",
     "operator.Estella": "에스텔라",
-    "operator.Endministrator": "관리자"
+    "operator.Endministrator": "관리자",
+    "preset.DailyFull.label": "전체 일일 임무",
+    "preset.DailyFull.description": "모든 일일 임무를 포함하며, 로그인 시 원클릭 실행에 적합합니다.",
+    "preset.QuickDaily.label": "빠른 일일 임무",
+    "preset.QuickDaily.description": "핵심 보상 수령 임무만 수행하여 시간과 노력을 절약합니다.",
+    "preset.RealtimeAssist.label": "실시간 어시스트",
+    "preset.RealtimeAssist.description": "방치 시 활성화하는 실시간 어시스트 기능 풀세트입니다.",
+    "preset.AutoTrading.label": "자동 거래",
+    "preset.AutoTrading.description": "자동 매매 및 생산 관련 임무입니다.",
+    "preset.EssenceFarming.label": "에센스 파밍",
+    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다."
 }

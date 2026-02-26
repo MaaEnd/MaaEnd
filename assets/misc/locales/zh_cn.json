@@ -309,5 +309,15 @@
     "operator.Fluorite": "萤石",
     "operator.Akekuri": "秋栗",
     "operator.Estella": "埃特拉",
-    "operator.Endministrator": "管理员"
+    "operator.Endministrator": "管理员",
+    "preset.DailyFull.label": "全套日常",
+    "preset.DailyFull.description": "覆盖所有每日例行任务，适合每天上线时一键执行",
+    "preset.QuickDaily.label": "快速日常",
+    "preset.QuickDaily.description": "只做最核心的领奖任务，省时省力",
+    "preset.RealtimeAssist.label": "实时辅助",
+    "preset.RealtimeAssist.description": "挂机时开启的实时辅助功能全套",
+    "preset.AutoTrading.label": "自动倒卖",
+    "preset.AutoTrading.description": "自动买卖及生产相关",
+    "preset.EssenceFarming.label": "灵素刷取",
+    "preset.EssenceFarming.description": "灵素养成及筛选相关"
 }
