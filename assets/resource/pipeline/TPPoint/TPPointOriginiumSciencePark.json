@@ -14,7 +14,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginiumSciencePark1": {
@@ -32,7 +32,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginiumSciencePark2": {
@@ -50,7 +50,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginiumSciencePark3": {
@@ -68,7 +68,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginiumSciencePark4": {
@@ -86,7 +86,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     }
 }

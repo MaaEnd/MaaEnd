@@ -14,7 +14,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointPowerPlateau1": {
@@ -32,7 +32,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointPowerPlateau2": {
@@ -50,7 +50,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointPowerPlateau3": {
@@ -68,7 +68,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     }
 }

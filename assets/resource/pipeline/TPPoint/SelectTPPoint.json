@@ -60,8 +60,58 @@
             "EnableMapWulingWulingCity": ""
         },
         "next": [
-            "TeleportButton"
+            "TeleportButtonAndWaiting"
         ]
+    },
+    "TeleportButtonAndWaiting": {
+        "doc": "传送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "TeleportCheckInWorld",
+            "[JumpBack]TeleportCheckingLoop"
+        ]
+    },
+    "TeleportCheckingLoop": {
+        "doc": "传送检查循环",
+        "recognition": "DirectHit"
+    },
+    "TeleportCheckInWorld": {
+        "doc": "进入大世界成功",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        }
     },
     "STPPoint0": {
         "doc": "选择当前屏幕最顶端可识别传送点但不使用",

@@ -19,7 +19,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley1": {
@@ -42,7 +42,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley2": {
@@ -60,7 +60,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley3": {
@@ -78,7 +78,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley4": {
@@ -96,7 +96,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley5": {
@@ -114,7 +114,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley6": {
@@ -132,7 +132,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley7": {
@@ -150,7 +150,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley8": {
@@ -168,7 +168,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley9": {
@@ -191,7 +191,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointWulingJingyuValley10": {
@@ -214,7 +214,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     }
 }

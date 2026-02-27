@@ -1,5 +1,5 @@
 {
-    "SceneEnterWorldDijiangWithAnchor": {
+    "TPPointDijiangWithAnchor": {
         "doc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
         "post_delay": 0,
@@ -15,8 +15,7 @@
             "EnableMapWulingWulingCity": "SceneEnterMapWulingWulingCity"
         },
         "next": [
-            "ScenePrivateWorldEnterWorldDijiang",
-            "[JumpBack]SceneAnyEnterWorld"
+            "SceneEnterWorldDijiang"
         ]
     }
 }

@@ -14,7 +14,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointValleyIVValleyPass1": {
@@ -32,7 +32,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointValleyIVValleyPass2": {
@@ -50,7 +50,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     }
 }

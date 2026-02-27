@@ -19,7 +19,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginLodespring1": {
@@ -37,7 +37,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginLodespring2": {
@@ -55,7 +55,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginLodespring3": {
@@ -73,7 +73,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     },
     "TPPointOriginLodespring4": {
@@ -92,7 +92,7 @@
                 "anchor": true,
                 "jump_back": true
             },
-            "[JumpBack]SceneEnterWorldDijiangWithAnchor"
+            "[JumpBack]TPPointDijiangWithAnchor"
         ]
     }
 }
