@@ -524,6 +524,15 @@ func (r *AutoFightExecuteRecognition) runSchedulerMode(ctx *maa.Context, arg *ma
 			action:    a.Type,
 			operator:  a.Operator,
 		})
+
+		// 检查若是终结技按下，需要同时放入一个延时的抬起操作
+		if a.Type == ActionEndSkillKeyDown {
+			enqueueAction(fightAction{
+				executeAt: time.Now().Add(1500 * time.Millisecond),
+				action:    ActionEndSkillKeyUp,
+				operator:  a.Operator,
+			})
+		}
 	}
 
 	return &maa.CustomRecognitionResult{
