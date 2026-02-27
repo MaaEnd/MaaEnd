@@ -76,17 +76,17 @@ func TestConfigLoadAndGet(t *testing.T) {
 		t.Fatalf("expected 1 track, got %d", len(config.Tracks))
 	}
 
-	// Verify sorting (StartTime 6.0 should be before 8.0)
-	actions := config.Tracks[0].Actions
-	if len(actions) != 2 {
-		t.Fatalf("expected 2 actions, got %d", len(actions))
+	// Verify flattening and sorting
+	events := config.Events
+	if len(events) != 2 {
+		t.Fatalf("expected 2 events, got %d", len(events))
 	}
 
-	if actions[0].InstanceID != "act_1" || actions[0].StartTime != 6.0 {
-		t.Errorf("expected first action to be act_1 at 6.0, got %s at %f", actions[0].InstanceID, actions[0].StartTime)
+	if events[0].Type != EventSkill || events[0].Time != 1.0 {
+		t.Errorf("expected first event to be Skill at 1.0, got %s at %f", events[0].Type, events[0].Time)
 	}
-	if actions[1].InstanceID != "act_2" || actions[1].StartTime != 8.0 {
-		t.Errorf("expected second action to be act_2 at 8.0, got %s at %f", actions[1].InstanceID, actions[1].StartTime)
+	if events[1].Type != EventSwitchOperator || events[1].Time != 3.0 {
+		t.Errorf("expected second event to be SwitchOperator at 3.0, got %s at %f", events[1].Type, events[1].Time)
 	}
 }
 

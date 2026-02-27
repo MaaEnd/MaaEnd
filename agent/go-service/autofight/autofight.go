@@ -123,10 +123,20 @@ func hasEnemyInScreen(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 }
 
 func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
-	// 第一格能量满
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnergyLevel1", arg.Img)
+	// 从高到低检测：3格 → 2格 → 1格 → 0格
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnergyLevel3", arg.Img)
+	if err == nil && detail != nil && detail.Hit {
+		return 3
+	}
+
+	detail, err = ctx.RunRecognition("__AutoFightRecognitionEnergyLevel2", arg.Img)
+	if err == nil && detail != nil && detail.Hit {
+		return 2
+	}
+
+	detail, err = ctx.RunRecognition("__AutoFightRecognitionEnergyLevel1", arg.Img)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionEnergyLevel1")
+		log.Error().Err(err).Msg("Failed to run recognition for __AutoFightRecognitionEnergyLevel1")
 		return -1
 	}
 	if detail != nil && detail.Hit {
@@ -328,6 +338,7 @@ const (
 	ActionLockTarget
 	ActionDodge
 	ActionSleep
+	ActionSwitchOperator
 )
 
 func (t ActionType) String() string {
@@ -346,6 +357,8 @@ func (t ActionType) String() string {
 		return "LockTarget"
 	case ActionDodge:
 		return "Dodge"
+	case ActionSwitchOperator:
+		return "SwitchOperator"
 	default:
 		return "Unknown"
 	}
@@ -451,6 +464,13 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 	if arg == nil || arg.Img == nil {
 		return nil, false
 	}
+
+	// 如果有出招配置，使用调度器模式
+	if HasConfig() {
+		return r.runSchedulerMode(ctx, arg)
+	}
+
+	// 否则走原有默认逻辑
 	if !enemyInScreen && hasEnemyInScreen(ctx, arg) {
 		enemyInScreen = true
 		enqueueAction(fightAction{
@@ -472,6 +492,41 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 	}, true
 }
 
+// runSchedulerMode 使用时间轴调度器的战斗模式
+func (r *AutoFightExecuteRecognition) runSchedulerMode(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	cfg := GetConfig()
+	if cfg == nil {
+		return nil, false
+	}
+
+	sch := GetScheduler(cfg)
+
+	// 识别当前状态
+	energyLevel := getEnergyLevel(ctx, arg)
+	if energyLevel < 0 {
+		energyLevel = 0
+	}
+	comboAvailable := hasComboShow(ctx, arg)
+	endSkillUsable := getEndSkillUsable(ctx, arg)
+
+	// 调度器 tick
+	result := sch.Tick(energyLevel, comboAvailable, endSkillUsable)
+
+	// 将调度器的动作建议转换为 actionQueue
+	for _, a := range result.Actions {
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    a.Type,
+			operator:  a.Operator,
+		})
+	}
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: `{"custom": "scheduler mode"}`,
+	}, true
+}
+
 // actionName 根据动作类型和干员下标返回 Pipeline 中的 action 名称
 func actionName(action ActionType, operator int) string {
 	switch action {
@@ -489,6 +544,8 @@ func actionName(action ActionType, operator int) string {
 		return "__AutoFightActionLockTarget"
 	case ActionDodge:
 		return "__AutoFightActionDodge"
+	case ActionSwitchOperator:
+		return fmt.Sprintf("__AutoFightActionSwitchOperator%d", operator)
 	default:
 		return ""
 	}

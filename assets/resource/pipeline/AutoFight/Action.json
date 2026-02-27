@@ -151,5 +151,41 @@
         "key": 52, // 4键
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "__AutoFightActionSwitchOperator1": {
+        "action": "ClickKey",
+        "key": 112, // F1键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "切换到干员1"
+        }
+    },
+    "__AutoFightActionSwitchOperator2": {
+        "action": "ClickKey",
+        "key": 113, // F2键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "切换到干员2"
+        }
+    },
+    "__AutoFightActionSwitchOperator3": {
+        "action": "ClickKey",
+        "key": 114, // F3键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "切换到干员3"
+        }
+    },
+    "__AutoFightActionSwitchOperator4": {
+        "action": "ClickKey",
+        "key": 115, // F4键
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "切换到干员4"
+        }
     }
 }

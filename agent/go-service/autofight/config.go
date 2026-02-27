@@ -2,17 +2,60 @@ package autofight
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"sync"
 )
 
-// FightConfig stores the parsed battle strategy for auto-fighting.
+// SchedulerEventType 调度器事件类型
+type SchedulerEventType int
+
+const (
+	EventSwitchOperator SchedulerEventType = iota // 切人（attack 事件触发）
+	EventSkill                                    // 战技
+	EventLink                                     // 连携技
+	EventUltimate                                 // 终结技
+	EventDodge                                    // 闪避
+)
+
+func (t SchedulerEventType) String() string {
+	switch t {
+	case EventSwitchOperator:
+		return "SwitchOperator"
+	case EventSkill:
+		return "Skill"
+	case EventLink:
+		return "Link"
+	case EventUltimate:
+		return "Ultimate"
+	case EventDodge:
+		return "Dodge"
+	default:
+		return "Unknown"
+	}
+}
+
+// SchedulerEvent 展平后的单个调度事件
+type SchedulerEvent struct {
+	Time          float64 // 相对战斗开始的秒数（已减去 prepDuration）
+	Type          SchedulerEventType
+	OperatorIndex int     // 1-4，所属干员
+	SpCost        float64 // 该动作消耗的技力
+	GaugeCost     float64 // 该动作消耗的终结技能量
+	// SpAtMoment 记录该事件发生时，时间轴上理论剩余的技力可释放次数（用于终结技条件判断）
+	SpAtMoment int
+}
+
+// FightConfig 解析后的战斗策略配置
 type FightConfig struct {
 	ActiveScenarioID string
 	ScenarioName     string
-	DataCode         string // Keep track of the source data code to avoid redundant reloading
+	DataCode         string // 来源数据码，用于避免重复加载
 	Tracks           []EndaxisTrack
-	// Processed sequence of actions can be added here in the future
+	Events           []SchedulerEvent // 展平并按时间排序的事件列表
+	InitialSp        int              // 起始技力（systemConstants.initialSp）
+	MaxSp            int              // 最大技力
+	PrepDuration     float64          // 准备时间偏移
 }
 
 var (
@@ -20,12 +63,12 @@ var (
 	configMutex   sync.RWMutex
 )
 
-// LoadConfig decodes the given Endaxis data code and sets it as the active configuration.
+// LoadConfig 解码 Endaxis 数据码并设置为当前配置
 func LoadConfig(dataCode string) error {
 	configMutex.Lock()
 	defer configMutex.Unlock()
 
-	// Avoid redundant loading if it's the exact same data code
+	// 避免重复加载相同数据码
 	if currentConfig != nil && currentConfig.DataCode == dataCode {
 		return nil
 	}
@@ -56,38 +99,138 @@ func LoadConfig(dataCode string) error {
 		}
 	}
 
-	// Sort actions by start time for easier processing later
-	for i := range activeScenario.Data.Tracks {
-		sort.Slice(activeScenario.Data.Tracks[i].Actions, func(j, k int) bool {
-			return activeScenario.Data.Tracks[i].Actions[j].StartTime < activeScenario.Data.Tracks[i].Actions[k].StartTime
-		})
+	prepDuration := activeScenario.Data.PrepDuration
+	initialSp := project.SystemConstants.InitialSp
+	maxSp := project.SystemConstants.MaxSp
+	if initialSp <= 0 {
+		initialSp = 200 // 默认起始技力
 	}
+	if maxSp <= 0 {
+		maxSp = 300 // 默认最大技力
+	}
+
+	// 展平所有轨道的事件到统一时间轴
+	events := flattenEvents(activeScenario.Data.Tracks, prepDuration, initialSp)
 
 	currentConfig = &FightConfig{
 		ActiveScenarioID: activeScenario.ID,
 		ScenarioName:     activeScenario.Name,
 		DataCode:         dataCode,
 		Tracks:           activeScenario.Data.Tracks,
+		Events:           events,
+		InitialSp:        initialSp,
+		MaxSp:            maxSp,
+		PrepDuration:     prepDuration,
 	}
 
 	return nil
 }
 
-// GetConfig returns the currently active fight configuration.
+// flattenEvents 将所有轨道的动作展平为按时间排序的事件列表
+func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) []SchedulerEvent {
+	var events []SchedulerEvent
+
+	// 模拟技力消耗以计算每个时刻的技力状态
+	type rawEvent struct {
+		time          float64
+		eventType     SchedulerEventType
+		operatorIndex int
+		spCost        float64
+		gaugeCost     float64
+	}
+	var rawEvents []rawEvent
+
+	for trackIdx, track := range tracks {
+		operatorIndex := trackIdx + 1 // 1-based
+		for _, action := range track.Actions {
+			relativeTime := action.StartTime - prepDuration
+			if relativeTime < 0 {
+				relativeTime = 0
+			}
+
+			switch action.Type {
+			case "attack":
+				// 攻击事件 → 切人
+				rawEvents = append(rawEvents, rawEvent{
+					time:          relativeTime,
+					eventType:     EventSwitchOperator,
+					operatorIndex: operatorIndex,
+				})
+			case "skill":
+				rawEvents = append(rawEvents, rawEvent{
+					time:          relativeTime,
+					eventType:     EventSkill,
+					operatorIndex: operatorIndex,
+					spCost:        action.SpCost,
+				})
+			case "link":
+				rawEvents = append(rawEvents, rawEvent{
+					time:          relativeTime,
+					eventType:     EventLink,
+					operatorIndex: operatorIndex,
+				})
+			case "ultimate":
+				rawEvents = append(rawEvents, rawEvent{
+					time:          relativeTime,
+					eventType:     EventUltimate,
+					operatorIndex: operatorIndex,
+					gaugeCost:     action.GaugeCost,
+				})
+			case "dodge":
+				rawEvents = append(rawEvents, rawEvent{
+					time:          relativeTime,
+					eventType:     EventDodge,
+					operatorIndex: operatorIndex,
+				})
+				// execution 等其他类型忽略
+			}
+		}
+	}
+
+	// 按时间排序
+	sort.Slice(rawEvents, func(i, j int) bool {
+		return rawEvents[i].time < rawEvents[j].time
+	})
+
+	// 计算每个事件发生时，理论上累计消耗后的技力可释放次数
+	currentSp := float64(initialSp)
+	for _, re := range rawEvents {
+		spAtMoment := int(math.Floor(currentSp / 100.0))
+		if spAtMoment < 0 {
+			spAtMoment = 0
+		}
+
+		events = append(events, SchedulerEvent{
+			Time:          re.time,
+			Type:          re.eventType,
+			OperatorIndex: re.operatorIndex,
+			SpCost:        re.spCost,
+			GaugeCost:     re.gaugeCost,
+			SpAtMoment:    spAtMoment,
+		})
+
+		// 扣除消耗
+		currentSp -= re.spCost
+	}
+
+	return events
+}
+
+// GetConfig 获取当前出招配置
 func GetConfig() *FightConfig {
 	configMutex.RLock()
 	defer configMutex.RUnlock()
 	return currentConfig
 }
 
-// HasConfig returns true if a valid configuration is loaded.
+// HasConfig 检查是否已加载配置
 func HasConfig() bool {
 	configMutex.RLock()
 	defer configMutex.RUnlock()
 	return currentConfig != nil
 }
 
-// ClearConfig removes the current configuration.
+// ClearConfig 清除当前配置
 func ClearConfig() {
 	configMutex.Lock()
 	defer configMutex.Unlock()

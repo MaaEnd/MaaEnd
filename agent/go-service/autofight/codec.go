@@ -9,54 +9,65 @@ import (
 	"io"
 )
 
-// EndaxisProject represents the top-level structure of exported data.
+// EndaxisProject 顶层结构
 type EndaxisProject struct {
-	Version          string            `json:"version"`
-	ScenarioList     []EndaxisScenario `json:"scenarioList"`
-	ActiveScenarioID string            `json:"activeScenarioId"`
+	Version          string                 `json:"version"`
+	ScenarioList     []EndaxisScenario      `json:"scenarioList"`
+	ActiveScenarioID string                 `json:"activeScenarioId"`
+	SystemConstants  EndaxisSystemConstants `json:"systemConstants"`
 }
 
-// EndaxisScenario represents a single battle scenario.
+// EndaxisSystemConstants 系统常量（技力等全局参数）
+type EndaxisSystemConstants struct {
+	MaxSp              int     `json:"maxSp"`
+	InitialSp          int     `json:"initialSp"`
+	SpRegenRate        float64 `json:"spRegenRate"`
+	SkillSpCostDefault int     `json:"skillSpCostDefault"`
+}
+
+// EndaxisScenario 单个方案
 type EndaxisScenario struct {
 	ID   string              `json:"id"`
 	Name string              `json:"name"`
 	Data EndaxisScenarioData `json:"data"`
 }
 
-// EndaxisScenarioData holds tracks and other combat parameters.
+// EndaxisScenarioData 方案数据
 type EndaxisScenarioData struct {
 	Tracks       []EndaxisTrack `json:"tracks"`
 	PrepDuration float64        `json:"prepDuration"`
 }
 
-// EndaxisTrack holds the combat actions for a single character in the party.
+// EndaxisTrack 单个角色轨道
 type EndaxisTrack struct {
-	ID      string          `json:"id"`
-	Actions []EndaxisAction `json:"actions"`
+	ID           string          `json:"id"`
+	Actions      []EndaxisAction `json:"actions"`
+	InitialGauge float64         `json:"initialGauge"`
 }
 
-// EndaxisAction represents a specific action performed by a character.
+// EndaxisAction 某个角色执行的具体动作
 type EndaxisAction struct {
 	InstanceID string  `json:"instanceId"`
-	Type       string  `json:"type"` // e.g., "skill", "link", "ultimate", "execution", "attack", "dodge"
+	Type       string  `json:"type"` // skill, link, ultimate, execution, attack, dodge
 	StartTime  float64 `json:"startTime"`
 	Duration   float64 `json:"duration"`
+	SpCost     float64 `json:"spCost"`
+	GaugeCost  float64 `json:"gaugeCost"`
 }
 
-// DecodeDataCode decodes a URL-safe Base64 encoded, Gzip compressed JSON string.
-// It returns an EndaxisProject representing the strategy data.
+// DecodeDataCode 解码 Endaxis 数据码（URL-safe Base64 → Gzip → JSON）
 func DecodeDataCode(dataCode string) (*EndaxisProject, error) {
 	if dataCode == "" {
 		return nil, fmt.Errorf("data code is empty")
 	}
 
-	// 1. Base64 URL-safe Decode
+	// 1. Base64 URL-safe 解码
 	decodedBytes, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(dataCode)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode Base64: %w", err)
 	}
 
-	// 2. Gzip Decompression
+	// 2. Gzip 解压
 	bReader := bytes.NewReader(decodedBytes)
 	gzReader, err := gzip.NewReader(bReader)
 	if err != nil {
@@ -69,7 +80,7 @@ func DecodeDataCode(dataCode string) (*EndaxisProject, error) {
 		return nil, fmt.Errorf("failed to decompress gzip: %w", err)
 	}
 
-	// 3. JSON Unmarshal
+	// 3. JSON 反序列化
 	var project EndaxisProject
 	if err := json.Unmarshal(jsonBytes, &project); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
