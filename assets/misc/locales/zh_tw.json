@@ -339,6 +339,6 @@
     "preset.RealtimeAssist.description": "掛機時開啟的實時輔助功能全套",
     "preset.AutoTrading.label": "自動倒賣",
     "preset.AutoTrading.description": "自動買賣及生產相關",
-    "preset.EssenceFarming.label": "靈素刷取",
-    "preset.EssenceFarming.description": "靈素養成及篩選相關"
+    "preset.EssenceFarming.label": "基質刷取",
+    "preset.EssenceFarming.description": "基質養成及篩選相關"
 }
