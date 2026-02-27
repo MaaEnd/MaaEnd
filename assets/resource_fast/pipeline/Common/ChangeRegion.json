@@ -24,7 +24,8 @@
     "RegionalDevelopmentChangeToValleyIV": {
         "doc": "更改至四号谷地",
         "anchor": {
-            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectValleyIV"
+            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectValleyIV",
+            "RegionalDevelopmentInDestinationRegion": "InValleyIVRegionalDevelopment"
         },
         "next": [
             "RegionalDevelopmentEnterChangeRegionMenu"
@@ -33,7 +34,8 @@
     "RegionalDevelopmentChangeToWuling": {
         "doc": "更改至武陵",
         "anchor": {
-            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectWuling"
+            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectWuling",
+            "RegionalDevelopmentInDestinationRegion": "InWulingRegionalDevelopment"
         },
         "next": [
             "RegionalDevelopmentEnterChangeRegionMenu"
@@ -87,9 +89,6 @@
                 0
             ]
         },
-        "anchor": {
-            "RegionalDevelopmentInDestinationRegion": "InValleyIVRegionalDevelopment"
-        },
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
@@ -120,9 +119,6 @@
                 0,
                 0
             ]
-        },
-        "anchor": {
-            "RegionalDevelopmentInDestinationRegion": "InWulingRegionalDevelopment"
         },
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
