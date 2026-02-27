@@ -36,7 +36,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 以下示例展示如何在「从任意界面进入通行证菜单并领取奖励」的任务中使用万能跳转。
 
-```json
+```jsonc
 {
     "DailyProtocolPassStart": {
         "pre_delay": 0,
@@ -68,7 +68,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 示例：进入地区建设进行倒卖
 
-```json
+```jsonc
 {
     "ResellMain": {
         "desc": "一键倒卖主入口",
