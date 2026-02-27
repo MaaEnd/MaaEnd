@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -220,7 +221,7 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	// 尝试加载出招配置数据码（如果有）
 	dataCode := ""
 	if arg.CustomRecognitionParam != "" {
-		dataCode = arg.CustomRecognitionParam
+		dataCode = strings.TrimSpace(strings.Trim(strings.TrimSpace(arg.CustomRecognitionParam), `"`))
 	}
 
 	if dataCode != "" {
