@@ -47,12 +47,13 @@ type EndaxisTrack struct {
 
 // EndaxisAction 某个角色执行的具体动作
 type EndaxisAction struct {
-	InstanceID string  `json:"instanceId"`
-	Type       string  `json:"type"` // skill, link, ultimate, execution, attack, dodge
-	StartTime  float64 `json:"startTime"`
-	Duration   float64 `json:"duration"`
-	SpCost     float64 `json:"spCost"`
-	GaugeCost  float64 `json:"gaugeCost"`
+	InstanceID    string  `json:"instanceId"`
+	Type          string  `json:"type"` // skill, link, ultimate, execution, attack, dodge
+	StartTime     float64 `json:"startTime"`
+	Duration      float64 `json:"duration"`
+	SpCost        float64 `json:"spCost"`
+	GaugeCost     float64 `json:"gaugeCost"`
+	AnimationTime float64 `json:"animationTime"`
 }
 
 // DecodeDataCode 解码 Endaxis 数据码（URL-safe Base64 → Gzip → JSON）

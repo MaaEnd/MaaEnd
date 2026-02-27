@@ -110,7 +110,7 @@ func LoadConfig(dataCode string) error {
 	}
 
 	// 展平所有轨道的事件到统一时间轴
-	events := flattenEvents(activeScenario.Data.Tracks, prepDuration, initialSp)
+	events := flattenEvents(activeScenario.Data.Tracks, prepDuration, initialSp, maxSp, project.SystemConstants.SpRegenRate)
 
 	currentConfig = &FightConfig{
 		ActiveScenarioID: activeScenario.ID,
@@ -127,7 +127,11 @@ func LoadConfig(dataCode string) error {
 }
 
 // flattenEvents 将所有轨道的动作展平为按时间排序的事件列表
-func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) []SchedulerEvent {
+func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp, maxSp int, spRegenRate float64) []SchedulerEvent {
+	if spRegenRate <= 0 {
+		spRegenRate = 8.0 // 默认每秒 8 技力
+	}
+
 	var events []SchedulerEvent
 
 	// 模拟技力消耗以计算每个时刻的技力状态
@@ -139,6 +143,8 @@ func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) [
 		gaugeCost     float64
 	}
 	var rawEvents []rawEvent
+
+	var pauseWindows []pauseWindow
 
 	for trackIdx, track := range tracks {
 		operatorIndex := trackIdx + 1 // 1-based
@@ -163,11 +169,23 @@ func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) [
 					operatorIndex: operatorIndex,
 					spCost:        action.SpCost,
 				})
+				pauseWindows = append(pauseWindows, pauseWindow{
+					start: relativeTime,
+					end:   relativeTime + 0.5,
+				})
 			case "link":
 				rawEvents = append(rawEvents, rawEvent{
 					time:          relativeTime,
 					eventType:     EventLink,
 					operatorIndex: operatorIndex,
+				})
+				animTime := action.AnimationTime
+				if animTime <= 0 {
+					animTime = 0.5
+				}
+				pauseWindows = append(pauseWindows, pauseWindow{
+					start: relativeTime,
+					end:   relativeTime + animTime,
 				})
 			case "ultimate":
 				rawEvents = append(rawEvents, rawEvent{
@@ -175,6 +193,14 @@ func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) [
 					eventType:     EventUltimate,
 					operatorIndex: operatorIndex,
 					gaugeCost:     action.GaugeCost,
+				})
+				animTime := action.AnimationTime
+				if animTime <= 0 {
+					animTime = 1.5
+				}
+				pauseWindows = append(pauseWindows, pauseWindow{
+					start: relativeTime,
+					end:   relativeTime + animTime,
 				})
 			case "dodge":
 				rawEvents = append(rawEvents, rawEvent{
@@ -194,7 +220,45 @@ func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) [
 
 	// 计算每个事件发生时，理论上累计消耗后的技力可释放次数
 	currentSp := float64(initialSp)
+	prevTime := 0.0
+
 	for _, re := range rawEvents {
+		dt := re.time - prevTime
+		if dt > 0 {
+			// 在这 dt 时间内，计算有多少时间是在 pauseWindows 中的
+			pausedTime := 0.0
+			for _, pw := range pauseWindows {
+				// 窗口 [pw.start, pw.end] 和 考察区间 [prevTime, re.time] 的交集
+				startIntersection := math.Max(prevTime, pw.start)
+				endIntersection := math.Min(re.time, pw.end)
+				if startIntersection < endIntersection {
+					pausedTime += endIntersection - startIntersection
+				}
+			}
+
+			// 如果有重叠窗口，可能导致 pausedTime > dt（简化处理，严格来说应合并重叠区间，但战斗中一般技能/大招时停不互相覆盖太多或游戏也是线性叠加）
+			// 这里做一个简化的时间轴合并或者限制以防回流，最简单的方法是合并重叠区间
+			// 但 Endaxis 实际上是记录哪些区间是 pause，然后 dt 不计算 pause。这等价于合并区间。
+			// 为确保正确，先合并 pauseWindows：
+			mergedPauses := mergePauseWindows(pauseWindows)
+			pausedTime = 0.0
+			for _, pw := range mergedPauses {
+				si := math.Max(prevTime, pw.start)
+				ei := math.Min(re.time, pw.end)
+				if si < ei {
+					pausedTime += ei - si
+				}
+			}
+
+			effectiveDt := dt - pausedTime
+			if effectiveDt > 0 {
+				currentSp += effectiveDt * spRegenRate
+			}
+			if currentSp > float64(maxSp) {
+				currentSp = float64(maxSp)
+			}
+		}
+
 		spAtMoment := int(math.Floor(currentSp / 100.0))
 		if spAtMoment < 0 {
 			spAtMoment = 0
@@ -211,9 +275,40 @@ func flattenEvents(tracks []EndaxisTrack, prepDuration float64, initialSp int) [
 
 		// 扣除消耗
 		currentSp -= re.spCost
+		prevTime = re.time
 	}
 
 	return events
+}
+
+type pauseWindow struct {
+	start float64
+	end   float64
+}
+
+func mergePauseWindows(windows []pauseWindow) []pauseWindow {
+	if len(windows) == 0 {
+		return nil
+	}
+	// 按 start 升序
+	sort.Slice(windows, func(i, j int) bool {
+		return windows[i].start < windows[j].start
+	})
+
+	var res []pauseWindow
+	curr := windows[0]
+	for _, w := range windows[1:] {
+		if w.start <= curr.end {
+			if w.end > curr.end {
+				curr.end = w.end
+			}
+		} else {
+			res = append(res, curr)
+			curr = w
+		}
+	}
+	res = append(res, curr)
+	return res
 }
 
 // GetConfig 获取当前出招配置
