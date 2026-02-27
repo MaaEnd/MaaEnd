@@ -15,7 +15,7 @@
                         "QuickTeleport": "Yes",
                         "AutoPuzzleSolving": "Yes",
                         "AutoZipline": "Yes",
-                        "AutoPat": "Yes"
+                        "AutoPat": "No"
                     }
                 }
             ]

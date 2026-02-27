@@ -6,13 +6,9 @@
             "description": "$preset.DailyFull.description",
             "task": [
                 {
-                    "name": "DailyRewards",
+                    "name": "VisitFriends",
                     "option": {
-                        "DailyEmailRewards": "Yes",
-                        "DailyTaskRewards": "Yes",
-                        "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyEventRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes"
+                        "PriorStealVegetables": "Yes"
                     }
                 },
                 {
@@ -40,31 +36,23 @@
                     }
                 },
                 {
+                    "name": "SellProduct"
+                },
+                {
+                    "name": "DailyRewards",
+                    "option": {
+                        "DailyEmailRewards": "Yes",
+                        "DailyEventRewards": "Yes",
+                        "DailyTaskRewards": "Yes",
+                        "DailyClaimDeliveryJobsRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes"
+                    }
+                },
+                {
                     "name": "SeizeEntrustTask",
                     "option": {
                         "SeizeEntrustTaskisSwipeMiddle": "Yes"
                     }
-                },
-                {
-                    "name": "VisitFriends",
-                    "option": {
-                        "PriorStealVegetables": "No"
-                    }
-                },
-                {
-                    "name": "ClaimSimulationRewards",
-                    "option": {
-                        "ClaimSimulationArea": "ValleyIV"
-                    }
-                },
-                {
-                    "name": "ReceiveProdManual"
-                },
-                {
-                    "name": "SimpleProductionBatchStart"
-                },
-                {
-                    "name": "SellProduct"
                 }
             ]
         }
