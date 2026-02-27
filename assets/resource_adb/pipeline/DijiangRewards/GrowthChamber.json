@@ -29,5 +29,13 @@
                 "end_hold": 200
             }
         }
+    },
+    "NoMaterials": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
     }
 }

@@ -357,7 +357,8 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonType2"
+            "[JumpBack]CloseButtonType2",
+            "[JumpBack]GrayCancelButton"
         ]
     },
     "CancelExit": {

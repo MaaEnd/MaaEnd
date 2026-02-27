@@ -19,30 +19,10 @@
             "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
         },
         "next": [
-            "[JumpBack]ClickGrow",
-            "[JumpBack]SelectGrow",
+            "[JumpBack]Grow",
+            "[JumpBack]YellowConfirmButtonType1",
+            "[JumpBack]CloseRewardsButton",
             "ExitGrowthChamber"
-        ]
-    },
-    "SelectGrow": {
-        "doc": "选择培养对象",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    296,
-                    111
-                ],
-                "expected": [
-                    "选择培养对象"
-                ]
-            }
-        },
-        "next": [
-            "SelectGrowTarget",
-            "[JumpBack]InSelectGrowSwipe"
         ]
     },
     "SelectGrowTarget": {
@@ -69,14 +49,46 @@
         },
         "next": [
             "[JumpBack]WhiteConfirmButtonType1",
-            "ExtractSeed",
-            "ExitGrow",
-            "[JumpBack]GrayCancelButton",
-            "EmptyNode"
+            "NeedExtractSeed",
+            "InGrowthChamber"
         ]
     },
+    "NeedExtractSeed": {
+        "doc": "需要提取基核,返回上一层处理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
+        }
+    },
+    "InGrowthChamber": {
+        "doc": "已经回到培养舱界面,任务完成",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    941,
+                    0,
+                    339,
+                    113
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        }
+    },
     "ExitGrow": {
-        "doc": "选择培养对象界面点击返回",
+        "doc": "不需要提取基核,直接退出培养界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -92,7 +104,7 @@
             }
         },
         "next": [
-            "FinishAllDijiangTask"
+            "GrayCancelButton"
         ]
     },
     "ExtractSeed": {
@@ -116,8 +128,33 @@
         },
         "next": [
             "[JumpBack]WhiteConfirmButtonType2",
-            "CloseRewardsButton",
+            "GrowCloseRewardsButton",
             "NoMaterials"
+        ]
+    },
+    "GrowCloseRewardsButton": {
+        "doc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GrayCancelButton"
         ]
     },
     "NoMaterials": {
@@ -135,6 +172,12 @@
                     "缺少原料",
                     "无法获取"
                 ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
             }
         },
         "next": [
@@ -169,8 +212,13 @@
             }
         }
     },
-    "ClickGrow": {
+    "Grow": {
         "doc": "点击培养按钮",
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -187,7 +235,14 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "next": [
+            "InGrowthChamber",
+            "[JumpBack]ExtractSeed",
+            "ExitGrow",
+            "[JumpBack]SelectGrowTarget",
+            "[JumpBack]InSelectGrowSwipe"
+        ]
     },
     "ExitGrowthChamber": {
         "doc": "[培养舱·离开] 返回控制中枢",
