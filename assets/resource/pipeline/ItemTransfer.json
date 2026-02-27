@@ -139,7 +139,6 @@
             35
         ],
         "template": "ItemTransfer/全部.png",
-        "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -158,7 +157,6 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.9,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownRepo"
@@ -175,7 +173,7 @@
             248
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 1,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInRepo",
@@ -195,14 +193,17 @@
             455
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 1,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInRepo",
-            "ItemTransferScrollUpwardRepo"
-        ],
+            "ItemTransferScrollUpwardRepo",
+            "ItemTransferItemNotFound"
+        ]
+    },
+    "ItemTransferItemNotFound": {
         "focus": {
-            "Node.NextList.Failed": "$task.ItemTransfer.item_not_found"
+            "Node.Action.Succeeded": "$task.ItemTransfer.item_not_found"
         }
     },
     "ItemTransferCtrlKeyDownRepo": {
@@ -311,7 +312,6 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.9,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBag"
@@ -328,7 +328,7 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBag",
@@ -348,7 +348,7 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBag",
@@ -476,7 +476,6 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.9,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBagReturn"
@@ -493,7 +492,7 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBagReturn",
@@ -513,7 +512,7 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBagReturn",
