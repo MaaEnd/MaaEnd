@@ -46,7 +46,7 @@ Optional parameters:
 - `rotation_speed`: Positive real number, default `2.0`. The rotation speed multiplier when the player adjusts the orientation, in pixels per degree. A larger value adjusts the orientation faster but may cause over-adjustment and repeated adjustments; a smaller value adjusts the orientation smoothly but may cause delayed adjustment.
 - `rotation_timeout`: Positive integer, default `30000`. The time threshold for judging failure to adjust the orientation, in milliseconds. If the orientation is not adjusted properly after this time, pathfinding fails immediately.
 - `sprint_threshold`: Positive real number, default `25.0`. The distance threshold for performing the sprint action, in pixel distance. When the distance between the player and the next target point exceeds this value and the orientation is correct, the player will perform a sprint.
-- `stuck_threshold`: Positive integer, default `1500`. The minimum duration for judging being stuck, in milliseconds. If the player does not move actually after this period of time, automatic jumping will be triggered.
+- `stuck_threshold`: Positive integer, default `1500`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, automatic jumping will be triggered.
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
 </details>
