@@ -30,7 +30,7 @@ This will fully set up the environment required for development.
 
     **Do not omit `--recursive`**
 
-    If you have already cloned the project but did not use the -recursive parameter, you can execute the following command in the project's root directory:
+    If you have already cloned the project but did not use the `--recursive` parameter, you can execute the following command in the project's root directory:
 
     ```bash
     git submodule update --init --recursive
