@@ -54,44 +54,27 @@ func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) 
 
 func getEndSkillUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg) []int {
 	usableIndexes := []int{}
-	const roiX, roiWidth = 1010, 270
-	override := map[string]any{
-		"__AutoFightRecognitionEndSkill": map[string]any{
-			"roi": maa.Rect{roiX, 535, roiWidth, 65},
-		},
-	}
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionEndSkill", arg.Img, override)
-	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition for end skill")
-		return usableIndexes
-	}
-	if !detail.Hit || detail.Results == nil || len(detail.Results.Filtered) == 0 {
-		return usableIndexes
+	rois := []maa.Rect{
+		{1027, 535, 47, 65},
+		{1091, 535, 47, 65},
+		{1155, 535, 47, 65},
+		{1219, 535, 47, 65},
 	}
 
-	quarterWidth := roiWidth / 4
-	for _, m := range detail.Results.Filtered {
-		detail, ok := m.AsTemplateMatch()
-		if !ok {
+	for i, roi := range rois {
+		override := map[string]any{
+			"__AutoFightRecognitionEndSkill": map[string]any{
+				"roi": roi,
+			},
+		}
+		detail, err := ctx.RunRecognition("__AutoFightRecognitionEndSkill", arg.Img, override)
+		if err != nil {
+			log.Error().Err(err).Int("operator", i+1).Msg("Failed to run recognition for end skill")
 			continue
 		}
-		x := detail.Box[0]
-		relativeX := x - roiX
-		if relativeX < 0 || relativeX > roiWidth {
-			continue
+		if detail != nil && detail.Hit {
+			usableIndexes = append(usableIndexes, i+1)
 		}
-		var idx int
-		switch {
-		case relativeX < quarterWidth:
-			idx = 1
-		case relativeX < quarterWidth*2:
-			idx = 2
-		case relativeX < quarterWidth*3:
-			idx = 3
-		default:
-			idx = 4
-		}
-		usableIndexes = append(usableIndexes, idx)
 	}
 	return usableIndexes
 }
