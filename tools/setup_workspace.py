@@ -306,8 +306,33 @@ def cleanup_cache_file(path: Path) -> None:
         if path.exists():
             path.unlink()
             print(Console.ok(t("inf_cache_cleaned", path=path)))
-    except Exception as e:
+        meta = Path(str(path) + ".url")
+        if meta.exists():
+            meta.unlink()
+    except OSError as e:
         print(Console.warn(t("wrn_cache_clean_failed", path=path, error=e)))
+
+
+def clean_cache() -> None:
+    if not CACHE_DIR.exists():
+        print(Console.info(t("inf_cache_empty")))
+        return
+    total_size = 0
+    count = 0
+    for f in CACHE_DIR.iterdir():
+        if f.is_file():
+            total_size += f.stat().st_size
+            count += 1
+    if count == 0:
+        print(Console.info(t("inf_cache_empty")))
+        return
+    size_mb = total_size / (1024 * 1024)
+    print(Console.info(t("inf_cache_summary", count=count, size=f"{size_mb:.1f} MB")))
+    try:
+        shutil.rmtree(CACHE_DIR)
+        print(Console.ok(t("inf_cache_purged")))
+    except OSError as e:
+        print(Console.warn(t("wrn_cache_clean_failed", path=CACHE_DIR, error=e)))
 
 
 def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
@@ -345,29 +370,49 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
         s = sec % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
 
+    _retried_416 = False
+
     try:
         print(Console.info(t("inf_start_download", url=url)))
 
-        existing_size = 0
-        if resume and dest_path.exists():
-            existing_size = dest_path.stat().st_size
+        url_meta = Path(str(dest_path) + ".url")
+
+        if resume and dest_path.exists() and dest_path.stat().st_size > 0:
+            if url_meta.exists():
+                try:
+                    cached_url = url_meta.read_text(encoding="utf-8").strip()
+                except OSError:
+                    cached_url = ""
+                if cached_url and cached_url != url:
+                    print(Console.warn(t("wrn_cache_url_mismatch")))
+                    cleanup_cache_file(dest_path)
+                    if dest_path.exists():
+                        resume = False
+
+        while True:
+            existing_size = 0
+            if resume and not _retried_416 and dest_path.exists():
+                existing_size = dest_path.stat().st_size
+                if existing_size > 0:
+                    print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
+
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "MaaEnd-setup")
             if existing_size > 0:
-                print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
+                req.add_header("Range", f"bytes={existing_size}-")
 
-        req = urllib.request.Request(url)
-        req.add_header("User-Agent", "MaaEnd-setup")
-        if existing_size > 0:
-            req.add_header("Range", f"bytes={existing_size}-")
+            print(Console.info(t("inf_connecting")), end="", flush=True)
+            try:
+                res = urllib.request.urlopen(req, timeout=TIMEOUT)
+            except urllib.error.HTTPError as he:
+                if he.code == 416 and existing_size > 0 and not _retried_416:
+                    print()
+                    _retried_416 = True
+                    cleanup_cache_file(dest_path)
+                    continue
+                raise
 
-        print(Console.info(t("inf_connecting")), end="", flush=True)
-        try:
-            res = urllib.request.urlopen(req, timeout=TIMEOUT)
-        except urllib.error.HTTPError as he:
-            if he.code == 416 and existing_size > 0:
-                print()
-                cleanup_cache_file(dest_path)
-                return download_file(url, dest_path, resume=False)
-            raise
+            break
 
         with res:
             status_code = res.getcode()
@@ -429,6 +474,10 @@ def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
                         cached_progress_str = progress_str
         print()
         print(Console.ok(t("inf_download_complete", path=dest_path)))
+        try:
+            url_meta.write_text(url, encoding="utf-8")
+        except OSError:
+            pass
         return True
     except urllib.error.URLError as e:
         print(Console.err(t("err_network_error", reason=e.reason)))
@@ -641,7 +690,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
     parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
+    parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
     args = parser.parse_args()
+
+    if args.clean_cache:
+        clean_cache()
+        return
 
     install_dir = PROJECT_BASE / "install"
     version_file = install_dir / VERSION_FILE_NAME
