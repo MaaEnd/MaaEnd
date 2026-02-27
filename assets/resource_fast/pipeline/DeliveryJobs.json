@@ -31,10 +31,7 @@
             "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
             "DeliveryJobsValleyIVCargoNotReady",
             "DeliveryJobsCheckValleyIVDepotLocked",
-            // 如果没有在仓储节点内，需要尝试先进入仓储节点
-            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
-            "[JumpBack]GoToValleyIV",
-            "[JumpBack]RegionalDevelopmentButton"
+            "[JumpBack]DeliveryJobsGoToValleyIVDepot"
         ]
     },
     "DeliveryJobsWuling": {
@@ -45,10 +42,7 @@
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
             "DeliveryJobsWulingCargoNotReady",
             "DeliveryJobsCheckWulingDepotLocked",
-            // 如果没有在仓储节点内，需要尝试先进入仓储节点
-            "[JumpBack]DeliveryJobsEnterWulingDepot",
-            "[JumpBack]GoToWuling",
-            "[JumpBack]RegionalDevelopmentButton"
+            "[JumpBack]DeliveryJobsGoToWulingDepot"
         ]
     },
     "DeliveryJobsFinished": {

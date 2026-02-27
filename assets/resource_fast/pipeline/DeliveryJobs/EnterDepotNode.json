@@ -1,7 +1,57 @@
 {
+    // 送货任务进入仓储节点的流程
+    // 先判断具体在哪个界面
+    "DeliveryJobsGoToDepot": {
+        "doc": "进入指定仓储节点，通过锚点设置",
+        "next": [
+            "[Anchor]DeliveryJobsEnterDepot",
+            "[JumpBack][Anchor]DeliveryJobsGoToRegion",
+            "DeliveryJobsEnterRegionalDevelopment"
+        ]
+    },
+    "DeliveryJobsEnterRegionalDevelopment": {
+        "doc": "进入地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "RegionalDevelopmentButton"
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]DeliveryJobsEnterDepot",
+            "[JumpBack][Anchor]DeliveryJobsGoToRegion"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsGoToValleyIVDepot": {
+        "doc": "进入四号谷地仓储节点",
+        "anchor": {
+            "DeliveryJobsEnterDepot": "DeliveryJobsEnterValleyIVDepot",
+            "DeliveryJobsGoToRegion": "GoToValleyIV"
+        },
+        "next": [
+            "DeliveryJobsGoToDepot"
+        ]
+    },
+    "DeliveryJobsGoToWulingDepot": {
+        "doc": "进入武陵仓储节点",
+        "anchor": {
+            "DeliveryJobsEnterDepot": "DeliveryJobsEnterWulingDepot",
+            "DeliveryJobsGoToRegion": "GoToWuling"
+        },
+        "next": [
+            "DeliveryJobsGoToDepot"
+        ]
+    },
     "DeliveryJobsEnterValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DepotButton",
@@ -23,7 +73,6 @@
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
-        "post_delay": 0,
         "recognition": "And",
         "all_of": [
             "DepotButton",
