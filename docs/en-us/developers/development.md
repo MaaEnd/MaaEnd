@@ -79,12 +79,14 @@ This will fully set up the environment required for development.
 - The `resource_fast` folder has default delays removed, which will greatly speed up operation speed but also place higher requirements on the robustness of the pipeline. We recommend using `resource_fast` first, but developers can also choose according to the actual situation of the task.
   _In plain terms, `resource_fast` is much harder to write-after each operation, the next frame may still show transition animations, and you have to find a way to recognize them. But the running speed is faster-feel free to try it if you are confident. If you can't figure it out or are too lazy to do it, put it in `resource` -the operation is slower but easier to write._
 
-### About Reusable Nodes (Qin Shi Huang Nodes)
+### About Reusable Nodes (Common Nodes)
 
 Some highly reusable nodes have been encapsulated with detailed documentation to avoid reinventing the wheel. See:
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
+- [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
+- [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
 
 ## Code Specifications
 
