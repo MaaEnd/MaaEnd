@@ -207,17 +207,38 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		dataCode = strings.TrimSpace(strings.Trim(strings.TrimSpace(arg.CustomRecognitionParam), `"`))
 	}
 
+	// 判定是否需要彻底重置调度器
+	// 为了防止视觉抖动造成的短暂 "退出战斗"，结合已存在的退战计时器来判断
+	shouldReset := false
+	if !pauseNotInFightSince.IsZero() && time.Since(pauseNotInFightSince) > 10*time.Second {
+		shouldReset = true
+	} else if !HasConfig() {
+		// 如果还没加载过配置，也是全新战斗
+		shouldReset = true
+	}
+
 	if dataCode != "" {
 		if err := LoadConfig(dataCode); err != nil {
 			log.Warn().Err(err).Msg("Failed to load AutoFight data code from custom params, falling back to default strategy")
 		} else {
 			if cfg := GetConfig(); cfg != nil {
 				log.Info().Str("scenario", cfg.ScenarioName).Msg("Loaded AutoFight config from data code")
+				if shouldReset {
+					ResetScheduler()
+					actionQueue = nil
+					skillCycleIndex = 1
+					log.Info().Msg("[AutoFight] Timeout or new battle, completely reset scheduler state")
+				}
 			}
 		}
 	} else {
-		// 如果没传数据码，清除可能遗留的旧配置
-		ClearConfig()
+		if shouldReset {
+			ResetScheduler()
+			ClearConfig()
+			actionQueue = nil
+			skillCycleIndex = 1
+			log.Info().Msg("[AutoFight] Timeout or new battle without config, completely clear scheduler and config")
+		}
 	}
 
 	return &maa.CustomRecognitionResult{
