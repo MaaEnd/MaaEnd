@@ -17,7 +17,6 @@ func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 
 	overflowAmount := 0
 	log.Info().Msg("[Resell]检查配额溢出状态…")
-	ResellDelayFreezesTime(ctx, 500)
 	MoveMouseSafe(controller)
 	controller.PostScreencap().Wait()
 
