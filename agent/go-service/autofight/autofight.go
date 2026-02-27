@@ -207,6 +207,25 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
+	// 尝试加载出招配置数据码（如果有）
+	dataCode := ""
+	if arg.CustomRecognitionParam != "" {
+		dataCode = arg.CustomRecognitionParam
+	}
+
+	if dataCode != "" {
+		if err := LoadConfig(dataCode); err != nil {
+			log.Warn().Err(err).Msg("Failed to load AutoFight data code from custom params, falling back to default strategy")
+		} else {
+			if cfg := GetConfig(); cfg != nil {
+				log.Info().Str("scenario", cfg.ScenarioName).Msg("Loaded AutoFight config from data code")
+			}
+		}
+	} else {
+		// 如果没传数据码，清除可能遗留的旧配置
+		ClearConfig()
+	}
+
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: `{"custom": "fake result"}`,
