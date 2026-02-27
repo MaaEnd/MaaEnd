@@ -13,7 +13,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType1.png (Reference Resource:Common/Button/WhiteConfirmButtonType1.png) -->
 
-<img width="2560" height="1440" alt="WhiteConfirmButtonType1" src="https://github.com/user-attachments/assets/f51a7542-5cb4-4405-bac2-a4565613e605" />
+![WhiteConfirmButtonType1](https://github.com/user-attachments/assets/556fcf7b-968c-4f06-87c9-8f16610c6b63)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -30,7 +30,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/WhiteConfirmButtonType2.png -->
 
-<img width="2560" height="1440" alt="WhiteConfirmButtonType2" src="https://github.com/user-attachments/assets/d195b1f4-1fb6-411a-abca-92c8ed296fc7" />
+![WhiteConfirmButtonType2](https://github.com/user-attachments/assets/9285eff0-fca2-4039-a9a3-74e1b95a0eb5)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -47,7 +47,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/YellowConfirmButtonType1.png -->
 
-<img width="2560" height="1440" alt="YellowConfirmButtonType1" src="https://github.com/user-attachments/assets/74b4c027-ae3d-486a-b310-63128966a775" />
+![YellowConfirmButtonType1](https://github.com/user-attachments/assets/ed927343-ff53-433a-87ef-4079bfca8b2f)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -64,7 +64,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/YellowConfirmButtonType2.png -->
 
-<img width="2560" height="1440" alt="YellowConfirmButtonType2" src="https://github.com/user-attachments/assets/c52ef524-af50-4e09-8199-ce4225b81f8d" />
+![YellowConfirmButtonType2](https://github.com/user-attachments/assets/4c14686a-2cfa-4fbd-abd6-e46b7d7e60b8)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -81,7 +81,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/CancelButton.png -->
 
-<img width="2560" height="1440" alt="CancelButton" src="https://github.com/user-attachments/assets/f71b5e26-2545-4542-847f-a11986651075" />
+![CancelButton](https://github.com/user-attachments/assets/849665ba-661e-4838-b30b-faedb3cba652)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -98,7 +98,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/TeleportButton.png -->
 
-<img width="2560" height="1440" alt="TeleportButton" src="https://github.com/user-attachments/assets/8a05318b-44bb-406a-b38b-b3f14822153a" />
+![TeleportButton](https://github.com/user-attachments/assets/f1b0e309-e587-4bbd-89c8-7828e1d861db)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -115,7 +115,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/CloseRewardsButton.png -->
 
-<img width="2560" height="1440" alt="CloseRewardsButton" src="https://github.com/user-attachments/assets/e1219ff3-1ee6-4ba1-85a3-5f7d389f9eb8" />
+![CloseRewardsButton](https://github.com/user-attachments/assets/bf8672db-b861-4283-b2ef-7ffd17544a5e)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -132,7 +132,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/CloseButtonType1.png -->
 
-<img width="2560" height="1440" alt="CloseButtonType1" src="https://github.com/user-attachments/assets/885d64ab-bf95-48fa-ab53-c832443cabb5" />
+![CloseButtonType1](https://github.com/user-attachments/assets/46fc3d2d-d673-4d31-942c-ff7fef8412c9)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -149,7 +149,7 @@
 
 <!-- Screenshot: docs/developers/images/common-buttons/CloseButtonType2.png -->
 
-<img width="2560" height="1440" alt="CloseButtonType2" src="https://github.com/user-attachments/assets/0152502b-e2a6-40f9-b5c1-b8f29d996427" />
+![CloseButtonType2](https://github.com/user-attachments/assets/54f54907-4597-442e-b6b1-0760597cef9e)
 
 | Item                   | Description                                                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
