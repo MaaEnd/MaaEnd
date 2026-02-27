@@ -243,7 +243,7 @@ def main():
         type=str,
         nargs="*",
         default=[],
-        help="Directories containing task files to validate against task.schema.json (default: none)",
+        help="Directories containing task files to validate against interface_import.schema.json (default: none)",
     )
 
     args = parser.parse_args()
@@ -336,7 +336,7 @@ def main():
     # 验证 task 文件
     if args.task_dirs:
         print("\nValidating task files...")
-        task_schema_path = schema_dir / "task.schema.json"
+        task_schema_path = schema_dir / "interface_import.schema.json"
         if task_schema_path.exists():
             task_schema = load_jsonc(task_schema_path)
             task_schema_uri = task_schema_path.as_uri()
