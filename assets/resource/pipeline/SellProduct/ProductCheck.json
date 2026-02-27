@@ -1,0 +1,313 @@
+{
+    "SellProductZeroProduct": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 100,
+        "doc": "货物数量不足，先尝试更换货品，失败则换据点",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1083,
+                                    327,
+                                    109,
+                                    24
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    30,
+                                    80
+                                ],
+                                "upper": [
+                                    5,
+                                    150,
+                                    200
+                                ],
+                                "count": 10
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    {
+                                        "sub_name": "_白色文字",
+                                        "recognition": {
+                                            "type": "ColorMatch",
+                                            "param": {
+                                                "roi": [
+                                                    1083,
+                                                    327,
+                                                    109,
+                                                    24
+                                                ],
+                                                "method": 4,
+                                                "lower": [
+                                                    190,
+                                                    190,
+                                                    190
+                                                ],
+                                                "upper": [
+                                                    255,
+                                                    255,
+                                                    255
+                                                ],
+                                                "count": 10
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "recognition": {
+                                            "type": "OCR",
+                                            "param": {
+                                                "roi": "_白色文字",
+                                                "expected": [
+                                                    "^[0-9]{1,3}$"
+                                                ],
+                                                "only_rec": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "SellProductChangeProduct",
+            "SellProductOutpostDone"
+        ]
+    },
+    "SellProductChangeProduct": {
+        "pre_delay": 0,
+        "doc": "识别更换货品并点击，进入更换UI",
+        "post_wait_freezes": 100,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换货品
+                    "更换货品",
+                    "更換貨品",
+                    "Switch Goods",
+                    "商品変更",
+                    "상품 교체"
+                ],
+                "roi": [
+                    1115,
+                    410,
+                    172,
+                    83
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectNewProduct"
+        ]
+    },
+    "SellProductSelectNewProduct": {
+        "pre_delay": 0,
+        "doc": "在更换UI中识别新货物并点击",
+        "post_wait_freezes": 100,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 本地仓储
+                    "本地仓储",
+                    "本地區倉儲",
+                    "Local Depot",
+                    "地域在庫",
+                    "지역 저장고"
+                ],
+                "roi": [
+                    511,
+                    180,
+                    274,
+                    83
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectNewProductComfirm",
+            "SellProductSelectNewProduct"
+        ]
+    },
+    "SellProductSelectNewProductComfirm": {
+        "pre_delay": 0,
+        "doc": "点击确认",
+        "post_wait_freezes": 100,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "roi": [
+                    945,
+                    557,
+                    172,
+                    45
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductCanSellAfterChange"
+        ]
+    },
+    "SellProductCanSellAfterChange": {
+        "pre_delay": 0,
+        "post_delay": 200,
+        "doc": "更换货品后重新判断能否售卖",
+        "post_wait_freezes": 100,
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductClickBarRight",
+            "SellProductDragBar"
+        ]
+    },
+    "SellProductZeroProductRetry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "更换货品后仍无货，进入换据点流程",
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        },
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    1083,
+                                    327,
+                                    109,
+                                    24
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    0,
+                                    30,
+                                    80
+                                ],
+                                "upper": [
+                                    5,
+                                    150,
+                                    200
+                                ],
+                                "count": 10
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    {
+                                        "sub_name": "_白色文字",
+                                        "recognition": {
+                                            "type": "ColorMatch",
+                                            "param": {
+                                                "roi": [
+                                                    1083,
+                                                    327,
+                                                    109,
+                                                    24
+                                                ],
+                                                "method": 4,
+                                                "lower": [
+                                                    190,
+                                                    190,
+                                                    190
+                                                ],
+                                                "upper": [
+                                                    255,
+                                                    255,
+                                                    255
+                                                ],
+                                                "count": 10
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "recognition": {
+                                            "type": "OCR",
+                                            "param": {
+                                                "roi": "_白色文字",
+                                                "expected": [
+                                                    "^[0-9]{1,3}$"
+                                                ],
+                                                "only_rec": true
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "next": [
+            "SellProductOutpostDone"
+        ]
+    },
+    "SellProductZeroMoney": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+        },
+        "doc": "调度券余量为0",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 不足
+                    "不足",
+                    "不足",
+                    "Insufficient",
+                    "insufficient",
+                    "不足",
+                    "거점 관리권 보유량 부족"
+                ],
+                "roi": [
+                    900,
+                    639,
+                    350,
+                    49
+                ]
+            }
+        },
+        "next": [
+            "SellProductOutpostDone"
+        ]
+    }
+}
