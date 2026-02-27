@@ -1,0 +1,86 @@
+{
+    "DeliveryJobsEnterValleyIVDepot": {
+        "doc": "进入四号谷地仓储节点",
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "InValleyIVRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "InValleyIVLocalDepotNode"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsEnterWulingDepot": {
+        "doc": "进入武陵仓储节点",
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            "DepotButton",
+            "InWulingRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "InWulingLocalDepotNode"
+        ],
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "DeliveryJobsDepotLocked": {
+        "doc": "仓储节点未解锁",
+        "recognition": "TemplateMatch",
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ]
+    },
+    "DeliveryJobsCheckValleyIVDepotLocked": {
+        "doc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsDepotLocked",
+            "InValleyIVRegionalDevelopment"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
+        },
+        "next": [
+            "DeliveryJobsLoop"
+        ]
+    },
+    "DeliveryJobsCheckWulingDepotLocked": {
+        "doc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsDepotLocked",
+            "InWulingRegionalDevelopment"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
+        },
+        "next": [
+            "DeliveryJobsLoop"
+        ]
+    }
+}

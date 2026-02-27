@@ -4,30 +4,60 @@
     // 这里的所有单击都不怕双击，所以不需要将 post_wait_freezes 的时间设置得过长
     "DeliveryJobsPackCargo": {
         "doc": "装箱货物",
-        "recognition": "And",
-        "all_of": [
-            "DeliveryJobsInCargo"
-        ],
         "next": [
-            "InWorld",
-            "DeliveryJobsOngoingDelivery",
-            "DeliveryJobsClickScreenToContinue",
-            "[JumpBack]DeliveryJobsProceedToNextStep",
-            "[JumpBack]DeliveryJobsCargoBid",
-            "[JumpBack]DeliveryJobsCargoFillToMax"
+            "DeliveryJobsInCargoPackGoods",
+            "DeliveryJobsInCargoRedistributionBid"
         ]
     },
-    "DeliveryJobsProceedToNextStep": {
-        "doc": "进入下一步",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/NextStep.png",
+    "DeliveryJobsInCargoPackGoods": {
+        "doc": "检查是否在货物装箱界面，货物装箱时进入的界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
         "roi": [
-            1185,
-            627,
-            63,
-            59
+            20,
+            1,
+            298,
+            54
         ],
-        "threshold": 0.8,
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장"
+        ],
+        "next": [
+            "DeliveryJobsSelectTypeofGoodstoPackNextStep"
+        ]
+    },
+    "DeliveryJobsInCargoRedistributionBid": {
+        "doc": "检查是否在调度申请界面，查看报价时进入的界面",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            20,
+            1,
+            298,
+            54
+        ],
+        "expected": [
+            "调度申请",
+            "調度申請",
+            "Redistribution Bid",
+            "取引申請",
+            "관리 신청"
+        ],
+        "next": [
+            "DeliveryJobsOngoingDelivery",
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsSelectTypeofGoodstoPackNextStep": {
+        "doc": "选择装箱货物类型后下一步",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
         "action": "Click",
         "post_wait_freezes": {
             "time": 1,
@@ -37,7 +67,10 @@
                 0,
                 0
             ]
-        }
+        },
+        "next": [
+            "DeliveryJobsCargoFillToMax"
+        ]
     },
     "DeliveryJobsCargoFillToMax": {
         "doc": "装满货物",
@@ -59,7 +92,32 @@
                 0,
                 0
             ]
-        }
+        },
+        "next": [
+            "DeliveryJobsFillToMaxNextStep"
+        ]
+    },
+    "DeliveryJobsFillToMaxNextStep": {
+        "doc": "装满货物后下一步",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "DeliveryJobsOngoingDelivery",
+            "DeliveryJobsRedistributionBidNextStep",
+            "[JumpBack]DeliveryJobsCargoBid"
+        ]
     },
     "DeliveryJobsCargoBid": {
         "doc": "货物竞价",
@@ -81,7 +139,32 @@
                 0,
                 0
             ]
-        }
+        },
+        "next": [
+            "DeliveryJobsOngoingDelivery",
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsRedistributionBidNextStep": {
+        "doc": "调度申请后下一步",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 1,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "InWorld",
+            "DeliveryJobsClickScreenToContinue"
+        ]
     },
     "DeliveryJobsClickScreenToContinue": {
         "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",

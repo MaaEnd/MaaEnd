@@ -7,14 +7,13 @@
         "next": [
             "DeliveryJobsLoop",
             "[JumpBack]RegionalDevelopmentButton"
-            // "[JumpBack]SceneEnterMenuRegionalDevelopment",
         ]
     },
     "DeliveryJobsLoop": {
         "doc": "主循环，确保在地区建设界面",
         "recognition": "And",
         "all_of": [
-            "IncomeReportButton"
+            "InRegionalDevelopment"
         ],
         "next": [
             "DeliveryJobsValleyIV",
@@ -35,10 +34,7 @@
             // 如果没有在仓储节点内，需要尝试先进入仓储节点
             "[JumpBack]DeliveryJobsEnterValleyIVDepot",
             "[JumpBack]GoToValleyIV",
-            "[JumpBack]RegionalDevelopmentButton",
-            // 以下是可能会意外进入的界面
-            "[JumpBack]DeliveryJobsBackFromCargo",
-            "[JumpBack]BackFromEnvironmentMonitoringTerminal"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsWuling": {
@@ -52,10 +48,7 @@
             // 如果没有在仓储节点内，需要尝试先进入仓储节点
             "[JumpBack]DeliveryJobsEnterWulingDepot",
             "[JumpBack]GoToWuling",
-            "[JumpBack]RegionalDevelopmentButton",
-            // 以下是可能会意外进入的界面
-            "[JumpBack]DeliveryJobsBackFromCargo",
-            "[JumpBack]BackFromEnvironmentMonitoringTerminal"
+            "[JumpBack]RegionalDevelopmentButton"
         ]
     },
     "DeliveryJobsFinished": {
