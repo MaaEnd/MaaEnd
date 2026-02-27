@@ -41,6 +41,7 @@ func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	}
 
 	setOverflow(overflowAmount)
+	//每次识别配额的时候代表在新一地区的商店，重置当前扫描位置
 	_ = ctx.OverridePipeline(map[string]any{
 		"ResellScan": map[string]any{
 			"custom_action_param": map[string]any{
