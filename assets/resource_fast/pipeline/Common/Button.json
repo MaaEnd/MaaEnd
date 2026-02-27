@@ -203,16 +203,11 @@
     },
     "ChangeRegionConfirmButton": {
         "doc": "地区建设中的确认更换地区按钮",
-        "recognition": "TemplateMatch",
-        "template": "Common/Button/ChangeRegionConfirmButton.png",
-        "threshold": 0.9,
-        "roi": [
-            784,
-            371,
-            118,
-            115
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1",
+            "CheckChangeRegionConfirmText"
         ],
-        "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
