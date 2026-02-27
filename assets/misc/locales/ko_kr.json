@@ -159,6 +159,7 @@
     "option.ClaimSimulationArea.label": "지역",
     "task.SellProduct.label": "🛒 원클릭 제품 판매",
     "task.SellProduct.description": "각 거점에서 제품을 사용하여 해당 조달권을 교환합니다.",
+    "task.SellProduct.TaskEnd": "판매 작업이 완료되었습니다",
     "task.VisitFriends.label": "🤝 친구 자동 방문",
     "task.VisitFriends.description": "친구 방문을 자동화하여 지원 및 정보 교환을 수행합니다.",
     "option.PriorStealVegetables.label": "수확 모드",

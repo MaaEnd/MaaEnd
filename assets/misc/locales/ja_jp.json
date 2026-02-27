@@ -159,6 +159,7 @@
     "option.ClaimSimulationArea.label": "エリア",
     "task.SellProduct.label": "🛒 ワンクリック製品販売",
     "task.SellProduct.description": "各拠点で製品を使用し、対応する調達券と交換します。",
+    "task.SellProduct.TaskEnd": "販売タスクが完了しました",
     "task.VisitFriends.label": "🤝 フレンド訪問",
     "task.VisitFriends.description": "フレンド訪問を自動化し、支援と情報交換を実行します。",
     "option.PriorStealVegetables.label": "収穫モード",

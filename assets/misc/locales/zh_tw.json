@@ -159,6 +159,7 @@
     "option.ClaimSimulationArea.label": "地區",
     "task.SellProduct.label": "🛒一鍵售賣產品",
     "task.SellProduct.description": "使用產品在各個據點兌換對應調度券",
+    "task.SellProduct.TaskEnd": "售賣任務已完成",
     "task.VisitFriends.label": "🤝 自動拜訪好友",
     "task.VisitFriends.description": "自動拜訪好友，執行生產助力流程與情報交流",
     "option.PriorStealVegetables.label": "偷菜模式",
