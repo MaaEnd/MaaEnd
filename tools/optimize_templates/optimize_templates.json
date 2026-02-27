@@ -312,5 +312,14 @@
     "resource/image/SellProduct/SellProductDevelopmentLocked": "c38667d5042efff9da0f9289b5358a3b17bac2fe886ad21e3f75cf3c7274e02c",
     "resource/image/Common/Items/\u82bd\u9488\u9488\u5242": "f1686dbc86a96adc53d21b87877392656766128110b95039f8268494d69a7c2f",
     "resource/image/Baker/SessionOptions": "e4d61845de87fcb8022bab33c6d649899c40d5b8684c740ccf9dca421f12c6eb",
-    "resource/image/Baker/TaskOptions": "467689bde58630609ddfcd67526088687c8ec05b433cef75b031b2fd21115ebf"
+    "resource/image/Baker/TaskOptions": "467689bde58630609ddfcd67526088687c8ec05b433cef75b031b2fd21115ebf",
+    "resource/image/SellProduct/SellProductCheckHeader": "aa653df23a893c52930f7691111b9a9019ed88cd56c10ad6015b641b69186312",
+    "resource/image/AutoFight/LeftMenuHide": "9cded78aeff37714ace80150344653f3354b2a2fecd887d98eed408449867131",
+    "resource/image/AutoFight/EnemyTarget": "745f529b4191484ebaedd163465b982e633039fabd1b977f46b37118eb368428",
+    "resource/image/AutoFight/Skill": "577f354cc83795d24e4e0c9a49cdb5757ead31544f47717269dd15c4a2e645df",
+    "resource/image/AutoFight/Combo": "2f60e557a3d7cf7295ae6124c37cb1278a3d954504ff3868acf80ceb930b0c4b",
+    "resource/image/AutoFight/EndSkill": "edafddac762e7f62096e430938f63493361fc6f7fe0711c1e85b02f4b987cc90",
+    "resource/image/AutoFight/CharacterBar": "b5cae1a8a6ac126e0b4b1bef7838975517858e4b146e00d5b4b647126d22637a",
+    "resource/image/AutoFight/MenuOperators": "dd2567d0cd890a58168f6585d27aee5b9340b847978294560dab4560b00728ec",
+    "resource/image/TPPoint/MarkerTagsFilter": "bdf5f60b74f30be3a70fba3dc489e30c9f920e7297bded1950512dec7ccdeb0f"
 }
