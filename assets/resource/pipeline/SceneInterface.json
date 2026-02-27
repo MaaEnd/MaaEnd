@@ -128,6 +128,538 @@
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
+    "SceneEnterWorldValleyIVValleyPass0": {
+        "doc": "从任意界面进入四号谷地-谷地通道-谷地要塞大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVValleyPass1": {
+        "doc": "从任意界面进入四号谷地-谷地通道-谷地中转站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVValleyPass2": {
+        "doc": "从任意界面进入四号谷地-谷地通道-通道入口大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValleyTreasureGrotto": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValleyQingboBailey": {
+        "doc": "从任意界面进入-景玉谷-清波寨外寨大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley0": {
+        "doc": "从任意界面进入-景玉谷-生态实验站",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley1": {
+        "doc": "从任意界面进入-景玉谷-踩道大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley2": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley3": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley4": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley5": {
+        "doc": "从任意界面进入-景玉谷-天王坪大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley6": {
+        "doc": "从任意界面进入-景玉谷-驮鼻山大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley7": {
+        "doc": "从任意界面进入-景玉谷-迷踪林大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley8": {
+        "doc": "从任意界面进入-景玉谷-摘菱屿大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley9": {
+        "doc": "从任意界面进入-景玉谷-南山大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley10": {
+        "doc": "从任意界面进入-景玉谷-水泽涧大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity0": {
+        "doc": "从任意界面进入武陵-武陵城-观测站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity1": {
+        "doc": "从任意界面进入武陵-武陵城-界石坪大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity2": {
+        "doc": "从任意界面进入武陵-武陵城-待修缮区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity3": {
+        "doc": "从任意界面进入武陵-武陵城-方兴衢大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity4": {
+        "doc": "从任意界面进入武陵-武陵城-天师府学院大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity5": {
+        "doc": "从任意界面进入武陵-武陵城-天井院大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity6": {
+        "doc": "从任意界面进入武陵-武陵城-储备站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity7": {
+        "doc": "从任意界面进入武陵-武陵城-三窟岗大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark0": {
+        "doc": "从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark1": {
+        "doc": "从任意界面进入四号谷地-源石研究园-源石实验园区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark2": {
+        "doc": "从任意界面进入四号谷地-源石研究园-山道缓坡大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark3": {
+        "doc": "从任意界面进入四号谷地-源石研究园-五号公路大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark4": {
+        "doc": "从任意界面进入四号谷地-源石研究园-醇化合物工厂大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring0": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-源石隧道大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring1": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-运输区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring2": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-旧矿区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring3": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-矿区医疗站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring4": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-裂地者营地大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau0": {
+        "doc": "从任意界面进入四号谷地-供能高地-电站通信站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau1": {
+        "doc": "从任意界面进入四号谷地-供能高地-高地主路大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau2": {
+        "doc": "从任意界面进入四号谷地-供能高地-碾骨战营大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau3": {
+        "doc": "从任意界面进入四号谷地-供能高地-疏散区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
     "SceneEnterWorldFactory": {
         "doc": "从任意界面进入大世界工厂模式",
         "pre_delay": 0,

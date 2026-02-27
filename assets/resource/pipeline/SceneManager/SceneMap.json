@@ -242,5 +242,144 @@
                 "threshold": 0.9
             }
         }
+    },
+    "__ScenePrivateMapFilterClear": {
+        "desc": "在地图界面，清除筛选条件",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "template": "SceneManager/MapFilterNotChoose.png",
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateMapFilterClearAll"
+        ]
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "desc": "在标记显示管理界面，点击清空选中",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -120,
+            220,
+            120
+        ],
+        "expected": [
+            "清空选中",
+            "クリア選択",
+            "Clear Selection",
+            "선택 해제"
+        ],
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateMapFilterClose"
+        ]
+    },
+    "__ScenePrivateMapFilterClose": {
+        "desc": "在标记显示管理界面，点击关闭",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            80
+        ],
+        "expected": [
+            "标记显示管理",
+            "標記顯示管理",
+            "Marker Tags",
+            "ソート",
+            "표식 관리"
+        ],
+        "action": "Click",
+        "target_offset": [
+            500,
+            0,
+            0,
+            0
+        ],
+        "post_wait_freezes": 200,
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMapSuccess": {
+        "doc": "成功进入地图，左上角和右上角都没有窗口遮挡",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    100
+                ],
+                "expected": [
+                    "事务提醒",
+                    "事務提醒",
+                    "Mission Reminder",
+                    "業務通知",
+                    "업무 알림"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "desc": "在地图界面，关闭传送弹窗",
+        "recognition": "OCR",
+        "roi": [
+            -360,
+            0,
+            200,
+            120
+        ],
+        "expected": [
+            "协议传送点",
+            "協議傳送點",
+            "TP Point",
+            "協約転送ポイント",
+            "프로토콜 전송 지점"
+        ],
+        "action": "Click",
+        "target_offset": [
+            -300,
+            0,
+            0,
+            0
+        ],
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
     }
 }
