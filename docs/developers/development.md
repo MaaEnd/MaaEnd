@@ -87,11 +87,13 @@ python tools/setup_workspace.py
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
 - [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
+- [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
 
 ## 代码规范
 
 ### Pipeline 低代码规范
 
+- 节点名称使用 PascalCase，同一任务内的节点以任务名或模块名为前缀，便于区分和排查。例如 `ResellMain`、`DailyProtocolPassInMenu`、`RealTimeAutoFightEntry`。
 - 尽可能少的使用 pre_delay, post_delay, timeout, on_error 字段。增加中间节点识别流程，避免盲目 sleep 等待。
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
 - 每一步操作都需要基于识别进行，请勿 “整体识别一次 -> 点击 A -> 点击 B -> 点击 C”，而是 “识别 A -> 点击 A -> 识别 B -> 点击 B”。  

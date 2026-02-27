@@ -1,4 +1,5 @@
 {
+    // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 ScenePrivate 节点
     "SceneAnyEnterWorld": {
         "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
         "next": [
