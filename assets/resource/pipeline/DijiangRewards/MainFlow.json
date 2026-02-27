@@ -46,7 +46,7 @@
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]CloseButtonType1"
         ]
     },
@@ -129,13 +129,13 @@
                             }
                         }
                     },
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "ControlNexus",
-            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -182,13 +182,13 @@
                             }
                         }
                     },
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",

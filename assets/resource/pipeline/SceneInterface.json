@@ -1,14 +1,14 @@
 {
-    // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 ScenePrivate 节点
+    // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 __ScenePrivate 节点
     "SceneAnyEnterWorld": {
         "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
         "next": [
-            "ScenePrivateAnyEnterWorldSuccess",
-            "[JumpBack]ScenePrivateLogin",
+            "__ScenePrivateAnyEnterWorldSuccess",
+            "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneDialogConfirm",
-            "[JumpBack]ScenePrivateEndVisitConfirm",
+            "[JumpBack]__ScenePrivateEndVisitConfirm",
             "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]ScenePrivateAnyExit"
+            "[JumpBack]__ScenePrivateAnyExit"
         ]
     },
     "SceneEnterMenuList": {
@@ -16,7 +16,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuList",
+            "__ScenePrivateWorldEnterMenuList",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -25,7 +25,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapDijiang",
+            "__ScenePrivateWorldEnterMapDijiang",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -34,7 +34,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVTheHub",
+            "__ScenePrivateWorldEnterMapValleyIVTheHub",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -43,7 +43,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateWorldEnterMapValleyIVValleyPass",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -52,7 +52,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -61,7 +61,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
+            "__ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -70,7 +70,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -79,7 +79,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -88,7 +88,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateWorldEnterMapWulingWulingCity",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -97,7 +97,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateWorldEnterMapWulingJingyuValley",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -106,7 +106,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterWorldDijiang",
+            "__ScenePrivateWorldEnterWorldDijiang",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -115,7 +115,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexus",
+            "__ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
@@ -124,7 +124,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldAnyEnterWorldValleyIVTheHub",
+            "__ScenePrivateWorldAnyEnterWorldValleyIVTheHub",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -133,10 +133,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateAnyEnterWorldFactorySuccess",
-            "ScenePrivateWorldFactoryDisableEnterFactoryActive",
-            "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
-            "ScenePrivateWorldDijiangEnterFactoryActive",
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryDisableEnterFactoryActive",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "__ScenePrivateWorldDijiangEnterFactoryActive",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -145,7 +145,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuRegionalDevelopment",
+            "__ScenePrivateWorldEnterMenuRegionalDevelopment",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -154,7 +154,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuEvent",
+            "__ScenePrivateWorldEnterMenuEvent",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -163,7 +163,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuValuables",
+            "__ScenePrivateWorldEnterMenuValuables",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -172,7 +172,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuOperationalManual",
+            "__ScenePrivateWorldEnterMenuOperationalManual",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -181,7 +181,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuProtocolPass",
+            "__ScenePrivateWorldEnterMenuProtocolPass",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -190,7 +190,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuFriends",
+            "__ScenePrivateWorldEnterMenuFriends",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -199,7 +199,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldFactoryEnterMenuGearAssembly",
+            "__ScenePrivateWorldFactoryEnterMenuGearAssembly",
             "[JumpBack]SceneEnterWorldFactory"
         ]
     },
@@ -208,7 +208,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldFactoryEnterMenuBluePrint",
+            "__ScenePrivateWorldFactoryEnterMenuBluePrint",
             "[JumpBack]SceneEnterWorldFactory"
         ]
     },
@@ -217,7 +217,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuEmail",
+            "__ScenePrivateWorldEnterMenuEmail",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -226,7 +226,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuBackpack",
+            "__ScenePrivateWorldEnterMenuBackpack",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -235,7 +235,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
             "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
@@ -244,7 +244,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuBaker",
+            "__ScenePrivateWorldEnterMenuBaker",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -253,7 +253,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuWiki",
+            "__ScenePrivateWorldEnterMenuWiki",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -262,7 +262,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuShop",
+            "__ScenePrivateWorldEnterMenuShop",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
@@ -431,7 +431,7 @@
             "[JumpBack]SceneCheckTealColor",
             "[JumpBack]SceneCheckPurpleColor",
             "SceneWaitLoadingExit",
-            "ScenePrivateNextTrue"
+            "__ScenePrivateNextTrue"
         ]
     },
     "SceneCheckYellowColor": {

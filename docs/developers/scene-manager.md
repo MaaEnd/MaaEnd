@@ -23,7 +23,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 例如，`SceneEnterMenuProtocolPass`（进入通行证菜单）的 `next` 为：
 
-- `ScenePrivateWorldEnterMenuProtocolPass`：若已在大世界，直接进入通行证
+- `__ScenePrivateWorldEnterMenuProtocolPass`：若已在大世界，直接进入通行证
 - `[JumpBack]SceneAnyEnterWorld`：若不在大世界，先进入大世界再重试
 
 ## 2. 万能跳转使用方式
@@ -94,13 +94,13 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 只使用 SceneInterface.json 中的接口
 
-**请仅使用 `assets/resource/pipeline/SceneInterface.json` 内定义的场景接口节点。** 这些节点名称**不以 `ScenePrivate` 开头**。
+**请仅使用 `assets/resource/pipeline/SceneInterface.json` 内定义的场景接口节点。** 这些节点名称**不以 `__ScenePrivate` 开头**。
 
-### 禁止使用 ScenePrivate 节点
+### 禁止使用 __ScenePrivate 节点
 
-`SceneManager` 文件夹（如 `SceneCommon.json`、`SceneMenu.json`、`SceneWorld.json`、`SceneMap.json` 等）中定义的 `ScenePrivate*` 节点属于 **内部实现**，用于支撑接口的实际跳转逻辑。
+`SceneManager` 文件夹（如 `SceneCommon.json`、`SceneMenu.json`、`SceneWorld.json`、`SceneMap.json` 等）中定义的 `__ScenePrivate*` 节点属于 **内部实现**，用于支撑接口的实际跳转逻辑。
 
-- **不要**在任务 Pipeline 中直接引用 `ScenePrivate*` 节点
+- **不要**在任务 Pipeline 中直接引用 `__ScenePrivate*` 节点
 - 这些节点的结构、名称、逻辑都可能随版本更新而变更
 - 若需某个场景能力，请查看 `SceneInterface.json` 是否已有对应接口；若没有，可提出需求
 

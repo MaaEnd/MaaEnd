@@ -92,7 +92,7 @@
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
@@ -112,7 +112,7 @@
             "param": {
                 "box_index": 1,
                 "all_of": [
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess",
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -320,7 +320,7 @@
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
