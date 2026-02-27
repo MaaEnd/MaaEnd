@@ -25,26 +25,17 @@
             "CheckOutskirtsMonitoringTerminal"
         ],
         "next": [
-            "GoToEternalSunset",
-            "AcceptEternalSunsetThenGoTo",
-            "GoToAncientTree",
-            "AcceptAncientTreeThenGoTo",
-            "GoToCisternOriginiumSlugs",
-            "AcceptCisternOriginiumSlugsThenGoTo",
-            "GoToCollapsedTianshiPillar",
-            "AcceptCollapsedTianshiPillarThenGoTo",
-            "GoToIndoorCrops",
-            "AcceptIndoorCropsThenGoTo",
-            "GoToBeaconDamagedInBlightTide",
-            "AcceptBeaconDamagedInBlightTideThenGoTo",
-            "GoToRainbowFin",
-            "AcceptRainbowFinThenGoTo",
-            "GoToCleansingJade",
-            "AcceptCleansingJadeThenGoTo",
+            "[JumpBack]EternalSunsetJob",
+            "[JumpBack]AncientTreeJob",
+            "[JumpBack]CisternOriginiumSlugsJob",
+            "[JumpBack]CollapsedTianshiPillarJob",
+            "[JumpBack]IndoorCropsJob",
+            "[JumpBack]BeaconDamagedInBlightTideJob",
+            "[JumpBack]RainbowFinJob",
+            "[JumpBack]CleansingJadeJob",
             "EnvironmentMonitoringFinish"
         ]
     },
-
     "EnvironmentMonitoringFinish": {
         "doc": "环境监测完成"
     }

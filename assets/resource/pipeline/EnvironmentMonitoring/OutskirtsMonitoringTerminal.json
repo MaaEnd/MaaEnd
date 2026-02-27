@@ -1,4 +1,129 @@
 {
+    "EnvironmentMonitoringNotReady": {
+        "doc": "环境监测终端未准备好，匹配上说明没有任务，直接跳出",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "EternalSunsetJob": {
+        "doc": "栖霞驻影任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText"
+        ],
+        "next": [
+            "GoToEternalSunset",
+            "AcceptEternalSunsetThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AncientTreeJob": {
+        "doc": "古树任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckAncientTreeText"
+        ],
+        "next": [
+            "GoToAncientTree",
+            "AcceptAncientTreeThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "CisternOriginiumSlugsJob": {
+        "doc": "蓄水源石虫任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText"
+        ],
+        "next": [
+            "GoToCisternOriginiumSlugs",
+            "AcceptCisternOriginiumSlugsThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "CollapsedTianshiPillarJob": {
+        "doc": "倒塌的天师桩任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText"
+        ],
+        "next": [
+            "GoToCollapsedTianshiPillar",
+            "AcceptCollapsedTianshiPillarThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "IndoorCropsJob": {
+        "doc": "室内作物任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText"
+        ],
+        "next": [
+            "GoToIndoorCrops",
+            "AcceptIndoorCropsThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "BeaconDamagedInBlightTideJob": {
+        "doc": "侵蚀潮中损坏的信标任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckBeaconDamagedInBlightTideText"
+        ],
+        "next": [
+            "GoToBeaconDamagedInBlightTide",
+            "AcceptBeaconDamagedInBlightTideThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "RainbowFinJob": {
+        "doc": "七彩鳞任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowFinText"
+        ],
+        "next": [
+            "GoToRainbowFin",
+            "AcceptRainbowFinThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "CleansingJadeJob": {
+        "doc": "「漱玉」任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText"
+        ],
+        "next": [
+            "GoToCleansingJade",
+            "AcceptCleansingJadeThenGoTo",
+            "EnvironmentMonitoringNotReady"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "CheckEternalSunsetText": {
         "doc": "检查是否有“栖霞驻影”文本",
         "order_by": "Expected",
