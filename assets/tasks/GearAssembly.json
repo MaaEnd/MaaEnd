@@ -5,6 +5,9 @@
             "label": "$task.GearAssembly.label",
             "entry": "GearAssemblyStart",
             "description": "$task.GearAssembly.description",
+            "option": [
+                "GearCraftingPriority"
+            ],
             "controller": [
                 "Win32",
                 "Win32-Window",
