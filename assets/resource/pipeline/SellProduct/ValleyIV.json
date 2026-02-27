@@ -35,7 +35,8 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtRefugeeCamp"
+            "ValleyIVVerifyAtRefugeeCamp",
+            "ValleyIVSwitchToRefugeeCamp"
         ]
     },
     "ValleyIVVerifyAtRefugeeCamp": {
@@ -82,8 +83,7 @@
             }
         },
         "next": [
-            "SellProductAtSell",
-            "[Anchor]SellProductNextOutpost"
+            "SellProductAtSell"
         ]
     },
     "ValleyIVSwitchToInfrastructureOutpost": {
@@ -121,7 +121,8 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtInfrastructureOutpost"
+            "ValleyIVVerifyAtInfrastructureOutpost",
+            "ValleyIVSwitchToInfrastructureOutpost"
         ]
     },
     "ValleyIVVerifyAtInfrastructureOutpost": {
@@ -207,7 +208,8 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtReconstructionCommand"
+            "ValleyIVVerifyAtReconstructionCommand",
+            "ValleyIVSwitchToReconstructionCommand"
         ]
     },
     "ValleyIVVerifyAtReconstructionCommand": {
