@@ -228,15 +228,11 @@
         }
     },
     "SetClues": {
-        "doc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
+        "doc": "[会客室·线索] 未识别到「已填入」时持续点击线索位，直到出现已填入",
+        "pre_delay": 300,
+        "post_delay": 300,
         "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "DeleteClue",
-                    "ClueTimeLabel"
-                ]
-            }
+            "type": "DirectHit"
         },
         "action": {
             "type": "Click",
