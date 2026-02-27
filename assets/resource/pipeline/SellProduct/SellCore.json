@@ -282,39 +282,5 @@
             ]
         },
         "doc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
-    },
-    "SellProductSellPressed": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "交易按钮已经成功按下",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "lower": [
-                    [
-                        141,
-                        141,
-                        141
-                    ]
-                ],
-                "upper": [
-                    [
-                        148,
-                        148,
-                        148
-                    ]
-                ],
-                "roi": [
-                    1059,
-                    646,
-                    106,
-                    31
-                ],
-                "count": 100
-            }
-        },
-        "next": [
-            "SellProductSellCheck"
-        ]
     }
 }
