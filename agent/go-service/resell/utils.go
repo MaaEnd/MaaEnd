@@ -76,6 +76,14 @@ func extractOCRText(detail *maa.RecognitionDetail) string {
 			}
 		}
 	}
+	// Or/And 节点：Results 为 nil，子节点在 CombinedResult 中（如 Or 包裹 OCR）
+	if len(detail.CombinedResult) > 0 {
+		for _, child := range detail.CombinedResult {
+			if text := extractOCRText(child); text != "" {
+				return text
+			}
+		}
+	}
 	if detail.DetailJson != "" {
 		if text, _, _, _, _ := extractOCRFromDetailJson(detail.DetailJson); text != "" {
 			return text
