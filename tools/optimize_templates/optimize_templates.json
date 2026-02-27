@@ -321,5 +321,6 @@
     "resource/image/AutoFight/EndSkill": "edafddac762e7f62096e430938f63493361fc6f7fe0711c1e85b02f4b987cc90",
     "resource/image/AutoFight/CharacterBar": "b5cae1a8a6ac126e0b4b1bef7838975517858e4b146e00d5b4b647126d22637a",
     "resource/image/AutoFight/MenuOperators": "dd2567d0cd890a58168f6585d27aee5b9340b847978294560dab4560b00728ec",
-    "resource/image/TPPoint/MarkerTagsFilter": "bdf5f60b74f30be3a70fba3dc489e30c9f920e7297bded1950512dec7ccdeb0f"
+    "resource/image/TPPoint/MarkerTagsFilter": "bdf5f60b74f30be3a70fba3dc489e30c9f920e7297bded1950512dec7ccdeb0f",
+    "resource/image/SceneManager/MapFilterNotChoose": "ab2e40e188452587d90d605b5fb8d8da316892e140a3bcd7b5e2a72666bce895"
 }
