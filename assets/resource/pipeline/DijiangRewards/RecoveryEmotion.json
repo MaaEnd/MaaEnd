@@ -255,7 +255,8 @@
                                     255,
                                     253,
                                     253
-                                ]
+                                ],
+                                "order_by": "Vertical"
                             }
                         }
                     },
@@ -282,7 +283,8 @@
                                     25
                                 ],
                                 "count": 30,
-                                "connected": true
+                                "connected": true,
+                                "order_by": "Vertical"
                             }
                         }
                     }
