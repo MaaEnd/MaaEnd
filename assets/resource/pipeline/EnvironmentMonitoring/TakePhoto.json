@@ -12,7 +12,7 @@
         "doc": "直接进入拍照模式，如果朝向不对会失败",
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack]EnvironmentMonitoringEnterCameraModeDirectly",
+            "[JumpBack]EnterCameraMode",
             // 如果任务目标没有达成则重试一次
             "[JumpBack]CloseButtonType1"
         ]
@@ -27,16 +27,6 @@
         ],
         "action": "ClickKey",
         "key": 70 // F 0x46
-    },
-    "EnvironmentMonitoringEnterCameraModeDirectly": {
-        "doc": "直接进入拍照模式，如果朝向不对会失败",
-        "recognition": "And",
-        "max_hit": 3,
-        "all_of": [
-            "InWorld"
-        ],
-        "action": "ClickKey",
-        "key": 82 // R 0x52
     },
     "EnvironmentMonitoringShutterButtonHighlighted": {
         "doc": "拍照按钮高亮，拍照",
@@ -81,5 +71,39 @@
             "EnvironmentMonitoringShutterButtonHighlighted",
             "EnvironmentMonitoringMain"
         ]
+    },
+    "EnterCameraMode": {
+        "doc": "进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": "KeyDown",
+        "key": 82, // R 0x52
+        "next": [
+            "EnterCameraModeChooseCamera"
+        ]
+    },
+    "EnterCameraModeChooseCamera": {
+        "doc": "进入拍照模式，选择拍照",
+        "recognition": "TemplateMatch",
+        "template": "Common/CameraMode.png",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "EnterCameraModeKeyDown"
+        ]
+    },
+    "EnterCameraModeKeyDown": {
+        "doc": "进入拍照模式，退出按键",
+        "action": "KeyDown",
+        "key": 82, // R 0x52
+        "next": []
     }
 }
