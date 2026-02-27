@@ -13,7 +13,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/WhiteConfirmButtonType1.png（参考资源：Common/Button/WhiteConfirmButtonType1.png） -->
 
-<img width="1280" height="697" alt="WhiteConfirmButtonType1" src="https://github.com/user-attachments/assets/0101c45c-c37e-42d5-a1a9-f59c1261b4cc" />
+![WhiteConfirmButtonType1](https://github.com/user-attachments/assets/1422a47f-2a74-4623-9dcb-d61d8aefcd8c)
 
 | 项目         | 说明                                                                                                                          |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -30,7 +30,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/WhiteConfirmButtonType2.png -->
 
-<img width="1280" height="694" alt="WhiteConfirmButtonType2" src="https://github.com/user-attachments/assets/1e41920a-e93d-4524-9417-8e2dd21223ef" />
+![WhiteConfirmButtonType2](https://github.com/user-attachments/assets/960f3e3e-1071-4e13-a4f1-f249750f333d)
 
 | 项目         | 说明                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------ |
@@ -47,7 +47,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/YellowConfirmButtonType1.png -->
 
-<img width="1280" height="696" alt="YellowConfirmButtonType1" src="https://github.com/user-attachments/assets/747d69ae-c908-4d95-937a-2dd37f561eed" />
+![YellowConfirmButtonType1](https://github.com/user-attachments/assets/ba3967ad-39a1-4e96-8175-2abed9c35664)
 
 | 项目         | 说明                                                                                                                           |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -64,7 +64,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/YellowConfirmButtonType2.png -->
 
-<img width="1280" height="697" alt="YellowConfirmButtonType2" src="https://github.com/user-attachments/assets/a7fed4e2-428a-4491-8ba5-affc9e20dc0d" />
+![YellowConfirmButtonType2](https://github.com/user-attachments/assets/8cbff019-9d56-43c5-8b75-862c13b9cdd6)
 
 | 项目         | 说明                                                                                              |
 | ------------ | ------------------------------------------------------------------------------------------------- |
@@ -81,7 +81,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/CancelButton.png -->
 
-<img width="1280" height="695" alt="CancelButton" src="https://github.com/user-attachments/assets/7578514c-cf0d-40fe-a983-ea2dcd0e82f3" />
+![CancelButton](https://github.com/user-attachments/assets/b5185e1e-b4fb-4435-af46-2e7673240bdd)
 
 | 项目         | 说明                                                                                                                        |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
@@ -98,7 +98,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/TeleportButton.png -->
 
-<img width="1280" height="695" alt="TeleportButton" src="https://github.com/user-attachments/assets/e891a612-3eaf-4776-bb29-b6d74d56c6c5" />
+![TeleportButton](https://github.com/user-attachments/assets/507eddf2-5625-4018-997d-cf302e36e41f)
 
 | 项目         | 说明                                                                                                                                          |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -115,7 +115,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/CloseRewardsButton.png -->
 
-<img width="1280" height="696" alt="CloseRewardsButton" src="https://github.com/user-attachments/assets/248772bc-925e-4e3f-b706-90d2bb94fede" />
+![CloseRewardsButton](https://github.com/user-attachments/assets/326f4370-5120-485a-ae0e-839278cad550)
 
 | 项目         | 说明                                                                                                                              |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -132,7 +132,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/CloseButtonType1.png -->
 
-<img width="1280" height="694" alt="CloseButtonType1" src="https://github.com/user-attachments/assets/6cd79656-1f51-4f09-80ae-fa42528c079e" />
+![CloseButtonType1](https://github.com/user-attachments/assets/1fe5f9a2-cb6f-4a87-b5e7-4596d3a3d6b6)
 
 | 项目         | 说明                                                                                                                                                   |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -149,7 +149,7 @@
 
 <!-- 截图：docs/developers/images/common-buttons/CloseButtonType2.png -->
 
-<img width="1280" height="697" alt="CloseButtonType2" src="https://github.com/user-attachments/assets/5c7a9a5c-17ed-4103-9c12-679fc11c1f6e" />
+![CloseButtonType2](https://github.com/user-attachments/assets/7294366f-cd1e-4609-a6ea-8101ffc6c61e)
 
 | 项目         | 说明                                                                                                                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
