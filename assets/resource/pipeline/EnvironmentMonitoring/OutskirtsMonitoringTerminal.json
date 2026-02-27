@@ -640,8 +640,7 @@
         ],
         "next": [
             "GoToEternalSunsetStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingJingyuValley2"
         ]
     },
     "GoToAncientTree": {
@@ -653,8 +652,7 @@
         ],
         "next": [
             "GoToAncientTreeStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingJingyuValley7"
         ]
     },
     "GoToCisternOriginiumSlugs": {
@@ -666,8 +664,7 @@
         ],
         "next": [
             "GoToCisternOriginiumSlugsStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingJingyuValley7"
         ]
     },
     "GoToIndoorCrops": {
@@ -679,8 +676,7 @@
         ],
         "next": [
             "GoToIndoorCropsStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingCity4"
         ]
     },
     "GoToBeaconDamagedInBlightTide": {
@@ -692,8 +688,7 @@
         ],
         "next": [
             "GoToBeaconDamagedInBlightTideStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingCity0"
         ]
     },
     "GoToRainbowFin": {
@@ -705,8 +700,7 @@
         ],
         "next": [
             "GoToRainbowFinStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingJingyuValley10"
         ]
     },
     "GoToCleansingJade": {
@@ -731,12 +725,11 @@
         ],
         "next": [
             "GoToCollapsedTianshiPillarStartPos",
-            // TODO: 缺少进入指定协议传送点的节点
-            "[JumpBack]SceneEnterMapWulingJingyuValley"
+            "[JumpBack]TPPointWulingJingyuValley8"
         ]
     },
     "GoToEternalSunsetStartPos": {
-        "doc": "在栖霞驻影任务开始位置附近",
+        "doc": "在栖霞驻影任务开始位置附近，聚宝窟外直接拍照",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
