@@ -11,12 +11,6 @@
                         "AutoBuyAndSell": "Yes",
                         "AutoChangeRegion": "Yes"
                     }
-                },
-                {
-                    "name": "SellProduct"
-                },
-                {
-                    "name": "SimpleProductionBatchStart"
                 }
             ]
         }

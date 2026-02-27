@@ -318,6 +318,6 @@
     "preset.RealtimeAssist.description": "挂机时开启的实时辅助功能全套",
     "preset.AutoTrading.label": "自动倒卖",
     "preset.AutoTrading.description": "自动买卖及生产相关",
-    "preset.EssenceFarming.label": "灵素刷取",
-    "preset.EssenceFarming.description": "灵素养成及筛选相关"
+    "preset.EssenceFarming.label": "基质刷取",
+    "preset.EssenceFarming.description": "基质养成及筛选相关"
 }
