@@ -243,6 +243,7 @@
     "option.BatchAddFriends.inputs.MaxCount.description": "达到数量后自动停止",
     "task.SellProduct.label": "🛒一键售卖产品",
     "task.SellProduct.description": "使用产品在各个据点兑换对应调度券",
+    "task.SellProduct.TaskEnd": "售卖任务已完成",
     "task.VisitFriends.label": "🤝自动拜访好友",
     "task.VisitFriends.description": "自动拜访好友，执行生产助力与情报交流",
     "option.PriorStealVegetables.label": "偷菜模式",

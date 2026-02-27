@@ -236,13 +236,20 @@
         "pre_delay": 0,
         "post_delay": 0,
         "doc": "虚拟出口节点：售卖流程结束",
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": [
-                    27
-                ]
-            }
+        "next": [
+            "[JumpBack]CloseButtonType1",
+            "SellProductTaskEnd"
+        ]
+    },
+    "SellProductTaskEnd": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "任务结束",
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SellProduct.TaskEnd"
         }
     }
 }
