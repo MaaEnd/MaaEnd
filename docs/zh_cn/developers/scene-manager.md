@@ -49,9 +49,9 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
     "DailyProtocolPassInMenu": {
         "desc": "在通行证界面",
         "recognition": { ... },
-        "next": [ 
+        "next": [
             "DailyProtocolMissionsEnter",
-             ... 
+             ...
         ]
     },
     ...
@@ -96,7 +96,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 **请仅使用 `assets/resource/pipeline/SceneInterface.json` 内定义的场景接口节点。** 这些节点名称**不以 `__ScenePrivate` 开头**。
 
-### 禁止使用 __ScenePrivate 节点
+### 禁止使用 \_\_ScenePrivate 节点
 
 `SceneManager` 文件夹（如 `SceneCommon.json`、`SceneMenu.json`、`SceneWorld.json`、`SceneMap.json` 等）中定义的 `__ScenePrivate*` 节点属于 **内部实现**，用于支撑接口的实际跳转逻辑。
 
@@ -106,23 +106,23 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 常用接口一览
 
-| 分类 | 接口名 | 说明 |
-|------|--------|------|
-| 大世界 | `SceneAnyEnterWorld` | 从任意界面进入谷地/武陵/帝江任意一个大世界 |
-| 大世界 | `SceneEnterWorldDijiang` | 进入帝江号大世界 |
-| 大世界 | `SceneEnterWorldValleyIVTheHub` | 进入四号谷地-枢纽区大世界 |
-| 大世界 | `SceneEnterWorldFactory` | 进入大世界工厂模式 |
-| 地图 | `SceneEnterMapDijiang` | 进入帝江号地图界面 |
-| 地图 | `SceneEnterMapValleyIVTheHub` | 进入四号谷地-枢纽区地图界面 |
-| 菜单 | `SceneEnterMenuList` | 进入菜单总列表 |
-| 菜单 | `SceneEnterMenuRegionalDevelopment` | 进入地区建设菜单 |
-| 菜单 | `SceneEnterMenuEvent` | 进入活动菜单 |
-| 菜单 | `SceneEnterMenuProtocolPass` | 进入通行证菜单 |
-| 菜单 | `SceneEnterMenuBackpack` | 进入背包界面 |
-| 菜单 | `SceneEnterMenuShop` | 进入商店界面 |
-| 辅助 | `SceneDialogConfirm` | 点击对话框确认按钮 |
-| 辅助 | `SceneDialogCancel` | 点击对话框取消按钮 |
-| 辅助 | `SceneNoticeRewardsConfirm` | 点击奖励界面确认按钮 |
-| 辅助 | `SceneWaitLoadingExit` | 等待加载界面消失 |
+| 分类   | 接口名                              | 说明                                       |
+| ------ | ----------------------------------- | ------------------------------------------ |
+| 大世界 | `SceneAnyEnterWorld`                | 从任意界面进入谷地/武陵/帝江任意一个大世界 |
+| 大世界 | `SceneEnterWorldDijiang`            | 进入帝江号大世界                           |
+| 大世界 | `SceneEnterWorldValleyIVTheHub`     | 进入四号谷地-枢纽区大世界                  |
+| 大世界 | `SceneEnterWorldFactory`            | 进入大世界工厂模式                         |
+| 地图   | `SceneEnterMapDijiang`              | 进入帝江号地图界面                         |
+| 地图   | `SceneEnterMapValleyIVTheHub`       | 进入四号谷地-枢纽区地图界面                |
+| 菜单   | `SceneEnterMenuList`                | 进入菜单总列表                             |
+| 菜单   | `SceneEnterMenuRegionalDevelopment` | 进入地区建设菜单                           |
+| 菜单   | `SceneEnterMenuEvent`               | 进入活动菜单                               |
+| 菜单   | `SceneEnterMenuProtocolPass`        | 进入通行证菜单                             |
+| 菜单   | `SceneEnterMenuBackpack`            | 进入背包界面                               |
+| 菜单   | `SceneEnterMenuShop`                | 进入商店界面                               |
+| 辅助   | `SceneDialogConfirm`                | 点击对话框确认按钮                         |
+| 辅助   | `SceneDialogCancel`                 | 点击对话框取消按钮                         |
+| 辅助   | `SceneNoticeRewardsConfirm`         | 点击奖励界面确认按钮                       |
+| 辅助   | `SceneWaitLoadingExit`              | 等待加载界面消失                           |
 
 完整接口列表及说明请直接查看 `assets/resource/pipeline/SceneInterface.json` 中各节点的 `desc` 字段。
