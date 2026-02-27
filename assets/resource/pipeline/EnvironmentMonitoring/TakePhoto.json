@@ -4,8 +4,7 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack]EnvironmentMonitoringEnterCameraMode",
-            // 如果任务目标没有达成则重试一次
-            "[JumpBack]CloseButtonType1"
+            "[JumpBack]EnvironmentMonitoringSwipeScreen"
         ]
     },
     "EnvironmentMonitoringTakePhotoDirectly": {
@@ -13,14 +12,25 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack]EnterCameraMode",
-            // 如果任务目标没有达成则重试一次
-            "[JumpBack]CloseButtonType1"
+            "[JumpBack]EnvironmentMonitoringSwipeScreen"
         ]
+    },
+    "EnvironmentMonitoringSwipeScreen": {
+        "doc": "环境监测拍照，滑动屏幕调整朝向",
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            760,
+            360
+        ],
+        "end_hold": 300
     },
     "EnvironmentMonitoringEnterCameraMode": {
         "doc": "进入拍照模式，会自动朝向任务目标",
         "recognition": "And",
-        "max_hit": 3,
         "all_of": [
             "EnterCameraModeButton",
             "InWorld"
