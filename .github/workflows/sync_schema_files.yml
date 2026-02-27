@@ -44,6 +44,7 @@ jobs:
           # 下载JSON schema文件
           curl -s -o tools/schema/interface.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface.schema.json || echo "Failed to download interface.schema.json"
           curl -s -o tools/schema/interface_config.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_config.schema.json || echo "Failed to download interface_config.schema.json"
+          curl -s -o tools/schema/interface_import.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/interface_import.schema.json || echo "Failed to download interface_import.schema.json"
           curl -s -o tools/schema/pipeline.schema.json https://raw.githubusercontent.com/MaaXYZ/MaaFramework/main/tools/pipeline.schema.json || echo "Failed to download pipeline.schema.json"
 
           # 检查文件是否成功下载
@@ -78,6 +79,11 @@ jobs:
             else
               echo "interface_config_changed=false" >> $GITHUB_OUTPUT
             fi
+            if [[ -e tools/schema/interface_import.schema.json ]] && [[ -n "$(git status --porcelain tools/schema/interface_import.schema.json)" ]]; then
+              echo "interface_import_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "interface_import_changed=false" >> $GITHUB_OUTPUT
+            fi
             if [[ -e tools/schema/pipeline.schema.json ]] && [[ -n "$(git status --porcelain tools/schema/pipeline.schema.json)" ]]; then
               echo "pipeline_changed=true" >> $GITHUB_OUTPUT
             else
@@ -88,6 +94,7 @@ jobs:
             echo "changes_detected=false" >> $GITHUB_OUTPUT
             echo "interface_changed=false" >> $GITHUB_OUTPUT
             echo "interface_config_changed=false" >> $GITHUB_OUTPUT
+            echo "interface_import_changed=false" >> $GITHUB_OUTPUT
             echo "pipeline_changed=false" >> $GITHUB_OUTPUT
           fi
 
@@ -114,6 +121,9 @@ jobs:
             fi
             if [[ "${{ steps.check_status.outputs.interface_config_changed }}" == "true" ]]; then
               changed_files+="interface_config "
+            fi
+            if [[ "${{ steps.check_status.outputs.interface_import_changed }}" == "true" ]]; then
+              changed_files+="interface_import "
             fi
             if [[ "${{ steps.check_status.outputs.pipeline_changed }}" == "true" ]]; then
               changed_files+="pipeline "

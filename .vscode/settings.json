@@ -27,7 +27,7 @@
                 "/assets/tasks/**/*.json",
                 "/install/tasks/**/*.json"
             ],
-            "url": "/tools/schema/task.schema.json"
+            "url": "/tools/schema/interface_import.schema.json"
         },
         {
             "fileMatch": [
