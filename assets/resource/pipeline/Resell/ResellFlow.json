@@ -23,14 +23,120 @@
         "next": []
     },
     "ResellScan": {
-        "doc": "扫描指定行列的商品，custom_action_param 传入 {row, col}",
+        "doc": "扫描入口，解析 row/col 并跳转到 Step1",
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "ResellScanProductAction",
+        "custom_action": "ResellScanAction",
         "custom_action_param": {
             "row": 1,
             "col": 1
         },
+        "next": []
+    },
+    "ResellScanStart": {
+        "doc": "Step1：识别商品价格，存储并点击；无商品则 on_error 跳下一格",
+        "recognition": "Or",
+        "any_of": [
+            "ResellROIProductRow1Col1Price"
+        ],
+        "action": "Custom",
+        "custom_action": "ResellScanStartAction",
+        "post_wait_freezes": 200,
+        "next": [
+            "ResellScanCost",
+            "ResellScanClickViewFriendPrice"
+        ],
+        "on_error": [
+            "ResellScanSkipEmpty"
+        ]
+    },
+    "ResellScanSkipEmpty": {
+        "doc": "Step1 识别失败（无商品）时跳过当前格",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ResellScanSkipEmptyAction",
+        "next": []
+    },
+    "ResellScanCost": {
+        "doc": "Step2：识别详情页成本价并存储",
+        "recognition": "Or",
+        "any_of": [
+            "ResellROIDetailCostPrice"
+        ],
+        "action": "Custom",
+        "custom_action": "ResellScanCostAction",
+        "next": [
+            "ResellScanClickViewFriendPrice"
+        ]
+    },
+    "ResellScanClickViewFriendPrice": {
+        "doc": "Step2：识别并点击「查看好友价格」",
+        "recognition": "Or",
+        "any_of": [
+            "ResellROIViewFriendPrice"
+        ],
+        "action": "Click",
+        "next": [
+            "ResellScanFriendPrice"
+        ]
+    },
+    "ResellScanFriendPrice": {
+        "doc": "Step3：等待好友价格、识别出售价、追加利润记录",
+        "recognition": "Or",
+        "any_of": [
+            "ResellROIFriendSalePrice"
+        ],
+        "action": "Custom",
+        "custom_action": "ResellScanFriendPriceAction",
+        "next": [
+            "ResellScanReturn"
+        ],
+        "on_error": [
+            "ResellScanReturn"
+        ]
+    },
+    "ResellScanReturn": {
+        "doc": "Step4：返回好友价格页 -> 关闭详情页",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "ResellROIReturnButton"
+        ]
+    },
+    "ResellReturnButton": {
+        "doc": "好友价格页返回按钮区域",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Resell/back.png"
+        ],
+        "roi": [
+            962,
+            110,
+            72,
+            75
+        ],
+        "action": "Click",
+        "next": [
+            "ResellScanClose"
+        ]
+    },
+    "ResellScanClose": {
+        "doc": "关闭商品详情页",
+        "recognition": "Or",
+        "any_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "pre_wait_freezes": 200,
+        "next": [
+            "ResellScanNext"
+        ]
+    },
+    "ResellScanNext": {
+        "doc": "跳下一格或进入决策",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ResellScanNextAction",
         "next": []
     }
 }

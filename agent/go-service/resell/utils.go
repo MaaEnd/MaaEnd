@@ -35,95 +35,6 @@ func MoveMouseSafe(controller *maa.Controller) {
 	time.Sleep(50 * time.Millisecond)
 }
 
-// ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
-func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return 0, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
-		return 0, 0, 0, false
-	}
-
-	// 优先从 Best 结果中提取，然后是 All
-	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
-		if len(results) > 0 && results[0] != nil {
-			if ocrResult, ok := results[0].AsOCR(); ok {
-				if num, success := extractNumbersFromText(ocrResult.Text); success {
-					// 计算中心坐标
-					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					return num, centerX, centerY, success
-				}
-			}
-		}
-	}
-
-	return 0, 0, 0, false
-}
-
-// ocrExtractTextWithCenter - OCR region using pipeline name and check if pipeline filtered results exist, return center coordinates.
-// Keyword matching is delegated to the pipeline's "expected" field, so no redundant check is needed in Go.
-func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (bool, int, int, bool) {
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return false, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
-		return false, 0, 0, false
-	}
-
-	// Pipeline 的 expected 字段已负责文本过滤，Filtered 非空即表示匹配成功
-	if len(detail.Results.Filtered) > 0 && detail.Results.Filtered[0] != nil {
-		if ocrResult, ok := detail.Results.Filtered[0].AsOCR(); ok {
-			centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-			centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-			log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Msg("[OCR] 区域找到对应字符")
-			return true, centerX, centerY, true
-		}
-	}
-
-	log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
-	return false, 0, 0, false
-}
-
 // ResellFinishAction - Finish Resell task custom action
 type ResellFinishAction struct{}
 
@@ -147,16 +58,6 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 	return nil
 }
 
-func ResellDelayFreezesTime(ctx *maa.Context, time int) bool {
-	ctx.RunTask("ResellTaskDelay", map[string]interface{}{
-		"ResellTaskDelay": map[string]interface{}{
-			"pre_wait_freezes": time,
-		},
-	},
-	)
-	return true
-}
-
 func extractOCRText(detail *maa.RecognitionDetail) string {
 	if detail == nil || detail.Results == nil {
 		return ""
@@ -169,6 +70,25 @@ func extractOCRText(detail *maa.RecognitionDetail) string {
 		}
 	}
 	return ""
+}
+
+// extractOCRNumberWithCenterFromDetail 从 RecognitionDetail 提取数字及 Box 中心坐标（用于点击）
+func extractOCRNumberWithCenterFromDetail(detail *maa.RecognitionDetail) (num int, centerX int, centerY int, ok bool) {
+	if detail == nil || detail.Results == nil {
+		return 0, 0, 0, false
+	}
+	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
+		if len(results) > 0 && results[0] != nil {
+			if ocrResult, o := results[0].AsOCR(); o {
+				if n, success := extractNumbersFromText(ocrResult.Text); success {
+					cx := ocrResult.Box.X() + ocrResult.Box.Width()/2
+					cy := ocrResult.Box.Y() + ocrResult.Box.Height()/2
+					return n, cx, cy, true
+				}
+			}
+		}
+	}
+	return 0, 0, 0, false
 }
 
 // ocrAndParseQuotaFromImg - OCR and parse quota from two regions on given image

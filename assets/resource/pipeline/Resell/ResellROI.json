@@ -383,20 +383,6 @@
         "action": "DoNothing",
         "next": []
     },
-    "ResellROIReturnButton": {
-        "doc": "好友价格页返回按钮区域",
-        "recognition": "TemplateMatch",
-        "template": [
-            "Resell/back.png"
-        ],
-        "roi": [
-            962,
-            110,
-            72,
-            75
-        ],
-        "action": "Click"
-    },
     "ResellROIQuotaCurrent": {
         "doc": "当前配额区域 (x/y格式)",
         "recognition": "OCR",

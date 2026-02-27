@@ -7,6 +7,9 @@ var (
 	resellRecords   []ProfitRecord
 	resellOverflow  int
 	resellMinProfit int
+	scanCostPrice   int
+	scanRow         int
+	scanCol         int
 )
 
 func getState() ([]ProfitRecord, int, int) {
@@ -39,4 +42,28 @@ func appendRecord(r ProfitRecord) {
 	stateMu.Lock()
 	defer stateMu.Unlock()
 	resellRecords = append(resellRecords, r)
+}
+
+func setScanCostPrice(v int) {
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	scanCostPrice = v
+}
+
+func getScanCostPrice() int {
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	return scanCostPrice
+}
+
+func setScanPos(row, col int) {
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	scanRow, scanCol = row, col
+}
+
+func getScanPos() (int, int) {
+	stateMu.Lock()
+	defer stateMu.Unlock()
+	return scanRow, scanCol
 }
