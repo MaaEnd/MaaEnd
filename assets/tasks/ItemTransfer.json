@@ -39,10 +39,54 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 141
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "label": "$item.HCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 183
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 183
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 183
                         },
                         "ItemTransferRepoToBag": {
                             "next": [
-                                "ItemTransferClickSortAscending",
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 7
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 7
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 7
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
                                 "ItemTransferScrollDownwardRepo"
@@ -65,6 +109,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 74
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -479,6 +531,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 167
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -497,6 +557,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 170
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -515,6 +583,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 188
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -533,6 +609,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 108
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -573,42 +657,6 @@
                     }
                 },
                 {
-                    "name": "高容谷地电池",
-                    "label": "$item.HCValleyBattery",
-                    "pipeline_override": {
-                        "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
-                        },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 183
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 183
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 183
-                        }
-                    }
-                },
-                {
-                    "name": "低容武陵电池",
-                    "label": "$item.LCWulingBattery",
-                    "pipeline_override": {
-                        "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
-                        },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 7
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 7
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 7
-                        }
-                    }
-                },
-                {
                     "name": "息壤",
                     "label": "$item.Xiranite",
                     "pipeline_override": {
@@ -641,6 +689,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 52
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -659,6 +715,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 96
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -857,6 +921,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 92
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
