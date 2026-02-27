@@ -149,17 +149,17 @@
         ]
     },
     "ItemTransferFindItemInRepo": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             158,
             203,
             551,
             292
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.9,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownRepo"
         ]
@@ -302,17 +302,17 @@
         ]
     },
     "ItemTransferFindItemInBag": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             768,
             209,
             349,
             285
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.9,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownBag"
         ]
@@ -467,17 +467,17 @@
         ]
     },
     "ItemTransferFindItemInBagReturn": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             768,
             209,
             349,
             285
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.9,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownBagReturn"
         ]
