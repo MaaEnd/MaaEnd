@@ -136,7 +136,7 @@
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利益値",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "現在の最高利益がこの値より低い場合、購入しません。整数のみ対応。",
     "task.CreditShopping.label": "🛍️ クレジットショッピング",
-    "task.CreditShopping.description": "クレジット取引所でアイテムを購入します",
+    "task.CreditShopping.description": "クレジット取引所でアイテムを購入します。Android 端末では DPI を 280 以上に設定しないと、2 段目のアイテムが見落とされる可能性があります",
     "option.CreditShoppingOptions.label": "詳細設定",
     "option.CreditShoppingOptions.inputs.buy_first.label": "ホワイトリスト",
     "option.CreditShoppingOptions.inputs.buy_first.description": "部分文字列だけでいい `|` 区切り",

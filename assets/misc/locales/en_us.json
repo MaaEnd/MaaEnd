@@ -148,7 +148,7 @@
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "Minimum Profit Value",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "If the maximum profit is lower than this value, no purchase will be made. Integer only.",
     "task.CreditShopping.label": "🛍️ Credit Shopping",
-    "task.CreditShopping.description": "Purchase items from the Credit Exchange",
+    "task.CreditShopping.description": "Purchase items from the Credit Exchange; on Android, 280+ DPI is required or the second row of items may be missed",
     "option.CreditShoppingOptions.label": "Advanced Settings",
     "option.CreditShoppingOptions.inputs.buy_first.label": "Whitelist",
     "option.CreditShoppingOptions.inputs.buy_first.description": "Substring Just `|` Separate",
