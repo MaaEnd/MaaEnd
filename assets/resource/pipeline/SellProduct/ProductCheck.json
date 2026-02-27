@@ -147,11 +147,11 @@
             "param": {}
         },
         "next": [
-            "SellProductSelectNewProductComfirm",
+            "SellProductSelectNewProductConfirm",
             "SellProductSelectNewProduct"
         ]
     },
-    "SellProductSelectNewProductComfirm": {
+    "SellProductSelectNewProductConfirm": {
         "pre_delay": 0,
         "doc": "点击确认",
         "post_wait_freezes": 100,
