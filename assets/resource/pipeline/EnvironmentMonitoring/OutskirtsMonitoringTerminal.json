@@ -862,8 +862,8 @@
                 {
                     "map_name": "map02_lv001",
                     "target": [
-                        466,
-                        313,
+                        315,
+                        305,
                         10,
                         10
                     ]
@@ -1029,29 +1029,13 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    471,
-                    318
-                ],
-                [
-                    444,
-                    316
-                ],
-                [
-                    441,
-                    285
-                ],
-                [
-                    405,
-                    267
-                ],
-                [
-                    397,
-                    257
+                    331,
+                    303
                 ]
             ]
         },
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "EnvironmentMonitoringTakePhotoDirectly"
         ]
     },
     "GoToAncientTreeMapTrackerMove": {
@@ -1192,7 +1176,7 @@
             ]
         },
         "next": [
-            "EnvironmentMonitoringTakePhoto"
+            "EnvironmentMonitoringTakePhotoDirectly"
         ]
     },
     "GoToCleansingJadeMapTrackerMove": {

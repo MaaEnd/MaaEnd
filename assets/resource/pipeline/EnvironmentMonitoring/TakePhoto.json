@@ -4,6 +4,14 @@
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack]EnvironmentMonitoringEnterCameraMode",
+            // 如果任务目标没有达成则重试一次
+            "[JumpBack]CloseButtonType1"
+        ]
+    },
+    "EnvironmentMonitoringTakePhotoDirectly": {
+        "doc": "直接进入拍照模式，如果朝向不对会失败",
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack]EnvironmentMonitoringEnterCameraModeDirectly",
             // 如果任务目标没有达成则重试一次
             "[JumpBack]CloseButtonType1"
