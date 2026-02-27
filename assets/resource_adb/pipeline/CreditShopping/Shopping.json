@@ -17,6 +17,7 @@
     },
     "CreditShoppingADBSwipe": {
         "doc": "adb特殊流程",
+        "enabled": true,
         "inverse": true,
         "recognition": {
             "type": "ColorMatch",

@@ -37,7 +37,8 @@
         ]
     },
     "CreditShoppingADBSwipe": {
-        "doc": "adb特殊流程"
+        "doc": "adb特殊流程",
+        "enabled": false
     },
     "CreditShippingCanNotToBuy": {
         "doc": "刷新流程中无法购买",
