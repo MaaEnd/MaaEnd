@@ -7,12 +7,14 @@ on:
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "tools/schema/**"
   pull_request:
     branches:
       - "**"
     paths:
       - ".github/workflows/check.yml"
       - "assets/**"
+      - "tools/schema/**"
   workflow_dispatch:
 
 jobs:
