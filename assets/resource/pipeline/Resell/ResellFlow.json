@@ -31,16 +31,15 @@
             "row": 1,
             "col": 1
         },
-        "next": []
+        "next": [
+            "ResellScanStart"
+        ]
     },
     "ResellScanStart": {
-        "doc": "Step1：识别商品价格，存储并点击；无商品则 on_error 跳下一格",
+        "doc": "Step1：识别商品价格区域并点击；无商品则 on_error 跳下一格（any_of 由 ResellScanAction 写入）",
         "recognition": "Or",
-        "any_of": [
-            "ResellROIProductRow1Col1Price"
-        ],
-        "action": "Custom",
-        "custom_action": "ResellScanStartAction",
+        "any_of": ["ResellROIProductRow1Col1Price"],
+        "action": "Click",
         "post_wait_freezes": 200,
         "next": [
             "ResellScanCost",
@@ -90,9 +89,6 @@
         "custom_action": "ResellScanFriendPriceAction",
         "next": [
             "ResellScanReturn"
-        ],
-        "on_error": [
-            "ResellScanReturn"
         ]
     },
     "ResellScanReturn": {
@@ -100,7 +96,7 @@
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": [
-            "ResellROIReturnButton"
+            "ResellReturnButton"
         ]
     },
     "ResellReturnButton": {

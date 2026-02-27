@@ -7,7 +7,6 @@ var (
 	_ maa.CustomActionRunner      = &ResellInitAction{}
 	_ maa.CustomActionRunner      = &ResellCheckQuotaAction{}
 	_ maa.CustomActionRunner      = &ResellScanAction{}
-	_ maa.CustomActionRunner      = &ResellScanStartAction{}
 	_ maa.CustomActionRunner      = &ResellScanSkipEmptyAction{}
 	_ maa.CustomActionRunner      = &ResellScanCostAction{}
 	_ maa.CustomActionRunner      = &ResellScanFriendPriceAction{}
@@ -22,7 +21,6 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("ResellInitAction", &ResellInitAction{})
 	maa.AgentServerRegisterCustomAction("ResellCheckQuotaAction", &ResellCheckQuotaAction{})
 	maa.AgentServerRegisterCustomAction("ResellScanAction", &ResellScanAction{})
-	maa.AgentServerRegisterCustomAction("ResellScanStep1Action", &ResellScanStartAction{})
 	maa.AgentServerRegisterCustomAction("ResellScanSkipEmptyAction", &ResellScanSkipEmptyAction{})
 	maa.AgentServerRegisterCustomAction("ResellScanCostAction", &ResellScanCostAction{})
 	maa.AgentServerRegisterCustomAction("ResellScanFriendPriceAction", &ResellScanFriendPriceAction{})

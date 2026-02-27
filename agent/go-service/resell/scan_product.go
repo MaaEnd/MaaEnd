@@ -37,27 +37,6 @@ func (a *ResellScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if controller := ctx.GetTasker().GetController(); controller != nil {
 		MoveMouseSafe(controller) // 为 Step1 的 OCR 识别挪开鼠标
 	}
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{{Name: "ResellScanStart"}})
-	return true
-}
-
-// ResellScanStartAction Step1：从 RecognitionDetail 提取成本价及点击中心，存储并点击（识别由 Pipeline Or 完成）
-type ResellScanStartAction struct{}
-
-func (a *ResellScanStartAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	rowIdx, col := getScanPos()
-	costPrice, clickX, clickY, ok := extractOCRNumberWithCenterFromDetail(arg.RecognitionDetail)
-	if !ok {
-		log.Info().Int("行", rowIdx).Int("列", col).Msg("[Resell]位置无数字，无商品，跳下一格")
-		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, true)
-		return true
-	}
-	log.Info().Int("行", rowIdx).Int("列", col).Int("costPrice", costPrice).Msg("[Resell]扫描商品")
-	setScanCostPrice(costPrice)
-	if controller := ctx.GetTasker().GetController(); controller != nil {
-		controller.PostClick(int32(clickX), int32(clickY))
-		MoveMouseSafe(controller) // 为 Step2 的 OCR 挪开鼠标
-	}
 	return true
 }
 
