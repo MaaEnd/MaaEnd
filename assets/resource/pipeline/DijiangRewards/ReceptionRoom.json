@@ -165,6 +165,28 @@
     },
     "AlreadyHaveClues": {
         "doc": "[会客室·线索] 识别「已填入」，无需再放置线索",
+        "next": [
+            "AlreadyHaveCluesRecheck"
+        ],
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    835,
+                    166,
+                    142,
+                    166
+                ],
+                "expected": [
+                    "已填入"
+                ],
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "AlreadyHaveCluesRecheck": {
+        "doc": "[会客室·线索] 二次确认「已填入」，避免瞬时识别导致误触",
+        "pre_delay": 1000,
         "recognition": {
             "type": "OCR",
             "param": {
