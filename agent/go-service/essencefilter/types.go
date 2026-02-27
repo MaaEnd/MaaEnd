@@ -90,10 +90,10 @@ type EssenceMeta struct {
 var (
 	weaponDB                WeaponDatabase
 	targetSkillCombinations []SkillCombination
-	visitedCount                int
-	matchedCount                int
-	extFuturePromisingCount     int
-	extSlot3PracticalCount      int
+	visitedCount            int
+	matchedCount            int
+	extFuturePromisingCount int
+	extSlot3PracticalCount  int
 	filteredSkillStats      [3]map[int]int
 	statsLogged             bool
 

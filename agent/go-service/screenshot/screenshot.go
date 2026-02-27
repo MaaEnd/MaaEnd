@@ -140,4 +140,3 @@ func (a *ScreenShot) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("path", debugPath).Msg("[ScreenShot] 已保存截图")
 	return true
 }
-
