@@ -56,7 +56,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 
 ## 🛠️ Developer Guide
 
-Want to contribute or dig deeper into how MaaEnd works? Check out the [Developer Guide](./docs/en_us/developers/development.md).
+Want to contribute or dig deeper into how MaaEnd works? Check out the [Developer Guide](https://github.com/MaaEnd/MaaEnd/blob/main/docs/en_us/developers/development.md).
 
 We welcome contributions from all developers. Let’s make MaaEnd even better together! 💪
 
