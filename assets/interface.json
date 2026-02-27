@@ -77,6 +77,7 @@
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
+            "description": "$controller.ADB.description",
             "type": "Adb",
             "attach_resource_path": [
                 "./resource_adb"
