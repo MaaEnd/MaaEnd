@@ -4,6 +4,7 @@
     "DeliveryJobsGoToDepot": {
         "doc": "进入指定仓储节点，通过锚点设置",
         "next": [
+            "[Anchor]DeliveryJobsInDepotNode",
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion",
             "DeliveryJobsEnterRegionalDevelopment"
@@ -24,6 +25,7 @@
     "DeliveryJobsGoToValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
         "anchor": {
+            "DeliveryJobsInDepotNode": "InValleyIVLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterValleyIVDepot",
             "DeliveryJobsGoToRegion": "GoToValleyIV"
         },
@@ -34,6 +36,7 @@
     "DeliveryJobsGoToWulingDepot": {
         "doc": "进入武陵仓储节点",
         "anchor": {
+            "DeliveryJobsInDepotNode": "InWulingLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterWulingDepot",
             "DeliveryJobsGoToRegion": "GoToWuling"
         },

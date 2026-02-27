@@ -55,7 +55,8 @@
         "doc": "选择装箱货物类型后下一步",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType2"
+            "YellowConfirmButtonType2",
+            "DeliveryJobsInCargoPackGoods"
         ],
         "action": "Click",
         "next": [
@@ -82,13 +83,14 @@
         "doc": "装满货物后下一步",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType2"
+            "YellowConfirmButtonType2",
+            "DeliveryJobsCargoFillToMax"
         ],
         "action": "Click",
         "next": [
             "DeliveryJobsOngoingDelivery",
             "DeliveryJobsRedistributionBidNextStep",
-            "[JumpBack]DeliveryJobsCargoBid"
+            "DeliveryJobsCargoBid"
         ]
     },
     "DeliveryJobsCargoBid": {
@@ -112,7 +114,8 @@
         "doc": "调度申请后下一步",
         "recognition": "And",
         "all_of": [
-            "YellowConfirmButtonType2"
+            "YellowConfirmButtonType2",
+            "DeliveryJobsInCargoRedistributionBid"
         ],
         "action": "Click",
         "next": [
