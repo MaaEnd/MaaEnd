@@ -275,32 +275,41 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "lower": [
                     [
-                        0,
-                        0,
-                        250
+                        255,
+                        253,
+                        253
                     ],
                     [
-                        0,
-                        0,
-                        150
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        153,
+                        152,
+                        152
                     ]
                 ],
                 "upper": [
                     [
-                        0,
-                        2,
-                        255
+                        255,
+                        253,
+                        253
                     ],
                     [
-                        0,
-                        2,
-                        155
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        167,
+                        165,
+                        165
                     ]
                 ],
-                "count": 3000,
+                "count": 100,
                 "connected": true
             }
         }
@@ -352,6 +361,12 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    80,
+                                    40
+                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
@@ -392,7 +407,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -434,7 +449,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -477,7 +492,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -520,7 +535,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -563,7 +578,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [

@@ -46,7 +46,7 @@
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]CloseButtonType1"
         ]
     },
@@ -129,13 +129,13 @@
                             }
                         }
                     },
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "ControlNexus",
-            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -182,13 +182,13 @@
                             }
                         }
                     },
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess"
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess"
                 ]
             }
         },
         "next": [
             "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -241,8 +241,54 @@
             }
         },
         "next": [
-            "GrayCancelButton",
-            "EmptyNode"
+            "GrayCancelButtonWithStop",
+            "StopNode"
+        ]
+    },
+    "GrayCancelButtonWithStop": {
+        "doc": "特殊取消按钮，有文字，灰色底，X标志,最后会结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "GrayButtonBackground",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": "GrayButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    80,
+                                    40
+                                ],
+                                "template": [
+                                    "Common/Button/CancelButtonType2.png",
+                                    "Common/Button/CancelButtonType2Hover.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "StopNode"
         ]
     },
     "LasCarbinColor": {
@@ -311,7 +357,8 @@
         },
         "next": [
             "InMainWindow",
-            "[JumpBack]CloseButtonType2"
+            "[JumpBack]CloseButtonType2",
+            "[JumpBack]GrayCancelButton"
         ]
     },
     "CancelExit": {

@@ -1,5 +1,5 @@
 {
-    "ScenePrivateLogin": {
+    "__ScenePrivateLogin": {
         "doc": "处理登录界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -16,11 +16,11 @@
             }
         },
         "next": [
-            "ScenePrivateLoginContinue",
-            "ScenePrivateLogin"
+            "__ScenePrivateLoginContinue",
+            "__ScenePrivateLogin"
         ]
     },
-    "ScenePrivateLoginContinue": {
+    "__ScenePrivateLoginContinue": {
         "doc": "等待登录页面出现按钮继续",
         "recognition": {
             "type": "OCR",
@@ -45,12 +45,12 @@
         },
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
-            "[JumpBack]ScenePrivateLoginMonthlyPassConfirm",
-            "ScenePrivateLoginSuccess",
-            "[JumpBack]ScenePrivateLoginCloseDialog"
+            "[JumpBack]__ScenePrivateLoginMonthlyPassConfirm",
+            "__ScenePrivateLoginSuccess",
+            "[JumpBack]__ScenePrivateLoginCloseDialog"
         ]
     },
-    "ScenePrivateLoginMonthlyPassConfirm": {
+    "__ScenePrivateLoginMonthlyPassConfirm": {
         "doc": "领取月卡，无法跳过必须领取",
         "recognition": {
             "type": "OCR",
@@ -84,7 +84,7 @@
             "type": "Click"
         }
     },
-    "ScenePrivateLoginCloseDialog": {
+    "__ScenePrivateLoginCloseDialog": {
         "doc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
         "action": {
             "type": "ClickKey",
@@ -93,7 +93,7 @@
             }
         }
     },
-    "ScenePrivateLoginSuccess": {
+    "__ScenePrivateLoginSuccess": {
         "doc": "进入大世界成功",
         "recognition": {
             "type": "And",
