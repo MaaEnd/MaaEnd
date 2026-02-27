@@ -1,30 +1,43 @@
 package resell
 
 import (
+	"encoding/json"
+
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-// ResellCheckQuotaAction 执行配额 OCR，计算溢出量，跳转到扫描第一个商品
+// extractRecoDetailJson 从 RecognitionDetail 提取 custom reco 的 Detail JSON（兼容直接或 best.detail 包裹格式）
+func extractRecoDetailJson(rd *maa.RecognitionDetail) string {
+	if rd == nil || rd.DetailJson == "" {
+		return ""
+	}
+	// 尝试直接解析
+	var wrapped struct {
+		Best struct {
+			Detail json.RawMessage `json:"detail"`
+		} `json:"best"`
+	}
+	if err := json.Unmarshal([]byte(rd.DetailJson), &wrapped); err == nil && len(wrapped.Best.Detail) > 0 {
+		return string(wrapped.Best.Detail)
+	}
+	return rd.DetailJson
+}
+
+// ResellCheckQuotaAction 根据 custom reco 的识别结果计算溢出量，跳转到扫描第一个商品
 type ResellCheckQuotaAction struct{}
 
 func (a *ResellCheckQuotaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	controller := ctx.GetTasker().GetController()
-	if controller == nil {
-		log.Error().Msg("[Resell]无法获取控制器")
-		return false
-	}
-
 	overflowAmount := 0
-	log.Info().Msg("[Resell]检查配额溢出状态…")
-	MoveMouseSafe(controller)
-	controller.PostScreencap().Wait()
-
-	x, y, _, b := ocrAndParseQuota(ctx, controller)
-	if x >= 0 && y > 0 && b >= 0 {
-		overflowAmount = x + b - y
-	} else {
-		log.Info().Msg("[Resell]未能解析配额或未找到，按正常流程继续")
+	detailJSON := extractRecoDetailJson(arg.RecognitionDetail)
+	if detailJSON != "" {
+		var reco quotaRecoResult
+		if err := json.Unmarshal([]byte(detailJSON), &reco); err != nil {
+			log.Warn().Err(err).Msg("[Resell]解析识别结果失败")
+		} else if reco.X >= 0 && reco.Y > 0 && reco.B >= 0 {
+			overflowAmount = reco.X + reco.B - reco.Y
+			log.Info().Int("overflow", overflowAmount).Msg("[Resell]配额溢出量已计算")
+		}
 	}
 
 	setOverflow(overflowAmount)

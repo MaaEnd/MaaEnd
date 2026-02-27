@@ -7,8 +7,8 @@
     },
     "ResellCheckQuota": {
         "doc": "检查配额溢出状态",
-        "recognition": "DirectHit",
-        "pre_wait_freezes": 300,
+        "recognition": "Custom",
+        "custom_recognition": "ResellCheckQuotaRecognition",
         "action": "Custom",
         "custom_action": "ResellCheckQuotaAction",
         "next": [

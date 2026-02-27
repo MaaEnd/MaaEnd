@@ -2,6 +2,7 @@ package resell
 
 import (
 	"fmt"
+	"image"
 	"strconv"
 	"strings"
 	"time"
@@ -170,27 +171,15 @@ func extractOCRText(detail *maa.RecognitionDetail) string {
 	return ""
 }
 
-// ocrAndParseQuota - OCR and parse quota from two regions
+// ocrAndParseQuotaFromImg - OCR and parse quota from two regions on given image
 // Region 1 [180, 135, 75, 30]: "x/y" format (current/total quota)
 // Region 2 [250, 130, 110, 30]: "a小时后+b" or "a分钟后+b" format (time + increment)
 // Returns: x (current), y (max), hoursLater (0 for minutes, actual hours for hours), b (to be added)
-func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y int, hoursLater int, b int) {
+func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLater int, b int) {
 	x = -1
 	y = -1
 	hoursLater = -1
 	b = -1
-
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
-	if img == nil {
-		log.Error().Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
 
 	// Region 1: 配额当前值 "x/y" 格式，由 Pipeline expected 过滤
 	detail1, err := ctx.RunRecognition("ResellROIQuotaCurrent", img, nil)
