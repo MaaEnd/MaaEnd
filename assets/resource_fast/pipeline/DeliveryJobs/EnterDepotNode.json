@@ -19,16 +19,7 @@
         "next": [
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion"
-        ],
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        ]
     },
     "DeliveryJobsGoToValleyIVDepot": {
         "doc": "进入四号谷地仓储节点",
@@ -60,16 +51,7 @@
         "action": "Click",
         "next": [
             "InValleyIVLocalDepotNode"
-        ],
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        ]
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
@@ -81,16 +63,7 @@
         "action": "Click",
         "next": [
             "InWulingLocalDepotNode"
-        ],
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        ]
     },
     "DeliveryJobsDepotLocked": {
         "doc": "仓储节点未解锁",

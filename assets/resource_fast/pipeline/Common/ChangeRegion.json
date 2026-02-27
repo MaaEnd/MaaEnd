@@ -50,15 +50,6 @@
             "ChangeRegionButton"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
             "[Anchor]RegionalDevelopmentSelectRegion"
         ]
@@ -82,15 +73,6 @@
             "4번 협곡"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
@@ -113,15 +95,6 @@
             "무릉"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
@@ -168,15 +141,6 @@
             "ChangeRegionConfirmButton"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
             "[Anchor]RegionalDevelopmentInDestinationRegion"
         ]
