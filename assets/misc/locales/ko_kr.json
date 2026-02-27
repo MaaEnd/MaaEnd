@@ -274,7 +274,7 @@
     "task.GearAssembly.option.GearCraftingPriority.label": "장비 제작 우선순위",
     "task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label": "최저 등급 우선",
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "최고 등급 우선",
-    "task.GearAssembly.description": "가장 낮은 등급의 장비를 자동으로 하나 제조합니다",
+    "task.GearAssembly.description": "지정된 등급의 장비를 자동으로 제조합니다",
     "option.DailyTaskUpgradeWeapon.label": "무기 업그레이드",
     "option.DailyTaskUpgradeWeapon.desc": "활동 점수를 얻기 위해 가장 낮은 레벨의 무기를 자동으로 1회 업그레이드합니다.",
     "option.DailyTaskAssemble.label": "장비 제작",

@@ -274,7 +274,7 @@
     "task.GearAssembly.option.GearCraftingPriority.label": "装备制作优先级",
     "task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label": "制作最低级装备",
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "制作最高级装备",
-    "task.GearAssembly.description": "自动制造一个最低等级的装备",
+    "task.GearAssembly.description": "自动制造一个指定等级的装备",
     "option.DailyTaskUpgradeWeapon.label": "升级武器",
     "option.DailyTaskUpgradeWeapon.desc": "自动升级一次最低级的武器刷活跃度",
     "option.DailyTaskAssemble.label": "制造装备",

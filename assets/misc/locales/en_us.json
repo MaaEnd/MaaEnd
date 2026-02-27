@@ -114,7 +114,7 @@
     "task.GearAssembly.option.GearCraftingPriority.label": "Gear Crafting Priority",
     "task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label": "Lowest Rarity First",
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "Highest Rarity First",
-    "task.GearAssembly.description": "Automatically assemble one piece of the lowest-level gear",
+    "task.GearAssembly.description": "Automatically craft a gear of the specified level",
     "option.DailyTaskUpgradeWeapon.label": "Weapon Upgrade",
     "option.DailyTaskUpgradeWeapon.desc": "Automatically level up the lowest-level weapon once to earn activity points.",
     "option.DailyTaskAssemble.label": "Assemble Gear",

@@ -195,7 +195,7 @@
     "task.GearAssembly.option.GearCraftingPriority.label": "装備製造優先順位",
     "task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label": "最低等級優先",
     "task.GearAssembly.option.GearCraftingPriority.cases.Highest.label": "最高等級優先",
-    "task.GearAssembly.description": "最低レベルの装備を自動で1つ製造します",
+    "task.GearAssembly.description": "指定された等級の装備を自動で製造します",
     "option.DailyTaskUpgradeWeapon.label": "武器レベルアップ",
     "option.DailyTaskUpgradeWeapon.desc": "活躍度を稼ぐため、最低レベルの武器を1回自動でレベルアップします。",
     "option.DailyTaskAssemble.label": "装備製造",
