@@ -10,7 +10,7 @@
         ]
     },
     "EnvironmentMonitoringTakePhotoDown": {
-        "doc": "环境监测拍照，向上调整朝向",
+        "doc": "环境监测拍照，向下调整朝向",
         "anchor": {
             "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenDown"
         },
