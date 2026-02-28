@@ -167,7 +167,6 @@
         },
         "next": [
             "AlreadyInCarbin",
-            "[JumpBack]ConfirmRestock",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]EndExchange",
