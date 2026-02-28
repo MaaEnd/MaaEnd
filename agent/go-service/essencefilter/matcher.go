@@ -1,6 +1,7 @@
 package essencefilter
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 	"unicode"
@@ -388,7 +389,66 @@ func attemptMatch(phase matchPhase, slot int, cleaned, core string, idx slotInde
 			return ids[0], true
 		}
 	}
+	// // 6) 编辑距兜底（保守：长度<4 允许 1，否则 2）
+	// maxEd := 1
+	// if cLen >= 4 {
+	// 	maxEd = 2
+	// }
+	// bestID, bestDist := 0, maxEd+1
+	// for _, e := range idx.entries {
+	// 	tFull := e.RawFull
+	// 	if useNorm {
+	// 		tFull = e.NormFull
+	// 	}
+	// 	dist := editDistance(cleaned, tFull, maxEd)
+	// 	if dist <= maxEd && dist < bestDist {
+	// 		bestID, bestDist = e.ID, dist
+	// 	}
+	// }
+	// if bestID != 0 {
+	// 	log.Info().Int("slot", slot).Str("phase", string(phase)).Str("step", "edit_distance").
+	// 		Str("cleaned", cleaned).Int("distance", bestDist).
+	// 		Int("skill_id", bestID).Str("skill_name", idToName[bestID]).
+	// 		Msg("[EssenceFilter] match hit")
+	// 	return bestID, true
+	// }
+	// return 0, false
+
 	// 6) 编辑距兜底（保守：长度<4 允许 1，否则 2）
+	// 6a) 若命中停用后缀（core != cleaned），优先用 core 做编辑距：忽略低信息量后缀，显著降低 "XX提升" 之类的误命中。
+	//     注意：当 core-ed 不命中时，这里直接返回 miss（不再回退到 full-ed），避免用后缀把错误候选“拉近”。
+	fmt.Println("entering  step 6")
+	if core != "" && core != cleaned {
+		fmt.Println("core is different from cleaned, trying edit distance on core")
+		maxEdCore := 1
+		if coreLen >= 4 {
+			maxEdCore = 2
+		}
+		bestIDCore, bestDistCore := 0, maxEdCore+1
+		for _, e := range idx.entries {
+			tCore := e.RawCore
+			if useNorm {
+				tCore = e.NormCore
+			}
+			dist := editDistance(core, tCore, maxEdCore)
+			if dist <= maxEdCore && dist < bestDistCore {
+				bestIDCore, bestDistCore = e.ID, dist
+			}
+		}
+		if bestIDCore != 0 {
+			log.Info().Int("slot", slot).Str("phase", string(phase)).Str("step", "edit_distance_core").
+				Str("core", core).Int("distance", bestDistCore).
+				Int("skill_id", bestIDCore).Str("skill_name", idToName[bestIDCore]).
+				Msg("[EssenceFilter] match hit")
+			return bestIDCore, true
+		}
+		log.Debug().Int("slot", slot).Str("phase", string(phase)).Str("step", "edit_distance_core").
+			Str("core", core).Int("max_ed", maxEdCore).
+			Msg("[EssenceFilter] match miss")
+		return 0, false
+	}
+
+	// core 没变化（没命中 stopword 后缀）时，才用 full string 做 edit distance
 	maxEd := 1
 	if cLen >= 4 {
 		maxEd = 2
