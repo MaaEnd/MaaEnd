@@ -917,23 +917,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    520,
-                                    540,
-                                    240,
-                                    180
-                                ],
-                                "template": [
-                                    "SceneManager/NoticeRewardsConfirm.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "WhiteConfirmButtonType2"
                 ],
                 "box_index": 1
             }

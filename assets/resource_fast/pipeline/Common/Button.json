@@ -578,7 +578,8 @@
                                 ],
                                 "template": [
                                     "Common/Button/WhiteConfirmButtonType2.png",
-                                    "Common/Button/WhiteConfirmButtonType2Hover.png"
+                                    "Common/Button/WhiteConfirmButtonType2Hover.png",
+                                    "Common/Button/WhiteConfirmButtonType3.png"
                                 ],
                                 "threshold": 0.9
                             }
