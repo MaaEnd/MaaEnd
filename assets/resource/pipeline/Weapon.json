@@ -59,43 +59,18 @@
     "WeaponUpgradeClickLevelUpButton": {
         "desc": "进入升级UI",
         "recognition": {
-            "type": "Or",
+            "type": "TemplateMatch",
             "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "threshold": 0.8,
-                                "template": [
-                                    "Weapon/LevelUpButton.png"
-                                ],
-                                "roi": [
-                                    985,
-                                    591,
-                                    277,
-                                    112
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "threshold": 0.8,
-                                "template": [
-                                    "Weapon/LevelUpButtonHover.png"
-                                ],
-                                "roi": [
-                                    985,
-                                    591,
-                                    277,
-                                    112
-                                ]
-                            }
-                        }
-                    }
+                "threshold": 0.8,
+                "template": [
+                    "Weapon/LevelUpButton.png",
+                    "Weapon/LevelUpButtonHover.png"
+                ],
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
                 ]
             }
         },
