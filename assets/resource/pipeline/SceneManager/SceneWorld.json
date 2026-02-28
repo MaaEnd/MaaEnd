@@ -1,5 +1,5 @@
 {
-    "ScenePrivateAnyEnterWorldSuccess": {
+    "__ScenePrivateAnyEnterWorldSuccess": {
         "doc": "从任意界面进入大世界成功",
         "recognition": {
             "type": "And",
@@ -10,7 +10,7 @@
             }
         }
     },
-    "ScenePrivateWorldFactoryDisableEnterFactoryActive": {
+    "__ScenePrivateWorldFactoryDisableEnterFactoryActive": {
         "doc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",
         "recognition": {
             "type": "And",
@@ -53,12 +53,12 @@
             }
         },
         "next": [
-            "ScenePrivateAnyEnterWorldFactorySuccess",
-            "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
-            "[JumpBack]ScenePrivateWorldAnyEnterFactory"
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "[JumpBack]__ScenePrivateWorldAnyEnterFactory"
         ]
     },
-    "ScenePrivateWorldFactoryNotActiveEnterFactoryActive": {
+    "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive": {
         "doc": "在大世界工厂模式未激活，进入工厂模式",
         "recognition": {
             "type": "And",
@@ -107,10 +107,10 @@
             }
         },
         "next": [
-            "ScenePrivateAnyEnterWorldFactorySuccess"
+            "__ScenePrivateAnyEnterWorldFactorySuccess"
         ]
     },
-    "ScenePrivateWorldDijiangEnterFactoryActive": {
+    "__ScenePrivateWorldDijiangEnterFactoryActive": {
         "doc": "在大世界帝江号，进入工厂模式",
         "recognition": {
             "type": "And",
@@ -154,12 +154,12 @@
             }
         },
         "next": [
-            "ScenePrivateAnyEnterWorldFactorySuccess",
-            "ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
-            "[JumpBack]ScenePrivateWorldAnyEnterFactory"
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "[JumpBack]__ScenePrivateWorldAnyEnterFactory"
         ]
     },
-    "ScenePrivateWorldAnyEnterFactory": {
+    "__ScenePrivateWorldAnyEnterFactory": {
         "doc": "在任意大世界界面，进入工厂模式",
         "recognition": {
             "type": "TemplateMatch",
@@ -179,11 +179,11 @@
         },
         "inverse": true,
         "next": [
-            "ScenePrivateMapValleyIVTheHubEnterTeleport",
-            "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub"
+            "__ScenePrivateMapValleyIVTheHubEnterTeleport",
+            "[JumpBack]__ScenePrivateWorldEnterMapValleyIVTheHub"
         ]
     },
-    "ScenePrivateAnyEnterWorldFactorySuccess": {
+    "__ScenePrivateAnyEnterWorldFactorySuccess": {
         "doc": "从任意界面进入大世界工厂模式成功",
         "recognition": {
             "type": "TemplateMatch",

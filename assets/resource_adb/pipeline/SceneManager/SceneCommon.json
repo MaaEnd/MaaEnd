@@ -1,5 +1,5 @@
 {
-    "ScenePrivateAnyExit": {
+    "__ScenePrivateAnyExit": {
         "action": {
             "type": "ClickKey",
             "param": {

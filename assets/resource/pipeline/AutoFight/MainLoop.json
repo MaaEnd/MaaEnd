@@ -1,36 +1,22 @@
 {
-    "AutoFight": {
-        "doc": "自动辅助战斗",
-        // 判断是否在战斗场景
-        "recognition": "Custom",
-        "custom_recognition": "AutoFightEntryRecognition",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "进入战斗场景"
-        },
-        "next": [
-            "AutoFightLoop"
-        ]
-    },
-    "AutoFightLoop": {
+    "__AutoFightLoop": {
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoFightPause",
-            "AutoFightExit",
-            "[JumpBack]AutoFightExecute"
+            "[JumpBack]__AutoFightPause",
+            "__AutoFightExit",
+            "[JumpBack]__AutoFightExecute"
         ]
     },
-    "AutoFightPause": {
+    "__AutoFightPause": {
         "desc": "战斗中途暂停，例如放大招",
         "recognition": "Custom",
         "custom_recognition": "AutoFightPauseRecognition",
         "pre_delay": 0,
         "post_delay": 100
     },
-    "AutoFightExit": {
+    "__AutoFightExit": {
         "desc": "退出战斗模式",
         "recognition": "Custom",
         "custom_recognition": "AutoFightExitRecognition",
@@ -40,7 +26,7 @@
             "Node.Recognition.Succeeded": "退出战斗场景"
         }
     },
-    "AutoFightExecute": {
+    "__AutoFightExecute": {
         "desc": "执行战斗操作",
         "recognition": "Custom",
         "custom_recognition": "AutoFightExecuteRecognition",
@@ -48,121 +34,5 @@
         "custom_action": "AutoFightExecuteAction",
         "pre_delay": 0,
         "post_delay": 0
-    },
-    "AutoFightCombo": {
-        "doc": "自动触发连携技能",
-        // 找连携技能提示头像上方图标
-        "recognition": "TemplateMatch",
-        "threshold": 0.9,
-        "template": "AutoFight/Combo.png",
-        "roi": [
-            750,
-            250,
-            100,
-            100
-        ],
-        "action": "ClickKey",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "key": 69, // E键
-        "repeat": 3, // 最大三个干员同时连携
-        "repeat_delay": 10,
-        "focus": {
-            "Node.Action.Succeeded": "触发连携技能"
-        },
-        "next": [
-            "AutoFightLoop"
-        ]
-    },
-    "AutoFightAttack": {
-        "doc": "自动普攻",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AutoFightAttackMousePress",
-            "AutoFightAttackKeyPress"
-        ]
-    },
-    "AutoFightAttackMousePress": {
-        "doc": "自动普攻点击鼠标",
-        "recognition": "DirectHit",
-        "action": {
-            "type": "Click",
-            "param": {
-                "target": [
-                    600,
-                    320,
-                    80,
-                    80
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "AutoFightLoop"
-        ]
-    },
-    "AutoFightAttackKeyPress": {
-        "doc": "自动普攻键盘按键",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 48 // 0键
-            }
-        },
-        "next": [
-            "AutoFightLoop"
-        ]
-    },
-    "AutoFightEndSkill": {
-        "doc": "自动释放终结技",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "AutoFightEndSkillRecognition"
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "释放终结技"
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoFightEndSkillAction"
-            }
-        },
-        "next": [
-            "AutoFightLoop"
-        ]
-    },
-    "AutoFightSkill": {
-        "doc": "自动触发技能",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "AutoFightSkillRecognition"
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoFightSkillAction"
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "触发技能"
-        },
-        "next": [
-            "AutoFightLoop"
-        ]
     }
 }

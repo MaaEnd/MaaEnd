@@ -90,7 +90,7 @@
     "ItemTransferRepoToBag": {
         "post_wait_freezes": 1,
         "next": [
-            "ItemTransferClickSortDescending",
+            "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
             "ItemTransferFindItemInRepo",
             "ItemTransferScrollDownwardRepo"
@@ -149,17 +149,17 @@
         ]
     },
     "ItemTransferFindItemInRepo": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             158,
             203,
             551,
             292
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownRepo"
         ]
@@ -175,7 +175,7 @@
             248
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 1,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInRepo",
@@ -195,14 +195,17 @@
             455
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 1,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInRepo",
-            "ItemTransferScrollUpwardRepo"
-        ],
+            "ItemTransferScrollUpwardRepo",
+            "ItemTransferItemNotFound"
+        ]
+    },
+    "ItemTransferItemNotFound": {
         "focus": {
-            "Node.NextList.Failed": "$task.ItemTransfer.item_not_found"
+            "Node.Action.Succeeded": "$task.ItemTransfer.item_not_found"
         }
     },
     "ItemTransferCtrlKeyDownRepo": {
@@ -302,17 +305,17 @@
         ]
     },
     "ItemTransferFindItemInBag": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             768,
             209,
             349,
             285
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownBag"
         ]
@@ -328,7 +331,7 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBag",
@@ -348,7 +351,7 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBag",
@@ -467,17 +470,17 @@
         ]
     },
     "ItemTransferFindItemInBagReturn": {
-        "recognition": "TemplateMatch",
+        "recognition": "NeuralNetworkDetect",
         "roi": [
             768,
             209,
             349,
             285
         ],
-        "template": "Common/Items/{ItemName}.png",
-        "threshold": 0.85,
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
-        "method": 3,
         "next": [
             "ItemTransferCtrlKeyDownBagReturn"
         ]
@@ -493,7 +496,7 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBagReturn",
@@ -513,7 +516,7 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 3,
+        "max_hit": 2,
         "post_wait_freezes": 1,
         "next": [
             "ItemTransferFindItemInBagReturn",

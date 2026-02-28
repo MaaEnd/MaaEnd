@@ -1,20 +1,16 @@
 {
     // 自动转交运送委托
-    // SceneEnterMenuRegionalDevelopment 暂时不支持 fast
-    // 使用以前的方法，仅允许从大世界和地区管理页面启动
     "DeliveryJobsMain": {
         "doc": "开始自动转交运送委托",
         "next": [
-            "DeliveryJobsLoop",
-            "[JumpBack]RegionalDevelopmentButton"
-            // "[JumpBack]SceneEnterMenuRegionalDevelopment",
+            "DeliveryJobsLoop"
         ]
     },
     "DeliveryJobsLoop": {
         "doc": "主循环，确保在地区建设界面",
         "recognition": "And",
         "all_of": [
-            "IncomeReportButton"
+            "InRegionalDevelopment"
         ],
         "next": [
             "DeliveryJobsValleyIV",
@@ -32,13 +28,7 @@
             "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
             "DeliveryJobsValleyIVCargoNotReady",
             "DeliveryJobsCheckValleyIVDepotLocked",
-            // 如果没有在仓储节点内，需要尝试先进入仓储节点
-            "[JumpBack]DeliveryJobsEnterValleyIVDepot",
-            "[JumpBack]GoToValleyIV",
-            "[JumpBack]RegionalDevelopmentButton",
-            // 以下是可能会意外进入的界面
-            "[JumpBack]DeliveryJobsBackFromCargo",
-            "[JumpBack]BackFromEnvironmentMonitoringTerminal"
+            "[JumpBack]DeliveryJobsGoToValleyIVDepot"
         ]
     },
     "DeliveryJobsWuling": {
@@ -49,13 +39,7 @@
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
             "DeliveryJobsWulingCargoNotReady",
             "DeliveryJobsCheckWulingDepotLocked",
-            // 如果没有在仓储节点内，需要尝试先进入仓储节点
-            "[JumpBack]DeliveryJobsEnterWulingDepot",
-            "[JumpBack]GoToWuling",
-            "[JumpBack]RegionalDevelopmentButton",
-            // 以下是可能会意外进入的界面
-            "[JumpBack]DeliveryJobsBackFromCargo",
-            "[JumpBack]BackFromEnvironmentMonitoringTerminal"
+            "[JumpBack]DeliveryJobsGoToWulingDepot"
         ]
     },
     "DeliveryJobsFinished": {

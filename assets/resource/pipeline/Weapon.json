@@ -38,7 +38,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.9,
+                "threshold": 0.8,
                 "template": "Weapon/WeaponDetails.png",
                 "roi": [
                     985,
@@ -61,8 +61,11 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.9,
-                "template": "Weapon/LevelUpButton.png",
+                "threshold": 0.8,
+                "template": [
+                    "Weapon/LevelUpButton.png",
+                    "Weapon/LevelUpButtonHover.png"
+                ],
                 "roi": [
                     985,
                     591,
@@ -85,7 +88,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.9,
+                "threshold": 0.8,
                 "template": "Weapon/EmptyUpgradeMaterial.png",
                 "roi": [
                     22,
@@ -105,7 +108,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.9,
+                "threshold": 0.8,
                 "template": "Weapon/AddUpgradeMaterialButton.png",
                 "roi": [
                     1215,
@@ -125,7 +128,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.9,
+                "threshold": 0.8,
                 "template": "Weapon/CorfirmUpgradeButton.png",
                 "roi": [
                     985,

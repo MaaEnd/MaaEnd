@@ -19,32 +19,230 @@
             "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
         },
         "next": [
-            "[JumpBack]CloseRewardsButton",
+            "[JumpBack]Grow",
             "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]YellowConfirmButtonType2",
-            "[JumpBack]GrowAgain",
+            "[JumpBack]CloseRewardsButton",
             "ExitGrowthChamber"
         ]
     },
-    "GrowAgain": {
-        "doc": "[培养舱·操作] 点击「再次培养」开始下一轮培养",
+    "SelectGrowTarget": {
+        "doc": "选择培养对象",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    793,
-                    505,
-                    222,
-                    121
+                    80,
+                    200,
+                    301,
+                    383
                 ],
                 "expected": [
-                    "再次培养"
+                    "轻红柱状菌",
+                    "Pink Bolete",
+                    "薄紅茸",
+                    "輕紅柱狀菌"
                 ]
             }
         },
         "action": {
             "type": "Click"
+        },
+        "next": [
+            "[JumpBack]WhiteConfirmButtonType1",
+            "NeedExtractSeed",
+            "InGrowthChamber"
+        ]
+    },
+    "NeedExtractSeed": {
+        "doc": "需要提取基核,返回上一层处理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
         }
+    },
+    "InGrowthChamber": {
+        "doc": "已经回到培养舱界面,任务完成",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    941,
+                    0,
+                    339,
+                    113
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        }
+    },
+    "ExitGrow": {
+        "doc": "不需要提取基核,直接退出培养界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
+        },
+        "next": [
+            "GrayCancelButton"
+        ]
+    },
+    "ExtractSeed": {
+        "doc": "提取基核",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]WhiteConfirmButtonType2",
+            "GrowCloseRewardsButton",
+            "NoMaterials"
+        ]
+    },
+    "GrowCloseRewardsButton": {
+        "doc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GrayCancelButton"
+        ]
+    },
+    "NoMaterials": {
+        "doc": "缺少原料无法获取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    640,
+                    464,
+                    368,
+                    143
+                ],
+                "expected": [
+                    "缺少原料",
+                    "无法获取"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "next": [
+            "FinishAllDijiangTask"
+        ]
+    },
+    "InSelectGrowSwipe": {
+        "doc": "在选择培养对象界面滑动",
+        "max_hit": 50,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    296,
+                    111
+                ],
+                "expected": [
+                    "选择培养对象"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 120,
+                "target": [
+                    231,
+                    381
+                ]
+            }
+        }
+    },
+    "Grow": {
+        "doc": "点击培养按钮",
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "^培养$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "InGrowthChamber",
+            "[JumpBack]ExtractSeed",
+            "ExitGrow",
+            "[JumpBack]SelectGrowTarget",
+            "[JumpBack]InSelectGrowSwipe"
+        ]
     },
     "ExitGrowthChamber": {
         "doc": "[培养舱·离开] 返回控制中枢",

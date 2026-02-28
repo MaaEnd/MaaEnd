@@ -1,5 +1,5 @@
 {
-    "AutoFightRecognitionCharacterBar": {
+    "__AutoFightRecognitionCharacterBar": {
         "doc": "查找左下角角色图标",
         "recognition": "TemplateMatch",
         // 目前纯白背景匹配能力差，干员死亡切换时有1秒左右不显示
@@ -12,7 +12,7 @@
         ],
         "green_mask": true
     },
-    "AutoFightRecognitionEnergyLevel0": {
+    "__AutoFightRecognitionEnergyLevel0": {
         "doc": "能量条空正在恢复，白色 [255, 255, 255]",
         "recognition": "ColorMatch",
         "roi": [
@@ -34,7 +34,7 @@
         "count": 10,
         "connected": true
     },
-    "AutoFightRecognitionEnergyLevel1": {
+    "__AutoFightRecognitionEnergyLevel1": {
         "doc": "能量条1格，[255, 255, 0] - [255, 220, 0] 交替闪烁, 满了瞬间会闪一下[255, 255, 75]",
         "recognition": "ColorMatch",
         "roi": [
@@ -56,7 +56,7 @@
         "count": 100,
         "connected": true
     },
-    "AutoFightRecognitionEnergyLevel2": {
+    "__AutoFightRecognitionEnergyLevel2": {
         "doc": "能量条2格，[255, 255, 0] - [255, 220, 0] 交替闪烁",
         "recognition": "ColorMatch",
         "roi": [
@@ -78,7 +78,7 @@
         "count": 100,
         "connected": true
     },
-    "AutoFightRecognitionHasEnemy": {
+    "__AutoFightRecognitionHasEnemy": {
         "doc": "判断是否有敌人，找敌人血条 [255, 68, 101]",
         "recognition": "ColorMatch",
         "roi": [
@@ -100,7 +100,7 @@
         "count": 100,
         "connected": true
     },
-    "AutoFightRecognitionComboUsable": {
+    "__AutoFightRecognitionComboUsable": {
         "doc": "识别连携技是否可用",
         // 蓝血纯白、红血时受红色border影响 #FFC5C5 #FFE9E9 #FFFCFC
         "recognition": "ColorMatch",
@@ -123,7 +123,7 @@
         "count": 30, //自测50x1~50x3波动
         "connected": true
     },
-    "AutoFightRecognitionCharactorLevelShow": {
+    "__AutoFightRecognitionCharactorLevelShow": {
         "doc": "识别角色是否显示等级",
         "recognition": "OCR",
         "roi": [
@@ -137,7 +137,7 @@
         ],
         "only_rec": true
     },
-    "AutoFightRecognitionComboCooldown1": {
+    "__AutoFightRecognitionComboCooldown1": {
         "doc": "识别连携技冷却中，[166,166,166],",
         // 蓝血#A6A6A6，红血#B69F9F #CF9494
         "recognition": "ColorMatch",
@@ -160,7 +160,7 @@
         "count": 30,
         "connected": true
     },
-    "AutoFightRecognitionComboCooldown2": {
+    "__AutoFightRecognitionComboCooldown2": {
         "doc": "识别连携技冷却中，背景[9-15, 9-15, 9-15]，此方法不准",
         // 红血#321C1C #773D3D
         "recognition": "ColorMatch",
@@ -183,7 +183,7 @@
         "count": 30,
         "connected": true
     },
-    "AutoFightRecognitionEndSkill": {
+    "__AutoFightRecognitionEndSkill": {
         "doc": "通过按键判断终结技是否准备好",
         "recognition": "TemplateMatch",
         "roi": [
@@ -196,7 +196,7 @@
         "threshold": 0.7,
         "green_mask": true
     },
-    "AutoFightRecognitionFightSkill": {
+    "__AutoFightRecognitionFightSkill": {
         "doc": "识别战技图标",
         "recognition": "TemplateMatch",
         "roi": [
@@ -208,7 +208,7 @@
         "template": "AutoFight/Skill.png",
         "threshold": 0.4
     },
-    "AutoFightRecognitionLeftMenuHide": {
+    "__AutoFightRecognitionLeftMenuHide": {
         "doc": "在大世界中，进入战斗状态时左上角菜单会自动隐藏",
         "recognition": "TemplateMatch",
         "roi": [
@@ -219,7 +219,7 @@
         ],
         "template": "AutoFight/LeftMenuHide.png"
     },
-    "AutoFightRecognitionFightSpace": {
+    "__AutoFightRecognitionFightSpace": {
         "doc": "识别是否有干员菜单图标",
         "recognition": "Or",
         "any_of": [
@@ -249,7 +249,7 @@
             }
         ]
     },
-    "AutoFightRecognitionComboNotice": {
+    "__AutoFightRecognitionComboNotice": {
         "doc": "识别连携技提示，纯白颜色",
         "recognition": "TemplateMatch",
         "threshold": 0.9,
@@ -261,7 +261,7 @@
             100
         ]
     },
-    "AutoFightRecognitionSwitchOperatorsTip": {
+    "__AutoFightRecognitionSwitchOperatorsTip": {
         "doc": "识别干员栏",
         "recognition": "OCR",
         "roi": [
@@ -277,13 +277,13 @@
             "员"
         ]
     },
-    "AutoFightRecognitionEnemyAttack": {
+    "__AutoFightRecognitionEnemyAttack": {
         "doc": "识别敌人攻击",
         "recognition": "NeuralNetworkDetect",
         "model": "AutoFightDodge/fight.onnx",
         "expected": 0
     },
-    "AutoFightRecognitionEnemyInScreen": {
+    "__AutoFightRecognitionEnemyInScreen": {
         "doc": "识别敌人是否在屏幕内",
         "recognition": "Or",
         "any_of": [
