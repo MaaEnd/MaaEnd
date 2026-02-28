@@ -16,7 +16,8 @@
         "all_of": [
             "RegionalDevelopmentButton"
         ],
-        "action": "Click",
+        "action": "ClickKey",
+        "key": 89, // Y
         "next": [
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion"
