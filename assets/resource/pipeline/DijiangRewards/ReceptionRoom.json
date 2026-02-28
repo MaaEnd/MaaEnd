@@ -48,7 +48,7 @@
             "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
         },
         "next": [
-            "SceneEnterWorldDijiangControlNexus",
+            "InDijiangControlNexus",
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
