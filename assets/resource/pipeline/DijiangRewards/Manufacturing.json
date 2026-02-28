@@ -42,7 +42,7 @@
                 "template": [
                     "ClaimDijiangRewards/Restock.png"
                 ],
-                "order_by": "Horizontal",
+                "order_by": "Vertical",
                 "index": -1
             }
         },
