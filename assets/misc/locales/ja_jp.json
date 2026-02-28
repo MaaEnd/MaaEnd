@@ -322,5 +322,7 @@
     "preset.AutoTrading.label": "自動転売",
     "preset.AutoTrading.description": "自動売買および生産関連。",
     "preset.EssenceFarming.label": "エッセンス周回",
-    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。"
+    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
+    "task.AutoEcoFarm.label": "自動生態農場",
+    "task.AutoEcoFarm.description": "自動的に作物の収穫、植え付け、水やりなどの操作を実行します。"
 }

@@ -1,0 +1,12 @@
+//还在测试阶段
+{
+    "task": [
+        {
+            "name": "AutoEcoFarm",
+            "label": "$task.AutoEcoFarm.label",
+            "entry": "AutoEcoFarmMain",
+            "description": "$task.AutoEcoFarm.description",
+            "option": []
+        }
+    ]
+}

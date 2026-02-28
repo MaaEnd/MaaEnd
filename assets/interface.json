@@ -150,6 +150,7 @@
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
         "tasks/preset/AutoTrading.json",
-        "tasks/preset/EssenceFarming.json"
+        "tasks/preset/EssenceFarming.json",
+        "tasks/preset/AutoEcoFarm.json"
     ]
 }

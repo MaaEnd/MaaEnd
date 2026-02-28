@@ -322,5 +322,7 @@
     "preset.AutoTrading.label": "Auto Trading",
     "preset.AutoTrading.description": "Auto trading and production related tasks.",
     "preset.EssenceFarming.label": "Essence Farming",
-    "preset.EssenceFarming.description": "Essence farming and filtering related tasks."
+    "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
+    "task.AutoEcoFarm.label": "Auto Eco-Farm",
+    "task.AutoEcoFarm.description": "Automatically performs harvesting, planting, and watering operations."
 }
