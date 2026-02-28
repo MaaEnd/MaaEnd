@@ -27,11 +27,11 @@
 
 ### 接口一览
 
-| 接口名                 | 说明                                                                 |
-| ---------------------- | -------------------------------------------------------------------- |
-| `AutoFight`            | 全自动战斗：带普攻锚点（默认指向连携键），自动普攻 + 技能 + 连携等。 |
-| `AutoFightNoAttack`    | 半自动战斗：不普攻，仅执行技能/连携/终结技/闪避等。                   |
-| `AutoFightRealtimeTask`| 开荒/实时任务用：通过任务 option 的 `__AutoFightActionAttackAnchor` 覆盖决定是否普攻。 |
+| 接口名                  | 说明                                                                                   |
+| ----------------------- | -------------------------------------------------------------------------------------- |
+| `AutoFight`             | 全自动战斗：带普攻锚点（默认指向连携键），自动普攻 + 技能 + 连携等。                   |
+| `AutoFightNoAttack`     | 半自动战斗：不普攻，仅执行技能/连携/终结技/闪避等。                                    |
+| `AutoFightRealtimeTask` | 开荒/实时任务用：通过任务 option 的 `__AutoFightActionAttackAnchor` 覆盖决定是否普攻。 |
 
 上述接口定义在 `AutoFightInterface.json`。
 
@@ -73,11 +73,11 @@
 - **动作队列结构**：`fightAction` 包含 `executeAt`（执行时间）、`action`（动作类型）、`operator`（干员下标 1–4，仅技能类使用）。队列按 `executeAt` 排序，执行时只取出已到期的动作依次 `RunTask`。
 - **动作类型**：锁定目标、连携（E 键）、终结技（KeyDown/KeyUp）、普通技能（1–4 键轮转）、普攻、闪避。
 - **优先级与入队逻辑**（在 `AutoFightExecuteRecognition` 内）：
-  - 敌人首次出现在屏幕 → 入队「锁定目标」，`executeAt = now + 1ms`。
-  - 有连携提示 → 入队「连携」，`executeAt = now`。
-  - 否则若终结技可用 → 入队该干员终结技 KeyDown + 1.5s 后 KeyUp，只取第一个可用干员。
-  - 否则若能量 ≥1 → 入队「普通技能」，干员按 `skillCycleIndex` 轮转 1→2→3→4→1，`executeAt = now`。
-  - 攻击侧：若识别到敌人攻击 → 入队「闪避」，`executeAt = now + 100ms`；否则入队「普攻」，`executeAt = now`。
+    - 敌人首次出现在屏幕 → 入队「锁定目标」，`executeAt = now + 1ms`。
+    - 有连携提示 → 入队「连携」，`executeAt = now`。
+    - 否则若终结技可用 → 入队该干员终结技 KeyDown + 1.5s 后 KeyUp，只取第一个可用干员。
+    - 否则若能量 ≥1 → 入队「普通技能」，干员按 `skillCycleIndex` 轮转 1→2→3→4→1，`executeAt = now`。
+    - 攻击侧：若识别到敌人攻击 → 入队「闪避」，`executeAt = now + 100ms`；否则入队「普攻」，`executeAt = now`。
 - **固定延时**：终结技长按 1500ms；闪避延迟 100ms 再触发，以配合识别结果。
 
 ### 未实现 / 局限
