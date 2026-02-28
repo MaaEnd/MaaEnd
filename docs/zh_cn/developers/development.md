@@ -87,6 +87,7 @@ python tools/setup_workspace.py
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
 - [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
+- [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
 
 ## 代码规范
