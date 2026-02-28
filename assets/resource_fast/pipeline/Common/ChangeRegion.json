@@ -99,41 +99,6 @@
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
     },
-    "RegionalDevelopmentCheckValleyIVSelected": {
-        "doc": "检查当前选中地区是否是四号谷地",
-        "recognition": "OCR",
-        "roi": [
-            527,
-            52,
-            227,
-            96
-        ],
-        "expected": [
-            "四号谷地",
-            "四號谷地",
-            "Valley IV",
-            "Valley",
-            "四号谷地",
-            "4번 협곡"
-        ]
-    },
-    "RegionalDevelopmentCheckWulingSelected": {
-        "doc": "检查当前选中地区是否是武陵",
-        "recognition": "OCR",
-        "roi": [
-            527,
-            52,
-            227,
-            96
-        ],
-        "expected": [
-            "武陵",
-            "武陵",
-            "Wuling",
-            "武陵",
-            "무릉"
-        ]
-    },
     "RegionalDevelopmentConfirmChangeToRegion": {
         "doc": "确认更改至选定地区",
         "recognition": "And",
