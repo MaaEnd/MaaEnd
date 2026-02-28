@@ -7,7 +7,9 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <regex>
+#include <MaaUtils/Platform.h>
+#include <MaaUtils/ImageIo.h>
+#include <boost/regex.hpp>
 #include <vector>
 #include <meojson/json.hpp>
 #include <future>
@@ -112,14 +114,14 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg) {
 }
 
 void MapLocator::Impl::loadAvailableZones(const std::string &root) {
-  if (!fs::exists(root)) return;
+  if (!fs::exists(MAA_NS::path(root))) return;
 
-  std::regex layerFileRegex(R"(Lv(\d+)Tier(\d+)\.(png|jpg|webp)$)", std::regex_constants::icase);
+  boost::regex layerFileRegex(R"(Lv(\d+)Tier(\d+)\.(png|jpg|webp)$)", boost::regex::icase);
 
-  for (const auto &entry : fs::recursive_directory_iterator(root)) {
+  for (const auto &entry : fs::recursive_directory_iterator(MAA_NS::path(root))) {
     if (entry.is_directory()) continue;
-    std::string filename = entry.path().filename().string();
-    std::string parentName = entry.path().parent_path().filename().string();
+    std::string filename = MAA_NS::path_to_utf8_string(entry.path().filename());
+    std::string parentName = MAA_NS::path_to_utf8_string(entry.path().parent_path().filename());
 
     std::string key;
     std::string filenameLower = filename;
@@ -128,21 +130,21 @@ void MapLocator::Impl::loadAvailableZones(const std::string &root) {
     if (filenameLower == "base.png") {
       key = parentName + "_Base";
     } else {
-      std::smatch matches;
-      if (std::regex_search(filename, matches, layerFileRegex)) {
+      boost::smatch matches;
+      if (boost::regex_search(filename, matches, layerFileRegex)) {
         std::string lv = matches[1].str();
         std::string tier = matches[2].str();
         lv.erase(0, std::min(lv.find_first_not_of('0'), lv.size() - 1));
         tier.erase(0, std::min(tier.find_first_not_of('0'), tier.size() - 1));
         key = parentName + "_L" + lv + "_" + tier;
       } else {
-        key = fs::path(entry.path()).stem().string();
+        key = MAA_NS::path_to_utf8_string(entry.path().stem());
       }
     }
 
-    cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_UNCHANGED);
+    cv::Mat img = MAA_NS::imread(entry.path(), cv::IMREAD_UNCHANGED);
     if (img.empty()) {
-        LogError << "Failed to load map: " << entry.path().string();
+        LogError << "Failed to load map: " << MAA_NS::path_to_utf8_string(entry.path());
         continue;
     }
     if (img.channels() == 3) cv::cvtColor(img, img, cv::COLOR_BGR2BGRA);
@@ -160,7 +162,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
   if (!strategy) return std::nullopt;
 
-  int maxAllowedLost = (currentZoneId.find("OMVBase") != std::string::npos) ? 10 : options.maxLostFrames;
+  int maxAllowedLost = (currentZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;
   if (currentZoneId.empty() || !motionTracker->isTracking(maxAllowedLost))
     return std::nullopt;
 
@@ -198,11 +200,11 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
   auto trackResult = CoreMatch(searchFeature.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
   if (!trackResult) {
-      LogInfo << "[MapLocator] tryTracking: CoreMatch returned nullopt.";
+      LogInfo << "tryTracking: CoreMatch returned nullopt.";
       return std::nullopt;
   }
 
-  LogInfo << "[MapLocator] tryTracking NCC=" << trackResult->score
+  LogInfo << "tryTracking NCC=" << trackResult->score
             << " PSR=" << trackResult->psr
             << " delta=" << trackResult->delta
             << " second=" << trackResult->secondScore
@@ -254,7 +256,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
       cv::Scalar meanDistScalar = cv::mean(distTrans, templEdge(cv::Rect(0,0,matchedRect.width, matchedRect.height)));
       double meanDist = meanDistScalar[0];
       
-      LogInfo << "[MapLocator] Chamfer mean distance: " << meanDist;
+      LogInfo << "Chamfer mean distance: " << meanDist;
       
       if (meanDist < 4.5) { 
           validation.isValid = true;
@@ -269,7 +271,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
       hold.score = trackResult->score;
       hold.scale = trackScale;
       motionTracker->hold(hold, now);
-      LogInfo << "[MapLocator] Tracking ambiguous -> HOLD last pos. NCC=" << trackResult->score
+      LogInfo << "Tracking ambiguous -> HOLD last pos. NCC=" << trackResult->score
               << " PSR=" << trackResult->psr << " delta=" << trackResult->delta;
       return hold;
   }
@@ -304,7 +306,7 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
 
   double finalScore = 0.0;
   if (!strategy->validateGlobalSearch(fineRes, finalScore)) {
-      std::string msg = "[MapLocator] Global Rejected. Score too low: s=" + std::to_string(fineRes.score) + " d=" + std::to_string(fineRes.delta) + " p=" + std::to_string(fineRes.psr);
+      std::string msg = "Global Rejected. Score too low: s=" + std::to_string(fineRes.score) + " d=" + std::to_string(fineRes.delta) + " p=" + std::to_string(fineRes.psr);
       LogInfo << msg;
       return std::nullopt;
   }
@@ -324,12 +326,12 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
     MapPosition* outRawPos) {
 
   if (!strategy || targetZoneId.empty()) {
-      LogInfo << "[MapLocator] Global Search Aborted: YOLO returned no result.";
+      LogInfo << "Global Search Aborted: YOLO returned no result.";
       return std::nullopt;
   }
 
   if (zones.find(targetZoneId) == zones.end()) {
-      std::string msg = "[MapLocator] Global Search Aborted: YOLO predicted '" + targetZoneId + "', but this map is NOT loaded in 'zones'.";
+      std::string msg = "Global Search Aborted: YOLO predicted '" + targetZoneId + "', but this map is NOT loaded in 'zones'.";
       LogInfo << msg;
       return std::nullopt;
   }
@@ -477,7 +479,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
       bestValidFineRect = fallbackValidFineRect;
       bestScaledTempl = fallbackScaledTempl;
       bestScaledMask = fallbackScaledMask;
-      LogInfo << "[MapLocator] Global Search: All candidates ambiguous, using fallback (score " << fallbackScore << ")";
+      LogInfo << "Global Search: All candidates ambiguous, using fallback (score " << fallbackScore << ")";
   }
 
   if (outRawPos && bestFine >= 0.0) {
@@ -506,21 +508,21 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         return result;
     }
 
-    matchCfg.passThreshold = options.minScoreThreshold;
-    matchCfg.yoloConfThreshold = options.yoloConfThreshold;
+    matchCfg.passThreshold = options.loc_threshold;
+    matchCfg.yoloConfThreshold = options.yolo_threshold;
     if (zoneClassifier) {
-        zoneClassifier->SetConfThreshold(options.yoloConfThreshold);
+        zoneClassifier->SetConfThreshold(options.yolo_threshold);
     }
 
     std::unique_ptr<IMatchStrategy> strategy;
 
-    if (!options.forceGlobalSearch) {
+    if (!options.force_global_search) {
         {
             std::lock_guard<std::mutex> lock(taskMutex);
             if (asyncYoloTask.valid() && asyncYoloTask.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                 std::string predictedZone = asyncYoloTask.get();
                 if (!predictedZone.empty() && !currentZoneId.empty() && predictedZone != currentZoneId) {
-                    LogInfo << "[MapLocator] Async YOLO detected zone change: " << currentZoneId << " -> " << predictedZone;
+                    LogInfo << "Async YOLO detected zone change: " << currentZoneId << " -> " << predictedZone;
                     motionTracker->forceLost();
                 }
             }
@@ -563,7 +565,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
                 double dist = std::hypot(rawPrimaryPos.x - rawFallbackPos.x, rawPrimaryPos.y - rawFallbackPos.y);
                 
                 if (rawFallbackPos.score > 0.1 && dist <= 2.0) {
-                    LogInfo << "[MapLocator] Dual-Mode Tracking Verified! Coords matched. Dist: " << dist;
+                    LogInfo << "Dual-Mode Tracking Verified! Coords matched. Dist: " << dist;
                     MapPosition verifiedPos = rawPrimaryPos;
                     verifiedPos.score = std::max(rawPrimaryPos.score, rawFallbackPos.score);
                     
@@ -579,7 +581,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         }
     }
 
-    std::string targetZoneId = options.expectedZoneId;
+    std::string targetZoneId = options.expected_zone;
     if (targetZoneId.empty()) {
         targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
     }
@@ -590,7 +592,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         return result;
     }
     if (targetZoneId == "None") {
-        LogInfo << "[MapLocator] YOLO explicitly identified 'None', assuming UI occlusion.";
+        LogInfo << "YOLO explicitly identified 'None', assuming UI occlusion.";
 
         if (motionTracker->getLastPos()) {
             motionTracker->hold(*motionTracker->getLastPos(), now);
@@ -625,13 +627,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         
         double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
         if (rawGlobalFallbackPos.score > 0.1 && dist <= 5.0) {
-            LogInfo << "[MapLocator] Dual-Mode Global Search Verified! Dist: " << dist;
+            LogInfo << "Dual-Mode Global Search Verified! Dist: " << dist;
             globalResult = rawGlobalPrimaryPos;
             globalResult->score = std::max(rawGlobalPrimaryPos.score, rawGlobalFallbackPos.score);
         }
     }
 
-    int maxAllowedLost = (targetZoneId.find("OMVBase") != std::string::npos) ? 10 : options.maxLostFrames;
+    int maxAllowedLost = (targetZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;
     if (!globalResult) {
       motionTracker->markLost();
       if (motionTracker->getLostCount() > maxAllowedLost) {

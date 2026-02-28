@@ -11,14 +11,7 @@
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
 
-cv::Mat to_mat(const MaaImageBuffer* buffer)
-{
-    return cv::Mat(
-        MaaImageBufferHeight(buffer),
-        MaaImageBufferWidth(buffer),
-        MaaImageBufferChannels(buffer),
-        MaaImageBufferGetRawData(buffer));
-}
+#include "../utils.h"
 
 MaaBool ChildCustomRecognitionCallback(
     MaaContext* context,

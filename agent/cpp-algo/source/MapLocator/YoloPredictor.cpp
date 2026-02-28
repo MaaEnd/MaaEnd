@@ -1,6 +1,7 @@
 #include "YoloPredictor.h"
 #include <MaaUtils/Logger.h>
 #include <filesystem>
+#include <MaaUtils/Platform.h>
 #include <fstream>
 #include <regex>
 #include <atomic>
@@ -18,56 +19,41 @@ namespace maplocator {
 YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThreshold)
     : yoloConfThreshold(confThreshold) {
     if (!yoloModelPath.empty()) {
-        try {
-            ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
-            Ort::SessionOptions sessionOptions;
-            sessionOptions.SetIntraOpNumThreads(1);
-            sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
+        ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
+        Ort::SessionOptions sessionOptions;
+        sessionOptions.SetIntraOpNumThreads(1);
+        sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
 
-#ifdef _WIN32
-            std::wstring wModelPath(yoloModelPath.begin(), yoloModelPath.end());
-            ortSession = std::make_unique<Ort::Session>(*ortEnv, wModelPath.c_str(), sessionOptions);
-#else
-            ortSession = std::make_unique<Ort::Session>(*ortEnv, yoloModelPath.c_str(), sessionOptions);
-#endif
-            isYoloLoaded = true;
+        auto osModelPath = MAA_NS::to_osstring(yoloModelPath);
+        ortSession = std::make_unique<Ort::Session>(*ortEnv, osModelPath.c_str(), sessionOptions);
+        isYoloLoaded = true;
 
-            fs::path modelPath(yoloModelPath);
-            fs::path jsonPath = modelPath;
-            jsonPath.replace_extension(".json");
+        fs::path modelPath = MAA_NS::path(yoloModelPath);
+        fs::path jsonPath = modelPath;
+        jsonPath.replace_extension(".json");
 
-            if (fs::exists(jsonPath)) {
-                std::ifstream f(jsonPath);
-                std::string jsonContent((std::istreambuf_iterator<char>(f)),
-                                         std::istreambuf_iterator<char>());
-                auto j_opt = json::parse(jsonContent);
+        auto j_opt = json::open(jsonPath);
+        if (j_opt) {
+            Json j = *j_opt;
 
-                if (j_opt) {
-                    Json j = *j_opt;
+            if (j.contains("input_name"))
+                inputNodeNames.push_back(j["input_name"].as<std::string>());
+            if (j.contains("output_name"))
+                outputNodeNames.push_back(j["output_name"].as<std::string>());
 
-                    if (j.contains("input_name"))
-                        inputNodeNames.push_back(j["input_name"].as<std::string>());
-                    if (j.contains("output_name"))
-                        outputNodeNames.push_back(j["output_name"].as<std::string>());
-
-                    if (j.contains("classes"))
-                        yoloClassNames = j["classes"].as<std::vector<std::string>>();
-                    if (j.contains("region_mapping")) {
-                        for (auto& [key, val] : j["region_mapping"].as_object()) {
-                            regionMapping[key] = val.as<std::string>();
-                        }
-                    }
-                    LogInfo << "[YoloPredictor] Loaded config from: " << jsonPath.string();
+            if (j.contains("classes"))
+                yoloClassNames = j["classes"].as<std::vector<std::string>>();
+            if (j.contains("region_mapping")) {
+                for (auto& [key, val] : j["region_mapping"].as_object()) {
+                    regionMapping[key] = val.as<std::string>();
                 }
-            } else {
-                LogWarn << "[YoloPredictor] Config file not found: " << jsonPath.string();
             }
-
-            LogInfo << "[YoloPredictor] YOLO Model loaded successfully.";
-        } catch (const std::exception& e) {
-            LogError << "[YoloPredictor] YOLO model load failed: " << std::string(e.what());
-            isYoloLoaded = false;
+            LogInfo << "Loaded config from: " << jsonPath;
+        } else {
+            LogWarn << "Config file not found or invalid json: " << jsonPath;
         }
+
+        LogInfo << "YOLO Model loaded successfully.";
     }
 }
 
@@ -94,11 +80,11 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat &minimap) {
     std::lock_guard<std::mutex> lock(yoloMutex);
 
     if (!isYoloLoaded || !ortSession) {
-        LogError << "[YoloPredictor] YOLO Error: Model is NOT loaded.";
+        LogError << "YOLO Error: Model is NOT loaded.";
         return "";
     }
     if (minimap.empty()) {
-        LogError << "[YoloPredictor] YOLO Error: Input minimap is empty.";
+        LogError << "YOLO Error: Input minimap is empty.";
         return "";
     }
 
@@ -176,26 +162,26 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat &minimap) {
     if (maxIdx >= 0 && maxIdx < (int)yoloClassNames.size())
         predictedName = yoloClassNames[maxIdx];
 
-    LogInfo << "[YoloPredictor] YOLO Raw: Class=" << predictedName <<
+    LogInfo << "YOLO Raw: Class=" << predictedName <<
                  " (" << std::to_string(maxIdx) << "), Conf=" << std::to_string(maxConf);
 
     if (predictedName == "None") {
-        LogInfo << "[YoloPredictor] YOLO Predicted 'None', skipping localization.";
+        LogInfo << "YOLO Predicted 'None', skipping localization.";
         return "None";
     }
 
     if (maxConf > yoloConfThreshold && maxIdx < (int)yoloClassNames.size()) {
         std::string zoneId = convertYoloNameToZoneId(predictedName);
-        std::string succMsg = "[YoloPredictor] YOLO Success: " + predictedName + " -> ZoneId: " + zoneId + 
+        std::string succMsg = "YOLO Success: " + predictedName + " -> ZoneId: " + zoneId + 
                               " (Conf: " + std::to_string(maxConf * 100.0) + "%)";
         LogInfo << succMsg;
         return zoneId;
     }
     if (maxConf <= yoloConfThreshold) {
-        LogInfo << "[YoloPredictor] YOLO Fail: Low Confidence (" << std::to_string(maxConf) <<
+        LogInfo << "YOLO Fail: Low Confidence (" << std::to_string(maxConf) <<
                 " <= " << std::to_string(yoloConfThreshold) << ")";
     } else {
-        LogInfo << "[YoloPredictor] YOLO Fail: Index Out of Bounds (" << std::to_string(maxIdx) <<
+        LogInfo << "YOLO Fail: Index Out of Bounds (" << std::to_string(maxIdx) <<
                 "/" << std::to_string(yoloClassNames.size()) << ")";
     }
 
