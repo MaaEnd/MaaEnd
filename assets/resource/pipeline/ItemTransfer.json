@@ -139,6 +139,7 @@
             35
         ],
         "template": "ItemTransfer/全部.png",
+        "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",
         "post_wait_freezes": 1,
@@ -157,6 +158,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownRepo"
@@ -312,6 +314,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBag"
@@ -476,6 +479,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "threshold": 0.94,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBagReturn"
