@@ -162,24 +162,6 @@
             "무릉성 도심"
         ]
     },
-    "CheckOutskirtsMonitoringTerminalText": {
-        "doc": "检查是否在城郊监测终端",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": [
-            65,
-            57,
-            184,
-            85
-        ],
-        "expected": [
-            "城郊监测终端",
-            "城郊監測終端",
-            "Outskirts Monitoring Terminal",
-            "郊外観測端末",
-            "교외 관측 단말기"
-        ]
-    },
     "CheckChangeRegionConfirmText": {
         "doc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
