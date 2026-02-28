@@ -71,6 +71,21 @@
             "CloseButtonType1"
         ]
     },
+    "YellowConfirmButtonType1Slow": {
+        "doc": "通用确认按钮，有文字，黄色底，圆环形标志，较慢版本",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1"
+                ]
+            }
+        }
+    },
     "ExitRecoveryEmotion": {
         "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
         "focus": {
