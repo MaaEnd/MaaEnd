@@ -1,6 +1,7 @@
 package autofight
 
 import (
+	"fmt"
 	"math"
 	"sync"
 	"time"
@@ -33,6 +34,8 @@ type FightScheduler struct {
 	ultimateWaitSp       bool // 是否在等待技力满足
 	ultimateOperator     int  // 恢复中的干员编号
 	ultimateTargetSpSlot int  // 终结技需要的技力可释放次数
+
+	waitingNextRound bool // 是否在等待下一轮
 }
 
 var scheduler *FightScheduler
@@ -94,6 +97,7 @@ func (s *FightScheduler) restart() {
 	s.linkTimeouts = nil
 	s.ultimateRecovery = false
 	s.ultimateWaitSp = false
+	s.waitingNextRound = false
 	log.Info().Msg("[Scheduler] 重启时间轴循环")
 }
 
@@ -106,6 +110,8 @@ type SchedulerTickResult struct {
 type SchedulerAction struct {
 	Type     ActionType
 	Operator int
+	Message  string
+	Color    string
 }
 
 // Tick 调度器主循环，每次识别帧调用一次
@@ -150,6 +156,10 @@ func (s *FightScheduler) Tick(energyLevel int, comboAvailable bool, endSkillUsab
 
 	// 检查是否时间轴已结束
 	if s.currentIndex >= len(s.config.Events) {
+		if !s.waitingNextRound {
+			s.waitingNextRound = true
+			result.Actions = append(result.Actions, SchedulerAction{Type: ActionLog, Message: "时间轴执行完毕，等待技力恢复触发下一轮"})
+		}
 		actions := s.handleTimelineEnd(energyLevel)
 		result.Actions = append(result.Actions, actions...)
 		return result
@@ -196,6 +206,9 @@ func (s *FightScheduler) processEvent(event SchedulerEvent, energyLevel int, end
 			log.Debug().Int("operator", event.OperatorIndex).Float64("time", event.Time).Msg("[Scheduler] 释放战技")
 		} else {
 			// 技力不足，暂停计时，继续普攻
+			if !s.isPaused {
+				actions = append(actions, SchedulerAction{Type: ActionLog, Message: fmt.Sprintf("干员%d战技未就绪，等待技力恢复", event.OperatorIndex)})
+			}
 			s.pause()
 			actions = append(actions, SchedulerAction{Type: ActionAttack})
 			log.Debug().Int("energyLevel", energyLevel).Msg("[Scheduler] 战技等待技力")
@@ -223,6 +236,7 @@ func (s *FightScheduler) processEvent(event SchedulerEvent, energyLevel int, end
 			log.Debug().Int("operator", event.OperatorIndex).Float64("time", event.Time).Msg("[Scheduler] 释放终结技")
 		} else {
 			// 暂停计时并进入恢复模式
+			firstPause := !s.isPaused
 			s.pause()
 			if !ultReady {
 				// 终结技不可用：打那个角色的战技来积攒终结技能量
@@ -231,6 +245,9 @@ func (s *FightScheduler) processEvent(event SchedulerEvent, energyLevel int, end
 				s.ultimateOperator = event.OperatorIndex
 				s.ultimateTargetSpSlot = event.SpAtMoment
 				log.Debug().Int("operator", event.OperatorIndex).Msg("[Scheduler] 终结技未就绪，切到该干员打战技")
+				if firstPause {
+					actions = append(actions, SchedulerAction{Type: ActionLog, Message: fmt.Sprintf("干员%d终结技未就绪，进入恢复状态", event.OperatorIndex)})
+				}
 				// 先切到该干员
 				actions = append(actions, SchedulerAction{
 					Type:     ActionSwitchOperator,
@@ -243,6 +260,9 @@ func (s *FightScheduler) processEvent(event SchedulerEvent, energyLevel int, end
 				s.ultimateOperator = event.OperatorIndex
 				s.ultimateTargetSpSlot = event.SpAtMoment
 				log.Debug().Int("need", event.SpAtMoment).Int("have", energyLevel).Msg("[Scheduler] 终结技就绪但技力不足")
+				if firstPause {
+					actions = append(actions, SchedulerAction{Type: ActionLog, Message: fmt.Sprintf("干员%d终结技就绪，等待技力恢复", event.OperatorIndex)})
+				}
 				actions = append(actions, SchedulerAction{Type: ActionAttack})
 			}
 		}

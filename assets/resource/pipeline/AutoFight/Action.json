@@ -21,7 +21,10 @@
         "action": "ClickKey",
         "key": 69, // E键
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "[自动战斗] <span style=\"color: gray;\">触发连携技</span>"
+        }
     },
     "__AutoFightActionDodge": {
         "action": "ClickKey",
@@ -29,7 +32,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发闪避"
+            "Node.Action.Succeeded": "[自动战斗] 触发闪避"
         }
     },
     "__AutoFightActionLockTarget": {
@@ -44,7 +47,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "锁定目标"
+            "Node.Action.Succeeded": "[自动战斗] 锁定目标"
         }
     },
     "__AutoFightActionAttackKeyPress": {
@@ -53,7 +56,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发普攻"
+            "Node.Action.Succeeded": "[自动战斗] 触发普攻"
         }
     },
     "__AutoFightActionSkillOperators1": {
@@ -62,7 +65,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员1技能"
+            "Node.Action.Succeeded": "[自动战斗] <span style=\"color: gray;\">释放干员1战技</span>"
         }
     },
     "__AutoFightActionSkillOperators2": {
@@ -71,7 +74,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员2技能"
+            "Node.Action.Succeeded": "[自动战斗] <span style=\"color: gray;\">释放干员2战技</span>"
         }
     },
     "__AutoFightActionSkillOperators3": {
@@ -80,7 +83,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员3技能"
+            "Node.Action.Succeeded": "[自动战斗] <span style=\"color: gray;\">释放干员3战技</span>"
         }
     },
     "__AutoFightActionSkillOperators4": {
@@ -89,7 +92,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员4技能"
+            "Node.Action.Succeeded": "[自动战斗] <span style=\"color: gray;\">释放干员4战技</span>"
         }
     },
     "__AutoFightActionEndSkillOperators1KeyDown": {
@@ -98,7 +101,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员1终结技"
+            "Node.Action.Succeeded": "[自动战斗] 释放干员1终结技"
         }
     },
     "__AutoFightActionEndSkillOperators1KeyUp": {
@@ -113,7 +116,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员2终结技"
+            "Node.Action.Succeeded": "[自动战斗] 释放干员2终结技"
         }
     },
     "__AutoFightActionEndSkillOperators2KeyUp": {
@@ -128,7 +131,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员3终结技"
+            "Node.Action.Succeeded": "[自动战斗] 释放干员3终结技"
         }
     },
     "__AutoFightActionEndSkillOperators3KeyUp": {
@@ -143,7 +146,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "focus": {
-            "Node.Action.Succeeded": "触发干员4终结技"
+            "Node.Action.Succeeded": "[自动战斗] 释放干员4终结技"
         }
     },
     "__AutoFightActionEndSkillOperators4KeyUp": {
@@ -156,36 +159,24 @@
         "action": "ClickKey",
         "key": 112, // F1键
         "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员1"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchOperator2": {
         "action": "ClickKey",
         "key": 113, // F2键
         "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员2"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchOperator3": {
         "action": "ClickKey",
         "key": 114, // F3键
         "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员3"
-        }
+        "post_delay": 0
     },
     "__AutoFightActionSwitchOperator4": {
         "action": "ClickKey",
         "key": 115, // F4键
         "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "切换到干员4"
-        }
+        "post_delay": 0
     }
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -223,6 +224,7 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		} else {
 			if cfg := GetConfig(); cfg != nil {
 				log.Info().Str("scenario", cfg.ScenarioName).Msg("Loaded AutoFight config from data code")
+				maafocus.NodeActionStarting(ctx, fmt.Sprintf("[自动战斗] 初始化方案: %s", cfg.ScenarioName))
 				if shouldReset {
 					ResetScheduler()
 					actionQueue = nil
@@ -344,6 +346,7 @@ const (
 	ActionDodge
 	ActionSleep
 	ActionSwitchOperator
+	ActionLog
 )
 
 func (t ActionType) String() string {
@@ -364,6 +367,8 @@ func (t ActionType) String() string {
 		return "Dodge"
 	case ActionSwitchOperator:
 		return "SwitchOperator"
+	case ActionLog:
+		return "Log"
 	default:
 		return "Unknown"
 	}
@@ -373,6 +378,8 @@ type fightAction struct {
 	executeAt time.Time
 	action    ActionType
 	operator  int
+	message   string
+	color     string
 }
 
 var (
@@ -523,6 +530,8 @@ func (r *AutoFightExecuteRecognition) runSchedulerMode(ctx *maa.Context, arg *ma
 			executeAt: time.Now(),
 			action:    a.Type,
 			operator:  a.Operator,
+			message:   a.Message,
+			color:     a.Color,
 		})
 
 		// 检查若是终结技按下，需要同时放入一个延时的抬起操作
@@ -575,6 +584,14 @@ func (a *AutoFightExecuteAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		fa, ok := dequeueAction()
 		if !ok {
 			break
+		}
+		if fa.action == ActionLog {
+			text := "[自动战斗] " + fa.message
+			if fa.color != "" {
+				text = fmt.Sprintf(`[自动战斗] <span style="color: %s;">%s</span>`, fa.color, fa.message)
+			}
+			maafocus.NodeActionStarting(ctx, text)
+			continue
 		}
 		name := actionName(fa.action, fa.operator)
 		if name == "" {
