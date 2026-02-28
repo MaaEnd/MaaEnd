@@ -44,7 +44,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
             text=True,
         )
         if result.returncode != 0:
-            print(Console.err(f"Failed to create junction: {result.stderr}"))
+            print(Console.err(t("err_create_junction_failed", stderr=result.stderr)))
             return False
     else:
         dst.symlink_to(src)
@@ -532,7 +532,7 @@ def install_maafw(
             maafw_dest_is_link = maafw_dest_is_link or maafw_dest.is_junction()
 
         if maafw_dest_is_link:
-            print(Console.ok(f"Link already exists: {maafw_dest}, skipping link recreation"))
+            print(Console.ok(t("inf_link_already_exists", path=maafw_dest)))
         elif maafw_dest.exists():
             if maafw_dest.is_dir():
                 while True:
@@ -573,18 +573,18 @@ def install_maafw(
 
             # 先将完整 SDK 复制到项目根目录 deps/
             maafw_deps = PROJECT_BASE / "deps"
-            print(Console.info(f"Copying full SDK to {maafw_deps} ..."))
+            print(Console.info(t("inf_copying_sdk", dest=maafw_deps)))
             if maafw_deps.exists():
                 shutil.rmtree(maafw_deps)
             shutil.copytree(sdk_root, maafw_deps)
-            print(Console.ok(f"Full SDK copied to {maafw_deps}"))
+            print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
 
             if not maafw_dest_is_link:
                 # 创建 install/maafw -> deps/bin 的目录链接
                 bin_path = maafw_deps / "bin"
-                print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
+                print(Console.info(t("inf_creating_link", link=maafw_dest, target=bin_path)))
                 if not create_directory_link(bin_path, maafw_dest):
-                    print(Console.err("Failed to create directory link for maafw"))
+                    print(Console.err(t("err_create_link_failed")))
                     return False, local_version, False
 
             print(Console.ok(t("inf_maafw_install_complete")))
