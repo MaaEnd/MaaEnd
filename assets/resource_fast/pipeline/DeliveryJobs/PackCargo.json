@@ -26,7 +26,7 @@
             "화물 포장"
         ],
         "next": [
-            "DeliveryJobsSelectTypeofGoodstoPackNextStep"
+            "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
         ]
     },
     "DeliveryJobsInCargoRedistributionBid": {
@@ -51,7 +51,7 @@
             "DeliveryJobsRedistributionBidNextStep"
         ]
     },
-    "DeliveryJobsSelectTypeofGoodstoPackNextStep": {
+    "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
         "doc": "选择装箱货物类型后下一步",
         "recognition": "And",
         "all_of": [
