@@ -74,14 +74,15 @@ class MergeMapPage:
 
     def _prepare_data(self) -> None:
         """Prepare and group tiles by base name."""
-        if self.map_type == "normal":
-            pattern = r"(map\d+_lv\d+)_(\d+)_(\d+)\.png"
+        if self.map_type == "normal_tier":
+            patterns = [
+                (r"(map\d+_lv\d+)_(\d+)_(\d+)\.png", "normal"),
+                (r"(\w+)_(\d+)_(\d+)_tier_(\w+)\.png", "tier"),
+            ]
         elif self.map_type == "base":
-            pattern = r"(base\d+_lv\d+)_(\d+)_(\d+)\.png"
+            patterns = [(r"(base\d+_lv\d+)_(\d+)_(\d+)\.png", "normal")]
         elif self.map_type == "dungeon":
-            pattern = r"(dung\d+_lv\d+)_(\d+)_(\d+)\.png"
-        elif self.map_type == "tier":
-            pattern = r"(\w+)_(\d+)_(\d+)_tier_(\w+)\.png"
+            patterns = [(r"(dung\d+_lv\d+)_(\d+)_(\d+)\.png", "normal")]
         else:
             raise ValueError("Invalid map type")
 
@@ -93,12 +94,14 @@ class MergeMapPage:
         for root, _, file_names in os.walk(self.input_dir):
             for file_name in file_names:
                 file_path = os.path.join(root, file_name)
-                m = re.match(pattern, file_name)
-                if m:
-                    if self.map_type in {"normal", "base", "dungeon"}:
+                for pattern, kind in patterns:
+                    m = re.match(pattern, file_name)
+                    if not m:
+                        continue
+                    if kind == "normal":
                         name = m.group(1)
                         x, y = int(m.group(2)), int(m.group(3))
-                    elif self.map_type == "tier":
+                    else:  # tier
                         name = f"{m.group(1)}_tier_{m.group(4)}"
                         x, y = int(m.group(2)), int(m.group(3))
                     key = (x, y)
@@ -106,12 +109,21 @@ class MergeMapPage:
                         print(
                             f"{_Y}Warning: Duplicate tile at ({x}, {y}) for {name}, skipping{_0}"
                         )
-                        continue
-                    groups[name][key] = file_path
+                    else:
+                        groups[name][key] = file_path
+                    break  # file matched, no need to try other patterns
 
         if not groups:
             print(f"{_R}No map tiles found in input directories.{_0}")
         self.groups = groups
+
+        # Compute bounds for normal groups so tier groups can align to them
+        self.normal_bounds: Dict[str, Tuple[int, int]] = {}
+        for gname, tiles_dict in groups.items():
+            if "_tier_" not in gname:
+                gmax_x = max(x for (x, y) in tiles_dict.keys())
+                gmax_y = max(y for (x, y) in tiles_dict.keys())
+                self.normal_bounds[gname] = (gmax_x, gmax_y)
 
     def _has_opaque_pixels_on_edge(
         self, img: np.ndarray, edge: str, threshold: int = 4
@@ -311,7 +323,10 @@ class MergeMapPage:
         return drawer.get_image()
 
     def _process_single_group(
-        self, name: str, tiles_dict: Dict[Tuple[int, int], str]
+        self,
+        name: str,
+        tiles_dict: Dict[Tuple[int, int], str],
+        forced_bounds: Tuple[int, int] | None = None,
     ) -> None:
         """Process a single map group including loading, display, adjustment, and saving."""
         file_list = list(tiles_dict.items())
@@ -321,8 +336,17 @@ class MergeMapPage:
 
         print(f"\nProcessing group: {_C}{name}{_0} with {len(file_list)} tiles.")
 
-        max_x = max(x for (x, y), _ in file_list)
-        max_y = max(y for (x, y), _ in file_list)
+        if forced_bounds:
+            max_x, max_y = forced_bounds
+            own_max_x = max(x for (x, y), _ in file_list)
+            own_max_y = max(y for (x, y), _ in file_list)
+            print(
+                f"  {_Y}Aligning to normal map bounds: "
+                f"{own_max_x}x{own_max_y} -> {max_x}x{max_y}{_0}"
+            )
+        else:
+            max_x = max(x for (x, y), _ in file_list)
+            max_y = max(y for (x, y), _ in file_list)
         self.max_y = max_y  # Store for use in _get_tile_pos
 
         canvas_w = max_x * default_config.force_size[0]
@@ -608,7 +632,21 @@ class MergeMapPage:
         cv2.namedWindow(self.window_name)
 
         for name, tiles_dict in self.groups.items():
-            self._process_single_group(name, tiles_dict)
+            forced_bounds = None
+            if "_tier_" in name:
+                base_name = name.split("_tier_")[0]
+                forced_bounds = self.normal_bounds.get(base_name)
+                if forced_bounds:
+                    print(
+                        f"\n{_C}Tier group '{name}' aligned to "
+                        f"normal group '{base_name}'{_0}"
+                    )
+                else:
+                    print(
+                        f"\n{_Y}Warning: No matching normal group for "
+                        f"tier group '{name}', using own bounds{_0}"
+                    )
+            self._process_single_group(name, tiles_dict, forced_bounds=forced_bounds)
 
         cv2.destroyAllWindows()
 
@@ -616,16 +654,14 @@ class MergeMapPage:
 def main():
     print(f"{_G}Welcome to MapTracker map merging tool.{_0}")
     print(f"\n{_Y}Select a mode:{_0}")
-    print(f"  {_C}[1]{_0} Merge normal maps")
-    print(f"  {_C}[2]{_0} Merge tier maps")
-    print(f"  {_C}[3]{_0} Merge base maps")
-    print(f"  {_C}[4]{_0} Merge dungeon maps")
+    print(f"  {_C}[1]{_0} Merge normal and tier maps")
+    print(f"  {_C}[2]{_0} Merge base maps")
+    print(f"  {_C}[3]{_0} Merge dungeon maps")
     mode = input("> ").strip().upper()
     map_type = {
-        "1": "normal",
-        "2": "tier",
-        "3": "base",
-        "4": "dungeon",
+        "1": "normal_tier",
+        "2": "base",
+        "3": "dungeon",
     }.get(mode)
 
     if not map_type:
