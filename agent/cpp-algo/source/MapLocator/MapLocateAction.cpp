@@ -106,18 +106,31 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
   LocateResult result = locator->locate(subImg, options);
 
   if (out_detail) {
-      json::object out;
-      out["status"] = static_cast<int>(result.status);
-      out["message"] = result.debugMessage;
+      struct LocateOutput {
+          int status = 0;
+          std::string message;
+          std::optional<std::string> mapName;
+          std::optional<int> x;
+          std::optional<int> y;
+          std::optional<double> rot;
+          std::optional<double> locConf;
+          std::optional<int> latencyMs;
+
+          MEO_JSONIZATION(status, message, mapName, x, y, rot, locConf, latencyMs)
+      };
+
+      LocateOutput out;
+      out.status = static_cast<int>(result.status);
+      out.message = result.debugMessage;
       
       if (result.position.has_value()) {
           auto& pos = result.position.value();
-          out["mapName"] = pos.zoneId;
-          out["x"] = static_cast<int>(pos.x);
-          out["y"] = static_cast<int>(pos.y);
-          out["rot"] = pos.angle;
-          out["locConf"] = pos.score;
-          out["latencyMs"] = pos.latencyMs;
+          out.mapName = pos.zoneId;
+          out.x = static_cast<int>(pos.x);
+          out.y = static_cast<int>(pos.y);
+          out.rot = pos.angle;
+          out.locConf = pos.score;
+          out.latencyMs = static_cast<int>(pos.latencyMs);
       }
       
       std::string jsonStr = json::value(out).dumps();
