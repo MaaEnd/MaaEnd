@@ -1,5 +1,102 @@
 {
     "AutoEcoFarmMain": {
-        "doc": "自动生态农场主入口"
+        "doc": "自动生态农场主入口",
+        "next": [
+            "AutoEcoFarmFindValleyIVEcoFarm", //测试用
+            "AutoEcoFarmCheckValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
+        ]
+    },
+    "AutoEcoFarmGotoValleyIVEcoFarm": {
+        "doc": "GotoValleyIVEcoFarm", //调用
+        "next": [
+            "AutoEcoFarmCheckValleyIVEcoFarm",
+            "[JumpBack]TPPointOriginiumSciencePark2",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    //这部分代码是用于检查四号谷地、武陵是否有农作物，没有直接跳过
+    "AutoEcoFarmCheckValleyIVEcoFarm": {
+        "doc": "开始检查源石研究园的生态农场有无种植农作物",
+        "next": [
+            "AutoEcoFarmFindValleyIVEcoFarm"
+        ]
+    },
+    "AutoEcoFarmFindValleyIVEcoFarm": {
+        "doc": "寻找源石研究园的生态农场,找到后将鼠标移到目标位置并滚动视角直到最大",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    827,
+                    331,
+                    460,
+                    363
+                ],
+                "expected": "[生|态|种|植|区]",
+                "threshold": 0.3
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": true,
+                "target_offset": [
+                    100,
+                    60,
+                    0,
+                    0
+                ],
+                "dy": 480
+            }
+        },
+        "repeat": 5,
+        "repeat_delay": 200,
+        "repeat_wait_freezes": 200,
+        "next": [
+            "AutoEcoFarmMoveMouseBeforeFindFarmland" //找到生态农场后继续寻找农田，先移动鼠标避免干扰
+        ]
+    },
+    "AutoEcoFarmMoveMouseBeforeFindFarmland": {
+        "doc": "在寻找农田之前先把鼠标移到左上角，避免干扰识别",
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": "0,0,0,0"
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindFarmland"
+        ]
+    },
+    "AutoEcoFarmFindFarmland": {
+        "doc": "寻找源石研究园的农田,识别范围为生态种植区周围",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "AutoEcoFarmFindValleyIVEcoFarm",
+                "roi_offset": [
+                    -150,
+                    -150,
+                    300,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+            }
+        },
+        "action": {
+            "type": "TouchMove"
+        }
+    },
+    //下面是一些通用节点
+    "AutoEcoFarmMoveMouse": {
+        "doc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": "0,0,0,0"
+            }
+        },
+        "max_hit": 3 //默认为3，超过一次就不要再试了免得死循环
     }
 }
