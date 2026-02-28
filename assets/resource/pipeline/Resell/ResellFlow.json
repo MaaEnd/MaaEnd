@@ -46,7 +46,8 @@
         "post_wait_freezes": 200,
         "next": [
             "ResellScanCost",
-            "ResellScanClickViewFriendPrice"
+            "ResellScanClickViewFriendPrice",
+            "ResellScanDetectGrid"
         ]
     },
     "ResellScanSkipEmpty": {
@@ -65,7 +66,8 @@
         "action": "Custom",
         "custom_action": "ResellScanCostAction",
         "next": [
-            "ResellScanClickViewFriendPrice"
+            "ResellScanClickViewFriendPrice",
+            "ResellScanDetectGrid"
         ]
     },
     "ResellScanClickViewFriendPrice": {
@@ -75,8 +77,28 @@
             "ResellROIViewFriendPrice"
         ],
         "action": "Click",
+        "post_wait_freezes": 200,
         "next": [
-            "ResellScanFriendPrice"
+            "ResellScanWaitFriendLoading",
+            "ResellScanDetectDetail"
+        ]
+    },
+    "ResellScanWaitFriendLoading": {
+        "doc": "等待好友价格页出现（识别返回按钮确认在好友价格页）",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Resell/back.png"
+        ],
+        "roi": [
+            962,
+            110,
+            72,
+            75
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellScanFriendPrice",
+            "ResellScanWaitFriendLoading"
         ]
     },
     "ResellScanFriendPrice": {
@@ -134,5 +156,46 @@
         "action": "Custom",
         "custom_action": "ResellScanNextAction",
         "next": []
+    },
+    "ResellScanDetectGrid": {
+        "doc": "兜底：检测到仍在商品列表页（左侧市场图标可见），重新开始扫描",
+        "recognition": "TemplateMatch",
+        "template": [
+            "Resell/inUnstableStore.png"
+        ],
+        "threshold": 0.8,
+        "roi": [
+            0,
+            209,
+            128,
+            126
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellScan"
+        ]
+    },
+    "ResellScanDetectDetail": {
+        "doc": "兜底：检测到仍在商品详情页（好友按钮可见），关闭详情后重新扫描",
+        "recognition": "Or",
+        "any_of": [
+            "ResellROIViewFriendPrice"
+        ],
+        "action": "DoNothing",
+        "next": [
+            "ResellScanRecoverCloseDetail"
+        ]
+    },
+    "ResellScanRecoverCloseDetail": {
+        "doc": "兜底：关闭详情页后重新扫描",
+        "recognition": "Or",
+        "any_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "ResellScan"
+        ]
     }
 }
