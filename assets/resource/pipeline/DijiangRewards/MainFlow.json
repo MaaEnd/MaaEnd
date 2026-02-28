@@ -21,11 +21,11 @@
         },
         "next": [
             "[JumpBack]EntryReceptionRoom",
-            "[JumpBack]ProductionAssistInDijiang",
-            "[JumpBack]RecoveryEmotion",
             "[JumpBack]ControlNexusClickTips",
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
+            "[JumpBack]ProductionAssistInDijiang",
+            "[JumpBack]RecoveryEmotion",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
             "[JumpBack]WhiteConfirmButtonType1",
