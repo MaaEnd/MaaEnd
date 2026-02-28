@@ -63,6 +63,23 @@
             "DeliveryJobsCargoFillToMax"
         ]
     },
+    "DeliveryJobsSelectItemToFill": {
+        "doc": "选择要填充的物品",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            37,
+            121,
+            503,
+            519
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "expected": 90,
+        "threshold": 0.94,
+        "order_by": "Score",
+        "next": [
+            "DeliveryJobsCargoFillToMax"
+        ]
+    },
     "DeliveryJobsCargoFillToMax": {
         "doc": "装满货物",
         "recognition": "TemplateMatch",
