@@ -29,7 +29,7 @@
         ],
         "expected": "仓库切换",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickOrigin",
             "ItemTransferSwitchRepoToOrigin"
@@ -45,7 +45,7 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickConfirmOrigin",
             "ItemTransferAtOrigin"
@@ -61,7 +61,7 @@
         ],
         "expected": "确认",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferAtOrigin"
         ]
@@ -82,13 +82,13 @@
     "ItemTransferClickEscOrigin": {
         "action": "ClickKey",
         "key": 27,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferRepoToBag"
         ]
     },
     "ItemTransferRepoToBag": {
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
@@ -106,7 +106,7 @@
         ],
         "expected": "降序",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
             "ItemTransferFindItemInRepo",
@@ -123,7 +123,7 @@
         ],
         "expected": "升序",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickItemCategory",
             "ItemTransferFindItemInRepo",
@@ -142,7 +142,7 @@
         "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
             "ItemTransferScrollDownwardRepo"
@@ -176,7 +176,7 @@
         ],
         "end_hold": 500,
         "max_hit": 1,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
             "ItemTransferScrollDownwardRepo",
@@ -196,7 +196,7 @@
         ],
         "end_hold": 500,
         "max_hit": 1,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
             "ItemTransferScrollUpwardRepo",
@@ -239,7 +239,7 @@
         ],
         "expected": "仓库切换",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickDestination",
             "ItemTransferSwitchRepoToDestination"
@@ -255,7 +255,7 @@
         ],
         "expected": "DESTINATION_REGION",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickConfirmDestination",
             "ItemTransferAtDestination"
@@ -271,7 +271,7 @@
         ],
         "expected": "确认",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferAtDestination"
         ]
@@ -292,13 +292,13 @@
     "ItemTransferClickEscDestination": {
         "action": "ClickKey",
         "key": 27,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferBagToRepo"
         ]
     },
     "ItemTransferBagToRepo": {
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
             "ItemTransferScrollDownwardBag"
@@ -332,7 +332,7 @@
         ],
         "end_hold": 500,
         "max_hit": 2,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
             "ItemTransferScrollDownwardBag",
@@ -352,7 +352,7 @@
         ],
         "end_hold": 500,
         "max_hit": 2,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
             "ItemTransferScrollUpwardBag"
@@ -404,7 +404,7 @@
         ],
         "expected": "仓库切换",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickOriginReturn",
             "ItemTransferSwitchRepoToOriginReturn"
@@ -420,7 +420,7 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferClickConfirmOriginReturn",
             "ItemTransferAtOriginReturn"
@@ -436,7 +436,7 @@
         ],
         "expected": "确认",
         "action": "Click",
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferAtOriginReturn"
         ]
@@ -457,13 +457,13 @@
     "ItemTransferClickEscOriginReturn": {
         "action": "ClickKey",
         "key": 27,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferBagToOriginRepo"
         ]
     },
     "ItemTransferBagToOriginRepo": {
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
             "ItemTransferScrollDownwardBagReturn"
@@ -497,7 +497,7 @@
         ],
         "end_hold": 500,
         "max_hit": 2,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
             "ItemTransferScrollDownwardBagReturn",
@@ -517,7 +517,7 @@
         ],
         "end_hold": 500,
         "max_hit": 2,
-        "post_wait_freezes": 1,
+        "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
             "ItemTransferScrollUpwardBagReturn"
