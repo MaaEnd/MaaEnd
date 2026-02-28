@@ -134,7 +134,7 @@
         },
         "next": [
             "ControlNexus",
-            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterControlNexusMenu",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",
@@ -187,7 +187,7 @@
         },
         "next": [
             "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]__ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]__ScenePrivateWorldEnterControlNexusMenu",
             "[JumpBack]SelectDijiang",
             "[JumpBack]WaitLoadingColor",
             "[JumpBack]TeleportButton",

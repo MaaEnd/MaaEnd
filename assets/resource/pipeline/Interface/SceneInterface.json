@@ -115,7 +115,49 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__ScenePrivateWorldEnterMenuControlNexus",
+            "__ScenePrivateWorldEnterControlNexusMenu",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiangBridge": {
+        "doc": "从任意界面进入帝江号-舰桥大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapDijiang",
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateMapSwipeToLeftUpCorner",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateMapDijiangChooseTeleportBridge"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiangWorkingSector": {
+        "doc": "从任意界面进入帝江号-基建区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapDijiang",
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateMapSwipeToLeftUpCorner",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateMapDijiangChooseTeleportWorkingSector"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiangReceptionRoom": {
+        "doc": "从任意界面进入帝江号-会客室大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapDijiang",
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateMapSwipeToLeftUpCorner",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateMapDijiangChooseTeleportReceptionRoom"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
             "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
@@ -134,8 +176,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -148,8 +190,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -162,8 +204,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -171,13 +213,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValleyTreasureGrotto": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "doc": "从任意界面进入武陵-景玉谷-聚宝窟外大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -185,13 +227,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValleyQingboBailey": {
-        "doc": "从任意界面进入-景玉谷-清波寨外寨大世界",
+        "doc": "从任意界面进入武陵-景玉谷-清波寨外寨大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -199,13 +241,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley0": {
-        "doc": "从任意界面进入-景玉谷-生态实验站",
+        "doc": "从任意界面进入武陵-景玉谷-生态实验站",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -213,13 +255,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley1": {
-        "doc": "从任意界面进入-景玉谷-踩道大世界",
+        "doc": "从任意界面进入武陵-景玉谷-踩道大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -227,13 +269,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley2": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "doc": "从任意界面进入武陵-景玉谷-聚宝窟外大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -241,13 +283,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley3": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "doc": "从任意界面进入武陵-景玉谷-聚宝窟外大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -255,13 +297,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley4": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟内大世界",
+        "doc": "从任意界面进入武陵-景玉谷-聚宝窟内大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -269,13 +311,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley5": {
-        "doc": "从任意界面进入-景玉谷-天王坪大世界",
+        "doc": "从任意界面进入武陵-景玉谷-天王坪大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -283,13 +325,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley6": {
-        "doc": "从任意界面进入-景玉谷-驮鼻山大世界",
+        "doc": "从任意界面进入武陵-景玉谷-驮鼻山大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -297,13 +339,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley7": {
-        "doc": "从任意界面进入-景玉谷-迷踪林大世界",
+        "doc": "从任意界面进入武陵-景玉谷-迷踪林大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -311,13 +353,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley8": {
-        "doc": "从任意界面进入-景玉谷-摘菱屿大世界",
+        "doc": "从任意界面进入武陵-景玉谷-摘菱屿大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -325,13 +367,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley9": {
-        "doc": "从任意界面进入-景玉谷-南山大世界",
+        "doc": "从任意界面进入武陵-景玉谷-南山大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -339,13 +381,13 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley10": {
-        "doc": "从任意界面进入-景玉谷-水泽涧大世界",
+        "doc": "从任意界面进入武陵-景玉谷-水泽涧大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -358,8 +400,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -372,8 +414,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -386,8 +428,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -400,8 +442,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -414,8 +456,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -428,8 +470,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -442,8 +484,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -456,8 +498,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -470,8 +512,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -484,8 +526,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -498,8 +540,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -512,8 +554,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -526,8 +568,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -540,8 +582,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -554,8 +596,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -568,8 +610,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -582,8 +624,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -596,8 +638,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -610,8 +652,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -624,8 +666,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -638,8 +680,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
@@ -652,8 +694,8 @@
         "post_delay": 0,
         "anchor": {
             "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapAnchorSwipeDirection": "",
+            "__ScenePrivateMapAnchorTeleportTarget": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
         },
         "next": [
             "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",

@@ -99,6 +99,54 @@
             }
         }
     },
+    "__ScenePrivateMapDijiangChooseTeleportBridge": {
+        "doc": "帝江号地图滑至页面左上角后按 ROI 模板匹配舰桥传送点并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            561,
+            401,
+            39,
+            38
+        ],
+        "template": "SceneManager/MapTeleport.png",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapDijiangChooseTeleportWorkingSector": {
+        "doc": "帝江号地图滑至页面左上角后按 ROI 模板匹配基建区传送点并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            910,
+            401,
+            36,
+            38
+        ],
+        "template": "SceneManager/MapTeleport.png",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
+    "__ScenePrivateMapDijiangChooseTeleportReceptionRoom": {
+        "doc": "帝江号地图滑至页面左上角后按 ROI 模板匹配会客室传送点并点击",
+        "recognition": "TemplateMatch",
+        "roi": [
+            724,
+            183,
+            40,
+            37
+        ],
+        "template": "SceneManager/ReceptionRoomTeleport.png",
+        "action": "Click",
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateMapTeleportConfirm"
+        ]
+    },
     "__ScenePrivateMapDijiangEnterTeleport": {
         "doc": "在帝江号地图界面，随机选择一个传送点进入",
         "recognition": {
@@ -218,7 +266,7 @@
             }
         }
     },
-    "__ScenePrivateWorldEnterMenuControlNexus": {
+    "__ScenePrivateWorldEnterControlNexusMenu": {
         "doc": "从主界面按 I 键打开帝江号总控中枢入口",
         "post_wait_freezes": {
             "time": 500,
@@ -249,10 +297,10 @@
             }
         },
         "next": [
-            "__ScenePrivateWorldEnterMenuControlNexusSuccess"
+            "__ScenePrivateWorldEnterControlNexusMenuSuccess"
         ]
     },
-    "__ScenePrivateWorldEnterMenuControlNexusSuccess": {
+    "__ScenePrivateWorldEnterControlNexusMenuSuccess": {
         "doc": "识别处于帝江号总控中枢界面",
         "recognition": {
             "type": "TemplateMatch",

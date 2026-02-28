@@ -16,6 +16,62 @@
             }
         }
     },
+    "__ScenePrivateMapSwipeToLeftUpCorner": {
+        "doc": "在地图界面：滑至页面左上角",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [-350, 0, 350, 60],
+                "template": ["SceneManager/MapMind.png"]
+            }
+        },
+        "action": "Swipe",
+        "begin": [200, 130],
+        "end": [1200, 650],
+        "post_wait_freezes": 400
+    },
+    "__ScenePrivateMapSwipeToRightUpCorner": {
+        "doc": "在地图界面：滑至页面右上角",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [-350, 0, 350, 60],
+                "template": ["SceneManager/MapMind.png"]
+            }
+        },
+        "action": "Swipe",
+        "begin": [200, 650],
+        "end": [1200, 130],
+        "post_wait_freezes": 400
+    },
+    "__ScenePrivateMapSwipeToLeftDownCorner": {
+        "doc": "在地图界面：滑至页面左下角",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [-350, 0, 350, 60],
+                "template": ["SceneManager/MapMind.png"]
+            }
+        },
+        "action": "Swipe",
+        "begin": [1200, 130],
+        "end": [200, 650],
+        "post_wait_freezes": 400
+    },
+    "__ScenePrivateMapSwipeToRightDownCorner": {
+        "doc": "在地图界面：滑至页面右下角",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [-350, 0, 350, 60],
+                "template": ["SceneManager/MapMind.png"]
+            }
+        },
+        "action": "Swipe",
+        "begin": [1200, 650],
+        "end": [200, 130],
+        "post_wait_freezes": 400
+    },
     "__ScenePrivateMapEnterTeleport": {
         "doc": "在地图界面，随机选择一个传送点进入",
         "recognition": {

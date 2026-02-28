@@ -32,8 +32,8 @@
         "post_delay": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapFilterClear",
-            "[JumpBack][Anchor]__ScenePrivateMapAnchorChooseTeleportStep1",
-            "[JumpBack][Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[JumpBack][Anchor]__ScenePrivateMapAnchorSwipeDirection",
+            "[JumpBack][Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     }
 }

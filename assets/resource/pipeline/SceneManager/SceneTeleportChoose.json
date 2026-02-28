@@ -31,7 +31,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical1Step1": {
@@ -66,7 +66,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical2Step1": {
@@ -101,7 +101,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical3Step1": {
@@ -136,7 +136,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical4Step1": {
@@ -171,7 +171,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical5Step1": {
@@ -206,7 +206,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical6Step1": {
@@ -241,7 +241,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical7Step1": {
@@ -276,7 +276,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical8Step1": {
@@ -311,7 +311,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportClose",
-            "[Anchor]__ScenePrivateMapAnchorChooseTeleportStepFinish"
+            "[Anchor]__ScenePrivateMapAnchorTeleportTarget"
         ]
     },
     "__ScenePrivateAnyMapChooseTeleportVertical0Finish": {
@@ -342,7 +342,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -376,7 +376,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -410,7 +410,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -444,7 +444,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -478,7 +478,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -512,7 +512,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -546,7 +546,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -580,7 +580,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
@@ -614,7 +614,7 @@
             ]
         },
         "anchor": {
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": ""
+            "__ScenePrivateMapAnchorTeleportTarget": ""
         },
         "next": [
             "__ScenePrivateMapTeleportConfirm"
