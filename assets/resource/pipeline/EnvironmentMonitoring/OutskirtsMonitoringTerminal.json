@@ -914,10 +914,10 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001",
+                    "map_name": "map02_lv002",
                     "target": [
-                        0,
-                        0,
+                        240,
+                        695,
                         10,
                         10
                     ]
@@ -929,16 +929,16 @@
         ]
     },
     "GoToBeaconDamagedInBlightTideStartPos": {
-        "doc": "在侵蚀潮中损坏的信标任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "doc": "在侵蚀潮中损坏的信标任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv001",
+                    "map_name": "map02_lv002",
                     "target": [
-                        0,
-                        0,
+                        640,
+                        255,
                         10,
                         10
                     ]
@@ -992,7 +992,7 @@
         ]
     },
     "GoToCollapsedTianshiPillarStartPos": {
-        "doc": "在倒塌的天师桩任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "doc": "在倒塌的天师桩任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -1000,8 +1000,8 @@
                 {
                     "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
+                        210,
+                        635,
                         10,
                         10
                     ]
@@ -1096,15 +1096,31 @@
         ]
     },
     "GoToIndoorCropsMapTrackerMove": {
-        "doc": "前往室内作物。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "doc": "前往室内作物",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "map_name": "map02_lv002",
             "path": [
                 [
-                    0,
-                    0
+                    245,
+                    704
+                ],
+                [
+                    217,
+                    709
+                ],
+                [
+                    212,
+                    727
+                ],
+                [
+                    190,
+                    724
+                ],
+                [
+                    190,
+                    729
                 ]
             ]
         },
@@ -1113,15 +1129,35 @@
         ]
     },
     "GoToBeaconDamagedInBlightTideMapTrackerMove": {
-        "doc": "前往侵蚀潮中损坏的信标。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "doc": "前往侵蚀潮中损坏的信标",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "map_name": "map02_lv002",
             "path": [
                 [
-                    0,
-                    0
+                    638,
+                    298
+                ],
+                [
+                    623,
+                    302
+                ],
+                [
+                    640,
+                    315
+                ],
+                [
+                    658,
+                    318
+                ],
+                [
+                    667,
+                    318
+                ],
+                [
+                    672,
+                    269
                 ]
             ]
         },
@@ -1188,15 +1224,27 @@
         ]
     },
     "GoToCollapsedTianshiPillarMapTrackerMove": {
-        "doc": "前往倒塌的天师桩。TODO: 填写 MapTrackerMove 的 map_name 与 path 路径点坐标（基准 1280x720）",
+        "doc": "前往倒塌的天师桩",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv001",
             "path": [
                 [
-                    0,
-                    0
+                    210,
+                    626
+                ],
+                [
+                    193,
+                    616
+                ],
+                [
+                    181,
+                    618
+                ],
+                [
+                    163,
+                    607
                 ]
             ]
         },
