@@ -1,32 +1,49 @@
 {
-    "EnvironmentMonitoringTakePhoto": {
-        "doc": "环境监测拍照",
+    "EnvironmentMonitoringTakePhotoUp": {
+        "doc": "环境监测拍照，向上调整朝向",
+        "anchor": {
+            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenUp"
+        },
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack]EnvironmentMonitoringEnterCameraMode",
-            "[JumpBack]EnvironmentMonitoringSwipeScreen"
+            "EnvironmentMonitoringEnterCameraMode",
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "EnvironmentMonitoringTakePhotoDown": {
+        "doc": "环境监测拍照，向上调整朝向",
+        "anchor": {
+            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenDown"
+        },
+        "next": [
+            "EnvironmentMonitoringEnterCameraMode",
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "EnvironmentMonitoringTakePhotoLeft": {
+        "doc": "环境监测拍照，向左调整朝向",
+        "anchor": {
+            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenLeft"
+        },
+        "next": [
+            "EnvironmentMonitoringEnterCameraMode",
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    },
+    "EnvironmentMonitoringTakePhotoRight": {
+        "doc": "环境监测拍照，向右调整朝向",
+        "anchor": {
+            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenRight"
+        },
+        "next": [
+            "EnvironmentMonitoringEnterCameraMode",
+            "EnvironmentMonitoringTakePhotoDirectly"
         ]
     },
     "EnvironmentMonitoringTakePhotoDirectly": {
         "doc": "直接进入拍照模式，如果朝向不对会失败",
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack]EnterCameraMode",
-            "[JumpBack]EnvironmentMonitoringSwipeScreen"
+            "EnterCameraMode"
         ]
-    },
-    "EnvironmentMonitoringSwipeScreen": {
-        "doc": "环境监测拍照，滑动屏幕调整朝向",
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            760,
-            360
-        ],
-        "end_hold": 300
     },
     "EnvironmentMonitoringEnterCameraMode": {
         "doc": "进入拍照模式，会自动朝向任务目标",
@@ -36,7 +53,10 @@
             "InWorld"
         ],
         "action": "ClickKey",
-        "key": 70 // F 0x46
+        "key": 70, // F 0x46
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted"
+        ]
     },
     "EnvironmentMonitoringShutterButtonHighlighted": {
         "doc": "拍照按钮高亮，拍照",
@@ -114,6 +134,66 @@
         "doc": "进入拍照模式，退出按键",
         "action": "KeyDown",
         "key": 82, // R 0x52
-        "next": []
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "[JumpBack][Anchor]EnvironmentMonitoringSwipeScreen"
+        ]
+    },
+    "EnvironmentMonitoringSwipeScreenUp": {
+        "doc": "环境监测拍照，向上滑动屏幕调整朝向",
+        // FIXME: 以后得想办法重置 max_hit，或者用其他方法实现。不然一次任务就可能消耗掉全部的 max_hit 了。
+        "max_hit": 2,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            240
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenDown": {
+        "doc": "环境监测拍照，向下滑动屏幕调整朝向",
+        "max_hit": 2,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            480
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenLeft": {
+        "doc": "环境监测拍照，向左滑动屏幕调整朝向",
+        "max_hit": 2,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            280,
+            360
+        ],
+        "end_hold": 300
+    },
+    "EnvironmentMonitoringSwipeScreenRight": {
+        "doc": "环境监测拍照，向右滑动屏幕调整朝向",
+        "max_hit": 2,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            760,
+            360
+        ],
+        "end_hold": 300
     }
 }

@@ -14,7 +14,7 @@
         ],
         "next": [
             "EnvironmentMonitoringLoop",
-            "[JumpBack]EnvironmentMonitoringButton",
+            "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal",
             "[JumpBack]GoToWuling"
         ]
     },
@@ -22,7 +22,7 @@
         "doc": "主循环，确保在环境监测界面",
         "recognition": "And",
         "all_of": [
-            "CheckOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
         ],
         "next": [
             "[JumpBack]EternalSunsetJob",
