@@ -105,10 +105,10 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
     if (contours.empty()) return -1.0;
 
     cv::Point2f centerPt((float)radius, (float)radius);
-    int bestContourIdx = -1;
+    size_t bestContourIdx = SIZE_MAX;
     double minDistSq = 1e9;
 
-    for (int i = 0; i < contours.size(); ++i) {
+    for (size_t i = 0; i < contours.size(); ++i) {
         auto mu_temp = cv::moments(contours[i]);
         cv::Point2f c;
         if (mu_temp.m00 > 0) {
@@ -124,10 +124,10 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
         }
     }
 
-    if (bestContourIdx == -1 || minDistSq > 25.0) return -1.0; 
+    if (bestContourIdx == SIZE_MAX || minDistSq > 25.0) return -1.0; 
 
     cv::Mat isolatedMask = cv::Mat::zeros(whiteMask.size(), CV_8UC1);
-    cv::drawContours(isolatedMask, contours, bestContourIdx, cv::Scalar(255), cv::FILLED);
+    cv::drawContours(isolatedMask, contours, static_cast<int>(bestContourIdx), cv::Scalar(255), cv::FILLED);
 
     cv::Mat highResMask;
     cv::resize(isolatedMask, highResMask, cv::Size(), 16.0, 16.0, cv::INTER_CUBIC);
@@ -138,9 +138,9 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
     cv::findContours(highResMask, hrContours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     if (hrContours.empty()) return -1.0;
 
-    int hrBestIdx = 0;
+    size_t hrBestIdx = 0;
     double maxArea = 0;
-    for (int i = 0; i < hrContours.size(); ++i) {
+    for (size_t i = 0; i < hrContours.size(); ++i) {
         double area = cv::contourArea(hrContours[i]);
         if (area > maxArea) { maxArea = area; hrBestIdx = i; }
     }
