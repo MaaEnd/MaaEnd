@@ -323,6 +323,6 @@
     "preset.AutoTrading.description": "自动买卖及生产相关",
     "preset.EssenceFarming.label": "灵素刷取",
     "preset.EssenceFarming.description": "灵素养成及筛选相关",
-    "task.AutoEcoFarm.label": "自动生态农场",
+    "task.AutoEcoFarm.label": "🌾自动生态农场",
     "task.AutoEcoFarm.description": "自动完成收菜、种植、浇水等相关的操作"
 }
