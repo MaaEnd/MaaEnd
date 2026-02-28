@@ -7,7 +7,8 @@
             "description": "$task.DeliveryJobs.description",
             "option": [
                 "ValleyIV",
-                "Wuling"
+                "Wuling",
+                "PackCargoSelectItem"
             ]
         }
     ],
@@ -157,6 +158,595 @@
                     }
                 }
             ]
+        },
+        "PackCargoSelectItem": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.PackCargoSelectItem.label",
+            "description": "$task.DeliveryJobs.PackCargoSelectItem.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
+                            "next": [
+                                "DeliveryJobsSelectItemToFill"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "WhatToFill"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "WhatToFill": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.WhatToFill",
+            "cases": [
+                {
+                    "name": "蓝铁矿",
+                    "label": "$item.FerriumOre",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 141
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "label": "$item.HCValleyBattery",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 183
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$item.LCWulingBattery",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 7
+                        }
+                    }
+                },
+                {
+                    "name": "源矿",
+                    "label": "$item.OriginiumOre",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 74
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶矿",
+                    "label": "$item.AmethystOre",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 103
+                        }
+                    }
+                },
+                {
+                    "name": "芽针",
+                    "label": "$item.Yazhen",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 119
+                        }
+                    }
+                },
+                {
+                    "name": "芽针种子",
+                    "label": "$item.YazhenSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 122
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$item.Jincao",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 172
+                        }
+                    }
+                },
+                {
+                    "name": "锦草种子",
+                    "label": "$item.JincaoSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 175
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶",
+                    "label": "$item.Sandleaf",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 88
+                        }
+                    }
+                },
+                {
+                    "name": "柑实",
+                    "label": "$item.Citrome",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 56
+                        }
+                    }
+                },
+                {
+                    "name": "荞花",
+                    "label": "$item.Buckflower",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 133
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木",
+                    "label": "$item.Aketine",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 161
+                        }
+                    }
+                },
+                {
+                    "name": "原木",
+                    "label": "$item.RawWood",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 14
+                        }
+                    }
+                },
+                {
+                    "name": "映火荞花",
+                    "label": "$item.Firebuckle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 51
+                        }
+                    }
+                },
+                {
+                    "name": "柑实种子",
+                    "label": "$item.CitromeSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 58
+                        }
+                    }
+                },
+                {
+                    "name": "灰芦麦",
+                    "label": "$item.ReedRye",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 75
+                        }
+                    }
+                },
+                {
+                    "name": "琼叶参",
+                    "label": "$item.RedjadeGinseng",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 85
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶种子",
+                    "label": "$item.SandleafSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 89
+                        }
+                    }
+                },
+                {
+                    "name": "苦叶椒",
+                    "label": "$item.Tartpepper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 125
+                        }
+                    }
+                },
+                {
+                    "name": "荆刺芽针",
+                    "label": "$item.ThornyYazhen",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 128
+                        }
+                    }
+                },
+                {
+                    "name": "荞花种子",
+                    "label": "$item.BuckflowerSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 134
+                        }
+                    }
+                },
+                {
+                    "name": "蓬茸锦草",
+                    "label": "$item.FluffedJincao",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 144
+                        }
+                    }
+                },
+                {
+                    "name": "酮化树种",
+                    "label": "$item.AketineSeed",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 160
+                        }
+                    }
+                },
+                {
+                    "name": "金石稻",
+                    "label": "$item.AmberRice",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 165
+                        }
+                    }
+                },
+                {
+                    "name": "黯银柑实",
+                    "label": "$item.Umbraline",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 191
+                        }
+                    }
+                },
+                {
+                    "name": "钢制零件",
+                    "label": "$item.SteelPart",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 167
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "label": "$item.FerriumPart",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 170
+                        }
+                    }
+                },
+                {
+                    "name": "高晶零件",
+                    "label": "$item.CrystonPart",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 188
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "label": "$item.AmethystPart",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 108
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "label": "$item.AmethystBottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 107
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶",
+                    "label": "$item.FerriumBottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 138
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "label": "$item.Xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 41
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "label": "$item.Origocrust",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 52
+                        }
+                    }
+                },
+                {
+                    "name": "稳定碳块",
+                    "label": "$item.StabilizedCarbon",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 96
+                        }
+                    }
+                },
+                {
+                    "name": "致密源石粉末",
+                    "label": "$item.DenseOriginiumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 116
+                        }
+                    }
+                },
+                {
+                    "name": "致密碳粉末",
+                    "label": "$item.DenseCarbonPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 117
+                        }
+                    }
+                },
+                {
+                    "name": "密制晶体",
+                    "label": "$item.PackedOrigocrust",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 28
+                        }
+                    }
+                },
+                {
+                    "name": "致密晶体粉末",
+                    "label": "$item.DenseOrigocrustPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 115
+                        }
+                    }
+                },
+                {
+                    "name": "高晶纤维",
+                    "label": "$item.CrystonFiber",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 185
+                        }
+                    }
+                },
+                {
+                    "name": "细磨柑实粉末",
+                    "label": "$item.GroundCitromePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 111
+                        }
+                    }
+                },
+                {
+                    "name": "细磨荞花粉末",
+                    "label": "$item.GroundBuckflowerPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 112
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳粉末",
+                    "label": "$item.OrigocrustPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 53
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$item.OriginiumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 73
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 90
+                        }
+                    }
+                },
+                {
+                    "name": "碳块",
+                    "label": "$item.Carbon",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 92
+                        }
+                    }
+                },
+                {
+                    "name": "碳粉末",
+                    "label": "$item.CarbonPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 93
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$item.AmethystPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 104
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$item.AmethystFiber",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 105
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$item.DenseFerriumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 118
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$item.Ferrium",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 137
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 142
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 162
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$item.SteelBottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 169
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$item.Steel",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 168
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$item.CrystonPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 184
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$item.CrystonBottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 187
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$item.YazhenPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 123
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$item.JincaoPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 176
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 59
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 135
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$item.YazhenSyringe",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFill": {
+                            "expected": 124
+                        }
+                    }
+                }
+            ],
+            "default_case": "砂叶粉末"
         }
     }
 }
