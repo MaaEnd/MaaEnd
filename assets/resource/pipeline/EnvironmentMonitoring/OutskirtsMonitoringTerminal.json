@@ -1111,7 +1111,7 @@
         ]
     },
     "GoToIndoorCropsStartPos": {
-        "doc": "在室内作物任务开始位置附近。TODO: 填写 MapTrackerAssertLocation 的 map_name 与 target 坐标（基准 1280x720）",
+        "doc": "在室内作物任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
