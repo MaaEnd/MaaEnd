@@ -183,7 +183,6 @@
                 }
             ]
         },
-
         "WhatToFill": {
             "type": "select",
             "label": "$task.DeliveryJobs.WhatToFill",
