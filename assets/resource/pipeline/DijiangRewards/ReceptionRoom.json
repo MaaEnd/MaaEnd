@@ -48,7 +48,7 @@
             "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
         },
         "next": [
-            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "SceneEnterWorldDijiangControlNexus",
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
@@ -165,28 +165,6 @@
     },
     "AlreadyHaveClues": {
         "doc": "[会客室·线索] 识别「已填入」，无需再放置线索",
-        "next": [
-            "AlreadyHaveCluesRecheck"
-        ],
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    835,
-                    166,
-                    142,
-                    166
-                ],
-                "expected": [
-                    "已填入"
-                ],
-                "order_by": "Vertical"
-            }
-        }
-    },
-    "AlreadyHaveCluesRecheck": {
-        "doc": "[会客室·线索] 二次确认「已填入」，避免瞬时识别导致误触",
-        "pre_delay": 1000,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -206,7 +184,7 @@
     "ClueTimeLabel": {
         "doc": "识别线索的剩余天数",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": "ReadySetClues",
                 "roi_offset": [
@@ -215,9 +193,33 @@
                     58,
                     41
                 ],
-                "expected": [
-                    "\\d+[小时|天]"
-                ]
+                "method": 40,
+                "upper": [
+                    [
+                        39,
+                        255,
+                        200
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "lower": [
+                    [
+                        39,
+                        255,
+                        100
+                    ],
+                    [
+                        170,
+                        100,
+                        100
+                    ]
+                ],
+                "count": 20,
+                "connected": true
             }
         }
     },
@@ -250,11 +252,15 @@
         }
     },
     "SetClues": {
-        "doc": "[会客室·线索] 未识别到「已填入」时持续点击线索位，直到出现已填入",
-        "pre_delay": 300,
-        "post_delay": 300,
+        "doc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
         "recognition": {
-            "type": "DirectHit"
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "DeleteClue",
+                    "ClueTimeLabel"
+                ]
+            }
         },
         "action": {
             "type": "Click",
