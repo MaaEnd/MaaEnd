@@ -1,0 +1,219 @@
+{
+    "SellProductForthValley": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "检测当前位于四号谷地，准备切换至武陵",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 四号谷地
+                    "四号谷地",
+                    "四號谷地",
+                    "Valley",
+                    "valley",
+                    "四号谷地",
+                    "4번 협곡"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductSwitchFromForthValley"
+        ]
+    },
+    "SellProductWuling": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "检测当前位于武陵，准备切换至四号谷地",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 武陵
+                    "武陵",
+                    "武陵",
+                    "Wuling",
+                    "武陵",
+                    "무릉"
+                ],
+                "roi": [
+                    0,
+                    140,
+                    400,
+                    140
+                ]
+            }
+        },
+        "next": [
+            "SellProductSwitchFromWuling"
+        ]
+    },
+    "SellProductSwitchFromForthValley": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "从四号谷地点击更换按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换
+                    "更换",
+                    "更換",
+                    "Switch",
+                    "switch",
+                    "変更",
+                    "교체"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectWuling"
+        ]
+    },
+    "SellProductSwitchFromWuling": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "从武陵点击更换按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换
+                    "更换",
+                    "更換",
+                    "Switch",
+                    "switch",
+                    "変更",
+                    "교체"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductSelectFourthValley"
+        ]
+    },
+    "SellProductSelectWuling": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "在切换界面选择武陵",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductWuling.png"
+                ],
+                "roi": [
+                    200,
+                    100,
+                    800,
+                    200
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
+        },
+        "next": [
+            "SellProductRegionChangeConfirm"
+        ]
+    },
+    "SellProductSelectFourthValley": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "在切换界面选择四号谷地",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductFourthValley.png"
+                ],
+                "roi": [
+                    200,
+                    100,
+                    800,
+                    200
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    50,
+                    30,
+                    -100,
+                    -50
+                ]
+            }
+        },
+        "next": [
+            "SellProductRegionChangeConfirm"
+        ]
+    },
+    "SellProductRegionChangeConfirm": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "doc": "确认切换地区后返回地区建设界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 确认
+                    "确认",
+                    "確定",
+                    "Confirm",
+                    "confirm",
+                    "確定",
+                    "확인"
+                ],
+                "roi": [
+                    655,
+                    400,
+                    200,
+                    70
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SellProductAtDevelopment"
+        ]
+    }
+}

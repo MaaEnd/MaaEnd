@@ -10,12 +10,15 @@
                     "option": {
                         "AutoSkip": "Yes",
                         "AutoCloseInteraction": "Yes",
+                        "EnableTutorialBook": "Yes",
+                        "EnableClickAnywhere": "Yes",
+                        "EnableCloseSpecialPanel": "Yes",
                         "AutoFight": "Yes",
                         "AutoPick": "Yes",
                         "QuickTeleport": "Yes",
                         "AutoPuzzleSolving": "Yes",
                         "AutoZipline": "Yes",
-                        "AutoPat": "Yes"
+                        "AutoPat": "No"
                     }
                 }
             ]

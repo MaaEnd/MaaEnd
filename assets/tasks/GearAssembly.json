@@ -5,6 +5,9 @@
             "label": "$task.GearAssembly.label",
             "entry": "GearAssemblyStart",
             "description": "$task.GearAssembly.description",
+            "option": [
+                "GearCraftingPriority"
+            ],
             "controller": [
                 "Win32",
                 "Win32-Window",
@@ -12,5 +15,32 @@
                 "Win32-Front"
             ]
         }
-    ]
+    ],
+    "option": {
+        "GearCraftingPriority": {
+            "type": "select",
+            "label": "$task.GearAssembly.option.GearCraftingPriority.label",
+            "default_case": "Lowest",
+            "cases": [
+                {
+                    "name": "Lowest",
+                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Lowest.label",
+                    "pipeline_override": {
+                        "GearAssemblySwitchAscending": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Highest",
+                    "label": "$task.GearAssembly.option.GearCraftingPriority.cases.Highest.label",
+                    "pipeline_override": {
+                        "GearAssemblySwitchAscending": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

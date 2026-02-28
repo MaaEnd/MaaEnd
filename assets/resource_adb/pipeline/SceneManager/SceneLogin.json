@@ -1,5 +1,5 @@
 {
-    "__ScenePrivateAnyExit": {
+    "__ScenePrivateLoginCloseDialog": {
         "action": {
             "type": "ClickKey",
             "param": {

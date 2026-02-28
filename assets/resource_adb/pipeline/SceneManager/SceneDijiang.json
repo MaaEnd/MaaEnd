@@ -1,5 +1,5 @@
 {
-    "ScenePrivateWorldEnterMenuControlNexus": {
+    "__ScenePrivateWorldEnterMenuControlNexus": {
         "action": {
             "type": "Click"
         }

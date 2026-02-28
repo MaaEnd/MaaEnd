@@ -1,5 +1,5 @@
 {
-    "ScenePrivateWorldAnyEnterWorldValleyIVTheHub": {
+    "__ScenePrivateWorldAnyEnterWorldValleyIVTheHub": {
         "doc": "在大世界界面，进入四号谷地-枢纽区大世界",
         "recognition": {
             "type": "TemplateMatch",
@@ -17,11 +17,11 @@
             }
         },
         "next": [
-            "ScenePrivateMapValleyIVTheHubEnterTeleport",
-            "[JumpBack]ScenePrivateWorldEnterMapValleyIVTheHub"
+            "__ScenePrivateMapValleyIVTheHubEnterTeleport",
+            "[JumpBack]__ScenePrivateWorldEnterMapValleyIVTheHub"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVTheHub": {
+    "__ScenePrivateWorldEnterMapValleyIVTheHub": {
         "doc": "在大世界界面，进入四号谷地-枢纽区地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -46,12 +46,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVTheHub",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVTheHub",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVValleyPass": {
+    "__ScenePrivateWorldEnterMapValleyIVValleyPass": {
         "doc": "在大世界界面，进入四号谷地-谷地通道地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -76,12 +76,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVValleyPass",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVValleyPass",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark": {
+    "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark": {
         "desc": "在大世界界面，进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -106,12 +106,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVAburreyQuarry": {
+    "__ScenePrivateWorldEnterMapValleyIVAburreyQuarry": {
         "doc": "在大世界界面，进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -136,12 +136,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVOriginLodespring": {
+    "__ScenePrivateWorldEnterMapValleyIVOriginLodespring": {
         "doc": "在大世界界面，进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -166,12 +166,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapValleyIVPowerPlateau": {
+    "__ScenePrivateWorldEnterMapValleyIVPowerPlateau": {
         "doc": "在大世界界面，进入四号谷地-供能高地地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -196,12 +196,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess",
-            "ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess",
+            "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
         "doc": "在地图界面，成功进入四号谷地-枢纽区地图",
         "recognition": {
             "type": "OCR",
@@ -222,7 +222,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
         "doc": "在地图界面，成功进入四号谷地-谷地通道地图",
         "recognition": {
             "type": "OCR",
@@ -242,7 +242,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
         "doc": "在地图界面，成功进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "OCR",
@@ -263,7 +263,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
         "doc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "OCR",
@@ -284,7 +284,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
         "doc": "在地图界面，成功进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "OCR",
@@ -305,7 +305,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
+    "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
         "doc": "在地图界面，成功进入四号谷地-供能高地地图",
         "recognition": {
             "type": "OCR",
@@ -325,7 +325,7 @@
             }
         }
     },
-    "ScenePrivateMapOverviewSwitchMapOverviewValleyIV": {
+    "__ScenePrivateMapOverviewSwitchMapOverviewValleyIV": {
         "desc": "在地图总览界面，切换到四号谷地总览界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -347,7 +347,7 @@
         },
         "post_wait_freezes": 400
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVTheHub": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVTheHub": {
         "desc": "在地图地总览界面，进入四号谷地-枢纽区地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -366,11 +366,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVValleyPass": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVValleyPass": {
         "desc": "在地图地总览界面，进入四号谷地-谷地通道地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -389,11 +389,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVOriginiumSciencePark": {
         "desc": "在地图地总览界面，进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -412,11 +412,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry": {
         "doc": "在地图总览界面，进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -435,11 +435,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring": {
         "doc": "在地图总览界面，进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -458,11 +458,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau": {
+    "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau": {
         "doc": "在地图总览界面，进入四号谷地-供能高地地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -481,11 +481,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
-            "ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewValleyIV",
+            "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
         "doc": "在四号谷地总览界面，进入枢纽区地图",
         "recognition": {
             "type": "OCR",
@@ -507,10 +507,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass": {
         "doc": "在四号谷地总览界面，进入谷地通道地图",
         "recognition": {
             "type": "OCR",
@@ -533,10 +533,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark": {
         "desc": "在四号谷地总览界面，进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "OCR",
@@ -560,10 +560,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry": {
         "doc": "在四号谷地总览界面，进入阿伯莉采石场地图",
         "recognition": {
             "type": "OCR",
@@ -588,10 +588,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring": {
         "doc": "在四号谷地总览界面，进入矿脉源区地图",
         "recognition": {
             "type": "OCR",
@@ -614,10 +614,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess"
         ]
     },
-    "ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
         "doc": "在四号谷地总览界面，进入供能高地地图",
         "recognition": {
             "type": "OCR",
@@ -640,10 +640,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess"
+            "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess"
         ]
     },
-    "ScenePrivateMapValleyIVTheHubEnterTeleport": {
+    "__ScenePrivateMapValleyIVTheHubEnterTeleport": {
         "doc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
         "recognition": {
             "type": "And",
@@ -718,8 +718,8 @@
             ]
         },
         "next": [
-            "[JumpBack]ScenePrivateMapTeleportChoose",
-            "ScenePrivateMapTeleportConfirm"
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
         ]
     }
 }

@@ -1,5 +1,5 @@
 {
-    "ScenePrivateWorldEnterMenuList": {
+    "__ScenePrivateWorldEnterMenuList": {
         "doc": "从大世界进入菜单总列表",
         "recognition": {
             "type": "TemplateMatch",
@@ -32,10 +32,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuListSuccess"
+            "__ScenePrivateAnyEnterMenuListSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuListSuccess": {
+    "__ScenePrivateAnyEnterMenuListSuccess": {
         "doc": "成功进入菜单总列表",
         "recognition": {
             "type": "OCR",
@@ -52,7 +52,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuRegionalDevelopment": {
+    "__ScenePrivateWorldEnterMenuRegionalDevelopment": {
         "doc": "从大世界进入地区建设菜单",
         "recognition": {
             "type": "And",
@@ -69,10 +69,10 @@
             }
         },
         "next": [
-            "ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
         "doc": "从菜单列表进入地区建设菜单",
         "recognition": {
             "type": "OCR",
@@ -105,10 +105,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
+            "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess": {
+    "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess": {
         "doc": "成功进入地区建设菜单",
         "recognition": {
             "type": "And",
@@ -119,7 +119,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuEvent": {
+    "__ScenePrivateWorldEnterMenuEvent": {
         "doc": "从大世界进入活动菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -152,10 +152,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuEventSuccess"
+            "__ScenePrivateAnyEnterMenuEventSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuEvent": {
+    "__ScenePrivateMenuListEnterMenuEvent": {
         "doc": "从菜单列表进入活动菜单",
         "recognition": {
             "type": "OCR",
@@ -188,10 +188,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuEventSuccess"
+            "__ScenePrivateAnyEnterMenuEventSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuEventSuccess": {
+    "__ScenePrivateAnyEnterMenuEventSuccess": {
         "doc": "成功进入活动菜单",
         "recognition": {
             "type": "OCR",
@@ -212,7 +212,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuValuables": {
+    "__ScenePrivateWorldEnterMenuValuables": {
         "doc": "从大世界进入贵重品库菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -245,10 +245,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuValuablesSuccess"
+            "__ScenePrivateAnyEnterMenuValuablesSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuValuables": {
+    "__ScenePrivateMenuListEnterMenuValuables": {
         "doc": "从菜单列表进入贵重品库菜单",
         "recognition": {
             "type": "OCR",
@@ -281,10 +281,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuValuablesSuccess"
+            "__ScenePrivateAnyEnterMenuValuablesSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuValuablesSuccess": {
+    "__ScenePrivateAnyEnterMenuValuablesSuccess": {
         "doc": "成功进入贵重品库菜单",
         "recognition": {
             "type": "OCR",
@@ -305,7 +305,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuOperationalManual": {
+    "__ScenePrivateWorldEnterMenuOperationalManual": {
         "doc": "从大世界进入行动手册菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -338,10 +338,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuOperationalManualSuccess"
+            "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuOperationalManual": {
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
         "doc": "从菜单列表进入行动手册菜单",
         "recognition": {
             "type": "OCR",
@@ -374,10 +374,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuOperationalManualSuccess"
+            "__ScenePrivateAnyEnterMenuOperationalManualSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
         "doc": "成功进入行动手册菜单",
         "recognition": {
             "type": "OCR",
@@ -398,7 +398,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuProtocolPass": {
+    "__ScenePrivateWorldEnterMenuProtocolPass": {
         "doc": "从大世界进入通行证菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -431,10 +431,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuProtocolPassSuccess"
+            "__ScenePrivateAnyEnterMenuProtocolPassSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuProtocolPass": {
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
         "doc": "从菜单列表进入通行证菜单",
         "recognition": {
             "type": "OCR",
@@ -467,10 +467,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuProtocolPassSuccess"
+            "__ScenePrivateAnyEnterMenuProtocolPassSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuProtocolPassSuccess": {
+    "__ScenePrivateAnyEnterMenuProtocolPassSuccess": {
         "doc": "成功进入通行证菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -489,7 +489,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuFriends": {
+    "__ScenePrivateWorldEnterMenuFriends": {
         "doc": "从大世界进入好友菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -509,11 +509,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMenuListEnterMenuFriends",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "__ScenePrivateMenuListEnterMenuFriends",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
         ]
     },
-    "ScenePrivateMenuListEnterMenuFriends": {
+    "__ScenePrivateMenuListEnterMenuFriends": {
         "doc": "从菜单列表进入好友菜单",
         "recognition": {
             "type": "OCR",
@@ -545,10 +545,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuFriendsSuccess"
+            "__ScenePrivateAnyEnterMenuFriendsSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuFriendsSuccess": {
+    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
         "doc": "成功进入好友菜单",
         "recognition": {
             "type": "OCR",
@@ -568,7 +568,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuWiki": {
+    "__ScenePrivateWorldEnterMenuWiki": {
         "desc": "从大世界进入百科菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -588,11 +588,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMenuListEnterMenuWiki",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "__ScenePrivateMenuListEnterMenuWiki",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
         ]
     },
-    "ScenePrivateMenuListEnterMenuWiki": {
+    "__ScenePrivateMenuListEnterMenuWiki": {
         "desc": "从菜单列表进入百科菜单",
         "recognition": {
             "type": "OCR",
@@ -624,10 +624,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuWikiSuccess"
+            "__ScenePrivateAnyEnterMenuWikiSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuWikiSuccess": {
+    "__ScenePrivateAnyEnterMenuWikiSuccess": {
         "desc": "成功进入百科菜单",
         "recognition": {
             "type": "OCR",
@@ -648,7 +648,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuGearAssembly": {
+    "__ScenePrivateWorldEnterMenuGearAssembly": {
         "doc": "从大世界进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -668,11 +668,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateMenuListEnterMenuGearAssembly",
-            "[JumpBack]ScenePrivateWorldEnterMenuList"
+            "__ScenePrivateMenuListEnterMenuGearAssembly",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
         ]
     },
-    "ScenePrivateMenuListEnterMenuGearAssembly": {
+    "__ScenePrivateMenuListEnterMenuGearAssembly": {
         "doc": "从菜单列表进入装备加工界面",
         "recognition": {
             "type": "OCR",
@@ -705,10 +705,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuGearAssemblySuccess"
+            "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuGearAssemblySuccess": {
+    "__ScenePrivateAnyEnterMenuGearAssemblySuccess": {
         "doc": "成功进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -727,7 +727,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuEmail": {
+    "__ScenePrivateWorldEnterMenuEmail": {
         "doc": "从大世界进入邮箱菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -760,10 +760,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuEmailSuccess"
+            "__ScenePrivateAnyEnterMenuEmailSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuEmailSuccess": {
+    "__ScenePrivateAnyEnterMenuEmailSuccess": {
         "doc": "成功进入邮箱菜单",
         "recognition": {
             "type": "OCR",
@@ -784,7 +784,7 @@
             }
         }
     },
-    "ScenePrivateWorldFactoryEnterMenuBluePrint": {
+    "__ScenePrivateWorldFactoryEnterMenuBluePrint": {
         "doc": "从大世界工厂模式进入蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -816,10 +816,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuBluePrintSuccess"
+            "__ScenePrivateAnyEnterMenuBluePrintSuccess"
         ]
     },
-    "ScenePrivateWorldFactoryEnterMenuGearAssembly": {
+    "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
         "doc": "从大世界工厂模式进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -851,10 +851,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuGearAssemblySuccess"
+            "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuBluePrintSuccess": {
+    "__ScenePrivateAnyEnterMenuBluePrintSuccess": {
         "doc": "成功切换到蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -874,7 +874,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuBackpack": {
+    "__ScenePrivateWorldEnterMenuBackpack": {
         "desc": "从任意大世界进入包含仓库的背包界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -907,10 +907,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuBackpackSuccess"
+            "__ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
-    "ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
+    "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
         "desc": "从帝江号大世界进入包含仓库的背包界面",
         "recognition": {
             "type": "And",
@@ -969,10 +969,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuBackpackSuccess"
+            "__ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
-    "ScenePrivateMenuListEnterMenuBackpack": {
+    "__ScenePrivateMenuListEnterMenuBackpack": {
         "desc": "从菜单列表进入背包界面",
         "recognition": {
             "type": "OCR",
@@ -989,11 +989,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMenuListScrollToBottom",
-            "ScenePrivateMenuListBottomEnterMenuBackpack"
+            "[JumpBack]__ScenePrivateMenuListScrollToBottom",
+            "__ScenePrivateMenuListBottomEnterMenuBackpack"
         ]
     },
-    "ScenePrivateWorldEnterMenuBaker": {
+    "__ScenePrivateWorldEnterMenuBaker": {
         "doc": "从大世界进入Baker界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -1026,10 +1026,10 @@
             ]
         },
         "next": [
-            "ScenePrivateAnyEnterMenuBakerSuccess"
+            "__ScenePrivateAnyEnterMenuBakerSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuBakerSuccess": {
+    "__ScenePrivateAnyEnterMenuBakerSuccess": {
         "doc": "成功进入Baker界面",
         "recognition": {
             "type": "OCR",
@@ -1046,7 +1046,7 @@
             }
         }
     },
-    "ScenePrivateMenuListScrollToBottom": {
+    "__ScenePrivateMenuListScrollToBottom": {
         "desc": "菜单列表滚动到最底部",
         "recognition": {
             "type": "OCR",
@@ -1082,7 +1082,7 @@
         },
         "post_wait_freezes": 500
     },
-    "ScenePrivateMenuListBottomEnterMenuBackpack": {
+    "__ScenePrivateMenuListBottomEnterMenuBackpack": {
         "desc": "从菜单列表底部进入背包界面",
         "recognition": {
             "type": "OCR",
@@ -1105,10 +1105,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateAnyEnterMenuBackpackSuccess"
+            "__ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuBackpackSuccess": {
+    "__ScenePrivateAnyEnterMenuBackpackSuccess": {
         "desc": "成功进入背包界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -1125,7 +1125,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuShop": {
+    "__ScenePrivateWorldEnterMenuShop": {
         "desc": "从大世界进入商店菜单",
         "recognition": {
             "type": "TemplateMatch",
@@ -1145,11 +1145,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "ScenePrivateWorldEnterMenuEntryShop",
-            "[JumpBack]ScenePrivateWorldEnterMenuCheckMainUI"
+            "__ScenePrivateWorldEnterMenuEntryShop",
+            "[JumpBack]__ScenePrivateWorldEnterMenuCheckMainUI"
         ]
     },
-    "ScenePrivateWorldEnterMenuCheckMainUI": {
+    "__ScenePrivateWorldEnterMenuCheckMainUI": {
         "doc": "检测主界面（未展开），点击 ` 展开",
         "post_wait_freezes": {
             "time": 200,
@@ -1176,7 +1176,7 @@
             }
         }
     },
-    "ScenePrivateWorldEnterMenuEntryShop": {
+    "__ScenePrivateWorldEnterMenuEntryShop": {
         "doc": "进入商店",
         "post_wait_freezes": {
             "time": 500,
@@ -1204,10 +1204,10 @@
             }
         },
         "next": [
-            "ScenePrivateAnyEnterMenuShopSuccess"
+            "__ScenePrivateAnyEnterMenuShopSuccess"
         ]
     },
-    "ScenePrivateAnyEnterMenuShopSuccess": {
+    "__ScenePrivateAnyEnterMenuShopSuccess": {
         "doc": "成功进入商店菜单",
         "recognition": {
             "type": "OCR",

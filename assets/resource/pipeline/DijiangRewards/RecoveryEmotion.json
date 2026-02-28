@@ -92,7 +92,7 @@
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
@@ -112,7 +112,7 @@
             "param": {
                 "box_index": 1,
                 "all_of": [
-                    "ScenePrivateWorldEnterMenuControlNexusSuccess",
+                    "__ScenePrivateWorldEnterMenuControlNexusSuccess",
                     {
                         "recognition": {
                             "type": "ColorMatch",
@@ -208,6 +208,7 @@
     },
     "SelectLowEmotion": {
         "doc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
+        "max_hit": 10,
         "recognition": {
             "type": "And",
             "param": {
@@ -254,7 +255,8 @@
                                     255,
                                     253,
                                     253
-                                ]
+                                ],
+                                "order_by": "Vertical"
                             }
                         }
                     },
@@ -281,7 +283,8 @@
                                     25
                                 ],
                                 "count": 30,
-                                "connected": true
+                                "connected": true,
+                                "order_by": "Area"
                             }
                         }
                     }
@@ -316,11 +319,15 @@
                 ],
                 "expected": [
                     "没有更多的心情激励点数，无法选择更多干员"
+                ],
+                "replace": [
+                    "于",
+                    "干"
                 ]
             }
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "__ScenePrivateWorldEnterMenuControlNexusSuccess",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
