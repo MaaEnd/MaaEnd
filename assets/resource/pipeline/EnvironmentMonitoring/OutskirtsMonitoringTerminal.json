@@ -1,20 +1,15 @@
 {
-    "EnvironmentMonitoringNotReady": {
-        "doc": "环境监测终端未准备好，匹配上说明没有任务，直接跳出",
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "EternalSunsetJob": {
         "doc": "栖霞驻影任务",
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckEternalSunsetText"
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetReadyText"
         ],
         "next": [
             "GoToEternalSunset",
-            "AcceptEternalSunsetThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptEternalSunsetThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -24,12 +19,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckAncientTreeText"
+            "CheckAncientTreeText",
+            "CheckAncientTreeReadyText"
         ],
         "next": [
             "GoToAncientTree",
-            "AcceptAncientTreeThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptAncientTreeThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -39,12 +34,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCisternOriginiumSlugsText"
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsReadyText"
         ],
         "next": [
             "GoToCisternOriginiumSlugs",
-            "AcceptCisternOriginiumSlugsThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptCisternOriginiumSlugsThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -54,12 +49,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCollapsedTianshiPillarText"
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarReadyText"
         ],
         "next": [
             "GoToCollapsedTianshiPillar",
-            "AcceptCollapsedTianshiPillarThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptCollapsedTianshiPillarThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -69,12 +64,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckIndoorCropsText"
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsReadyText"
         ],
         "next": [
             "GoToIndoorCrops",
-            "AcceptIndoorCropsThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptIndoorCropsThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -84,12 +79,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckBeaconDamagedInBlightTideText"
+            "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideReadyText"
         ],
         "next": [
             "GoToBeaconDamagedInBlightTide",
-            "AcceptBeaconDamagedInBlightTideThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptBeaconDamagedInBlightTideThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -99,12 +94,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckRainbowFinText"
+            "CheckRainbowFinText",
+            "CheckRainbowFinReadyText"
         ],
         "next": [
             "GoToRainbowFin",
-            "AcceptRainbowFinThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptRainbowFinThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -114,12 +109,12 @@
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
-            "CheckCleansingJadeText"
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeReadyText"
         ],
         "next": [
             "GoToCleansingJade",
-            "AcceptCleansingJadeThenGoTo",
-            "EnvironmentMonitoringNotReady"
+            "AcceptCleansingJadeThenGoTo"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -132,7 +127,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "栖霞驻影",
@@ -150,7 +145,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "古树",
@@ -168,7 +163,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "蓄水源石虫",
@@ -186,7 +181,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "倒塌的天师桩",
@@ -204,7 +199,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "室内作物",
@@ -222,7 +217,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "侵蚀潮中损坏的信标",
@@ -240,7 +235,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "七彩鳞",
@@ -258,7 +253,7 @@
             63,
             208,
             1158,
-            35
+            71
         ],
         "expected": [
             "漱玉",
@@ -266,6 +261,214 @@
             "Cleansing Jade",
             "漱玉",
             "수옥"
+        ]
+    },
+    "CheckEternalSunsetReadyText": {
+        "doc": "检查栖霞驻影委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckEternalSunsetText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckAncientTreeReadyText": {
+        "doc": "检查古树委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckAncientTreeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "doc": "检查蓄水源石虫委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCisternOriginiumSlugsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "doc": "检查倒塌的天师桩委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckIndoorCropsReadyText": {
+        "doc": "检查室内作物委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckBeaconDamagedInBlightTideReadyText": {
+        "doc": "检查侵蚀潮中损坏的信标委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckRainbowFinReadyText": {
+        "doc": "检查七彩鳞委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckCleansingJadeReadyText": {
+        "doc": "检查漱玉委托是否准备好",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
         ]
     },
     "CheckEternalSunsetJob": {
