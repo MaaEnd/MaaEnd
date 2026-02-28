@@ -137,6 +137,11 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat &minimap) {
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(), inputTensorValues.size(), inputShape.data(), inputShape.size());
 
+    if (inputNodeNames.empty() || outputNodeNames.empty()) {
+        LogError << "YOLO Error: input/output node names are not configured. Check model JSON sidecar.";
+        return "";
+    }
+
     // Run Inference
     const char* inName  = inputNodeNames[0].c_str();
     const char* outName = outputNodeNames[0].c_str();

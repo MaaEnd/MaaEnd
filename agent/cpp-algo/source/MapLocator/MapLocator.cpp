@@ -545,7 +545,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         }
 
         if (strategy) {
-            MapPosition rawPrimaryPos;
+            MapPosition rawPrimaryPos{};
             auto trackingTmpl = strategy->extractTemplateFeature(minimap);
             auto trackingResult = tryTracking(trackingTmpl, strategy.get(), now, options, &rawPrimaryPos);
 
@@ -615,7 +615,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
     auto nextStrategy = MatchStrategyFactory::create(targetZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
     auto globalTmpl = nextStrategy->extractTemplateFeature(minimap);
     
-    MapPosition rawGlobalPrimaryPos;
+    MapPosition rawGlobalPrimaryPos{};
     auto globalResult = tryGlobalSearch(globalTmpl, nextStrategy.get(), targetZoneId, &rawGlobalPrimaryPos);
 
     if (!globalResult && !isNativePathHeatmap && rawGlobalPrimaryPos.score > 0.1) {
