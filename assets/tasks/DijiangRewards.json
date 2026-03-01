@@ -497,6 +497,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "SeedEmpty": {
+                            "enabled": true
+                        },
                         "SortBy": {
                             "expected": [
                                 "默认",
