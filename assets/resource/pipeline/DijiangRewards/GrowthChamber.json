@@ -49,7 +49,8 @@
         },
         "next": [
             "[JumpBack]WhiteConfirmButtonType1",
-            "NeedExtractSeed",
+            "ExtractSeed",
+            "ExitGrow",
             "InGrowthChamber"
         ]
     },
@@ -237,12 +238,196 @@
             "type": "Click"
         },
         "next": [
-            "InGrowthChamber",
-            "[JumpBack]ExtractSeed",
-            "ExitGrow",
-            "[JumpBack]SelectGrowTarget",
-            "[JumpBack]InSelectGrowSwipe"
+            "InGrow"
         ]
+    },
+    "InGrow": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    296,
+                    111
+                ],
+                "expected": [
+                    "选择培养对象"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]SortBy",
+            "[JumpBack]SortOrder",
+            "SeedEmpty",
+            "[JumpBack]SelectGrowTarget",
+            "[JumpBack]InSelectGrowSwipe",
+            "InGrowthChamber"
+        ]
+    },
+    "SeedEmpty": {
+        "doc": "种子数量为0",
+        "focus": {
+            "Node.Action.Succeeded": "基核数量不足"
+        },
+        "enabled": false,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "SeedEmptyColor",
+                    "SeedEmptyNum"
+                ]
+            }
+        }
+    },
+    "SeedEmptyNum": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "only_rec": true,
+                "roi": "SeedEmptyColor",
+                "expected": [
+                    "^0$"
+                ]
+            }
+        }
+    },
+    "SeedEmptyColor": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "roi": [
+                    8,
+                    74,
+                    658,
+                    234
+                ],
+                "upper": [
+                    0,
+                    255,
+                    255
+                ],
+                "lower": [
+                    0,
+                    100,
+                    100
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
+    },
+    "SortBy": {
+        "doc": "排序,选择基础排序内容",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    75,
+                    512,
+                    253,
+                    111
+                ],
+                "expected": [
+                    "默认",
+                    "基核数量",
+                    "品质",
+                    "預設",
+                    "基核數量",
+                    "品質",
+                    "デフォルト",
+                    "基核数",
+                    "品質",
+                    "Default",
+                    "Amount of Seeds",
+                    "Quality"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ChooseSortBy",
+            "[JumpBack]SwipeChooseSortBy"
+        ]
+    },
+    "ChooseSortBy": {
+        "doc": "选择具体排序方式",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    59,
+                    343,
+                    287,
+                    291
+                ],
+                "expected": [
+                    "拥有数量",
+                    "持有數量",
+                    "総在庫",
+                    "Amount Owned"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SwipeChooseSortBy": {
+        "doc": "选择排序方式时候滚动一次",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    59,
+                    343,
+                    287,
+                    291
+                ],
+                "expected": [
+                    "默认",
+                    "拥有数量",
+                    "基核数量",
+                    "品质"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 120
+            }
+        }
+    },
+    "SortOrder": {
+        "doc": "排序,选择正序或者倒序",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    246,
+                    500,
+                    191,
+                    130
+                ],
+                "expected": [
+                    "降序",
+                    "降序",
+                    "DESC",
+                    "降順"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "ExitGrowthChamber": {
         "doc": "[培养舱·离开] 返回控制中枢",
