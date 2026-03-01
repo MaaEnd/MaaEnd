@@ -37,10 +37,10 @@ static cv::Mat ExtractPathHeatmapFeature(const cv::Mat& src) {
             int g = bgr_row[x][1];
             int r = bgr_row[x][2];
             
-            // 计算曼哈顿颜色距离
+            // 计算曼哈顿颜色距离，代替欧式距离加速。曼哈顿在此场景下足以区分特定的青灰路面与外围复杂的带彩背景
             int dist = std::abs(b - targetB) + std::abs(g - targetG) + std::abs(r - targetR);
             
-            // 距离越近越亮，生成热力图。暗部边缘和彩色游戏背景会被直接抹零
+            // 距离越近目标色，像素越亮，构建连续梯度热力图。暗部边缘和差异过大的游戏造景会自动归零，将彩图简化为拓扑路网结构
             if (dist < maxDist * 3) {
                 feat_row[x] = static_cast<uchar>(std::max(0, 255 - (dist * 255 / (maxDist * 3))));
             }
@@ -103,6 +103,7 @@ std::optional<MatchResultRaw> CoreMatch(
     peakRect &= cv::Rect(0,0,result.cols,result.rows);
 
     cv::Mat tmp = result.clone();
+    // 找次极大值：在最高分周围开辟“黑洞”区域屏蔽主峰，随后寻找全局次高分，用于计算 PSR 与 delta，判断周遭是否存在相似纹理导致匹配歧义
     tmp(peakRect).setTo(-2.0f);
     double secondVal;
     cv::Point secondLoc;
@@ -112,6 +113,8 @@ std::optional<MatchResultRaw> CoreMatch(
     sideMask(peakRect).setTo(0);
     cv::Scalar mean, stddev;
     cv::meanStdDev(result, mean, stddev, sideMask);
+    // PSR (Peak to Sidelobe Ratio) 峰值旁瓣比：衡量最高分是否唯一。
+    // 若匹配区域纹理单一或是重复铺装路面，旁瓣(周围区域)得分也会很高，导致 PSR 骤降，借此拒绝高分歧义解
     double psr = (maxVal - mean[0]) / (stddev[0] + 1e-6);
 
     MatchResultRaw out;
@@ -146,7 +149,9 @@ public:
             cv::Mat templGray;
             cv::cvtColor(feat.templRaw, templGray, cv::COLOR_BGR2GRAY);
             
-            // 填充透明区 取有效区均值
+            // 均值外推填补：由于原图周围是被抠空的透明区，在 NCC 基于均值的滑动互相关中，
+            // 实体与虚无的黑边界线会产生极其强烈的“虚假强梯度”，导致系统倾向于匹配这种假边缘而非内部细节。
+            // 提取有效遮罩均值往外灌注，彻底消融边缘轮廓造成的误诱导。
             cv::Scalar meanVScalar = cv::mean(templGray, mask);
             double meanV = meanVScalar[0];
             cv::Mat inv;
@@ -211,6 +216,7 @@ public:
             if (dtSec < 0.001) dtSec = 0.001;
             currentSpeed = distanceMoved / dtSec;
         }
+        // 突变防御：若帧间换算速度超过限制，则认为是发生了传送或视角剧变，需打断追踪状态强制重搜
         v.isTeleported = currentSpeed > trackingCfg.maxNormalSpeed;
 
         bool lowScore = trackResult.score < 0.80;

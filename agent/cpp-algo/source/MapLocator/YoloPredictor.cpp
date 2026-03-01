@@ -89,6 +89,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat &minimap) {
     }
 
     const int OUTPUT_SIZE = 128;
+    // 限定有效裁剪直径 106：游戏小地图 UI 外围存在固定装饰元素或黑边，只取中心干净视野避免黑边干扰 YOLO 分类
     const int MASK_DIAMETER = 106; // 小地图有效区域直径
 
     cv::Mat img3C;
@@ -164,6 +165,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat &minimap) {
     }
 
     std::string predictedName = "Unknown";
+    // 保护性越界判断：即便模型输出的 maxIdx 超出实际 classes 的范围，也能优雅 fallback
     if (maxIdx >= 0 && maxIdx < (int)yoloClassNames.size())
         predictedName = yoloClassNames[maxIdx];
 

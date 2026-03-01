@@ -31,6 +31,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat &minimap, const ImageProcessingConfig 
       if (cfg.useHsvWhiteMask) {
           cv::Mat hsvImg, hsvWhite;
           cv::cvtColor(workImg, hsvImg, cv::COLOR_BGR2HSV);
+          // 在 HSV 空间提取白底/高亮 UI：亮度 V 必须高(>200)，饱和度 S 必须极低(<60)，以此稳定剥离小地图上的标志图标白边或特定高光指示
           cv::inRange(hsvImg, cv::Scalar(0, 0, 200), cv::Scalar(180, 60, 255), hsvWhite);
           cv::bitwise_or(whiteMask, hsvWhite, whiteMask);
       }
@@ -44,6 +45,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat &minimap, const ImageProcessingConfig 
               if (baseRow[x] == 0) continue;
               
               int b = imgRow[x][0], g = imgRow[x][1], r = imgRow[x][2];
+              // 提取干扰色块：基于特定游戏 UI 色彩分布进行消除，暖色系(高 R/G)及冷色系特异区域(高 B)
               if ((r > 100 && g > 100 && std::min(r, g) - b > cfg.iconDiffThreshold) || 
                   (b > 140 && b > r + 50)) {
                   colorRow[x] = 255;
@@ -52,10 +54,12 @@ cv::Mat GenerateMinimapMask(const cv::Mat &minimap, const ImageProcessingConfig 
       }
 
       int cD = std::max(1, cfg.colorDilate);
+      // 颜色掩膜膨胀：小地图 UI 往往伴随半透明发光或抗锯齿像素，直接提取容易留有彩色残边（形成强烈的虚假梯度），膨胀能确保干扰被完全剔除
       cv::dilate(colorIconMask, colorIconMask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(cD, cD)));
       baseMask.setTo(0, colorIconMask);
 
       int wD = std::max(1, cfg.whiteDilate);
+      // 白色掩膜膨胀：进一步覆盖白色 UI 周围残余的黑边或阴影
       cv::dilate(whiteMask, whiteMask, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(wD, wD)));
       baseMask.setTo(0, whiteMask);
   }
@@ -69,6 +73,7 @@ cv::Mat GenerateMinimapMask(const cv::Mat &minimap, const ImageProcessingConfig 
   else cv::cvtColor(minimap, gray, cv::COLOR_BGR2GRAY);
 
   cv::Mat darkMask;
+  // 滤除纯黑背景：当地图存在大量未探索区域或视口外的黑色空洞时，反向二值化将暗部剔除，避免与背景色融合导致匹配偏移
   cv::threshold(gray, darkMask, cfg.minimapDarkMaskThreshold, 255, cv::THRESH_BINARY_INV);
   baseMask.setTo(0, darkMask);
 
@@ -80,6 +85,7 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
 
     int cx = minimap.cols / 2;
     int cy = minimap.rows / 2;
+    // 限制取样半径为 12 像素：假定代表人物方向的中心箭头仅存在于该极小区域内，避免误拾取外围的其他白色元素
     int radius = 12; 
 
     if (cx - radius < 0 || cy - radius < 0 || cx + radius > minimap.cols || cy + radius > minimap.rows) {
@@ -124,12 +130,14 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
         }
     }
 
+    // 如果找到的最佳轮廓距离中心点太远 (平方距离 > 25)，说明这不是中心箭头，而是其他噪点，因此丢弃
     if (bestContourIdx == SIZE_MAX || minDistSq > 25.0) return -1.0; 
 
     cv::Mat isolatedMask = cv::Mat::zeros(whiteMask.size(), CV_8UC1);
     cv::drawContours(isolatedMask, contours, static_cast<int>(bestContourIdx), cv::Scalar(255), cv::FILLED);
 
     cv::Mat highResMask;
+    // 上采样16倍：原箭头极小且有像素锯齿，放大16倍效果最好，以利用亚像素级平滑计算边界质心，提升角度结算的精确度
     cv::resize(isolatedMask, highResMask, cv::Size(), 16.0, 16.0, cv::INTER_CUBIC);
 
     cv::threshold(highResMask, highResMask, 127, 255, cv::THRESH_BINARY);
@@ -150,11 +158,13 @@ double InferYellowArrowRotation(const cv::Mat& minimap) {
     cv::Point2f centroid((float)(mu.m10 / mu.m00), (float)(mu.m01 / mu.m00));
 
     std::vector<cv::Point2f> triangle;
+    // 使用最小外接三角形框定箭头，因为游戏的玩家箭头标志为等腰三角形变体，利用几何包络性过滤圆滑或异形的像素轮廓
     cv::minEnclosingTriangle(hrContours[hrBestIdx], triangle);
     if (triangle.size() != 3) return -1.0;
 
     int tipIdx = 0;
     double maxDistSq = -1.0;
+    // 找出三角形中离质心最远的顶点：等腰三角形顶点到重心的距离恒大于底角到重心的距离，该顶点即为指向的真实玩家方向
     for (int i = 0; i < 3; ++i) {
         double distSq = (triangle[i].x - centroid.x) * (triangle[i].x - centroid.x) + 
                         (triangle[i].y - centroid.y) * (triangle[i].y - centroid.y);

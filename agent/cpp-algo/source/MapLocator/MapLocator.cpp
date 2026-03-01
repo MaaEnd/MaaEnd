@@ -253,6 +253,10 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
       cv::bitwise_not(patchEdge, patchEdgeInv);
       cv::distanceTransform(patchEdgeInv, distTrans, cv::DIST_L2, 3);
       
+      // 倒角匹配降级补偿：
+      // 当发生大比例旋转、透明UI遮罩异常或者光影畸变时，纯基于像素灰度的NCC会退化甚至失败 (分数低于阈值)。
+      // 此时提取搜索区与模板图的 Canny 强边缘，计算搜索图边缘距离变换场在该模板轮廓覆盖下的平均距离。
+      // 它衡量两者线框的拓扑拟合程度，若平均几何距离小(<4.5像素)，则说明其实地形拓扑依然吻合，仅是色度失真，强制保送及格。
       cv::Scalar meanDistScalar = cv::mean(distTrans, templEdge(cv::Rect(0,0,matchedRect.width, matchedRect.height)));
       double meanDist = meanDistScalar[0];
       
@@ -338,6 +342,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
 
   const cv::Mat &bigMap = zones.at(targetZoneId);
 
+  // 图像金字塔：全图匹配耗时极高，因此粗搜先固定在 coarseScale (约 0.2~0.3) 的降采样级别寻找可能的高分岛
   double coarseScale = matchCfg.coarseScale;
 
   cv::Mat smallMap;
@@ -380,6 +385,10 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
       cv::matchTemplate(mapToUse, smallTempl, smallResult, cv::TM_CCOEFF_NORMED, smallWeightMask);
       cv::patchNaNs(smallResult, -1.0f);
 
+      // NMS 非极大值抑制的变体：
+      // 在同一尺度下，同一位置附近极容易出现多个连块的高分点。
+      // 我们用当前小模板尺寸的一半做为排异屏蔽半径 sr，取出一个最高分后便将其原位“挖去” (设为 -2)，再取下一个。
+      // 这能保证获取的一批候选点分别位于不同的地形特征块中，增加后续回大图细搜抗错抓的鲁棒度。
       int sr = std::max(4, std::min(smallTempl.cols, smallTempl.rows) / 2);
 
       for (int i=0; i<topNPerScale; ++i) {
@@ -528,6 +537,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
             }
             if (!asyncYoloTask.valid()) {
                 auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - lastYoloCheckTime).count();
+                // 限制频次：YOLO CPU 推理存在开销，区域大范围切换并非瞬发，降低频率足以应对漂移容错并显著降低资源负担
                 if (elapsed >= 3 && zoneClassifier && zoneClassifier->isLoaded()) {
                     lastYoloCheckTime = now;
                     cv::Mat yoloInput = minimap.clone();
@@ -626,6 +636,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         tryGlobalSearch(fallbackTmpl, fallbackStrategy.get(), targetZoneId, &rawGlobalFallbackPos);
         
         double dist = std::hypot(rawGlobalPrimaryPos.x - rawGlobalFallbackPos.x, rawGlobalPrimaryPos.y - rawGlobalFallbackPos.y);
+        // 双策略验证：正常图传和梯度图传独立得出的坐标若极度相近（误差<5像素），说明虽然个别策略信心不足，但互为佐证，此即确信坐标
         if (rawGlobalFallbackPos.score > 0.1 && dist <= 5.0) {
             LogInfo << "Dual-Mode Global Search Verified! Dist: " << dist;
             globalResult = rawGlobalPrimaryPos;
