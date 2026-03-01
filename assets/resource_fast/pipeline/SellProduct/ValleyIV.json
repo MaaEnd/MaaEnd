@@ -1,16 +1,5 @@
 {
     "ValleyIVSwitchToRefugeeCamp": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至难民暂居处",
         "recognition": {
             "type": "OCR",
@@ -40,17 +29,6 @@
         ]
     },
     "ValleyIVVerifyAtRefugeeCamp": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至难民暂居处",
         "anchor": {
             "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
@@ -87,17 +65,6 @@
         ]
     },
     "ValleyIVSwitchToInfrastructureOutpost": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至基建前站",
         "recognition": {
             "type": "OCR",
@@ -126,17 +93,6 @@
         ]
     },
     "ValleyIVVerifyAtInfrastructureOutpost": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至基建前站",
         "anchor": {
             "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
@@ -173,17 +129,6 @@
         ]
     },
     "ValleyIVSwitchToReconstructionCommand": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至重建指挥部",
         "recognition": {
             "type": "OCR",
@@ -213,17 +158,6 @@
         ]
     },
     "ValleyIVVerifyAtReconstructionCommand": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至重建指挥部",
         "anchor": {
             "SellProductNextOutpost": "SellProductBackToRegionalConstruction"

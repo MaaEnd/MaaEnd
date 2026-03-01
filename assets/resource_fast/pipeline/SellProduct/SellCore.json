@@ -1,7 +1,5 @@
 {
     "SellProductAtSell": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "focus": {
             "Node.Recognition.Succeeded": "已进入售卖界面"
         },
@@ -43,10 +41,7 @@
         ]
     },
     "SellProductCanSell": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "判断当前能不能出售的虚节点",
-        "post_wait_freezes": 10,
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -55,7 +50,6 @@
         ]
     },
     "SellProductClickBarRight": {
-        "pre_delay": 0,
         "doc": "点击进度条最右侧",
         "recognition": {
             "type": "TemplateMatch",
@@ -82,15 +76,6 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -98,7 +83,6 @@
         ]
     },
     "SellProductDragBar": {
-        "pre_delay": 0,
         "doc": "备选方案-滑动滑动条",
         "recognition": {
             "type": "TemplateMatch",
@@ -130,15 +114,6 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -146,7 +121,6 @@
         ]
     },
     "SellProductSell": {
-        "post_delay": 0,
         "doc": "交易",
         "recognition": {
             "type": "OCR",
@@ -168,15 +142,6 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "action": {
             "type": "Click",
             "param": {}
@@ -187,8 +152,6 @@
         ]
     },
     "SellProductSellCheck": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         },
@@ -221,15 +184,6 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "next": [
             "SellProductSellCheck",
             "SellProductZeroMoney",
@@ -237,34 +191,12 @@
         ]
     },
     "SellProductOutpostDone": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "虚节点：这个据点已经被售卖完毕",
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "next": [
             "[Anchor]SellProductNextOutpost"
         ]
     },
     "SellProductNextOutpost": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
     },
     "SellProductBackToRegionalConstruction": {

@@ -1,7 +1,5 @@
 {
     "WulingSwitchToSkyKingFlats": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "OCR 切换至天王坪援建点（模糊匹配）",
         "recognition": {
             "type": "OCR",
@@ -31,8 +29,6 @@
         ]
     },
     "WulingVerifyAtSkyKingFlats": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "检测：已切换至天王坪援建点",
         "anchor": {
             "SellProductNextOutpost": "SellProductBackToRegionalConstruction"

@@ -1,8 +1,5 @@
 {
     "SellProductZeroProduct": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": 100,
         "doc": "货物数量不足，先尝试更换货品，失败则换据点",
         "recognition": {
             "type": "Or",
@@ -89,9 +86,7 @@
         ]
     },
     "SellProductChangeProduct": {
-        "pre_delay": 0,
         "doc": "识别更换货品并点击，进入更换UI",
-        "post_wait_freezes": 100,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -120,9 +115,7 @@
         ]
     },
     "SellProductSelectNewProduct": {
-        "pre_delay": 0,
         "doc": "在更换UI中识别新货物并点击",
-        "post_wait_freezes": 100,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -152,9 +145,7 @@
         ]
     },
     "SellProductSelectNewProductConfirm": {
-        "pre_delay": 0,
         "doc": "点击确认",
-        "post_wait_freezes": 100,
         "recognition": {
             "type": "And",
             "param": {
@@ -172,10 +163,7 @@
         ]
     },
     "SellProductCanSellAfterChange": {
-        "pre_delay": 0,
-        "post_delay": 200,
         "doc": "更换货品后重新判断能否售卖",
-        "post_wait_freezes": 100,
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -184,8 +172,6 @@
         ]
     },
     "SellProductZeroProductRetry": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "更换货品后仍无货，进入换据点流程",
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
@@ -199,8 +185,6 @@
         ]
     },
     "SellProductZeroMoney": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
         },
