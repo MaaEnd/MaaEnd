@@ -301,7 +301,8 @@
                         }
                     },
                     "option": [
-                        "AutoFightAttack"
+                        "AutoFightAttack",
+                        "AutoFightDataCode"
                     ]
                 },
                 {
@@ -339,6 +340,28 @@
                     }
                 }
             ]
+        },
+        "AutoFightDataCode": {
+            "type": "input",
+            "label": "$option.AutoFightDataCode.label",
+            "description": "$option.AutoFightDataCode.description",
+            "inputs": [
+                {
+                    "name": "DataCode",
+                    "label": "$option.AutoFightDataCode.inputs.DataCode.label",
+                    "description": "$option.AutoFightDataCode.inputs.DataCode.description",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "AutoFightRealtimeTask": {
+                    "custom_recognition_param": "{DataCode}"
+                },
+                "AutoFight": {
+                    "custom_recognition_param": "{DataCode}"
+                }
+            }
         },
         "AutoPick": {
             "label": "$option.AutoPick.label",

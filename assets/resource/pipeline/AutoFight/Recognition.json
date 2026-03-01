@@ -78,6 +78,28 @@
         "count": 100,
         "connected": true
     },
+    "__AutoFightRecognitionEnergyLevel3": {
+        "doc": "能量条3格（满），每格等宽同色",
+        "recognition": "ColorMatch",
+        "roi": [
+            675,
+            640,
+            80,
+            20
+        ],
+        "lower": [
+            220,
+            190,
+            0
+        ],
+        "upper": [
+            255,
+            255,
+            100
+        ],
+        "count": 100,
+        "connected": true
+    },
     "__AutoFightRecognitionHasEnemy": {
         "doc": "判断是否有敌人，找敌人血条 [255, 68, 101]",
         "recognition": "ColorMatch",

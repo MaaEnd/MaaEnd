@@ -7,8 +7,10 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -53,44 +55,27 @@ func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) 
 
 func getEndSkillUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg) []int {
 	usableIndexes := []int{}
-	const roiX, roiWidth = 1010, 270
-	override := map[string]any{
-		"__AutoFightRecognitionEndSkill": map[string]any{
-			"roi": maa.Rect{roiX, 535, roiWidth, 65},
-		},
-	}
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionEndSkill", arg.Img, override)
-	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition for end skill")
-		return usableIndexes
-	}
-	if !detail.Hit || detail.Results == nil || len(detail.Results.Filtered) == 0 {
-		return usableIndexes
+	rois := []maa.Rect{
+		{1027, 535, 47, 65},
+		{1091, 535, 47, 65},
+		{1155, 535, 47, 65},
+		{1219, 535, 47, 65},
 	}
 
-	quarterWidth := roiWidth / 4
-	for _, m := range detail.Results.Filtered {
-		detail, ok := m.AsTemplateMatch()
-		if !ok {
+	for i, roi := range rois {
+		override := map[string]any{
+			"__AutoFightRecognitionEndSkill": map[string]any{
+				"roi": roi,
+			},
+		}
+		detail, err := ctx.RunRecognition("__AutoFightRecognitionEndSkill", arg.Img, override)
+		if err != nil {
+			log.Error().Err(err).Int("operator", i+1).Msg("Failed to run recognition for end skill")
 			continue
 		}
-		x := detail.Box[0]
-		relativeX := x - roiX
-		if relativeX < 0 || relativeX > roiWidth {
-			continue
+		if detail != nil && detail.Hit {
+			usableIndexes = append(usableIndexes, i+1)
 		}
-		var idx int
-		switch {
-		case relativeX < quarterWidth:
-			idx = 1
-		case relativeX < quarterWidth*2:
-			idx = 2
-		case relativeX < quarterWidth*3:
-			idx = 3
-		default:
-			idx = 4
-		}
-		usableIndexes = append(usableIndexes, idx)
 	}
 	return usableIndexes
 }
@@ -123,10 +108,20 @@ func hasEnemyInScreen(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 }
 
 func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
-	// 第一格能量满
-	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnergyLevel1", arg.Img)
+	// 从高到低检测：3格 → 2格 → 1格 → 0格
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnergyLevel3", arg.Img)
+	if err == nil && detail != nil && detail.Hit {
+		return 3
+	}
+
+	detail, err = ctx.RunRecognition("__AutoFightRecognitionEnergyLevel2", arg.Img)
+	if err == nil && detail != nil && detail.Hit {
+		return 2
+	}
+
+	detail, err = ctx.RunRecognition("__AutoFightRecognitionEnergyLevel1", arg.Img)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionEnergyLevel1")
+		log.Error().Err(err).Msg("Failed to run recognition for __AutoFightRecognitionEnergyLevel1")
 		return -1
 	}
 	if detail != nil && detail.Hit {
@@ -205,6 +200,47 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 	if len(detail.Results.Filtered) != 4 {
 		log.Warn().Int("matchCount", len(detail.Results.Filtered)).Msg("Unexpected match count for AutoFightRecognitionFightSkill, expected 4")
 		return nil, false
+	}
+
+	// 尝试加载出招配置数据码（如果有）
+	dataCode := ""
+	if arg.CustomRecognitionParam != "" {
+		dataCode = strings.TrimSpace(strings.Trim(strings.TrimSpace(arg.CustomRecognitionParam), `"`))
+	}
+
+	// 判定是否需要彻底重置调度器
+	// 为了防止视觉抖动造成的短暂 "退出战斗"，结合已存在的退战计时器来判断
+	shouldReset := false
+	if !pauseNotInFightSince.IsZero() && time.Since(pauseNotInFightSince) > 10*time.Second {
+		shouldReset = true
+	} else if !HasConfig() {
+		// 如果还没加载过配置，也是全新战斗
+		shouldReset = true
+	}
+
+	if dataCode != "" {
+		if err := LoadConfig(dataCode); err != nil {
+			log.Warn().Err(err).Msg("Failed to load AutoFight data code from custom params, falling back to default strategy")
+		} else {
+			if cfg := GetConfig(); cfg != nil {
+				log.Info().Str("scenario", cfg.ScenarioName).Msg("Loaded AutoFight config from data code")
+				maafocus.NodeActionStarting(ctx, fmt.Sprintf("[自动战斗] 初始化方案: %s", cfg.ScenarioName))
+				if shouldReset {
+					ResetScheduler()
+					actionQueue = nil
+					skillCycleIndex = 1
+					log.Info().Msg("[AutoFight] Timeout or new battle, completely reset scheduler state")
+				}
+			}
+		}
+	} else {
+		if shouldReset {
+			ResetScheduler()
+			ClearConfig()
+			actionQueue = nil
+			skillCycleIndex = 1
+			log.Info().Msg("[AutoFight] Timeout or new battle without config, completely clear scheduler and config")
+		}
 	}
 
 	return &maa.CustomRecognitionResult{
@@ -309,6 +345,8 @@ const (
 	ActionLockTarget
 	ActionDodge
 	ActionSleep
+	ActionSwitchOperator
+	ActionLog
 )
 
 func (t ActionType) String() string {
@@ -327,6 +365,10 @@ func (t ActionType) String() string {
 		return "LockTarget"
 	case ActionDodge:
 		return "Dodge"
+	case ActionSwitchOperator:
+		return "SwitchOperator"
+	case ActionLog:
+		return "Log"
 	default:
 		return "Unknown"
 	}
@@ -336,6 +378,8 @@ type fightAction struct {
 	executeAt time.Time
 	action    ActionType
 	operator  int
+	message   string
+	color     string
 }
 
 var (
@@ -432,6 +476,13 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 	if arg == nil || arg.Img == nil {
 		return nil, false
 	}
+
+	// 如果有出招配置，使用调度器模式
+	if HasConfig() {
+		return r.runSchedulerMode(ctx, arg)
+	}
+
+	// 否则走原有默认逻辑
 	if !enemyInScreen && hasEnemyInScreen(ctx, arg) {
 		enemyInScreen = true
 		enqueueAction(fightAction{
@@ -453,6 +504,52 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 	}, true
 }
 
+// runSchedulerMode 使用时间轴调度器的战斗模式
+func (r *AutoFightExecuteRecognition) runSchedulerMode(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	cfg := GetConfig()
+	if cfg == nil {
+		return nil, false
+	}
+
+	sch := GetScheduler(cfg)
+
+	// 识别当前状态
+	energyLevel := getEnergyLevel(ctx, arg)
+	if energyLevel < 0 {
+		energyLevel = 0
+	}
+	comboAvailable := hasComboShow(ctx, arg)
+	endSkillUsable := getEndSkillUsable(ctx, arg)
+
+	// 调度器 tick
+	result := sch.Tick(energyLevel, comboAvailable, endSkillUsable)
+
+	// 将调度器的动作建议转换为 actionQueue
+	for _, a := range result.Actions {
+		enqueueAction(fightAction{
+			executeAt: time.Now(),
+			action:    a.Type,
+			operator:  a.Operator,
+			message:   a.Message,
+			color:     a.Color,
+		})
+
+		// 检查若是终结技按下，需要同时放入一个延时的抬起操作
+		if a.Type == ActionEndSkillKeyDown {
+			enqueueAction(fightAction{
+				executeAt: time.Now().Add(1500 * time.Millisecond),
+				action:    ActionEndSkillKeyUp,
+				operator:  a.Operator,
+			})
+		}
+	}
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: `{"custom": "scheduler mode"}`,
+	}, true
+}
+
 // actionName 根据动作类型和干员下标返回 Pipeline 中的 action 名称
 func actionName(action ActionType, operator int) string {
 	switch action {
@@ -470,6 +567,8 @@ func actionName(action ActionType, operator int) string {
 		return "__AutoFightActionLockTarget"
 	case ActionDodge:
 		return "__AutoFightActionDodge"
+	case ActionSwitchOperator:
+		return fmt.Sprintf("__AutoFightActionSwitchOperator%d", operator)
 	default:
 		return ""
 	}
@@ -485,6 +584,14 @@ func (a *AutoFightExecuteAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		fa, ok := dequeueAction()
 		if !ok {
 			break
+		}
+		if fa.action == ActionLog {
+			text := "[自动战斗] " + fa.message
+			if fa.color != "" {
+				text = fmt.Sprintf(`[自动战斗] <span style="color: %s;">%s</span>`, fa.color, fa.message)
+			}
+			maafocus.NodeActionStarting(ctx, text)
+			continue
 		}
 		name := actionName(fa.action, fa.operator)
 		if name == "" {
