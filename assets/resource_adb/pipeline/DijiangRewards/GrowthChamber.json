@@ -37,5 +37,20 @@
                 "key": 4
             }
         }
+    },
+    "SwipeChooseSortBy": {
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    238,
+                    508
+                ],
+                "end": [
+                    239,
+                    427
+                ]
+            }
+        }
     }
 }
