@@ -103,7 +103,7 @@
     "option.SelectToGrow.cases.Any.label": "任意",
     "option.SortBy.label": "排序方式",
     "option.SortBy.cases.Default.label": "默认",
-    "option.SortBy.cases.AmountOwned.label": "持有数量",
+    "option.SortBy.cases.AmountOwned.label": "拥有数量",
     "option.SortBy.cases.AmountOfSeeds.label": "基核数量",
     "option.SortBy.cases.Quality.label": "品质",
     "option.SortOrder.label": "排序顺序",

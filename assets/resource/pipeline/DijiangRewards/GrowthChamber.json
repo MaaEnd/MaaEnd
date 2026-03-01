@@ -257,7 +257,20 @@
                     128,
                     83
                 ],
-                "expected": []
+                "expected": [
+                    "默认",
+                    "基核数量",
+                    "品质",
+                    "預設",
+                    "基核數量",
+                    "品質",
+                    "デフォルト",
+                    "基核数",
+                    "品質",
+                    "Default",
+                    "Amount of Seeds",
+                    "Quality"
+                ]
             }
         },
         "action": {
@@ -265,7 +278,7 @@
         },
         "next": [
             "ChooseSortBy",
-            "SwipeChooseSortBy"
+            "[JumpBack]SwipeChooseSortBy"
         ]
     },
     "ChooseSortBy": {
@@ -279,7 +292,12 @@
                     287,
                     291
                 ],
-                "expected": []
+                "expected": [
+                    "拥有数量",
+                    "持有數量",
+                    "総在庫",
+                    "Amount Owned"
+                ]
             }
         },
         "action": {
@@ -325,28 +343,12 @@
                     146,
                     104
                 ],
-                "expected": []
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "ChooseSortOrder"
-        ]
-    },
-    "ChooseSortOrder": {
-        "doc": "选择正序或者倒序",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    234,
-                    403,
-                    175,
-                    210
-                ],
-                "expected": []
+                "expected": [
+                    "降序",
+                    "降序",
+                    "DESC",
+                    "降順"
+                ]
             }
         },
         "action": {

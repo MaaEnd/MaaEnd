@@ -537,7 +537,7 @@
                     "pipeline_override": {
                         "SortBy": {
                             "expected": [
-                                "持有数量",
+                                "拥有数量",
                                 "基核数量",
                                 "品质",
                                 "持有數量",
@@ -586,7 +586,7 @@
                         },
                         "ChooseSortBy": {
                             "expected": [
-                                "持有数量",
+                                "拥有数量",
                                 "持有數量",
                                 "総在庫",
                                 "Amount Owned"
@@ -601,7 +601,7 @@
                         "SortBy": {
                             "expected": [
                                 "默认",
-                                "持有数量",
+                                "拥有数量",
                                 "品质",
                                 "預設",
                                 "持有數量",
@@ -631,7 +631,7 @@
                         "SortBy": {
                             "expected": [
                                 "默认",
-                                "持有数量",
+                                "拥有数量",
                                 "基核数量",
                                 "預設",
                                 "持有數量",
@@ -666,19 +666,12 @@
                     "label": "$option.SortOrder.cases.Ascending.label",
                     "pipeline_override": {
                         "SortOrder": {
+                            "enabled": true,
                             "expected": [
                                 "降序",
                                 "降序",
                                 "DESC",
                                 "降順"
-                            ]
-                        },
-                        "ChooseSortOrder": {
-                            "expected": [
-                                "升序",
-                                "升序",
-                                "ASC",
-                                "昇順"
                             ]
                         }
                     }
@@ -688,19 +681,12 @@
                     "label": "$option.SortOrder.cases.Descending.label",
                     "pipeline_override": {
                         "SortOrder": {
+                            "enabled": true,
                             "expected": [
                                 "升序",
                                 "升序",
                                 "ASC",
                                 "昇順"
-                            ]
-                        },
-                        "ChooseSortOrder": {
-                            "expected": [
-                                "降序",
-                                "降序",
-                                "DESC",
-                                "降順"
                             ]
                         }
                     }
