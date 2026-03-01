@@ -1,71 +1,75 @@
 {
+    "SellProductZeroProductColorMatch": {
+        "doc": "识别红色文字判断是否有货",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1083,
+                    327,
+                    109,
+                    24
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    30,
+                    80
+                ],
+                "upper": [
+                    5,
+                    150,
+                    200
+                ],
+                "count": 10
+            }
+        }
+    },
+    "SellProductWhiteTextPosition": {
+        "doc": "识别白色文字位置，判断是否有货",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1083,
+                    327,
+                    109,
+                    24
+                ],
+                "method": 4,
+                "lower": [
+                    190,
+                    190,
+                    190
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        }
+    },
+
     "SellProductZeroProduct": {
         "doc": "货物数量不足，先尝试更换货品，失败则换据点",
         "recognition": {
             "type": "Or",
             "param": {
                 "any_of": [
-                    {
-                        "recognition": {
-                            "type": "ColorMatch",
-                            "param": {
-                                "roi": [
-                                    1054,
-                                    240,
-                                    109,
-                                    26
-                                ],
-                                "method": 40,
-                                "lower": [
-                                    0,
-                                    30,
-                                    80
-                                ],
-                                "upper": [
-                                    5,
-                                    150,
-                                    200
-                                ],
-                                "count": 10
-                            }
-                        }
-                    },
+                    "SellProductZeroProductColorMatch",
                     {
                         "recognition": {
                             "type": "And",
                             "param": {
                                 "all_of": [
-                                    {
-                                        "sub_name": "_白色文字",
-                                        "recognition": {
-                                            "type": "ColorMatch",
-                                            "param": {
-                                                "roi": [
-                                                    1054,
-                                                    240,
-                                                    109,
-                                                    26
-                                                ],
-                                                "method": 4,
-                                                "lower": [
-                                                    190,
-                                                    190,
-                                                    190
-                                                ],
-                                                "upper": [
-                                                    255,
-                                                    255,
-                                                    255
-                                                ],
-                                                "count": 10
-                                            }
-                                        }
-                                    },
+                                    "SellProductWhiteTextPosition",
                                     {
                                         "recognition": {
                                             "type": "OCR",
                                             "param": {
-                                                "roi": "_白色文字",
+                                                "roi": "SellProductWhiteTextPosition",
                                                 "expected": [
                                                     "^[0-9]{1,3}$"
                                                 ],
