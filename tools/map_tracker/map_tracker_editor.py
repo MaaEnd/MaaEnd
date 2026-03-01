@@ -15,7 +15,7 @@ import json
 import time
 from typing import NamedTuple
 import numpy as np
-from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2
+from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2, MapName
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
@@ -365,7 +365,7 @@ class PathEditPage:
         self._render()
 
         result = self.location_service.wait_for_new_location(
-            norm_map_name(self.map_name), timeout_seconds=5.0
+            self.map_name, timeout_seconds=5.0
         )
 
         self._modal_active = False
@@ -869,15 +869,23 @@ def find_map_file(name: str, map_dir: str = MAP_DIR) -> str | None:
     files = os.listdir(map_dir)
     if name in files:
         return name
-    for suffix in [".png"]:
-        if name + suffix in files:
-            return name + suffix
+
+    target_key = unique_map_key(name)
+    for file_name in files:
+        if unique_map_key(file_name) == target_key:
+            return file_name
     return None
 
 
-def norm_map_name(name: str) -> str:
-    """Normalize a map name by stripping extensions."""
-    return re.sub(r"\.png$", "", name)
+def unique_map_key(name: str) -> str:
+    """Normalize map name for semantic comparison."""
+    try:
+        parsed = MapName.parse(name)
+        return f"{parsed.map_type}:{parsed.map_id}:{parsed.map_level_id}"
+    except ValueError:
+        basename = os.path.basename(name.replace("\\", "/"))
+        stem, _ = os.path.splitext(basename)
+        return stem.lower()
 
 
 class LocationService:
@@ -987,7 +995,7 @@ class LocationService:
                                     ) or data_obj.get("map_name")
                                     if not log_map_name:
                                         continue
-                                    if norm_map_name(log_map_name) != norm_map_name(
+                                    if unique_map_key(log_map_name) != unique_map_key(
                                         expected_map_name
                                     ):
                                         return self.LocationServiceResult(
@@ -1058,7 +1066,7 @@ class LocationService:
             log_map_name = data.get("mapName") or data.get("map_name")
             if not log_map_name:
                 continue
-            if norm_map_name(log_map_name) != norm_map_name(expected_map_name):
+            if unique_map_key(log_map_name) != unique_map_key(expected_map_name):
                 return self.LocationServiceResult("mismatch", str(log_map_name))
 
             x = data.get("x")
@@ -1395,7 +1403,7 @@ def main():
         else map_name
     )
     param_data = {
-        "map_name": norm_map_name(raw_map_name),
+        "map_name": os.path.splitext(os.path.basename(raw_map_name))[0],
         "path": [[int(p[0]), int(p[1])] for p in points],
     }
 

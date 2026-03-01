@@ -15,7 +15,7 @@ import shutil
 import numpy as np
 from collections import defaultdict, deque
 from typing import Dict, List, Tuple, NamedTuple
-from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2, Point
+from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2, Point, MapName
 
 
 class TileInfo(NamedTuple):
@@ -56,8 +56,8 @@ default_config = MergeMapConfig(
 
 
 class MergeMapPage:
-    def __init__(self, map_type: str, input_dir: str, output_dir: str):
-        self.map_type = map_type
+    def __init__(self, map_types: list[str], input_dir: str, output_dir: str):
+        self.map_types = map_types
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.window_name = "MapTracker Merger"
@@ -86,16 +86,9 @@ class MergeMapPage:
 
     def _prepare_data(self) -> None:
         """Prepare and group tiles by base name."""
-        if self.map_type == "normal_tier":
-            patterns = [
-                (r"(map\d+_lv\d+)_(\d+)_(\d+)\.png", "normal"),
-                (r"(\w+)_(\d+)_(\d+)_tier_(\w+)\.png", "tier"),
-            ]
-        elif self.map_type == "base":
-            patterns = [(r"(base\d+_lv\d+)_(\d+)_(\d+)\.png", "normal")]
-        elif self.map_type == "dungeon":
-            patterns = [(r"(dung\d+_lv\d+)_(\d+)_(\d+)\.png", "normal")]
-        else:
+        if not self.map_types:
+            raise ValueError("Invalid map types")
+        if any(t not in ("normal", "tier", "base", "dung") for t in self.map_types):
             raise ValueError("Invalid map type")
 
         ensure_output_dir(self.output_dir)
@@ -104,25 +97,21 @@ class MergeMapPage:
         groups = defaultdict(dict)
         for root, _, file_names in os.walk(self.input_dir):
             for file_name in file_names:
+                parsed = self._parse_tile_file(file_name)
+                if parsed is None:
+                    continue
+                name, x, y, parsed_type = parsed
+                if parsed_type not in self.map_types:
+                    continue
+
                 file_path = os.path.join(root, file_name)
-                for pattern, kind in patterns:
-                    m = re.match(pattern, file_name)
-                    if not m:
-                        continue
-                    if kind == "normal":
-                        name = m.group(1)
-                        x, y = int(m.group(2)), int(m.group(3))
-                    else:  # tier
-                        name = f"{m.group(1)}_tier_{m.group(4)}"
-                        x, y = int(m.group(2)), int(m.group(3))
-                    key = (x, y)
-                    if key in groups[name]:
-                        print(
-                            f"{_Y}Warning: Duplicate tile at ({x}, {y}) for {name}, skipping{_0}"
-                        )
-                    else:
-                        groups[name][key] = file_path
-                    break  # file matched, no need to try other patterns
+                key = (x, y)
+                if key in groups[name]:
+                    print(
+                        f"{_Y}Warning: Duplicate tile at ({x}, {y}) for {name}, skipping{_0}"
+                    )
+                else:
+                    groups[name][key] = file_path
 
         if not groups:
             print(f"{_R}No map tiles found in input directories.{_0}")
@@ -131,10 +120,27 @@ class MergeMapPage:
         # Compute bounds for normal groups so tier groups can align to them
         self.normal_bounds: Dict[str, Tuple[int, int]] = {}
         for gname, tiles_dict in groups.items():
-            if "_tier_" not in gname:
+            if not self._is_tier_map_name(gname):
                 gmax_x = max(x for (x, y) in tiles_dict.keys())
                 gmax_y = max(y for (x, y) in tiles_dict.keys())
                 self.normal_bounds[gname] = (gmax_x, gmax_y)
+
+    @staticmethod
+    def _is_tier_map_name(name: str) -> bool:
+        try:
+            return MapName.parse(name).map_type == "tier"
+        except ValueError:
+            return False
+
+    @staticmethod
+    def _parse_tile_file(file_name: str) -> tuple[str, int, int, str] | None:
+        """Parse a tile file name into (group_name, x, y, map_type)."""
+        try:
+            parsed = MapName.parse(file_name, is_tile=True)
+        except ValueError:
+            return None
+        group_name = os.path.splitext(parsed.map_full_name)[0]
+        return group_name, int(parsed.tile_x), int(parsed.tile_y), parsed.map_type
 
     def _has_opaque_pixels_on_edge(
         self, img: np.ndarray, edge: str, threshold: int = 4
@@ -644,7 +650,7 @@ class MergeMapPage:
 
         for name, tiles_dict in self.groups.items():
             forced_bounds = None
-            if "_tier_" in name:
+            if self._is_tier_map_name(name):
                 base_name = name.split("_tier_")[0]
                 forced_bounds = self.normal_bounds.get(base_name)
                 if forced_bounds:
@@ -683,7 +689,13 @@ class DistinMapPage:
         for fname in sorted(os.listdir(self.input_dir)):
             if not fname.endswith(".png"):
                 continue
-            if "_tier_" in fname or fname.startswith("_"):
+            if fname.startswith("_"):
+                continue
+            try:
+                parsed = MapName.parse(fname)
+            except ValueError:
+                continue
+            if parsed.map_type != "normal":
                 continue
             name = fname[:-4]
             path = os.path.join(self.input_dir, fname)
@@ -704,7 +716,13 @@ class DistinMapPage:
         for fname in sorted(os.listdir(self.input_dir)):
             if not fname.endswith(".png"):
                 continue
-            if "_tier_" not in fname or fname.startswith("_"):
+            if fname.startswith("_"):
+                continue
+            try:
+                parsed = MapName.parse(fname)
+            except ValueError:
+                continue
+            if parsed.map_type != "tier":
                 continue
             src = os.path.join(self.input_dir, fname)
             dst = os.path.join(self.output_dir, fname)
@@ -885,8 +903,10 @@ class DistinMapPage:
         E.g. 'map01_lv002' -> 'map01', 'base03_lv001' -> 'base03'.
         Falls back to the full name if no '_lv' separator is found.
         """
-        parts = name.split("_lv", 1)
-        return parts[0] if len(parts) == 2 else name
+        try:
+            return MapName.parse(name).map_id
+        except ValueError:
+            return name
 
     def _make_land_alpha(self, img: np.ndarray) -> np.ndarray:
         """Return a copy of img with non-land pixels set to alpha=0.
@@ -1028,7 +1048,7 @@ class DistinMapPage:
         # are connected to the main body and do not appear as stray dots.
         # ------------------------------------------------------------------
         _land_dil_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        land_masks: List[np.ndarray] = []   # each: bool (canvas_h, canvas_w)
+        land_masks: List[np.ndarray] = []  # each: bool (canvas_h, canvas_w)
         for nm in names_list:
             img = maps[nm]
             px, py = positions[nm]
@@ -1043,12 +1063,12 @@ class DistinMapPage:
             land_masks.append(m.astype(bool))
 
         # overlap[y,x] = True  ↔  land in 2+ maps
-        any_land  = np.zeros((canvas_h, canvas_w), dtype=bool)
+        any_land = np.zeros((canvas_h, canvas_w), dtype=bool)
         multi_hit = np.zeros((canvas_h, canvas_w), dtype=bool)
         for m in land_masks:
-            multi_hit |= (any_land & m)
-            any_land  |= m
-        overlap = multi_hit   # pixels that need splitting
+            multi_hit |= any_land & m
+            any_land |= m
+        overlap = multi_hit  # pixels that need splitting
 
         if not overlap.any():
             print(f"    {_G}No overlaps — exporting maps as-is.{_0}")
@@ -1085,10 +1105,12 @@ class DistinMapPage:
         def mouse_cb(event, mx, my, flags, _param):
             cx, cy = to_canvas_pt(mx, my)
             if event == cv2.EVENT_LBUTTONDOWN:
-                drawing[0] = True; last_pt[0] = (cx, cy)
+                drawing[0] = True
+                last_pt[0] = (cx, cy)
                 cv2.circle(barrier, (cx, cy), 1, 1, -1)
             elif event == cv2.EVENT_RBUTTONDOWN:
-                erasing[0] = True; last_pt[0] = (cx, cy)
+                erasing[0] = True
+                last_pt[0] = (cx, cy)
                 cv2.circle(barrier, (cx, cy), 1, 0, -1)
             elif event == cv2.EVENT_MOUSEMOVE:
                 if drawing[0] and last_pt[0]:
@@ -1098,11 +1120,14 @@ class DistinMapPage:
                     cv2.line(barrier, last_pt[0], (cx, cy), 0, 3)
                     last_pt[0] = (cx, cy)
             elif event in (cv2.EVENT_LBUTTONUP, cv2.EVENT_RBUTTONUP):
-                drawing[0] = erasing[0] = False; last_pt[0] = None
+                drawing[0] = erasing[0] = False
+                last_pt[0] = None
 
         def make_display() -> np.ndarray:
             vis = canvas[:, :, :3].astype(np.float32)
-            vis[overlap] = vis[overlap] * 0.35 + np.array([0, 140, 255], np.float32) * 0.65
+            vis[overlap] = (
+                vis[overlap] * 0.35 + np.array([0, 140, 255], np.float32) * 0.65
+            )
             vis[barrier > 0] = [0, 0, 255]
             vis = np.clip(vis, 0, 255).astype(np.uint8)
             ch_v, cw_v = vis.shape[:2]
@@ -1118,7 +1143,12 @@ class DistinMapPage:
             cv2.putText(
                 frame,
                 "LDrag=draw  RDrag=erase  ENTER=confirm  ESC=skip",
-                (8, 18), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (220, 220, 220), 1, cv2.LINE_AA,
+                (8, 18),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.45,
+                (220, 220, 220),
+                1,
+                cv2.LINE_AA,
             )
             return frame
 
@@ -1128,14 +1158,18 @@ class DistinMapPage:
         while True:
             cv2.imshow(win, make_display())
             key = cv2.waitKey(30) & 0xFF
-            if key == 13:    # ENTER
+            if key == 13:  # ENTER
                 break
             elif key == 27:  # ESC
-                print(f"  {_Y}Splitting skipped — each map retains its full land (overlap not split).{_0}")
+                print(
+                    f"  {_Y}Splitting skipped — each map retains its full land (overlap not split).{_0}"
+                )
                 if cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) >= 1:
                     cv2.destroyWindow(win)
                 fin = [m.astype(np.uint8) for m in land_masks]
-                self._export_split_maps(group_key, maps, positions, names_list, fin, canvas)
+                self._export_split_maps(
+                    group_key, maps, positions, names_list, fin, canvas
+                )
                 return
             elif cv2.getWindowProperty(win, cv2.WND_PROP_VISIBLE) < 1:
                 break
@@ -1179,7 +1213,7 @@ class DistinMapPage:
             cc_bool = cc_mask.astype(bool)
             # Dilate to get 4-connected ring around the component
             nbr = cv2.dilate(cc_mask, cross_kernel, iterations=1).astype(bool)
-            nbr &= ~cc_bool   # ring only, not inside
+            nbr &= ~cc_bool  # ring only, not inside
 
             # Count exclusive pixels per map that touch this component
             best_map = -1
@@ -1222,7 +1256,9 @@ class DistinMapPage:
                 assign = wall_unresolved & land_masks[i]
                 owner[assign] = i
                 wall_unresolved &= ~assign
-        print(f"    {_G}Split complete. Still unresolved: {int((owner == -2).sum())}{_0}")
+        print(
+            f"    {_G}Split complete. Still unresolved: {int((owner == -2).sum())}{_0}"
+        )
 
         # ------------------------------------------------------------------
         # Step 4: Build final per-map binary masks from ownership array
@@ -1240,7 +1276,7 @@ class DistinMapPage:
         ownership_masks: List[np.ndarray],
         canvas: np.ndarray,
     ) -> None:
-        """Crop and export each map using its ownership mask.
+        """Export each map using its ownership mask.
         After saving, shows each map's territory mask one by one.
         """
         canvas_h, canvas_w = canvas.shape[:2]
@@ -1254,24 +1290,40 @@ class DistinMapPage:
             """Resize to fit window, add title text, display until keypress."""
             ch_v, cw_v = frame.shape[:2]
             s = min(self.window_w / cw_v, self.window_h / ch_v, 1.0)
-            disp = cv2.resize(frame, (int(cw_v * s), int(ch_v * s)),
-                              interpolation=cv2.INTER_LINEAR)
+            disp = cv2.resize(
+                frame, (int(cw_v * s), int(ch_v * s)), interpolation=cv2.INTER_LINEAR
+            )
             # Embed in black window frame so size is always consistent
             out = np.zeros((self.window_h, self.window_w, 3), dtype=np.uint8)
             ox = (self.window_w - disp.shape[1]) // 2
             oy = (self.window_h - disp.shape[0]) // 2
-            out[oy: oy + disp.shape[0], ox: ox + disp.shape[1]] = disp
-            cv2.putText(out, title_text, (8, 18),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (220, 220, 220), 1, cv2.LINE_AA)
-            cv2.putText(out, "Press any key to continue...",
-                        (8, self.window_h - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (160, 160, 160), 1, cv2.LINE_AA)
+            out[oy : oy + disp.shape[0], ox : ox + disp.shape[1]] = disp
+            cv2.putText(
+                out,
+                title_text,
+                (8, 18),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.55,
+                (220, 220, 220),
+                1,
+                cv2.LINE_AA,
+            )
+            cv2.putText(
+                out,
+                "Press any key to continue...",
+                (8, self.window_h - 8),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.45,
+                (160, 160, 160),
+                1,
+                cv2.LINE_AA,
+            )
             cv2.namedWindow(self.window_name)
             cv2.imshow(self.window_name, out)
             cv2.waitKey(0)
 
         for i, nm in enumerate(names_list):
-            mask = ownership_masks[i]          # uint8, 0/1
+            mask = ownership_masks[i]  # uint8, 0/1
             ys, xs = np.nonzero(mask)
             if len(ys) == 0:
                 print(f"    {_Y}{nm}: no pixels assigned, skipped{_0}")
@@ -1281,7 +1333,7 @@ class DistinMapPage:
             x1, x2 = int(xs.min()), int(xs.max()) + 1
 
             # Build this map's full-canvas image from its original data
-            img  = maps[nm]
+            img = maps[nm]
             px, py = positions[nm]
             h, w = img.shape[:2]
             per_map = np.zeros((canvas_h, canvas_w, 3), dtype=np.uint8)
@@ -1289,12 +1341,13 @@ class DistinMapPage:
             ex = min(px + w, canvas_w)
             per_map[py:ey, px:ex] = img[: ey - py, : ex - px]
 
-            # Save: crop to bounding-box, zero non-owned pixels
-            cropped = per_map[y1:y2, x1:x2].copy()
-            cropped[mask[y1:y2, x1:x2] == 0] = 0
+            # Save without cropping: keep original map size, only mask ownership.
+            saved = img.copy()
+            local_owned = mask[py:ey, px:ex]
+            saved[: ey - py, : ex - px][local_owned == 0] = 0
             out_path = os.path.join(self.output_dir, f"{nm}.png")
-            cv2.imwrite(out_path, cropped)
-            print(f"    {_C}{nm}{_0}: [{x1},{y1}]-[{x2},{y2}] -> {out_path}")
+            cv2.imwrite(out_path, saved)
+            print(f"    {_C}{nm}{_0}: bbox=[{x1},{y1}]-[{x2},{y2}]")
 
             # ---- per-map territory display ----
             # Layer 1: grayscale dimmed canvas as background
@@ -1313,7 +1366,10 @@ class DistinMapPage:
                 + np.array([50, 200, 50], np.float32) * 0.3
             ).astype(np.uint8)
 
-            _show(tint, f"[{i+1}/{len(names_list)}] {nm}  |  owned {int(owned_bool.sum())} px")
+            _show(
+                tint,
+                f"[{i+1}/{len(names_list)}] {nm}  |  owned {int(owned_bool.sum())} px",
+            )
 
         # ---- final combined overview ----
         overview = (canvas_bgr.astype(np.float32) * 0.35).astype(np.uint8)
@@ -1333,15 +1389,27 @@ class DistinMapPage:
         for i in range(len(names_list)):
             region_i = (owner_all == i).astype(np.uint8)
             dilated = cv2.dilate(region_i, box_kernel, iterations=1)
-            overview[(dilated > 0) & (owner_all != i) & (owner_all >= 0)] = (255, 255, 255)
+            overview[(dilated > 0) & (owner_all != i) & (owner_all >= 0)] = (
+                255,
+                255,
+                255,
+            )
 
         # Label each region with its map name
         for i, nm in enumerate(names_list):
             ys2, xs2 = np.nonzero(ownership_masks[i])
             if len(ys2):
                 cy_lbl, cx_lbl = int(ys2.mean()), int(xs2.mean())
-                cv2.putText(overview, nm, (cx_lbl, cy_lbl),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+                cv2.putText(
+                    overview,
+                    nm,
+                    (cx_lbl, cy_lbl),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.4,
+                    (255, 255, 255),
+                    1,
+                    cv2.LINE_AA,
+                )
 
         print(f"  {_G}Split maps saved to {self.output_dir}{_0}")
         _show(overview, f"Overview — {len(names_list)} maps  (any key to close)")
@@ -1448,13 +1516,13 @@ def main():
         generate_map_bbox_json(MAP_FINAL_DIR)
         return
 
-    map_type = {
-        "1": "normal_tier",
-        "2": "base",
-        "3": "dungeon",
+    map_types = {
+        "1": ["normal", "tier"],
+        "2": ["base"],
+        "3": ["dung"],
     }.get(mode)
 
-    if not map_type:
+    if not map_types:
         print(f"{_R}Invalid selection. Exiting.{_0}")
         return
 
@@ -1465,7 +1533,7 @@ def main():
         print(f"{_R}Given path not found or not a dir. Exiting.{_0}")
         return
 
-    page = MergeMapPage(map_type, input_dir, MAP_MERGED_DIR)
+    page = MergeMapPage(map_types, input_dir, MAP_MERGED_DIR)
     page.run()
 
 
