@@ -21,6 +21,24 @@ const screenH = 720  // 屏幕高度（Y轴）
 // 定义干员饭盒的位置,先默认x为屏幕中线，y自定义
 const footX = 640
 
+// win32虚拟键位
+const (
+	KEY_W     = 0x57
+	KEY_A     = 0x41
+	KEY_S     = 0x53
+	KEY_D     = 0x44
+	KEY_SHIFT = 0x10
+	KEY_CTRL  = 0x11
+	KEY_ALT   = 0x12
+	KEY_SPACE = 0x20
+)
+
+// 拟合参数，用于建立饭盒坐标和角度缩放之间的关系,后续可以在这改
+const (
+	paramA = 198.2
+	paramB = 118.7
+)
+
 // 定义获取参数的字段
 type MoveToTarget3DParam struct {
 	FootY int `json:"FootY"`
@@ -87,8 +105,10 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 	//计算反三角函数，得到x轴到向量的弧度并转换成角度，顺时针为负，逆时针为正（屏幕y轴向下，所以要反一下）
 	angleRad := math.Atan2(deltax, -deltay)
 	angleDeg := angleRad * 180.0 / math.Pi
+	//将屏幕角度通过映射转换成实际角度
+	RealangleDeg := Y2Pitch(float64(params.FootY)) / 45 * angleDeg
 
-	msg1 := fmt.Sprintf("需要旋转%.0f°", angleDeg)
+	msg1 := fmt.Sprintf("需要旋转%.0f°", RealangleDeg)
 	maafocus.NodeActionStarting(ctx, msg1)
 
 	swipex := int(angleDeg / 90 * rotate90)
@@ -102,25 +122,55 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 		Duration:  []int64{1000},
 		OnlyHover: true,
 	}, maa.Rect{0, 0, 0, 0}, nil)
+	//转完还得点一下alt加左键解除占用
+	ctx.RunActionDirect("KeyDown", maa.NodeKeyDownParam{
+		Key: KEY_ALT,
+	}, maa.Rect{0, 0, 0, 0}, nil)
+
+	ctx.RunActionDirect("Click", maa.NodeClickParam{}, maa.Rect{0, 0, 0, 0}, nil)
+
+	ctx.RunActionDirect("KeyUp", maa.NodeKeyUpParam{
+		Key: KEY_ALT,
+	}, maa.Rect{0, 0, 0, 0}, nil)
 
 	return true
 }
 
-//func AutoEcoFarmFindFarmland(ctx *maa.Context, arg *maa.CustomRecognitionArg) *maa.CustomRecognitionResult {
+// ==========================================
+// 核心逆算函数：已知屏幕footY坐标，求45°角会变成什么样
+// ==========================================
+func Y2Pitch(footY float64) float64 {
+	// 1. 计算反余弦的输入参数
+	denominator := footY - paramB
+	if denominator == 0 {
+		// 防止除零，返回默认值（比如中间角度）
+		return 65.0
+	}
+	arg := paramA / denominator
 
-//直接调用识别节点
+	// 2. 【关键保护】限制arg在[-1, 1]之间
+	// math.Acos的输入必须在这个区间，否则会返回NaN（非数字）
+	if arg > 1.0 {
+		arg = 1.0
+	}
+	if arg < -1.0 {
+		arg = -1.0
+	}
 
-//ColorMatchParam := map[string]any{
-//	"AutoEcoFarmFindHightFarmland": map[string]any{
-//		"roi": maa.Rect{
-//			arg.Roi.X(),s
-//			arg.Roi.Y(),
-//			arg.Roi.Width(),
-//			arg.Roi.Height()},
-//	},
-//}
+	// 3. 反余弦计算（得到的是弧度）
+	thetaRad := math.Acos(arg)
 
-//detail, err := ctx.RunRecognitionDirect(maa.NodeRecognitionTypeColorMatch)
+	// 4. 弧度转角度
+	thetaDeg := thetaRad * 180.0 / math.Pi
 
-//return detail
-//}
+	// 5. 【可选保护】限制角度在你的标定区间[45°, 85°]内
+	// 避免超出标定范围的y值输出不合理的角度
+	if thetaDeg < 45.0 {
+		thetaDeg = 45.0
+	}
+	if thetaDeg > 85.0 {
+		thetaDeg = 85.0
+	}
+
+	return thetaDeg
+}

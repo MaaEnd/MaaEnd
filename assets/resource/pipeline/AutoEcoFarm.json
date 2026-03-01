@@ -2,10 +2,33 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
+            //"AutoEcoFarmFindTarget" //测试用记得删了
             //"MapTrackerTestLoop", //测试用记得删了
-            "AutoEcoFarmFindHightFarmland" //测试用记得删了
-            //"AutoEcoFarmCheckValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
-            //"[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
+            //"AutoEcoFarmOpenBag" //测试用记得删了
+            "AutoEcoFarmFindValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
+        ]
+    },
+    "AutoEcoFarmInOriginiumSciencePark2": {
+        "doc": "确认已经在源石研究园生态农场",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        523,
+                        241,
+                        20,
+                        20
+                    ]
+                }
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoEcoFarmGotoValleyIVEcoFarm"
         ]
     },
     "AutoEcoFarmGotoValleyIVEcoFarm": {
@@ -49,15 +72,12 @@
                     332
                 ]
             ]
-        }
-    },
-    //这部分代码是用于检查四号谷地、武陵是否有农作物，没有直接跳过
-    "AutoEcoFarmCheckValleyIVEcoFarm": {
-        "doc": "开始检查源石研究园的生态农场有无种植农作物",
+        },
         "next": [
-            "AutoEcoFarmFindValleyIVEcoFarm"
+            "AutoEcoFarmFindTarget" //目前采用方案二识别凑合一下，方案一问题有点多代码先放着
         ]
     },
+    //这部分代码是用于检查四号谷地、武陵是否有农作物，没有直接跳过
     "AutoEcoFarmFindValleyIVEcoFarm": {
         "doc": "寻找源石研究园的生态农场,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
@@ -111,7 +131,7 @@
         ]
     },
     "AutoEcoFarmFindFarmland": {
-        "doc": "寻找源石研究园的农田,识别范围为生态种植区周围",
+        "doc": "寻找源石研究园的农田,识别范围为生态种植区周围,识别到了后点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -126,10 +146,61 @@
             }
         },
         "action": {
-            "type": "TouchMove"
-        }
+            "type": "Click"
+        },
+        "next": [
+            "AutoEcoFarmAlreadySetTarget", //如果已经设定好了就直接下一步
+            "AutoEcoFarmSetTarget"
+        ]
     },
-    //下面是一些通用节点
+    "AutoEcoFarmAlreadySetTarget": {
+        "doc": "找到取消两个字则直接下一步，不点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "取消"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
+            "[JumpBack]TPPointOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+        ]
+    },
+    "AutoEcoFarmSetTarget": {
+        "doc": "点击追踪按钮，设定追踪",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "追踪"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
+            "[JumpBack]TPPointOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+        ]
+    },
+    //这部分是收菜种菜节点
     "AutoEcoFarmMoveMouse": {
         "doc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
         "action": {
@@ -139,6 +210,200 @@
             }
         },
         "max_hit": 3 //默认为3，超过一次就不要再试了免得死循环
+    },
+    "AutoEcoFarmFindMenuIcon1": {
+        "doc": "寻找采集、播种、浇水的按钮，都是同一个,找到后以此为基础cor识别文字菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    832,
+                    455,
+                    43,
+                    40
+                ],
+                "template": [
+                    "AutoEcoFarm/AutoEcoFarmHand.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindMenuText1AndClick",
+            "AutoEcoFarmCancelMove" //要是菜单不符合要求则开包找其他农田
+        ]
+    },
+    "AutoEcoFarmFindMenuText1AndClick": {
+        "doc": "识别按钮图标边上的文字，匹配合适的，然后点F，按完后等一段时间，等队友干活",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoEcoFarmFindMenuIcon1",
+                "roi_offset": [
+                    0,
+                    0,
+                    120,
+                    0
+                ],
+                "expected": [
+                    "[收获|育种|浇水]"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70 //F键
+            }
+        },
+        "focus": "识别到菜单，开始工作，等待60秒让干员们干完活",
+        "post_delay": 60000, //等一分钟
+        "next": [
+            "AutoEcoFarmCancelMove"
+        ]
+    },
+    //这部分是找农田节点，用于靠近农田
+    "AutoEcoFarmOpenBag": {
+        "doc": "按一下B打开背包",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 66 //B键
+            }
+        },
+        "next": [
+            "AutoEcoFarmCheckBagOpen"
+        ]
+    },
+    "AutoEcoFarmCheckBagOpen": {
+        "doc": "判断背包是否正常打开",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    792,
+                    131,
+                    48,
+                    28
+                ],
+                "expected": [
+                    "[背包]"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "AutoEcoFarmCheckFindSprinkler",
+            "[JumpBack]AutoEcoFarmScroll"
+        ]
+    },
+    "AutoEcoFarmCheckFindSprinkler": {
+        "doc": "找到洒水机",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    204,
+                    374,
+                    299
+                ],
+                "template": [
+                    "AutoEcoFarm/Sprinkler.png"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoEcoFarmFindItemInfoIcon"
+        ]
+    },
+    "AutoEcoFarmScroll": {
+        "doc": "没找到洒水机则翻一下页",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    931,
+                    347,
+                    11,
+                    16
+                ],
+                "dy": -120
+            }
+        },
+        "max_hit": 2 //只能滑动2次防止死循环
+    },
+    "AutoEcoFarmFindItemInfoIcon": {
+        "doc": "找道具详情图标，为后续识别提供坐标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    599,
+                    0,
+                    681,
+                    720
+                ],
+                "template": [
+                    "AutoEcoFarm/ItemInfoGreen.png"
+                ],
+                "threshold": 0.7,
+                "order_by": "Score",
+                "green_mask": true
+            }
+        },
+        "next": [
+            "AutoEcoFarmCheckItemName"
+        ]
+    },
+    "AutoEcoFarmCheckItemName": {
+        "doc": "识别按钮图标边上的标题，判断是不是洒水机",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoEcoFarmFindItemInfoIcon",
+                "roi_offset": [
+                    0,
+                    0,
+                    -250,
+                    0
+                ],
+                "expected": [
+                    "[洒水机]"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindAndCLickPlace"
+        ]
+    },
+    "AutoEcoFarmFindAndCLickPlace": {
+        "doc": "识别放置按钮并点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoEcoFarmFindItemInfoIcon",
+                "roi_offset": [
+                    -141,
+                    404,
+                    76,
+                    11
+                ],
+                "expected": [
+                    "[放置]"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoEcoFarmFindHightFarmland",
+            "AutoEcoFarmCancelPlace" //没识别到高亮也收起洒水机散步
+        ]
     },
     "AutoEcoFarmFindHightFarmland": {
         "doc": "寻找高亮的农田，识别范围为整个屏幕",
@@ -162,7 +427,7 @@
                     0,
                     255
                 ],
-                "count": 1000,
+                "count": 100,
                 "connected": true,
                 "order_by": "Area"
             }
@@ -171,6 +436,8 @@
             "AutoEcoFarmSwipeToTarget"
         ]
     },
+    //这个custom节点传入脚的y坐标和识别区域，即可将镜头转向识别区域
+    //会根据脚的位置来建立映射，将屏幕上和物体的夹角转换成现实中的夹角，并转动相应的角度
     "AutoEcoFarmSwipeToTarget": {
         "doc": "转向到识别结果",
         "action": {
@@ -178,15 +445,296 @@
             "param": {
                 "custom_action": "MoveToTarget3D",
                 "custom_action_param": {
-                    "FootY": 500
+                    "FootY": 700 //这里最好有个办法识别出来脚的y坐标，但是目前技术无法实现，填固定值了
                 },
                 "target": "AutoEcoFarmFindHightFarmland"
             }
         },
-        "max_hit": 3,
         "next": [
-            "AutoEcoFarmFindHightFarmland"
+            "AutoEcoFarmCancelPlace"
         ]
+    },
+    "AutoEcoFarmCancelPlace": {
+        "doc": "按esc收起洒水机",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc
+            }
+        },
+        "next": [
+            "AutoEcoFarmMoveToTarget"
+        ]
+    },
+    "AutoEcoFarmMoveToTarget": {
+        "doc": "长按w方向键朝目标前行,同时识别菜单",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindMenuIcon1",
+            "AutoEcoFarmCancelMove" //没识别到菜单则停止移动并重新掏出洒水机再次尝试找高亮
+        ]
+    },
+    "AutoEcoFarmCancelMove": {
+        "doc": "松开w免得卡住",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindTarget"
+        ]
+    },
+    //这是方案二，识别追踪标点去农田sa
+    "AutoEcoFarmFindTarget": {
+        "next": [
+            "AutoEcoFarmFindTargetCenter",
+            "AutoEcoFarmFindTargetLeft",
+            "AutoEcoFarmFindTargetRight"
+        ]
+    },
+    "AutoEcoFarmFindTargetLeft": {
+        "doc": "寻找左视野范围内的标点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    640,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": [
+                    0.5
+                ]
+            }
+        },
+        "next": [
+            "AutoEcoFarmSwipeToLeft"
+        ]
+    },
+    "AutoEcoFarmSwipeToLeft": {
+        "doc": "往左转一点",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
+                "end": [
+                    540,
+                    360,
+                    1,
+                    1
+                ],
+                "only_hover": true,
+                "duration": 500
+            }
+        },
+        "max_hit": 10,
+        "next": [
+            "AutoEcoFarmAltDown"
+        ]
+    },
+    "AutoEcoFarmFindTargetRight": {
+        "doc": "寻找右视野范围内的标点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    640,
+                    0,
+                    640,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": [
+                    0.5
+                ]
+            }
+        },
+        "next": [
+            "AutoEcoFarmSwipeToRight"
+        ]
+    },
+    "AutoEcoFarmSwipeToRight": {
+        "doc": "往右转一点",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
+                "end": [
+                    740,
+                    360,
+                    1,
+                    1
+                ],
+                "only_hover": true,
+                "duration": 500
+            }
+        },
+        "max_hit": 10,
+        "next": [
+            "AutoEcoFarmAltDown"
+        ]
+    },
+    "AutoEcoFarmFindTargetCenter": {
+        "doc": "寻找正中视野范围内的标点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    540,
+                    0,
+                    200,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": [
+                    0.5
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
+                "end": true,
+                "only_hover": true,
+                "duration": 500
+            }
+        },
+        "next": [
+            "AutoEcoFarmMoveToTarget2"
+        ]
+    },
+    "AutoEcoFarmMoveToTarget2": {
+        "doc": "长按w方向键朝目标前行,同时识别菜单",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindMenuIcon2",
+            //"AutoEcoFarmCancelMove" //没识别到菜单则停止移动并重新掏出洒水机再次尝试找高亮
+        ]
+    },
+    "AutoEcoFarmFindMenuIcon2": {
+        "doc": "寻找采集、播种、浇水的按钮，都是同一个,找到后按f",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            832,
+                            455,
+                            43,
+                            40
+                        ],
+                        "template": "AutoEcoFarm/AutoEcoFarmHand.png",
+                        "threshold": 0.9
+                    },
+                    {
+                        "sub_name": "text",
+                        "recognition": "OCR",
+                        "roi": [
+                            832,
+                            455,
+                            163,
+                            40
+                        ],
+                        "expected": [
+                            "[收获|育种|浇水]"
+                        ],
+                        "threshold": 0.7
+                    }
+                ]
+            }
+        },
+        "next": [
+            "AutoEcoFarmCancelMove2"
+        ]
+    },
+    "AutoEcoFarmAltDown": {
+        "doc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "AutoEcoFarmClick"
+        ]
+    },
+    "AutoEcoFarmClick": {
+        "doc": "按下alt",
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoEcoFarmAltUp"
+        ]
+    },
+    "AutoEcoFarmAltUp": {
+        "doc": "松开alt",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "AutoEcoFarmFindTarget"
+        ]
+    },
+    "AutoEcoFarmCancelMove2": {
+        "doc": "松开w免得卡住",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "AutoEcoFarmStartWork"
+        ]
+    },
+    "AutoEcoFarmStartWork": {
+        "doc": "按下F,等队友工作，重复3次",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70 //F键
+            }
+        },
+        "repeat": 3,
+        "repeat_delay": 60000
     }
 }
 //邪修科技之识别高亮农田
