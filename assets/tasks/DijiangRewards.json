@@ -596,7 +596,7 @@
                 },
                 {
                     "name": "AmountOfSeeds",
-                    "label": "$option.SortBy.cases.Quality.label",
+                    "label": "$option.SortBy.cases.AmountOfSeeds.label",
                     "pipeline_override": {
                         "SortBy": {
                             "expected": [
@@ -685,7 +685,7 @@
                 },
                 {
                     "name": "DESC",
-                    "label": "$option.SortOrder.cases.Ascending.label",
+                    "label": "$option.SortOrder.cases.Descending.label",
                     "pipeline_override": {
                         "SortOrder": {
                             "expected": [
