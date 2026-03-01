@@ -16,7 +16,7 @@ as long as it is registered during the resource loading stage, it can be called 
 
 ## ScreenShot Action
 
-`ScreenShot` is a screenshot action invoked via `Custom`, implemented in `agent/go-service/screenshot`.  
+`ScreenShot` is a screenshot action invoked via `Custom`, implemented in `agent/go-service/common`.  
 It takes a screenshot of the current screen and saves it as a PNG file under the `debug` folder in the working directory.
 
 - **Parameters (`custom_action_param`)**
@@ -37,5 +37,43 @@ It takes a screenshot of the current screen and saves it as a PNG file under the
 
 > Currently the `ScreenShot` action does **not** use the `target` / `target_offset` fields.  
 > Regardless of whether these fields are configured in the Pipeline, it will always capture the **entire screen**.
+
+---
+
+## RunNode
+
+`RunNode` is a generic dispatch action implemented in `agent/go-service/common`.  
+It reads a node name from parameters and executes that node through the framework API.
+
+- **Parameters (`custom_action_param`)**
+
+    - A JSON object is required, and it must include:
+        - `node_name: string`: the node name to run (required).
+
+- **Behavior**
+    - Returns failure and logs an error when `custom_action_param` is empty, JSON parsing fails, or `node_name` is empty.
+    - Calls `RunTask(node_name)` to execute the target node; if execution fails, it returns failure and logs an error.
+    - Logs a success message when execution succeeds.
+
+- **Pipeline example**
+
+```json
+{
+    "RunOtherNode": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RunNode",
+                "custom_action_param": {
+                    "node_name": "SomeOtherNode"
+                }
+            }
+        },
+        "next": [
+            "NextNode"
+        ]
+    }
+}
+```
 
 <!-- markdownlint-enable MD060 -->

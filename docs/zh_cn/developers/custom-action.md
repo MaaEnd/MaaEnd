@@ -16,7 +16,7 @@
 
 ## ScreenShot 截图动作
 
-`ScreenShot` 是一个通过 `Custom` 调用的截图动作，实现位于 `agent/go-service/screenshot`。  
+`ScreenShot` 是一个通过 `Custom` 调用的截图动作，实现位于 `agent/go-service/common`。  
 它会对当前画面进行一次截屏，并将结果以 PNG 格式保存到工作目录下的 `debug` 文件夹中。
 
 - **参数（`custom_action_param`）**
@@ -36,5 +36,43 @@
     - 文件名包含可读时间和纳秒后缀，以避免同一秒内多次截图产生重名。
 
 > 目前 `ScreenShot` 动作不会使用 `target` / `target_offset` 字段，无论是否在 Pipeline 中配置这些字段，都只会对整屏进行截图。
+
+---
+
+## RunNode 按节点名执行节点
+
+`RunNode` 是一个通用调度动作，实现位于 `agent/go-service/common`。  
+它会读取参数中的节点名，并调用框架接口执行该节点。
+
+- **参数（`custom_action_param`）**
+
+    - 需要传入 JSON 对象，必须包含：
+        - `node_name: string`：要执行的节点名称（必填）。
+
+- **行为**
+    - 当 `custom_action_param` 为空、JSON 解析失败或 `node_name` 为空时，动作会返回失败并记录错误日志。
+    - 会调用 `RunTask(node_name)` 执行目标节点；若执行失败会返回失败并记录错误日志。
+    - 执行成功后会输出成功日志。
+
+- **Pipeline 示例**
+
+```json
+{
+    "RunOtherNode": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RunNode",
+                "custom_action_param": {
+                    "node_name": "SomeOtherNode"
+                }
+            }
+        },
+        "next": [
+            "NextNode"
+        ]
+    }
+}
+```
 
 <!-- markdownlint-enable MD060 -->

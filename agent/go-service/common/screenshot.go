@@ -1,4 +1,4 @@
-package screenshot
+package common
 
 import (
 	"encoding/json"

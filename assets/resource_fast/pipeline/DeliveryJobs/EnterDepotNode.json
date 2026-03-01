@@ -14,10 +14,17 @@
         "doc": "进入地区建设界面",
         "recognition": "And",
         "all_of": [
-            "RegionalDevelopmentButton"
+            "InWorld"
         ],
-        "action": "ClickKey",
-        "key": 89, // Y
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "RunNode",
+                "custom_action_param": {
+                    "node_name": "RegionalDevelopmentButton"
+                }
+            }
+        },
         "next": [
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion"
