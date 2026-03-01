@@ -1,16 +1,5 @@
 {
     "ValleyIVSwitchToRefugeeCamp": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至难民暂居处",
         "recognition": {
             "type": "OCR",
@@ -23,10 +12,10 @@
                     "유랑자 임시 거주지"
                 ],
                 "roi": [
-                    146,
+                    123,
                     64,
-                    166,
-                    34
+                    189,
+                    52
                 ]
             }
         },
@@ -35,22 +24,10 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtRefugeeCamp",
-            "ValleyIVSwitchToRefugeeCamp"
+            "ValleyIVVerifyAtRefugeeCamp"
         ]
     },
     "ValleyIVVerifyAtRefugeeCamp": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至难民暂居处",
         "anchor": {
             "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
@@ -87,17 +64,6 @@
         ]
     },
     "ValleyIVSwitchToInfrastructureOutpost": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至基建前站",
         "recognition": {
             "type": "OCR",
@@ -112,7 +78,7 @@
                     447,
                     64,
                     166,
-                    34
+                    50
                 ]
             }
         },
@@ -121,22 +87,10 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtInfrastructureOutpost",
-            "ValleyIVSwitchToInfrastructureOutpost"
+            "ValleyIVVerifyAtInfrastructureOutpost"
         ]
     },
     "ValleyIVVerifyAtInfrastructureOutpost": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至基建前站",
         "anchor": {
             "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
@@ -173,17 +127,6 @@
         ]
     },
     "ValleyIVSwitchToReconstructionCommand": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "OCR 切换至重建指挥部",
         "recognition": {
             "type": "OCR",
@@ -198,8 +141,8 @@
                 "roi": [
                     754,
                     64,
-                    166,
-                    34
+                    260,
+                    55
                 ]
             }
         },
@@ -208,25 +151,13 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtReconstructionCommand",
-            "ValleyIVSwitchToReconstructionCommand"
+            "ValleyIVVerifyAtReconstructionCommand"
         ]
     },
     "ValleyIVVerifyAtReconstructionCommand": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "post_wait_freezes": {
-            "time": 100,
-            "target": [
-                811,
-                146,
-                451,
-                542
-            ]
-        },
         "doc": "检测：已切换至重建指挥部",
         "anchor": {
-            "SellProductNextOutpost": "SellProductRegionEndCheck"
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "recognition": {
             "type": "ColorMatch",

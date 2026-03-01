@@ -1,7 +1,5 @@
 {
     "WulingSwitchToSkyKingFlats": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "OCR 切换至天王坪援建点（模糊匹配）",
         "recognition": {
             "type": "OCR",
@@ -15,10 +13,10 @@
                     "천왕"
                 ],
                 "roi": [
-                    146,
+                    123,
                     64,
-                    166,
-                    34
+                    189,
+                    52
                 ]
             }
         },
@@ -31,21 +29,19 @@
         ]
     },
     "WulingVerifyAtSkyKingFlats": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "doc": "检测：已切换至天王坪援建点",
         "anchor": {
-            "SellProductNextOutpost": "SellProductRegionEndCheck"
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "recognition": {
             "type": "ColorMatch",
             "param": {
                 "method": 40,
                 "roi": [
-                    146,
+                    123,
                     64,
-                    166,
-                    34
+                    189,
+                    52
                 ],
                 "lower": [
                     [
@@ -65,8 +61,7 @@
             }
         },
         "next": [
-            "SellProductAtSell",
-            "[Anchor]SellProductNextOutpost"
+            "SellProductAtSell"
         ]
     }
 }
