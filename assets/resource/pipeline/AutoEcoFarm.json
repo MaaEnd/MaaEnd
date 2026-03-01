@@ -162,8 +162,9 @@
                     0,
                     255
                 ],
-                "count": 100,
-                "connected": true
+                "count": 1000,
+                "connected": true,
+                "order_by": "Area"
             }
         },
         "next": [

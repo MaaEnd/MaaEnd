@@ -49,6 +49,8 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 		maafocus.NodeActionStarting(ctx, "参数解析失败")
 		return false
 	}
+	msg_foot := fmt.Sprintf("当前角色脚的y坐标是:%d", params.FootY)
+	maafocus.NodeActionStarting(ctx, msg_foot)
 
 	err = json.Unmarshal([]byte(arg.RecognitionDetail.DetailJson), &results)
 	if err != nil {
@@ -57,12 +59,15 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 		return false
 	}
 
+	msg_json := fmt.Sprintf("Value JSON: %s\n", arg.RecognitionDetail.DetailJson)
+	maafocus.NodeActionStarting(ctx, msg_json)
+
 	// 获取目标矩形（arg.Box）的参数（X=左上角X，Y=左上角Y，W=宽度，H=高度）
 
-	targetX := results.Best.Box.X()      // 目标矩形左上角X
-	targetY := results.Best.Box.Y()      // 目标矩形左上角Y
-	targetW := results.Best.Box.Width()  // 目标矩形宽度（X轴方向）
-	targetH := results.Best.Box.Height() // 目标矩形高度（Y轴方向）
+	targetX := arg.Box.X()      // 目标矩形左上角X
+	targetY := arg.Box.Y()      // 目标矩形左上角Y
+	targetW := arg.Box.Width()  // 目标矩形宽度（X轴方向）
+	targetH := arg.Box.Height() // 目标矩形高度（Y轴方向）
 
 	msg_target := fmt.Sprintf("移动目标在屏幕上的坐标为[%d,%d,%d,%d]", targetX, targetY, targetW, targetH)
 
@@ -94,6 +99,7 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 	ctx.RunActionDirect("Swipe", maa.NodeSwipeParam{
 		Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
 		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + swipex, screenCenterY, 1, 1})},
+		Duration:  []int64{1000},
 		OnlyHover: true,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 
