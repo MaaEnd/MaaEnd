@@ -170,9 +170,6 @@
         ]
     },
     "SellProductSellCheck": {
-        "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
-        },
         "doc": "交易后确认",
         "recognition": {
             "type": "And",
@@ -205,7 +202,15 @@
         "next": [
             // 交易后的弹窗第一次单击时跳过动画，第二次才能退出
             "SellProductSellCheck",
-            "SellProductZeroMoney",
+            "SellProductSellCheckComplete"
+        ]
+    },
+    "SellProductSellCheckComplete": {
+        "doc": "交易完成，奖励界面已关闭",
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        },
+        "next": [
             "SellProductCanSell"
         ]
     },
