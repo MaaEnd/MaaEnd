@@ -786,5 +786,1094 @@
         "next": [
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley0Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley0Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley0Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley1Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley1Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley1Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley2Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley2Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley2Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley3Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley3Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley3Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley4Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley5Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley5Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley5Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley6Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley6Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley6Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley7Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley7Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley7Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley8Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley8Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley8Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley9Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley9Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley9Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley10Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley10Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "template": [
+            "SceneManager/MapWuling/JingyuValley10Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "timeout": 200,
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
     }
 }

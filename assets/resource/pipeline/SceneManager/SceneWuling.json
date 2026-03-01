@@ -207,5 +207,22 @@
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
         ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
+        "doc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
     }
 }
