@@ -488,6 +488,57 @@
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
+    "SceneEnterWorldDijiang0": {
+        "doc": "从任意界面进入帝江号-舰桥大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang0Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang0Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang0Try3"
+        },
+        "next": [
+            "__ScenePrivateMapDijiangEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiang1": {
+        "doc": "从任意界面进入帝江号-基建区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang1Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang1Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang1Try3"
+        },
+        "next": [
+            "__ScenePrivateMapDijiangEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapDijiang"
+        ]
+    },
+    "SceneEnterWorldDijiang2": {
+        "doc": "从任意界面进入帝江号-会客室大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldDijiang2Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang2Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang2Try3"
+        },
+        "next": [
+            "__ScenePrivateMapDijiangEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapDijiang"
+        ]
+    },
     "SceneEnterWorldValleyIVOriginiumSciencePark0": {
         "doc": "从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界",
         "pre_delay": 0,
