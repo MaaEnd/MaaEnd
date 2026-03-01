@@ -76,6 +76,16 @@
                 ]
             }
         },
+        // 单击后如果马上单击交易会出问题，不懂为啥
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1210,
+                554,
+                45,
+                39
+            ]
+        },
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -146,6 +156,15 @@
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                533,
+                300,
+                213,
+                103
+            ]
+        },
         "next": [
             "SellProductSellCheck"
         ]
@@ -184,6 +203,8 @@
             "param": {}
         },
         "next": [
+            // 交易后的弹窗第一次单击时跳过动画，第二次才能退出
+            "SellProductSellCheck",
             "SellProductZeroMoney",
             "SellProductCanSell"
         ]
