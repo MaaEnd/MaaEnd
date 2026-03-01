@@ -172,7 +172,7 @@
         },
         "next": [
             "AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
-            "[JumpBack]TPPointOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
         ]
     },
     "AutoEcoFarmSetTarget": {
@@ -197,7 +197,7 @@
         },
         "next": [
             "AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
-            "[JumpBack]TPPointOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
         ]
     },
     //这部分是收菜种菜节点

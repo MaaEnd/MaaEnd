@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -116,20 +117,20 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 	maafocus.NodeActionStarting(ctx, msg2)
 
 	//转一定角度
-	ctx.RunActionDirect("Swipe", maa.NodeSwipeParam{
+	ctx.RunActionDirect("Swipe", maa.SwipeParam{
 		Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
 		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + swipex, screenCenterY, 1, 1})},
-		Duration:  []int64{1000},
+		Duration:  []time.Duration{1000 * time.Millisecond},
 		OnlyHover: true,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 	//转完还得点一下alt加左键解除占用
-	ctx.RunActionDirect("KeyDown", maa.NodeKeyDownParam{
+	ctx.RunActionDirect("KeyDown", maa.KeyDownParam{
 		Key: KEY_ALT,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 
-	ctx.RunActionDirect("Click", maa.NodeClickParam{}, maa.Rect{0, 0, 0, 0}, nil)
+	ctx.RunActionDirect("Click", maa.ClickParam{}, maa.Rect{0, 0, 0, 0}, nil)
 
-	ctx.RunActionDirect("KeyUp", maa.NodeKeyUpParam{
+	ctx.RunActionDirect("KeyUp", maa.KeyUpParam{
 		Key: KEY_ALT,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 
