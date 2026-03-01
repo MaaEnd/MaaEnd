@@ -2,18 +2,54 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
-            "AutoEcoFarmFindValleyIVEcoFarm", //测试用
-            "AutoEcoFarmCheckValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
-            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
+            "MapTrackerTestLoop", //测试用记得删了
+            //"Swipe90" //测试用记得删了
+            //"AutoEcoFarmCheckValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
+            //"[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
         ]
     },
     "AutoEcoFarmGotoValleyIVEcoFarm": {
-        "doc": "GotoValleyIVEcoFarm", //调用
-        "next": [
-            "AutoEcoFarmCheckValleyIVEcoFarm",
-            "[JumpBack]TPPointOriginiumSciencePark2",
-            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
-        ]
+        "doc": "前往源石研究园生态农场",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    523,
+                    241
+                ],
+                [
+                    523,
+                    257
+                ],
+                [
+                    527,
+                    277
+                ],
+                [
+                    523,
+                    291
+                ],
+                [
+                    542,
+                    306
+                ],
+                [
+                    548,
+                    321
+                ],
+                [
+                    548,
+                    332
+                ],
+                [
+                    560,
+                    332
+                ]
+            ]
+        }
     },
     //这部分代码是用于检查四号谷地、武陵是否有农作物，没有直接跳过
     "AutoEcoFarmCheckValleyIVEcoFarm": {
@@ -62,7 +98,12 @@
         "action": {
             "type": "TouchMove",
             "param": {
-                "target": "0,0,0,0"
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
             }
         },
         "next": [
@@ -98,5 +139,53 @@
             }
         },
         "max_hit": 3 //默认为3，超过一次就不要再试了免得死循环
+    },
+    "AutoEcoFarmFindHightFarmland": {
+        "doc": "寻找高亮的农田，识别范围为整个屏幕",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    256,
+                    119,
+                    795,
+                    522
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    150
+                ],
+                "upper": [
+                    0,
+                    0,
+                    255
+                ],
+                "count": 100,
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "TouchMove"
+        }
+    },
+    "Swipe90": {
+        "doc": "转身",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MoveToTarget3D",
+                "target": [
+                    48,
+                    378,
+                    49,
+                    42
+                ]
+            }
+        }
     }
 }
+//邪修科技之识别高亮农田
+//源石研究园从传送点去农场[[523, 257], [527, 277], [523, 291], [542, 306], [548, 321], [548, 332], [560, 332]]
+//"MapTrackerTestLoop"

@@ -26,7 +26,6 @@ func registerAll() {
 	batchaddfriends.Register()
 	autofight.Register()
 	screenshot.Register()
-
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
 
