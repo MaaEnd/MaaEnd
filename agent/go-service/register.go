@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
@@ -26,6 +27,7 @@ func registerAll() {
 	batchaddfriends.Register()
 	autofight.Register()
 	screenshot.Register()
+	autoecofarm.Register()
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
 

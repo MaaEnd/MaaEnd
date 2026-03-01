@@ -145,12 +145,12 @@
         "tasks/BatchAddFriends.json",
         "tasks/BakerEntry.json",
         "tasks/SimpleProductionBatchStart.json",
+        "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
         "tasks/preset/AutoTrading.json",
-        "tasks/preset/EssenceFarming.json",
-        "tasks/preset/AutoEcoFarm.json"
+        "tasks/preset/EssenceFarming.json"
     ]
 }

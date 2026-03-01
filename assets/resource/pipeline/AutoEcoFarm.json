@@ -2,8 +2,8 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
-            "MapTrackerTestLoop", //测试用记得删了
-            //"Swipe90" //测试用记得删了
+            //"MapTrackerTestLoop", //测试用记得删了
+            "AutoEcoFarmFindHightFarmland" //测试用记得删了
             //"AutoEcoFarmCheckValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
             //"[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
         ]
@@ -166,24 +166,26 @@
                 "connected": true
             }
         },
-        "action": {
-            "type": "TouchMove"
-        }
+        "next": [
+            "AutoEcoFarmSwipeToTarget"
+        ]
     },
-    "Swipe90": {
-        "doc": "转身",
+    "AutoEcoFarmSwipeToTarget": {
+        "doc": "转向到识别结果",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "MoveToTarget3D",
-                "target": [
-                    48,
-                    378,
-                    49,
-                    42
-                ]
+                "custom_action_param": {
+                    "FootY": 500
+                },
+                "target": "AutoEcoFarmFindHightFarmland"
             }
-        }
+        },
+        "max_hit": 3,
+        "next": [
+            "AutoEcoFarmFindHightFarmland"
+        ]
     }
 }
 //邪修科技之识别高亮农田
