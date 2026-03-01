@@ -9,8 +9,7 @@
                 "AutoStartExchange",
                 "ProductionAssistanceWithoutTheControlNexus",
                 "ClueSetting",
-                "SelectToGrow",
-                "AutoExtractSeed"
+                "SelectToGrow"
             ]
         }
     ],
@@ -157,6 +156,15 @@
             "default_case": "Any",
             "cases": [
                 {
+                    "name": "DoNothing",
+                    "label": "$option.SelectToGrow.cases.DoNothing.label",
+                    "pipeline_override": {
+                        "Grow": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
                     "name": "Any",
                     "label": "$option.SelectToGrow.cases.Any.label",
                     "pipeline_override": {
@@ -217,7 +225,12 @@
                                 "輕紅柱狀菌"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedAny",
+                        "SortBy",
+                        "SortOrder"
+                    ]
                 },
                 {
                     "name": "Wulingstone",
@@ -229,7 +242,10 @@
                                 "Wulingstone"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Igneosite",
@@ -241,7 +257,10 @@
                                 "Igneosite"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "FalseAggela",
@@ -255,7 +274,10 @@
                                 "岩天使葉"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "BlightedJadeleaf",
@@ -269,7 +291,10 @@
                                 "受蝕玉化葉"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Cosmagaric",
@@ -283,7 +308,10 @@
                                 "星門菌"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Bloodcap",
@@ -296,7 +324,10 @@
                                 "血潮茸"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Umbronyx",
@@ -309,7 +340,10 @@
                                 "重闇石"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Auronyx",
@@ -322,7 +356,10 @@
                                 "中闇石"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Kalkonyx",
@@ -336,7 +373,10 @@
                                 "輕黯石"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Vitrodendra",
@@ -350,7 +390,10 @@
                                 "至晶多齒葉"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Chrysodendra",
@@ -364,7 +407,10 @@
                                 "純晶多齒葉"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "Kalkodendra",
@@ -378,7 +424,10 @@
                                 "晶華多齒葉"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "RubyBolete",
@@ -392,7 +441,10 @@
                                 "重紅柱狀菌"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "RedBolete",
@@ -406,7 +458,10 @@
                                 "中紅柱狀菌"
                             ]
                         }
-                    }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
                 },
                 {
                     "name": "PinkBolete",
@@ -420,11 +475,39 @@
                                 "輕紅柱狀菌"
                             ]
                         }
+                    },
+                    "option": [
+                        "AutoExtractSeedOther"
+                    ]
+                }
+            ]
+        },
+        "AutoExtractSeedAny": { // 适用于选择作物任务中任意选项的是否自动提取基核的选项
+            "type": "switch",
+            "label": "$option.AutoExtrachSeed.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {}
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ExtractSeed": {
+                            "next": [
+                                "GrayCancelButton",
+                                "NoMaterials"
+                            ]
+                        },
+                        "NoMaterials": {
+                            "next": []
+                        }
                     }
                 }
             ]
         },
-        "AutoExtractSeed": {
+        "AutoExtractSeedOther": { // 适用于除选择作物任务以外的其他任务中是否自动提取基核的选项
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "default_case": "Yes",
@@ -438,6 +521,187 @@
                     "pipeline_override": {
                         "ExtractSeed": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "SortBy": {
+            "type": "select",
+            "label": "$option.SortBy.label",
+            "default_case": "Default",
+            "cases": [
+                {
+                    "name": "Default",
+                    "label": "$option.SortBy.cases.Default.label",
+                    "pipeline_override": {
+                        "SortBy": {
+                            "expected": [
+                                "持有数量",
+                                "基核数量",
+                                "品质",
+                                "持有數量",
+                                "基核數量",
+                                "品質",
+                                "総在庫",
+                                "基核数",
+                                "品質",
+                                "Amount Owned",
+                                "Amount of Seeds",
+                                "Quality"
+                            ]
+                        },
+                        "ChooseSortBy": {
+                            "expected": [
+                                "默认",
+                                "預設",
+                                "Default",
+                                "デフォルト"
+                            ]
+                        },
+                        "SwipeChooseSortBy": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "AmountOwned",
+                    "label": "$option.SortBy.cases.AmountOwned.label",
+                    "pipeline_override": {
+                        "SortBy": {
+                            "expected": [
+                                "默认",
+                                "基核数量",
+                                "品质",
+                                "預設",
+                                "基核數量",
+                                "品質",
+                                "デフォルト",
+                                "基核数",
+                                "品質",
+                                "Default",
+                                "Amount of Seeds",
+                                "Quality"
+                            ]
+                        },
+                        "ChooseSortBy": {
+                            "expected": [
+                                "持有数量",
+                                "持有數量",
+                                "総在庫",
+                                "Amount Owned"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AmountOfSeeds",
+                    "label": "$option.SortBy.cases.Quality.label",
+                    "pipeline_override": {
+                        "SortBy": {
+                            "expected": [
+                                "默认",
+                                "持有数量",
+                                "品质",
+                                "預設",
+                                "持有數量",
+                                "品質",
+                                "デフォルト",
+                                "総在庫",
+                                "品質",
+                                "Default",
+                                "Amount Owned",
+                                "Quality"
+                            ]
+                        },
+                        "ChooseSortBy": {
+                            "expected": [
+                                "基核数量",
+                                "基核數量",
+                                "基核数",
+                                "Amount of Seeds"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Quality",
+                    "label": "$option.SortBy.cases.Quality.label",
+                    "pipeline_override": {
+                        "SortBy": {
+                            "expected": [
+                                "默认",
+                                "持有数量",
+                                "基核数量",
+                                "預設",
+                                "持有數量",
+                                "基核數量",
+                                "デフォルト",
+                                "総在庫",
+                                "基核数",
+                                "Default",
+                                "Amount Owned",
+                                "Amount of Seeds"
+                            ]
+                        },
+                        "ChooseSortBy": {
+                            "expected": [
+                                "品质",
+                                "品質",
+                                "品質",
+                                "Quality"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "SortOrder": {
+            "type": "select",
+            "label": "$option.SortOrder.label",
+            "default_case": "ASC",
+            "cases": [
+                {
+                    "name": "ASC",
+                    "label": "$option.SortOrder.cases.Ascending.label",
+                    "pipeline_override": {
+                        "SortOrder": {
+                            "expected": [
+                                "降序",
+                                "降序",
+                                "DESC",
+                                "降順"
+                            ]
+                        },
+                        "ChooseSortOrder": {
+                            "expected": [
+                                "升序",
+                                "升序",
+                                "ASC",
+                                "昇順"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "DESC",
+                    "label": "$option.SortOrder.cases.Ascending.label",
+                    "pipeline_override": {
+                        "SortOrder": {
+                            "expected": [
+                                "升序",
+                                "升序",
+                                "ASC",
+                                "昇順"
+                            ]
+                        },
+                        "ChooseSortOrder": {
+                            "expected": [
+                                "降序",
+                                "降序",
+                                "DESC",
+                                "降順"
+                            ]
                         }
                     }
                 }

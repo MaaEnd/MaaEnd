@@ -238,10 +238,120 @@
             "type": "Click"
         },
         "next": [
+            "[JumpBack]SortBy",
+            "[JumpBack]SortOrder",
             "[JumpBack]SelectGrowTarget",
             "[JumpBack]InSelectGrowSwipe",
             "InGrowthChamber"
         ]
+    },
+    "SortBy": {
+        "doc": "排序,选择基础排序内容",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    74,
+                    512,
+                    128,
+                    83
+                ],
+                "expected": []
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ChooseSortBy",
+            "SwipeChooseSortBy"
+        ]
+    },
+    "ChooseSortBy": {
+        "doc": "选择具体排序方式",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    59,
+                    343,
+                    287,
+                    291
+                ],
+                "expected": []
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SwipeChooseSortBy": {
+        "doc": "选择排序方式时候滚动一次",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    59,
+                    343,
+                    287,
+                    291
+                ],
+                "expected": [
+                    "默认",
+                    "拥有数量",
+                    "基核数量",
+                    "品质"
+                ]
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dx": 120
+            }
+        }
+    },
+    "SortOrder": {
+        "doc": "排序,选择正序或者倒序",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    246,
+                    499,
+                    146,
+                    104
+                ],
+                "expected": []
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ChooseSortOrder"
+        ]
+    },
+    "ChooseSortOrder": {
+        "doc": "选择正序或者倒序",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    234,
+                    403,
+                    175,
+                    210
+                ],
+                "expected": []
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "ExitGrowthChamber": {
         "doc": "[培养舱·离开] 返回控制中枢",
