@@ -1,0 +1,58 @@
+{
+    // TODO 后面和fast/common中Region.json合并
+    "InMapAny": {
+        "doc": "在任意地图界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ]
+    },
+    "InMapWulingWulingCity": {
+        "doc": "在武陵-武陵城地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "武陵城",
+                    "Wuling City",
+                    "무릉성"
+                ]
+            }
+        ]
+    },
+    "InMapWulingJingyuValley": {
+        "doc": "在武陵-景玉谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "景玉谷",
+                    "Jingyu Valley",
+                    "경옥 골짜기"
+                ]
+            }
+        ]
+    }
+}

@@ -357,13 +357,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity1": {
@@ -371,13 +374,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity2": {
@@ -385,13 +391,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity3": {
@@ -399,13 +408,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity4": {
@@ -413,13 +425,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity5": {
@@ -427,13 +442,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity6": {
@@ -441,13 +459,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity7": {
@@ -455,13 +476,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldValleyIVOriginiumSciencePark0": {

@@ -649,22 +649,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -350,
-                                    0,
-                                    350,
-                                    60
-                                ],
-                                "template": [
-                                    "SceneManager/MapMind.png"
-                                ]
-                            }
-                        }
-                    },
+                    "InMapAny",
                     {
                         "recognition": {
                             "type": "TemplateMatch",

@@ -14,20 +14,10 @@
     },
     "__ScenePrivateMapAnchorEnterWorldAnchor": {
         "doc": "在[锚点]地图界面，进入[锚点]大世界",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -350,
-                    0,
-                    350,
-                    60
-                ],
-                "template": [
-                    "SceneManager/MapMind.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
