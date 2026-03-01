@@ -54,5 +54,24 @@
                 ]
             }
         ]
+    },
+    "InMapDijiang": {
+        "doc": "在帝江号地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        ]
     }
 }
