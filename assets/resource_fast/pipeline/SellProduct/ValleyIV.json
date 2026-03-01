@@ -24,8 +24,7 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtRefugeeCamp",
-            "ValleyIVSwitchToRefugeeCamp"
+            "ValleyIVVerifyAtRefugeeCamp"
         ]
     },
     "ValleyIVVerifyAtRefugeeCamp": {
@@ -88,8 +87,7 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtInfrastructureOutpost",
-            "ValleyIVSwitchToInfrastructureOutpost"
+            "ValleyIVVerifyAtInfrastructureOutpost"
         ]
     },
     "ValleyIVVerifyAtInfrastructureOutpost": {
@@ -153,8 +151,7 @@
             "param": {}
         },
         "next": [
-            "ValleyIVVerifyAtReconstructionCommand",
-            "ValleyIVSwitchToReconstructionCommand"
+            "ValleyIVVerifyAtReconstructionCommand"
         ]
     },
     "ValleyIVVerifyAtReconstructionCommand": {

@@ -144,8 +144,7 @@
             "param": {}
         },
         "next": [
-            "SellProductSelectNewProductConfirm",
-            "SellProductSelectNewProduct"
+            "SellProductSelectNewProductConfirm"
         ]
     },
     "SellProductSelectNewProductConfirm": {

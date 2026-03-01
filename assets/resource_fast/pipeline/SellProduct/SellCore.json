@@ -147,8 +147,7 @@
             "param": {}
         },
         "next": [
-            "SellProductSellCheck",
-            "SellProductSell"
+            "SellProductSellCheck"
         ]
     },
     "SellProductSellCheck": {
@@ -185,7 +184,6 @@
             "param": {}
         },
         "next": [
-            "SellProductSellCheck",
             "SellProductZeroMoney",
             "SellProductCanSell"
         ]
