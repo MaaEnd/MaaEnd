@@ -577,13 +577,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
     "SceneEnterWorldValleyIVOriginiumSciencePark1": {
@@ -591,13 +594,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
     "SceneEnterWorldValleyIVOriginiumSciencePark2": {
@@ -605,13 +611,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
     "SceneEnterWorldValleyIVOriginiumSciencePark3": {
@@ -619,13 +628,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
     "SceneEnterWorldValleyIVOriginiumSciencePark4": {
@@ -633,13 +645,16 @@
         "pre_delay": 0,
         "post_delay": 0,
         "anchor": {
-            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
-            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
-            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3"
         },
         "next": [
-            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
-            "[JumpBack]SceneEnterWorldDijiang"
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
     "SceneEnterWorldValleyIVOriginLodespring0": {

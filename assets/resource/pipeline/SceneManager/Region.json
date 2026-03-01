@@ -73,5 +73,28 @@
                 ]
             }
         ]
+    },
+    "InMapValleyIVOriginiumSciencePark": {
+        "doc": "在四号谷地-源石研究园地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "源石研究园",
+                    "Originium Science Park",
+                    "源石研究パーク",
+                    "오리지늄 연구 구역",
+                    "源石研究園"
+                ]
+            }
+        ]
     }
 }

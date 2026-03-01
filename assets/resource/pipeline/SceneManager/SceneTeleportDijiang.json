@@ -3,10 +3,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang0Center.png"
@@ -35,10 +35,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang0Left.png"
@@ -67,10 +67,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang0Right.png"
@@ -99,10 +99,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang1Center.png"
@@ -131,10 +131,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang1Left.png"
@@ -163,10 +163,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang1Bottom.png"
@@ -195,10 +195,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang2Center.png"
@@ -227,10 +227,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang2Right.png"
@@ -259,10 +259,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapDijiang/Dijiang2Bottom.png"

@@ -3,10 +3,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity0Center.png"
@@ -35,10 +35,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity0Bottom.png"
@@ -67,10 +67,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity0Right.png"
@@ -99,10 +99,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity1Center.png"
@@ -131,10 +131,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity1Bottom.png"
@@ -164,10 +164,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity1Right.png"
@@ -197,10 +197,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity2Center.png"
@@ -230,10 +230,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity2Bottom.png"
@@ -263,10 +263,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity2Right.png"
@@ -296,10 +296,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity3Center.png"
@@ -329,10 +329,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity3Bottom.png"
@@ -362,10 +362,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity3Right.png"
@@ -395,10 +395,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity4Center.png"
@@ -428,10 +428,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity4Bottom.png"
@@ -461,10 +461,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity4Right.png"
@@ -494,10 +494,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity5Center.png"
@@ -527,10 +527,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity5Left.png"
@@ -560,10 +560,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity5Top.png"
@@ -593,10 +593,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity6Center.png"
@@ -626,10 +626,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity6Left.png"
@@ -659,10 +659,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity6Top.png"
@@ -692,10 +692,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity7Center.png"
@@ -725,10 +725,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity7Left.png"
@@ -758,10 +758,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/WulingCity7Top.png"
@@ -791,10 +791,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley0Center.png"
@@ -824,10 +824,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley0Bottom.png"
@@ -857,10 +857,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley0Right.png"
@@ -890,10 +890,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley1Center.png"
@@ -923,10 +923,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley1Bottom.png"
@@ -956,10 +956,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley1Left.png"
@@ -989,10 +989,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley2Center.png"
@@ -1022,10 +1022,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley2Right.png"
@@ -1055,10 +1055,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley2Top.png"
@@ -1088,10 +1088,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley3Center.png"
@@ -1121,10 +1121,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley3Right.png"
@@ -1154,10 +1154,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley3Top.png"
@@ -1187,10 +1187,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley4Center.png"
@@ -1220,10 +1220,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley4Right.png"
@@ -1253,10 +1253,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley4Top.png"
@@ -1286,10 +1286,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley5Center.png"
@@ -1319,10 +1319,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley5Bottom.png"
@@ -1352,10 +1352,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley5Left.png"
@@ -1385,10 +1385,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley6Center.png"
@@ -1418,10 +1418,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley6Left.png"
@@ -1451,10 +1451,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley6Top.png"
@@ -1484,10 +1484,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley7Center.png"
@@ -1517,10 +1517,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley7Bottom.png"
@@ -1550,10 +1550,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley7Right.png"
@@ -1583,10 +1583,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley8Center.png"
@@ -1616,10 +1616,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley8Right.png"
@@ -1649,10 +1649,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley8Top.png"
@@ -1682,10 +1682,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley9Center.png"
@@ -1715,10 +1715,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley9Left.png"
@@ -1748,10 +1748,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley9Top.png"
@@ -1781,10 +1781,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley10Center.png"
@@ -1814,10 +1814,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley10Right.png"
@@ -1847,10 +1847,10 @@
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
         "roi": [
-            0,
-            0,
-            0,
-            0
+            100,
+            100,
+            1080,
+            520
         ],
         "template": [
             "SceneManager/MapWuling/JingyuValley10Top.png"

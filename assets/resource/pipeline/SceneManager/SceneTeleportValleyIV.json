@@ -1,0 +1,482 @@
+{
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark0Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark0Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark0Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark1Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark1Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark1Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark1Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark2Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark2Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark2Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark2Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark3Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark3Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark3Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark3Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark4Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark4Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumSciencePark4Top.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            140,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    }
+}

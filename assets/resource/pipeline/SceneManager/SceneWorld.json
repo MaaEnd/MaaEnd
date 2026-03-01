@@ -8,7 +8,9 @@
                     "InWorld"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateWorldFactoryDisableEnterFactoryActive": {
         "doc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",
@@ -198,6 +200,8 @@
                     "SceneManager/WorldFactoryActive.png"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

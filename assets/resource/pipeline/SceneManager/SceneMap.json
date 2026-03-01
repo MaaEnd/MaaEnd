@@ -14,7 +14,9 @@
                     "[Oo].?[Mm].?[Vv]"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapEnterTeleport": {
         "doc": "在地图界面，随机选择一个传送点进入",
@@ -181,7 +183,9 @@
                 ],
                 "green_mask": true
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapOverview": {
         "desc": "在任意地图界面，进入地区总览地图",
@@ -262,7 +266,9 @@
                 ],
                 "threshold": 0.9
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapZoomOut": {
         "desc": "在地图界面，缩小地图",
