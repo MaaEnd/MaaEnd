@@ -350,6 +350,8 @@
     "preset.RealtimeAssist.description": "挂机时开启的实时辅助功能全套",
     "preset.AutoTrading.label": "自动倒卖",
     "preset.AutoTrading.description": "自动买卖及生产相关",
+    "task.AutoEcoFarm.label": "🌾自动生态农场",
+    "task.AutoEcoFarm.description": "自动完成收菜、种植、浇水等相关的操作",
     "preset.EssenceFarming.label": "基质刷取",
     "preset.EssenceFarming.description": "基质养成及筛选相关"
 }

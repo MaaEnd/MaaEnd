@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
@@ -24,6 +25,7 @@ func registerAll() {
 	dailyrewards.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
+	autoecofarm.Register()
 	autofight.Register()
 	screenshot.Register()
 

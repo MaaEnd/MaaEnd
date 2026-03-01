@@ -351,5 +351,7 @@
     "preset.AutoTrading.label": "자동 거래",
     "preset.AutoTrading.description": "자동 매매 및 생산 관련 임무입니다.",
     "preset.EssenceFarming.label": "에센스 파밍",
-    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다."
+    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
+    "task.AutoEcoFarm.label": "🌾자동 생태 농장",
+    "task.AutoEcoFarm.description": "자동으로 작물 수확, 재배, 관수 등의 작업을 수행합니다."
 }
