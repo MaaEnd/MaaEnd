@@ -96,5 +96,50 @@
                 ]
             }
         ]
+    },
+    "InMapValleyIVOriginLodespring": {
+        "doc": "在四号谷地-矿脉源区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "矿脉源区",
+                    "Origin Lodespring",
+                    "鉱山エリア",
+                    "광맥 구역",
+                    "礦脈源區"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVPowerPlateau": {
+        "doc": "在四号谷地-供能高地地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "供能高地",
+                    "Power Plateau",
+                    "エネルギー高地",
+                    "에너지 공급 고지"
+                ]
+            }
+        ]
     }
 }

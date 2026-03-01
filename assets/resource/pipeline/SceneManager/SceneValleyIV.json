@@ -672,6 +672,40 @@
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
         ]
     },
+    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor": {
+        "doc": "在四号谷地-矿脉源区地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVOriginLodespring"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
+    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
+        "doc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVPowerPlateau"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
     "__ScenePrivateMapValleyIVTheHubEnterTeleport": {
         "doc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
         "recognition": {
