@@ -38,7 +38,7 @@ static std::shared_ptr<MapLocator> getOrInitLocator() {
     if (locator) return locator;
 
     fs::path exeDir = getExeDir();
-    fs::path mapRoot = exeDir / ".." / "resource" / "image" / "Map";
+    fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
     fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
 
     std::string mapRootStr   = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));

@@ -30,7 +30,7 @@ struct LocateOptions {
     std::string expected_zone = "";  // 预期所在区域 (可作为先验知识加速)
     int max_lost_frames = 3;            // 允许丢失追踪的帧数
 
-    MEO_JSONIZATION(loc_threshold, yolo_threshold, force_global_search, expected_zone, max_lost_frames)
+    MEO_JSONIZATION(MEO_OPT loc_threshold, MEO_OPT yolo_threshold, MEO_OPT force_global_search, MEO_OPT expected_zone, MEO_OPT max_lost_frames)
 };
 
 // --- 返回结果枚举与封装 ---
