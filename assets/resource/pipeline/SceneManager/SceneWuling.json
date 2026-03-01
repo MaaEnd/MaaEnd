@@ -1,5 +1,5 @@
 {
-    "ScenePrivateWorldEnterMapWulingWulingCity": {
+    "__ScenePrivateWorldEnterMapWulingWulingCity": {
         "doc": "在大世界界面，进入武陵-武陵城地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -24,12 +24,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingWulingCitySuccess",
-            "ScenePrivateMapOverviewEnterMapWulingWulingCity",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingWulingCity",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateWorldEnterMapWulingJingyuValley": {
+    "__ScenePrivateWorldEnterMapWulingJingyuValley": {
         "doc": "在大世界界面，进入武陵-景玉谷地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -54,12 +54,12 @@
         },
         "post_wait_freezes": 400,
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess",
-            "ScenePrivateMapOverviewEnterMapWulingJingyuValley",
-            "[JumpBack]ScenePrivateMapAnyEnterMapOverview"
+            "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingJingyuValley",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "ScenePrivateMapAnyEnterMapWulingWulingCitySuccess": {
+    "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess": {
         "doc": "在地图界面，成功进入武陵-武陵城地图",
         "recognition": {
             "type": "OCR",
@@ -78,7 +78,7 @@
             }
         }
     },
-    "ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
+    "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "doc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": {
             "type": "OCR",
@@ -97,7 +97,7 @@
             }
         }
     },
-    "ScenePrivateMapOverviewSwitchMapOverviewWuling": {
+    "__ScenePrivateMapOverviewSwitchMapOverviewWuling": {
         "desc": "在地图总览界面，切换到武陵总览界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -119,7 +119,7 @@
         },
         "post_wait_freezes": 400
     },
-    "ScenePrivateMapOverviewEnterMapWulingWulingCity": {
+    "__ScenePrivateMapOverviewEnterMapWulingWulingCity": {
         "desc": "在地图地总览界面，进入武陵-武陵城地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -138,11 +138,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "ScenePrivateMapOverviewWulingEnterMapWulingWulingCity"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity"
         ]
     },
-    "ScenePrivateMapOverviewEnterMapWulingJingyuValley": {
+    "__ScenePrivateMapOverviewEnterMapWulingJingyuValley": {
         "desc": "在地图地总览界面，进入武陵-景玉谷地图",
         "recognition": {
             "type": "TemplateMatch",
@@ -161,11 +161,11 @@
             }
         },
         "next": [
-            "[JumpBack]ScenePrivateMapOverviewSwitchMapOverviewWuling",
-            "ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley"
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley"
         ]
     },
-    "ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
+    "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
         "doc": "在武陵总览界面，进入武陵-武陵城地图",
         "recognition": {
             "type": "OCR",
@@ -187,10 +187,10 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
+            "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
         ]
     },
-    "ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
+    "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "doc": "在武陵总览界面，进入武陵-景玉谷地图",
         "recognition": {
             "type": "OCR",
@@ -212,7 +212,7 @@
             "type": "Click"
         },
         "next": [
-            "ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
+            "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
         ]
     }
 }

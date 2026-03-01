@@ -1,0 +1,1117 @@
+{
+    // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 __ScenePrivate 节点
+    "SceneAnyEnterWorld": {
+        "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "next": [
+            "__ScenePrivateAnyEnterWorldSuccess",
+            "[JumpBack]__ScenePrivateLogin",
+            "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]__ScenePrivateEndVisitConfirm",
+            "[JumpBack]SceneWaitLoadingExit",
+            "[JumpBack]__ScenePrivateAnyExit"
+        ]
+    },
+    "SceneEnterMenuList": {
+        "doc": "从任意界面进入菜单总列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapDijiang": {
+        "doc": "从任意界面进入帝江号地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapDijiang",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVTheHub": {
+        "doc": "从任意界面进入四号谷地-枢纽区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVTheHub",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVValleyPass": {
+        "doc": "从任意界面进入四号谷地-谷地通道地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginiumSciencePark": {
+        "doc": "从任意界面进入四号谷地-源石研究园地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVAburreyQuarry": {
+        "doc": "从任意界面进入四号谷地-阿伯莉采石场地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVAburreyQuarry",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVOriginLodespring": {
+        "doc": "从任意界面进入四号谷地-矿脉源区地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapValleyIVPowerPlateau": {
+        "doc": "从任意界面进入四号谷地-供能高地地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapWulingWulingCity": {
+        "doc": "从任意界面进入武陵-武陵城地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMapWulingJingyuValley": {
+        "doc": "从任意界面进入武陵-景玉谷地图界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterWorldDijiang": {
+        "doc": "从任意界面进入帝江号大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterWorldDijiang",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterWorldDijiangControlNexus": {
+        "doc": "从任意界面进入帝江号大世界控制中枢",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVTheHub": {
+        "doc": "从任意界面进入四号谷地-枢纽区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldAnyEnterWorldValleyIVTheHub",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterWorldValleyIVValleyPass0": {
+        "doc": "从任意界面进入四号谷地-谷地通道-谷地要塞大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVValleyPass1": {
+        "doc": "从任意界面进入四号谷地-谷地通道-谷地中转站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVValleyPass2": {
+        "doc": "从任意界面进入四号谷地-谷地通道-通道入口大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVValleyPass",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValleyTreasureGrotto": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValleyQingboBailey": {
+        "doc": "从任意界面进入-景玉谷-清波寨外寨大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley0": {
+        "doc": "从任意界面进入-景玉谷-生态实验站",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley1": {
+        "doc": "从任意界面进入-景玉谷-踩道大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley2": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley3": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley4": {
+        "doc": "从任意界面进入-景玉谷-聚宝窟内大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley5": {
+        "doc": "从任意界面进入-景玉谷-天王坪大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley6": {
+        "doc": "从任意界面进入-景玉谷-驮鼻山大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley7": {
+        "doc": "从任意界面进入-景玉谷-迷踪林大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley8": {
+        "doc": "从任意界面进入-景玉谷-摘菱屿大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley9": {
+        "doc": "从任意界面进入-景玉谷-南山大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingJingyuValley10": {
+        "doc": "从任意界面进入-景玉谷-水泽涧大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingJingyuValley",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical6Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity0": {
+        "doc": "从任意界面进入武陵-武陵城-观测站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity1": {
+        "doc": "从任意界面进入武陵-武陵城-界石坪大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity2": {
+        "doc": "从任意界面进入武陵-武陵城-待修缮区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity3": {
+        "doc": "从任意界面进入武陵-武陵城-方兴衢大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity4": {
+        "doc": "从任意界面进入武陵-武陵城-天师府学院大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity5": {
+        "doc": "从任意界面进入武陵-武陵城-天井院大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity6": {
+        "doc": "从任意界面进入武陵-武陵城-储备站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical5Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity7": {
+        "doc": "从任意界面进入武陵-武陵城-三窟岗大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapWulingWulingCity",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical5Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical6Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark0": {
+        "doc": "从任意界面进入四号谷地-源石研究园-矿脉源区入口大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark1": {
+        "doc": "从任意界面进入四号谷地-源石研究园-源石实验园区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark2": {
+        "doc": "从任意界面进入四号谷地-源石研究园-山道缓坡大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark3": {
+        "doc": "从任意界面进入四号谷地-源石研究园-五号公路大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumSciencePark4": {
+        "doc": "从任意界面进入四号谷地-源石研究园-醇化合物工厂大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginiumSciencePark",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical4Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring0": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-源石隧道大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "__ScenePrivateAnyMapChooseTeleportVertical0Step1",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring1": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-运输区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring2": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-旧矿区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring3": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-矿区医疗站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginLodespring4": {
+        "doc": "从任意界面进入四号谷地-矿脉源区-裂地者营地大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVOriginLodespring",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau0": {
+        "doc": "从任意界面进入四号谷地-供能高地-电站通信站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical0Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau1": {
+        "doc": "从任意界面进入四号谷地-供能高地-高地主路大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical1Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau2": {
+        "doc": "从任意界面进入四号谷地-供能高地-碾骨战营大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical2Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldValleyIVPowerPlateau3": {
+        "doc": "从任意界面进入四号谷地-供能高地-疏散区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateWorldEnterMapAnchor": "__ScenePrivateWorldEnterMapValleyIVPowerPlateau",
+            "__ScenePrivateMapAnchorChooseTeleportStep1": "",
+            "__ScenePrivateMapAnchorChooseTeleportStepFinish": "__ScenePrivateAnyMapChooseTeleportVertical3Finish"
+        },
+        "next": [
+            "__ScenePrivateWorldDijiangAnyEnterWorldAnchor",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterWorldFactory": {
+        "doc": "从任意界面进入大世界工厂模式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateAnyEnterWorldFactorySuccess",
+            "__ScenePrivateWorldFactoryDisableEnterFactoryActive",
+            "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive",
+            "__ScenePrivateWorldDijiangEnterFactoryActive",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopment": {
+        "doc": "从任意界面进入地区建设菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuRegionalDevelopment",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuEvent": {
+        "doc": "从任意界面进入活动菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEvent",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuValuables": {
+        "doc": "从任意界面进入贵重品库菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuValuables",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuOperationalManual": {
+        "doc": "从任意界面进入行动手册菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperationalManual",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuProtocolPass": {
+        "doc": "从任意界面进入通行证菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuProtocolPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriends": {
+        "doc": "从任意界面进入好友菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuFriends",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuGearAssembly": {
+        "doc": "从任意界面进入装备加工界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldFactoryEnterMenuGearAssembly",
+            "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuBluePrint": {
+        "doc": "从任意界面进入蓝图菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldFactoryEnterMenuBluePrint",
+            "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuEmail": {
+        "doc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpack": {
+        "doc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBackpack",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "doc": "从任意界面进入背包界面，左侧包含所有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterMenuBaker": {
+        "doc": "从任意界面进入Baker界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBaker",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuWiki": {
+        "doc": "从任意界面进入百科界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuWiki",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuShop": {
+        "doc": "从任意界面进入商店界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuShop",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneDialogConfirm": {
+        "doc": "点击对话框的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogCancel.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneDialogCancel": {
+        "doc": "点击对话框的取消按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogCancel.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    290,
+                                    360,
+                                    670,
+                                    210
+                                ],
+                                "template": [
+                                    "SceneManager/DialogConfirm.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneNoticeRewardsConfirm": {
+        "doc": "点击奖励界面的确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
+                                    520,
+                                    0,
+                                    240,
+                                    180
+                                ],
+                                "template": [
+                                    "SceneManager/NoticeRewardsIcon.png"
+                                ],
+                                "threshold": 0.9
+                            }
+                        }
+                    },
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "SceneWaitLoadingExit": {
+        "doc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/LoadingIcon.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]SceneCheckYellowColor",
+            "[JumpBack]SceneCheckTealColor",
+            "[JumpBack]SceneCheckPurpleColor",
+            "SceneWaitLoadingExit",
+            "__ScenePrivateNextTrue"
+        ]
+    },
+    "SceneCheckYellowColor": {
+        "doc": "检查颜色准确性:黄色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "max_hit": 1,
+        "next": [
+            "SceneCheckYellowColorSuccess",
+            "SceneCheckYellowColorFailed"
+        ]
+    },
+    "SceneCheckYellowColorSuccess": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    480,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "upper": [
+                    30,
+                    255,
+                    255
+                ],
+                "lower": [
+                    30,
+                    255,
+                    1
+                ]
+            }
+        }
+    },
+    "SceneCheckYellowColorFailed": {
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
+    },
+    "SceneCheckTealColor": {
+        "doc": "检查颜色准确性:青色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "max_hit": 1,
+        "next": [
+            "SceneCheckTealColorSuccess",
+            "SceneCheckTealColorFailed"
+        ]
+    },
+    "SceneCheckTealColorSuccess": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    518,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "upper": [
+                    90,
+                    255,
+                    255
+                ],
+                "lower": [
+                    90,
+                    255,
+                    1
+                ]
+            }
+        }
+    },
+    "SceneCheckTealColorFailed": {
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
+    },
+    "SceneCheckPurpleColor": {
+        "doc": "检查颜色准确性:紫色",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "max_hit": 1,
+        "next": [
+            "SceneCheckPurpleColorSuccess",
+            "SceneCheckPurpleColorFailed"
+        ]
+    },
+    "SceneCheckPurpleColorSuccess": {
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    553,
+                    65,
+                    85
+                ],
+                "method": 40,
+                "upper": [
+                    150,
+                    255,
+                    255
+                ],
+                "lower": [
+                    150,
+                    255,
+                    1
+                ]
+            }
+        }
+    },
+    "SceneCheckPurpleColorFailed": {
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneCheckColorFailedScreenShot"
+        ]
+    },
+    "SceneCheckColorFailedScreenShot": {
+        "doc": "检查颜色准确性失败时，截图保存到 debug 目录",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "max_hit": 1,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ScreenShot",
+                "custom_action_param": {
+                    "type": "ColorCheckFailed",
+                    "dir": "debug/color_check_failed"
+                }
+            }
+        }
+    }
+}

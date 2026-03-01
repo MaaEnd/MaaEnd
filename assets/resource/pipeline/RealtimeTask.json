@@ -4,7 +4,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]RealTimeAutoFight",
+            "[JumpBack]AutoFightRealtimeTask",
             "AutoPickFalls",
             "AutoPickInteractive",
             "RealTimeAutoSkip",

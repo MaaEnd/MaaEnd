@@ -80,7 +80,7 @@
             67,
             125,
             233,
-            36
+            78
         ],
         "expected": [
             "运送人信息",
@@ -160,6 +160,25 @@
             "Wuling City",
             "武陵城内",
             "무릉성 도심"
+        ]
+    },
+    "CheckChangeRegionConfirmText": {
+        "doc": "检查更换地区确认界面中的文本",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            400,
+            240,
+            500,
+            150
+        ],
+        "expected": [
+            "是否切换",
+            "是否切换查看选中地区的地区建设情况？",
+            "是否切換查看選取的地區建設狀況？",
+            "Switch to view the development status of the selected region?",
+            "この地域の建設状況を確認しますか？",
+            "선택한 지역의 건설 상황을 확인하시겠습니까?"
         ]
     }
 }

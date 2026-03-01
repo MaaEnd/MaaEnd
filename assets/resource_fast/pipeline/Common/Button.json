@@ -203,16 +203,11 @@
     },
     "ChangeRegionConfirmButton": {
         "doc": "地区建设中的确认更换地区按钮",
-        "recognition": "TemplateMatch",
-        "template": "Common/Button/ChangeRegionConfirmButton.png",
-        "threshold": 0.9,
-        "roi": [
-            784,
-            371,
-            118,
-            115
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1",
+            "CheckChangeRegionConfirmText"
         ],
-        "method": 10001,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -275,32 +270,41 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "lower": [
                     [
-                        0,
-                        0,
-                        250
+                        255,
+                        253,
+                        253
                     ],
                     [
-                        0,
-                        0,
-                        150
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        153,
+                        152,
+                        152
                     ]
                 ],
                 "upper": [
                     [
-                        0,
-                        2,
-                        255
+                        255,
+                        253,
+                        253
                     ],
                     [
-                        0,
-                        2,
-                        155
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        167,
+                        165,
+                        165
                     ]
                 ],
-                "count": 3000,
+                "count": 100,
                 "connected": true
             }
         }
@@ -352,6 +356,12 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
+                                "roi_offset": [
+                                    -20,
+                                    -20,
+                                    80,
+                                    40
+                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
@@ -392,7 +402,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -434,7 +444,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -477,7 +487,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -520,7 +530,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -563,7 +573,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    40,
+                                    80,
                                     40
                                 ],
                                 "template": [
@@ -703,6 +713,73 @@
                 "contact": 1
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnvironmentMonitoringButton": {
+        "doc": "环境监测按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnvironmentMonitoringButton.png",
+        "threshold": 0.9,
+        "roi": [
+            749,
+            419,
+            62,
+            73
+        ],
+        "method": 10001,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnterCameraModeButton": {
+        "doc": "进入拍照按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
+        "roi": [
+            755,
+            387,
+            310,
+            178
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ShutterButton": {
+        "doc": "快门按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/ShutterButton.png",
+        "threshold": 0.9,
+        "roi": [
+            1029,
+            509,
+            145,
+            139
+        ],
+        "action": "Click",
         "post_wait_freezes": {
             "time": 80,
             "target": [

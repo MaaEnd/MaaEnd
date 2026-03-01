@@ -14,7 +14,7 @@ import (
 )
 
 func getCharactorLevelShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionCharactorLevelShow", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionCharactorLevelShow", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
 		return false
@@ -39,11 +39,11 @@ func getComboUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg, index int) 
 	}
 
 	override := map[string]any{
-		"AutoFightRecognitionComboUsable": map[string]any{
+		"__AutoFightRecognitionComboUsable": map[string]any{
 			"roi": maa.Rect{roiX, 657, 56, 4},
 		},
 	}
-	detail, err := ctx.RunRecognition("AutoFightRecognitionComboUsable", arg.Img, override)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionComboUsable", arg.Img, override)
 	if err != nil {
 		log.Error().Err(err).Int("index", index).Msg("Failed to run recognition for combo usable")
 		return false
@@ -55,11 +55,11 @@ func getEndSkillUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg) []int {
 	usableIndexes := []int{}
 	const roiX, roiWidth = 1010, 270
 	override := map[string]any{
-		"AutoFightRecognitionEndSkill": map[string]any{
+		"__AutoFightRecognitionEndSkill": map[string]any{
 			"roi": maa.Rect{roiX, 535, roiWidth, 65},
 		},
 	}
-	detail, err := ctx.RunRecognition("AutoFightRecognitionEndSkill", arg.Img, override)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEndSkill", arg.Img, override)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for end skill")
 		return usableIndexes
@@ -96,7 +96,7 @@ func getEndSkillUsable(ctx *maa.Context, arg *maa.CustomRecognitionArg) []int {
 }
 
 func hasComboShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionComboNotice", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionComboNotice", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for combo notice")
 		return false
@@ -105,7 +105,7 @@ func hasComboShow(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 }
 
 func hasEnemyAttack(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionEnemyAttack", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnemyAttack", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for enemy attack")
 		return false
@@ -114,7 +114,7 @@ func hasEnemyAttack(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 }
 
 func hasEnemyInScreen(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionEnemyInScreen", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnemyInScreen", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for enemy in screen")
 		return false
@@ -124,7 +124,7 @@ func hasEnemyInScreen(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 
 func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 	// 第一格能量满
-	detail, err := ctx.RunRecognition("AutoFightRecognitionEnergyLevel1", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionEnergyLevel1", arg.Img)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionEnergyLevel1")
 		return -1
@@ -134,7 +134,7 @@ func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 	}
 
 	// 第一格能量空
-	detail, err = ctx.RunRecognition("AutoFightRecognitionEnergyLevel0", arg.Img)
+	detail, err = ctx.RunRecognition("__AutoFightRecognitionEnergyLevel0", arg.Img)
 	if err != nil {
 		return -1
 	}
@@ -145,7 +145,7 @@ func getEnergyLevel(ctx *maa.Context, arg *maa.CustomRecognitionArg) int {
 }
 
 func hasCharacterBar(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionSwitchOperatorsTip", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionSwitchOperatorsTip", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionSwitchOperatorsTip")
 		return false
@@ -154,7 +154,7 @@ func hasCharacterBar(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
 }
 
 func inFightSpace(ctx *maa.Context, arg *maa.CustomRecognitionArg) bool {
-	detail, err := ctx.RunRecognition("AutoFightRecognitionFightSpace", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionFightSpace", arg.Img)
 	if err != nil || detail == nil {
 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionFightSpace")
 		return false
@@ -192,7 +192,7 @@ func (r *AutoFightEntryRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogni
 		return nil, false
 	}
 
-	detail, err := ctx.RunRecognition("AutoFightRecognitionFightSkill", arg.Img)
+	detail, err := ctx.RunRecognition("__AutoFightRecognitionFightSkill", arg.Img)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to run recognition for AutoFightRecognitionFightSkill")
 		return nil, false
@@ -457,19 +457,19 @@ func (r *AutoFightExecuteRecognition) Run(ctx *maa.Context, arg *maa.CustomRecog
 func actionName(action ActionType, operator int) string {
 	switch action {
 	case ActionAttack:
-		return "AutoFightActionAttackClick"
+		return "__AutoFightActionAttack"
 	case ActionCombo:
-		return "AutoFightActionComboClick"
+		return "__AutoFightActionComboClick"
 	case ActionSkill:
-		return fmt.Sprintf("AutoFightActionSkillOperators%d", operator)
+		return fmt.Sprintf("__AutoFightActionSkillOperators%d", operator)
 	case ActionEndSkillKeyDown:
-		return fmt.Sprintf("AutoFightActionEndSkillOperators%dKeyDown", operator)
+		return fmt.Sprintf("__AutoFightActionEndSkillOperators%dKeyDown", operator)
 	case ActionEndSkillKeyUp:
-		return fmt.Sprintf("AutoFightActionEndSkillOperators%dKeyUp", operator)
+		return fmt.Sprintf("__AutoFightActionEndSkillOperators%dKeyUp", operator)
 	case ActionLockTarget:
-		return "AutoFightActionLockTarget"
+		return "__AutoFightActionLockTarget"
 	case ActionDodge:
-		return "AutoFightActionDodge"
+		return "__AutoFightActionDodge"
 	default:
 		return ""
 	}
@@ -490,7 +490,8 @@ func (a *AutoFightExecuteAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		if name == "" {
 			continue
 		}
-		ctx.RunAction(name, maa.Rect{0, 0, 0, 0}, "")
+
+		ctx.RunTask(name)
 	}
 
 	return true

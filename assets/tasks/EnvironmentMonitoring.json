@@ -1,0 +1,13 @@
+{
+    "task": [
+        {
+            "name": "EnvironmentMonitoring",
+            "label": "$task.EnvironmentMonitoring.label",
+            "entry": "EnvironmentMonitoringMain",
+            "description": "$task.EnvironmentMonitoring.description",
+            "controller": [
+                "Win32-Front"
+            ]
+        }
+    ]
+}

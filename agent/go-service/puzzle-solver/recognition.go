@@ -278,7 +278,7 @@ func getAllPuzzleDesc(ctx *maa.Context, img image.Image) []*PuzzleDesc {
 			int(PUZZLE_THUMB_START_Y),
 			int(float64(PUZZLE_THUMB_MAX_COLS) * PUZZLE_THUMB_W),
 			int(float64(PUZZLE_THUMB_MAX_ROWS) * PUZZLE_THUMB_H),
-		}))
+		}), nil)
 
 		// Preview this puzzle
 		desc := doPreviewPuzzle(ctx, thumb[0], thumb[1])

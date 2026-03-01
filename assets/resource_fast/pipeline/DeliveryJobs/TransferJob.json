@@ -1,4 +1,6 @@
 {
+    // 转交任务的流程
+    // 进入送货任务 -> 点击转交任务 -> 确认转交任务
     "DeliveryJobsEnterDeliveryJob": {
         "doc": "进入送货任务",
         "recognition": "OCR",
@@ -18,23 +20,8 @@
         ],
         "action": "Click",
         "next": [
-            "[JumpBack]DeliveryJobsConfirmTaskTransfer",
-            "[JumpBack]DeliveryJobsClickTransferJob",
-            "[JumpBack]DeliveryJobsEnterDeliveryJobMission",
-            "DeliveryJobsEnterDeliveryJob",
-            // 如果没有任务但是在仓储节点/大世界，说明送货任务处理完毕，跳出循环
-            "InLocalDepotNode",
-            "InWorld"
-        ],
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+            "DeliveryJobsClickTransferJob"
+        ]
     },
     "DeliveryJobsClickTransferJob": {
         "doc": "单击转交任务",
@@ -54,64 +41,36 @@
             "운송 의뢰 위탁"
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        "next": [
+            "DeliveryJobsConfirmTaskTransfer"
+        ]
     },
-    "DeliveryJobsConfirmTaskTransfer": {
-        "doc": "确认转交任务",
-        "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/ConfirmTransfer.png",
-        "roi": [
-            810,
-            437,
-            100,
-            77
-        ],
-        "threshold": 0.8,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
-    "DeliveryJobsEnterDeliveryJobMission": {
-        "doc": "进入任务界面中的送货任务",
+    "DeliveryJobsCheckTaskTransferText": {
+        "doc": "检查转交任务文本",
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            96,
-            53,
-            285,
-            634
+            401,
+            238,
+            494,
+            160
         ],
         "expected": [
-            "送货任务",
-            "送貨任務",
-            "Delivery Job",
-            "配達任務",
-            "배송 임무"
+            "给他人派送",
+            "是否确认将送货任务委托给他人派送?",
+            "是否確定將送貨任務委託給他人運送？",
+            "Transfer delivery job to another courier?",
+            "配達任務を他人に委託しますか？",
+            "운송 임무를 다른 사람에게 위탁하시겠습니까?"
+        ]
+    },
+    "DeliveryJobsConfirmTaskTransfer": {
+        "doc": "确认转交任务",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1",
+            "DeliveryJobsCheckTaskTransferText"
         ],
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        "action": "Click"
     }
 }

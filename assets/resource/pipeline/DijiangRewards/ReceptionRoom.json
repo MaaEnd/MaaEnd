@@ -48,7 +48,7 @@
             "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
         },
         "next": [
-            "ScenePrivateWorldEnterMenuControlNexusSuccess",
+            "InDijiangControlNexus",
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]CollectClues",
             "[JumpBack]ReceiveClues",
@@ -184,7 +184,7 @@
     "ClueTimeLabel": {
         "doc": "识别线索的剩余天数",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": "ReadySetClues",
                 "roi_offset": [
@@ -193,9 +193,33 @@
                     58,
                     41
                 ],
-                "expected": [
-                    "\\d+[小时|天]"
-                ]
+                "method": 40,
+                "upper": [
+                    [
+                        39,
+                        255,
+                        200
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "lower": [
+                    [
+                        39,
+                        255,
+                        100
+                    ],
+                    [
+                        170,
+                        100,
+                        100
+                    ]
+                ],
+                "count": 20,
+                "connected": true
             }
         }
     },

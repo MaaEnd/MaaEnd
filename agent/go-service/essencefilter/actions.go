@@ -229,7 +229,7 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 	)
 
 	if n <= maxSinglePage {
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceDetectFinal"},
 		})
 	}
@@ -428,7 +428,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 
 	if isFallbackScan && !finalLargeScanUsed {
 		finalLargeScanUsed = true
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceDetectFinal"},
 		})
 		LogMXUSimpleHTMLWithColor(
@@ -443,21 +443,21 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	// 在非尾扫的情况下，如果符合条件的box数量超过单行最大可处理数量，直接结束当前行的处理，避免误操作；如果是尾扫，则不论数量多少都继续处理
 	if (len(rowBoxes) > maxItemsPerRow) && !isFallbackScan {
 		log.Error().Int("count", len(rowBoxes)).Msg("<EssenceFilter> RowCollect: boxes > maxItemsPerRow, abort")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterFinish"},
 		})
 		return true
 	}
 	if len(rowBoxes) == 0 {
 		log.Info().Msg("<EssenceFilter> RowCollect: no valid boxes, finish")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterFinish"},
 		})
 		return true
 	}
 
 	rowIndex = 0
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "EssenceFilterRowNextItem"},
 	})
 	return true
@@ -485,12 +485,12 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			)
 			currentRow++
 
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 				{Name: nextSwipe},
 			})
 			return true
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterFinish"},
 		})
 		return true
@@ -515,7 +515,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 
 	visitedCount++
 	rowIndex++
-	ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "EssenceFilterCheckItemSlot1"},
 	})
 	return true
@@ -602,7 +602,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			escapeHTML(extendedReason),
 		))
 
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterLockItemLog"},
 		})
 	} else if matched {
@@ -657,13 +657,13 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			}
 		}
 
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterLockItemLog"},
 		})
 	} else {
 		log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
 		LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceFilterRowNextItem"},
 		})
 	}

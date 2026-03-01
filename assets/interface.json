@@ -19,47 +19,51 @@
     },
     "controller": [
         {
-            "name": "Win32-Window-Background",
-            "label": "$controller.Win32-Window-Background.label",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "PrintWindow",
-                "mouse": "SendMessageWithWindowPos",
-                "keyboard": "SendMessageWithWindowPos"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32",
-            "label": "$controller.Win32.label",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "FramePool",
-                "mouse": "PostMessageWithCursorPos",
-                "keyboard": "PostMessageWithCursorPos"
-            },
-            "permission_required": true
-        },
-        {
             "name": "Win32-Window",
             "label": "$controller.Win32-Window.label",
+            "description": "$controller.Win32-Window.description",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
                 "screencap": "PrintWindow",
                 "mouse": "SendMessageWithCursorPos",
-                "keyboard": "SendMessageWithCursorPos"
+                "keyboard": "SendMessage"
+            },
+            "permission_required": true
+        },
+        {
+            "name": "Win32-Window-Background",
+            "label": "$controller.Win32-Window-Background.label",
+            "description": "$controller.Win32-Window-Background.description",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "PrintWindow",
+                "mouse": "SendMessageWithWindowPos",
+                "keyboard": "SendMessage"
+            },
+            "permission_required": true
+        },
+        {
+            "name": "Win32",
+            "label": "$controller.Win32.label",
+            "description": "$controller.Win32.description",
+            "type": "Win32",
+            "win32": {
+                "class_regex": "UnityWndClass",
+                "window_regex": "Endfield",
+                "screencap": "FramePool",
+                "mouse": "SendMessageWithCursorPos",
+                "keyboard": "PostMessage"
             },
             "permission_required": true
         },
         {
             "name": "Win32-Front",
             "label": "$controller.Win32-Front.label",
+            "description": "$controller.Win32-Front.description",
             "type": "Win32",
             "win32": {
                 "class_regex": "UnityWndClass",
@@ -73,6 +77,7 @@
         {
             "name": "ADB",
             "label": "$controller.ADB.label",
+            "description": "$controller.ADB.description",
             "type": "Adb",
             "attach_resource_path": [
                 "./resource_adb"
@@ -133,6 +138,7 @@
         "tasks/CreditShopping.json",
         "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
+        "tasks/EnvironmentMonitoring.json",
         "tasks/SeizeEntrustTask.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",

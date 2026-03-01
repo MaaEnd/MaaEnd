@@ -6,19 +6,15 @@
             "description": "$preset.QuickDaily.description",
             "task": [
                 {
-                    "name": "DailyRewards",
+                    "name": "VisitFriends",
                     "option": {
-                        "DailyEmailRewards": "Yes",
-                        "DailyTaskRewards": "Yes",
-                        "DailyClaimDeliveryJobsRewards": "Yes",
-                        "DailyEventRewards": "Yes",
-                        "DailyProtocolPassRewards": "Yes"
+                        "PriorStealVegetables": "Yes"
                     }
                 },
                 {
                     "name": "DijiangRewards",
                     "option": {
-                        "AutoStartExchange": "No",
+                        "AutoStartExchange": "Yes",
                         "ProductionAssistanceWithoutTheControlNexus": "No",
                         "ClueStockLimit": "3"
                     }
@@ -33,7 +29,17 @@
                     }
                 },
                 {
-                    "name": "ReceiveProdManual"
+                    "name": "SellProduct"
+                },
+                {
+                    "name": "DailyRewards",
+                    "option": {
+                        "DailyEmailRewards": "Yes",
+                        "DailyEventRewards": "Yes",
+                        "DailyTaskRewards": "Yes",
+                        "DailyClaimDeliveryJobsRewards": "Yes",
+                        "DailyProtocolPassRewards": "Yes"
+                    }
                 }
             ]
         }
