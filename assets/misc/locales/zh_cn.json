@@ -99,6 +99,7 @@
     "option.ClueSetting.description": "启用后可以更改线索规则",
     "option.SelectToGrow.label": "选择种植目标",
     "option.SelectToGrow.description": "MAE 会自动种植对应目标",
+    "option.AutoExtrachSeedAny.description": "关闭时,强制启用排序为基核数量和降序",
     "option.SelectToGrow.cases.DoNothing.label": "不种植",
     "option.SelectToGrow.cases.Any.label": "任意",
     "option.SortBy.label": "排序方式",

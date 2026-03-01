@@ -99,6 +99,7 @@
     "option.ClueSetting.description": "啟用後可以更改線索規則",
     "option.SelectToGrow.label": "選擇種植目標",
     "option.SelectToGrow.description": "MAE 會自動種植對應目標",
+    "option.AutoExtrachSeedAny.description": "關閉時，強制啟用排序為基核數量和降序",
     "option.SelectToGrow.cases.DoNothing.label": "不種植",
     "option.SelectToGrow.cases.Any.label": "任意",
     "option.SortBy.label": "排序方式",

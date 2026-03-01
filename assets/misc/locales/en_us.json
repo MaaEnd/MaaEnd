@@ -99,6 +99,7 @@
     "option.ClueSetting.description": "When enabled, allows you to change clue handling rules.",
     "option.SelectToGrow.label": "Select growth target",
     "option.SelectToGrow.description": "MAE will automatically plant the selected target.",
+    "option.AutoExtrachSeedAny.description": "When disabled, sorting is forced to 'Amount of Seeds' and 'Descending' order.",
     "option.SelectToGrow.cases.DoNothing.label": "Do Nothing",
     "option.SelectToGrow.cases.Any.label": "Any",
     "option.SortBy.label": "Sort By",

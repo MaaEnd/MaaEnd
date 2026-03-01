@@ -99,6 +99,7 @@
     "option.ClueSetting.description": "有効にすると、手掛かり処理ルールを変更できます。",
     "option.SelectToGrow.label": "栽培対象を選択",
     "option.SelectToGrow.description": "有効にすると、MAE が選択した対象を自動で栽培します。",
+    "option.AutoExtrachSeedAny.description": "無効時、ソートは強制的に基核数と降順になります。",
     "option.SelectToGrow.cases.DoNothing.label": "栽培しない",
     "option.SelectToGrow.cases.Any.label": "任意",
     "option.SortBy.label": "ソート方法",

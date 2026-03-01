@@ -227,9 +227,7 @@
                         }
                     },
                     "option": [
-                        "AutoExtractSeedAny",
-                        "SortBy",
-                        "SortOrder"
+                        "AutoExtractSeedAny"
                     ]
                 },
                 {
@@ -485,15 +483,53 @@
         "AutoExtractSeedAny": { // 适用于选择作物任务中任意选项的是否自动提取基核的选项
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
+            "description": "$option.AutoExtrachSeedAny.description",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {}
+                    "pipeline_override": {},
+                    "option": [
+                        "SortBy",
+                        "SortOrder"
+                    ]
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
+                        "SortBy": {
+                            "expected": [
+                                "默认",
+                                "拥有数量",
+                                "品质",
+                                "預設",
+                                "持有數量",
+                                "品質",
+                                "デフォルト",
+                                "総在庫",
+                                "品質",
+                                "Default",
+                                "Amount Owned",
+                                "Quality"
+                            ]
+                        },
+                        "ChooseSortBy": {
+                            "expected": [
+                                "基核数量",
+                                "基核數量",
+                                "基核数",
+                                "Amount of Seeds"
+                            ]
+                        },
+                        "SortOrder": {
+                            "enabled": true,
+                            "expected": [
+                                "降序",
+                                "降序",
+                                "DESC",
+                                "降順"
+                            ]
+                        },
                         "ExtractSeed": {
                             "next": [
                                 "GrayCancelButton",
