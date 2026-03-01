@@ -61,8 +61,7 @@
             }
         },
         "next": [
-            "SellProductAtSell",
-            "[Anchor]SellProductNextOutpost"
+            "SellProductAtSell"
         ]
     }
 }
