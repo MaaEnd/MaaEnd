@@ -15,10 +15,10 @@
                     "천왕"
                 ],
                 "roi": [
-                    146,
+                    123,
                     64,
-                    166,
-                    34
+                    189,
+                    52
                 ]
             }
         },
@@ -35,7 +35,7 @@
         "post_delay": 0,
         "doc": "检测：已切换至天王坪援建点",
         "anchor": {
-            "SellProductNextOutpost": "SellProductRegionEndCheck"
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "recognition": {
             "type": "ColorMatch",

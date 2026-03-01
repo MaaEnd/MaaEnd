@@ -23,10 +23,10 @@
                     "유랑자 임시 거주지"
                 ],
                 "roi": [
-                    146,
+                    123,
                     64,
-                    166,
-                    34
+                    189,
+                    52
                 ]
             }
         },
@@ -112,7 +112,7 @@
                     447,
                     64,
                     166,
-                    34
+                    50
                 ]
             }
         },
@@ -198,8 +198,8 @@
                 "roi": [
                     754,
                     64,
-                    166,
-                    34
+                    260,
+                    55
                 ]
             }
         },
@@ -226,7 +226,7 @@
         },
         "doc": "检测：已切换至重建指挥部",
         "anchor": {
-            "SellProductNextOutpost": "SellProductRegionEndCheck"
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "recognition": {
             "type": "ColorMatch",

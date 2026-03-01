@@ -64,10 +64,10 @@
                     "SellProduct/SellProductBarRight.png"
                 ],
                 "roi": [
-                    1125,
-                    537,
-                    78,
-                    73
+                    1115,
+                    507,
+                    88,
+                    103
                 ]
             }
         },
@@ -197,23 +197,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "template": [
-                                    "SellProduct/SellProductCheck.png"
-                                ],
-                                "roi": [
-                                    600,
-                                    600,
-                                    100,
-                                    100
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    },
+                    "CloseRewardsButton",
                     {
                         "recognition": {
                             "type": "TemplateMatch",
@@ -282,5 +266,16 @@
             ]
         },
         "doc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
+    },
+    "SellProductBackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductAtDevelopment"
+        ]
     }
 }

@@ -31,8 +31,51 @@
         "post_delay": 0,
         "post_wait_freezes": 200,
         "next": [
+            "SellProductValleyIV",
+            "SellProductWuling",
+            "SellProductTaskEnd"
+        ]
+    },
+    "SellProductValleyIV": {
+        "doc": "四号谷地售卖流程入口",
+        "max_hit": 1,
+        "next": [
+            "SellProductValleyIVEnterOutpostManagement",
             "SellProductEnterManagementLocked",
-            "SellProductEnterOutpostManagement"
+            "[JumpBack]GoToValleyIV"
+        ]
+    },
+    "SellProductWuling": {
+        "doc": "武陵售卖流程入口",
+        "max_hit": 1,
+        "next": [
+            "SellProductWulingEnterOutpostManagement",
+            "SellProductEnterManagementLocked",
+            "[JumpBack]GoToWuling"
+        ]
+    },
+    "SellProductValleyIVEnterOutpostManagement": {
+        "doc": "位于四号谷地",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InValleyIVRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "ValleyIVSwitchToRefugeeCamp"
+        ]
+    },
+    "SellProductWulingEnterOutpostManagement": {
+        "doc": "位于武陵",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InWulingRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "WulingSwitchToSkyKingFlats"
         ]
     },
     "SellProductEnterManagementLocked": {
@@ -59,7 +102,6 @@
         ]
     },
     "SellProductEnterOutpostManagement": {
-        "post_delay": 0,
         "doc": "位于地区建设，进入据点管理",
         "recognition": {
             "type": "OCR",
@@ -80,16 +122,7 @@
                     "거점 관리"
                 ]
             }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": 100,
-        "next": [
-            "WulingSwitchToSkyKingFlats",
-            "ValleyIVSwitchToRefugeeCamp",
-            "SellProductAtDevelopment"
-        ]
+        }
     },
     "SellProductRegionExitGate": {
         "pre_delay": 0,
@@ -116,129 +149,7 @@
             }
         },
         "next": [
-            "SellProductRegionEndCheck"
-        ]
-    },
-    "SellProductRegionEndCheck": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "检测是否抵达结束条件：未结束则切换下一地区，已结束则退出",
-        "next": [
-            "SellProductRegionCounter",
-            "SellProductExit"
-        ]
-    },
-    "SellProductRegionCounter": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "max_hit": 1,
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                54,
-                77,
-                230,
-                252
-            ]
-        },
-        "post_wait_freezes": {
-            "time": 300,
-            "target": [
-                54,
-                77,
-                230,
-                252
-            ]
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "当前区域任务已完成，正在前往下一区域"
-        },
-        "doc": "地区计数器：该节点 max_hit 为地区数-1",
-        "next": [
-            "SellProductRegionCounterRelay",
-            "[JumpBack]SellProductRegionCloseRelay"
-        ]
-    },
-    "SellProductRegionCloseRelay": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "中继节点：在地区选择界面识别武陵或四号谷地后关闭",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "expected": [
-                                    "天王坪",
-                                    "天王坪援助",
-                                    "天王坪援建",
-                                    "Sky King",
-                                    "天王原",
-                                    "천왕"
-                                ],
-                                "roi": [
-                                    146,
-                                    64,
-                                    166,
-                                    34
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "expected": [
-                                    "难民暂居处",
-                                    "難民暫居處",
-                                    "Refugee Camp",
-                                    "仮設居住地",
-                                    "유랑자 임시 거주지"
-                                ],
-                                "roi": [
-                                    146,
-                                    64,
-                                    166,
-                                    34
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
-        },
-        "next": [
-            "CloseButtonType1"
-        ]
-    },
-    "SellProductRegionCounterRelay": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "中继节点：确认在地区建设界面后切换下一地区",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InRegionalDevelopment"
-                ]
-            }
-        },
-        "next": [
-            "SellProductForthValley",
-            "SellProductWuling"
-        ]
-    },
-    "SellProductExit": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "doc": "虚拟出口节点：售卖流程结束",
-        "next": [
-            "[JumpBack]CloseButtonType1",
-            "SellProductTaskEnd"
+            "SellProductAtDevelopment"
         ]
     },
     "SellProductTaskEnd": {
