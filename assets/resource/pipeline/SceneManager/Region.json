@@ -1,0 +1,145 @@
+{
+    // TODO 后面和fast/common中Region.json合并
+    "InMapAny": {
+        "doc": "在任意地图界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ]
+    },
+    "InMapWulingWulingCity": {
+        "doc": "在武陵-武陵城地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "武陵城",
+                    "Wuling City",
+                    "무릉성"
+                ]
+            }
+        ]
+    },
+    "InMapWulingJingyuValley": {
+        "doc": "在武陵-景玉谷地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "景玉谷",
+                    "Jingyu Valley",
+                    "경옥 골짜기"
+                ]
+            }
+        ]
+    },
+    "InMapDijiang": {
+        "doc": "在帝江号地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    350,
+                    220
+                ],
+                "expected": [
+                    "[Oo].?[Mm].?[Vv]"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVOriginiumSciencePark": {
+        "doc": "在四号谷地-源石研究园地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "源石研究园",
+                    "Originium Science Park",
+                    "源石研究パーク",
+                    "오리지늄 연구 구역",
+                    "源石研究園"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVOriginLodespring": {
+        "doc": "在四号谷地-矿脉源区地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "矿脉源区",
+                    "Origin Lodespring",
+                    "鉱山エリア",
+                    "광맥 구역",
+                    "礦脈源區"
+                ]
+            }
+        ]
+    },
+    "InMapValleyIVPowerPlateau": {
+        "doc": "在四号谷地-供能高地地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "供能高地",
+                    "Power Plateau",
+                    "エネルギー高地",
+                    "에너지 공급 고지"
+                ]
+            }
+        ]
+    }
+}

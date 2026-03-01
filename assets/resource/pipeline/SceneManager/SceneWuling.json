@@ -61,41 +61,21 @@
     },
     "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess": {
         "doc": "在地图界面，成功进入武陵-武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    250,
-                    60
-                ],
-                "expected": [
-                    "武陵城",
-                    "Wuling City",
-                    "무릉성"
-                ]
-            }
-        }
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
         "doc": "在地图界面，成功进入武陵-景玉谷地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    250,
-                    60
-                ],
-                "expected": [
-                    "景玉谷",
-                    "Jingyu Valley",
-                    "경옥 골짜기"
-                ]
-            }
-        }
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapOverviewSwitchMapOverviewWuling": {
         "desc": "在地图总览界面，切换到武陵总览界面",
@@ -213,6 +193,40 @@
         },
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
+        ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
+        "doc": "在武陵-武陵城地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
+        "doc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingJingyuValley"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
         ]
     }
 }

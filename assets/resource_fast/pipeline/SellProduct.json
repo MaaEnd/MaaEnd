@@ -1,0 +1,144 @@
+{
+    "SellProductMain": {
+        "doc": "脚本入口",
+        "next": [
+            "SellProductAtDevelopment"
+        ]
+    },
+    "SellProductAtDevelopment": {
+        "doc": "位于地区建设界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InRegionalDevelopment"
+                ]
+            }
+        },
+        "next": [
+            "SellProductValleyIV",
+            "SellProductWuling",
+            "SellProductTaskEnd"
+        ]
+    },
+    "SellProductValleyIV": {
+        "doc": "四号谷地售卖流程入口",
+        "max_hit": 1,
+        "next": [
+            "SellProductValleyIVEnterOutpostManagement",
+            "SellProductEnterManagementLocked",
+            "[JumpBack]GoToValleyIV"
+        ]
+    },
+    "SellProductWuling": {
+        "doc": "武陵售卖流程入口",
+        "max_hit": 1,
+        "next": [
+            "SellProductWulingEnterOutpostManagement",
+            "SellProductEnterManagementLocked",
+            "[JumpBack]GoToWuling"
+        ]
+    },
+    "SellProductValleyIVEnterOutpostManagement": {
+        "doc": "位于四号谷地",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InValleyIVRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "ValleyIVSwitchToRefugeeCamp"
+        ]
+    },
+    "SellProductWulingEnterOutpostManagement": {
+        "doc": "位于武陵",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InWulingRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "WulingSwitchToSkyKingFlats"
+        ]
+    },
+    "SellProductEnterManagementLocked": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductDevelopmentLocked.png"
+                ],
+                "roi": [
+                    1178,
+                    185,
+                    35,
+                    48
+                ]
+            }
+        },
+        "doc": "识别据点管理是否未解锁",
+        "focus": {
+            "Node.Recognition.Succeeded": "据点管理未解锁"
+        },
+        "next": [
+            "SellProductRegionExitGate"
+        ]
+    },
+    "SellProductEnterOutpostManagement": {
+        "doc": "位于地区建设，进入据点管理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    700,
+                    100,
+                    550,
+                    500
+                ],
+                "expected": [
+                    // 据点管理
+                    "据点管理",
+                    "據點管理",
+                    "Outpost",
+                    "outpost",
+                    "拠点管理",
+                    "거점 관리"
+                ]
+            }
+        }
+    },
+    "SellProductRegionExitGate": {
+        "doc": "虚拟出口节点：地区售卖完成，等待回到地区建设界面后路由至下一地区或结束",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 更换
+                    "更换",
+                    "更換",
+                    "Switch",
+                    "switch",
+                    "変更",
+                    "교체"
+                ],
+                "roi": [
+                    0,
+                    250,
+                    250,
+                    100
+                ]
+            }
+        },
+        "next": [
+            "SellProductAtDevelopment"
+        ]
+    },
+    "SellProductTaskEnd": {
+        "doc": "任务结束",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SellProduct.TaskEnd"
+        }
+    }
+}

@@ -158,7 +158,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.94,
+        "threshold": 0.8,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownRepo"
@@ -314,7 +314,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.94,
+        "threshold": 0.8,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBag"
@@ -479,7 +479,7 @@
         ],
         "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
-        "threshold": 0.94,
+        "threshold": 0.8,
         "order_by": "Score",
         "next": [
             "ItemTransferCtrlKeyDownBagReturn"

@@ -1,0 +1,237 @@
+{
+    "SellProductAtSell": {
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入售卖界面"
+        },
+        "doc": "位于出售页面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 交易
+                    "交易",
+                    "交易",
+                    "Trade",
+                    "取引",
+                    "거래",
+                    // 据点上限
+                    "据点上限",
+                    "據點上限",
+                    "current limit",
+                    "上限",
+                    "거점 발전 포인트 현재 거점 최대치 도달",
+                    // 不足
+                    "不足",
+                    "不足",
+                    "Insufficient",
+                    "insufficient",
+                    "不足",
+                    "거점 관리권 보유량 부족"
+                ],
+                "roi": [
+                    900,
+                    550,
+                    350,
+                    150
+                ]
+            }
+        },
+        "next": [
+            "SellProductCanSell"
+        ]
+    },
+    "SellProductCanSell": {
+        "doc": "判断当前能不能出售的虚节点",
+        "next": [
+            "SellProductZeroProduct",
+            "SellProductZeroMoney",
+            "SellProductClickBarRight",
+            "SellProductDragBar"
+        ]
+    },
+    "SellProductClickBarRight": {
+        "doc": "点击进度条最右侧",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBarRight.png"
+                ],
+                "roi": [
+                    1115,
+                    507,
+                    88,
+                    103
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    20,
+                    -20,
+                    -40
+                ]
+            }
+        },
+        // 单击后如果马上单击交易会出问题，不懂为啥
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1210,
+                554,
+                45,
+                39
+            ]
+        },
+        "next": [
+            "SellProductZeroProduct",
+            "SellProductZeroMoney",
+            "SellProductSell"
+        ]
+    },
+    "SellProductDragBar": {
+        "doc": "备选方案-滑动滑动条",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBar.png"
+                ],
+                "roi": [
+                    1000,
+                    500,
+                    200,
+                    150
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end_offset": [
+                    [
+                        0,
+                        0,
+                        400,
+                        0
+                    ]
+                ],
+                "duration": [
+                    500
+                ]
+            }
+        },
+        "next": [
+            "SellProductZeroProduct",
+            "SellProductZeroMoney",
+            "SellProductSell"
+        ]
+    },
+    "SellProductSell": {
+        "doc": "交易",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 交易
+                    "交易",
+                    "交易",
+                    "Trade",
+                    "trade",
+                    "取引",
+                    "거래"
+                ],
+                "roi": [
+                    1000,
+                    640,
+                    250,
+                    100
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                533,
+                300,
+                213,
+                103
+            ]
+        },
+        "next": [
+            "SellProductSellCheck"
+        ]
+    },
+    "SellProductSellCheck": {
+        "doc": "交易后确认",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "template": [
+                                    "SellProduct/SellProductCheckHeader.png"
+                                ],
+                                "roi": [
+                                    577,
+                                    10,
+                                    138,
+                                    118
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            // 交易后的弹窗第一次单击时跳过动画，第二次才能退出
+            "SellProductSellCheck",
+            "SellProductSellCheckComplete"
+        ]
+    },
+    "SellProductSellCheckComplete": {
+        "doc": "交易完成，奖励界面已关闭",
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        },
+        "next": [
+            "SellProductCanSell"
+        ]
+    },
+    "SellProductOutpostDone": {
+        "doc": "虚节点：这个据点已经被售卖完毕",
+        "next": [
+            "[Anchor]SellProductNextOutpost"
+        ]
+    },
+    "SellProductNextOutpost": {
+        "doc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
+    },
+    "SellProductBackToRegionalConstruction": {
+        "doc": "返回区域建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductAtDevelopment"
+        ]
+    }
+}
