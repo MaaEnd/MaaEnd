@@ -2,7 +2,6 @@ import argparse
 import os
 import sys
 import shutil
-import zipfile
 import subprocess
 import platform
 import urllib.request
@@ -252,28 +251,41 @@ def write_versions_file(path: Path, versions: dict[str, str]) -> None:
         print(Console.warn(t("wrn_write_version_failed", error=e)))
 
 
-def parse_semver(version: str) -> list[int]:
+def parse_semver(version: str) -> tuple[list[int], list[str]]:
+    """Parse a semver string into (core_numbers, prerelease_identifiers).
+
+    Implements SemVer 2.0.0 precedence essentials used by compare_semver:
+    - Ignore leading 'v'/'V'
+    - Ignore build metadata (+...)
+    - Compare core version as numeric dot-separated identifiers
+    - Handle prerelease precedence (alpha/beta/rc, numeric identifiers, etc.)
+    """
     if not version:
-        return []
+        return [], []
+
     v = version.strip()
-    if v.startswith("v") or v.startswith("V"):
+    if v.startswith(("v", "V")):
         v = v[1:]
-    if "-" in v:
-        v = v.split("-", 1)[0]
-    parts = v.split(".")
-    numbers: list[int] = []
-    for part in parts:
+
+    # Drop build metadata for precedence comparison.
+    if "+" in v:
+        v = v.split("+", 1)[0]
+
+    # Split core and prerelease.
+    core_part, pre_part = (v.split("-", 1) + [""])[:2] if "-" in v else (v, "")
+
+    def parse_core_number(part: str) -> int:
         num = ""
         for ch in part:
             if ch.isdigit():
                 num += ch
             else:
                 break
-        if num == "":
-            numbers.append(0)
-        else:
-            numbers.append(int(num))
-    return numbers
+        return int(num) if num else 0
+
+    core_numbers = [parse_core_number(p) for p in core_part.split(".") if p != ""]
+    prerelease = [p for p in pre_part.split(".") if p != ""] if pre_part else []
+    return core_numbers, prerelease
 
 
 def compare_semver(a: str | None, b: str | None) -> int:
@@ -283,16 +295,60 @@ def compare_semver(a: str | None, b: str | None) -> int:
         return 1
     if b and not a:
         return -1
-    left = parse_semver(a or "")
-    right = parse_semver(b or "")
-    max_len = max(len(left), len(right))
-    left += [0] * (max_len - len(left))
-    right += [0] * (max_len - len(right))
-    for l, r in zip(left, right):
+
+    left_core, left_pre = parse_semver(a or "")
+    right_core, right_pre = parse_semver(b or "")
+
+    # Compare major.minor.patch (or longer) numerically.
+    max_len = max(len(left_core), len(right_core))
+    left_core += [0] * (max_len - len(left_core))
+    right_core += [0] * (max_len - len(right_core))
+    for l, r in zip(left_core, right_core):
         if l > r:
             return 1
         if l < r:
             return -1
+
+    # Core equal: version without prerelease has higher precedence.
+    if not left_pre and not right_pre:
+        return 0
+    if not left_pre and right_pre:
+        return 1
+    if left_pre and not right_pre:
+        return -1
+
+    # Both prerelease: compare dot-separated identifiers.
+    def is_numeric_identifier(s: str) -> bool:
+        return s.isdigit()
+
+    for l, r in zip(left_pre, right_pre):
+        l_num = is_numeric_identifier(l)
+        r_num = is_numeric_identifier(r)
+
+        if l_num and r_num:
+            li, ri = int(l), int(r)
+            if li > ri:
+                return 1
+            if li < ri:
+                return -1
+            continue
+
+        if l_num and not r_num:
+            return -1  # numeric < non-numeric
+        if not l_num and r_num:
+            return 1
+
+        # both non-numeric: ASCII lexical compare
+        if l > r:
+            return 1
+        if l < r:
+            return -1
+
+    # All shared identifiers equal: shorter prerelease has lower precedence.
+    if len(left_pre) > len(right_pre):
+        return 1
+    if len(left_pre) < len(right_pre):
+        return -1
     return 0
 
 
@@ -684,8 +740,25 @@ def install_mxu(
             return False, local_version, False
 
 
+def _is_cn_locale() -> bool:
+    """检测当前系统语言是否为简体中文"""
+    import locale as _locale
+
+    loc = _locale.getlocale()
+    lang = (loc[0] or "").lower()
+    return lang in ("zh_cn", "chinese (simplified)_china")
+
+
 def main() -> None:
     init_local()
+
+    if _is_cn_locale():
+        print(
+            Console.warn(
+                "[提示] 本脚本需要访问 GitHub，若出现下载超时或连接失败，可尝试配置系统代理"
+            )
+        )
+        print("-" * 60)
 
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
@@ -748,7 +821,7 @@ def main() -> None:
     print(Console.info(t("inf_workspace_ready", mxu_path=install_dir / MXU_DIST_NAME)))
     print(Console.info(t("inf_install_dir_hint", install_dir=install_dir)))
 
-    dev_doc = PROJECT_BASE / "docs/developers/development.md"
+    dev_doc = PROJECT_BASE / "docs/zh_cn/developers/development.md"
     print(Console.info(t("inf_read_dev_doc", doc_path=dev_doc)))
 
 

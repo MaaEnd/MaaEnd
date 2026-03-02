@@ -1,0 +1,10 @@
+{
+    "DeliveryJobsGoToDepot": {
+        "next": [
+            "[Anchor]DeliveryJobsInDepotNode",
+            "[Anchor]DeliveryJobsEnterDepot",
+            "DeliveryJobsEnterDepot",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    }
+}

@@ -96,6 +96,18 @@
             "Node.Action.Succeeded": "信用点不足,尝试从帝江号会客室获取"
         },
         "max_hit": 1,
+        "recognition": "Or",
+        "any_of": [
+            "AutoGetCreditsBuy"
+        ],
+        "next": [
+            "[JumpBack]NeedCredit",
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    },
+    "AutoGetCreditsBuy": {
         "recognition": "And",
         "box_index": 3,
         "all_of": [
@@ -103,12 +115,6 @@
             "NotSoldOut",
             "CanNotAfford",
             "BuyFirstOCR_CanNotAfford"
-        ],
-        "next": [
-            "[JumpBack]NeedCredit",
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
         ]
     },
     "CreditShoppingBuyFirst": {

@@ -109,7 +109,7 @@ Optional parameters:
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 
-- `precision`: Real number between $(0, 1]$, default `0.4`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
+- `precision`: Real number between $(0, 1]$, default `0.5`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
 
 - `threshold`: Real number between $(0, 1]$, default `0.4` Controls the confidence threshold for matching. Matching results below this value will not hit the recognition.
 

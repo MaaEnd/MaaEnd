@@ -181,8 +181,8 @@ def build_go_agent(
 
     env = {**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}
 
-    # go mod tidy
-    result = subprocess.run(
+    # 每次构建前统一刷新 go.mod / go.sum / vendor，避免依赖漂移。
+    tidy_result = subprocess.run(
         ["go", "mod", "tidy"],
         cwd=go_service_dir,
         capture_output=True,
@@ -190,9 +190,29 @@ def build_go_agent(
         encoding="utf-8",
         env=env,
     )
-    if result.returncode != 0:
-        print(f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {result.stderr}")
+    if tidy_result.stdout:
+        print(tidy_result.stdout)
+    if tidy_result.returncode != 0:
+        print(f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {tidy_result.stderr}")
         return False
+    if tidy_result.stderr:
+        print(tidy_result.stderr)
+
+    vendor_result = subprocess.run(
+        ["go", "mod", "vendor"],
+        cwd=go_service_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env,
+    )
+    if vendor_result.stdout:
+        print(vendor_result.stdout)
+    if vendor_result.returncode != 0:
+        print(f"  {Console.err(t('error'))} go mod vendor 失败: {vendor_result.stderr}")
+        return False
+    if vendor_result.stderr:
+        print(vendor_result.stderr)
 
     # go build
     # CI 模式：release with debug info（保留 DWARF 调试信息，不使用 -s -w）
