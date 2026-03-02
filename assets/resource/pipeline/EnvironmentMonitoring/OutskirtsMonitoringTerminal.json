@@ -8,8 +8,8 @@
             "CheckEternalSunsetReadyText"
         ],
         "next": [
-            "GoToEternalSunset",
-            "AcceptEternalSunsetThenGoTo"
+            "AcceptEternalSunsetThenGoTo",
+            "GoToEternalSunset"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -23,8 +23,8 @@
             "CheckAncientTreeReadyText"
         ],
         "next": [
-            "GoToAncientTree",
-            "AcceptAncientTreeThenGoTo"
+            "AcceptAncientTreeThenGoTo",
+            "GoToAncientTree"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -38,8 +38,8 @@
             "CheckCisternOriginiumSlugsReadyText"
         ],
         "next": [
-            "GoToCisternOriginiumSlugs",
-            "AcceptCisternOriginiumSlugsThenGoTo"
+            "AcceptCisternOriginiumSlugsThenGoTo",
+            "GoToCisternOriginiumSlugs"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -53,8 +53,8 @@
             "CheckCollapsedTianshiPillarReadyText"
         ],
         "next": [
-            "GoToCollapsedTianshiPillar",
-            "AcceptCollapsedTianshiPillarThenGoTo"
+            "AcceptCollapsedTianshiPillarThenGoTo",
+            "GoToCollapsedTianshiPillar"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -68,8 +68,8 @@
             "CheckIndoorCropsReadyText"
         ],
         "next": [
-            "GoToIndoorCrops",
-            "AcceptIndoorCropsThenGoTo"
+            "AcceptIndoorCropsThenGoTo",
+            "GoToIndoorCrops"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -83,8 +83,8 @@
             "CheckBeaconDamagedInBlightTideReadyText"
         ],
         "next": [
-            "GoToBeaconDamagedInBlightTide",
-            "AcceptBeaconDamagedInBlightTideThenGoTo"
+            "AcceptBeaconDamagedInBlightTideThenGoTo",
+            "GoToBeaconDamagedInBlightTide"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -98,8 +98,8 @@
             "CheckRainbowFinReadyText"
         ],
         "next": [
-            "GoToRainbowFin",
-            "AcceptRainbowFinThenGoTo"
+            "AcceptRainbowFinThenGoTo",
+            "GoToRainbowFin"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -113,8 +113,8 @@
             "CheckCleansingJadeReadyText"
         ],
         "next": [
-            "GoToCleansingJade",
-            "AcceptCleansingJadeThenGoTo"
+            "AcceptCleansingJadeThenGoTo",
+            "GoToCleansingJade"
         ],
         "pre_delay": 0,
         "post_delay": 0
@@ -490,25 +490,6 @@
             "의뢰 수령"
         ]
     },
-    "CheckEternalSunsetGoToMission": {
-        "doc": "检查栖霞驻影委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckEternalSunsetText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
-        ]
-    },
     "CheckAncientTreeJob": {
         "doc": "检查古树委托是否可以接取",
         "recognition": "OCR",
@@ -526,25 +507,6 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ]
-    },
-    "CheckAncientTreeGoToMission": {
-        "doc": "检查古树委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckAncientTreeText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
         ]
     },
     "CheckCisternOriginiumSlugsJob": {
@@ -566,25 +528,6 @@
             "의뢰 수령"
         ]
     },
-    "CheckCisternOriginiumSlugsGoToMission": {
-        "doc": "检查蓄水源石虫委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckCisternOriginiumSlugsText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
-        ]
-    },
     "CheckCollapsedTianshiPillarJob": {
         "doc": "检查倒塌的天师桩委托是否可以接取",
         "recognition": "OCR",
@@ -602,25 +545,6 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ]
-    },
-    "CheckCollapsedTianshiPillarGoToMission": {
-        "doc": "检查倒塌的天师桩委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckCollapsedTianshiPillarText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
         ]
     },
     "CheckIndoorCropsJob": {
@@ -642,25 +566,6 @@
             "의뢰 수령"
         ]
     },
-    "CheckIndoorCropsGoToMission": {
-        "doc": "检查室内作物委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckIndoorCropsText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
-        ]
-    },
     "CheckBeaconDamagedInBlightTideJob": {
         "doc": "检查侵蚀潮中损坏的信标委托是否可以接取",
         "recognition": "OCR",
@@ -678,25 +583,6 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ]
-    },
-    "CheckBeaconDamagedInBlightTideGoToMission": {
-        "doc": "检查侵蚀潮中损坏的信标委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckBeaconDamagedInBlightTideText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
         ]
     },
     "CheckRainbowFinJob": {
@@ -718,25 +604,6 @@
             "의뢰 수령"
         ]
     },
-    "CheckRainbowFinGoToMission": {
-        "doc": "检查七彩鳞委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckRainbowFinText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
-        ]
-    },
     "CheckCleansingJadeJob": {
         "doc": "检查漱玉委托是否可以接取",
         "recognition": "OCR",
@@ -754,25 +621,6 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ]
-    },
-    "CheckCleansingJadeGoToMission": {
-        "doc": "检查漱玉委托是否可以前往任务",
-        "recognition": "OCR",
-        "order_by": "Expected",
-        "roi": "CheckCleansingJadeText",
-        "roi_offset": [
-            65,
-            408,
-            248,
-            19
-        ],
-        "expected": [
-            "前往任务",
-            "前往任務",
-            "Go to Mission",
-            "任務へ",
-            "임무로 이동하기"
         ]
     },
     "AcceptEternalSunsetThenGoTo": {
@@ -953,11 +801,6 @@
     },
     "GoToEternalSunset": {
         "doc": "前往栖霞驻影",
-        "recognition": "And",
-        "all_of": [
-            "CheckEternalSunsetText",
-            "CheckEternalSunsetGoToMission"
-        ],
         "next": [
             "GoToEternalSunsetStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley2"
@@ -965,11 +808,6 @@
     },
     "GoToAncientTree": {
         "doc": "前往古树",
-        "recognition": "And",
-        "all_of": [
-            "CheckAncientTreeText",
-            "CheckAncientTreeGoToMission"
-        ],
         "next": [
             "GoToAncientTreeStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley7"
@@ -977,11 +815,6 @@
     },
     "GoToCisternOriginiumSlugs": {
         "doc": "前往蓄水源石虫",
-        "recognition": "And",
-        "all_of": [
-            "CheckCisternOriginiumSlugsText",
-            "CheckCisternOriginiumSlugsGoToMission"
-        ],
         "next": [
             "GoToCisternOriginiumSlugsStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley7"
@@ -989,11 +822,6 @@
     },
     "GoToIndoorCrops": {
         "doc": "前往室内作物",
-        "recognition": "And",
-        "all_of": [
-            "CheckIndoorCropsText",
-            "CheckIndoorCropsGoToMission"
-        ],
         "next": [
             "GoToIndoorCropsStartPos",
             "[JumpBack]SceneEnterWorldWulingWulingCity4"
@@ -1001,11 +829,6 @@
     },
     "GoToBeaconDamagedInBlightTide": {
         "doc": "前往侵蚀潮中损坏的信标",
-        "recognition": "And",
-        "all_of": [
-            "CheckBeaconDamagedInBlightTideText",
-            "CheckBeaconDamagedInBlightTideGoToMission"
-        ],
         "next": [
             "GoToBeaconDamagedInBlightTideStartPos",
             "[JumpBack]SceneEnterWorldWulingWulingCity0"
@@ -1013,11 +836,6 @@
     },
     "GoToRainbowFin": {
         "doc": "前往七彩鳞",
-        "recognition": "And",
-        "all_of": [
-            "CheckRainbowFinText",
-            "CheckRainbowFinGoToMission"
-        ],
         "next": [
             "GoToRainbowFinStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley10"
@@ -1025,11 +843,6 @@
     },
     "GoToCleansingJade": {
         "doc": "前往漱玉",
-        "recognition": "And",
-        "all_of": [
-            "CheckCleansingJadeText",
-            "CheckCleansingJadeGoToMission"
-        ],
         "next": [
             "GoToCleansingJadeStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley4"
@@ -1037,11 +850,6 @@
     },
     "GoToCollapsedTianshiPillar": {
         "doc": "前往倒塌的天师桩",
-        "recognition": "And",
-        "all_of": [
-            "CheckCollapsedTianshiPillarText",
-            "CheckCollapsedTianshiPillarGoToMission"
-        ],
         "next": [
             "GoToCollapsedTianshiPillarStartPos",
             "[JumpBack]SceneEnterWorldWulingJingyuValley8"
@@ -1443,15 +1251,15 @@
             "path": [
                 [
                     210,
-                    626
+                    628
                 ],
                 [
-                    193,
-                    616
-                ],
-                [
-                    181,
+                    195,
                     618
+                ],
+                [
+                    186,
+                    619
                 ],
                 [
                     163,
