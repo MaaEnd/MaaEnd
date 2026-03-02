@@ -450,6 +450,9 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 		// Crop if valid rect exists
 		if r, ok := rectList[name]; ok && len(r) == 4 {
 			rect := image.Rect(r[0], r[1], r[2], r[3])
+			expand := LOC_RADIUS / 2
+			rect = image.Rect(rect.Min.X-expand, rect.Min.Y-expand, rect.Max.X+expand, rect.Max.Y+expand)
+
 			// Crop precisely using drawing
 			b := img.Bounds()
 			r0 := rect.Intersect(b)
