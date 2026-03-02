@@ -188,7 +188,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
         predictedName = yoloClassNames[maxIdx];
     }
 
-    LogInfo << "YOLO Raw: Class=" << predictedName << " (" << std::to_string(maxIdx) << "), Conf=" << std::to_string(maxConf);
+    LogInfo << "YOLO Raw:" << VAR(predictedName) << VAR(maxIdx) << VAR(maxConf);
 
     if (predictedName == "None") {
         LogInfo << "YOLO Predicted 'None', skipping localization.";
@@ -203,10 +203,10 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
         return zoneId;
     }
     if (maxConf <= yoloConfThreshold) {
-        LogInfo << "YOLO Fail: Low Confidence (" << std::to_string(maxConf) << " <= " << std::to_string(yoloConfThreshold) << ")";
+        LogInfo << "YOLO Fail: Low Confidence" << VAR(maxConf) << VAR(yoloConfThreshold);
     }
     else {
-        LogInfo << "YOLO Fail: Index Out of Bounds (" << std::to_string(maxIdx) << "/" << std::to_string(yoloClassNames.size()) << ")";
+        LogInfo << "YOLO Fail: Index Out of Bounds" << VAR(maxIdx) << VAR(yoloClassNames.size());
     }
 
     return "";

@@ -9,7 +9,7 @@
 #include <MaaUtils/Platform.h>
 #include <filesystem>
 #ifdef _WIN32
-#include <Windows.h>
+#include <MaaUtils/SafeWindows.hpp>
 #endif
 
 #ifndef MAA_TRUE
@@ -113,14 +113,14 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
         {
             int status = 0;
             std::string message;
-            std::optional<std::string> mapName;
-            std::optional<int> x;
-            std::optional<int> y;
-            std::optional<double> rot;
-            std::optional<double> locConf;
-            std::optional<int> latencyMs;
+            std::string mapName;
+            int x = 0;
+            int y = 0;
+            double rot = 0.0;
+            double locConf = 0.0;
+            int latencyMs = 0;
 
-            MEO_JSONIZATION(status, message, mapName, x, y, rot, locConf, latencyMs)
+            MEO_JSONIZATION(status, message, MEO_OPT mapName, MEO_OPT x, MEO_OPT y, MEO_OPT rot, MEO_OPT locConf, MEO_OPT latencyMs)
         };
 
         LocateOutput out;

@@ -1,19 +1,21 @@
-#include "MapLocator.h"
+#include <algorithm>
+#include <filesystem>
+#include <format>
+#include <future>
+#include <mutex>
+#include <vector>
+
+#include <MaaUtils/ImageIo.h>
+#include <MaaUtils/Logger.h>
+#include <MaaUtils/Platform.h>
+#include <boost/regex.hpp>
+#include <meojson/json.hpp>
+
 #include "MapAlgorithm.h"
+#include "MapLocator.h"
 #include "MatchStrategy.h"
 #include "MotionTracker.h"
 #include "YoloPredictor.h"
-#include <MaaUtils/Logger.h>
-
-#include <MaaUtils/ImageIo.h>
-#include <MaaUtils/Platform.h>
-#include <algorithm>
-#include <boost/regex.hpp>
-#include <filesystem>
-#include <future>
-#include <meojson/json.hpp>
-#include <mutex>
-#include <vector>
 
 using Json = json::value;
 
@@ -130,15 +132,15 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
         if (entry.is_directory()) {
             continue;
         }
-        std::string filename = MAA_NS::path_to_utf8_string(entry.path().filename());
+        std::string filename = MAA_NS::path_to_utf8_string(entry.path());
         std::string parentName = MAA_NS::path_to_utf8_string(entry.path().parent_path().filename());
 
         std::string key;
-        std::string filenameLower = filename;
+        std::string filenameLower = entry.path().filename().string();
         std::transform(filenameLower.begin(), filenameLower.end(), filenameLower.begin(), ::tolower);
 
         if (filenameLower == "base.png") {
-            key = parentName + "_Base";
+            key = std::format("{}_Base", parentName);
         }
         else {
             boost::smatch matches;
@@ -147,7 +149,7 @@ void MapLocator::Impl::loadAvailableZones(const std::string& root)
                 std::string tier = matches[2].str();
                 lv.erase(0, std::min(lv.find_first_not_of('0'), lv.size() - 1));
                 tier.erase(0, std::min(tier.find_first_not_of('0'), tier.size() - 1));
-                key = parentName + "_L" + lv + "_" + tier;
+                key = std::format("{}_L{}_{}", parentName, lv, tier);
             }
             else {
                 key = MAA_NS::path_to_utf8_string(entry.path().stem());
@@ -225,8 +227,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         return std::nullopt;
     }
 
-    LogInfo << "tryTracking NCC=" << trackResult->score << " PSR=" << trackResult->psr << " delta=" << trackResult->delta
-            << " second=" << trackResult->secondScore << " scale=" << trackScale;
+    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta)
+            << VAR(trackResult->secondScore) << VAR(trackScale);
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);
@@ -307,8 +309,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         hold.score = trackResult->score;
         hold.scale = trackScale;
         motionTracker->hold(hold, now);
-        LogInfo << "Tracking ambiguous -> HOLD last pos. NCC=" << trackResult->score << " PSR=" << trackResult->psr
-                << " delta=" << trackResult->delta;
+        LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr)
+                << VAR(trackResult->delta);
         return hold;
     }
 
@@ -342,9 +344,7 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
 
     double finalScore = 0.0;
     if (!strategy->validateGlobalSearch(fineRes, finalScore)) {
-        std::string msg = "Global Rejected. Score too low: s=" + std::to_string(fineRes.score) + " d=" + std::to_string(fineRes.delta)
-                          + " p=" + std::to_string(fineRes.psr);
-        LogInfo << msg;
+        LogInfo << "Global Rejected. Score too low:" << VAR(fineRes.score) << VAR(fineRes.delta) << VAR(fineRes.psr);
         return std::nullopt;
     }
 

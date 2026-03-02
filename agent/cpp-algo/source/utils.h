@@ -8,13 +8,13 @@ inline cv::Mat to_mat(const MaaImageBuffer* buffer)
     return cv::Mat(
         MaaImageBufferHeight(buffer),
         MaaImageBufferWidth(buffer),
-        CV_MAKETYPE(CV_8U, MaaImageBufferChannels(buffer)),
+        MaaImageBufferType(buffer),
         MaaImageBufferGetRawData(buffer));
 }
 
 #ifdef _WIN32
 
-#include <Windows.h>
+#include <MaaUtils/SafeWindows.hpp>
 
 #include <string>
 
