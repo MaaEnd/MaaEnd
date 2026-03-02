@@ -42,14 +42,15 @@
     "EnvironmentMonitoringTakePhotoDirectly": {
         "doc": "直接进入拍照模式，如果朝向不对会失败",
         "next": [
-            "EnterCameraMode"
+            "EnterCameraModeClick",
+            "EnterCameraModeLongPress"
         ]
     },
     "EnvironmentMonitoringEnterCameraMode": {
         "doc": "进入拍照模式，会自动朝向任务目标",
         "recognition": "And",
         "all_of": [
-            "EnterCameraModeButton",
+            "EnterCameraModeMenuButton",
             "InWorld"
         ],
         "action": "ClickKey",
@@ -102,8 +103,22 @@
             "EnvironmentMonitoringMain"
         ]
     },
-    "EnterCameraMode": {
-        "doc": "进入拍照模式",
+    "EnterCameraModeClick": {
+        "doc": "通过点击进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeButton",
+            "InWorld"
+        ],
+        "action": "ClickKey",
+        "key": 82, // R 0x52
+        "next": [
+            "EnvironmentMonitoringShutterButtonHighlighted",
+            "[JumpBack][Anchor]EnvironmentMonitoringSwipeScreen"
+        ]
+    },
+    "EnterCameraModeLongPress": {
+        "doc": "通过长按进入拍照模式",
         "recognition": "And",
         "all_of": [
             "InWorld"

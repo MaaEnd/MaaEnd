@@ -20,6 +20,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -52,6 +53,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -84,6 +86,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -116,6 +119,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -148,6 +152,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -180,6 +185,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -212,6 +218,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -244,6 +251,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -276,6 +284,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,

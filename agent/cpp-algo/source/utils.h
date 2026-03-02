@@ -1,8 +1,20 @@
 #pragma once
 
+#include <MaaFramework/MaaAPI.h>
+#include <MaaUtils/NoWarningCV.hpp>
+
+inline cv::Mat to_mat(const MaaImageBuffer* buffer)
+{
+    return cv::Mat(
+        MaaImageBufferHeight(buffer),
+        MaaImageBufferWidth(buffer),
+        MaaImageBufferType(buffer),
+        MaaImageBufferGetRawData(buffer));
+}
+
 #ifdef _WIN32
 
-#include <Windows.h>
+#include <MaaUtils/SafeWindows.hpp>
 
 #include <string>
 

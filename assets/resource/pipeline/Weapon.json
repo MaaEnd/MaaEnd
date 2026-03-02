@@ -59,18 +59,10 @@
     "WeaponUpgradeClickLevelUpButton": {
         "desc": "进入升级UI",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "threshold": 0.8,
-                "template": [
-                    "Weapon/LevelUpButton.png",
-                    "Weapon/LevelUpButtonHover.png"
-                ],
-                "roi": [
-                    985,
-                    591,
-                    277,
-                    112
+                "any_of": [
+                    "LevelUpButton"
                 ]
             }
         },

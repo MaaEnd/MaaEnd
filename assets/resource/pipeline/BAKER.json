@@ -346,10 +346,10 @@
         ],
         "action": "Click",
         "target_offset": [
-            20,
-            15,
+            5,
+            5,
             0,
-            -30
+            -10
         ],
         "next": [
             "BakerCheckChatPage"

@@ -441,5 +441,22 @@
         "next": [
             "__ScenePrivateAnyEnterMapSuccess"
         ]
+    },
+    "__ScenePrivateWorldEnterMapAny": {
+        "doc": "在大世界界面，进入地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 77 // M
+            }
+        },
+        "post_wait_freezes": 400,
+        "next": [
+            "__ScenePrivateAnyEnterMapSuccess"
+        ]
     }
 }

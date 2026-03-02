@@ -26,6 +26,12 @@
             ]
         }
     },
+    "EnterCameraModeButton": {
+        "action": "Click"
+    },
+    "EnterCameraModeMenuButton": {
+        "action": "Click"
+    },
     "CloseButtonType2": {
         "action": {
             "type": "ClickKey",

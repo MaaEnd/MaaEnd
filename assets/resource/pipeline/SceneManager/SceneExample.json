@@ -1,0 +1,53 @@
+{
+    "SceneExampleNormalTask": {
+        "desc": "普通接口使用示例",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneExampleNormalTaskContinue",
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
+        ]
+    },
+    "SceneExampleNormalTaskContinue": {
+        "desc": "判断成功进入目标菜单，继续业务流程",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangControlNexus"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    },
+    "SceneExampleTeleportTask": {
+        "desc": "传送接口使用示例",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneExampleTeleportTaskInMap",
+            "[JumpBack]SceneEnterMapAny"
+        ]
+    },
+    "SceneExampleTeleportTaskInMap": {
+        "desc": "判断进入地图菜单，开始传送",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SceneExampleTeleportTaskInContinue",
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark0"
+        ]
+    },
+    "SceneExampleTeleportTaskInContinue": {
+        "desc": "判断进入大世界，传送成功，继续业务流程",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": []
+    }
+}
