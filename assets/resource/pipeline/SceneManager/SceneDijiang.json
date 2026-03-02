@@ -1,50 +1,25 @@
 {
-    "__ScenePrivateWorldEnterWorldDijiang": {
+    "__ScenePrivateMapAnyEnterWorldDijiang": {
         "doc": "在大世界界面，进入帝江号大世界",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterTeleport",
-            "[JumpBack]__ScenePrivateWorldEnterMapDijiang"
+            "[JumpBack]__ScenePrivateMapAnyEnterMapDijiang"
         ]
     },
-    "__ScenePrivateWorldEnterMapDijiang": {
-        "doc": "在大世界界面，进入帝江号地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 77 // M
-            }
-        },
-        "post_wait_freezes": 400,
+    "__ScenePrivateMapAnyEnterMapDijiang": {
+        "doc": "在任意地图界面，进入帝江号地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapAnyEnterMapDijiangSuccess",
             "__ScenePrivateMapNotDijiangEnterMapDijiang"
@@ -123,7 +98,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 400,
+            "time": 200,
             "target": [
                 -100,
                 300,

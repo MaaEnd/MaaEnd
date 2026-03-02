@@ -182,7 +182,7 @@
         "inverse": true,
         "next": [
             "__ScenePrivateMapValleyIVTheHubEnterTeleport",
-            "[JumpBack]__ScenePrivateWorldEnterMapValleyIVTheHub"
+            "[JumpBack]SceneEnterMapValleyIVTheHub"
         ]
     },
     "__ScenePrivateAnyEnterWorldFactorySuccess": {

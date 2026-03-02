@@ -32,69 +32,15 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 在 Pipeline 任务中，将「目标场景接口」作为 `[JumpBack]` 节点放在 `next` 中。当业务节点识别失败时，框架会先执行场景跳转，到达目标场景后，再回到业务逻辑继续执行。
 
-### 示例：一键领取通行证任务
+### 示例
 
-以下示例展示如何在「从任意界面进入通行证菜单并领取奖励」的任务中使用万能跳转。
-
-```jsonc
-{
-    "DailyProtocolPassStart": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "DailyProtocolPassInMenu",
-            "[JumpBack]SceneEnterMenuProtocolPass"
-        ]
-    },
-    "DailyProtocolPassInMenu": {
-        "desc": "在通行证界面",
-        "recognition": { ... },
-        "next": [
-            "DailyProtocolMissionsEnter",
-             ...
-        ]
-    },
-    ...
-}
-```
-
-**执行流程说明**：
-
-1. 任务入口为 `DailyProtocolPassStart`，`next` 为 `DailyProtocolPassInMenu` 和 `[JumpBack]SceneEnterMenuProtocolPass`
-2. 若当前画面已是通行证界面 → 命中 `DailyProtocolPassInMenu`，进入业务逻辑
-3. 若当前不在通行证界面 → 命中 `[JumpBack]SceneEnterMenuProtocolPass`，框架会执行「进入通行证菜单」的跳转链
-4. `SceneEnterMenuProtocolPass` 内部会按需调用 `SceneAnyEnterWorld` 等，先进入大世界，再打开通行证菜单
-5. 进入通行证后，Pipeline 会重新从入口执行，最终命中 `DailyProtocolPassInMenu`
-
-### 示例：进入地区建设进行倒卖
-
-```jsonc
-{
-    "ResellMain": {
-        "desc": "一键倒卖主入口",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "next": [
-            "ResellStageCheckArea",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
-        ]
-    },
-    "ResellStageCheckArea": {
-        "desc": "检查当前地区",
-        "recognition": { ... },
-        "next": [ ... ]
-    },
-    ...
-}
-```
-
-当 `ResellStageCheckArea` 识别失败（例如当前在背包、活动等其它界面）时，会通过 `SceneEnterMenuRegionalDevelopment` 自动进入地区建设菜单，再回到 `ResellMain` 重新尝试。
+具体用法示例请参考 `assets/resource/pipeline/SceneManager/SceneExample.json`，其中包含普通场景接口与传送接口的完整示例节点。
 
 ## 3. 万能跳转接口约定
 
-### 只使用 SceneInterface.json 中的接口
+### 只使用 Interface 中的场景接口
 
-**请仅使用 `assets/resource/pipeline/SceneInterface.json` 内定义的场景接口节点。** 这些节点名称**不以 `__ScenePrivate` 开头**。
+**请仅使用 `assets/resource/pipeline/Interface` 目录下各 `SceneXXX.json` 内定义的场景接口节点。** 这些节点名称**不以 `__ScenePrivate` 开头**。
 
 ### 禁止使用 \_\_ScenePrivate 节点
 
@@ -102,7 +48,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 - **不要**在任务 Pipeline 中直接引用 `__ScenePrivate*` 节点
 - 这些节点的结构、名称、逻辑都可能随版本更新而变更
-- 若需某个场景能力，请查看 `SceneInterface.json` 是否已有对应接口；若没有，可提出需求
+- 若需某个场景能力，请查看 `Interface` 目录下各 `SceneXXX.json` 是否已有对应接口；若没有，可提出需求
 
 ### 常用接口一览
 
@@ -125,4 +71,4 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 辅助   | `SceneNoticeRewardsConfirm`         | 点击奖励界面确认按钮                       |
 | 辅助   | `SceneWaitLoadingExit`              | 等待加载界面消失                           |
 
-完整接口列表及说明请直接查看 `assets/resource/pipeline/SceneInterface.json` 中各节点的 `desc` 字段。
+完整接口列表及说明请直接查看 `assets/resource/pipeline/Interface` 目录下各 `SceneXXX.json` 中各节点的 `desc` 字段。
