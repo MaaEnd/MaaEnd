@@ -662,6 +662,37 @@
             ]
         }
     },
+    "LevelUpButton": {
+        "doc": "升级按钮，位于界面右下，无文字",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "threshold": 0.8,
+                "template": [
+                    "Common/Button/LevelUpButton.png",
+                    "Common/Button/LevelUpButtonHover.png"
+                ],
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
     "CloseButtonType1": {
         "doc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
         "recognition": {
