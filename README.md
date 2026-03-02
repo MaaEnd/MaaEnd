@@ -16,7 +16,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 绝赞开发中 🎉……
 
-[简体中文](README.md) | [English](README.en.md)
+[简体中文](https://github.com/MaaEnd/MaaEnd/blob/main/README.md) | [English](https://github.com/MaaEnd/MaaEnd/blob/main/README.en.md)
 
 </div>
 

@@ -4,14 +4,7 @@
             "name": "SellProduct",
             "label": "$task.SellProduct.label",
             "entry": "SellProductMain",
-            "description": "$task.SellProduct.description",
-            "controller": [
-                "Win32",
-                "Win32-Window",
-                "Win32-Window-Background",
-                "Win32-Front"
-            ]
+            "description": "$task.SellProduct.description"
         }
-    ],
-    "option": {}
+    ]
 }

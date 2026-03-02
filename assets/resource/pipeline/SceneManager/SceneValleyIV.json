@@ -220,7 +220,9 @@
                     "거점 지역"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
         "doc": "在地图界面，成功进入四号谷地-谷地通道地图",
@@ -240,7 +242,9 @@
                     "협곡길"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
         "doc": "在地图界面，成功进入四号谷地-源石研究园地图",
@@ -261,7 +265,9 @@
                     "源石研究園"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
         "doc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
@@ -282,7 +288,9 @@
                     "阿伯莉採石場"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
         "doc": "在地图界面，成功进入四号谷地-矿脉源区地图",
@@ -303,7 +311,9 @@
                     "礦脈源區"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
         "doc": "在地图界面，成功进入四号谷地-供能高地地图",
@@ -323,7 +333,9 @@
                     "에너지 공급 고지"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapOverviewSwitchMapOverviewValleyIV": {
         "desc": "在地图总览界面，切换到四号谷地总览界面",
@@ -643,28 +655,64 @@
             "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess"
         ]
     },
+    "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor": {
+        "doc": "在四号谷地-源石研究园地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVOriginiumSciencePark"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
+    "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor": {
+        "doc": "在四号谷地-矿脉源区地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVOriginLodespring"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
+    "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
+        "doc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapValleyIVPowerPlateau"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapFilterClear",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep0Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
+            "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
+        ]
+    },
     "__ScenePrivateMapValleyIVTheHubEnterTeleport": {
         "doc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -350,
-                                    0,
-                                    350,
-                                    60
-                                ],
-                                "template": [
-                                    "SceneManager/MapMind.png"
-                                ]
-                            }
-                        }
-                    },
+                    "InMapAny",
                     {
                         "recognition": {
                             "type": "TemplateMatch",

@@ -103,7 +103,8 @@
         "doc": "确认更改至选定地区",
         "recognition": "And",
         "all_of": [
-            "ChangeRegionConfirmButton"
+            "WhiteConfirmButtonType1",
+            "CheckChangeRegionConfirmText"
         ],
         "action": "Click",
         "next": [
