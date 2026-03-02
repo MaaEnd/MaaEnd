@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -48,7 +49,7 @@ type MapTrackerInferParam struct {
 type MapCache struct {
 	Name     string
 	Img      *image.RGBA
-	Integral *IntegralImage
+	Integral minicv.IntegralArray
 	OffsetX  int
 	OffsetY  int
 }
@@ -119,15 +120,15 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	// Perform location inference
 	t0 := time.Now()
-	locX, locY, locConf, mapName := i.inferLocation(arg.Img, locScale, mapNameRegex)
+	screenImg := minicv.ImageConvertRGBA(arg.Img)
+	locX, locY, locConf, mapName := i.inferLocation(screenImg, locScale, mapNameRegex)
 	locTime := time.Since(t0)
 
 	// Perform rotation inference (if pointer is loaded)
 	rot, rotConf := 0, 0.0
-	var rotTime time.Duration
 	t1 := time.Now()
-	rot, rotConf = i.inferRotation(arg.Img, rotStep)
-	rotTime = time.Since(t1)
+	rot, rotConf = i.inferRotation(screenImg, rotStep)
+	rotTime := time.Since(t1)
 
 	// Build result
 	result := MapTrackerInferResult{
@@ -230,7 +231,7 @@ func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
 }
 
 // loadMaps loads all map images from the resource directory
-// and try crops them if map_rect.json exists
+// and try crops them if map bbox data exists
 func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 	// Find map directory using search strategy
 	mapDir := findResource(MAP_DIR)
@@ -238,14 +239,14 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
 	}
 
-	// Read map_rect.json if it exists
+	// Read map_bbox.json if it exists
 	rectList := make(map[string][]int)
-	rectPath := filepath.Join(mapDir, "map_rect.json")
+	rectPath := filepath.Join(mapDir, "map_bbox.json")
 	if data, err := os.ReadFile(rectPath); err == nil {
 		if err := json.Unmarshal(data, &rectList); err != nil {
-			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_rect.json")
+			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_bbox.json")
 		} else {
-			log.Info().Msg("Map rect JSON loaded")
+			log.Info().Msg("Map bbox JSON loaded")
 		}
 	}
 
@@ -299,11 +300,11 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 			imgRGBA = dst
 			offsetX, offsetY = r0.Min.X, r0.Min.Y
 		} else {
-			imgRGBA = ToRGBA(img)
+			imgRGBA = minicv.ImageConvertRGBA(img)
 		}
 
 		// Precompute integral image
-		integral := NewIntegralImage(imgRGBA)
+		integral := minicv.GetIntegralArray(imgRGBA)
 
 		maps = append(maps, MapCache{
 			Name:     name,
@@ -341,13 +342,13 @@ func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 		return nil, fmt.Errorf("failed to decode pointer template: %w", err)
 	}
 
-	rgba := ToRGBA(img)
+	rgba := minicv.ImageConvertRGBA(img)
 	return rgba, nil
 }
 
 // inferLocation infers the player's location on the map
 // Returns (x, y, confidence, mapName)
-func (i *MapTrackerInfer) inferLocation(screenImg image.Image, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
+func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
 	// Use cached scaled maps
 	scaledMaps := i.getScaledMaps(locScale)
 	if len(scaledMaps) == 0 {
@@ -356,21 +357,16 @@ func (i *MapTrackerInfer) inferLocation(screenImg image.Image, locScale float64,
 	}
 
 	// Crop mini-map area from screen
-	miniMap := cropArea(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
+	miniMap := minicv.ImageCropSquareByRadius(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
 
 	// Scale mini-map
-	if locScale != 1.0 {
-		miniMap = scaleImage(miniMap, locScale)
-	}
-
-	miniMapRGBA := ToRGBA(miniMap)
-
+	miniMap = minicv.ImageScale(miniMap, locScale)
 	miniMapBounds := miniMap.Bounds()
 	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
 
 	// Precompute needle (minimap) statistics for all matches
-	miniStats := GetNeedleStats(miniMapRGBA)
-	if miniStats.Dn < 1e-6 {
+	miniStats := minicv.GetImageStats(miniMap)
+	if miniStats.Std < 1e-6 {
 		return 0, 0, 0.0, "None"
 	}
 
@@ -389,8 +385,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg image.Image, locScale float64,
 		triedCount++
 
 		// Perform template matching (using optimized version with precomputed stats)
-		// Note: mapData.Img is already cropped if a rect was provided in map_rect.json
-		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats)
+		// Note: mapData.Img is already cropped if a rect was provided in map_bbox.json
+		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMap, miniStats)
 
 		if matchVal > bestVal {
 			bestVal = matchVal
@@ -426,12 +422,11 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
 	newScaled := make([]MapCache, 0, len(i.maps))
 	for _, m := range i.maps {
-		sImg := scaleImage(m.Img, scale)
-		sRGBA := ToRGBA(sImg)
+		sImg := minicv.ImageScale(m.Img, scale)
 		newScaled = append(newScaled, MapCache{
 			Name:     m.Name,
-			Img:      sRGBA,
-			Integral: NewIntegralImage(sRGBA),
+			Img:      sImg,
+			Integral: minicv.GetIntegralArray(sImg),
 			OffsetX:  m.OffsetX,
 			OffsetY:  m.OffsetY,
 		})
@@ -443,18 +438,17 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 
 // inferRotation infers the player's rotation angle
 // Returns (angle, confidence)
-func (i *MapTrackerInfer) inferRotation(screenImg image.Image, rotStep int) (int, float64) {
+func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) (int, float64) {
 	if i.pointer == nil {
 		return 0, 0.0
 	}
 
 	// Crop pointer area from screen
-	patch := cropArea(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
-	patchRGBA := ToRGBA(patch)
+	patch := minicv.ImageCropSquareByRadius(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
 
 	// Precompute needle (pointer) statistics
-	pointerStats := GetNeedleStats(i.pointer)
-	if pointerStats.Dn < 1e-6 {
+	pointerStats := minicv.GetImageStats(i.pointer)
+	if pointerStats.Std < 1e-6 {
 		return 0, 0.0
 	}
 
@@ -464,10 +458,10 @@ func (i *MapTrackerInfer) inferRotation(screenImg image.Image, rotStep int) (int
 
 	for angle := 0; angle < 360; angle += rotStep {
 		// Rotate the patch
-		rotatedRGBA := rotateImageRGBA(patchRGBA, float64(angle))
+		rotatedRGBA := minicv.ImageRotate(patch, float64(angle))
 
 		// Match against pointer template
-		integral := NewIntegralImage(rotatedRGBA)
+		integral := minicv.GetIntegralArray(rotatedRGBA)
 		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, i.pointer, pointerStats)
 
 		if matchVal > maxVal {

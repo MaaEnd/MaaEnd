@@ -1,4 +1,7 @@
 import sys
+import os
+import re
+from typing import Literal
 
 _R = "\033[31m"
 _G = "\033[32m"
@@ -24,6 +27,130 @@ except ImportError:
 
 Point = tuple[int, int]
 Color = int  # 0xRRGGBB
+
+
+MapType = Literal["normal", "tier", "base", "dung"]
+
+
+class MapName:
+    """Parser for MapTracker map names.
+
+    Supports parsing map file path or file name, with or without extension.
+    Raises ValueError if the input does not match a known map naming format.
+    """
+
+    __slots__ = (
+        "_map_id",
+        "_map_level_id",
+        "_map_type",
+        "_tile_x",
+        "_tile_y",
+        "_tier_suffix",
+    )
+
+    def __init__(
+        self,
+        map_id: str,
+        map_level_id: str,
+        map_type: MapType,
+        tile_x: int | None = None,
+        tile_y: int | None = None,
+        tier_suffix: str | None = None,
+    ):
+        self._map_id = map_id
+        self._map_level_id = map_level_id
+        self._map_type = map_type
+        self._tile_x = tile_x
+        self._tile_y = tile_y
+        self._tier_suffix = tier_suffix
+
+    @property
+    def map_id(self) -> str:
+        return self._map_id
+
+    @property
+    def map_level_id(self) -> str:
+        return self._map_level_id
+
+    @property
+    def map_type(self) -> MapType:
+        return self._map_type
+
+    @property
+    def tile_x(self) -> int | None:
+        return self._tile_x
+
+    @property
+    def tile_y(self) -> int | None:
+        return self._tile_y
+
+    @property
+    def tier_suffix(self) -> str | None:
+        return self._tier_suffix
+
+    @property
+    def map_full_name(self) -> str:
+        if self._map_type == "tier":
+            if not self._tier_suffix:
+                raise ValueError("tier map requires tier suffix")
+            return f"{self._map_id}_{self._map_level_id}_tier_{self._tier_suffix}.png"
+        return f"{self._map_id}_{self._map_level_id}.png"
+
+    @staticmethod
+    def parse(name_or_path: str, is_tile: bool = False) -> "MapName":
+        if not isinstance(name_or_path, str):
+            raise ValueError("map name must be a string")
+
+        raw = name_or_path.strip()
+        if raw == "":
+            raise ValueError("map name cannot be empty")
+
+        # Compatible with both '/' and '\\' separators.
+        basename = os.path.basename(raw.replace("\\", "/"))
+        stem, _ = os.path.splitext(basename)
+        name = stem.lower()
+
+        tile_m = re.match(
+            r"^(?P<kind>map|base|dung)(?P<map>\d+)_lv(?P<lv>\d+)_(?P<x>\d+)_(?P<y>\d+)(?:_tier_(?P<tier>[a-z0-9_]+))?$",
+            name,
+        )
+        merged_m = re.match(
+            r"^(?P<kind>map|base|dung)(?P<map>\d+)_lv(?P<lv>\d+)(?:_tier_(?P<tier>[a-z0-9_]+))?$",
+            name,
+        )
+
+        if is_tile:
+            if not tile_m:
+                raise ValueError(f"expected tile map name format: {name_or_path}")
+            m = tile_m
+        else:
+            if not merged_m:
+                raise ValueError(f"expected non-tile map name format: {name_or_path}")
+            m = merged_m
+
+        kind = m.group("kind")
+        map_id = f"{kind}{m.group('map')}"
+        map_level_id = f"lv{m.group('lv')}"
+        map_type: MapType
+        tier_suffix = m.group("tier")
+        if tier_suffix is not None:
+            map_type = "tier"
+        elif kind == "map":
+            map_type = "normal"
+        elif kind == "base":
+            map_type = "base"
+        else:
+            map_type = "dung"
+        tile_x = int(m.group("x")) if is_tile else None
+        tile_y = int(m.group("y")) if is_tile else None
+        return MapName(
+            map_id=map_id,
+            map_level_id=map_level_id,
+            map_type=map_type,
+            tile_x=tile_x,
+            tile_y=tile_y,
+            tier_suffix=tier_suffix,
+        )
 
 
 class Drawer:

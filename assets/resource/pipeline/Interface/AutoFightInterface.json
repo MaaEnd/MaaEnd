@@ -4,7 +4,7 @@
         "recognition": "Custom",
         "custom_recognition": "AutoFightEntryRecognition",
         "anchor": {
-            "__AutoFightActionAttackAnchor": "__AutoFightActionComboClick"
+            "__AutoFightActionAttackAnchor": "__AutoFightActionAttackClick"
         },
         "pre_delay": 0,
         "post_delay": 0,

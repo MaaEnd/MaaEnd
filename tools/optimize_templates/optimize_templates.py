@@ -180,6 +180,7 @@ perfect_pngs_path = str(cur_dir / "optimize_templates.json")
 def update_perfect_png_dict(perfect_pngs: dict):
     with open(perfect_pngs_path, "w") as f:
         json.dump(perfect_pngs, f, indent=4)
+        f.write("\n")  # 保持与 prettier 一致的末尾换行
 
 
 def ArgParser():
