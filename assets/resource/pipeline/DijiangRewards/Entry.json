@@ -7,7 +7,7 @@
         "max_hit": 1,
         "next": [
             "EntryReceptionRoom_NeedCredit",
-            "[JumpBack]SceneEnterWorldDijiangControlNexus"
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
         ]
     },
     "DijiangRewards": {
@@ -17,7 +17,7 @@
         },
         "next": [
             "ControlNexus",
-            "[JumpBack]SceneEnterWorldDijiangControlNexus"
+            "[JumpBack]SceneEnterMenuDijiangControlNexus"
         ]
     }
 }
