@@ -88,7 +88,33 @@
                         "CreditShippingCanNotToBuy": {
                             "enabled": true //进入刷新的无法购买流程
                         }
+                    },
+                    "option": [
+                        "RefreshGetCredits"
+                    ]
+                }
+            ]
+        },
+        "RefreshGetCredits": {
+            "type": "switch",
+            "label": "$option.RefreshGetCredits.label",
+            "description": "$option.RefreshGetCredits.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoGetCredits": {
+                            "any_of": [
+                                "AutoGetCreditsBuy",
+                                "CanNotFlash"
+                            ]
+                        }
                     }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {}
                 }
             ]
         },

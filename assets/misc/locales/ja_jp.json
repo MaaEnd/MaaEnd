@@ -151,6 +151,8 @@
     "option.CreditShoppingForce.description": "- ブラックリスト購入：オーバーフロー時はブラックリストを無視\n- 刷新実行：オーバーフロー時は刷新を実行\n\n注意！刷新モードでは、クレジットが目標商品の購入額に足りない場合、その時点で即座に終了します（現在のクレジットが 300 を超えていても同様です）",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "ブラックリスト物品を購入",
     "option.CreditShoppingForce.cases.Refresh.label": "ホワイトリスト厳守で購入し、刷新を有効化",
+    "option.RefreshGetCredits.label": "リフレッシュ残額不足時にも連動機能を発動",
+    "option.RefreshGetCredits.description": "連動機能が有効な場合のみ有効です。",
     "option.CreditShoppingOtherItems.label": "ホワイトリスト外の品を購入可能にする",
     "option.CreditShoppingOtherItems.description": "有効時は他の品も購入できます（ブラックリストで制限）。",
     "option.CreditShoppingBlacklist.label": "ブラックリスト設定",

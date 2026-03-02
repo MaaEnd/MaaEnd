@@ -151,6 +151,8 @@
     "option.CreditShoppingForce.description": "- 購買黑名單物品：溢出時會忽視黑名單\n- 執行刷新：溢出時會執行刷新\n\n注意！執行刷新模式若遇信用點不足以購買目標物品時，會直接退出，即使當前可能仍高於 300 信用點",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "購買黑名單物品",
     "option.CreditShoppingForce.cases.Refresh.label": "嚴格按照白名單購買，並且啟用刷新",
+    "option.RefreshGetCredits.label": "刷新額度不足同樣觸發聯動功能",
+    "option.RefreshGetCredits.description": "需要在聯動功能啟用時，才會生效",
     "option.CreditShoppingOtherItems.label": "可以購買非白名單物品",
     "option.CreditShoppingOtherItems.description": "開啟後可以購買其他物品（透過黑名單進行限制）",
     "option.CreditShoppingBlacklist.label": "黑名單設定",

@@ -166,6 +166,8 @@
     "option.CreditShoppingForce.description": "- Buy blacklist items: ignores blacklist when overflowing\n- Execute refresh: executes refresh when overflowing\n\nNote! In refresh mode, if credits are not enough to buy the target item, the task will exit immediately, even if current credits may still be above 300",
     "option.CreditShoppingForce.cases.IgnoreBlackList.label": "Buy blacklist items",
     "option.CreditShoppingForce.cases.Refresh.label": "Strictly buy by whitelist and enable refresh",
+    "option.RefreshGetCredits.label": "Trigger linkage when refresh credits are insufficient",
+    "option.RefreshGetCredits.description": "Only takes effect when the linkage feature is enabled.",
     "option.CreditShoppingOtherItems.label": "Allow buying non-whitelist items",
     "option.CreditShoppingOtherItems.description": "When enabled, you can buy other items (limited by blacklist).",
     "option.CreditShoppingBlacklist.label": "Blacklist settings",
