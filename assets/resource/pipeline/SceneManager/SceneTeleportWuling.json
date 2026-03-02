@@ -1,4 +1,169 @@
 {
+    "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/WulingCityCoreLeft.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    100,
+                    0,
+                    0,
+                    0
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "connect": true,
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/WulingCityCoreRight.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    -100,
+                    0,
+                    0,
+                    0
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "connect": true,
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "TargetLeft",
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    100,
+                    1080,
+                    520
+                ],
+                "template": [
+                    "SceneManager/MapWuling/WulingCityCoreBottom.png"
+                ],
+                "threshold": 0.9
+            },
+            {
+                "recognition": "ColorMatch",
+                "roi": "TargetLeft",
+                "roi_offset": [
+                    0,
+                    -100,
+                    0,
+                    0
+                ],
+                "lower": [
+                    235,
+                    220,
+                    140
+                ],
+                "upper": [
+                    255,
+                    255,
+                    170
+                ],
+                "connect": true,
+                "count": 20
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
     "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try1": {
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",

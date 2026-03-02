@@ -315,6 +315,23 @@
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
+    "SceneEnterWorldWulingWulingCityCore": {
+        "doc": "从任意界面进入武陵-武陵城核心区大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishTopRight",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry3"
+        },
+        "next": [
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
+        ]
+    },
     "SceneEnterWorldWulingWulingCity0": {
         "doc": "从任意界面进入武陵-武陵城-观测站大世界",
         "pre_delay": 0,
@@ -578,6 +595,23 @@
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
             "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try1",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try2",
+            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3"
+        },
+        "next": [
+            "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "SceneEnterWorldValleyIVOriginiumScienceParkInfra": {
+        "doc": "从任意界面进入四号谷地-源石研究园-基建前站大世界",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomRight",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try1",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark4Try3"

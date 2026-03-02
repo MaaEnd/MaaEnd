@@ -479,6 +479,102 @@
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
     },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumScienceParkInfraCenter.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumScienceParkInfraRight.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumScienceParkInfraTry3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/ValleyIV/OriginiumScienceParkInfraBottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginLodespring0Try1": {
         "desc": "在地图界面找锚点",
         "recognition": "TemplateMatch",
