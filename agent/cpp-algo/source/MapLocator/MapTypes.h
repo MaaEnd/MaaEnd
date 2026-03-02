@@ -27,10 +27,9 @@ struct LocateOptions {
     double loc_threshold = 0.55;  // 最低分数线
     double yolo_threshold = 0.70;
     bool force_global_search = false;   // 是否强制放弃当前追踪，进行全局全图搜
-    std::string expected_zone = "";  // 预期所在区域 (可作为先验知识加速)
     int max_lost_frames = 3;            // 允许丢失追踪的帧数
 
-    MEO_JSONIZATION(MEO_OPT loc_threshold, MEO_OPT yolo_threshold, MEO_OPT force_global_search, MEO_OPT expected_zone, MEO_OPT max_lost_frames)
+    MEO_JSONIZATION(MEO_OPT loc_threshold, MEO_OPT yolo_threshold, MEO_OPT force_global_search, MEO_OPT max_lost_frames)
 };
 
 // --- 返回结果枚举与封装 ---

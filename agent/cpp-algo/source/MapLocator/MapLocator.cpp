@@ -591,10 +591,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat &minimap, const LocateOption
         }
     }
 
-    std::string targetZoneId = options.expected_zone;
-    if (targetZoneId.empty()) {
-        targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
-    }
+    std::string targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
     
     if (targetZoneId.empty()) {
         result.status = LocateStatus::YoloFailed;
