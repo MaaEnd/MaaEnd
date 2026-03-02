@@ -654,6 +654,7 @@
             "type": "TemplateMatch",
             "param": {
                 "threshold": 0.8,
+                "method": 10001,
                 "template": [
                     "Common/Button/LevelUpButton.png",
                     "Common/Button/LevelUpButtonHover.png"
