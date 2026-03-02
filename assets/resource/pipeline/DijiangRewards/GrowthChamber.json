@@ -277,60 +277,6 @@
             "InGrowthChamber"
         ]
     },
-    "SeedEmpty": {
-        "doc": "种子数量为0",
-        "focus": {
-            "Node.Action.Succeeded": "基核数量不足"
-        },
-        "enabled": false,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "SeedEmptyColor",
-                    "SeedEmptyNum"
-                ]
-            }
-        }
-    },
-    "SeedEmptyNum": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "only_rec": true,
-                "roi": "SeedEmptyColor",
-                "expected": [
-                    "^0$"
-                ]
-            }
-        }
-    },
-    "SeedEmptyColor": {
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "method": 40,
-                "roi": [
-                    8,
-                    74,
-                    658,
-                    234
-                ],
-                "upper": [
-                    0,
-                    255,
-                    255
-                ],
-                "lower": [
-                    0,
-                    100,
-                    100
-                ],
-                "count": 10,
-                "connected": true
-            }
-        }
-    },
     "SortBy": {
         "doc": "排序,选择基础排序内容",
         "enabled": false,
