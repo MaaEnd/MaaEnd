@@ -1,0 +1,11 @@
+{
+    "CraftingEnterMenu": {
+        "expected": "Crafting"
+    },
+    "CraftingEnterInMenu": {
+        "expected": "Crafting"
+    },
+    "CraftingClickProduceBtn": {
+        "expected": "Craft"
+    }
+}

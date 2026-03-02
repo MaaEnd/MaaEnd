@@ -1,0 +1,29 @@
+{
+    "GrowthChamber": {
+        "expected": "培養室"
+    },
+    "InGrowthChamber": {
+        "expected": "生産サポート"
+    },
+    "ExitGrow": {
+        "expected": "基核抽出へ"
+    },
+    "ExtractSeed": {
+        "expected": "基核抽出へ"
+    },
+    "SortBy": {
+        "expected": "デフォルト"
+    },
+    "ChooseSortBy": {
+        "expected": "総在庫"
+    },
+    "SwipeChooseSortBy": {
+        "expected": "デフォルト"
+    },
+    "SortOrder": {
+        "expected": "降順"
+    },
+    "ExitGrowthChamber": {
+        "expected": "培養室"
+    }
+}

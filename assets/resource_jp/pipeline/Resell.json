@@ -1,0 +1,14 @@
+{
+    "ResellAreaInFourthValley": {
+        "expected": "四号谷地"
+    },
+    "ResellFristAreaInWuLing": {
+        "expected": "武陵"
+    },
+    "ResellAreaInWuLing": {
+        "expected": "武陵"
+    },
+    "ResellCheckSoldout": {
+        "expected": "購入不可"
+    }
+}

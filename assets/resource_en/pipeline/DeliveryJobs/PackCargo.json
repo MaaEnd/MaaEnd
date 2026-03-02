@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsInCargoPackGoods": {
+        "expected": "Pack Goods"
+    },
+    "DeliveryJobsInCargoRedistributionBid": {
+        "expected": "Redistribution Bid"
+    },
+    "DeliveryJobsClickScreenToContinue": {
+        "expected": "Click to continue"
+    }
+}

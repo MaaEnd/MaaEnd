@@ -1,26 +1,15 @@
 {
     "ProdManualAlreadyIn": {
-        "expected": [
-            "Back",
-            "Return"
-        ]
+        "expected": "Return"
     },
     "ProdManualConfirmReward": {
-        "expected": [
-            "Reward"
-        ]
+        "expected": "Rewards"
     },
     "ProdManualConfirmUpdate": {
-        "expected": [
-            "Tap to continue",
-            "Click to continue"
-        ]
+        "expected": "Click to continue"
     },
     "ProdManualOpenInBackpack": {
-        "expected": [
-            "Simple Craft",
-            "Quick Craft"
-        ]
+        "expected": "Crafting"
     },
     "ProdManualOpenInList": {
         "expected": [
@@ -29,38 +18,29 @@
         ]
     },
     "ProdManualOpenInMenu": {
-        "expected": [
-            "Exploration Level",
-            "Explore"
-        ]
+        "expected": "Exploration Level"
     },
     "ProdManualOpenInMenuOpen": {
-        "expected": [
-            "Backpack",
-            "Inventory"
-        ]
+        "expected": "Backpack"
     },
     "ProdManualOpenInProd": {
-        "expected": [
-            "Emergency",
-            "Ration"
-        ]
+        "expected": "EMS F&M"
     },
     "ProdManualOpenInProdClick": {
-        "expected": [
-            "Crafting Manual",
-            "Manual"
-        ]
+        "expected": "Crafting Manual"
     },
     "ProdManualBackAtPM": {
-        "expected": [
-            "Back",
-            "Return"
-        ]
+        "expected": "Return"
     },
     "ProdManualReceiveReward": {
         "expected": [
             "Claim"
         ]
+    },
+    "ProdManualBackpackEnterCrafting": {
+        "expected": "Crafting"
+    },
+    "ProdManualCraftingEnterManual": {
+        "expected": "Crafting Manual"
     }
 }

@@ -1,0 +1,11 @@
+{
+    "GearAssemblyCheckIsAssemblePage": {
+        "expected": "Set Gear"
+    },
+    "GearAssemblySwitchAscending": {
+        "expected": "DESC"
+    },
+    "GearAssemblyClickProduceBtn": {
+        "expected": "Craft"
+    }
+}

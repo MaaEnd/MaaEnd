@@ -1,0 +1,14 @@
+{
+    "[0]": {
+        "expected": "製造室"
+    },
+    "ExitRecoveryEmotion": {
+        "expected": "対象オペレーターを選んでください"
+    },
+    "StartRecoveryEmotion": {
+        "expected": "対象オペレーターを選んでください"
+    },
+    "CouldNotAssistEmotion": {
+        "expected": "体力激励ポイントが足りないため、これ以上選択できません"
+    }
+}

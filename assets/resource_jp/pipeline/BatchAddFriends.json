@@ -1,0 +1,38 @@
+{
+    "BatchAddFriendsOnAddPage": {
+        "expected": "未追加"
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "expected": "検索"
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "expected": "読み込み中"
+    },
+    "BatchAddFriendsClickAddButton": {
+        "expected": "フレンド追加"
+    },
+    "BatchAddFriendsHasAddButtonStranger": {
+        "expected": "フレンド追加"
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "expected": "フレンド追加"
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "expected": "該当のUIDがありません"
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "expected": "当該プレイヤーが見つかりませんでした"
+    },
+    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
+        "expected": "名前を入力して検索"
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "expected": "プレイヤーの名前またはUIDを入力してください"
+    },
+    "BatchAddFriendsChangeBatch": {
+        "expected": "リスト更新"
+    },
+    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
+        "expected": "フレンド追加"
+    }
+}

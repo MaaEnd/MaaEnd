@@ -1,0 +1,35 @@
+{
+    "ProdManualBackpackEnterCrafting": {
+        "expected": "道具製作"
+    },
+    "ProdManualCraftingEnterManual": {
+        "expected": "製作手帳"
+    },
+    "ProdManualAlreadyIn": {
+        "expected": "戻る"
+    },
+    "ProdManualConfirmReward": {
+        "expected": "報酬"
+    },
+    "ProdManualConfirmUpdate": {
+        "expected": "クリックして続行"
+    },
+    "ProdManualOpenInBackpack": {
+        "expected": "道具製作"
+    },
+    "ProdManualOpenInMenu": {
+        "expected": "探索レベル"
+    },
+    "ProdManualOpenInMenuOpen": {
+        "expected": "道具箱"
+    },
+    "ProdManualOpenInProd": {
+        "expected": "応急食品・薬"
+    },
+    "ProdManualOpenInProdClick": {
+        "expected": "製作手帳"
+    },
+    "ProdManualBackAtPM": {
+        "expected": "戻る"
+    }
+}

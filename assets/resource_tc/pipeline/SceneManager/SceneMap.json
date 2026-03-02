@@ -1,0 +1,14 @@
+{
+    "__ScenePrivateMapTeleportChoose": {
+        "expected": "協議傳送點"
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "expected": "清除選取"
+    },
+    "__ScenePrivateMapFilterClose": {
+        "expected": "標記顯示管理"
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "expected": "協議傳送點"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "DailyProtocolMissionsEnter": {
+        "expected": "通行証クエスト"
+    },
+    "DailyProtocolMissionsPick": {
+        "expected": "一括受取"
+    },
+    "DailyProtocolRewardsEnter": {
+        "expected": "通行証報酬"
+    },
+    "DailyProtocolRewardsPick": {
+        "expected": "一括受取"
+    }
+}

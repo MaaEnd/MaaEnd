@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsEnterDeliveryJob": {
+        "expected": "任務確認"
+    },
+    "DeliveryJobsClickTransferJob": {
+        "expected": "外部委託"
+    },
+    "DeliveryJobsCheckTaskTransferText": {
+        "expected": "配達任務を他人に委託しますか？"
+    }
+}

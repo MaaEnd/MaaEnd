@@ -1,0 +1,38 @@
+{
+    "BatchAddFriendsOnAddPage": {
+        "expected": "Strangers"
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "expected": "Search"
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "expected": "Loading"
+    },
+    "BatchAddFriendsClickAddButton": {
+        "expected": "Add Friend"
+    },
+    "BatchAddFriendsHasAddButtonStranger": {
+        "expected": "Add Friend"
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "expected": "Add Friend"
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "expected": "Search has not found UID"
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "expected": "No matching players found"
+    },
+    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
+        "expected": "Search friend by name"
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "expected": "Search player name or UID to find friends"
+    },
+    "BatchAddFriendsChangeBatch": {
+        "expected": "Refresh List"
+    },
+    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
+        "expected": "Add Friend"
+    }
+}

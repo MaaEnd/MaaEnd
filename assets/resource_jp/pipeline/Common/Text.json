@@ -1,0 +1,32 @@
+{
+    "CheckRegionalDevelopmentText": {
+        "expected": "地域建設"
+    },
+    "CheckRegionalDevelopmentValleyIVText": {
+        "expected": "四号谷地"
+    },
+    "CheckRegionalDevelopmentWulingText": {
+        "expected": "武陵"
+    },
+    "CheckLocalDepotNodeText": {
+        "expected": "地域保管ボックス"
+    },
+    "CheckCourierInfoText": {
+        "expected": "配達員詳細"
+    },
+    "CheckLocalDepotNodeOriginiumScienceParkText": {
+        "expected": "源石研究パーク"
+    },
+    "CheckLocalDepotNodeOriginLodespringText": {
+        "expected": "鉱山エリア"
+    },
+    "CheckLocalDepotNodePowerPlateauText": {
+        "expected": "エネルギー高地"
+    },
+    "CheckLocalDepotNodeWulingCityText": {
+        "expected": "武陵城内"
+    },
+    "CheckChangeRegionConfirmText": {
+        "expected": "この地域の建設状況を確認しますか？"
+    }
+}

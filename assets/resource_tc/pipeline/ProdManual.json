@@ -1,0 +1,35 @@
+{
+    "ProdManualBackpackEnterCrafting": {
+        "expected": "簡易製作"
+    },
+    "ProdManualCraftingEnterManual": {
+        "expected": "簡製手冊"
+    },
+    "ProdManualAlreadyIn": {
+        "expected": "返回"
+    },
+    "ProdManualConfirmReward": {
+        "expected": "獎勵"
+    },
+    "ProdManualConfirmUpdate": {
+        "expected": "按任意處繼續"
+    },
+    "ProdManualOpenInBackpack": {
+        "expected": "簡易製作"
+    },
+    "ProdManualOpenInMenu": {
+        "expected": "探索等級"
+    },
+    "ProdManualOpenInMenuOpen": {
+        "expected": "背包"
+    },
+    "ProdManualOpenInProd": {
+        "expected": "緊急食藥"
+    },
+    "ProdManualOpenInProdClick": {
+        "expected": "簡製手冊"
+    },
+    "ProdManualBackAtPM": {
+        "expected": "返回"
+    }
+}

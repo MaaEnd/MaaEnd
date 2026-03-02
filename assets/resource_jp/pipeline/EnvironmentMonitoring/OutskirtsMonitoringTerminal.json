@@ -1,0 +1,92 @@
+{
+    "CheckAncientTreeText": {
+        "expected": "古木"
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "expected": "貯水オリジムシ"
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "expected": "倒れた天師杭"
+    },
+    "CheckIndoorCropsText": {
+        "expected": "室内の作物"
+    },
+    "CheckBeaconDamagedInBlightTideText": {
+        "expected": "侵蝕潮で壊れたビーコン"
+    },
+    "CheckRainbowFinText": {
+        "expected": "七色鱗獣"
+    },
+    "CheckEternalSunsetReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckAncientTreeReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckIndoorCropsReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckBeaconDamagedInBlightTideReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckRainbowFinReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckCleansingJadeReadyText": {
+        "expected": "引き受ける"
+    },
+    "CheckEternalSunsetJob": {
+        "expected": "引き受ける"
+    },
+    "CheckEternalSunsetGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckAncientTreeJob": {
+        "expected": "引き受ける"
+    },
+    "CheckAncientTreeGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "expected": "引き受ける"
+    },
+    "CheckCisternOriginiumSlugsGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "expected": "引き受ける"
+    },
+    "CheckCollapsedTianshiPillarGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckIndoorCropsJob": {
+        "expected": "引き受ける"
+    },
+    "CheckIndoorCropsGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckBeaconDamagedInBlightTideJob": {
+        "expected": "引き受ける"
+    },
+    "CheckBeaconDamagedInBlightTideGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckRainbowFinJob": {
+        "expected": "引き受ける"
+    },
+    "CheckRainbowFinGoToMission": {
+        "expected": "任務へ"
+    },
+    "CheckCleansingJadeJob": {
+        "expected": "引き受ける"
+    },
+    "CheckCleansingJadeGoToMission": {
+        "expected": "任務へ"
+    }
+}

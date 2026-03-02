@@ -1,24 +1,15 @@
 {
     "ResellAreaInFourthValley": {
-        "expected": [
-            "Valley IV",
-            "Valley"
-        ]
+        "expected": "Valley IV"
     },
     "ResellFristAreaInWuLing": {
-        "expected": [
-            "Wuling"
-        ]
+        "expected": "Wuling"
     },
     "ResellAreaInWuLing": {
-        "expected": [
-            "Wuling"
-        ]
+        "expected": "Wuling"
     },
     "ResellCheckSoldout": {
-        "expected": [
-            "Cannot Purchase"
-        ]
+        "expected": "Cannot Purchase"
     },
     "ResellWaitForStableStore": {
         "expected": [

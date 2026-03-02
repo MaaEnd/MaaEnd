@@ -1,0 +1,17 @@
+{
+    "DailyEmailAlreadyInEmail": {
+        "expected": "Mail"
+    },
+    "DailyEmailConfirmEmail": {
+        "expected": "Mail Rewards"
+    },
+    "DailyEmailConfirmTSA": {
+        "expected": "Items Acquired"
+    },
+    "DailyEmailReceiveEmail": {
+        "expected": "Claim All"
+    },
+    "DailyEmailReceiveTSA": {
+        "expected": "Claim All"
+    }
+}

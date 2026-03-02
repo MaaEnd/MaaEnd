@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsEnterDeliveryJob": {
+        "expected": "Check Mission"
+    },
+    "DeliveryJobsClickTransferJob": {
+        "expected": "Transfer Delivery Job"
+    },
+    "DeliveryJobsCheckTaskTransferText": {
+        "expected": "Transfer delivery job to another courier?"
+    }
+}

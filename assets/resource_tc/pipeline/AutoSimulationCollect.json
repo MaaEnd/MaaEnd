@@ -1,0 +1,35 @@
+{
+    "SimSpaceOperationalManualIn": {
+        "expected": "行動手冊"
+    },
+    "SimSpaceOperationalManualSwitchTab": {
+        "expected": "模擬"
+    },
+    "SimSpaceChooseSimulation": {
+        "expected": "四號谷地"
+    },
+    "SimSpaceStart": {
+        "expected": "模擬空間"
+    },
+    "SimClickFilter": {
+        "expected": "篩選"
+    },
+    "SimSelectUnfinished": {
+        "expected": "未完成"
+    },
+    "SimSaveFilter": {
+        "expected": "儲存"
+    },
+    "SimLoopClickFilter": {
+        "expected": "篩選"
+    },
+    "SimLoopSaveFilter": {
+        "expected": "儲存"
+    },
+    "SimLoopClaimReward": {
+        "expected": "掌握"
+    },
+    "SimComfirmReward": {
+        "expected": "確定"
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "ImportBluePrintsChooseTab": {
+        "expected": "共享藍圖"
+    },
+    "ImportBluePrintsChooseImport": {
+        "expected": "匯入藍圖"
+    },
+    "ImportBluePrintsConfirm": {
+        "expected": "確定"
+    },
+    "ImportBluePrintsSave": {
+        "expected": "存至共享藍圖"
+    },
+    "ImportBluePrintsExists": {
+        "expected": "已儲存"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsInCargoPackGoods": {
+        "expected": "貨物裝箱"
+    },
+    "DeliveryJobsInCargoRedistributionBid": {
+        "expected": "調度申請"
+    },
+    "DeliveryJobsClickScreenToContinue": {
+        "expected": "按任意處繼續"
+    }
+}

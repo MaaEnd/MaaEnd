@@ -30,5 +30,35 @@
     },
     "ClaimBattlePassLevelRewards": {
         "expected": "Claim"
+    },
+    "DailyTaskInMenu": {
+        "expected": "Operational Manual"
+    },
+    "DailyTaskEnterTab": {
+        "expected": "Daily"
+    },
+    "DailyTaskClaimSingleReward": {
+        "expected": "Claim"
+    },
+    "DailyTaskActivityLimitReached": {
+        "expected": "Daily Activity Points Maxed"
+    },
+    "DailyTaskUpgradeWeapon": {
+        "expected": "Weapon Level"
+    },
+    "DailyTaskCreation": {
+        "expected": "Crafting"
+    },
+    "DailyTaskAssemble": {
+        "expected": "Gear Assembly"
+    },
+    "DailyTaskCreationIsValid": {
+        "expected": "Go"
+    },
+    "DailyTaskAssembleIsValid": {
+        "expected": "Go"
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "expected": "Go"
     }
 }

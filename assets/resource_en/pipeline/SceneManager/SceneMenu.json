@@ -1,0 +1,59 @@
+{
+    "__ScenePrivateAnyEnterMenuListSuccess": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "expected": "Regional Development"
+    },
+    "__ScenePrivateMenuListEnterMenuEvent": {
+        "expected": "Events"
+    },
+    "__ScenePrivateAnyEnterMenuEventSuccess": {
+        "expected": "Event Center"
+    },
+    "__ScenePrivateMenuListEnterMenuValuables": {
+        "expected": "Valuables"
+    },
+    "__ScenePrivateAnyEnterMenuValuablesSuccess": {
+        "expected": "Valuables"
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "expected": "Operational Manual"
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+        "expected": "Operational Manual"
+    },
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
+        "expected": "Protocol Pass"
+    },
+    "__ScenePrivateMenuListEnterMenuFriends": {
+        "expected": "Friends"
+    },
+    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+        "expected": "Friends"
+    },
+    "__ScenePrivateMenuListEnterMenuWiki": {
+        "expected": "Database"
+    },
+    "__ScenePrivateAnyEnterMenuWikiSuccess": {
+        "expected": "Endfield Database (EFDB)"
+    },
+    "__ScenePrivateMenuListEnterMenuGearAssembly": {
+        "expected": "Gear Assembly"
+    },
+    "__ScenePrivateAnyEnterMenuEmailSuccess": {
+        "expected": "Mail"
+    },
+    "__ScenePrivateMenuListEnterMenuBackpack": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListScrollToBottom": {
+        "expected": "Operational Manual"
+    },
+    "__ScenePrivateMenuListBottomEnterMenuBackpack": {
+        "expected": "Backpack"
+    },
+    "__ScenePrivateAnyEnterMenuShopSuccess": {
+        "expected": "Acquisition Center"
+    }
+}

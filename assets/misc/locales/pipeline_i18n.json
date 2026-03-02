@@ -1,0 +1,2895 @@
+{
+    "__AutoFightRecognitionCharactorLevelShow": {
+        "doc": "识别角色是否显示等级",
+        "path": "./assets/resource/pipeline/AutoFight/Recognition.json",
+        "i18n": {
+            "zh_cn": "\\d.*\\d",
+            "zh_tc": "",
+            "en_us": "",
+            "ja_jp": ""
+        }
+    },
+    "BatchAddFriendsOnAddPage": {
+        "doc": "确认已进入添加好友页面",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "陌生人",
+            "zh_tc": "陌生人",
+            "en_us": "Strangers",
+            "ja_jp": "未追加"
+        }
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "doc": "点击搜索按钮",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "搜索",
+            "zh_tc": "搜尋",
+            "en_us": "Search",
+            "ja_jp": "検索"
+        }
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "doc": "等待搜索加载结束",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "加载中",
+            "zh_tc": "載入中",
+            "en_us": "Loading",
+            "ja_jp": "読み込み中"
+        }
+    },
+    "BatchAddFriendsClickAddButton": {
+        "doc": "点击添加好友",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "添加好友",
+            "zh_tc": "新增好友",
+            "en_us": "Add Friend",
+            "ja_jp": "フレンド追加"
+        }
+    },
+    "BatchAddFriendsFriendListFullToast": {
+        "doc": "好友列表已满提示",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "好友列表已满|你的好友列表已满"
+        }
+    },
+    "BatchAddFriendsHasAddButtonStranger": {
+        "doc": "存在添加好友按钮（陌生人列表）",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "添加好友",
+            "zh_tc": "新增好友",
+            "en_us": "Add Friend",
+            "ja_jp": "フレンド追加"
+        }
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "doc": "点击添加好友（陌生人列表）",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "添加好友",
+            "zh_tc": "新增好友",
+            "en_us": "Add Friend",
+            "ja_jp": "フレンド追加"
+        }
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "doc": "UID 不存在",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "搜索的UID不存在",
+            "zh_tc": "搜尋的UID不存在",
+            "en_us": "Search has not found UID",
+            "ja_jp": "該当のUIDがありません"
+        }
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "doc": "搜索结果为空",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "未搜索到相关玩家",
+            "zh_tc": "未搜尋到相關玩家",
+            "en_us": "No matching players found",
+            "ja_jp": "当該プレイヤーが見つかりませんでした"
+        }
+    },
+    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
+        "doc": "聚焦搜索框（模板识别）",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "输入名称搜索好友",
+            "zh_tc": "輸入名稱搜尋好友",
+            "en_us": "Search friend by name",
+            "ja_jp": "名前を入力して検索"
+        }
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "doc": "聚焦搜索框（UID 模式）",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "搜索玩家名称或UID添加好友",
+            "zh_tc": "搜尋玩家名稱或UID新增好友",
+            "en_us": "Search player name or UID to find friends",
+            "ja_jp": "プレイヤーの名前またはUIDを入力してください"
+        }
+    },
+    "BatchAddFriendsChangeBatch": {
+        "doc": "换一批",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "换一批",
+            "zh_tc": "換一批",
+            "en_us": "Refresh List",
+            "ja_jp": "リスト更新"
+        }
+    },
+    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
+        "doc": "换一批后检测到添加好友按钮",
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "添加好友",
+            "zh_tc": "新增好友",
+            "en_us": "Add Friend",
+            "ja_jp": "フレンド追加"
+        }
+    },
+    "ItemTransferStart": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "仓库",
+            "zh_tc": "倉庫",
+            "en_us": "Depot",
+            "ja_jp": "倉庫"
+        }
+    },
+    "ItemTransferSwitchRepoToOrigin": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "仓库切换",
+            "zh_tc": "倉庫切換",
+            "en_us": "Switch Depot",
+            "ja_jp": "倉庫切替"
+        }
+    },
+    "ItemTransferClickOrigin": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "ORIGIN_REGION"
+        }
+    },
+    "ItemTransferClickConfirmOrigin": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "ItemTransferAtOrigin": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "已连接",
+            "zh_tc": "已連接",
+            "en_us": "Connected",
+            "ja_jp": "接続済み"
+        }
+    },
+    "ItemTransferClickSortDescending": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "降序",
+            "zh_tc": "降序",
+            "en_us": "DESC",
+            "ja_jp": "降順"
+        }
+    },
+    "ItemTransferClickSortAscending": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "升序",
+            "zh_tc": "升序",
+            "en_us": "ASC",
+            "ja_jp": "昇順"
+        }
+    },
+    "ItemTransferSwitchRepoToDestination": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "仓库切换",
+            "zh_tc": "倉庫切換",
+            "en_us": "Switch Depot",
+            "ja_jp": "倉庫切替"
+        }
+    },
+    "ItemTransferClickDestination": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "DESTINATION_REGION"
+        }
+    },
+    "ItemTransferClickConfirmDestination": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "ItemTransferAtDestination": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "已连接",
+            "zh_tc": "已連接",
+            "en_us": "Connected",
+            "ja_jp": "接続済み"
+        }
+    },
+    "ItemTransferCheckIfFull": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "已满"
+        }
+    },
+    "ItemTransferSwitchRepoToOriginReturn": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "仓库切换",
+            "zh_tc": "倉庫切換",
+            "en_us": "Switch Depot",
+            "ja_jp": "倉庫切替"
+        }
+    },
+    "ItemTransferClickOriginReturn": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "ORIGIN_REGION"
+        }
+    },
+    "ItemTransferClickConfirmOriginReturn": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "ItemTransferAtOriginReturn": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "已连接",
+            "zh_tc": "已連接",
+            "en_us": "Connected",
+            "ja_jp": "接続済み"
+        }
+    },
+    "ProdManualBackpackEnterCrafting": {
+        "doc": "进入简易制作界面",
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "简易制作|Crafting|道具製作|간편 제작|簡易製作",
+            "zh_tc": "簡易製作",
+            "en_us": "Crafting",
+            "ja_jp": "道具製作"
+        }
+    },
+    "ProdManualCraftingEnterManual": {
+        "doc": "在简易制作界面，点击进入简制手册",
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "简制手册",
+            "zh_tc": "簡製手冊",
+            "en_us": "Crafting Manual",
+            "ja_jp": "製作手帳"
+        }
+    },
+    "ProdManualAlreadyIn": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "返回",
+            "zh_tc": "返回",
+            "en_us": "Return",
+            "ja_jp": "戻る"
+        }
+    },
+    "ProdManualConfirmReward": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "奖励",
+            "zh_tc": "獎勵",
+            "en_us": "Rewards",
+            "ja_jp": "報酬"
+        }
+    },
+    "ProdManualConfirmUpdate": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "点击屏幕继续",
+            "zh_tc": "按任意處繼續",
+            "en_us": "Click to continue",
+            "ja_jp": "クリックして続行"
+        }
+    },
+    "ProdManualOpenInBackpack": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "简易制作",
+            "zh_tc": "簡易製作",
+            "en_us": "Crafting",
+            "ja_jp": "道具製作"
+        }
+    },
+    "ProdManualOpenInList": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "每获取对应数量物品|可解锁相应内容"
+        }
+    },
+    "ProdManualOpenInMenu": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "探索等级",
+            "zh_tc": "探索等級",
+            "en_us": "Exploration Level",
+            "ja_jp": "探索レベル"
+        }
+    },
+    "ProdManualOpenInMenuOpen": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "背包",
+            "zh_tc": "背包",
+            "en_us": "Backpack",
+            "ja_jp": "道具箱"
+        }
+    },
+    "ProdManualOpenInProd": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "应急食药",
+            "zh_tc": "緊急食藥",
+            "en_us": "EMS F&M",
+            "ja_jp": "応急食品・薬"
+        }
+    },
+    "ProdManualOpenInProdClick": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "简制手册",
+            "zh_tc": "簡製手冊",
+            "en_us": "Crafting Manual",
+            "ja_jp": "製作手帳"
+        }
+    },
+    "ProdManualBackAtPM": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "返回",
+            "zh_tc": "返回",
+            "en_us": "Return",
+            "ja_jp": "戻る"
+        }
+    },
+    "ProdManualReceiveReward": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "键领取"
+        }
+    },
+    "SeizeEntrustTaskErrorTaskStop": {
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "委托人信息",
+            "zh_tc": "委託人資訊",
+            "en_us": "Client Info",
+            "ja_jp": "依頼主詳細"
+        }
+    },
+    "SeizeEntrustTaskMain": {
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "委托人信息",
+            "zh_tc": "委託人資訊",
+            "en_us": "Client Info",
+            "ja_jp": "依頼主詳細"
+        }
+    },
+    "SeizeEntrustTaskNews": {
+        "doc": "刷新动作",
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "刷新",
+            "zh_tc": "更新",
+            "en_us": "Refresh",
+            "ja_jp": "更新"
+        }
+    },
+    "SeizeEntrustTaskNews2": {
+        "doc": "依旧刷新动作",
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "刷新",
+            "zh_tc": "更新",
+            "en_us": "Refresh",
+            "ja_jp": "更新"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "doc": "等待刷新完成",
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "接取运送委托",
+            "zh_tc": "接取運送委託",
+            "en_us": "Accept Delivery Job",
+            "ja_jp": "配達依頼を受ける"
+        }
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "doc": "等待刷新完成",
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "接取运送委托",
+            "zh_tc": "接取運送委託",
+            "en_us": "Accept Delivery Job",
+            "ja_jp": "配達依頼を受ける"
+        }
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "接取运送委托",
+            "zh_tc": "接取運送委託",
+            "en_us": "Accept Delivery Job",
+            "ja_jp": "配達依頼を受ける"
+        }
+    },
+    "isSeizeEntrustTaskSuccessful": {
+        "path": "./assets/resource/pipeline/SeizeEntrustTask.json",
+        "i18n": {
+            "zh_cn": "点击屏幕继续|请尽快送达|已接取运送任务",
+            "zh_tc": "按任意處繼續",
+            "en_us": "Click to continue",
+            "ja_jp": "クリックして続行"
+        }
+    },
+    "WeaponUpgradeSetFilter": {
+        "doc": "设置武器库筛选条件",
+        "path": "./assets/resource/pipeline/Weapon.json",
+        "i18n": {
+            "zh_cn": "武器",
+            "zh_tc": "武器",
+            "en_us": "Weapon",
+            "ja_jp": "武器"
+        }
+    },
+    "WeaponUpgradeSwitchLowLevel": {
+        "doc": "识别品质，切换到等级分类",
+        "path": "./assets/resource/pipeline/Weapon.json",
+        "i18n": {
+            "zh_cn": "品质",
+            "zh_tc": "品質",
+            "en_us": "Quality",
+            "ja_jp": "品質"
+        }
+    },
+    "WeaponUpgradeClickLevelSort": {
+        "path": "./assets/resource/pipeline/Weapon.json",
+        "i18n": {
+            "zh_cn": "武器等级",
+            "zh_tc": "武器等級",
+            "en_us": "Weapon Level",
+            "ja_jp": "レベル"
+        }
+    },
+    "WeaponUpgradeSwitchAscending": {
+        "doc": "识别到降序，变成升序",
+        "path": "./assets/resource/pipeline/Weapon.json",
+        "i18n": {
+            "zh_cn": "降序",
+            "zh_tc": "降序",
+            "en_us": "DESC",
+            "ja_jp": "降順"
+        }
+    },
+    "CreditShoppingClaimCredit": {
+        "doc": "领取信用点",
+        "path": "./assets/resource/pipeline/CreditShopping/ClaimCredit.json",
+        "i18n": {
+            "zh_cn": "收取信用",
+            "zh_tc": "收取信用",
+            "en_us": "Collect Credits",
+            "ja_jp": "FP受取"
+        }
+    },
+    "CreditShoppingNoCreditClaim": {
+        "doc": "没有信用点可领取",
+        "path": "./assets/resource/pipeline/CreditShopping/ClaimCredit.json",
+        "i18n": {
+            "zh_cn": "无待领取信用",
+            "zh_tc": "無待領取信用",
+            "en_us": "No credits to claim",
+            "ja_jp": "FP未獲得"
+        }
+    },
+    "RefreshText": {
+        "path": "./assets/resource/pipeline/CreditShopping/Reflash.json",
+        "i18n": {
+            "zh_cn": "立即刷新",
+            "zh_tc": "立即更新",
+            "en_us": "Refresh Now",
+            "ja_jp": "更新"
+        }
+    },
+    "ClaimDeliveryJobsMyTransferredTabText": {
+        "doc": "仓储节点内「我转送的委托」标签 OCR",
+        "path": "./assets/resource/pipeline/DailyRewards/ClaimDeliveryJobs.json",
+        "i18n": {
+            "zh_cn": "我转交的委托|我轉交的委託|My Transferred Jobs|転送した依頼|내가 위탁한 의뢰",
+            "zh_tc": "我轉交的委託",
+            "en_us": "Jobs I Transferred",
+            "ja_jp": "外部委託"
+        }
+    },
+    "DailyTaskInMenu": {
+        "doc": "在行动手册界面",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "行动手册|Operational Manual|案内所|작전 매뉴얼|行動手冊",
+            "zh_tc": "行動手冊",
+            "en_us": "Operational Manual",
+            "ja_jp": "案内所"
+        }
+    },
+    "DailyTaskEnterTab": {
+        "doc": "进入日常任务标签",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "日常",
+            "zh_tc": "日常",
+            "en_us": "Daily",
+            "ja_jp": "日常"
+        }
+    },
+    "DailyTaskClaimSingleReward": {
+        "doc": "点击单个任务中领取按钮",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "领取",
+            "zh_tc": "領取",
+            "en_us": "Claim",
+            "ja_jp": "受取"
+        }
+    },
+    "DailyTaskActivityLimitReached": {
+        "doc": "OCR,活跃度达到上限，结束任务",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "今日活跃度已达上限",
+            "zh_tc": "今日活躍度已達上限",
+            "en_us": "Daily Activity Points Maxed",
+            "ja_jp": "上限到達"
+        }
+    },
+    "DailyTaskUpgradeWeapon": {
+        "doc": "检测是否有升级武器任务",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "武器等级",
+            "zh_tc": "武器等級",
+            "en_us": "Weapon Level",
+            "ja_jp": "レベル"
+        }
+    },
+    "DailyTaskCreation": {
+        "doc": "检测是否有简易制作任务",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "简易制作",
+            "zh_tc": "簡易製作",
+            "en_us": "Crafting",
+            "ja_jp": "道具製作"
+        }
+    },
+    "DailyTaskAssemble": {
+        "doc": "检测是否有制造装备任务",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "装备制造",
+            "zh_tc": "裝備製造",
+            "en_us": "Gear Assembly",
+            "ja_jp": "装備製造"
+        }
+    },
+    "DailyTaskCreationIsValid": {
+        "doc": "检测简易制作任务是否可以执行",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "前往",
+            "zh_tc": "前往",
+            "en_us": "Go",
+            "ja_jp": "移動"
+        }
+    },
+    "DailyTaskAssembleIsValid": {
+        "doc": "检测制造装备任务是否可以执行",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "前往",
+            "zh_tc": "前往",
+            "en_us": "Go",
+            "ja_jp": "移動"
+        }
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "doc": "检测升级武器任务是否可以执行",
+        "path": "./assets/resource/pipeline/DailyRewards/Tasks.json",
+        "i18n": {
+            "zh_cn": "前往",
+            "zh_tc": "前往",
+            "en_us": "Go",
+            "ja_jp": "移動"
+        }
+    },
+    "MFG_ReceiveRewards": {
+        "doc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
+        "path": "./assets/resource/pipeline/DijiangRewards/Manufacturing.json",
+        "i18n": {
+            "zh_cn": "制造舱",
+            "zh_tc": "製造艙",
+            "en_us": "MFG Cabin",
+            "ja_jp": "製造室"
+        }
+    },
+    "Exit_MFG_Cabin": {
+        "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
+        "path": "./assets/resource/pipeline/DijiangRewards/Manufacturing.json",
+        "i18n": {
+            "zh_cn": "制造舱",
+            "zh_tc": "製造艙",
+            "en_us": "MFG Cabin",
+            "ja_jp": "製造室"
+        }
+    },
+    "SelectDijiang": {
+        "doc": "[导航·地图] 在地图/选船界面点击帝江号(OMV)以进入帝江",
+        "path": "./assets/resource/pipeline/DijiangRewards/Navigation.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "[0]": {
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "制造舱|培养舱",
+            "zh_tc": "製造艙",
+            "en_us": "MFG Cabin",
+            "ja_jp": "製造室"
+        }
+    },
+    "[1]": {
+        "path": "./assets/resource_fast/pipeline/SellProduct/ProductCheck.json",
+        "i18n": {
+            "zh_cn": "生产助力",
+            "zh_tc": "生產助力",
+            "en_us": "Production Assist",
+            "ja_jp": "生産サポート"
+        },
+        "doc": "确保在会客室界面"
+    },
+    "EntryReceptionRoom_NeedCredit": {
+        "doc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
+        "path": "./assets/resource/pipeline/DijiangRewards/NeedCredit.json",
+        "i18n": {
+            "zh_cn": "^会客室$"
+        }
+    },
+    "ReceptionRoom_NeedCredit": {
+        "doc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
+        "path": "./assets/resource/pipeline/DijiangRewards/NeedCredit.json",
+        "i18n": {
+            "zh_cn": "会客室",
+            "zh_tc": "會客室",
+            "en_us": "Reception Room",
+            "ja_jp": "応接室"
+        }
+    },
+    "ExitRecoveryEmotion": {
+        "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "选择待恢复心情的干员",
+            "zh_tc": "選擇待恢復心情的幹員",
+            "en_us": "Select operator awaiting mood recovery",
+            "ja_jp": "対象オペレーターを選んでください"
+        }
+    },
+    "EmotionFull": {
+        "doc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "干员心情已满|无法使用助力"
+        }
+    },
+    "StartRecoveryEmotion": {
+        "doc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "选择待恢复心情的干员",
+            "zh_tc": "選擇待恢復心情的幹員",
+            "en_us": "Select operator awaiting mood recovery",
+            "ja_jp": "対象オペレーターを選んでください"
+        }
+    },
+    "CouldNotAssistEmotion": {
+        "doc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "没有更多的心情激励点数，无法选择更多干员",
+            "zh_tc": "沒有更多的心情激勵點數，無法選擇更多幹員",
+            "en_us": "Cannot select more operators as all Mood Booster Points have been used up",
+            "ja_jp": "体力激励ポイントが足りないため、これ以上選択できません"
+        }
+    },
+    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
+        "doc": "检查城郊监测终端文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/Region.json",
+        "i18n": {
+            "zh_cn": "城郊监测终端|城郊監測終端|Outskirts Monitoring Terminal|郊外観測端末|교외 관측 단말기",
+            "zh_tc": "城郊監測終端",
+            "en_us": "Outskirts Monitoring Terminal",
+            "ja_jp": "郊外観測端末"
+        }
+    },
+    "RealTimeQuickTeleportList": {
+        "doc": "从传送点列表中点击传送点图标（当多个地图标点重叠时）",
+        "path": "./assets/resource/pipeline/RealTimeTask/QuickTeleport.json",
+        "i18n": {
+            "zh_cn": "协议传送点",
+            "zh_tc": "協議傳送點",
+            "en_us": "TP Point",
+            "ja_jp": "協約転送ポイント"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-枢纽区地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "枢纽区|樞紐區|The Hub|中枢エリア|거점 지역",
+            "zh_tc": "樞紐區",
+            "en_us": "The Hub",
+            "ja_jp": "中枢エリア"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-谷地通道地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "谷地通道|Valley Pass|谷地通路|협곡길",
+            "zh_tc": "谷地通道",
+            "en_us": "Valley Pass",
+            "ja_jp": "谷地通路"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-源石研究园地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "源石研究园|Originium Science Park|源石研究パーク|오리지늄 연구 구역|源石研究園",
+            "zh_tc": "源石研究園",
+            "en_us": "Originium Science Park",
+            "ja_jp": "源石研究パーク"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
+        "doc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "阿伯莉采石场|Aburrey Quarry|アブリー採石場|아부레이 채석장|阿伯莉採石場",
+            "zh_tc": "阿伯莉採石場",
+            "en_us": "Aburrey Quarry",
+            "ja_jp": "アブリー採石場"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-矿脉源区地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "矿脉源区|Origin Lodespring|鉱山エリア|광맥 구역|礦脈源區",
+            "zh_tc": "礦脈源區",
+            "en_us": "Origin Lodespring",
+            "ja_jp": "鉱山エリア"
+        }
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
+        "doc": "在地图界面，成功进入四号谷地-供能高地地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "供能高地|Power Plateau|エネルギー高地|에너지 공급 고지",
+            "zh_tc": "供能高地",
+            "en_us": "Power Plateau",
+            "ja_jp": "エネルギー高地"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
+        "doc": "在四号谷地总览界面，进入枢纽区地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "枢|纽|区"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass": {
+        "doc": "在四号谷地总览界面，进入谷地通道地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "谷|地|通|道"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark": {
+        "doc": "在四号谷地总览界面，进入四号谷地-源石研究园地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "源|石|研|究|园"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry": {
+        "doc": "在四号谷地总览界面，进入阿伯莉采石场地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "阿|伯|莉|采|石|场"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring": {
+        "doc": "在四号谷地总览界面，进入矿脉源区地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "矿|脉|源|区"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
+        "doc": "在四号谷地总览界面，进入供能高地地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "供|能|高|地",
+            "zh_tc": "高",
+            "en_us": "HIGH",
+            "ja_jp": "高"
+        }
+    },
+    "[2]": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "枢纽区|樞紐區|The Hub|中枢エリア|거점 지역",
+            "zh_tc": "收集",
+            "en_us": "Gathering",
+            "ja_jp": "探索"
+        }
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
+        "doc": "在武陵总览界面，进入武陵-武陵城地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneWuling.json",
+        "i18n": {
+            "zh_cn": "武|陵|城"
+        }
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
+        "doc": "在武陵总览界面，进入武陵-景玉谷地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneWuling.json",
+        "i18n": {
+            "zh_cn": "景|玉|谷"
+        }
+    },
+    "ESCMenu": {
+        "doc": "Esc菜单内",
+        "path": "./assets/resource_fast/pipeline/Common/Status.json",
+        "i18n": {
+            "zh_cn": "探索等级",
+            "zh_tc": "探索等級",
+            "en_us": "Exploration Level",
+            "ja_jp": "探索レベル"
+        }
+    },
+    "CheckRegionalDevelopmentText": {
+        "doc": "检查地区建设界面左上角的文字",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "地区建设|地區建設|Regional Development|地域建設|지역 건설",
+            "zh_tc": "地區建設",
+            "en_us": "Regional Development",
+            "ja_jp": "地域建設"
+        }
+    },
+    "CheckRegionalDevelopmentValleyIVText": {
+        "doc": "检查四号谷地地区建设左边的文字",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "四号谷地",
+            "zh_tc": "四號谷地",
+            "en_us": "Valley IV",
+            "ja_jp": "四号谷地"
+        }
+    },
+    "CheckRegionalDevelopmentWulingText": {
+        "doc": "检查武陵地区建设左边的文字",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "武陵|武陵|Wuling|武陵|무릉",
+            "zh_tc": "武陵",
+            "en_us": "Wuling",
+            "ja_jp": "武陵"
+        }
+    },
+    "CheckLocalDepotNodeText": {
+        "doc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "本地仓储节点|本地區倉儲節點|Local Depot Node|地域保管ボックス|현재 지역 저장고 노드",
+            "zh_tc": "本地區倉儲節點",
+            "en_us": "Local Depot Node",
+            "ja_jp": "地域保管ボックス"
+        }
+    },
+    "CheckCourierInfoText": {
+        "doc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "运送人信息|運送人資訊|Courier Info|配達員詳細|운송인 정보",
+            "zh_tc": "運送人資訊",
+            "en_us": "Courier Info",
+            "ja_jp": "配達員詳細"
+        }
+    },
+    "CheckLocalDepotNodeOriginiumScienceParkText": {
+        "doc": "检查本地仓储节点中是否有源石研究园",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "源石研究园|源石研究園|Originium Science Park|源石研究パーク|오리지늄 연구 구역",
+            "zh_tc": "源石研究園",
+            "en_us": "Originium Science Park",
+            "ja_jp": "源石研究パーク"
+        }
+    },
+    "CheckLocalDepotNodeOriginLodespringText": {
+        "doc": "检查本地仓储节点中是否有矿脉源区",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "矿脉源区|礦脈源區|Origin Lodespring|鉱山エリア|광맥 구역",
+            "zh_tc": "礦脈源區",
+            "en_us": "Origin Lodespring",
+            "ja_jp": "鉱山エリア"
+        }
+    },
+    "CheckLocalDepotNodePowerPlateauText": {
+        "doc": "检查本地仓储节点中是否有供能高地",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "供能高地|供能高地|Power Plateau|エネルギー高地|에너지 공급 고지",
+            "zh_tc": "供能高地",
+            "en_us": "Power Plateau",
+            "ja_jp": "エネルギー高地"
+        }
+    },
+    "CheckLocalDepotNodeWulingCityText": {
+        "doc": "检查本地仓储节点中是否有武陵城区",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "武陵城区|武陵城區|Wuling City|武陵城内|무릉성 도심",
+            "zh_tc": "武陵城區",
+            "en_us": "Wuling City",
+            "ja_jp": "武陵城内"
+        }
+    },
+    "CheckChangeRegionConfirmText": {
+        "doc": "检查更换地区确认界面中的文本",
+        "path": "./assets/resource_fast/pipeline/Common/Text.json",
+        "i18n": {
+            "zh_cn": "是否切换|是否切换查看选中地区的地区建设情况？|是否切換查看選取的地區建設狀況？|Switch to view the development status of the selected region?|この地域の建設状況を確認しますか？|선택한 지역의 건설 상황을 확인하시겠습니까?",
+            "zh_tc": "是否切換查看選取的地區建設狀況？",
+            "en_us": "Switch to view the development status of the selected region?",
+            "ja_jp": "この地域の建設状況を確認しますか？"
+        }
+    },
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "doc": "检查源石研究园的货物是否准备好",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/DepotNode.json",
+        "i18n": {
+            "zh_cn": "货物装箱|貨物裝箱|Pack Goods|パッキング|화물 포장|查看报价|查看報價|Check Bid|希望価格確認|입찰 보기",
+            "zh_tc": "貨物裝箱",
+            "en_us": "Pack Goods",
+            "ja_jp": "パッキング"
+        }
+    },
+    "DeliveryJobsCheckOriginLodespringCargo": {
+        "doc": "检查矿脉源区的货物是否准备好",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/DepotNode.json",
+        "i18n": {
+            "zh_cn": "货物装箱|貨物裝箱|Pack Goods|パッキング|화물 포장|查看报价|查看報價|Check Bid|希望価格確認|입찰 보기",
+            "zh_tc": "貨物裝箱",
+            "en_us": "Pack Goods",
+            "ja_jp": "パッキング"
+        }
+    },
+    "DeliveryJobsCheckPowerPlateauCargo": {
+        "doc": "检查供能高地的货物是否准备好",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/DepotNode.json",
+        "i18n": {
+            "zh_cn": "货物装箱|貨物裝箱|Pack Goods|パッキング|화물 포장|查看报价|查看報價|Check Bid|希望価格確認|입찰 보기",
+            "zh_tc": "貨物裝箱",
+            "en_us": "Pack Goods",
+            "ja_jp": "パッキング"
+        }
+    },
+    "DeliveryJobsCheckWulingCityCargo": {
+        "doc": "检查武陵城区的货物是否准备好",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/DepotNode.json",
+        "i18n": {
+            "zh_cn": "货物装箱|貨物裝箱|Pack Goods|パッキング|화물 포장|查看报价|查看報價|Check Bid|希望価格確認|입찰 보기",
+            "zh_tc": "貨物裝箱",
+            "en_us": "Pack Goods",
+            "ja_jp": "パッキング"
+        }
+    },
+    "ValleyIVSwitchToRefugeeCamp": {
+        "doc": "OCR 切换至难民暂居处",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ValleyIV.json",
+        "i18n": {
+            "zh_cn": "难民暂居处|難民暫居處|Refugee Camp|仮設居住地|유랑자 임시 거주지",
+            "zh_tc": "難民暫居處",
+            "en_us": "Refugee Camp",
+            "ja_jp": "仮設居住地"
+        }
+    },
+    "ValleyIVSwitchToInfrastructureOutpost": {
+        "doc": "OCR 切换至基建前站",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ValleyIV.json",
+        "i18n": {
+            "zh_cn": "基建前站|Infra-Station|建設基地|기초 건설 주둔지",
+            "zh_tc": "基建前站",
+            "en_us": "Infra-Station",
+            "ja_jp": "建設基地"
+        }
+    },
+    "ValleyIVSwitchToReconstructionCommand": {
+        "doc": "OCR 切换至重建指挥部",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ValleyIV.json",
+        "i18n": {
+            "zh_cn": "重建指挥部|重建指揮部|Reconstruction HQ|再建管理本部|재건 지휘부",
+            "zh_tc": "重建指揮部",
+            "en_us": "Reconstruction HQ",
+            "ja_jp": "再建管理本部"
+        }
+    },
+    "WulingSwitchToSkyKingFlats": {
+        "doc": "OCR 切换至天王坪援建点（模糊匹配）",
+        "path": "./assets/resource_fast/pipeline/SellProduct/Wuling.json",
+        "i18n": {
+            "zh_cn": "天王坪|天王坪援助|天王坪援建|Sky King|天王原|천왕",
+            "zh_tc": "天王坪",
+            "en_us": "Sky King Flats",
+            "ja_jp": "<p=\"てんのうばら\" padding=0>天王原</p>"
+        }
+    },
+    "SimSpaceOperationalManualIn": {
+        "doc": "当前在行动手册界面",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "行动手册|Operational Manual|案内所|작전 매뉴얼|行動手冊",
+            "zh_tc": "行動手冊",
+            "en_us": "Operational Manual",
+            "ja_jp": "案内所"
+        }
+    },
+    "SimSpaceOperationalManualSwitchTab": {
+        "doc": "在行动手册界面，切换到模拟空间标签页",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "模拟",
+            "zh_tc": "模擬",
+            "en_us": "Simulation",
+            "ja_jp": "模擬"
+        }
+    },
+    "SimSpaceChooseSimulation": {
+        "doc": "在模拟空间标签页，选择模拟地区",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "四号谷地",
+            "zh_tc": "四號谷地",
+            "en_us": "Valley IV",
+            "ja_jp": "四号谷地"
+        }
+    },
+    "SimSpaceStart": {
+        "doc": "第一步：识别模拟空间主界面",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "模拟空间|模拟",
+            "zh_tc": "模擬空間",
+            "en_us": "Simulation",
+            "ja_jp": "模擬空間"
+        }
+    },
+    "SimClickFilter": {
+        "doc": "第二步：点击筛选按钮",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "筛选|筛选匹配",
+            "zh_tc": "篩選",
+            "en_us": "Filter",
+            "ja_jp": "ソート"
+        }
+    },
+    "SimSelectUnfinished": {
+        "doc": "第四步：点击[未完成]",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "未完成",
+            "zh_tc": "未完成",
+            "en_us": "Incomplete",
+            "ja_jp": "未解放"
+        }
+    },
+    "SimSaveFilter": {
+        "doc": "第五步：点击保存/确定",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "保存|确定",
+            "zh_tc": "儲存",
+            "en_us": "Save",
+            "ja_jp": "保存"
+        }
+    },
+    "SimLoopClickFilter": {
+        "doc": "[循环开始]，点击筛选按钮",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "筛选|筛选匹配",
+            "zh_tc": "篩選",
+            "en_us": "Filter",
+            "ja_jp": "ソート"
+        }
+    },
+    "SimLoopSaveFilter": {
+        "doc": "循环：点击保存/确定",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "保存",
+            "zh_tc": "儲存",
+            "en_us": "Save",
+            "ja_jp": "保存"
+        }
+    },
+    "SimLoopClaimReward": {
+        "doc": "第六步：一个个点击领取奖励",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "已掌握|掌握|直接完成模拟",
+            "zh_tc": "掌握",
+            "en_us": "Fully Grasped",
+            "ja_jp": "掌握"
+        }
+    },
+    "SimComfirmReward": {
+        "doc": "第七步：确认领取",
+        "path": "./assets/resource/pipeline/AutoSimulationCollect.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "BakerCheckHome": {
+        "doc": "检测左上角是否是 Baker 页面, 后续根据次级目录执行不同的点击操作",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "BAKER"
+        }
+    },
+    "BakerCheckMsg": {
+        "doc": "会话信息流程: 筛选已读条件后下拉检测联系人是否可以互动",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "会话消息"
+        }
+    },
+    "BakerCheckTask": {
+        "doc": "事务通讯流程: 筛选已读条件后检测任务联系人是否可以互动",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "事务通讯"
+        }
+    },
+    "BakerOverCheck": {
+        "doc": "检测到当前会话已经结束,尝试进入事务通讯流程。如果已经进入过了则直接退出",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "当前无|无该类型会话"
+        }
+    },
+    "BakerOpenFilter": {
+        "doc": "执行未读筛选操作, 只会执行一次执行过了条件会固定",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "全部显示|筛选生效中",
+            "zh_tc": "全部顯示",
+            "en_us": "Show All",
+            "ja_jp": "すべて"
+        }
+    },
+    "BakerRefreshFilter": {
+        "doc": "刷新 Baker 联系人的循环流程, 点击筛选框之后直接点击保存可以省一步",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "筛选生效中",
+            "zh_tc": "篩選套用中",
+            "en_us": "Filter Active",
+            "ja_jp": "条件適用中"
+        }
+    },
+    "BakerFilterUnread": {
+        "doc": "筛选页面中点击未读选项, 需要已经点过清空选项之后再进行选择未读",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "未读",
+            "zh_tc": "未讀",
+            "en_us": "Unread",
+            "ja_jp": "未読"
+        }
+    },
+    "BakerSaveFilter": {
+        "doc": "点击筛选中的保存",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "保存",
+            "zh_tc": "儲存",
+            "en_us": "Save",
+            "ja_jp": "保存"
+        }
+    },
+    "BakerTalkOver": {
+        "doc": "通用聊天点击流程: 用于检测当前会话是否结束",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "话题结束|暂无新话题",
+            "zh_tc": "尚無新話題",
+            "en_us": "No New Topics",
+            "ja_jp": "新しいトピックはありません"
+        }
+    },
+    "BakerOpenFilter2": {
+        "doc": "执行未读筛选操作, 只会执行一次执行过了条件会固定 (事务通讯需要同样的操作)",
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "全部显示|筛选生效中",
+            "zh_tc": "全部顯示",
+            "en_us": "Show All",
+            "ja_jp": "すべて"
+        }
+    },
+    "CraftingEnterMenu": {
+        "doc": "进入简易制作界面",
+        "path": "./assets/resource/pipeline/Crafting.json",
+        "i18n": {
+            "zh_cn": "简易制作|Crafting|道具製作|간편 제작|簡易製作",
+            "zh_tc": "簡易製作",
+            "en_us": "Crafting",
+            "ja_jp": "道具製作"
+        }
+    },
+    "CraftingEnterInMenu": {
+        "doc": "进入简易制作界面",
+        "path": "./assets/resource/pipeline/Crafting.json",
+        "i18n": {
+            "zh_cn": "简易制作|Crafting|道具製作|간편 제작|簡易製作",
+            "zh_tc": "簡易製作",
+            "en_us": "Crafting",
+            "ja_jp": "道具製作"
+        }
+    },
+    "CraftingClickProduceBtn": {
+        "doc": "点击制作按钮",
+        "path": "./assets/resource/pipeline/Crafting.json",
+        "i18n": {
+            "zh_cn": "制作",
+            "zh_tc": "製作",
+            "en_us": "Craft",
+            "ja_jp": "確定"
+        }
+    },
+    "CraftingCheckMaterialEnough": {
+        "doc": "检测背包是否已满，背包已满直接结束",
+        "path": "./assets/resource/pipeline/Crafting.json",
+        "i18n": {
+            "zh_cn": "空间已满|可销毁或丢弃部分"
+        }
+    },
+    "GearAssemblyCheckIsAssemblePage": {
+        "doc": "检测是否处于 [装备制作]",
+        "path": "./assets/resource/pipeline/GearAssembly.json",
+        "i18n": {
+            "zh_cn": "套组装备",
+            "zh_tc": "套裝裝備",
+            "en_us": "Set Gear",
+            "ja_jp": "セット装備"
+        }
+    },
+    "GearAssemblySwitchAscending": {
+        "doc": "识别到降序，变成升序",
+        "path": "./assets/resource/pipeline/GearAssembly.json",
+        "i18n": {
+            "zh_cn": "降序",
+            "zh_tc": "降序",
+            "en_us": "DESC",
+            "ja_jp": "降順"
+        }
+    },
+    "GearAssemblyClickProduceBtn": {
+        "doc": "点击制作按钮",
+        "path": "./assets/resource/pipeline/GearAssembly.json",
+        "i18n": {
+            "zh_cn": "制作",
+            "zh_tc": "製作",
+            "en_us": "Craft",
+            "ja_jp": "確定"
+        }
+    },
+    "GearAssemblyCheckMaterialEnough": {
+        "doc": "检测背包是否已满，背包已满直接结束",
+        "path": "./assets/resource/pipeline/GearAssembly.json",
+        "i18n": {
+            "zh_cn": "空间已满|可销毁或丢弃部分"
+        }
+    },
+    "ImportBluePrintsChooseTab": {
+        "path": "./assets/resource/pipeline/ImportBluePrints.json",
+        "i18n": {
+            "zh_cn": "共享蓝图",
+            "zh_tc": "共享藍圖",
+            "en_us": "Shared Blueprints",
+            "ja_jp": "共有図面"
+        }
+    },
+    "ImportBluePrintsChooseImport": {
+        "path": "./assets/resource/pipeline/ImportBluePrints.json",
+        "i18n": {
+            "zh_cn": "导入蓝图",
+            "zh_tc": "匯入藍圖",
+            "en_us": "Import Blueprint",
+            "ja_jp": "図面共有コードを入れてください"
+        }
+    },
+    "ImportBluePrintsConfirm": {
+        "doc": "点击确认按钮",
+        "path": "./assets/resource/pipeline/ImportBluePrints.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "ImportBluePrintsSave": {
+        "doc": "点击保存按钮",
+        "path": "./assets/resource/pipeline/ImportBluePrints.json",
+        "i18n": {
+            "zh_cn": "存至共享蓝图",
+            "zh_tc": "存至共享藍圖",
+            "en_us": "Save to Shared Blueprints",
+            "ja_jp": "保存"
+        }
+    },
+    "ImportBluePrintsExists": {
+        "doc": "蓝图已存在，退出",
+        "path": "./assets/resource/pipeline/ImportBluePrints.json",
+        "i18n": {
+            "zh_cn": "已保存",
+            "zh_tc": "已儲存",
+            "en_us": "Saved",
+            "ja_jp": "保存済み"
+        }
+    },
+    "LoginFailed": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "登录失败|检查网络|状态后重试"
+        }
+    },
+    "LoginFailureConfirmation": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "确认",
+            "zh_tc": "確定",
+            "en_us": "Confirm",
+            "ja_jp": "確定"
+        }
+    },
+    "ClickContinue": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "点击|任意|位置|继续",
+            "zh_tc": "繼續",
+            "en_us": "Continue",
+            "ja_jp": "続ける"
+        }
+    },
+    "WaitLoadingText": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "NOW|LOAD|ING"
+        }
+    },
+    "MonthlyCard": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "点击确认今日|今日月卡奖励",
+            "zh_tc": "今日月卡獎勵",
+            "en_us": "Daily Monthly Pass Rewards",
+            "ja_jp": "本日報酬"
+        }
+    },
+    "CheckIn": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "领取",
+            "zh_tc": "領取",
+            "en_us": "Claim",
+            "ja_jp": "受取"
+        }
+    },
+    "CollectRewards": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "获得奖励",
+            "zh_tc": "獲得獎勵",
+            "en_us": "Rewards Acquired",
+            "ja_jp": "報酬一覧"
+        }
+    },
+    "WikiOnHomePage": {
+        "path": "./assets/resource/pipeline/ReadWiki.json",
+        "i18n": {
+            "zh_cn": "终末地百科",
+            "zh_tc": "終末地百科",
+            "en_us": "Endfield Database (EFDB)",
+            "ja_jp": "エンドフィールドWiki"
+        }
+    },
+    "ResellAreaInFourthValley": {
+        "doc": "在四号谷地，进入地区建设管理",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "四号谷地",
+            "zh_tc": "四號谷地",
+            "en_us": "Valley IV",
+            "ja_jp": "四号谷地"
+        }
+    },
+    "ResellFristAreaInWuLing": {
+        "doc": "直接在武陵，进入四号谷地",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "武陵",
+            "zh_tc": "武陵",
+            "en_us": "Wuling",
+            "ja_jp": "武陵"
+        }
+    },
+    "ResellAreaInWuLing": {
+        "doc": "在武陵，进入地区建设管理",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "武陵",
+            "zh_tc": "武陵",
+            "en_us": "Wuling",
+            "ja_jp": "武陵"
+        }
+    },
+    "ResellWaitForStableStore": {
+        "doc": "轮询 OCR 识别稳定需求物资调度页面加载完成",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "稳定需求"
+        }
+    },
+    "ResellClickToUnstableStore": {
+        "doc": "识别并点击弹性需求物资标签",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "弹性需求"
+        }
+    },
+    "ResellStartCheckStock": {
+        "doc": "检查库存",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellCheckSoldout": {
+        "doc": "识别库存是否售罄，售罄则切换区域",
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "无法购买",
+            "zh_tc": "無法購買",
+            "en_us": "Cannot Purchase",
+            "ja_jp": "購入不可"
+        }
+    },
+    "CheckCantProduceAnyMore": {
+        "doc": "检测是否材料不足，没有材料直接结束",
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "当前材料不足",
+            "zh_tc": "目前材料不足",
+            "en_us": "Insufficient materials",
+            "ja_jp": "素材が不足しています"
+        }
+    },
+    "CheckMaterialEnough": {
+        "doc": "检测背包是否已满，背包已满直接结束",
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "空间已满|可销毁或丢弃部分"
+        }
+    },
+    "CheckIsSimpleProductionPage": {
+        "doc": "检测是否处于 [简易制作页面]",
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "应急食药",
+            "zh_tc": "緊急食藥",
+            "en_us": "EMS F&M",
+            "ja_jp": "応急食品・薬"
+        }
+    },
+    "ClickSimpleProductionSuccess": {
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "制作成功",
+            "zh_tc": "製作成功",
+            "en_us": "Crafting Successful",
+            "ja_jp": "製作成功"
+        }
+    },
+    "ClickSimpleProductionSuccess2": {
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "制作成功",
+            "zh_tc": "製作成功",
+            "en_us": "Crafting Successful",
+            "ja_jp": "製作成功"
+        }
+    },
+    "ProductionAssistOCR": {
+        "doc": "助力生产 - 剩余次数大于0",
+        "path": "./assets/resource/pipeline/VisitFriends.json",
+        "i18n": {
+            "zh_cn": "[1-5]"
+        }
+    },
+    "ClueExchangeOCR": {
+        "doc": "线索交流 - 剩余次数大于0",
+        "path": "./assets/resource/pipeline/VisitFriends.json",
+        "i18n": {
+            "zh_cn": "[1-5]"
+        }
+    },
+    "__AutoFightRecognitionSwitchOperatorsTip": {
+        "doc": "识别干员栏",
+        "path": "./assets/resource/pipeline/AutoFight/Recognition.json",
+        "i18n": {
+            "zh_cn": "切|换|干|员"
+        }
+    },
+    "BuyFirstOCR": {
+        "doc": "按用户指定顺序购买",
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(嵌晶玉|武库配额|折金票)$"
+        }
+    },
+    "BuyFirstOCR_CanNotAfford": {
+        "doc": "有商品,但是买不起",
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(嵌晶玉|武库配额|折金票)$"
+        }
+    },
+    "BlacklistOCR": {
+        "doc": "不是黑名单物品",
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(?!(协议棱柱组)$).*$"
+        }
+    },
+    "IsDiscount": {
+        "doc": "有折扣",
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "99|95|75|50|25"
+        }
+    },
+    "CreditShoppingReserveCredit": {
+        "doc": "信用点 < 300",
+        "path": "./assets/resource/pipeline/CreditShopping/Shopping.json",
+        "i18n": {
+            "zh_cn": "^([12]?\\d{1,2})$"
+        }
+    },
+    "CreditNum": {
+        "doc": "信用点溢出（>300）",
+        "path": "./assets/resource/pipeline/CreditShopping/Shopping.json",
+        "i18n": {
+            "zh_cn": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
+        }
+    },
+    "DailyEmailAlreadyInEmail": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "邮件|收件箱",
+            "zh_tc": "信件",
+            "en_us": "Mail",
+            "ja_jp": "メール"
+        }
+    },
+    "DailyEmailConfirmEmail": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "邮箱奖励",
+            "zh_tc": "信箱獎勵",
+            "en_us": "Mail Rewards",
+            "ja_jp": "メール報酬"
+        }
+    },
+    "DailyEmailConfirmTSA": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "获得道具",
+            "zh_tc": "獲得道具",
+            "en_us": "Items Acquired",
+            "ja_jp": "アイテム入手"
+        }
+    },
+    "DailyEmailNoEmailRewards": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "暂无附件"
+        }
+    },
+    "DailyEmailReceiveEmail": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "全部收取",
+            "zh_tc": "全部收取",
+            "en_us": "Claim All",
+            "ja_jp": "一括受取"
+        }
+    },
+    "DailyEmailReceiveTSA": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "全部领取",
+            "zh_tc": "全部領取",
+            "en_us": "Claim All",
+            "ja_jp": "一括受取"
+        }
+    },
+    "DailyEventEnterMenu": {
+        "doc": "进入活动界面",
+        "path": "./assets/resource/pipeline/DailyRewards/Event.json",
+        "i18n": {
+            "zh_cn": "活动中心|Event Center|イベント|이벤트 센터|活動中心",
+            "zh_tc": "活動中心",
+            "en_us": "Event Center",
+            "ja_jp": "イベント"
+        }
+    },
+    "DailyEventRecognitionGotoButton": {
+        "doc": "识别活动界面是前往按钮",
+        "path": "./assets/resource/pipeline/DailyRewards/Event.json",
+        "i18n": {
+            "zh_cn": "前往|Go|移動|바로가기",
+            "zh_tc": "前往",
+            "en_us": "Go",
+            "ja_jp": "移動"
+        }
+    },
+    "DailyEventRecognitionItemText": {
+        "doc": "识别活动界面的红点",
+        "path": "./assets/resource/pipeline/DailyRewards/Event.json",
+        "i18n": {
+            "zh_cn": ".{3,}"
+        }
+    },
+    "DailyProtocolMissionsEnter": {
+        "doc": "在通行证界面点击进入任务界面",
+        "path": "./assets/resource/pipeline/DailyRewards/ProtocolPass.json",
+        "i18n": {
+            "zh_cn": "通行证任务|Pass Missions|通行証クエスト|통행증 임무|通行證任務",
+            "zh_tc": "通行證任務",
+            "en_us": "Pass Missions",
+            "ja_jp": "通行証クエスト"
+        }
+    },
+    "DailyProtocolMissionsPick": {
+        "doc": "在任务界面点击领取",
+        "path": "./assets/resource/pipeline/DailyRewards/ProtocolPass.json",
+        "i18n": {
+            "zh_cn": "一键领取|Claim All|一括受取|일괄 획득|快速領取",
+            "zh_tc": "快速領取",
+            "en_us": "Claim All",
+            "ja_jp": "一括受取"
+        }
+    },
+    "DailyProtocolRewardsEnter": {
+        "doc": "在任务界面点击进入奖励界面",
+        "path": "./assets/resource/pipeline/DailyRewards/ProtocolPass.json",
+        "i18n": {
+            "zh_cn": "通行证奖励|Pass Rewards|通行証報酬|통행증 보상|通行證獎勵",
+            "zh_tc": "通行證獎勵",
+            "en_us": "Pass Rewards",
+            "ja_jp": "通行証報酬"
+        }
+    },
+    "DailyProtocolRewardsPick": {
+        "doc": "在任务界面点击领取",
+        "path": "./assets/resource/pipeline/DailyRewards/ProtocolPass.json",
+        "i18n": {
+            "zh_cn": "一键领取|Claim All|一括受取|일괄 획득|快速領取",
+            "zh_tc": "快速領取",
+            "en_us": "Claim All",
+            "ja_jp": "一括受取"
+        }
+    },
+    "GrowthChamber": {
+        "doc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "培养舱",
+            "zh_tc": "培養艙",
+            "en_us": "Growth Chamber",
+            "ja_jp": "培養室"
+        }
+    },
+    "SelectGrowTarget": {
+        "doc": "选择培养目标",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "菌|石|叶"
+        }
+    },
+    "CheckGrowTargetEmpty": {
+        "doc": "检查选择的培养对象是否为空",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "^([1-9][0-9]*)([/|\\]]).*$"
+        }
+    },
+    "InGrowthChamber": {
+        "doc": "已经回到培养舱界面,任务完成",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "生产助力",
+            "zh_tc": "生產助力",
+            "en_us": "Production Assist",
+            "ja_jp": "生産サポート"
+        }
+    },
+    "ExitGrow": {
+        "doc": "不需要提取基核,直接退出培养界面",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "前往提取基核",
+            "zh_tc": "前往提取基核",
+            "en_us": "Extract Seed",
+            "ja_jp": "基核抽出へ"
+        }
+    },
+    "ExtractSeed": {
+        "doc": "提取基核",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "前往提取基核",
+            "zh_tc": "前往提取基核",
+            "en_us": "Extract Seed",
+            "ja_jp": "基核抽出へ"
+        }
+    },
+    "NoMaterials": {
+        "doc": "缺少原料无法获取",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "缺少原料|无法获取"
+        }
+    },
+    "InSelectGrowSwipe": {
+        "doc": "在选择培养对象界面滑动",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "选择培养对象"
+        }
+    },
+    "Grow": {
+        "doc": "点击培养按钮",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "^培养$"
+        }
+    },
+    "InGrow": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "选择培养对象"
+        }
+    },
+    "SortBy": {
+        "doc": "排序,选择基础排序内容",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "默认|基核数量|品质|預設|基核數量|品質|デフォルト|基核数|品質|Default|Amount of Seeds|Quality",
+            "zh_tc": "預設",
+            "en_us": "Default",
+            "ja_jp": "デフォルト"
+        }
+    },
+    "ChooseSortBy": {
+        "doc": "选择具体排序方式",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "拥有数量|持有數量|総在庫|Amount Owned",
+            "zh_tc": "持有數量",
+            "en_us": "Amount owned",
+            "ja_jp": "総在庫"
+        }
+    },
+    "SwipeChooseSortBy": {
+        "doc": "选择排序方式时候滚动一次",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "默认|拥有数量|基核数量|品质",
+            "zh_tc": "預設",
+            "en_us": "Default",
+            "ja_jp": "デフォルト"
+        }
+    },
+    "SortOrder": {
+        "doc": "排序,选择正序或者倒序",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "降序|降序|DESC|降順",
+            "zh_tc": "降序",
+            "en_us": "DESC",
+            "ja_jp": "降順"
+        }
+    },
+    "ExitGrowthChamber": {
+        "doc": "[培养舱·离开] 返回控制中枢",
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "培养舱",
+            "zh_tc": "培養艙",
+            "en_us": "Growth Chamber",
+            "ja_jp": "培養室"
+        }
+    },
+    "InviteFriend": {
+        "path": "./assets/resource/pipeline/DijiangRewards/MainFlow.json",
+        "i18n": {
+            "zh_cn": "邀请好友",
+            "zh_tc": "邀請好友",
+            "en_us": "Invite Friend",
+            "ja_jp": "フレンド招待"
+        }
+    },
+    "CloseAssist": {
+        "doc": "[意外进入生产助力] 识别进入生产助力界面，点击返回控制中枢",
+        "path": "./assets/resource/pipeline/DijiangRewards/MainFlow.json",
+        "i18n": {
+            "zh_cn": "生产助力",
+            "zh_tc": "生產助力",
+            "en_us": "Production Assist",
+            "ja_jp": "生産サポート"
+        }
+    },
+    "LastCarbinText": {
+        "path": "./assets/resource/pipeline/DijiangRewards/MainFlow.json",
+        "i18n": {
+            "zh_cn": "培养舱",
+            "zh_tc": "培養艙",
+            "en_us": "Growth Chamber",
+            "ja_jp": "培養室"
+        }
+    },
+    "CancelExit": {
+        "doc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
+        "path": "./assets/resource/pipeline/DijiangRewards/MainFlow.json",
+        "i18n": {
+            "zh_cn": "取消",
+            "zh_tc": "取消",
+            "en_us": "Cancel",
+            "ja_jp": "キャンセル"
+        }
+    },
+    "EntryReceptionRoom": {
+        "doc": "[会客室·进入] 主流程: 从控制中枢点击会客室区域进入",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "^会客室$"
+        }
+    },
+    "ReceptionRoom": {
+        "doc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "会客室",
+            "zh_tc": "會客室",
+            "en_us": "Reception Room",
+            "ja_jp": "応接室"
+        }
+    },
+    "ReadySetClues": {
+        "doc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "线索"
+        }
+    },
+    "AlreadyHaveClues": {
+        "doc": "[会客室·线索] 识别「已填入」，无需再放置线索",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "已填入",
+            "zh_tc": "已填入",
+            "en_us": "Pegged",
+            "ja_jp": "配置中"
+        }
+    },
+    "SendClues": {
+        "doc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "已达自有线索库容量上限"
+        }
+    },
+    "SendCluesSwipe": {
+        "doc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "线索"
+        }
+    },
+    "ClueItem": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "自有库存",
+            "zh_tc": "自有庫存",
+            "en_us": "Local Library",
+            "ja_jp": "捜索分"
+        }
+    },
+    "ClueItemCount": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "^(20|[3-9]|1[0-9])$"
+        }
+    },
+    "EntrySendClues": {
+        "doc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "赠予",
+            "zh_tc": "贈予",
+            "en_us": "Send",
+            "ja_jp": "譲り渡す"
+        }
+    },
+    "ExitReceptionRoom": {
+        "doc": "[会客室·离开] 返回控制中枢",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "会客室",
+            "zh_tc": "會客室",
+            "en_us": "Reception Room",
+            "ja_jp": "応接室"
+        }
+    },
+    "ExitCollect": {
+        "doc": "[会客室·领奖] 领奖后点击左上会客室标题关闭收集界面",
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "会客室",
+            "zh_tc": "會客室",
+            "en_us": "Reception Room",
+            "ja_jp": "応接室"
+        }
+    },
+    "CheckEternalSunsetText": {
+        "doc": "检查是否有栖霞驻影文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "栖霞驻影|棲霞駐影|Eternal Sunset|棲霞留影|노을의 그림자"
+        }
+    },
+    "CheckAncientTreeText": {
+        "doc": "检查是否有古树文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "古树|古樹|Ancient Tree|古木|고목",
+            "zh_tc": "古樹",
+            "en_us": "Ancient Tree",
+            "ja_jp": "古木"
+        }
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "doc": "检查是否有蓄水源石虫文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "蓄水源石虫|蓄水源石蟲|Cistern Originium Slugs|貯水オリジムシ|저수 원석충",
+            "zh_tc": "蓄水源石蟲",
+            "en_us": "Cistern Originium Slugs",
+            "ja_jp": "貯水オリジムシ"
+        }
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "doc": "检查是否有倒塌的天师桩文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "倒塌的天师桩|倒塌的天師樁|Collapsed Tianshi Pillar|倒れた天師杭|무너진 천사장",
+            "zh_tc": "倒塌的天師樁",
+            "en_us": "Collapsed Tianshi Pillar",
+            "ja_jp": "倒れた天師杭"
+        }
+    },
+    "CheckIndoorCropsText": {
+        "doc": "检查是否有室内作物文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "室内作物|室內作物|Indoor Crops|室内の作物|실내 작물",
+            "zh_tc": "室內作物",
+            "en_us": "Indoor Crops",
+            "ja_jp": "室内の作物"
+        }
+    },
+    "CheckBeaconDamagedInBlightTideText": {
+        "doc": "检查是否有侵蚀潮中损坏的信标文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "侵蚀潮中损坏的信标|侵蝕潮中損壞的信標|Beacon Damaged in the Blight Tide|侵蝕潮で壊れたビーコン|침식 조류로 인해 훼손된 신호기",
+            "zh_tc": "侵蝕潮中損壞的信標",
+            "en_us": "Beacon Damaged in the Blight Tide",
+            "ja_jp": "侵蝕潮で壊れたビーコン"
+        }
+    },
+    "CheckRainbowFinText": {
+        "doc": "检查是否有七彩鳞文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "七彩鳞|七彩鱗|Rainbow Fin|七色鱗獣|무지개 린수",
+            "zh_tc": "七彩鱗",
+            "en_us": "Rainbow Fin",
+            "ja_jp": "七色鱗獣"
+        }
+    },
+    "CheckCleansingJadeText": {
+        "doc": "检查是否有漱玉文本",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "漱玉|漱玉|Cleansing Jade|漱玉|수옥"
+        }
+    },
+    "CheckEternalSunsetReadyText": {
+        "doc": "检查栖霞驻影委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckAncientTreeReadyText": {
+        "doc": "检查古树委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "doc": "检查蓄水源石虫委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "doc": "检查倒塌的天师桩委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckIndoorCropsReadyText": {
+        "doc": "检查室内作物委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckBeaconDamagedInBlightTideReadyText": {
+        "doc": "检查侵蚀潮中损坏的信标委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckRainbowFinReadyText": {
+        "doc": "检查七彩鳞委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCleansingJadeReadyText": {
+        "doc": "检查漱玉委托是否准备好",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령|前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckEternalSunsetJob": {
+        "doc": "检查栖霞驻影委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckEternalSunsetGoToMission": {
+        "doc": "检查栖霞驻影委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckAncientTreeJob": {
+        "doc": "检查古树委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckAncientTreeGoToMission": {
+        "doc": "检查古树委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "doc": "检查蓄水源石虫委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCisternOriginiumSlugsGoToMission": {
+        "doc": "检查蓄水源石虫委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "doc": "检查倒塌的天师桩委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCollapsedTianshiPillarGoToMission": {
+        "doc": "检查倒塌的天师桩委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckIndoorCropsJob": {
+        "doc": "检查室内作物委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckIndoorCropsGoToMission": {
+        "doc": "检查室内作物委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckBeaconDamagedInBlightTideJob": {
+        "doc": "检查侵蚀潮中损坏的信标委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckBeaconDamagedInBlightTideGoToMission": {
+        "doc": "检查侵蚀潮中损坏的信标委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckRainbowFinJob": {
+        "doc": "检查七彩鳞委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckRainbowFinGoToMission": {
+        "doc": "检查七彩鳞委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckCleansingJadeJob": {
+        "doc": "检查漱玉委托是否可以接取",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "接取委托|接取委託|Accept Job|引き受ける|의뢰 수령",
+            "zh_tc": "接取委託",
+            "en_us": "Accept Job",
+            "ja_jp": "引き受ける"
+        }
+    },
+    "CheckCleansingJadeGoToMission": {
+        "doc": "检查漱玉委托是否可以前往任务",
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "前往任务|前往任務|Go to Mission|任務へ|임무로 이동하기",
+            "zh_tc": "前往任務",
+            "en_us": "Go to Mission",
+            "ja_jp": "任務へ"
+        }
+    },
+    "CheckAnywhere": {
+        "doc": "检测屏幕上出现的'点击任意处继续'提示",
+        "path": "./assets/resource/pipeline/RealTimeTask/AutoCloseInfo.json",
+        "i18n": {
+            "zh_cn": "点击任意处继续|点击任意处|任意处继续",
+            "zh_tc": "按下任意處繼續",
+            "en_us": "Tap to continue",
+            "ja_jp": "タップして続ける"
+        }
+    },
+    "ResellClickStock": {
+        "doc": "点击库存",
+        "path": "./assets/resource/pipeline/Resell/GotoSell.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellEnterShip": {
+        "doc": "进入好友的船坞",
+        "path": "./assets/resource/pipeline/Resell/GotoSell.json",
+        "i18n": {
+            "zh_cn": ".*飞船.*"
+        }
+    },
+    "ResellROIViewFriendPrice": {
+        "doc": "查看好友价格按钮区域",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "好友",
+            "zh_tc": "好友",
+            "en_us": "Friends",
+            "ja_jp": "フレンド"
+        }
+    },
+    "ResellROIDetailCostPrice": {
+        "doc": "商品详情页成本价格区域",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellROIFriendSalePrice": {
+        "doc": "好友出售价格区域",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellROIQuotaCurrent": {
+        "doc": "当前配额区域 (x/y格式)",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)/(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddHours": {
+        "doc": "下次增加配额区域 - 小时格式 (a小时后+b)",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)\\s*小时.*?[+]\\s*(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddMinutes": {
+        "doc": "下次增加配额区域 - 分钟格式 (a分钟后+b)",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)\\s*分钟.*?[+]\\s*(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddFallback": {
+        "doc": "下次增加配额区域 - 兜底格式 (+b)",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[+]\\s*(\\d+)"
+        }
+    },
+    "ResellROIFriendLoading": {
+        "doc": "好友加载中区域",
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "加载中",
+            "zh_tc": "載入中",
+            "en_us": "Loading",
+            "ja_jp": "読み込み中"
+        }
+    },
+    "__ScenePrivateEndVisitConfirm": {
+        "doc": "识别结束拜访的确认弹框",
+        "path": "./assets/resource/pipeline/SceneManager/SceneCommon.json",
+        "i18n": {
+            "zh_cn": "结束拜访|結束拜訪|End Visit|訪問終了|방문 종료",
+            "zh_tc": "結束拜訪",
+            "en_us": "End Visit",
+            "ja_jp": "訪問終了"
+        }
+    },
+    "__ScenePrivateMapNotDijiangEnterMapDijiang": {
+        "doc": "在地图非帝江号界面，进入帝江号地图",
+        "path": "./assets/resource/pipeline/SceneManager/SceneDijiang.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "__ScenePrivateLoginContinue": {
+        "doc": "等待登录页面出现按钮继续",
+        "path": "./assets/resource/pipeline/SceneManager/SceneLogin.json",
+        "i18n": {
+            "zh_cn": "点击任意位置继续|按下任意位置繼續|Click to continue|クリックして続ける|아무 곳이나 눌러 계속하기",
+            "zh_tc": "按下任意位置繼續",
+            "en_us": "Click to continue",
+            "ja_jp": "クリックして続ける"
+        }
+    },
+    "__ScenePrivateLoginMonthlyPassConfirm": {
+        "doc": "领取月卡，无法跳过必须领取",
+        "path": "./assets/resource/pipeline/SceneManager/SceneLogin.json",
+        "i18n": {
+            "zh_cn": "点击任意位置继续|按下任意位置繼續|Click to continue|クリックして続ける|아무 곳이나 눌러 계속하기|月卡剩余天数|月卡剩餘天數|Monthly Pass Day(s) Left|月パス残り|월정액 남은 시간|今日月卡奖励|今日月卡獎勵|Daily Monthly Pass Rewards|本日報酬|오늘의 월정액 보상",
+            "zh_tc": "按下任意位置繼續",
+            "en_us": "Click to continue",
+            "ja_jp": "クリックして続ける"
+        }
+    },
+    "__ScenePrivateMapEnterMapNotDijiangSuccess": {
+        "doc": "在地图界面，进入非帝江号地图成功",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "__ScenePrivateMapTeleportChoose": {
+        "doc": "判断是否有多个图标重叠，导致出现候选条目",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "协议传送点|協議傳送點|TP Point|協約転送ポイント|프로토콜 전송 지점",
+            "zh_tc": "協議傳送點",
+            "en_us": "TP Point",
+            "ja_jp": "協約転送ポイント"
+        }
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "doc": "在标记显示管理界面，点击清空选中",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "清空选中|クリア選択|Clear Selection|선택 해제",
+            "zh_tc": "清除選取",
+            "en_us": "Clear All",
+            "ja_jp": "一括解除"
+        }
+    },
+    "__ScenePrivateMapFilterClose": {
+        "doc": "在标记显示管理界面，点击关闭",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "标记显示管理|標記顯示管理|Marker Tags|ソート|표식 관리",
+            "zh_tc": "標記顯示管理",
+            "en_us": "Marker Tags",
+            "ja_jp": "ソート"
+        }
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "doc": "在地图界面，关闭传送弹窗",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "协议传送点|協議傳送點|TP Point|協約転送ポイント|프로토콜 전송 지점",
+            "zh_tc": "協議傳送點",
+            "en_us": "TP Point",
+            "ja_jp": "協約転送ポイント"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuListSuccess": {
+        "doc": "成功进入菜单总列表",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "ENDFIELD",
+            "zh_tc": "ENDFIELD",
+            "en_us": "ENDFIELD",
+            "ja_jp": "ENDFIELD"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "doc": "从菜单列表进入地区建设菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "地区建设|Regional Development|地域建設|지역 건설|地區建設",
+            "zh_tc": "地區建設",
+            "en_us": "Regional Development",
+            "ja_jp": "地域建設"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuEvent": {
+        "doc": "从菜单列表进入活动菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "活动|Events|イベント|이벤트|活動",
+            "zh_tc": "活動",
+            "en_us": "Events",
+            "ja_jp": "イベント"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuEventSuccess": {
+        "doc": "成功进入活动菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "活动中心|Event Center|イベント|이벤트 센터|活動中心",
+            "zh_tc": "活動中心",
+            "en_us": "Event Center",
+            "ja_jp": "イベント"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuValuables": {
+        "doc": "从菜单列表进入贵重品库菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "贵重品库|Valuables|貴重品倉庫|귀중품 창고|貴重品庫",
+            "zh_tc": "貴重品庫",
+            "en_us": "Valuables",
+            "ja_jp": "貴重品倉庫"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuValuablesSuccess": {
+        "doc": "成功进入贵重品库菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "贵重品库|Valuables|貴重品倉庫|귀중품 창고|貴重品庫",
+            "zh_tc": "貴重品庫",
+            "en_us": "Valuables",
+            "ja_jp": "貴重品倉庫"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "doc": "从菜单列表进入行动手册菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "行动手册|Operational Manual|案内所|작전 매뉴얼|行動手冊",
+            "zh_tc": "行動手冊",
+            "en_us": "Operational Manual",
+            "ja_jp": "案内所"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+        "doc": "成功进入行动手册菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "行动手册|Operational Manual|案内所|작전 매뉴얼|行動手冊",
+            "zh_tc": "行動手冊",
+            "en_us": "Operational Manual",
+            "ja_jp": "案内所"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
+        "doc": "从菜单列表进入通行证菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "通行证|Protocol Pass|通行証|프로토콜 패스|通行證",
+            "zh_tc": "通行證",
+            "en_us": "Protocol Pass",
+            "ja_jp": "通行証"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuFriends": {
+        "doc": "从菜单列表进入好友菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "好友|Friends|フレンド|친구",
+            "zh_tc": "好友",
+            "en_us": "Friends",
+            "ja_jp": "フレンド"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+        "doc": "成功进入好友菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "好友|Friends|フレンド|친구",
+            "zh_tc": "好友",
+            "en_us": "Friends",
+            "ja_jp": "フレンド"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuWiki": {
+        "doc": "从菜单列表进入百科菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "百科|Database|Wiki|백과",
+            "zh_tc": "百科",
+            "en_us": "Database",
+            "ja_jp": "Wiki"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuWikiSuccess": {
+        "doc": "成功进入百科菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "终末地百科|終末地百科|Endfield Database (EFDB)|エンドフィールドWiki|엔드필드 백과",
+            "zh_tc": "終末地百科",
+            "en_us": "Endfield Database (EFDB)",
+            "ja_jp": "エンドフィールドWiki"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuGearAssembly": {
+        "doc": "从菜单列表进入装备加工界面",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "装备加工|Gear Assembly|装備加工|장비 가공|裝備加工",
+            "zh_tc": "裝備加工",
+            "en_us": "Gear Assembly",
+            "ja_jp": "装備加工"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuEmailSuccess": {
+        "doc": "成功进入邮箱菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "邮箱|信箱|Mail|メールボックス|메일함",
+            "zh_tc": "信箱",
+            "en_us": "Mail",
+            "ja_jp": "メールボックス"
+        }
+    },
+    "__ScenePrivateMenuListEnterMenuBackpack": {
+        "doc": "从菜单列表进入背包界面",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "ENDFIELD",
+            "zh_tc": "ENDFIELD",
+            "en_us": "ENDFIELD",
+            "ja_jp": "ENDFIELD"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuBakerSuccess": {
+        "doc": "成功进入Baker界面",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "BAKER"
+        }
+    },
+    "__ScenePrivateMenuListScrollToBottom": {
+        "doc": "菜单列表滚动到最底部",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "行动手册|Operational Manual|案内所|작전 매뉴얼|行動手冊",
+            "zh_tc": "行動手冊",
+            "en_us": "Operational Manual",
+            "ja_jp": "案内所"
+        }
+    },
+    "__ScenePrivateMenuListBottomEnterMenuBackpack": {
+        "doc": "从菜单列表底部进入背包界面",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "背包|Backpack|道具箱|가방",
+            "zh_tc": "背包",
+            "en_us": "Backpack",
+            "ja_jp": "道具箱"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuShopSuccess": {
+        "doc": "成功进入商店菜单",
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "采购中心|採購中心|Acquisition Center|購買部|구매 센터",
+            "zh_tc": "採購中心",
+            "en_us": "Acquisition Center",
+            "ja_jp": "購買部"
+        }
+    },
+    "OCREssenceInventoryNumber": {
+        "doc": "OCR 识别背包中的基质数量",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\d+(\\/\\d+)?"
+        }
+    },
+    "EssenceFilterCheckItemSlot1": {
+        "doc": "OCR 识别技能槽 1",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot1Level": {
+        "doc": "OCR 识别技能槽 1 等级",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "EssenceFilterCheckItemSlot2": {
+        "doc": "OCR 识别技能槽 2",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot2Level": {
+        "doc": "OCR 识别技能槽 2 等级",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "EssenceFilterCheckItemSlot3": {
+        "doc": "OCR 识别技能槽 3",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot3Level": {
+        "doc": "OCR 识别技能槽 3 等级",
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "SellProductEnterOutpostManagement": {
+        "doc": "位于地区建设，进入据点管理",
+        "path": "./assets/resource_fast/pipeline/SellProduct.json",
+        "i18n": {
+            "zh_cn": "据点管理|據點管理|Outpost|outpost|拠点管理|거점 관리",
+            "zh_tc": "據點管理",
+            "en_us": "Outpost Management",
+            "ja_jp": "拠点管理"
+        }
+    },
+    "SellProductRegionExitGate": {
+        "doc": "虚拟出口节点：地区售卖完成，等待回到地区建设界面后路由至下一地区或结束",
+        "path": "./assets/resource_fast/pipeline/SellProduct.json",
+        "i18n": {
+            "zh_cn": "更换|更換|Switch|switch|変更|교체",
+            "zh_tc": "更換",
+            "en_us": "Switch",
+            "ja_jp": "変更"
+        }
+    },
+    "RegionalDevelopmentSelectValleyIV": {
+        "doc": "选择四号谷地",
+        "path": "./assets/resource_fast/pipeline/Common/ChangeRegion.json",
+        "i18n": {
+            "zh_cn": "四号谷地|四號谷地|Valley IV|Valley|四号谷地|4번 협곡",
+            "zh_tc": "四號谷地",
+            "en_us": "Valley IV",
+            "ja_jp": "四号谷地"
+        }
+    },
+    "RegionalDevelopmentSelectWuling": {
+        "doc": "选择武陵",
+        "path": "./assets/resource_fast/pipeline/Common/ChangeRegion.json",
+        "i18n": {
+            "zh_cn": "武陵|武陵|Wuling|武陵|무릉",
+            "zh_tc": "武陵",
+            "en_us": "Wuling",
+            "ja_jp": "武陵"
+        }
+    },
+    "DeliveryJobsInCargoPackGoods": {
+        "doc": "检查是否在货物装箱界面，货物装箱时进入的界面",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/PackCargo.json",
+        "i18n": {
+            "zh_cn": "货物装箱|貨物裝箱|Pack Goods|パッキング|화물 포장",
+            "zh_tc": "貨物裝箱",
+            "en_us": "Pack Goods",
+            "ja_jp": "パッキング"
+        }
+    },
+    "DeliveryJobsInCargoRedistributionBid": {
+        "doc": "检查是否在调度申请界面，查看报价时进入的界面",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/PackCargo.json",
+        "i18n": {
+            "zh_cn": "调度申请|調度申請|Redistribution Bid|取引申請|관리 신청",
+            "zh_tc": "調度申請",
+            "en_us": "Redistribution Bid",
+            "ja_jp": "取引申請"
+        }
+    },
+    "DeliveryJobsClickScreenToContinue": {
+        "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/PackCargo.json",
+        "i18n": {
+            "zh_cn": "点击屏幕继续|按任意處繼續|Click to continue|クリックして続行|화면을 눌러 계속하기",
+            "zh_tc": "按任意處繼續",
+            "en_us": "Click to continue",
+            "ja_jp": "クリックして続行"
+        }
+    },
+    "DeliveryJobsOngoingDelivery": {
+        "doc": "有待运送的货物，无法继续装箱流程，退出任务",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/PackCargo.json",
+        "i18n": {
+            "zh_cn": "有待运送的货物|有待運送的貨物|Finish the ongoing delivery first|配達待ちの荷物を先に届けてください|운송 대기 중인 화물 있음"
+        }
+    },
+    "DeliveryJobsEnterDeliveryJob": {
+        "doc": "进入送货任务",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/TransferJob.json",
+        "i18n": {
+            "zh_cn": "查看任务|查看任務|Check Mission|任務確認|임무 확인",
+            "zh_tc": "查看任務",
+            "en_us": "Check Mission",
+            "ja_jp": "任務確認"
+        }
+    },
+    "DeliveryJobsClickTransferJob": {
+        "doc": "单击转交任务",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/TransferJob.json",
+        "i18n": {
+            "zh_cn": "转交运送委托|轉交運送委託|Transfer Delivery Job|外部委託|운송 의뢰 위탁",
+            "zh_tc": "轉交運送委託",
+            "en_us": "Transfer Delivery Job",
+            "ja_jp": "外部委託"
+        }
+    },
+    "DeliveryJobsCheckTaskTransferText": {
+        "doc": "检查转交任务文本",
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/TransferJob.json",
+        "i18n": {
+            "zh_cn": "给他人派送|是否确认将送货任务委托给他人派送?|是否確定將送貨任務委託給他人運送？|Transfer delivery job to another courier?|配達任務を他人に委託しますか？|운송 임무를 다른 사람에게 위탁하시겠습니까?",
+            "zh_tc": "是否確定將送貨任務委託給他人運送？",
+            "en_us": "Transfer delivery job to another courier?",
+            "ja_jp": "配達任務を他人に委託しますか？"
+        }
+    },
+    "SellProductChangeProduct": {
+        "doc": "识别更换货品并点击，进入更换UI",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ProductCheck.json",
+        "i18n": {
+            "zh_cn": "更换货品|更換貨品|Switch Goods|商品変更|상품 교체",
+            "zh_tc": "更換貨品",
+            "en_us": "Switch Goods",
+            "ja_jp": "商品変更"
+        }
+    },
+    "SellProductSelectNewProduct": {
+        "doc": "在更换UI中识别新货物并点击",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ProductCheck.json",
+        "i18n": {
+            "zh_cn": "本地仓储|本地區倉儲|Local Depot|地域在庫|지역 저장고",
+            "zh_tc": "本地區倉儲",
+            "en_us": "Local Depot",
+            "ja_jp": "地域在庫"
+        }
+    },
+    "SellProductZeroMoney": {
+        "doc": "调度券余量为0",
+        "path": "./assets/resource_fast/pipeline/SellProduct/ProductCheck.json",
+        "i18n": {
+            "zh_cn": "不足|不足|Insufficient|insufficient|不足|거점 관리권 보유량 부족"
+        }
+    },
+    "SellProductAtSell": {
+        "doc": "位于出售页面",
+        "path": "./assets/resource_fast/pipeline/SellProduct/SellCore.json",
+        "i18n": {
+            "zh_cn": "交易|交易|Trade|取引|거래|据点上限|據點上限|current limit|上限|거점 발전 포인트 현재 거점 최대치 도달|不足|不足|Insufficient|insufficient|不足|거점 관리권 보유량 부족",
+            "zh_tc": "交易",
+            "en_us": "Trade",
+            "ja_jp": "取引"
+        }
+    },
+    "SellProductSell": {
+        "doc": "交易",
+        "path": "./assets/resource_fast/pipeline/SellProduct/SellCore.json",
+        "i18n": {
+            "zh_cn": "交易|交易|Trade|trade|取引|거래",
+            "zh_tc": "交易",
+            "en_us": "Trade",
+            "ja_jp": "取引"
+        }
+    }
+}

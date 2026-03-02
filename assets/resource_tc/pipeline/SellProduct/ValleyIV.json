@@ -1,0 +1,11 @@
+{
+    "ValleyIVSwitchToRefugeeCamp": {
+        "expected": "難民暫居處"
+    },
+    "ValleyIVSwitchToInfrastructureOutpost": {
+        "expected": "基建前站"
+    },
+    "ValleyIVSwitchToReconstructionCommand": {
+        "expected": "重建指揮部"
+    }
+}

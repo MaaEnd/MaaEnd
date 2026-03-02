@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsInCargoPackGoods": {
+        "expected": "パッキング"
+    },
+    "DeliveryJobsInCargoRedistributionBid": {
+        "expected": "取引申請"
+    },
+    "DeliveryJobsClickScreenToContinue": {
+        "expected": "クリックして続行"
+    }
+}

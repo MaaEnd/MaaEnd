@@ -52,9 +52,7 @@
         }
     },
     "ExitRecoveryEmotion": {
-        "expected": [
-            "Select operator awaiting mood recovery"
-        ]
+        "expected": "Select operator awaiting mood recovery"
     },
     "EmotionFull": {
         "expected": [
@@ -62,13 +60,12 @@
         ]
     },
     "StartRecoveryEmotion": {
-        "expected": [
-            "Select operator awaiting mood recovery"
-        ]
+        "expected": "Select operator awaiting mood recovery"
     },
     "CouldNotAssistEmotion": {
-        "expected": [
-            "Cannot select more operators as all Mood Booster Points have been used up"
-        ]
+        "expected": "Cannot select more operators as all Mood Booster Points have been used up"
+    },
+    "[0]": {
+        "expected": "MFG Cabin"
     }
 }

@@ -1,0 +1,14 @@
+{
+    "CheckCantProduceAnyMore": {
+        "expected": "素材が不足しています"
+    },
+    "CheckIsSimpleProductionPage": {
+        "expected": "応急食品・薬"
+    },
+    "ClickSimpleProductionSuccess": {
+        "expected": "製作成功"
+    },
+    "ClickSimpleProductionSuccess2": {
+        "expected": "製作成功"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "InviteFriend": {
+        "expected": "フレンド招待"
+    },
+    "CloseAssist": {
+        "expected": "生産サポート"
+    },
+    "LastCarbinText": {
+        "expected": "培養室"
+    },
+    "CancelExit": {
+        "expected": "キャンセル"
+    }
+}

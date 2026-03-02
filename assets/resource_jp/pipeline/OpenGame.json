@@ -1,0 +1,17 @@
+{
+    "LoginFailureConfirmation": {
+        "expected": "確定"
+    },
+    "ClickContinue": {
+        "expected": "続ける"
+    },
+    "MonthlyCard": {
+        "expected": "本日報酬"
+    },
+    "CheckIn": {
+        "expected": "受取"
+    },
+    "CollectRewards": {
+        "expected": "報酬一覧"
+    }
+}

@@ -7,17 +7,10 @@
         ]
     },
     "LoginFailureConfirmation": {
-        "expected": [
-            "Confirm"
-        ]
+        "expected": "Confirm"
     },
     "ClickContinue": {
-        "expected": [
-            "Click",
-            "Tap",
-            "anywhere",
-            "continue"
-        ]
+        "expected": "Continue"
     },
     "EnterGame": {
         "expected": [
@@ -26,19 +19,12 @@
         ]
     },
     "MonthlyCard": {
-        "expected": [
-            "Monthly Card",
-            "today"
-        ]
+        "expected": "Daily Monthly Pass Rewards"
     },
     "CheckIn": {
-        "expected": [
-            "Claim"
-        ]
+        "expected": "Claim"
     },
     "CollectRewards": {
-        "expected": [
-            "Rewards"
-        ]
+        "expected": "Rewards Acquired"
     }
 }

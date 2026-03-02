@@ -1,0 +1,38 @@
+{
+    "BatchAddFriendsOnAddPage": {
+        "expected": "陌生人"
+    },
+    "BatchAddFriendsTriggerSearch": {
+        "expected": "搜尋"
+    },
+    "BatchAddFriendsWaitSearchLoadingExit": {
+        "expected": "載入中"
+    },
+    "BatchAddFriendsClickAddButton": {
+        "expected": "新增好友"
+    },
+    "BatchAddFriendsHasAddButtonStranger": {
+        "expected": "新增好友"
+    },
+    "BatchAddFriendsClickAddButtonStranger": {
+        "expected": "新增好友"
+    },
+    "BatchAddFriendsSearchUidNotFound": {
+        "expected": "搜尋的UID不存在"
+    },
+    "BatchAddFriendsSearchEmptyResult": {
+        "expected": "未搜尋到相關玩家"
+    },
+    "BatchAddFriendsUIDFocusSearchBoxTemplate": {
+        "expected": "輸入名稱搜尋好友"
+    },
+    "BatchAddFriendsUIDFocusSearchBox": {
+        "expected": "搜尋玩家名稱或UID新增好友"
+    },
+    "BatchAddFriendsChangeBatch": {
+        "expected": "換一批"
+    },
+    "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
+        "expected": "新增好友"
+    }
+}

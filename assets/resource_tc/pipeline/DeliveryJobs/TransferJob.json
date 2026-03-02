@@ -1,0 +1,11 @@
+{
+    "DeliveryJobsEnterDeliveryJob": {
+        "expected": "查看任務"
+    },
+    "DeliveryJobsClickTransferJob": {
+        "expected": "轉交運送委託"
+    },
+    "DeliveryJobsCheckTaskTransferText": {
+        "expected": "是否確定將送貨任務委託給他人運送？"
+    }
+}

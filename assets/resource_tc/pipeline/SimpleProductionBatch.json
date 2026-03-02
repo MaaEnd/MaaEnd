@@ -1,0 +1,14 @@
+{
+    "CheckCantProduceAnyMore": {
+        "expected": "目前材料不足"
+    },
+    "CheckIsSimpleProductionPage": {
+        "expected": "緊急食藥"
+    },
+    "ClickSimpleProductionSuccess": {
+        "expected": "製作成功"
+    },
+    "ClickSimpleProductionSuccess2": {
+        "expected": "製作成功"
+    }
+}

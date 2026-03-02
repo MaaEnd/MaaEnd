@@ -1,0 +1,20 @@
+{
+    "BakerOpenFilter": {
+        "expected": "全部顯示"
+    },
+    "BakerRefreshFilter": {
+        "expected": "篩選套用中"
+    },
+    "BakerFilterUnread": {
+        "expected": "未讀"
+    },
+    "BakerSaveFilter": {
+        "expected": "儲存"
+    },
+    "BakerTalkOver": {
+        "expected": "尚無新話題"
+    },
+    "BakerOpenFilter2": {
+        "expected": "全部顯示"
+    }
+}

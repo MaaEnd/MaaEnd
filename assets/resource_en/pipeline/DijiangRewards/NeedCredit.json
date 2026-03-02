@@ -1,7 +1,5 @@
 {
     "ReceptionRoom_NeedCredit": {
-        "expected": [
-            "Reception"
-        ]
+        "expected": "Reception Room"
     }
 }

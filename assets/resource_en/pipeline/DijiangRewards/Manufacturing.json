@@ -1,14 +1,8 @@
 {
     "MFG_ReceiveRewards": {
-        "expected": [
-            "Manufacturing",
-            "Production"
-        ]
+        "expected": "MFG Cabin"
     },
     "Exit_MFG_Cabin": {
-        "expected": [
-            "Manufacturing",
-            "Production"
-        ]
+        "expected": "MFG Cabin"
     }
 }

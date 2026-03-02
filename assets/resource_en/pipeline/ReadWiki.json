@@ -5,8 +5,6 @@
         ]
     },
     "WikiOnHomePage": {
-        "expected": [
-            "Endfield Database"
-        ]
+        "expected": "Endfield Database (EFDB)"
     }
 }

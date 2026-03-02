@@ -1,0 +1,26 @@
+{
+    "SeizeEntrustTaskErrorTaskStop": {
+        "expected": "委託人資訊"
+    },
+    "SeizeEntrustTaskMain": {
+        "expected": "委託人資訊"
+    },
+    "SeizeEntrustTaskNews": {
+        "expected": "更新"
+    },
+    "SeizeEntrustTaskNews2": {
+        "expected": "更新"
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "expected": "接取運送委託"
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "expected": "接取運送委託"
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "expected": "接取運送委託"
+    },
+    "isSeizeEntrustTaskSuccessful": {
+        "expected": "按任意處繼續"
+    }
+}

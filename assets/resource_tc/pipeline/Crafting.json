@@ -1,0 +1,11 @@
+{
+    "CraftingEnterMenu": {
+        "expected": "簡易製作"
+    },
+    "CraftingEnterInMenu": {
+        "expected": "簡易製作"
+    },
+    "CraftingClickProduceBtn": {
+        "expected": "製作"
+    }
+}

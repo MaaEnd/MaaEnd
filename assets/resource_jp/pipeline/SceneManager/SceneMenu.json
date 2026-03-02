@@ -1,0 +1,59 @@
+{
+    "__ScenePrivateAnyEnterMenuListSuccess": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "expected": "地域建設"
+    },
+    "__ScenePrivateMenuListEnterMenuEvent": {
+        "expected": "イベント"
+    },
+    "__ScenePrivateAnyEnterMenuEventSuccess": {
+        "expected": "イベント"
+    },
+    "__ScenePrivateMenuListEnterMenuValuables": {
+        "expected": "貴重品倉庫"
+    },
+    "__ScenePrivateAnyEnterMenuValuablesSuccess": {
+        "expected": "貴重品倉庫"
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "expected": "案内所"
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+        "expected": "案内所"
+    },
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
+        "expected": "通行証"
+    },
+    "__ScenePrivateMenuListEnterMenuFriends": {
+        "expected": "フレンド"
+    },
+    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+        "expected": "フレンド"
+    },
+    "__ScenePrivateMenuListEnterMenuWiki": {
+        "expected": "Wiki"
+    },
+    "__ScenePrivateAnyEnterMenuWikiSuccess": {
+        "expected": "エンドフィールドWiki"
+    },
+    "__ScenePrivateMenuListEnterMenuGearAssembly": {
+        "expected": "装備加工"
+    },
+    "__ScenePrivateAnyEnterMenuEmailSuccess": {
+        "expected": "メールボックス"
+    },
+    "__ScenePrivateMenuListEnterMenuBackpack": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListScrollToBottom": {
+        "expected": "案内所"
+    },
+    "__ScenePrivateMenuListBottomEnterMenuBackpack": {
+        "expected": "道具箱"
+    },
+    "__ScenePrivateAnyEnterMenuShopSuccess": {
+        "expected": "購買部"
+    }
+}

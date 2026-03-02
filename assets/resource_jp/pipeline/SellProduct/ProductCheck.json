@@ -1,0 +1,11 @@
+{
+    "[1]": {
+        "expected": "生産サポート"
+    },
+    "SellProductChangeProduct": {
+        "expected": "商品変更"
+    },
+    "SellProductSelectNewProduct": {
+        "expected": "地域在庫"
+    }
+}

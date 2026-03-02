@@ -1,0 +1,29 @@
+{
+    "GrowthChamber": {
+        "expected": "培養艙"
+    },
+    "InGrowthChamber": {
+        "expected": "生產助力"
+    },
+    "ExitGrow": {
+        "expected": "前往提取基核"
+    },
+    "ExtractSeed": {
+        "expected": "前往提取基核"
+    },
+    "SortBy": {
+        "expected": "預設"
+    },
+    "ChooseSortBy": {
+        "expected": "持有數量"
+    },
+    "SwipeChooseSortBy": {
+        "expected": "預設"
+    },
+    "SortOrder": {
+        "expected": "降序"
+    },
+    "ExitGrowthChamber": {
+        "expected": "培養艙"
+    }
+}

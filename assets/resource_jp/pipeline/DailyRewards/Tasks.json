@@ -1,0 +1,32 @@
+{
+    "DailyTaskInMenu": {
+        "expected": "案内所"
+    },
+    "DailyTaskEnterTab": {
+        "expected": "日常"
+    },
+    "DailyTaskClaimSingleReward": {
+        "expected": "受取"
+    },
+    "DailyTaskActivityLimitReached": {
+        "expected": "上限到達"
+    },
+    "DailyTaskUpgradeWeapon": {
+        "expected": "レベル"
+    },
+    "DailyTaskCreation": {
+        "expected": "道具製作"
+    },
+    "DailyTaskAssemble": {
+        "expected": "装備製造"
+    },
+    "DailyTaskCreationIsValid": {
+        "expected": "移動"
+    },
+    "DailyTaskAssembleIsValid": {
+        "expected": "移動"
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "expected": "移動"
+    }
+}

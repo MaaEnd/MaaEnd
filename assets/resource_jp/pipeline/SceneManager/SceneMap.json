@@ -1,0 +1,14 @@
+{
+    "__ScenePrivateMapTeleportChoose": {
+        "expected": "協約転送ポイント"
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "expected": "一括解除"
+    },
+    "__ScenePrivateMapFilterClose": {
+        "expected": "ソート"
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "expected": "協約転送ポイント"
+    }
+}

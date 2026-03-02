@@ -1,51 +1,30 @@
 {
     "ItemTransferStart": {
-        "expected": [
-            "Depot",
-            "Storage"
-        ]
+        "expected": "Depot"
     },
     "ItemTransferSwitchRepoToOrigin": {
-        "expected": [
-            "Switch",
-            "Depot"
-        ]
+        "expected": "Switch Depot"
     },
     "ItemTransferClickConfirmOrigin": {
-        "expected": [
-            "Confirm"
-        ]
+        "expected": "Confirm"
     },
     "ItemTransferAtOrigin": {
-        "expected": [
-            "Connected"
-        ]
+        "expected": "Connected"
     },
     "ItemTransferClickSortDescending": {
-        "expected": [
-            "Desc"
-        ]
+        "expected": "DESC"
     },
     "ItemTransferClickSortAscending": {
-        "expected": [
-            "Asc"
-        ]
+        "expected": "ASC"
     },
     "ItemTransferSwitchRepoToDestination": {
-        "expected": [
-            "Switch",
-            "Depot"
-        ]
+        "expected": "Switch Depot"
     },
     "ItemTransferClickConfirmDestination": {
-        "expected": [
-            "Confirm"
-        ]
+        "expected": "Confirm"
     },
     "ItemTransferAtDestination": {
-        "expected": [
-            "Connected"
-        ]
+        "expected": "Connected"
     },
     "ItemTransferCheckIfFull": {
         "expected": [
@@ -53,19 +32,12 @@
         ]
     },
     "ItemTransferSwitchRepoToOriginReturn": {
-        "expected": [
-            "Switch",
-            "Depot"
-        ]
+        "expected": "Switch Depot"
     },
     "ItemTransferClickConfirmOriginReturn": {
-        "expected": [
-            "Confirm"
-        ]
+        "expected": "Confirm"
     },
     "ItemTransferAtOriginReturn": {
-        "expected": [
-            "Connected"
-        ]
+        "expected": "Connected"
     }
 }

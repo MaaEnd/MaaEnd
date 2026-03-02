@@ -1,0 +1,14 @@
+{
+    "DailyProtocolMissionsEnter": {
+        "expected": "通行證任務"
+    },
+    "DailyProtocolMissionsPick": {
+        "expected": "快速領取"
+    },
+    "DailyProtocolRewardsEnter": {
+        "expected": "通行證獎勵"
+    },
+    "DailyProtocolRewardsPick": {
+        "expected": "快速領取"
+    }
+}

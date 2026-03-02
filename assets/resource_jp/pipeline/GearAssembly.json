@@ -1,0 +1,11 @@
+{
+    "GearAssemblyCheckIsAssemblePage": {
+        "expected": "セット装備"
+    },
+    "GearAssemblySwitchAscending": {
+        "expected": "降順"
+    },
+    "GearAssemblyClickProduceBtn": {
+        "expected": "確定"
+    }
+}

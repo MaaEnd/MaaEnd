@@ -1,8 +1,6 @@
 {
     "CancelExit": {
-        "expected": [
-            "Cancel"
-        ]
+        "expected": "Cancel"
     },
     "LastCarbinText": {
         "roi_offset": [
@@ -11,18 +9,12 @@
             120,
             0
         ],
-        "expected": [
-            "Growth Chamber"
-        ]
+        "expected": "Growth Chamber"
     },
     "CloseAssist": {
-        "expected": [
-            "Invite Friend"
-        ]
+        "expected": "Production Assist"
     },
     "InviteFriend": {
-        "expected": [
-            "Invite Friend"
-        ]
+        "expected": "Invite Friend"
     }
 }

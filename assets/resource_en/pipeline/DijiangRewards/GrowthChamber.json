@@ -1,8 +1,6 @@
 {
     "GrowthChamber": {
-        "expected": [
-            "Growth Chamber"
-        ]
+        "expected": "Growth Chamber"
     },
     "GrowAgain": {
         "expected": [
@@ -10,8 +8,27 @@
         ]
     },
     "ExitGrowthChamber": {
-        "expected": [
-            "Growth Chamber"
-        ]
+        "expected": "Growth Chamber"
+    },
+    "InGrowthChamber": {
+        "expected": "Production Assist"
+    },
+    "ExitGrow": {
+        "expected": "Extract Seed"
+    },
+    "ExtractSeed": {
+        "expected": "Extract Seed"
+    },
+    "SortBy": {
+        "expected": "Default"
+    },
+    "ChooseSortBy": {
+        "expected": "Amount owned"
+    },
+    "SwipeChooseSortBy": {
+        "expected": "Default"
+    },
+    "SortOrder": {
+        "expected": "DESC"
     }
 }

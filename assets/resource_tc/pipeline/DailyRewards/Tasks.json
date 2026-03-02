@@ -1,0 +1,32 @@
+{
+    "DailyTaskInMenu": {
+        "expected": "行動手冊"
+    },
+    "DailyTaskEnterTab": {
+        "expected": "日常"
+    },
+    "DailyTaskClaimSingleReward": {
+        "expected": "領取"
+    },
+    "DailyTaskActivityLimitReached": {
+        "expected": "今日活躍度已達上限"
+    },
+    "DailyTaskUpgradeWeapon": {
+        "expected": "武器等級"
+    },
+    "DailyTaskCreation": {
+        "expected": "簡易製作"
+    },
+    "DailyTaskAssemble": {
+        "expected": "裝備製造"
+    },
+    "DailyTaskCreationIsValid": {
+        "expected": "前往"
+    },
+    "DailyTaskAssembleIsValid": {
+        "expected": "前往"
+    },
+    "DailyTaskUpgradeWeaponIsValid": {
+        "expected": "前往"
+    }
+}

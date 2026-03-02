@@ -1,0 +1,92 @@
+{
+    "CheckAncientTreeText": {
+        "expected": "Ancient Tree"
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "expected": "Cistern Originium Slugs"
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "expected": "Collapsed Tianshi Pillar"
+    },
+    "CheckIndoorCropsText": {
+        "expected": "Indoor Crops"
+    },
+    "CheckBeaconDamagedInBlightTideText": {
+        "expected": "Beacon Damaged in the Blight Tide"
+    },
+    "CheckRainbowFinText": {
+        "expected": "Rainbow Fin"
+    },
+    "CheckEternalSunsetReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckAncientTreeReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckIndoorCropsReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckBeaconDamagedInBlightTideReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckRainbowFinReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckCleansingJadeReadyText": {
+        "expected": "Accept Job"
+    },
+    "CheckEternalSunsetJob": {
+        "expected": "Accept Job"
+    },
+    "CheckEternalSunsetGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckAncientTreeJob": {
+        "expected": "Accept Job"
+    },
+    "CheckAncientTreeGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "expected": "Accept Job"
+    },
+    "CheckCisternOriginiumSlugsGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "expected": "Accept Job"
+    },
+    "CheckCollapsedTianshiPillarGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckIndoorCropsJob": {
+        "expected": "Accept Job"
+    },
+    "CheckIndoorCropsGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckBeaconDamagedInBlightTideJob": {
+        "expected": "Accept Job"
+    },
+    "CheckBeaconDamagedInBlightTideGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckRainbowFinJob": {
+        "expected": "Accept Job"
+    },
+    "CheckRainbowFinGoToMission": {
+        "expected": "Go to Mission"
+    },
+    "CheckCleansingJadeJob": {
+        "expected": "Accept Job"
+    },
+    "CheckCleansingJadeGoToMission": {
+        "expected": "Go to Mission"
+    }
+}

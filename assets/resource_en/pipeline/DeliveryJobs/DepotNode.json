@@ -1,0 +1,14 @@
+{
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "expected": "Pack Goods"
+    },
+    "DeliveryJobsCheckOriginLodespringCargo": {
+        "expected": "Pack Goods"
+    },
+    "DeliveryJobsCheckPowerPlateauCargo": {
+        "expected": "Pack Goods"
+    },
+    "DeliveryJobsCheckWulingCityCargo": {
+        "expected": "Pack Goods"
+    }
+}

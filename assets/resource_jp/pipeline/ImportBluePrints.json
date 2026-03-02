@@ -1,0 +1,17 @@
+{
+    "ImportBluePrintsChooseTab": {
+        "expected": "共有図面"
+    },
+    "ImportBluePrintsChooseImport": {
+        "expected": "図面共有コードを入れてください"
+    },
+    "ImportBluePrintsConfirm": {
+        "expected": "確定"
+    },
+    "ImportBluePrintsSave": {
+        "expected": "保存"
+    },
+    "ImportBluePrintsExists": {
+        "expected": "保存済み"
+    }
+}

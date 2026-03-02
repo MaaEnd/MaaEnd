@@ -1,8 +1,6 @@
 {
     "ResellROIViewFriendPrice": {
-        "expected": [
-            "Friend"
-        ]
+        "expected": "Friends"
     },
     "ResellROIQuotaNextAddHours": {
         "expected": [
@@ -15,8 +13,6 @@
         ]
     },
     "ResellROIFriendLoading": {
-        "expected": [
-            "Loading"
-        ]
+        "expected": "Loading"
     }
 }

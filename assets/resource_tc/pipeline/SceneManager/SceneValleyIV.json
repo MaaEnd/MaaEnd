@@ -1,0 +1,26 @@
+{
+    "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
+        "expected": "樞紐區"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
+        "expected": "谷地通道"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
+        "expected": "源石研究園"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
+        "expected": "阿伯莉採石場"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
+        "expected": "礦脈源區"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
+        "expected": "供能高地"
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
+        "expected": "高"
+    },
+    "[2]": {
+        "expected": "收集"
+    }
+}

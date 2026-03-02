@@ -1,0 +1,14 @@
+{
+    "WeaponUpgradeSetFilter": {
+        "expected": "武器"
+    },
+    "WeaponUpgradeSwitchLowLevel": {
+        "expected": "品質"
+    },
+    "WeaponUpgradeClickLevelSort": {
+        "expected": "武器等級"
+    },
+    "WeaponUpgradeSwitchAscending": {
+        "expected": "降序"
+    }
+}

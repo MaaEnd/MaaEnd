@@ -1,8 +1,6 @@
 {
     "AlreadyHaveClues": {
-        "expected": [
-            "Pegged"
-        ]
+        "expected": "Pegged"
     },
     "ReceptionRoomClickTips": {
         "recognition": {
@@ -186,9 +184,7 @@
         }
     },
     "EntrySendClues": {
-        "expected": [
-            "Send"
-        ]
+        "expected": "Send"
     },
     "ReceiveClues": {
         "doc": "[会客室·线索] 点击「接收」红点接收好友赠送线索",
@@ -288,18 +284,15 @@
         }
     },
     "ReceptionRoom": {
-        "expected": [
-            "Reception"
-        ]
+        "expected": "Reception Room"
     },
     "ExitReceptionRoom": {
-        "expected": [
-            "Reception"
-        ]
+        "expected": "Reception Room"
     },
     "ExitCollect": {
-        "expected": [
-            "Reception"
-        ]
+        "expected": "Reception Room"
+    },
+    "ClueItem": {
+        "expected": "Local Library"
     }
 }

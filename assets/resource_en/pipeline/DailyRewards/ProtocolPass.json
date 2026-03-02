@@ -1,0 +1,14 @@
+{
+    "DailyProtocolMissionsEnter": {
+        "expected": "Pass Missions"
+    },
+    "DailyProtocolMissionsPick": {
+        "expected": "Claim All"
+    },
+    "DailyProtocolRewardsEnter": {
+        "expected": "Pass Rewards"
+    },
+    "DailyProtocolRewardsPick": {
+        "expected": "Claim All"
+    }
+}

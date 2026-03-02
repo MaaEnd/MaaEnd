@@ -1,0 +1,8 @@
+{
+    "DailyEventEnterMenu": {
+        "expected": "活動中心"
+    },
+    "DailyEventRecognitionGotoButton": {
+        "expected": "前往"
+    }
+}

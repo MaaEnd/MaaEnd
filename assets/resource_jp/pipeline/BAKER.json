@@ -1,0 +1,20 @@
+{
+    "BakerOpenFilter": {
+        "expected": "すべて"
+    },
+    "BakerRefreshFilter": {
+        "expected": "条件適用中"
+    },
+    "BakerFilterUnread": {
+        "expected": "未読"
+    },
+    "BakerSaveFilter": {
+        "expected": "保存"
+    },
+    "BakerTalkOver": {
+        "expected": "新しいトピックはありません"
+    },
+    "BakerOpenFilter2": {
+        "expected": "すべて"
+    }
+}

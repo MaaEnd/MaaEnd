@@ -1,0 +1,8 @@
+{
+    "CreditShoppingClaimCredit": {
+        "expected": "收取信用"
+    },
+    "CreditShoppingNoCreditClaim": {
+        "expected": "無待領取信用"
+    }
+}

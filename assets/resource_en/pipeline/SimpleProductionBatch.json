@@ -1,9 +1,6 @@
 {
     "CheckCantProduceAnyMore": {
-        "expected": [
-            "Insufficient",
-            "Not enough"
-        ]
+        "expected": "Insufficient materials"
     },
     "CheckMaterialEnough": {
         "expected": [
@@ -12,21 +9,12 @@
         ]
     },
     "CheckIsSimpleProductionPage": {
-        "expected": [
-            "Emergency",
-            "Ration"
-        ]
+        "expected": "EMS F&M"
     },
     "ClickSimpleProductionSuccess": {
-        "expected": [
-            "Success",
-            "Crafted"
-        ]
+        "expected": "Crafting Successful"
     },
     "ClickSimpleProductionSuccess2": {
-        "expected": [
-            "Success",
-            "Crafted"
-        ]
+        "expected": "Crafting Successful"
     }
 }

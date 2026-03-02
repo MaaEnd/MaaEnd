@@ -1,0 +1,14 @@
+{
+    "__ScenePrivateMapTeleportChoose": {
+        "expected": "TP Point"
+    },
+    "__ScenePrivateMapFilterClearAll": {
+        "expected": "Clear All"
+    },
+    "__ScenePrivateMapFilterClose": {
+        "expected": "Marker Tags"
+    },
+    "__ScenePrivateMapTeleportClose": {
+        "expected": "TP Point"
+    }
+}

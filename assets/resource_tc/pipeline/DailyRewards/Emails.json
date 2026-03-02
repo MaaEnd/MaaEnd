@@ -1,0 +1,17 @@
+{
+    "DailyEmailAlreadyInEmail": {
+        "expected": "信件"
+    },
+    "DailyEmailConfirmEmail": {
+        "expected": "信箱獎勵"
+    },
+    "DailyEmailConfirmTSA": {
+        "expected": "獲得道具"
+    },
+    "DailyEmailReceiveEmail": {
+        "expected": "全部收取"
+    },
+    "DailyEmailReceiveTSA": {
+        "expected": "全部領取"
+    }
+}

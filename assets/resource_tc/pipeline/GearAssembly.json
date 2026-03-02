@@ -1,0 +1,11 @@
+{
+    "GearAssemblyCheckIsAssemblePage": {
+        "expected": "套裝裝備"
+    },
+    "GearAssemblySwitchAscending": {
+        "expected": "降序"
+    },
+    "GearAssemblyClickProduceBtn": {
+        "expected": "製作"
+    }
+}

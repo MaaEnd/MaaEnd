@@ -1,0 +1,92 @@
+{
+    "CheckAncientTreeText": {
+        "expected": "古樹"
+    },
+    "CheckCisternOriginiumSlugsText": {
+        "expected": "蓄水源石蟲"
+    },
+    "CheckCollapsedTianshiPillarText": {
+        "expected": "倒塌的天師樁"
+    },
+    "CheckIndoorCropsText": {
+        "expected": "室內作物"
+    },
+    "CheckBeaconDamagedInBlightTideText": {
+        "expected": "侵蝕潮中損壞的信標"
+    },
+    "CheckRainbowFinText": {
+        "expected": "七彩鱗"
+    },
+    "CheckEternalSunsetReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckAncientTreeReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckCisternOriginiumSlugsReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckCollapsedTianshiPillarReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckIndoorCropsReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckBeaconDamagedInBlightTideReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckRainbowFinReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckCleansingJadeReadyText": {
+        "expected": "接取委託"
+    },
+    "CheckEternalSunsetJob": {
+        "expected": "接取委託"
+    },
+    "CheckEternalSunsetGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckAncientTreeJob": {
+        "expected": "接取委託"
+    },
+    "CheckAncientTreeGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckCisternOriginiumSlugsJob": {
+        "expected": "接取委託"
+    },
+    "CheckCisternOriginiumSlugsGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckCollapsedTianshiPillarJob": {
+        "expected": "接取委託"
+    },
+    "CheckCollapsedTianshiPillarGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckIndoorCropsJob": {
+        "expected": "接取委託"
+    },
+    "CheckIndoorCropsGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckBeaconDamagedInBlightTideJob": {
+        "expected": "接取委託"
+    },
+    "CheckBeaconDamagedInBlightTideGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckRainbowFinJob": {
+        "expected": "接取委託"
+    },
+    "CheckRainbowFinGoToMission": {
+        "expected": "前往任務"
+    },
+    "CheckCleansingJadeJob": {
+        "expected": "接取委託"
+    },
+    "CheckCleansingJadeGoToMission": {
+        "expected": "前往任務"
+    }
+}

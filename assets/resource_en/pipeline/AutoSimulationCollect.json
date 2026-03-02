@@ -1,0 +1,35 @@
+{
+    "SimSpaceOperationalManualIn": {
+        "expected": "Operational Manual"
+    },
+    "SimSpaceOperationalManualSwitchTab": {
+        "expected": "Simulation"
+    },
+    "SimSpaceChooseSimulation": {
+        "expected": "Valley IV"
+    },
+    "SimSpaceStart": {
+        "expected": "Simulation"
+    },
+    "SimClickFilter": {
+        "expected": "Filter"
+    },
+    "SimSelectUnfinished": {
+        "expected": "Incomplete"
+    },
+    "SimSaveFilter": {
+        "expected": "Save"
+    },
+    "SimLoopClickFilter": {
+        "expected": "Filter"
+    },
+    "SimLoopSaveFilter": {
+        "expected": "Save"
+    },
+    "SimLoopClaimReward": {
+        "expected": "Fully Grasped"
+    },
+    "SimComfirmReward": {
+        "expected": "Confirm"
+    }
+}

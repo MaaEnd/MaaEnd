@@ -1,0 +1,26 @@
+{
+    "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
+        "expected": "The Hub"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
+        "expected": "Valley Pass"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
+        "expected": "Originium Science Park"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
+        "expected": "Aburrey Quarry"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
+        "expected": "Origin Lodespring"
+    },
+    "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
+        "expected": "Power Plateau"
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
+        "expected": "HIGH"
+    },
+    "[2]": {
+        "expected": "Gathering"
+    }
+}

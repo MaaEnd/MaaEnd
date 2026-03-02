@@ -1,0 +1,20 @@
+{
+    "ReceptionRoom": {
+        "expected": "會客室"
+    },
+    "AlreadyHaveClues": {
+        "expected": "已填入"
+    },
+    "ClueItem": {
+        "expected": "自有庫存"
+    },
+    "EntrySendClues": {
+        "expected": "贈予"
+    },
+    "ExitReceptionRoom": {
+        "expected": "會客室"
+    },
+    "ExitCollect": {
+        "expected": "會客室"
+    }
+}

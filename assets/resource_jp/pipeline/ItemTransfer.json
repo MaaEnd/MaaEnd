@@ -1,0 +1,38 @@
+{
+    "ItemTransferStart": {
+        "expected": "倉庫"
+    },
+    "ItemTransferSwitchRepoToOrigin": {
+        "expected": "倉庫切替"
+    },
+    "ItemTransferClickConfirmOrigin": {
+        "expected": "確定"
+    },
+    "ItemTransferAtOrigin": {
+        "expected": "接続済み"
+    },
+    "ItemTransferClickSortDescending": {
+        "expected": "降順"
+    },
+    "ItemTransferClickSortAscending": {
+        "expected": "昇順"
+    },
+    "ItemTransferSwitchRepoToDestination": {
+        "expected": "倉庫切替"
+    },
+    "ItemTransferClickConfirmDestination": {
+        "expected": "確定"
+    },
+    "ItemTransferAtDestination": {
+        "expected": "接続済み"
+    },
+    "ItemTransferSwitchRepoToOriginReturn": {
+        "expected": "倉庫切替"
+    },
+    "ItemTransferClickConfirmOriginReturn": {
+        "expected": "確定"
+    },
+    "ItemTransferAtOriginReturn": {
+        "expected": "接続済み"
+    }
+}

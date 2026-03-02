@@ -1,0 +1,59 @@
+{
+    "__ScenePrivateAnyEnterMenuListSuccess": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
+        "expected": "地區建設"
+    },
+    "__ScenePrivateMenuListEnterMenuEvent": {
+        "expected": "活動"
+    },
+    "__ScenePrivateAnyEnterMenuEventSuccess": {
+        "expected": "活動中心"
+    },
+    "__ScenePrivateMenuListEnterMenuValuables": {
+        "expected": "貴重品庫"
+    },
+    "__ScenePrivateAnyEnterMenuValuablesSuccess": {
+        "expected": "貴重品庫"
+    },
+    "__ScenePrivateMenuListEnterMenuOperationalManual": {
+        "expected": "行動手冊"
+    },
+    "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
+        "expected": "行動手冊"
+    },
+    "__ScenePrivateMenuListEnterMenuProtocolPass": {
+        "expected": "通行證"
+    },
+    "__ScenePrivateMenuListEnterMenuFriends": {
+        "expected": "好友"
+    },
+    "__ScenePrivateAnyEnterMenuFriendsSuccess": {
+        "expected": "好友"
+    },
+    "__ScenePrivateMenuListEnterMenuWiki": {
+        "expected": "百科"
+    },
+    "__ScenePrivateAnyEnterMenuWikiSuccess": {
+        "expected": "終末地百科"
+    },
+    "__ScenePrivateMenuListEnterMenuGearAssembly": {
+        "expected": "裝備加工"
+    },
+    "__ScenePrivateAnyEnterMenuEmailSuccess": {
+        "expected": "信箱"
+    },
+    "__ScenePrivateMenuListEnterMenuBackpack": {
+        "expected": "ENDFIELD"
+    },
+    "__ScenePrivateMenuListScrollToBottom": {
+        "expected": "行動手冊"
+    },
+    "__ScenePrivateMenuListBottomEnterMenuBackpack": {
+        "expected": "背包"
+    },
+    "__ScenePrivateAnyEnterMenuShopSuccess": {
+        "expected": "採購中心"
+    }
+}

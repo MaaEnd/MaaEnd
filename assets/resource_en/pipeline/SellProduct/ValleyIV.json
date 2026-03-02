@@ -1,0 +1,11 @@
+{
+    "ValleyIVSwitchToRefugeeCamp": {
+        "expected": "Refugee Camp"
+    },
+    "ValleyIVSwitchToInfrastructureOutpost": {
+        "expected": "Infra-Station"
+    },
+    "ValleyIVSwitchToReconstructionCommand": {
+        "expected": "Reconstruction HQ"
+    }
+}

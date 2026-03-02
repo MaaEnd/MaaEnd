@@ -93,20 +93,38 @@
     ],
     "resource": [
         {
-            "name": "官服",
-            "label": "$resource.CN.label",
+            "name": "简体中文",
+            "label": "$resource.zh_cn.label",
             "path": [
                 "./resource_fast",
                 "./resource"
             ]
         },
         {
-            "name": "Global",
-            "label": "$resource.Global.label",
+            "name": "English",
+            "label": "$resource.en_us.label",
             "path": [
                 "./resource_fast",
                 "./resource",
                 "./resource_en"
+            ]
+        },
+        {
+            "name": "繁體中文",
+            "label": "$resource.zh_tw.label",
+            "path": [
+                "./resource_fast",
+                "./resource",
+                "./resource_tc"
+            ]
+        },
+        {
+            "name": "日本語",
+            "label": "$resource.ja_jp.label",
+            "path": [
+                "./resource_fast",
+                "./resource",
+                "./resource_jp"
             ]
         }
     ],

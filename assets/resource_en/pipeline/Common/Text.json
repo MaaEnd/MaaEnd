@@ -1,0 +1,32 @@
+{
+    "CheckRegionalDevelopmentText": {
+        "expected": "Regional Development"
+    },
+    "CheckRegionalDevelopmentValleyIVText": {
+        "expected": "Valley IV"
+    },
+    "CheckRegionalDevelopmentWulingText": {
+        "expected": "Wuling"
+    },
+    "CheckLocalDepotNodeText": {
+        "expected": "Local Depot Node"
+    },
+    "CheckCourierInfoText": {
+        "expected": "Courier Info"
+    },
+    "CheckLocalDepotNodeOriginiumScienceParkText": {
+        "expected": "Originium Science Park"
+    },
+    "CheckLocalDepotNodeOriginLodespringText": {
+        "expected": "Origin Lodespring"
+    },
+    "CheckLocalDepotNodePowerPlateauText": {
+        "expected": "Power Plateau"
+    },
+    "CheckLocalDepotNodeWulingCityText": {
+        "expected": "Wuling City"
+    },
+    "CheckChangeRegionConfirmText": {
+        "expected": "Switch to view the development status of the selected region?"
+    }
+}

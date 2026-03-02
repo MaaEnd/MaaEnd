@@ -1,0 +1,26 @@
+{
+    "SeizeEntrustTaskErrorTaskStop": {
+        "expected": "依頼主詳細"
+    },
+    "SeizeEntrustTaskMain": {
+        "expected": "依頼主詳細"
+    },
+    "SeizeEntrustTaskNews": {
+        "expected": "更新"
+    },
+    "SeizeEntrustTaskNews2": {
+        "expected": "更新"
+    },
+    "SeizeEntrustTaskNewsStatus1": {
+        "expected": "配達依頼を受ける"
+    },
+    "SeizeEntrustTaskNewsStatus2": {
+        "expected": "配達依頼を受ける"
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "expected": "配達依頼を受ける"
+    },
+    "isSeizeEntrustTaskSuccessful": {
+        "expected": "クリックして続行"
+    }
+}

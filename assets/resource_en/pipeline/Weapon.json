@@ -1,0 +1,14 @@
+{
+    "WeaponUpgradeSetFilter": {
+        "expected": "Weapon"
+    },
+    "WeaponUpgradeSwitchLowLevel": {
+        "expected": "Quality"
+    },
+    "WeaponUpgradeClickLevelSort": {
+        "expected": "Weapon Level"
+    },
+    "WeaponUpgradeSwitchAscending": {
+        "expected": "DESC"
+    }
+}

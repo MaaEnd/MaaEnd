@@ -1,0 +1,8 @@
+{
+    "SellProductAtSell": {
+        "expected": "Trade"
+    },
+    "SellProductSell": {
+        "expected": "Trade"
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "ReceptionRoom": {
+        "expected": "応接室"
+    },
+    "AlreadyHaveClues": {
+        "expected": "配置中"
+    },
+    "ClueItem": {
+        "expected": "捜索分"
+    },
+    "EntrySendClues": {
+        "expected": "譲り渡す"
+    },
+    "ExitReceptionRoom": {
+        "expected": "応接室"
+    },
+    "ExitCollect": {
+        "expected": "応接室"
+    }
+}
