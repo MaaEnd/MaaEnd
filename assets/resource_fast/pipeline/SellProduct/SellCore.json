@@ -200,8 +200,6 @@
             "param": {}
         },
         "next": [
-            // 交易后的弹窗第一次单击时跳过动画，第二次才能退出
-            "SellProductSellCheck",
             "SellProductSellCheckComplete"
         ]
     },

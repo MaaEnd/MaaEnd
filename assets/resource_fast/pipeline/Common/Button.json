@@ -631,7 +631,8 @@
                     139,
                     126
                 ],
-                "threshold": 0.9
+                "threshold": 0.9,
+                "method": 10001
             }
         },
         "action": {
