@@ -653,6 +653,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 138
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -947,6 +955,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 93
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -1066,13 +1082,24 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 169
+                            "expected": 169,
+                            "threshold": 0.7
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 169
+                            "expected": 169,
+                            "threshold": 0.7
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 169
+                            "expected": 169,
+                            "threshold": 0.7
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
