@@ -1,0 +1,146 @@
+{
+    "SceneEnterMenuList": {
+        "doc": "从任意界面进入菜单总列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuRegionalDevelopment": {
+        "doc": "从任意界面进入地区建设菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuRegionalDevelopment",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuEvent": {
+        "doc": "从任意界面进入活动菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEvent",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuValuables": {
+        "doc": "从任意界面进入贵重品库菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuValuables",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuOperationalManual": {
+        "doc": "从任意界面进入行动手册菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuOperationalManual",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuProtocolPass": {
+        "doc": "从任意界面进入通行证菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuProtocolPass",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuFriends": {
+        "doc": "从任意界面进入好友菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuFriends",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuGearAssembly": {
+        "doc": "从任意界面进入装备加工界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldFactoryEnterMenuGearAssembly",
+            "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuBluePrint": {
+        "doc": "从任意界面进入蓝图菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldFactoryEnterMenuBluePrint",
+            "[JumpBack]SceneEnterWorldFactory"
+        ]
+    },
+    "SceneEnterMenuEmail": {
+        "doc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEmail",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpack": {
+        "doc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBackpack",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuBackpackWithDepot": {
+        "doc": "从任意界面进入背包界面，左侧包含所有仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    },
+    "SceneEnterMenuBaker": {
+        "doc": "从任意界面进入Baker界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuBaker",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuWiki": {
+        "doc": "从任意界面进入百科界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuWiki",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuShop": {
+        "doc": "从任意界面进入商店界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuShop",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "SceneEnterMenuDijiangControlNexus": {
+        "doc": "从任意界面进入帝江号控制中枢菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuControlNexus",
+            "[JumpBack]SceneEnterWorldDijiang"
+        ]
+    }
+}

@@ -1,58 +1,22 @@
 {
-    "__ScenePrivateWorldEnterMapWulingWulingCity": {
-        "doc": "在大世界界面，进入武陵-武陵城地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 77 // M
-            }
-        },
-        "post_wait_freezes": 400,
+    "__ScenePrivateMapAnyEnterMapWulingWulingCity": {
+        "doc": "在任意地图界面，进入武陵-武陵城地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess",
             "__ScenePrivateMapOverviewEnterMapWulingWulingCity",
             "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
         ]
     },
-    "__ScenePrivateWorldEnterMapWulingJingyuValley": {
-        "doc": "在大世界界面，进入武陵-景玉谷地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 77 // M
-            }
-        },
-        "post_wait_freezes": 400,
+    "__ScenePrivateMapAnyEnterMapWulingJingyuValley": {
+        "doc": "在任意地图界面，进入武陵-景玉谷地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess",
             "__ScenePrivateMapOverviewEnterMapWulingJingyuValley",

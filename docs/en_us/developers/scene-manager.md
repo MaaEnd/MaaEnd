@@ -34,69 +34,15 @@ For example, the `next` of `SceneEnterMenuProtocolPass` (enter the Protocol Pass
 In a Pipeline task, put the "target scene interface" as a `[JumpBack]` node in `next`.  
 When a business node fails to recognize the expected screen, the framework will first perform a scene jump to reach the target scene, then return to the business logic and continue execution.
 
-### Example: One-Click Claiming Protocol Pass Rewards
+### Examples
 
-The following example shows how to use universal jump in a task that "enters the Protocol Pass menu from any screen and claims rewards".
-
-```jsonc
-{
-    "DailyProtocolPassStart": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "DailyProtocolPassInMenu",
-            "[JumpBack]SceneEnterMenuProtocolPass"
-        ]
-    },
-    "DailyProtocolPassInMenu": {
-        "desc": "In Protocol Pass menu",
-        "recognition": { ... },
-        "next": [
-            "DailyProtocolMissionsEnter",
-             ...
-        ]
-    },
-    ...
-}
-```
-
-**Execution Flow Explanation**:
-
-1. The task entry is `DailyProtocolPassStart`, and its `next` contains `DailyProtocolPassInMenu` and `[JumpBack]SceneEnterMenuProtocolPass`.
-2. If the current screen is already the Protocol Pass interface → it hits `DailyProtocolPassInMenu` and enters the business logic.
-3. If the current screen is not the Protocol Pass interface → it hits `[JumpBack]SceneEnterMenuProtocolPass`, and the framework executes the "enter Protocol Pass menu" jump chain.
-4. Inside `SceneEnterMenuProtocolPass`, it will call `SceneAnyEnterWorld` and others as needed, first entering the overworld and then opening the Protocol Pass menu.
-5. After entering Protocol Pass, the Pipeline reruns from the task entry, and eventually hits `DailyProtocolPassInMenu`.
-
-### Example: Entering Regional Development for Reselling
-
-```jsonc
-{
-    "ResellMain": {
-        "desc": "One-click resell entry",
-        "pre_delay": 0,
-        "post_delay": 500,
-        "next": [
-            "ResellStageCheckArea",
-            "[JumpBack]SceneEnterMenuRegionalDevelopment"
-        ]
-    },
-    "ResellStageCheckArea": {
-        "desc": "Check current region",
-        "recognition": { ... },
-        "next": [ ... ]
-    },
-    ...
-}
-```
-
-When `ResellStageCheckArea` fails to recognize (for example the current screen is the inventory, an event, etc.), it will automatically use `SceneEnterMenuRegionalDevelopment` to enter the Regional Development menu, then return to `ResellMain` and retry.
+For concrete usage examples, see `assets/resource/pipeline/SceneManager/SceneExample.json`, which contains complete example nodes for both normal scene interfaces and teleport interfaces.
 
 ## 3. Conventions for Universal Jump Interfaces
 
-### Only Use Interfaces from SceneInterface.json
+### Only Use Scene Interfaces from the Interface Directory
 
-**Only use the scene interface nodes defined in `assets/resource/pipeline/SceneInterface.json`.**  
+**Only use the scene interface nodes defined in the `SceneXXX.json` files under `assets/resource/pipeline/Interface`.**  
 These node names **do not start with `__ScenePrivate`**.
 
 ### Do Not Use \_\_ScenePrivate Nodes
@@ -105,7 +51,7 @@ These node names **do not start with `__ScenePrivate`**.
 
 - **Do not** reference `__ScenePrivate*` nodes directly in task Pipelines.
 - The structure, names, and logic of these nodes may change in future versions.
-- If you need some scene capability, first check whether there is a corresponding interface in `SceneInterface.json`. If not, please submit a feature request.
+- If you need some scene capability, first check whether there is a corresponding interface in the `SceneXXX.json` files under `Interface`. If not, please submit a feature request.
 
 ### Common Interface Overview
 
@@ -128,4 +74,4 @@ These node names **do not start with `__ScenePrivate`**.
 | Helper   | `SceneNoticeRewardsConfirm`         | Click confirm button on rewards screens.                         |
 | Helper   | `SceneWaitLoadingExit`              | Wait for loading screen to disappear.                            |
 
-For the complete list of interfaces and detailed descriptions, please refer to the `desc` field of each node in `assets/resource/pipeline/SceneInterface.json`.
+For the complete list of interfaces and detailed descriptions, please refer to the `desc` field of each node in the `SceneXXX.json` files under `assets/resource/pipeline/Interface`.
