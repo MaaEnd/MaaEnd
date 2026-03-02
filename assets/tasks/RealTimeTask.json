@@ -296,16 +296,45 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "RealTimeAutoFight": {
+                        "AutoFightRealtimeTask": {
                             "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoFightAttack"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoFightRealtimeTask": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoFightAttack": {
+            "label": "$option.AutoFightAttack.label",
+            "type": "switch",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFightRealtimeTask": {
+                            "anchor": {
+                                "__AutoFightActionAttackAnchor": "__AutoFightActionAttackClick"
+                            }
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "RealTimeAutoFight": {
-                            "enabled": false
+                        "AutoFightRealtimeTask": {
+                            "anchor": {
+                                "__AutoFightActionAttackAnchor": ""
+                            }
                         }
                     }
                 }

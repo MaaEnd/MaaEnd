@@ -1,0 +1,50 @@
+{
+    "AutoFight": {
+        "doc": "全自动战斗",
+        "recognition": "Custom",
+        "custom_recognition": "AutoFightEntryRecognition",
+        "anchor": {
+            "__AutoFightActionAttackAnchor": "__AutoFightActionComboClick"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "进入战斗场景"
+        },
+        "next": [
+            "__AutoFightLoop"
+        ]
+    },
+    "AutoFightNoAttack": {
+        "doc": "半自动战斗，没有普攻，原地罚站",
+        "recognition": "Custom",
+        "custom_recognition": "AutoFightEntryRecognition",
+        "anchor": {
+            "__AutoFightActionAttackAnchor": ""
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "进入战斗场景"
+        },
+        "next": [
+            "__AutoFightLoop"
+        ]
+    },
+    "AutoFightRealtimeTask": {
+        "doc": "给开荒辅助用的自动战斗，通过option决定是否有普攻锚点",
+        "recognition": "Custom",
+        "custom_recognition": "AutoFightEntryRecognition",
+        "anchor": {
+            "__AutoFightActionAttackAnchor": ""
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "进入战斗场景"
+        },
+        "next": [
+            "__AutoFightLoop"
+        ]
+    }
+}

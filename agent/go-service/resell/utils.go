@@ -1,7 +1,9 @@
 package resell
 
 import (
+	"encoding/json"
 	"fmt"
+	"image"
 	"strconv"
 	"strings"
 	"time"
@@ -34,95 +36,6 @@ func MoveMouseSafe(controller *maa.Controller) {
 	time.Sleep(50 * time.Millisecond)
 }
 
-// ocrExtractNumberWithCenter - OCR region using pipeline name and return number with center coordinates
-func ocrExtractNumberWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (int, int, int, bool) {
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 截图失败")
-		return 0, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return 0, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无结果")
-		return 0, 0, 0, false
-	}
-
-	// 优先从 Best 结果中提取，然后是 All
-	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
-		if len(results) > 0 && results[0] != nil {
-			if ocrResult, ok := results[0].AsOCR(); ok {
-				if num, success := extractNumbersFromText(ocrResult.Text); success {
-					// 计算中心坐标
-					centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-					centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-					log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Int("num", num).Msg("[OCR] 区域找到数字")
-					return num, centerX, centerY, success
-				}
-			}
-		}
-	}
-
-	return 0, 0, 0, false
-}
-
-// ocrExtractTextWithCenter - OCR region using pipeline name and check if pipeline filtered results exist, return center coordinates.
-// Keyword matching is delegated to the pipeline's "expected" field, so no redundant check is needed in Go.
-func ocrExtractTextWithCenter(ctx *maa.Context, controller *maa.Controller, pipelineName string) (bool, int, int, bool) {
-	controller.PostScreencap().Wait()
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-	if img == nil {
-		log.Info().Msg("[OCR] 未能获取截图")
-		return false, 0, 0, false
-	}
-
-	// 使用 RunRecognition 调用预定义的 pipeline 节点
-	detail, err := ctx.RunRecognition(pipelineName, img, nil)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("[OCR] 识别失败")
-		return false, 0, 0, false
-	}
-	if detail == nil || detail.Results == nil {
-		log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
-		return false, 0, 0, false
-	}
-
-	// Pipeline 的 expected 字段已负责文本过滤，Filtered 非空即表示匹配成功
-	if len(detail.Results.Filtered) > 0 && detail.Results.Filtered[0] != nil {
-		if ocrResult, ok := detail.Results.Filtered[0].AsOCR(); ok {
-			centerX := ocrResult.Box.X() + ocrResult.Box.Width()/2
-			centerY := ocrResult.Box.Y() + ocrResult.Box.Height()/2
-			log.Info().Str("pipeline", pipelineName).Str("originText", ocrResult.Text).Msg("[OCR] 区域找到对应字符")
-			return true, centerX, centerY, true
-		}
-	}
-
-	log.Info().Str("pipeline", pipelineName).Msg("[OCR] 区域无对应字符")
-	return false, 0, 0, false
-}
-
 // ResellFinishAction - Finish Resell task custom action
 type ResellFinishAction struct{}
 
@@ -146,51 +59,81 @@ func ExecuteResellTask(tasker *maa.Tasker) error {
 	return nil
 }
 
-func ResellDelayFreezesTime(ctx *maa.Context, time int) bool {
-	ctx.RunTask("ResellTaskDelay", map[string]interface{}{
-		"ResellTaskDelay": map[string]interface{}{
-			"pre_wait_freezes": time,
-		},
-	},
-	)
-	return true
-}
-
 func extractOCRText(detail *maa.RecognitionDetail) string {
-	if detail == nil || detail.Results == nil {
+	if detail == nil {
 		return ""
 	}
-	for _, results := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.All} {
-		if len(results) > 0 && results[0] != nil {
-			if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
-				return ocrResult.Text
+	if detail.Results != nil {
+		for _, results := range [][]*maa.RecognitionResult{
+			{detail.Results.Best},
+			detail.Results.Filtered,
+			detail.Results.All,
+		} {
+			if len(results) > 0 && results[0] != nil {
+				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+					return ocrResult.Text
+				}
 			}
+		}
+	}
+	// Or/And 节点：Results 为 nil，子节点在 CombinedResult 中（如 Or 包裹 OCR）
+	if len(detail.CombinedResult) > 0 {
+		for _, child := range detail.CombinedResult {
+			if text := extractOCRText(child); text != "" {
+				return text
+			}
+		}
+	}
+	if detail.DetailJson != "" {
+		if text, _, _, _, _ := extractOCRFromDetailJson(detail.DetailJson); text != "" {
+			return text
 		}
 	}
 	return ""
 }
 
-// ocrAndParseQuota - OCR and parse quota from two regions
+// extractOCRFromDetailJson 从 Or/OCR 的 DetailJson 提取 text 和 box（用于 Or 识别时 Results 无直接 OCR 的兜底）
+func extractOCRFromDetailJson(detailJson string) (text string, boxX, boxY, boxW, boxH int) {
+	// 尝试 Or 结构：detail 为数组，首个子项含 detail.best
+	var orStruct struct {
+		Detail []struct {
+			Detail struct {
+				Best struct {
+					Text string `json:"text"`
+					Box  []int  `json:"box"`
+				} `json:"best"`
+			} `json:"detail"`
+		} `json:"detail"`
+	}
+	if err := json.Unmarshal([]byte(detailJson), &orStruct); err == nil && len(orStruct.Detail) > 0 {
+		b := orStruct.Detail[0].Detail.Best
+		if b.Text != "" && len(b.Box) >= 4 {
+			return b.Text, b.Box[0], b.Box[1], b.Box[2], b.Box[3]
+		}
+	}
+	// 尝试直接 OCR 结构：best 含 text 和 box
+	var ocrStruct struct {
+		Best struct {
+			Text string `json:"text"`
+			Box  []int  `json:"box"`
+		} `json:"best"`
+	}
+	if err := json.Unmarshal([]byte(detailJson), &ocrStruct); err == nil && ocrStruct.Best.Text != "" && len(ocrStruct.Best.Box) >= 4 {
+		b := ocrStruct.Best.Box
+		return ocrStruct.Best.Text, b[0], b[1], b[2], b[3]
+	}
+	return "", 0, 0, 0, 0
+}
+
+// ocrAndParseQuotaFromImg - OCR and parse quota from two regions on given image
 // Region 1 [180, 135, 75, 30]: "x/y" format (current/total quota)
 // Region 2 [250, 130, 110, 30]: "a小时后+b" or "a分钟后+b" format (time + increment)
 // Returns: x (current), y (max), hoursLater (0 for minutes, actual hours for hours), b (to be added)
-func ocrAndParseQuota(ctx *maa.Context, controller *maa.Controller) (x int, y int, hoursLater int, b int) {
+func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLater int, b int) {
 	x = -1
 	y = -1
 	hoursLater = -1
 	b = -1
-
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
-	if img == nil {
-		log.Error().Msg("Failed to get screenshot for quota OCR")
-		return x, y, hoursLater, b
-	}
 
 	// Region 1: 配额当前值 "x/y" 格式，由 Pipeline expected 过滤
 	detail1, err := ctx.RunRecognition("ResellROIQuotaCurrent", img, nil)

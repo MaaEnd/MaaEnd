@@ -181,7 +181,10 @@
     "ChangeRegionButton": {
         "doc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/ChangeRegionButton.png",
+        "template": [
+            "Common/Button/ChangeRegionButton.png",
+            "Common/Button/ChangeRegionButtonHover.png"
+        ],
         "threshold": 0.9,
         "roi": [
             139,
@@ -190,24 +193,6 @@
             100
         ],
         "method": 10001,
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
-    },
-    "ChangeRegionConfirmButton": {
-        "doc": "地区建设中的确认更换地区按钮",
-        "recognition": "And",
-        "all_of": [
-            "WhiteConfirmButtonType1",
-            "CheckChangeRegionConfirmText"
-        ],
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -744,6 +729,73 @@
                 "contact": 1
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnvironmentMonitoringButton": {
+        "doc": "环境监测按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnvironmentMonitoringButton.png",
+        "threshold": 0.9,
+        "roi": [
+            749,
+            419,
+            62,
+            73
+        ],
+        "method": 10001,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnterCameraModeButton": {
+        "doc": "进入拍照按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
+        "roi": [
+            755,
+            387,
+            310,
+            178
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "ShutterButton": {
+        "doc": "快门按钮",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/ShutterButton.png",
+        "threshold": 0.9,
+        "roi": [
+            1029,
+            509,
+            145,
+            139
+        ],
+        "action": "Click",
         "post_wait_freezes": {
             "time": 80,
             "target": [

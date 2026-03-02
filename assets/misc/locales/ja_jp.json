@@ -5,6 +5,8 @@
     "global.region.OriginLodespring": "鉱山エリア",
     "global.region.PowerPlateau": "エネルギー高地",
     "global.region.WulingCity": "武陵城内",
+    "task.EnvironmentMonitoring.description": "環境監視タスクを自動で完了します（現在はテスト版のため、動作が不安定な場合があります）",
+    "task.EnvironmentMonitoring.label": "🌿環境監視（テスト版）",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
     "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
     "option.AutoSkip.label": "ストーリー自動",

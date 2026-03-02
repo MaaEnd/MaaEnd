@@ -1,0 +1,38 @@
+{
+    "EnvironmentMonitoringInOutskirtsMonitoringTerminal": {
+        "doc": "检查是否在城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
+        ]
+    },
+    "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
+        "doc": "检查城郊监测终端文本",
+        "recognition": "OCR",
+        "order_by": "Expected",
+        "roi": [
+            65,
+            57,
+            184,
+            85
+        ],
+        "expected": [
+            "城郊监测终端",
+            "城郊監測終端",
+            "Outskirts Monitoring Terminal",
+            "郊外観測端末",
+            "교외 관측 단말기"
+        ]
+    },
+    "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal": {
+        "doc": "进入城郊监测终端",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringButton"
+        ],
+        "action": "Click",
+        "next": [
+            "EnvironmentMonitoringLoop"
+        ]
+    }
+}

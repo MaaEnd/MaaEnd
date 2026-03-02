@@ -1,0 +1,42 @@
+{
+    "EnvironmentMonitoringMain": {
+        "doc": "环境监测",
+        "next": [
+            "EnvironmentMonitoringGoToMonitoringTerminal",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "EnvironmentMonitoringGoToMonitoringTerminal": {
+        "doc": "前往监测终端",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "next": [
+            "EnvironmentMonitoringLoop",
+            "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal",
+            "[JumpBack]GoToWuling"
+        ]
+    },
+    "EnvironmentMonitoringLoop": {
+        "doc": "主循环，确保在环境监测界面",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ],
+        "next": [
+            "[JumpBack]EternalSunsetJob",
+            "[JumpBack]AncientTreeJob",
+            "[JumpBack]CisternOriginiumSlugsJob",
+            "[JumpBack]CollapsedTianshiPillarJob",
+            "[JumpBack]IndoorCropsJob",
+            "[JumpBack]BeaconDamagedInBlightTideJob",
+            "[JumpBack]RainbowFinJob",
+            "[JumpBack]CleansingJadeJob",
+            "EnvironmentMonitoringFinish"
+        ]
+    },
+    "EnvironmentMonitoringFinish": {
+        "doc": "环境监测完成"
+    }
+}

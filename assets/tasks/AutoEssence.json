@@ -5,6 +5,9 @@
             "label": "$task.AutoEssence.label",
             "entry": "AutoEssenceMain",
             "description": "$task.AutoEssence.description",
+            "controller": [
+                "Win32-Front"
+            ],
             "option": [
                 "AutoEssenceDoOverride",
                 "AutoEssenceRepeatCount"

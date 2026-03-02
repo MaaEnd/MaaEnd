@@ -1,0 +1,290 @@
+{
+    "__ScenePrivateMapUnknownEnterWorldDijiang0Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang0Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang0Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang0Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang0Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang0Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang1Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang1Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang1Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang1Left.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            140,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang1Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang1Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang2Try1": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang2Center.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang2Try2": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang2Right.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -60,
+            40,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    },
+    "__ScenePrivateMapUnknownEnterWorldDijiang2Try3": {
+        "desc": "在地图界面找锚点",
+        "recognition": "TemplateMatch",
+        "roi": [
+            100,
+            100,
+            1080,
+            520
+        ],
+        "template": [
+            "SceneManager/MapDijiang/Dijiang2Bottom.png"
+        ],
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            40,
+            -60,
+            -80,
+            -80
+        ],
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
+        ]
+    }
+}

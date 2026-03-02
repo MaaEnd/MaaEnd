@@ -44,7 +44,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
             text=True,
         )
         if result.returncode != 0:
-            print(Console.err(f"Failed to create junction: {result.stderr}"))
+            print(Console.err(t("err_create_junction_failed", stderr=result.stderr)))
             return False
     else:
         dst.symlink_to(src)
@@ -103,6 +103,7 @@ except KeyError as e:
 
 MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
 TIMEOUT: int = 30
+CACHE_DIR: Path = PROJECT_BASE / ".cache"
 VERSION_FILE_NAME: str = "version.json"
 
 
@@ -295,7 +296,46 @@ def compare_semver(a: str | None, b: str | None) -> int:
     return 0
 
 
-def download_file(url: str, dest_path: Path) -> bool:
+def ensure_cache_dir() -> Path:
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return CACHE_DIR
+
+
+def cleanup_cache_file(path: Path) -> None:
+    try:
+        if path.exists():
+            path.unlink()
+            print(Console.ok(t("inf_cache_cleaned", path=path)))
+        meta = Path(str(path) + ".url")
+        if meta.exists():
+            meta.unlink()
+    except OSError as e:
+        print(Console.warn(t("wrn_cache_clean_failed", path=path, error=e)))
+
+
+def clean_cache() -> None:
+    if not CACHE_DIR.exists():
+        print(Console.info(t("inf_cache_empty")))
+        return
+    total_size = 0
+    count = 0
+    for f in CACHE_DIR.iterdir():
+        if f.is_file():
+            total_size += f.stat().st_size
+            count += 1
+    if count == 0:
+        print(Console.info(t("inf_cache_empty")))
+        return
+    size_mb = total_size / (1024 * 1024)
+    print(Console.info(t("inf_cache_summary", count=count, size=f"{size_mb:.1f} MB")))
+    try:
+        shutil.rmtree(CACHE_DIR)
+        print(Console.ok(t("inf_cache_purged")))
+    except OSError as e:
+        print(Console.warn(t("wrn_cache_clean_failed", path=CACHE_DIR, error=e)))
+
+
+def download_file(url: str, dest_path: Path, resume: bool = False) -> bool:
     """下载文件到指定路径。"""
 
     def to_percentage(current: float, total: float) -> str:
@@ -330,46 +370,114 @@ def download_file(url: str, dest_path: Path) -> bool:
         s = sec % 60
         return f"{h:02d}:{m:02d}:{s:02d}"
 
+    _retried_416 = False
+
     try:
         print(Console.info(t("inf_start_download", url=url)))
-        print(Console.info(t("inf_connecting")), end="", flush=True)
-        with (
-            urllib.request.urlopen(url, timeout=TIMEOUT) as res,
-            open(dest_path, "wb") as out_file,
-        ):
-            size_total = int(res.headers.get("Content-Length", 0) or 0)
-            size_received = 0
+
+        url_meta = Path(str(dest_path) + ".url")
+
+        if resume and dest_path.exists() and dest_path.stat().st_size > 0:
+            if url_meta.exists():
+                try:
+                    cached_url = url_meta.read_text(encoding="utf-8").strip()
+                except OSError:
+                    cached_url = ""
+                if cached_url and cached_url != url:
+                    print(Console.warn(t("wrn_cache_url_mismatch")))
+                    cleanup_cache_file(dest_path)
+                    if dest_path.exists():
+                        resume = False
+
+        while True:
+            existing_size = 0
+            if resume and not _retried_416 and dest_path.exists():
+                existing_size = dest_path.stat().st_size
+                if existing_size > 0:
+                    print(Console.info(t("inf_resume_detected", size=to_file_size(existing_size))))
+
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "MaaEnd-setup")
+            if existing_size > 0:
+                req.add_header("Range", f"bytes={existing_size}-")
+
+            print(Console.info(t("inf_connecting")), end="", flush=True)
+            try:
+                res = urllib.request.urlopen(req, timeout=TIMEOUT)
+            except urllib.error.HTTPError as he:
+                if he.code == 416 and existing_size > 0 and not _retried_416:
+                    print()
+                    _retried_416 = True
+                    cleanup_cache_file(dest_path)
+                    continue
+                raise
+
+            break
+
+        with res:
+            status_code = res.getcode()
+            if status_code == 206:
+                content_range = res.headers.get("Content-Range", "")
+                size_total = 0
+                if "/" in content_range:
+                    total_str = content_range.rsplit("/", 1)[-1].strip()
+                    if total_str != "*":
+                        try:
+                            size_total = int(total_str)
+                        except (ValueError, TypeError):
+                            size_total = 0
+                file_mode = "ab"
+                size_received = existing_size
+                print(Console.info(
+                    t("inf_resuming_download",
+                      downloaded=to_file_size(existing_size),
+                      total=to_file_size(size_total))
+                ))
+            else:
+                size_total = int(res.headers.get("Content-Length", 0) or 0)
+                file_mode = "wb"
+                size_received = 0
+                if existing_size > 0:
+                    print(Console.warn(t("wrn_resume_not_supported")))
+
+            session_received = 0
             cached_progress_str = ""
             start_ts = time.time()
-            # read loop
-            while True:
-                chunk = res.read(8192)
-                if not chunk:
-                    break
-                out_file.write(chunk)
-                size_received += len(chunk)
 
-                elapsed = max(1e-6, time.time() - start_ts)
-                speed = size_received / elapsed
-                eta = None
-                if size_total > 0 and speed > 0:
-                    eta = (size_total - size_received) / speed
+            with open(dest_path, file_mode) as out_file:
+                while True:
+                    chunk = res.read(8192)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+                    size_received += len(chunk)
+                    session_received += len(chunk)
 
-                progress_str = (
-                    f"{to_file_size(size_received)}/{to_file_size(size_total)} "
-                    f"({to_percentage(size_received, size_total)}) | "
-                    f"{to_speed(speed)} | ETA {seconds_to_hms(eta)}"
-                )
+                    elapsed = max(1e-6, time.time() - start_ts)
+                    speed = session_received / elapsed
+                    eta = None
+                    if size_total > 0 and speed > 0:
+                        eta = (size_total - size_received) / speed
 
-                if progress_str != cached_progress_str:
-                    print(
-                        f"\r{Console.info(t('inf_downloading', progress=progress_str))}",
-                        end="",
-                        flush=True,
+                    progress_str = (
+                        f"{to_file_size(size_received)}/{to_file_size(size_total)} "
+                        f"({to_percentage(size_received, size_total)}) | "
+                        f"{to_speed(speed)} | ETA {seconds_to_hms(eta)}"
                     )
-                    cached_progress_str = progress_str
-            print()
+
+                    if progress_str != cached_progress_str:
+                        print(
+                            f"\r{Console.info(t('inf_downloading', progress=progress_str))}",
+                            end="",
+                            flush=True,
+                        )
+                        cached_progress_str = progress_str
+        print()
         print(Console.ok(t("inf_download_complete", path=dest_path)))
+        try:
+            url_meta.write_text(url, encoding="utf-8")
+        except OSError:
+            pass
         return True
     except urllib.error.URLError as e:
         print(Console.err(t("err_network_error", reason=e.reason)))
@@ -411,18 +519,20 @@ def install_maafw(
         print(Console.ok(t("inf_maafw_latest_version", version=local_version)))
         return True, local_version, False
 
+    cache_dir = ensure_cache_dir()
+    download_path = cache_dir / filename
+    if not download_file(url, download_path, resume=True):
+        return False, local_version, False
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        download_path = tmp_path / filename
-        if not download_file(url, download_path):
-            return False, local_version, False
 
         maafw_dest_is_link = maafw_dest.is_symlink()
         if hasattr(maafw_dest, 'is_junction'):
             maafw_dest_is_link = maafw_dest_is_link or maafw_dest.is_junction()
 
         if maafw_dest_is_link:
-            print(Console.ok(f"Link already exists: {maafw_dest}, skipping link recreation"))
+            print(Console.ok(t("inf_link_already_exists", path=maafw_dest)))
         elif maafw_dest.exists():
             if maafw_dest.is_dir():
                 while True:
@@ -463,21 +573,22 @@ def install_maafw(
 
             # 先将完整 SDK 复制到项目根目录 deps/
             maafw_deps = PROJECT_BASE / "deps"
-            print(Console.info(f"Copying full SDK to {maafw_deps} ..."))
+            print(Console.info(t("inf_copying_sdk", dest=maafw_deps)))
             if maafw_deps.exists():
                 shutil.rmtree(maafw_deps)
             shutil.copytree(sdk_root, maafw_deps)
-            print(Console.ok(f"Full SDK copied to {maafw_deps}"))
+            print(Console.ok(t("inf_sdk_copied", dest=maafw_deps)))
 
             if not maafw_dest_is_link:
                 # 创建 install/maafw -> deps/bin 的目录链接
                 bin_path = maafw_deps / "bin"
-                print(Console.info(f"Creating link: {maafw_dest} -> {bin_path}"))
+                print(Console.info(t("inf_creating_link", link=maafw_dest, target=bin_path)))
                 if not create_directory_link(bin_path, maafw_dest):
-                    print(Console.err("Failed to create directory link for maafw"))
+                    print(Console.err(t("err_create_link_failed")))
                     return False, local_version, False
 
             print(Console.ok(t("inf_maafw_install_complete")))
+            cleanup_cache_file(download_path)
             return True, remote_version or local_version, True
         except Exception as e:
             print(Console.err(t("err_maafw_install_failed", error=e)))
@@ -516,11 +627,13 @@ def install_mxu(
         print(Console.ok(t("inf_mxu_latest_version", version=local_version)))
         return True, local_version, False
 
+    cache_dir = ensure_cache_dir()
+    download_path = cache_dir / filename
+    if not download_file(url, download_path, resume=True):
+        return False, local_version, False
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        download_path = tmp_path / filename
-        if not download_file(url, download_path):
-            return False, local_version, False
 
         if mxu_path.exists():
             while True:
@@ -564,6 +677,7 @@ def install_mxu(
                 print(Console.err(t("err_mxu_not_found", name=MXU_DIST_NAME)))
                 return False, local_version, False
             print(Console.ok(t("inf_mxu_install_complete")))
+            cleanup_cache_file(download_path)
             return True, remote_version or local_version, True
         except Exception as e:
             print(Console.err(t("err_mxu_install_failed", error=e)))
@@ -576,7 +690,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
     parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
+    parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
     args = parser.parse_args()
+
+    if args.clean_cache:
+        clean_cache()
+        return
 
     install_dir = PROJECT_BASE / "install"
     version_file = install_dir / VERSION_FILE_NAME

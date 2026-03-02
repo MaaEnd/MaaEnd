@@ -96,7 +96,7 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			},
 		})
 		// 立即跳转到 UID 分支。
-		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDLoopTop"},
 		})
 		log.Info().
@@ -117,7 +117,7 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		},
 	})
 	// 立即跳转到添加陌生人分支。
-	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsStrangersStart"},
 	})
 	log.Info().Int("maxCount", maxCount).Msg("[BatchAddFriends]陌生人模式开始")
@@ -128,13 +128,13 @@ func (a *BatchAddFriendsAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 func (a *BatchAddFriendsUIDLoopTopAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// UID 队列为空则结束 UID 分支。
 	if len(state.uidQueue) == 0 {
-		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 		return true
 	}
 	// 否则继续处理下一个 UID。
-	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsUIDLoopCounter"},
 	})
 	return true
@@ -198,7 +198,7 @@ func (a *BatchAddFriendsUIDOnEmptyAction) Run(ctx *maa.Context, arg *maa.CustomA
 		log.Error().
 			Int("maxFailStreak", state.uidMaxFailStreak).
 			Msg("[BatchAddFriends]连续失败次数过多，终止 UID 列表模式")
-		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 	}
@@ -238,12 +238,12 @@ func (a *BatchAddFriendsStrangersFinishAction) Run(ctx *maa.Context, arg *maa.Cu
 func (a *BatchAddFriendsFriendListFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Warn().Msg("[BatchAddFriends]好友列表已满，提前结束")
 	if state.mode == "uid" {
-		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+		_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "BatchAddFriendsUIDEnd"},
 		})
 		return true
 	}
-	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NodeNextItem{
+	_ = ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 		{Name: "BatchAddFriendsStrangersEnd"},
 	})
 	return true

@@ -474,3 +474,4 @@ Temporary Items
 
 # python
 venv/
+.cache/

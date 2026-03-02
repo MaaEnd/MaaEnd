@@ -1,0 +1,6 @@
+{
+    // 现在不方便调用一个 button，所以在 PC 中直接用的 ClickKey，在 ADB 中需要覆盖为 Click
+    "DeliveryJobsEnterRegionalDevelopment": {
+        "action": "Click"
+    }
+}

@@ -34,8 +34,8 @@
         "roi": [
             59,
             67,
-            576,
-            57
+            696,
+            64
         ],
         "expected": [
             "我转交的委托",
@@ -86,10 +86,10 @@
         "template": "DailyRewards/ClaimDeliveryJobsButton.png",
         "threshold": 0.8,
         "roi": [
-            1077,
-            649,
-            168,
-            39
+            1030,
+            634,
+            215,
+            54
         ],
         "action": "Click",
         "next": [

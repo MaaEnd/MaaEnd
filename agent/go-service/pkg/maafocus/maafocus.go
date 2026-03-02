@@ -20,13 +20,14 @@ func NodeActionStarting(ctx *maa.Context, content string) {
 	}
 
 	pp := maa.NewPipeline()
-	pp.AddNode(maa.NewNode(nodeName,
-		maa.WithFocus(map[string]any{
+	node := maa.NewNode(nodeName).
+		SetFocus(map[string]any{
 			maa.EventNodeAction.Starting(): content,
-		}),
-		maa.WithPreDelay(0),
-		maa.WithPostDelay(0),
-	))
+		}).
+		SetPreDelay(0).
+		SetPostDelay(0)
+	pp.AddNode(node)
+
 	if _, err := ctx.RunTask(nodeName, pp); err != nil {
 		log.Warn().
 			Err(err).

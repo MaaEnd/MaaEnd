@@ -14,7 +14,9 @@
                     "[Oo].?[Mm].?[Vv]"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapEnterTeleport": {
         "doc": "在地图界面，随机选择一个传送点进入",
@@ -134,6 +136,37 @@
             "__ScenePrivateMapTeleportSuccess"
         ]
     },
+    "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear": {
+        "doc": "点击确认传送，并且清除锚点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -150,
+                    -150,
+                    150,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapTeleportConfirm.png"
+                ]
+            }
+        },
+        "anchor": {
+            "__ScenePrivateMapSwipeToStep0Anchor": "",
+            "__ScenePrivateMapSwipeToStep1Anchor": "",
+            "__ScenePrivateMapSwipeToStepFinishAnchor": ""
+        },
+        "action": {
+            "type": "Click"
+        },
+        // 场景一：传送有loading
+        // 场景二：原地传送无loading
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "__ScenePrivateMapTeleportSuccess"
+        ]
+    },
     "__ScenePrivateMapTeleportSuccess": {
         "doc": "进入大世界，传送成功",
         "recognition": {
@@ -150,24 +183,16 @@
                 ],
                 "green_mask": true
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapOverview": {
         "desc": "在任意地图界面，进入地区总览地图",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -350,
-                    0,
-                    350,
-                    60
-                ],
-                "template": [
-                    "SceneManager/MapMind.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -241,6 +266,41 @@
                 ],
                 "threshold": 0.9
             }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapZoomOut": {
+        "desc": "在地图界面，缩小地图",
+        "recognition": "ColorMatch",
+        "roi": [
+            1225,
+            423,
+            26,
+            26
+        ],
+        "lower": [
+            200,
+            200,
+            200
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 150,
+        "action": "LongPress",
+        "duration": 2000,
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ],
+            "time": 400
         }
     },
     "__ScenePrivateMapFilterClear": {

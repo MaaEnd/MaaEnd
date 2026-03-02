@@ -9,7 +9,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoFightRecognitionEnemyAttack",
+            "[JumpBack]__AutoFightRecognitionEnemyAttack",
             "AutoFightTest2"
         ]
     }
