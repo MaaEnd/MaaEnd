@@ -351,5 +351,7 @@
     "preset.AutoTrading.label": "Auto Trading",
     "preset.AutoTrading.description": "Auto trading and production related tasks.",
     "preset.EssenceFarming.label": "Essence Farming",
-    "preset.EssenceFarming.description": "Essence farming and filtering related tasks."
+    "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
+    "task.GiftOperator.label": "🎁Gift to Operator",
+    "task.GiftOperator.description": "Navigate to Dijiang Bridge from any screen and give gifts to operators (WIP)"
 }

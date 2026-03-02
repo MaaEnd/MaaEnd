@@ -150,6 +150,7 @@
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
         "tasks/BakerEntry.json",
+        "tasks/GiftOperator.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/AndroidOpenGame.json",
         "tasks/preset/DailyFull.json",

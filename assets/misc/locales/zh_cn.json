@@ -351,5 +351,7 @@
     "preset.AutoTrading.label": "自动倒卖",
     "preset.AutoTrading.description": "自动买卖及生产相关",
     "preset.EssenceFarming.label": "基质刷取",
-    "preset.EssenceFarming.description": "基质养成及筛选相关"
+    "preset.EssenceFarming.description": "基质养成及筛选相关",
+    "task.GiftOperator.label": "🎁赠送干员礼物",
+    "task.GiftOperator.description": "从任意界面进入帝江号舰桥，为干员送礼物（开发中）"
 }
