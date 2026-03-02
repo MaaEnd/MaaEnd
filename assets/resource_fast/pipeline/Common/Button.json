@@ -765,9 +765,32 @@
         }
     },
     "EnterCameraModeButton": {
-        "doc": "进入拍照按钮",
+        "doc": "进入拍照按钮，位于大世界右侧界面",
         "recognition": "TemplateMatch",
         "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
+        "roi": [
+            1118,
+            207,
+            158,
+            212
+        ],
+        "action": "ClickKey",
+        "key": 82, // R 0x52
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "EnterCameraModeMenuButton": {
+        "doc": "进入拍照按钮，位于交互菜单",
+        "recognition": "TemplateMatch",
+        "template": "Common/Button/EnterCameraModeMenuButton.png",
         "threshold": 0.9,
         "roi": [
             755,
@@ -775,7 +798,8 @@
             310,
             178
         ],
-        "action": "Click",
+        "action": "ClickKey",
+        "key": 70, // F 0x46
         "post_wait_freezes": {
             "time": 80,
             "target": [
