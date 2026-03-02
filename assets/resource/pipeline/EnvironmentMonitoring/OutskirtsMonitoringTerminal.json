@@ -1225,11 +1225,15 @@
                 [
                     331,
                     303
+                ],
+                [
+                    342,
+                    297
                 ]
             ]
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoDirectly"
+            "EnvironmentMonitoringTakePhotoUp"
         ]
     },
     "GoToAncientTreeMapTrackerMove": {

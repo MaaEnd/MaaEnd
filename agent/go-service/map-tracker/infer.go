@@ -230,7 +230,7 @@ func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
 }
 
 // loadMaps loads all map images from the resource directory
-// and try crops them if map_rect.json exists
+// and try crops them if map bbox data exists
 func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 	// Find map directory using search strategy
 	mapDir := findResource(MAP_DIR)
@@ -238,14 +238,14 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
 	}
 
-	// Read map_rect.json if it exists
+	// Read map_bbox.json if it exists
 	rectList := make(map[string][]int)
-	rectPath := filepath.Join(mapDir, "map_rect.json")
+	rectPath := filepath.Join(mapDir, "map_bbox.json")
 	if data, err := os.ReadFile(rectPath); err == nil {
 		if err := json.Unmarshal(data, &rectList); err != nil {
-			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_rect.json")
+			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_bbox.json")
 		} else {
-			log.Info().Msg("Map rect JSON loaded")
+			log.Info().Msg("Map bbox JSON loaded")
 		}
 	}
 
@@ -389,7 +389,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg image.Image, locScale float64,
 		triedCount++
 
 		// Perform template matching (using optimized version with precomputed stats)
-		// Note: mapData.Img is already cropped if a rect was provided in map_rect.json
+		// Note: mapData.Img is already cropped if a rect was provided in map_bbox.json
 		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMapRGBA, miniStats)
 
 		if matchVal > bestVal {
