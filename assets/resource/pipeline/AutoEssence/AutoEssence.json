@@ -1,14 +1,12 @@
 {
     "AutoEssenceMain": {
         "anchor": {
-            // "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
-            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceCheckGetAward"
+            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
         },
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         },
         "next": [
-            "AutoEssenceSkipGetAwardEntry",
             "AutoEssenceClickEssenceStartButton",
             "AutoEssenceChooseScaling1",
             "VFTheHubLocationAssertion",
@@ -18,6 +16,162 @@
             "WLWulingCityLocationAssertion"
         ],
         "rate_limit": 1000
+    },
+    "AutoEssenceClickTriggerButtonPre": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "next": [
+            "AutoEssenceClickTriggerButton"
+        ],
+        "on_error": [
+            "AutoEssenceClickTriggerButtonFailedPre"
+        ],
+        "timeout": 1000
+    },
+    "AutoEssenceClickTriggerButton": {
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceClickEssenceStartButton"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击激发按钮"
+        },
+        "next": [
+            "AutoEssenceAltKeyUp"
+        ],
+        "recognition": {
+            "param": {
+                "expected": "激发",
+                "roi": [
+                    779,
+                    395,
+                    316,
+                    196
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "AutoEssenceAltKeyUp": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "AutoEssenceClickEssenceStartButton"
+        ]
+    },
+    "AutoEssenceClickEssenceStartButton": {
+        "action": {
+            "type": "Click"
+        },
+        "anchor": {
+            "AutoEssenceAfterWalkAround": "AutoEssenceCheckOngoing"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击开启挑战按钮"
+        },
+        "next": [
+            "AutoEssenceDismissWarning1",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "pre_wait_freezes": 3000,
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    1155,
+                    590,
+                    125,
+                    130
+                ],
+                "template": "Common/Button/WhiteConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceDismissWarning1": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        },
+        "next": [
+            "AutoEssenceDismissWarning2",
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    730,
+                    390,
+                    200,
+                    150
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceDismissWarning2": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        },
+        "next": [
+            "[Anchor]AutoEssenceWalkAround"
+        ],
+        "post_delay": 1000,
+        "recognition": {
+            "param": {
+                "roi": [
+                    730,
+                    390,
+                    200,
+                    150
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "AutoEssenceCheckOngoing": {
+        "anchor": {
+            "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceCheckGetAward"
+        },
+        "focus": {
+            "Node.Recognition.Starting": "🔍检查挑战是否结束",
+            "Node.Action.Starting": "👌识别到挑战结束"
+        },
+        "inverse": true,
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "recognition": {
+            "param": {
+                "green_mask": true,
+                "roi": [
+                    0,
+                    40,
+                    260,
+                    330
+                ],
+                "template": "AutoEssence/EssenceOngoing.png"
+            },
+            "type": "TemplateMatch"
+        }
     },
     "AutoEssenceCheckGetAward": {
         "next": [

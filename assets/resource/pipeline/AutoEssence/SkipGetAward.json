@@ -1,6 +1,6 @@
 {
     "AutoEssenceSkipGetAwardEntry": {
-        "enabled": true,
+        "enabled": false,
         "focus": {
             "Node.Action.Starting": "🔀 跳过领取流程"
         },
