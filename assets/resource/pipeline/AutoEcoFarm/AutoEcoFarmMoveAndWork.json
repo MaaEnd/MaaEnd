@@ -1,0 +1,95 @@
+//节点从Start进入，开始前要确保农田已被标记
+//节点从Exit离开，这里关联下一个阶段的节点
+{ //节点出入口
+    "_AutoEcoFarmMoveAndWorkStart": {
+        "doc": "这块代码的目的是按下移动键，一边移动一边识别收菜菜单，识别到了就停下，点击收菜/播种/浇水",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmMoveToTarget"
+        ]
+    },
+    "_AutoEcoFarmMoveAndWorkExit": {
+        "next": []
+    }
+    //内部节点
+    ,
+    "_AutoEcoFarmMoveToTarget": {
+        "doc": "长按w方向键朝目标前行,同时识别菜单",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "max_hit": 3,
+        "next": [
+            "_AutoEcoFarmFindMenuIcon",
+            //没识别到的话再试几次,重试次数由maxhit决定
+            "_AutoEcoFarmMoveToTarget",
+            //没识别到菜单一段时间也要松开w
+            "_AutoEcoFarmCancelMove"
+        ]
+    },
+    "_AutoEcoFarmFindMenuIcon": {
+        "doc": "寻找采集、播种、浇水的按钮，都是同一个",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            832,
+                            455,
+                            43,
+                            40
+                        ],
+                        "template": "AutoEcoFarm/AutoEcoFarmHand.png",
+                        "threshold": 0.9
+                    },
+                    {
+                        "sub_name": "text",
+                        "recognition": "OCR",
+                        "roi": [
+                            832,
+                            455,
+                            163,
+                            40
+                        ],
+                        "expected": [
+                            "[收获|育种|浇水]"
+                        ],
+                        "threshold": 0.7
+                    }
+                ]
+            }
+        },
+        "next": [
+            "_AutoEcoFarmCancelMove"
+        ]
+    },
+    "_AutoEcoFarmCancelMove": {
+        "doc": "松开w免得卡住",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmStartWork"
+        ]
+    },
+    "_AutoEcoFarmStartWork": {
+        "doc": "按下F,等队友工作，重复3次",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 70 //F键
+            }
+        },
+        "repeat": 3,
+        "repeat_delay": 60000
+    }
+}

@@ -1,0 +1,18 @@
+//这里写一些通用节点，用来处理各种事件，一般都要带jumpback来引用
+{
+    "_AutoEcoFarmMoveMouse": {
+        "doc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "max_hit": 3 //默认为3，超过就不要再试了免得死循环
+    }
+}

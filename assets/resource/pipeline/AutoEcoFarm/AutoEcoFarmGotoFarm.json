@@ -1,0 +1,102 @@
+//引用节点：MapTracker、万能跳转
+//
+//节点从Start进入，开始前必须要在地图界面
+//节点从Exit离开，这里关联下一个阶段的节点
+{
+    //四号谷地的节点出入口
+    "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
+        "doc": "这块代码是用来前往四号谷地农场的",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+        ]
+    },
+    "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
+        "next": [
+            //到目的地后开始识别农田并靠近
+            "_AutoEcoFindFarmFarmlandStart"
+        ]
+    },
+    //武陵的节点出入口
+    "_AutoEcoFarmGotoWulinEcoFarmStart": {
+        "doc": "这块代码是用来前往武陵农场的",
+        "max_hit": 1
+        //////////正在施工中//////////
+    },
+    "_AutoEcoFarmGotoWulinEcoFarmExit": {
+        "next": [
+            //到目的地后开始识别农田并靠近
+            "_AutoEcoFindFarmFarmlandStart"
+        ]
+    },
+    //内部节点
+    "_AutoEcoFarmInOriginiumSciencePark2": {
+        "doc": "确认已经在源石研究园山道缓坡",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        514,
+                        237,
+                        17,
+                        26
+                    ]
+                }
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmGotoValleyIVEcoFarm": {
+        "doc": "前往源石研究园生态农场",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    523,
+                    241
+                ],
+                [
+                    523,
+                    257
+                ],
+                [
+                    527,
+                    277
+                ],
+                [
+                    523,
+                    291
+                ],
+                [
+                    542,
+                    306
+                ],
+                [
+                    548,
+                    321
+                ],
+                [
+                    548,
+                    332
+                ],
+                [
+                    560,
+                    332
+                ]
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarmExit"
+        ]
+    }
+}

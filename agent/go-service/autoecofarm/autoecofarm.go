@@ -137,6 +137,88 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 	return true
 }
 
+// 这部分是缓慢识别+挪动的代码
+// 定义获取参数的字段
+type MoveToTargetPartParams struct {
+	StepRatio float64 `json:"stepRatio"`
+	Threshold int     `json:"threshold"`
+}
+type MoveToTargetPart struct{}
+
+func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	log.Debug().Msgf("start")
+	//读取参数
+	var params = MoveToTargetPartParams{
+		StepRatio: 0.8,
+		Threshold: 50,
+	}
+
+	//解析 JSON 参数到结构体中
+	if arg.CustomActionParam != "" {
+		err := json.Unmarshal([]byte(arg.CustomActionParam), &params)
+		if err != nil {
+			log.Error().Err(err).Msg("Custom参数解析失败")
+			return false
+		}
+	}
+
+	stepRatio := params.StepRatio
+	threshold := params.Threshold
+
+	//判断box是否为空
+	if arg.Box.X() == 0 || arg.Box.Y() == 0 || arg.Box.Width() == 0 || arg.Box.Height() == 0 {
+		err := fmt.Errorf("目标坐标/尺寸为空（X:%d,Y:%d,W:%d,H:%d）",
+			arg.Box.X(), arg.Box.Y(), arg.Box.Width(), arg.Box.Height())
+		log.Error().Err(err).Msg("目标坐标读取失败")
+		return false // 必须返回false，终止执行
+	}
+
+	targetX := arg.Box.X()      // 目标矩形左上角X
+	targetY := arg.Box.Y()      // 目标矩形左上角Y
+	targetW := arg.Box.Width()  // 目标矩形宽度（X轴方向）
+	targetH := arg.Box.Height() // 目标矩形高度（Y轴方向）
+	log.Info().Msgf("%d", targetX)
+
+	// 计算目标矩形的中点坐标
+	targetCenterX := targetX + targetW/2 // 中点X = 左上角X + 宽度/2
+	targetCenterY := targetY + targetH/2 // 中点Y = 左上角Y + 高度/2
+
+	//  计算屏幕中心坐标
+	screenCenterX := screenW / 2
+	screenCenterY := screenH / 2
+
+	//计算距离，x轴距离在阈值以下则直接返回false
+	dx := targetCenterX - screenCenterX
+	dy := targetCenterY - screenCenterY
+	//只要x轴距离够小就行，y不考虑
+	distance := int(math.Abs(float64(dx)))
+	if distance < threshold {
+		log.Info().Msgf("目标距离小于阈值（%.2f < %d），停止移动", distance, params.Threshold)
+		return true
+	}
+	//如果不在阈值下，则根据比例拉近屏幕并且返回true
+
+	ctx.RunActionDirect("Swipe", maa.SwipeParam{
+		Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
+		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + int(float64(dx)*stepRatio), screenCenterY + int(float64(dy)*stepRatio), 1, 1})},
+		Duration:  []time.Duration{1000 * time.Millisecond},
+		OnlyHover: true,
+	}, maa.Rect{0, 0, 0, 0}, nil)
+
+	//转完还得点一下alt加左键解除占用
+	ctx.RunActionDirect("KeyDown", maa.KeyDownParam{
+		Key: KEY_ALT,
+	}, maa.Rect{0, 0, 0, 0}, nil)
+
+	ctx.RunActionDirect("Click", maa.ClickParam{}, maa.Rect{0, 0, 0, 0}, nil)
+
+	ctx.RunActionDirect("KeyUp", maa.KeyUpParam{
+		Key: KEY_ALT,
+	}, maa.Rect{0, 0, 0, 0}, nil)
+
+	return true
+}
+
 // ==========================================
 // 核心逆算函数：已知屏幕footY坐标，求45°角会变成什么样
 // ==========================================

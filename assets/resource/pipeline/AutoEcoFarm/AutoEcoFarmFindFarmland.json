@@ -1,0 +1,159 @@
+//这块代码的目的是通过追踪标记来识别农田，并点击追踪标记
+//节点从Start进入，开始前必须要在农田附近
+//节点从Exit离开，这里关联下一个阶段的节点
+{
+    //节点出入口
+    "_AutoEcoFindFarmFarmlandStart": {
+        "next": [
+            "_AutoEcoFarmFindValleyIVEcoFarm",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "_AutoEcoFindFarmFarmlandExit": {
+        "next": [
+            "_AutoEcoFarmSwipeToTargetStart"
+        ]
+    },
+    //内部节点
+    "_AutoEcoFarmFindValleyIVEcoFarm": {
+        "doc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    649,
+                    225,
+                    515,
+                    399
+                ],
+                "expected": "[生|态|种|植]",
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": true,
+                "dy": 480
+            }
+        },
+        "next": [
+            //找到农田就下一步，没找到再拉缩放
+            "_AutoEcoFarmFindFarmland",
+            //通过一个自循环来做到多次识别→拉近
+            "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
+    },
+    "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
+        "doc": "将生态园拉到屏幕中间",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "_AutoEcoFarmFindValleyIVEcoFarm",
+                "end": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
+        "max_hit": 5, //循环10次
+        "next": [
+            "_AutoEcoFarmFindValleyIVEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmFindFarmland": {
+        "doc": "全屏寻找农田,识别到了后点击",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "[JumpBack]_AutoEcoFarmMutiSelection",
+            "_AutoEcoFarmAlreadySetTarget",
+            "_AutoEcoFarmSetTarget",
+            "[JumpBack]_AutoEcoFarmMoveMouse",
+            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
+            "_AutoEcoFindFarmFarmlandExit"
+        ]
+    },
+    "_AutoEcoFarmAlreadySetTarget": {
+        "doc": "找到取消两个字则直接下一步，不点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "取消"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "_AutoEcoFindFarmFarmlandExit"
+        ]
+    },
+    "_AutoEcoFarmSetTarget": {
+        "doc": "点击追踪按钮，设定追踪",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1123,
+                    644,
+                    113,
+                    35
+                ],
+                "expected": [
+                    "追踪"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "_AutoEcoFindFarmFarmlandExit"
+        ]
+    },
+    "_AutoEcoFarmMutiSelection": {
+        "doc": "识别是否有多选情况，识别初次点击点附近有无田块字样，有的话点一下含田块两字的选项",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "_AutoEcoFarmFindFarmland",
+                "roi_offset": [
+                    -150,
+                    -150,
+                    300,
+                    300
+                ],
+                "expected": "田块"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "max_hit": 3 //超过3次没点掉就是出bug了直接跳过
+    }
+}

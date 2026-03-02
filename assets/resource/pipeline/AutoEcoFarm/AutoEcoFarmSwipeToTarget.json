@@ -1,0 +1,147 @@
+//这是一个微调视角直到目标到屏幕中间的节点，可以通用，其他人只需要按以下步骤操作，
+//1.复制整个文件，将出入口节点、自定义识别节点、文件名改成自己专属的名字
+//2.将自定义识别节点改成自己需要识别的东西
+//3.设定custom节点的参数，target一定要指向自定义识别节点
+//连接节点的出入口即可正常工作
+//开始工作后，节点会使用自定义的识别方式查找目标，然后一点点将目标挪到视野正中间
+//节点从Start进入，开始前要保证目标可以被看到
+//节点从Exit离开，这里关联下一个阶段的节点
+{ //节点出入口
+    "_AutoEcoFarmSwipeToTargetStart": {
+        "doc": "这是一个微调视角直到目标到屏幕中间的节点，可以通用，其他人只需要按以下步骤操作",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmTargeInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "_AutoEcoFarmSwipeToTargetExit": {
+        "next": [
+            "_AutoEcoFarmMoveAndWorkStart"
+        ]
+    },
+    "_AutoEcoFarmTargeRecognition": {
+        "doc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.3
+            }
+        },
+        "next": [
+            //自循环，直到识别框距离中心够近，或者超过最大尝试次数
+            "_AutoEcoFarmSwipeToTarget",
+            "_AutoEcoFarmSwipeToTargetExit"
+        ]
+    },
+    //这里会调用一个Custom节点，将视角往目标移动，但只移动一部分距离，达到目标后返回false
+    "_AutoEcoFarmSwipeToTarget": {
+        "doc": "转向到识别结果",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MoveToTargetPart",
+                "custom_action_param": {
+                    //移动屏幕中心距离目标的多少比例，参数越大，移动越豪放，但容易过头，越小不容易过头，但会比较慢
+                    "stepRatio": 0.5,
+                    //与目标距离低于多少像素后停止
+                    "threshold": 10
+                },
+                //这里记得改成识别节点一样的名字
+                "target": "_AutoEcoFarmTargeRecognition"
+            }
+        },
+        //超过多少次强制停止，防止死循环
+        "max_hit": 5,
+        "next": [
+            "_AutoEcoFarmTargeRecognition"
+        ]
+    },
+    //下面是内部节点，不用改
+    "_AutoEcoFarmTargeInWorld": {
+        "doc": "判断是否在大世界，避免误识别地图上的标点",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    32,
+                    14,
+                    128,
+                    41
+                ],
+                "expected": [
+                    "探索|工业"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTargeRecognition",
+            "_AutoEcoFarmSwipeToGround"
+        ]
+    },
+    "_AutoEcoFarmSwipeToGround": {
+        "doc": "移动视角到地面",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
+                "end": [
+                    640,
+                    720,
+                    1,
+                    1
+                ]
+            }
+        },
+        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
+        "next": [
+            "_AutoEcoFarmAltDown"
+        ]
+    },
+    "_AutoEcoFarmAltDown": {
+        "doc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmClick"
+        ]
+    },
+    "_AutoEcoFarmClick": {
+        "doc": "按下alt",
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "_AutoEcoFarmAltUp"
+        ]
+    },
+    "_AutoEcoFarmAltUp": {
+        "doc": "松开alt",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmTargeInWorld"
+        ]
+    }
+}
