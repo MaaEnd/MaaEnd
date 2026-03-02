@@ -6,10 +6,10 @@ import (
 	"math"
 )
 
-// StatsResult holds the mean and standard deviation of pixel values in an image
+// StatsResult holds the mean and unnormalized standard deviation of pixel values in an image
 type StatsResult struct {
 	Mean float64 // Mean value
-	Std  float64 // Standard deviation value
+	Std  float64 // Standard deviation value (unnormalized)
 }
 
 // IntegralArray stores precomputed sums for O(1) area statistics
@@ -36,10 +36,14 @@ func GetImageStats(img *image.RGBA) StatsResult {
 			off += 4
 		}
 	}
+
 	count := float64(w * h * 3)
 	mean := sum / count
-	std := math.Sqrt(sumSq - count*(sum/count)*(sum/count))
-	return StatsResult{mean, std}
+	variance := sumSq - count*(mean*mean)
+	if variance < 0 {
+		return StatsResult{Mean: mean, Std: 0}
+	}
+	return StatsResult{mean, math.Sqrt(variance)}
 }
 
 // GetIntegralArray computes the integral array for an image

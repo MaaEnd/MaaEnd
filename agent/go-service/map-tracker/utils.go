@@ -91,10 +91,11 @@ func computeNCCFast(hRGBA *image.RGBA, hInt minicv.IntegralArray, nRGBA *image.R
 	sh, ssh := hInt.GetAreaIntegral(ox, oy, nW, nH)
 	cnt := float64(nW * nH * 3)
 	mh := sh / cnt
-	dh := math.Sqrt(ssh - cnt*mh*mh)
-	if dh < 1e-6 {
+	vh := ssh - cnt*mh*mh
+	if vh < 1e-3 {
 		return 0.0
 	}
+	dh := math.Sqrt(vh)
 	return (shn - cnt*mh*nStats.Mean) / (dh * nStats.Std)
 }
 

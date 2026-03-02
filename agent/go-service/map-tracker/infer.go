@@ -423,11 +423,10 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 	newScaled := make([]MapCache, 0, len(i.maps))
 	for _, m := range i.maps {
 		sImg := minicv.ImageScale(m.Img, scale)
-		sRGBA := minicv.ImageConvertRGBA(sImg)
 		newScaled = append(newScaled, MapCache{
 			Name:     m.Name,
-			Img:      sRGBA,
-			Integral: minicv.GetIntegralArray(sRGBA),
+			Img:      sImg,
+			Integral: minicv.GetIntegralArray(sImg),
 			OffsetX:  m.OffsetX,
 			OffsetY:  m.OffsetY,
 		})
