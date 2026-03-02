@@ -483,7 +483,6 @@
         "AutoExtractSeedAny": { // 适用于选择作物任务中任意选项的是否自动提取基核的选项
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
-            "description": "$option.AutoExtrachSeedAny.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -497,41 +496,17 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SeedEmpty": {
-                            "enabled": true
-                        },
-                        "SortBy": {
-                            "expected": [
-                                "默认",
-                                "拥有数量",
-                                "品质",
-                                "預設",
-                                "持有數量",
-                                "品質",
-                                "デフォルト",
-                                "総在庫",
-                                "品質",
-                                "Default",
-                                "Amount Owned",
-                                "Quality"
-                            ]
-                        },
-                        "ChooseSortBy": {
-                            "expected": [
-                                "基核数量",
-                                "基核數量",
-                                "基核数",
-                                "Amount of Seeds"
-                            ]
-                        },
-                        "SortOrder": {
-                            "enabled": true,
-                            "expected": [
-                                "降序",
-                                "降序",
-                                "DESC",
-                                "降順"
-                            ]
+                        "SelectGrow": {
+                            "recognition": {
+                                "type": "And",
+                                "param": {
+                                    "box_index": 1,
+                                    "all_of": [
+                                        "SelectGrowTarget",
+                                        "CheckGrowTargetEmpty"
+                                    ]
+                                }
+                            }
                         },
                         "ExtractSeed": {
                             "next": [
@@ -542,7 +517,11 @@
                         "NoMaterials": {
                             "next": []
                         }
-                    }
+                    },
+                    "option": [
+                        "SortBy",
+                        "SortOrder"
+                    ]
                 }
             ]
         },
@@ -575,6 +554,7 @@
                     "label": "$option.SortBy.cases.Default.label",
                     "pipeline_override": {
                         "SortBy": {
+                            "enabled": true,
                             "expected": [
                                 "拥有数量",
                                 "基核数量",
@@ -608,6 +588,7 @@
                     "label": "$option.SortBy.cases.AmountOwned.label",
                     "pipeline_override": {
                         "SortBy": {
+                            "enabled": true,
                             "expected": [
                                 "默认",
                                 "基核数量",
@@ -638,6 +619,7 @@
                     "label": "$option.SortBy.cases.AmountOfSeeds.label",
                     "pipeline_override": {
                         "SortBy": {
+                            "enabled": true,
                             "expected": [
                                 "默认",
                                 "拥有数量",
@@ -668,6 +650,7 @@
                     "label": "$option.SortBy.cases.Quality.label",
                     "pipeline_override": {
                         "SortBy": {
+                            "enabled": true,
                             "expected": [
                                 "默认",
                                 "拥有数量",

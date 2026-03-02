@@ -26,7 +26,7 @@
         ]
     },
     "SelectGrowTarget": {
-        "doc": "选择培养对象",
+        "doc": "选择培养目标",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -43,6 +43,19 @@
                     "輕紅柱狀菌"
                 ]
             }
+        }
+    },
+    "SelectGrow": {
+        "doc": "选择培养目标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "SelectGrowTarget"
+                    //"CheckGrowTargetEmpty"
+                ]
+            }
         },
         "action": {
             "type": "Click"
@@ -54,19 +67,21 @@
             "InGrowthChamber"
         ]
     },
-    "NeedExtractSeed": {
-        "doc": "需要提取基核,返回上一层处理",
+    "CheckGrowTargetEmpty": {
+        "doc": "检查选择的培养对象是否为空",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    747,
-                    481,
-                    350,
-                    205
+                "roi": "SelectGrowTarget",
+                "roi_offset": [
+                    25,
+                    43,
+                    -32,
+                    1
                 ],
+                "only_rec": true,
                 "expected": [
-                    "前往提取基核"
+                    "^([1-9][0-9]*)[/|1\\]([0-9]+)([+1T十]?)$"
                 ]
             }
         }
@@ -259,8 +274,7 @@
         "next": [
             "[JumpBack]SortBy",
             "[JumpBack]SortOrder",
-            "SeedEmpty",
-            "[JumpBack]SelectGrowTarget",
+            "[JumpBack]SelectGrow",
             "[JumpBack]InSelectGrowSwipe",
             "InGrowthChamber"
         ]
