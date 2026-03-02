@@ -227,7 +227,9 @@
                         }
                     },
                     "option": [
-                        "AutoExtractSeedAny"
+                        "AutoExtractSeedAny",
+                        "SortBy",
+                        "SortOrder"
                     ]
                 },
                 {
@@ -487,11 +489,7 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {},
-                    "option": [
-                        "SortBy",
-                        "SortOrder"
-                    ]
+                    "pipeline_override": {}
                 },
                 {
                     "name": "No",
@@ -509,19 +507,10 @@
                             }
                         },
                         "ExtractSeed": {
-                            "next": [
-                                "GrayCancelButton",
-                                "NoMaterials"
-                            ]
-                        },
-                        "NoMaterials": {
+                            "action": "DoNothing",
                             "next": []
                         }
-                    },
-                    "option": [
-                        "SortBy",
-                        "SortOrder"
-                    ]
+                    }
                 }
             ]
         },
