@@ -89,6 +89,36 @@
             "SellProductOutpostDone"
         ]
     },
+    "SellProductZeroMoney": {
+        "focus": {
+            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+        },
+        "doc": "调度券余量为0",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    // 不足
+                    "不足",
+                    "不足",
+                    "Insufficient",
+                    "insufficient",
+                    "不足",
+                    "거점 관리권 보유량 부족"
+                ],
+                "roi": [
+                    900,
+                    611,
+                    350,
+                    77
+                ]
+            }
+        },
+        "next": [
+            "SellProductOutpostDone"
+        ]
+    },
+
     "SellProductChangeProduct": {
         "doc": "识别更换货品并点击，进入更换UI",
         "recognition": {
@@ -170,8 +200,88 @@
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
-            "SellProductClickBarRight",
-            "SellProductDragBar"
+            "SellProductClickBarRightAfterChange",
+            "SellProductDragBarAfterChange"
+        ]
+    },
+    "SellProductClickBarRightAfterChange": {
+        "doc": "换货后点击进度条最右侧",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBarRight.png"
+                ],
+                "roi": [
+                    1115,
+                    507,
+                    88,
+                    103
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    20,
+                    -20,
+                    -40
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                1210,
+                554,
+                45,
+                39
+            ]
+        },
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductSell"
+        ]
+    },
+    "SellProductDragBarAfterChange": {
+        "doc": "换货后备选方案-滑动滑动条",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SellProduct/SellProductBar.png"
+                ],
+                "roi": [
+                    1000,
+                    500,
+                    200,
+                    150
+                ]
+            }
+        },
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "end_offset": [
+                    [
+                        0,
+                        0,
+                        400,
+                        0
+                    ]
+                ],
+                "duration": [
+                    500
+                ]
+            }
+        },
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductSell"
         ]
     },
     "SellProductZeroProductRetry": {
@@ -183,35 +293,6 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
-        "next": [
-            "SellProductOutpostDone"
-        ]
-    },
-    "SellProductZeroMoney": {
-        "focus": {
-            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
-        },
-        "doc": "调度券余量为0",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    // 不足
-                    "不足",
-                    "不足",
-                    "Insufficient",
-                    "insufficient",
-                    "不足",
-                    "거점 관리권 보유량 부족"
-                ],
-                "roi": [
-                    900,
-                    611,
-                    350,
-                    77
-                ]
-            }
-        },
         "next": [
             "SellProductOutpostDone"
         ]
