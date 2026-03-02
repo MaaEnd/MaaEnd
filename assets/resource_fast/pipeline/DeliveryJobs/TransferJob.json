@@ -18,6 +18,7 @@
             "任務確認",
             "임무 확인"
         ],
+        "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
             "DeliveryJobsClickTransferJob"
