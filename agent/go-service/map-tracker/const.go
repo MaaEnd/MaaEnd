@@ -22,6 +22,14 @@ const (
 	ROT_RADIUS   = 12
 )
 
+// Time-series empirical optimization configuration
+const (
+	PENDING_TAKEOVER_TIME_THRESHOLD  = 1000
+	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
+	CONVINCED_DISTANCE_THRESHOLD     = 30
+	CONVINCED_VALID_TIME_THRESHOLD   = 500
+)
+
 // Resource paths
 const (
 	MAP_DIR      = "image/MapTracker/map"

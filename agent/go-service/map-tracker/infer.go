@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/draw"
 	_ "image/png"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -31,6 +32,7 @@ type MapTrackerInferResult struct {
 	RotConf   float64 `json:"rotConf"`   // Rotation confidence
 	LocTimeMs int64   `json:"locTimeMs"` // Location inference time in ms
 	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
+	InferMode string  `json:"inferMode"` // Inference mode (e.g., "FastSearch", "FullSearch")
 }
 
 // MapTrackerInferParam represents the custom_recognition_param for MapTrackerInfer
@@ -70,6 +72,46 @@ type MapTrackerInfer struct {
 	scaledMaps  []MapCache
 }
 
+type InferState struct {
+	convinced              InferLocationRawResult
+	convincedLastHitTime   int64
+	convincedMoveDirection float64
+	convincedMoveSpeed     float64
+
+	pending             InferLocationRawResult
+	pendingFirstHitTime int64
+	pendingHitCount     int
+
+	mu sync.Mutex
+}
+
+var globalInferState InferState
+
+type InferLocationHitMode string
+
+const (
+	FULL_SEARCH_HIT InferLocationHitMode = "FullSearchHit"
+	FAST_SEARCH_HIT InferLocationHitMode = "FastSearchHit"
+	VIRTUAL_HIT     InferLocationHitMode = "VirtualHit"
+)
+
+type InferLocationRawResult struct {
+	mapName       string
+	x             int
+	y             int
+	conf          float64
+	source        InferLocationHitMode
+	elapsedTimeMs int64
+}
+
+var emptyLocationRawResult = InferLocationRawResult{"", 0, 0, 0.0, "", 0}
+
+type InferRotationRawResult struct {
+	rot           int
+	conf          float64
+	elapsedTimeMs int64
+}
+
 //go:embed messages/inference_failed.html
 var inferenceFailedHTML string
 
@@ -94,7 +136,6 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	locScale := param.Precision
 	var rotStep int
 	if param.Precision < 0.3 {
 		rotStep = 12
@@ -118,32 +159,136 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	// Perform location inference
-	t0 := time.Now()
+	// Perform inference
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
-	locX, locY, locConf, mapName := i.inferLocation(screenImg, locScale, mapNameRegex)
-	locTime := time.Since(t0)
+	loc := i.inferLocation(screenImg, mapNameRegex, param)
+	rot := i.inferRotation(screenImg, rotStep)
 
-	// Perform rotation inference (if pointer is loaded)
-	rot, rotConf := 0, 0.0
-	t1 := time.Now()
-	rot, rotConf = i.inferRotation(screenImg, rotStep)
-	rotTime := time.Since(t1)
+	// Determine if recognition hit natively
+	internalLocHit := loc != nil && loc.conf > param.Threshold
+	internalRotHit := rot != nil && rot.conf > param.Threshold
 
-	// Build result
-	result := MapTrackerInferResult{
-		MapName:   mapName,
-		X:         locX,
-		Y:         locY,
-		Rot:       rot,
-		LocConf:   locConf,
-		RotConf:   rotConf,
-		LocTimeMs: locTime.Milliseconds(),
-		RotTimeMs: rotTime.Milliseconds(),
+	// Final results (nil for now)
+	var finalLoc *InferLocationRawResult
+	var finalRot *InferRotationRawResult
+
+	globalInferState.mu.Lock()
+	nowMs := time.Now().UnixMilli()
+
+	// Process internal location hit
+	if internalLocHit {
+		isCloseToConvinced := func() bool {
+			if globalInferState.convinced.mapName == "" || globalInferState.convinced.mapName != loc.mapName {
+				return false
+			}
+			dx := float64(globalInferState.convinced.x - loc.x)
+			dy := float64(globalInferState.convinced.y - loc.y)
+			return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+		}
+
+		isCloseToPending := func() bool {
+			if globalInferState.pending.mapName == "" || globalInferState.pending.mapName != loc.mapName {
+				return false
+			}
+			dx := float64(globalInferState.pending.x - loc.x)
+			dy := float64(globalInferState.pending.y - loc.y)
+			return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
+		}
+
+		if isCloseToConvinced() {
+			// This hit is close to the currently convinced location
+			dt := nowMs - globalInferState.convincedLastHitTime
+			if dt > 0 {
+				dx := float64(loc.x - globalInferState.convinced.x)
+				dy := float64(loc.y - globalInferState.convinced.y)
+				dist := math.Hypot(dx, dy)
+				globalInferState.convincedMoveSpeed = dist / float64(dt)
+				globalInferState.convincedMoveDirection = math.Atan2(dy, dx)
+			}
+			globalInferState.convinced = *loc
+			globalInferState.convincedLastHitTime = nowMs
+			finalLoc = loc
+
+		} else if isCloseToPending() {
+			// This hit is close to the pending location
+			globalInferState.pending.x = loc.x
+			globalInferState.pending.y = loc.y
+			globalInferState.pendingHitCount++
+
+			if globalInferState.convinced.mapName == "" ||
+				nowMs-globalInferState.pendingFirstHitTime >= PENDING_TAKEOVER_TIME_THRESHOLD ||
+				globalInferState.pendingHitCount >= PENDING_TAKEOVER_COUNT_THRESHOLD {
+				// Do takeover (replace convinced with pending)
+				globalInferState.convinced = globalInferState.pending
+				globalInferState.convincedLastHitTime = nowMs
+				globalInferState.convincedMoveSpeed = 0
+				globalInferState.convincedMoveDirection = 0
+				globalInferState.pending = emptyLocationRawResult
+				globalInferState.pendingHitCount = 0
+				finalLoc = &globalInferState.convinced
+			}
+		} else {
+			// This hit is far from both convinced and pending locations, start a new pending
+			globalInferState.pending = *loc
+			globalInferState.pendingFirstHitTime = nowMs
+			globalInferState.pendingHitCount = 1
+		}
 	}
 
-	// Determine if recognition hit
-	hit := locConf > param.Threshold && rotConf > param.Threshold
+	if finalLoc == nil {
+		if globalInferState.convinced.mapName != "" && nowMs-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_THRESHOLD {
+			// This is a temporary miss, but we can generate a virtual result
+			dt := nowMs - globalInferState.convincedLastHitTime
+			sx := globalInferState.convincedMoveSpeed * math.Cos(globalInferState.convincedMoveDirection)
+			sy := globalInferState.convincedMoveSpeed * math.Sin(globalInferState.convincedMoveDirection)
+			vx := globalInferState.convinced.x + int(sx*float64(dt))
+			vy := globalInferState.convinced.y + int(sy*float64(dt))
+
+			finalLoc = &InferLocationRawResult{
+				mapName:       globalInferState.convinced.mapName,
+				x:             vx,
+				y:             vy,
+				conf:          0,
+				source:        VIRTUAL_HIT,
+				elapsedTimeMs: 0,
+			}
+		}
+	}
+
+	// Process internal rotation hit
+	if internalRotHit {
+		finalRot = rot
+	}
+
+	globalInferState.mu.Unlock()
+
+	finalHit := finalLoc != nil && finalRot != nil
+
+	if !finalHit {
+		log.Info().Bool("finalLocHit", finalLoc != nil).Bool("finalRotHit", finalRot != nil).Msg("Map tracking inference did not hit")
+		if param.Print {
+			maafocus.NodeActionStarting(ctx, inferenceFailedHTML)
+		}
+
+		// Return as not hit
+		return &maa.CustomRecognitionResult{
+			Box:    arg.Roi,
+			Detail: "",
+		}, false
+	}
+
+	// Build hit result
+	result := MapTrackerInferResult{
+		MapName:   finalLoc.mapName,
+		X:         finalLoc.x,
+		Y:         finalLoc.y,
+		Rot:       finalRot.rot,
+		LocConf:   finalLoc.conf,
+		RotConf:   finalRot.conf,
+		LocTimeMs: finalLoc.elapsedTimeMs,
+		RotTimeMs: finalRot.elapsedTimeMs,
+		InferMode: string(finalLoc.source),
+	}
 
 	// Serialize result to JSON
 	detailJSON, err := json.Marshal(result)
@@ -152,30 +297,22 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	log.Info().
-		Str("mapName", mapName).
-		Int("x", locX).
-		Int("y", locY).
-		Int("rot", rot).
-		Dur("locTime", locTime).
-		Dur("rotTime", rotTime).
-		Float64("locConf", locConf).
-		Float64("rotConf", rotConf).
-		Bool("hit", hit).
+	log.Info().Str("InferMode", result.InferMode).
+		Str("MapName", result.MapName).
+		Int("X", result.X).Int("Y", result.Y).
+		Int("Rot", result.Rot).
+		Float64("LocConf", result.LocConf).
+		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
-
 	if param.Print {
-		if hit {
-			maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, locX, locY, rot, mapName))
-		} else {
-			maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFailedHTML, locConf, rotConf))
-		}
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, rot, finalLoc.mapName))
 	}
 
+	// Return as hit
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(detailJSON),
-	}, hit
+	}, true
 }
 
 func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, error) {
@@ -347,33 +484,89 @@ func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 }
 
 // inferLocation infers the player's location on the map
-// Returns (x, y, confidence, mapName)
-func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, locScale float64, mapNameRegex *regexp.Regexp) (int, int, float64, string) {
+// Returns (x, y, confidence, mapName, inferMode)
+func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *regexp.Regexp, param *MapTrackerInferParam) *InferLocationRawResult {
+	t0 := time.Now()
+
 	// Use cached scaled maps
-	scaledMaps := i.getScaledMaps(locScale)
+	scale := param.Precision
+	scaledMaps := i.getScaledMaps(scale)
 	if len(scaledMaps) == 0 {
 		log.Warn().Msg("No maps available for matching")
-		return 0, 0, 0.0, "None"
+		return nil
 	}
 
-	// Crop mini-map area from screen
+	// Crop and scale mini-map area from screen
 	miniMap := minicv.ImageCropSquareByRadius(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
-
-	// Scale mini-map
-	miniMap = minicv.ImageScale(miniMap, locScale)
+	miniMap = minicv.ImageScale(miniMap, scale)
 	miniMapBounds := miniMap.Bounds()
 	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
 
 	// Precompute needle (minimap) statistics for all matches
 	miniStats := minicv.GetImageStats(miniMap)
 	if miniStats.Std < 1e-6 {
-		return 0, 0, 0.0, "None"
+		return nil
+	}
+
+	// Time-series empirical optimization
+	// If the user is in a stable state (convinced location updated recently, no pending drifts),
+	// try to match the convinced map around the convinced location first.
+	globalInferState.mu.Lock()
+
+	isStable := globalInferState.convinced.mapName != "" &&
+		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_THRESHOLD) &&
+		globalInferState.pendingHitCount == 0
+	stableMapName := globalInferState.convinced.mapName
+	stableLocX := globalInferState.convinced.x
+	stableLocY := globalInferState.convinced.y
+
+	globalInferState.mu.Unlock()
+
+	// Try fast search if stable
+	if isStable {
+		for _, mapData := range scaledMaps {
+			if mapData.Name == stableMapName {
+				expectedCenterX := int(float64(stableLocX-mapData.OffsetX) * scale)
+				expectedCenterY := int(float64(stableLocY-mapData.OffsetY) * scale)
+				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
+
+				matchX, matchY, matchVal := MatchTemplateAround(mapData.Img, mapData.Integral, miniMap, miniStats, expectedCenterX, expectedCenterY, searchRadius)
+
+				if matchVal > param.Threshold {
+					// Fast search hit
+					bestX := int(float64(matchX+miniMapW/2)/scale) + mapData.OffsetX
+					bestY := int(float64(matchY+miniMapH/2)/scale) + mapData.OffsetY
+					elapsedTimeMs := time.Since(t0).Milliseconds()
+					log.Debug().Float64("conf", matchVal).
+						Str("map", stableMapName).
+						Int("X", bestX).
+						Int("Y", bestY).
+						Int64("elapsedTimeMs", elapsedTimeMs).
+						Msg("Internal fast search location inference completed")
+
+					return &InferLocationRawResult{
+						mapName:       mapData.Name,
+						x:             bestX,
+						y:             bestY,
+						conf:          matchVal,
+						source:        FAST_SEARCH_HIT,
+						elapsedTimeMs: elapsedTimeMs,
+					}
+				}
+
+				// If fast search fails (low confidence), fallback to full search
+				log.Debug().Float64("conf", matchVal).Msg("Empirical fast search miss")
+				break
+			}
+		}
+	} else {
+		log.Debug().Msg("Empirical fast search skipped, not in stable state")
 	}
 
 	// Match against all maps
 	bestVal := -1.0
 	bestX, bestY := 0, 0
-	bestMapName := "None"
+	bestMapName := ""
 
 	triedCount := 0
 
@@ -392,8 +585,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, locScale float64,
 			bestVal = matchVal
 			// Convert top-left corner to center position
 			// Then convert back to original scale and add map offset
-			bestX = int(float64(matchX+miniMapW/2)/locScale) + mapData.OffsetX
-			bestY = int(float64(matchY+miniMapH/2)/locScale) + mapData.OffsetY
+			bestX = int(float64(matchX+miniMapW/2)/scale) + mapData.OffsetX
+			bestY = int(float64(matchY+miniMapH/2)/scale) + mapData.OffsetY
 			bestMapName = mapData.Name
 		}
 	}
@@ -401,13 +594,24 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, locScale float64,
 	if triedCount == 0 {
 		log.Warn().Str("regex", mapNameRegex.String()).Msg("No maps matched the regex")
 	}
+	elapsedTimeMs := time.Since(t0).Milliseconds()
 
 	log.Debug().Int("triedMaps", triedCount).
-		Float64("bestVal", bestVal).
+		Float64("bestConf", bestVal).
 		Str("bestMap", bestMapName).
-		Msg("Location inference completed")
+		Int("X", bestX).
+		Int("Y", bestY).
+		Int64("elapsedTimeMs", elapsedTimeMs).
+		Msg("Internal location inference completed")
 
-	return bestX, bestY, bestVal, bestMapName
+	return &InferLocationRawResult{
+		mapName:       bestMapName,
+		x:             bestX,
+		y:             bestY,
+		conf:          bestVal,
+		source:        FULL_SEARCH_HIT,
+		elapsedTimeMs: time.Since(t0).Milliseconds(),
+	}
 }
 
 // getScaledMaps returns cached scaled maps or recomputes them
@@ -438,9 +642,11 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 
 // inferRotation infers the player's rotation angle
 // Returns (angle, confidence)
-func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) (int, float64) {
+func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
+	t0 := time.Now()
+
 	if i.pointer == nil {
-		return 0, 0.0
+		return nil
 	}
 
 	// Crop pointer area from screen
@@ -449,7 +655,7 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) (int
 	// Precompute needle (pointer) statistics
 	pointerStats := minicv.GetImageStats(i.pointer)
 	if pointerStats.Std < 1e-6 {
-		return 0, 0.0
+		return nil
 	}
 
 	// Try all rotation angles
@@ -472,6 +678,17 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) (int
 
 	// Convert to clockwise angle
 	bestAngle = (360 - bestAngle) % 360
+	elapsedTimeMs := time.Since(t0).Milliseconds()
 
-	return bestAngle, maxVal
+	log.Debug().
+		Float64("bestConf", maxVal).
+		Int("bestAngle", bestAngle).
+		Int64("elapsedTimeMs", elapsedTimeMs).
+		Msg("Internal rotation inference completed")
+
+	return &InferRotationRawResult{
+		rot:           bestAngle,
+		conf:          maxVal,
+		elapsedTimeMs: time.Since(t0).Milliseconds(),
+	}
 }

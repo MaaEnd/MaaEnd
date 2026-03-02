@@ -71,6 +71,83 @@ func MatchTemplateOptimized(
 	return fx, fy, fm
 }
 
+func MatchTemplateAround(
+	hRGBA *image.RGBA,
+	hInt minicv.IntegralArray,
+	nRGBA *image.RGBA,
+	nStats minicv.StatsResult,
+	cx, cy, radius int,
+) (int, int, float64) {
+	hW, hH, nW, nH := hRGBA.Rect.Dx(), hRGBA.Rect.Dy(), nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
+	if nW > hW || nH > hH {
+		return 0, 0, 0.0
+	}
+
+	// Calculate search bounds
+	targetX := cx - nW/2
+	targetY := cy - nH/2
+
+	minX := max(0, targetX-radius)
+	minY := max(0, targetY-radius)
+	maxX := min(hW-nW, targetX+radius)
+	maxY := min(hH-nH, targetY+radius)
+
+	if minX > maxX || minY > maxY {
+		return 0, 0, 0.0
+	}
+
+	type result struct {
+		x, y int
+		s    float64
+	}
+
+	numWorkers, step := 2, 2 // Reduced workers and step for smaller area
+	if (maxX-minX)*(maxY-minY) > 10000 {
+		numWorkers, step = 6, 3
+	}
+
+	resChan := make(chan result, numWorkers)
+	rows := maxY - minY + 1
+
+	for i := 0; i < numWorkers; i++ {
+		go func(id int) {
+			lx, ly, lm := 0, 0, -1.0
+			for y := minY + id*step; y < minY+rows; y += numWorkers * step {
+				if y > maxY {
+					break
+				}
+				for x := minX; x <= maxX; x += step {
+					s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+					if s > lm {
+						lm, lx, ly = s, x, y
+					}
+				}
+			}
+			resChan <- result{lx, ly, lm}
+		}(i)
+	}
+
+	bc := result{minX, minY, -1.0}
+	for i := 0; i < numWorkers; i++ {
+		r := <-resChan
+		if r.s > bc.s {
+			bc = r
+		}
+	}
+
+	fm, fx, fy := bc.s, bc.x, bc.y
+	// Fine-tuning pass around the best result
+	for y := max(minY, bc.y-step+1); y < min(maxY+1, bc.y+step); y++ {
+		for x := max(minX, bc.x-step+1); x < min(maxX+1, bc.x+step); x++ {
+			s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+			if s > fm {
+				fm, fx, fy = s, x, y
+			}
+		}
+	}
+	return fx, fy, fm
+}
+
 func computeNCCFast(hRGBA *image.RGBA, hInt minicv.IntegralArray, nRGBA *image.RGBA, ox, oy int, nStats minicv.StatsResult) float64 {
 	nW, nH := nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
 	hp, np, hs, ns := hRGBA.Pix, nRGBA.Pix, hRGBA.Stride, nRGBA.Stride
