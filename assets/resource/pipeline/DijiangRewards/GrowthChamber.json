@@ -37,10 +37,9 @@
                     383
                 ],
                 "expected": [
-                    "轻红柱状菌",
-                    "Pink Bolete",
-                    "薄紅茸",
-                    "輕紅柱狀菌"
+                    "菌",
+                    "石",
+                    "叶"
                 ]
             }
         }
@@ -50,7 +49,6 @@
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "SelectGrowTarget"
                     //"CheckGrowTargetEmpty"
@@ -74,14 +72,14 @@
             "param": {
                 "roi": "SelectGrowTarget",
                 "roi_offset": [
-                    25,
-                    43,
-                    -32,
-                    1
+                    31,
+                    41,
+                    23,
+                    0
                 ],
                 "only_rec": true,
                 "expected": [
-                    "^([1-9][0-9]*)[/|1\\]([0-9]+)([+1T十]?)$"
+                    "^([1-9][0-9]*)([/|\\]]).*$"
                 ]
             }
         }
