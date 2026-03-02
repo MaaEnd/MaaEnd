@@ -24,10 +24,10 @@ const (
 
 // Time-series empirical optimization configuration
 const (
-	PENDING_TAKEOVER_TIME_THRESHOLD  = 1000
+	PENDING_TAKEOVER_TIME_MS         = 1000
 	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
 	CONVINCED_DISTANCE_THRESHOLD     = 30
-	CONVINCED_VALID_TIME_THRESHOLD   = 500
+	CONVINCED_VALID_TIME_MS          = 500
 )
 
 // Resource paths

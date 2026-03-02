@@ -32,7 +32,7 @@ type MapTrackerInferResult struct {
 	RotConf     float64 `json:"rotConf"`     // Rotation confidence
 	LocTimeMs   int64   `json:"locTimeMs"`   // Location inference time in ms
 	RotTimeMs   int64   `json:"rotTimeMs"`   // Rotation inference time in ms
-	InferMode   string  `json:"inferMode"`   // Inference mode (e.g., "FastSearch", "FullSearch")
+	InferMode   string  `json:"inferMode"`   // Inference mode ("FullSearchHit", "FastSearchHit", "VirtualHit")
 	InferTimeMs int64   `json:"inferTimeMs"` // Total inference time in ms
 }
 
@@ -234,7 +234,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			globalInferState.pendingHitCount++
 
 			if globalInferState.convinced.mapName == "" ||
-				nowMs-globalInferState.pendingFirstHitTime >= PENDING_TAKEOVER_TIME_THRESHOLD ||
+				nowMs-globalInferState.pendingFirstHitTime >= PENDING_TAKEOVER_TIME_MS ||
 				globalInferState.pendingHitCount >= PENDING_TAKEOVER_COUNT_THRESHOLD {
 				// Do takeover (replace convinced with pending)
 				globalInferState.convinced = globalInferState.pending
@@ -254,7 +254,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	}
 
 	if finalLoc == nil {
-		if globalInferState.convinced.mapName != "" && nowMs-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_THRESHOLD {
+		if globalInferState.convinced.mapName != "" && nowMs-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS {
 			// This is a temporary miss, but we can generate a virtual result
 			dt := nowMs - globalInferState.convincedLastHitTime
 			sx := globalInferState.convincedMoveSpeed * math.Cos(globalInferState.convincedMoveDirection)
@@ -326,7 +326,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
 	if param.Print {
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, rot, finalLoc.mapName))
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName))
 	}
 
 	// Return as hit
@@ -504,8 +504,8 @@ func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
 	return rgba, nil
 }
 
-// inferLocation infers the player's location on the map
-// Returns (x, y, confidence, mapName, inferMode)
+// inferLocation infers the player's location on the map.
+// Returns a raw result with mapName, x/y (map coordinates), conf, source, and elapsedTimeMs.
 func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *regexp.Regexp, param *MapTrackerInferParam) *InferLocationRawResult {
 	t0 := time.Now()
 
@@ -535,7 +535,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	globalInferState.mu.Lock()
 
 	isStable := globalInferState.convinced.mapName != "" &&
-		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_THRESHOLD) &&
+		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
 		globalInferState.pendingHitCount == 0
 	stableMapName := globalInferState.convinced.mapName
 	stableLocX := globalInferState.convinced.x
@@ -544,7 +544,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	globalInferState.mu.Unlock()
 
 	// Try fast search if stable
-	if isStable {
+	if isStable && mapNameRegex.MatchString(stableMapName) {
 		for _, mapData := range scaledMaps {
 			if mapData.Name == stableMapName {
 				expectedCenterX := int(float64(stableLocX-mapData.OffsetX) * scale)
@@ -581,7 +581,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			}
 		}
 	} else {
-		log.Debug().Msg("Empirical fast search skipped, not in stable state")
+		log.Debug().Msg("Empirical fast search skipped, not in stable state or regex mismatch")
 	}
 
 	// Match against all maps in parallel
