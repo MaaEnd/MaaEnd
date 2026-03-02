@@ -20,20 +20,21 @@
     },
     "AutoEssenceCheckGetAward": {
         "next": [
-            "AutoEssenceSkipGetAward",
+            "AutoEssenceSkipGetAwardPre",
             "AutoEssenceClickTriggerButtonPre"
         ]
     },
-    "AutoEssenceAltKeyUp": {
+    "AutoEssenceSkipGetAwardPre": {
         "action": {
             "param": {
                 "key": 18
             },
-            "type": "KeyUp"
+            "type": "KeyDown"
         },
         "next": [
-            "[Anchor]AutoEssenceAfterAltKeyUp"
-        ]
+            "AutoEssenceSkipGetAward"
+        ],
+        "timeout": 1000
     },
     "AutoEssenceSkipGetAward": {
         "enabled": true,
@@ -44,7 +45,7 @@
             "Node.Action.Starting": "👆跳过领取，直接返回"
         },
         "next": [
-            "AutoEssenceOnSuccess"
+            "AutoEssenceSkipGetAwardAfter"
         ],
         "recognition": {
             "param": {
@@ -57,6 +58,51 @@
                 "expected": "放弃奖励并重置"
             },
             "type": "OCR"
+        }
+    },
+    "AutoEssenceSkipGetAwardAfter": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "AutoEssenceSkipGetAwardAltKeyUp"
+        ]
+    },
+    "AutoEssenceSkipGetAwardAltKeyUp": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "AutoEssenceOnSuccess"
+        ]
+    },
+    "AutoEssenceSkipGetAwardConfirm": {
+        "action": {
+            "type": "Click"
+        },
+        "focus": {
+            "Node.Action.Starting": "👆点击确认放弃奖励按钮"
+        },
+        "next": [
+            "AutoEssenceSkipGetAwardAfter"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    597,
+                    345,
+                    317,
+                    196
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            },
+            "type": "TemplateMatch"
         }
     },
     "AutoEssenceClickTriggerButtonPre": {
@@ -100,6 +146,17 @@
             },
             "type": "TemplateMatch"
         }
+    },
+    "AutoEssenceAltKeyUp": {
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "next": [
+            "AutoEssenceOnSuccess"
+        ]
     },
     "AutoEssenceClickTriggerButtonFailedPre": {
         "action": {
