@@ -8,6 +8,7 @@
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         },
         "next": [
+            "AutoEssenceSkipGetAwardEntry",
             "AutoEssenceClickEssenceStartButton",
             "AutoEssenceChooseScaling1",
             "VFTheHubLocationAssertion",
@@ -21,7 +22,7 @@
     "AutoEssenceCheckGetAward": {
         "next": [
             "AutoEssenceSkipGetAwardEntry",
-            "AutoEssenceClickTriggerButtonPre"
+            "AutoEssenceGetAwardEntry"
         ]
     },
     "AutoEssenceOnSuccess": {

@@ -1,4 +1,13 @@
 {
+    "AutoEssenceGetAwardEntry": {
+        "enabled": true,
+        "focus": {
+            "Node.Action.Starting": "🔀 奖励领取流程"
+        },
+        "next": [
+            "AutoEssenceClickTriggerButtonPre"
+        ]
+    },
     "AutoEssenceClickTriggerButtonPre": {
         "action": {
             "param": {

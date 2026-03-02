@@ -2,13 +2,12 @@
     "AutoEssenceSkipGetAwardEntry": {
         "enabled": true,
         "focus": {
-            "Node.Action.Starting": "🔀 入口：跳过领取流程"
+            "Node.Action.Starting": "🔀 跳过领取流程"
         },
         "next": [
             "AutoEssenceSkip_KeyDown"
         ]
     },
-
     "AutoEssenceSkip_KeyDown": {
         "action": {
             "param": {
@@ -21,7 +20,6 @@
         ],
         "timeout": 1000
     },
-
     "AutoEssenceSkip_Click": {
         "enabled": true,
         "action": {
@@ -46,7 +44,6 @@
             "type": "OCR"
         }
     },
-
     "AutoEssenceSkip_KeyUp": {
         "action": {
             "param": {

@@ -54,6 +54,9 @@
                     "pipeline_override": {
                         "AutoEssenceSkipGetAwardEntry": {
                             "enabled": false
+                        },
+                        "AutoEssenceGetAwardEntry": {
+                            "enabled": true
                         }
                     }
                 },
@@ -62,6 +65,9 @@
                     "pipeline_override": {
                         "AutoEssenceSkipGetAwardEntry": {
                             "enabled": true
+                        },
+                        "AutoEssenceGetAwardEntry": {
+                            "enabled": false
                         }
                     }
                 }
@@ -83,12 +89,8 @@
             ],
             "pipeline_override": {
                 "AutoEssenceMain": {
-                    "max_hit": "{AutoEssenceRepeatCountValue}"
-                },
-                "AutoEssenceOnSuccess": {
-                    "next": [
-                        "AutoEssenceMain"
-                    ]
+                    "repeat": "{AutoEssenceRepeatCountValue}",
+                    "repeat_delay": 1000
                 }
             }
         }
