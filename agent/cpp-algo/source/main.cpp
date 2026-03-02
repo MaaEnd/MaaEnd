@@ -5,6 +5,7 @@
 
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
+#include "MapLocator/MapLocateAction.h"
 
 int main(int argc, char** argv)
 {
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
     MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 
