@@ -209,7 +209,7 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         },
         "next": [
-            "SellProductCanSell"
+            "SellProductCanSellAfterChange"
         ]
     },
     "SellProductOutpostDone": {
