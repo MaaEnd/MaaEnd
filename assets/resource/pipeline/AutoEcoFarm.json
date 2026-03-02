@@ -5,6 +5,7 @@
             //"AutoEcoFarmFindTarget" //测试用记得删了
             //"MapTrackerTestLoop", //测试用记得删了
             //"AutoEcoFarmOpenBag" //测试用记得删了
+            //"AutoEcoFarmInOriginiumSciencePark2"
             "AutoEcoFarmFindValleyIVEcoFarm", //先检查一下源石研究园的生态农场有无种植农作物
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark" //万能跳转到源石研究园地图，配合上面那个检查农作物的任务，如果没有农作物就会跳转到源石研究园地图，如果有农作物就会继续往下走
         ]
@@ -18,10 +19,10 @@
                 {
                     "map_name": "map01_lv005",
                     "target": [
-                        523,
-                        241,
-                        20,
-                        20
+                        423,
+                        141,
+                        220,
+                        220
                     ]
                 }
             ]
@@ -84,12 +85,12 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    827,
-                    331,
-                    460,
-                    363
+                    0,
+                    0,
+                    1280,
+                    720
                 ],
-                "expected": "[生|态|种|植|区]",
+                "expected": "[生|态|种|植]",
                 "threshold": 0.3
             }
         },
@@ -97,20 +98,32 @@
             "type": "Scroll",
             "param": {
                 "target": true,
-                "target_offset": [
-                    100,
-                    60,
-                    0,
-                    0
-                ],
                 "dy": 480
             }
         },
-        "repeat": 5,
-        "repeat_delay": 200,
-        "repeat_wait_freezes": 200,
         "next": [
-            "AutoEcoFarmMoveMouseBeforeFindFarmland" //找到生态农场后继续寻找农田，先移动鼠标避免干扰
+            "AutoEcoFarmFindFarmland", //找到农田就下一步，没找到再拉缩放
+            "AutoEcoFarmPullValleyIVEcoFarmToCenter",
+            "AutoEcoFarmMoveMouseBeforeFindFarmland" //要是一直失败就先移动鼠标避免干扰再找
+        ]
+    },
+    "AutoEcoFarmPullValleyIVEcoFarmToCenter": {
+        "doc": "将生态园拉到屏幕中间",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": "AutoEcoFarmFindValleyIVEcoFarm",
+                "end": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
+        },
+        "max_hit": 5, //循环10次
+        "next": [
+            "AutoEcoFarmFindValleyIVEcoFarm"
         ]
     },
     "AutoEcoFarmMoveMouseBeforeFindFarmland": {
@@ -142,7 +155,7 @@
                     300,
                     300
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png"
             }
         },
         "action": {
@@ -150,7 +163,8 @@
         },
         "next": [
             "AutoEcoFarmAlreadySetTarget", //如果已经设定好了就直接下一步
-            "AutoEcoFarmSetTarget"
+            "AutoEcoFarmSetTarget",
+            "[JumpBack]AutoEcoFarmMapSlectFarm" //都没找到的话还得识别一下设备重叠弹出的多选框，选项有田块字样的
         ]
     },
     "AutoEcoFarmAlreadySetTarget": {
@@ -174,6 +188,25 @@
             "AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
             "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
         ]
+    },
+    "AutoEcoFarmMapSlectFarm": {
+        "doc": "识别是否有多选情况，识别初次点击点附近有无田块字样",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "AutoEcoFarmFindFarmland",
+                "roi_offset": [
+                    -150,
+                    -150,
+                    300,
+                    300
+                ],
+                "expected": "田块"
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "AutoEcoFarmSetTarget": {
         "doc": "点击追踪按钮，设定追踪",
@@ -206,7 +239,12 @@
         "action": {
             "type": "TouchMove",
             "param": {
-                "target": "0,0,0,0"
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
             }
         },
         "max_hit": 3 //默认为3，超过一次就不要再试了免得死循环
@@ -637,7 +675,7 @@
             }
         },
         "next": [
-            "AutoEcoFarmFindMenuIcon2",
+            "AutoEcoFarmFindMenuIcon2"
             //"AutoEcoFarmCancelMove" //没识别到菜单则停止移动并重新掏出洒水机再次尝试找高亮
         ]
     },
