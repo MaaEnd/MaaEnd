@@ -2,12 +2,14 @@
 
 #include "MapTypes.h"
 #include <chrono>
-#include <optional>
 #include <opencv2/opencv.hpp>
+#include <optional>
 
-namespace maplocator {
+namespace maplocator
+{
 
-class MotionTracker {
+class MotionTracker
+{
 public:
     explicit MotionTracker(const TrackingConfig& cfg);
 
@@ -21,16 +23,20 @@ public:
     cv::Rect predictNextSearchRect(double trackScale, int templCols, int templRows, std::chrono::steady_clock::time_point now) const;
 
     std::optional<MapPosition> getLastPos() const { return lastKnownPos; }
+
     int getLostCount() const { return lostTrackingCount; }
-    
+
     double getPredictedX(std::chrono::steady_clock::time_point now) const;
     double getPredictedY(std::chrono::steady_clock::time_point now) const;
 
     double getVelocityX() const { return velocityX; }
+
     double getVelocityY() const { return velocityY; }
+
     std::chrono::steady_clock::time_point getLastTime() const { return lastTime; }
 
-    void clearVelocity() {
+    void clearVelocity()
+    {
         velocityX = 0;
         velocityY = 0;
     }

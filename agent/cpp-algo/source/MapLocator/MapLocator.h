@@ -1,13 +1,15 @@
 #pragma once
 
 #include "MapTypes.h"
+#include <MaaUtils/NoWarningCV.hpp>
 #include <chrono>
 #include <memory>
-#include <MaaUtils/NoWarningCV.hpp>
 
-namespace maplocator {
+namespace maplocator
+{
 
-class MapLocator {
+class MapLocator
+{
 public:
     MapLocator();
     ~MapLocator();
@@ -16,7 +18,7 @@ public:
     bool isInitialized() const;
     LocateResult locate(const cv::Mat& minimap, const LocateOptions& options = LocateOptions());
 
-    void resetTrackingState(); 
+    void resetTrackingState();
 
     std::optional<MapPosition> getLastKnownPos() const;
 

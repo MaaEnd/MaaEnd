@@ -1,12 +1,19 @@
 #include "MotionTracker.h"
 #include <algorithm>
 
-namespace maplocator {
+namespace maplocator
+{
 
 MotionTracker::MotionTracker(const TrackingConfig& cfg)
-    : trackingCfg(cfg), lostTrackingCount(MaxLostTrackingCount + 1), velocityX(0), velocityY(0) {}
+    : trackingCfg(cfg)
+    , lostTrackingCount(MaxLostTrackingCount + 1)
+    , velocityX(0)
+    , velocityY(0)
+{
+}
 
-void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock::time_point now) {
+void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock::time_point now)
+{
     if (lastKnownPos.has_value() && lostTrackingCount == 0) {
         std::chrono::duration<double> dt = now - lastTime;
         double dtSec = dt.count();
@@ -24,42 +31,58 @@ void MotionTracker::update(const MapPosition& newPos, std::chrono::steady_clock:
     lostTrackingCount = 0;
 }
 
-void MotionTracker::hold(const MapPosition& oldPos, std::chrono::steady_clock::time_point now) {
+void MotionTracker::hold(const MapPosition& oldPos, std::chrono::steady_clock::time_point now)
+{
     lastKnownPos = oldPos;
     lastTime = now;
     lostTrackingCount++;
 }
 
-void MotionTracker::markLost(int increment) {
+void MotionTracker::markLost(int increment)
+{
     lostTrackingCount += increment;
 }
 
-void MotionTracker::forceLost() {
+void MotionTracker::forceLost()
+{
     lostTrackingCount = MaxLostTrackingCount + 100;
     lastKnownPos = std::nullopt;
 }
 
-bool MotionTracker::isTracking(int maxAllowedLost) const {
+bool MotionTracker::isTracking(int maxAllowedLost) const
+{
     return lastKnownPos.has_value() && lostTrackingCount <= maxAllowedLost;
 }
 
-double MotionTracker::getPredictedX(std::chrono::steady_clock::time_point now) const {
-    if (!lastKnownPos.has_value()) return 0;
+double MotionTracker::getPredictedX(std::chrono::steady_clock::time_point now) const
+{
+    if (!lastKnownPos.has_value()) {
+        return 0;
+    }
     std::chrono::duration<double> dt = now - lastTime;
     double dtSec = dt.count();
-    if (dtSec > trackingCfg.maxDtForPrediction) return lastKnownPos->x;
+    if (dtSec > trackingCfg.maxDtForPrediction) {
+        return lastKnownPos->x;
+    }
     return lastKnownPos->x + velocityX * dtSec;
 }
 
-double MotionTracker::getPredictedY(std::chrono::steady_clock::time_point now) const {
-    if (!lastKnownPos.has_value()) return 0;
+double MotionTracker::getPredictedY(std::chrono::steady_clock::time_point now) const
+{
+    if (!lastKnownPos.has_value()) {
+        return 0;
+    }
     std::chrono::duration<double> dt = now - lastTime;
     double dtSec = dt.count();
-    if (dtSec > trackingCfg.maxDtForPrediction) return lastKnownPos->y;
+    if (dtSec > trackingCfg.maxDtForPrediction) {
+        return lastKnownPos->y;
+    }
     return lastKnownPos->y + velocityY * dtSec;
 }
 
-cv::Rect MotionTracker::predictNextSearchRect(double trackScale, int templCols, int templRows, std::chrono::steady_clock::time_point now) const {
+cv::Rect
+    MotionTracker::predictNextSearchRect(double trackScale, int templCols, int templRows, std::chrono::steady_clock::time_point now) const
+{
     double predX = getPredictedX(now);
     double predY = getPredictedY(now);
     int pad = static_cast<int>(MobileSearchRadius + std::max(templCols, templRows) * trackScale / 2.0);

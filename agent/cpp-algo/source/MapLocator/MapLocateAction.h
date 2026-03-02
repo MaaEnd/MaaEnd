@@ -2,7 +2,8 @@
 
 #include "MaaFramework/MaaAPI.h"
 
-namespace maplocator {
+namespace maplocator
+{
 
 MaaBool MAA_CALL MapLocateRecognitionRun(
     MaaContext* context,
