@@ -24,15 +24,16 @@ import (
 
 // MapTrackerInferResult represents the result of map tracking inference
 type MapTrackerInferResult struct {
-	MapName   string  `json:"mapName"`   // Map name
-	X         int     `json:"x"`         // X coordinate on the map
-	Y         int     `json:"y"`         // Y coordinate on the map
-	Rot       int     `json:"rot"`       // Rotation angle (0-359 degrees)
-	LocConf   float64 `json:"locConf"`   // Location confidence
-	RotConf   float64 `json:"rotConf"`   // Rotation confidence
-	LocTimeMs int64   `json:"locTimeMs"` // Location inference time in ms
-	RotTimeMs int64   `json:"rotTimeMs"` // Rotation inference time in ms
-	InferMode string  `json:"inferMode"` // Inference mode (e.g., "FastSearch", "FullSearch")
+	MapName     string  `json:"mapName"`     // Map name
+	X           int     `json:"x"`           // X coordinate on the map
+	Y           int     `json:"y"`           // Y coordinate on the map
+	Rot         int     `json:"rot"`         // Rotation angle (0-359 degrees)
+	LocConf     float64 `json:"locConf"`     // Location confidence
+	RotConf     float64 `json:"rotConf"`     // Rotation confidence
+	LocTimeMs   int64   `json:"locTimeMs"`   // Location inference time in ms
+	RotTimeMs   int64   `json:"rotTimeMs"`   // Rotation inference time in ms
+	InferMode   string  `json:"inferMode"`   // Inference mode (e.g., "FastSearch", "FullSearch")
+	InferTimeMs int64   `json:"inferTimeMs"` // Total inference time in ms
 }
 
 // MapTrackerInferParam represents the custom_recognition_param for MapTrackerInfer
@@ -161,8 +162,25 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	// Perform inference
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
-	loc := i.inferLocation(screenImg, mapNameRegex, param)
-	rot := i.inferRotation(screenImg, rotStep)
+	t0 := time.Now()
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var loc *InferLocationRawResult
+	var rot *InferRotationRawResult
+
+	go func() {
+		defer wg.Done()
+		loc = i.inferLocation(screenImg, mapNameRegex, param)
+	}()
+
+	go func() {
+		defer wg.Done()
+		rot = i.inferRotation(screenImg, rotStep)
+	}()
+
+	wg.Wait()
 
 	// Determine if recognition hit natively
 	internalLocHit := loc != nil && loc.conf > param.Threshold
@@ -263,6 +281,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	globalInferState.mu.Unlock()
 
 	finalHit := finalLoc != nil && finalRot != nil
+	finalElapsedTimeMs := time.Since(t0).Milliseconds()
 
 	if !finalHit {
 		log.Info().Bool("finalLocHit", finalLoc != nil).Bool("finalRotHit", finalRot != nil).Msg("Map tracking inference did not hit")
@@ -279,15 +298,16 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	// Build hit result
 	result := MapTrackerInferResult{
-		MapName:   finalLoc.mapName,
-		X:         finalLoc.x,
-		Y:         finalLoc.y,
-		Rot:       finalRot.rot,
-		LocConf:   finalLoc.conf,
-		RotConf:   finalRot.conf,
-		LocTimeMs: finalLoc.elapsedTimeMs,
-		RotTimeMs: finalRot.elapsedTimeMs,
-		InferMode: string(finalLoc.source),
+		MapName:     finalLoc.mapName,
+		X:           finalLoc.x,
+		Y:           finalLoc.y,
+		Rot:         finalRot.rot,
+		LocConf:     finalLoc.conf,
+		RotConf:     finalRot.conf,
+		LocTimeMs:   finalLoc.elapsedTimeMs,
+		RotTimeMs:   finalRot.elapsedTimeMs,
+		InferMode:   string(finalLoc.source),
+		InferTimeMs: finalElapsedTimeMs,
 	}
 
 	// Serialize result to JSON
@@ -298,6 +318,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	}
 
 	log.Info().Str("InferMode", result.InferMode).
+		Int64("InferTimeMs", result.InferTimeMs).
 		Str("MapName", result.MapName).
 		Int("X", result.X).Int("Y", result.Y).
 		Int("Rot", result.Rot).
@@ -563,31 +584,69 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		log.Debug().Msg("Empirical fast search skipped, not in stable state")
 	}
 
-	// Match against all maps
+	// Match against all maps in parallel
+	type mapResult struct {
+		val     float64
+		x, y    int
+		mapName string
+	}
+
 	bestVal := -1.0
 	bestX, bestY := 0, 0
 	bestMapName := ""
-
 	triedCount := 0
 
-	for _, mapData := range scaledMaps {
-		// Filter maps based on regex
-		if !mapNameRegex.MatchString(mapData.Name) {
-			continue
+	// Special case: if there's only one map to check, run it directly to avoid goroutine overhead
+	var singleMapToTry *MapCache
+	for i := range scaledMaps {
+		if mapNameRegex.MatchString(scaledMaps[i].Name) {
+			triedCount++
+			if singleMapToTry == nil {
+				singleMapToTry = &scaledMaps[i]
+			} else {
+				singleMapToTry = nil // Found more than one
+				break
+			}
 		}
-		triedCount++
+	}
 
-		// Perform template matching (using optimized version with precomputed stats)
-		// Note: mapData.Img is already cropped if a rect was provided in map_bbox.json
-		matchX, matchY, matchVal := MatchTemplateOptimized(mapData.Img, mapData.Integral, miniMap, miniStats)
+	if singleMapToTry != nil {
+		matchX, matchY, matchVal := MatchTemplateOptimized(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
+		bestVal = matchVal
+		bestX = int(float64(matchX+miniMapW/2)/scale) + singleMapToTry.OffsetX
+		bestY = int(float64(matchY+miniMapH/2)/scale) + singleMapToTry.OffsetY
+		bestMapName = singleMapToTry.Name
+	} else if triedCount > 1 {
+		resChan := make(chan mapResult, triedCount)
+		var wg sync.WaitGroup
 
-		if matchVal > bestVal {
-			bestVal = matchVal
-			// Convert top-left corner to center position
-			// Then convert back to original scale and add map offset
-			bestX = int(float64(matchX+miniMapW/2)/scale) + mapData.OffsetX
-			bestY = int(float64(matchY+miniMapH/2)/scale) + mapData.OffsetY
-			bestMapName = mapData.Name
+		for _, mapData := range scaledMaps {
+			if !mapNameRegex.MatchString(mapData.Name) {
+				continue
+			}
+
+			wg.Add(1)
+			go func(m MapCache) {
+				defer wg.Done()
+				matchX, matchY, matchVal := MatchTemplateOptimized(m.Img, m.Integral, miniMap, miniStats)
+				mx := int(float64(matchX+miniMapW/2)/scale) + m.OffsetX
+				my := int(float64(matchY+miniMapH/2)/scale) + m.OffsetY
+				resChan <- mapResult{matchVal, mx, my, m.Name}
+			}(mapData)
+		}
+
+		go func() {
+			wg.Wait()
+			close(resChan)
+		}()
+
+		for res := range resChan {
+			if res.val > bestVal {
+				bestVal = res.val
+				bestX = res.x
+				bestY = res.y
+				bestMapName = res.mapName
+			}
 		}
 	}
 
@@ -658,21 +717,41 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 		return nil
 	}
 
-	// Try all rotation angles
-	bestAngle := 0
-	maxVal := -1.0
+	// Try all rotation angles in parallel
+	type result struct {
+		angle int
+		conf  float64
+	}
+
+	resChan := make(chan result, 360/rotStep+1)
+	var wg sync.WaitGroup
 
 	for angle := 0; angle < 360; angle += rotStep {
-		// Rotate the patch
-		rotatedRGBA := minicv.ImageRotate(patch, float64(angle))
+		wg.Add(1)
+		go func(a int) {
+			defer wg.Done()
+			// Rotate the patch
+			rotatedRGBA := minicv.ImageRotate(patch, float64(a))
 
-		// Match against pointer template
-		integral := minicv.GetIntegralArray(rotatedRGBA)
-		_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, i.pointer, pointerStats)
+			// Match against pointer template
+			integral := minicv.GetIntegralArray(rotatedRGBA)
+			_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, i.pointer, pointerStats)
 
-		if matchVal > maxVal {
-			maxVal = matchVal
-			bestAngle = angle
+			resChan <- result{a, matchVal}
+		}(angle)
+	}
+
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	bestAngle := 0
+	maxVal := -1.0
+	for res := range resChan {
+		if res.conf > maxVal {
+			maxVal = res.conf
+			bestAngle = res.angle
 		}
 	}
 

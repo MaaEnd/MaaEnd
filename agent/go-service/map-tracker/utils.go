@@ -31,7 +31,8 @@ func MatchTemplateOptimized(
 		x, y int
 		s    float64
 	}
-	numWorkers, step := 6, 3
+
+	numWorkers, step := 4, 3
 	resChan := make(chan result, numWorkers)
 	rows := maxY - minY + 1
 
@@ -101,11 +102,7 @@ func MatchTemplateAround(
 		s    float64
 	}
 
-	numWorkers, step := 2, 2 // Reduced workers and step for smaller area
-	if (maxX-minX)*(maxY-minY) > 10000 {
-		numWorkers, step = 6, 3
-	}
-
+	numWorkers, step := 4, 3
 	resChan := make(chan result, numWorkers)
 	rows := maxY - minY + 1
 
