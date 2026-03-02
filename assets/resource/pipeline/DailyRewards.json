@@ -28,6 +28,7 @@
         "pre_delay": 0
     },
     "DailyTaskRewardSub": {
+        "enabled": false,
         "focus": {
             "Node.Recognition.Succeeded": "开始领取每日任务奖励"
         },
