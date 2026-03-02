@@ -42,6 +42,7 @@
         "box_index": 1,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -96,6 +97,7 @@
         "box_index": 1,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -150,6 +152,7 @@
         "box_index": 1,
         "action": "Click",
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -182,6 +185,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -214,6 +218,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -246,6 +251,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -278,6 +284,7 @@
             -80
         ],
         "post_wait_freezes": {
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -310,7 +317,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -343,7 +350,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -376,7 +383,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -409,7 +416,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -442,7 +449,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -475,7 +482,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -508,7 +515,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -541,7 +548,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -574,7 +581,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -607,7 +614,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -640,7 +647,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -673,7 +680,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -706,7 +713,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -739,7 +746,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -772,7 +779,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -805,7 +812,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -838,7 +845,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -871,7 +878,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -904,7 +911,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -937,7 +944,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -970,7 +977,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1003,7 +1010,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1036,7 +1043,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1069,7 +1076,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1102,7 +1109,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1135,7 +1142,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1168,7 +1175,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1201,7 +1208,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1234,7 +1241,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1267,7 +1274,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1300,7 +1307,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1333,7 +1340,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1366,7 +1373,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1399,7 +1406,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1432,7 +1439,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1465,7 +1472,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1498,7 +1505,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1531,7 +1538,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1564,7 +1571,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1597,7 +1604,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1630,7 +1637,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1663,7 +1670,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1696,7 +1703,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1729,7 +1736,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1762,7 +1769,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1795,7 +1802,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1828,7 +1835,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1861,7 +1868,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1894,7 +1901,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1927,7 +1934,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1960,7 +1967,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -1993,7 +2000,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
@@ -2026,7 +2033,7 @@
             -80
         ],
         "post_wait_freezes": {
-            "timeout": 200,
+            "time": 200,
             "target": [
                 -100,
                 0,
