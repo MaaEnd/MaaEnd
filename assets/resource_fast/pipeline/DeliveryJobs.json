@@ -36,7 +36,8 @@
             "InValleyIVLocalDepotNode"
         ],
         "next": [
-            "DeliveryJobsValleyIV"
+            "DeliveryJobsValleyIV",
+            "DeliveryJobsLoop"
         ]
     },
     "DeliveryJobsAutoWuling": {
@@ -47,7 +48,8 @@
             "InWulingLocalDepotNode"
         ],
         "next": [
-            "DeliveryJobsWuling"
+            "DeliveryJobsWuling",
+            "DeliveryJobsLoop"
         ]
     },
     "DeliveryJobsValleyIV": {
