@@ -495,6 +495,74 @@
             "Node.Action.Succeeded": "已确认上锁"
         }
     },
+    "EssenceFilterDiscardItemLog": {
+        "doc": "日志：即将废弃 Essence",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterTraceAction",
+                "custom_action_param": {
+                    "step": "DiscardItem"
+                }
+            }
+        },
+        "next": [
+            "EssenceFilterCheckDiscarded",
+            "EssenceFilterDiscardItem"
+        ]
+    },
+    "EssenceFilterDiscardItem": {
+        "doc": "废弃 Essence",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceFilter/DiscardButton.png",
+                "threshold": 0.9,
+                "roi": [
+                    1195,
+                    180,
+                    21,
+                    21
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 300,
+        "next": [
+            "EssenceFilterCheckDiscarded",
+            "EssenceFilterDiscardItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已废弃基质"
+        }
+    },
+    "EssenceFilterCheckDiscarded": {
+        "doc": "确认已废弃",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "EssenceFilter/DiscardButtonDiscarded.png",
+                "threshold": 0.9,
+                "roi": [
+                    1195,
+                    180,
+                    21,
+                    21
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterDiscardItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已确认废弃"
+        }
+    },
     "EssenceFilterRowNextItem": {
         "doc": "处理下一个命中的格子，或滑动/结束",
         "action": {

@@ -74,6 +74,8 @@ type EssenceFilterOptions struct {
 	// 保留实用基质：词条3等级 >= n 且为辅助即插即用技能
 	KeepSlot3Level3Practical bool `json:"keep_slot3_level3_practical"`
 	Slot3MinLevel            int  `json:"slot3_min_level"`
+	// 未匹配时废弃而非跳过
+	DiscardUnmatched bool `json:"discard_unmatched"`
 }
 
 type ColorRange struct {
