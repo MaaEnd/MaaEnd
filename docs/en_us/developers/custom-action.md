@@ -8,7 +8,7 @@ The concrete logic is registered on the project side via `MaaResourceRegisterCus
 Unlike normal click/recognition nodes, `Custom` does not limit what the action actually does—  
 as long as it is registered during the resource loading stage, it can be called in any Pipeline in a unified way, for example:
 
-- Take a screenshot once and save it locally (such as the `ScreenShot` action).
+- Take a screenshot once and save it locally.
 - Perform complex multi-step interactions (long-press, drag, combo keys, etc.).
 - Do statistics, logging, or telemetry reporting.
 
