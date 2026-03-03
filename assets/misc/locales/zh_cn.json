@@ -147,7 +147,7 @@
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.label": "最低利润值",
     "option.ImportMinimumProfit.inputs.ImportMinimumProfit.description": "当前最高利润低于该值时，不进行购买，仅支持整数",
     "task.CreditShopping.label": "🛍️信用点购物",
-    "task.CreditShopping.description": "在信用交易所购买物品，安卓端需要 280 DPI 以上，否则可能漏掉第二排物品",
+    "task.CreditShopping.description": "在信用交易所购买物品",
     "option.CreditShoppingOptions.label": "高级设置",
     "option.CreditShoppingOptions.inputs.buy_first.label": "白名单",
     "option.CreditShoppingOptions.inputs.buy_first.description": "子串即可 `|`分隔",
