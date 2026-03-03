@@ -156,7 +156,31 @@
                     "label": "$option.DiscountValue.cases.Any.label",
                     "pipeline_override": {
                         "IsDiscount": {
-                            "recognition": "DirectHit"
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "BlacklistOCR",
+                                    "roi_offset": [
+                                        62,
+                                        -172,
+                                        -34,
+                                        7
+                                    ],
+                                    "method": 40,
+                                    "lower": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "upper": [
+                                        26,
+                                        255,
+                                        255
+                                    ],
+                                    "count": 100,
+                                    "connected": true
+                                }
+                            }
                         }
                     }
                 },
