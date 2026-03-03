@@ -1,30 +1,4 @@
 {
-    "ExitRecoveryEmotion": {
-        "doc": "[恢复心情·意外] 误入「选择待恢复心情的干员」界面时，返回控制中枢",
-        "focus": {
-            "Node.PipelineNode.Failed": "从恢复心情界面返回控制中枢失败"
-        },
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    464,
-                    138,
-                    278,
-                    154
-                ],
-                "expected": [
-                    "选择待恢复心情的干员"
-                ]
-            }
-        },
-        "next": [
-            "InDijiangControlNexus",
-            "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]BackToControlNexus",
-            "[JumpBack]CloseButtonType1"
-        ]
-    },
     "RecoveryEmotion": {
         "post_wait_freezes": {
             "time": 200,
@@ -57,10 +31,7 @@
             }
         },
         "next": [
-            "[JumpBack]EmotionFull",
-            "[JumpBack]YellowConfirmButtonType1",
-            "StartRecoveryEmotion",
-            "CloseButtonType1"
+            "RecoveryEmotionAssistUseAssist"
         ]
     },
     "RecoveryEmotionAssistUseAssist": {
@@ -124,6 +95,7 @@
             }
         },
         "next": [
+            "EmotionFull",
             "CouldNotAssistEmotion",
             "[JumpBack]SelectLowEmotion"
         ]

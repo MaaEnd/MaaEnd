@@ -24,14 +24,6 @@
             }
         }
     },
-    "CloseAssist": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
     "CloseButtonDijiang": {
         "action": {
             "type": "ClickKey",

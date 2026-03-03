@@ -1,9 +1,4 @@
 {
-    "ExitRecoveryEmotion": {
-        "expected": [
-            "Select operator awaiting mood recovery"
-        ]
-    },
     "EmotionFull": {
         "expected": [
             "Cannot assist as operator mood is maxed"
