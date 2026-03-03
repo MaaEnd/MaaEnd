@@ -120,7 +120,29 @@
         "action": "Click",
         "next": [
             "InWorld",
-            "DeliveryJobsClickScreenToContinue"
+            "DeliveryJobsClickScreenToContinue",
+            "DeliveryJobsDeliverQuickly"
+        ]
+    },
+    "DeliveryJobsDeliverQuickly": {
+        "doc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            250,
+            250
+        ],
+        "expected": [
+            "请尽快送达",
+            "請儘快送達",
+            "Deliver Quickly",
+            "早めに配達してください",
+            "최대한 빨리 배달하세요."
+        ],
+        "action": "Click",
+        "next": [
+            "InWorld"
         ]
     },
     "DeliveryJobsClickScreenToContinue": {
@@ -128,10 +150,10 @@
         "recognition": "OCR",
         "order_by": "Expected",
         "roi": [
-            527,
-            646,
+            525,
+            643,
             222,
-            48
+            75
         ],
         "expected": [
             "点击屏幕继续",
