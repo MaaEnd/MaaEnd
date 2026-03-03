@@ -19,17 +19,29 @@
             "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
         },
         "next": [
-            "[JumpBack]CloseRewardsButton",
-            "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]ReStock",
-            "[JumpBack]WhiteConfirmButtonType1",
-            "[JumpBack]ProductionAssistInDijiang",
+            "EntryMFGCarbinSuccess"
+        ]
+    },
+    "EntryMFGCarbinSuccess": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "InMFGCarbin",
+                    "FacilityDetails"
+                ]
+            }
+        },
+        "next": [
+            "MFGCarbinNeedTake",
+            "MFGCarbinNeedReStock",
+            "MFGCarbinNeedAssist",
             "Exit_MFG_Cabin"
         ]
     },
-    "ReStock": {
-        "doc": "[制造舱·操作] 点击最右侧补货按钮打开补货界面",
-        "max_hit": 1,
+    "MFGCarbinNeedReStock": {
+        "doc": "[制造舱·需要补货] 识别需要补货的奖励，点击补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -48,7 +60,170 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "next": [
+            "MFGCarbinNeedReStockClose"
+        ]
+    },
+    "MFGCarbinNeedReStockClose": {
+        "doc": "[制造舱·需要补货] 点击补货完成界面确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "MFGCarbinNeedReStockText"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "MFGCarbinNeedAssist",
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "MFGCarbinNeedTake": {
+        "doc": "[制造舱·需要领取] 识别需要领取的奖励，点击领取",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "MFGCarbinNeedTakeText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "MFGCarbinNeedTakeClose"
+        ]
+    },
+    "MFGCarbinNeedTakeClose": {
+        "doc": "[制造舱·需要领取] 点击领取完成界面确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "MFGCarbinNeedReStock",
+            "MFGCarbinNeedAssist",
+            "Exit_MFG_Cabin"
+        ]
+    },
+    "MFGCarbinNeedAssist": {
+        "doc": "[制造舱·需要助力] 识别需要助力的奖励，点击使用助力",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "InMFGCarbin",
+                    "NeedAssistColor"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "MFGCarbinNeedAssistUseAssist"
+        ]
+    },
+    "MFGCarbinNeedAssistUseAssist": {
+        "doc": "[制造舱·需要助力] 点击使用助力",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "MFGCarbinNeedAssistUseAssistText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "MFGCarbinNeedAssistAssistMAX",
+            "MFGCarbinNeedAssistCanfirm"
+        ]
+    },
+    "MFGCarbinNeedAssistAssistMAX": {
+        "doc": "[制造舱·需要助力] 点击最大助力",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    783,
+                    385,
+                    274,
+                    181
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Restock.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "MFGCarbinNeedAssistCanfirm"
+        ]
+    },
+    "MFGCarbinNeedAssistCanfirm": {
+        "doc": "[制造舱·需要助力] 点击确认使用助力",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "MFGCarbinNeedAssistCanfirmText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "MFGCarbinNeedAssistClose"
+        ]
+    },
+    "MFGCarbinNeedAssistClose": {
+        "doc": "[制造舱·需要助力] 点击助力使用完成界面关闭按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Exit_MFG_Cabin"
+        ]
     },
     "Exit_MFG_Cabin": {
         "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",

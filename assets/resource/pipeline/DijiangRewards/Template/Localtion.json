@@ -1,0 +1,36 @@
+{
+    "InMFGCarbin": {
+        "doc": "[制造舱] 在制造舱界面，识别制造舱标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        }
+    },
+    "FacilityDetails": {
+        "doc": "[设施详情] 识别设施详情标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    245,
+                    143,
+                    119,
+                    78
+                ],
+                "expected": [
+                    "设施详情"
+                ]
+            }
+        }
+    }
+}

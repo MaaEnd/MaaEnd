@@ -1,0 +1,74 @@
+{
+    "MFGCarbinNeedAssistCanfirmText": {
+        "doc": "[制造舱·需要助力] 识别确认使用助力按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -68,
+                    -17,
+                    62,
+                    33
+                ],
+                "expected": [
+                    "使用助力"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedAssistUseAssistText": {
+        "doc": "[制造舱·需要助力] 识别使用助力按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -68,
+                    -17,
+                    62,
+                    33
+                ],
+                "expected": [
+                    "使用助力"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedTakeText": {
+        "doc": "[制造舱·需要领取] 识别领取按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -68,
+                    -17,
+                    62,
+                    33
+                ],
+                "expected": [
+                    "收取"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedReStockText": {
+        "doc": "[制造舱·需要补货] 识别补货按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -68,
+                    -17,
+                    62,
+                    33
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        }
+    }
+}
