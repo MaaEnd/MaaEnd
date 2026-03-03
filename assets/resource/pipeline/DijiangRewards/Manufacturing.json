@@ -62,6 +62,23 @@
             "type": "Click"
         },
         "next": [
+            "MFWCarbinCanfirmReStock"
+        ]
+    },
+    "MFWCarbinCanfirmReStock": {
+        "doc": "[制造舱·需要补货] 点击补货完成界面确认按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
             "MFGCarbinNeedReStockClose"
         ]
     },
