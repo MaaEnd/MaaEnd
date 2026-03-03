@@ -482,7 +482,8 @@
                 }
             ]
         },
-        "AutoExtractSeedAny": { // 适用于选择作物任务中任意选项的是否自动提取基核的选项
+        "AutoExtractSeedAny": {
+            // 适用于选择作物任务中任意选项的是否自动提取基核的选项
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "default_case": "Yes",
@@ -514,7 +515,8 @@
                 }
             ]
         },
-        "AutoExtractSeedOther": { // 适用于除选择作物任务以外的其他任务中是否自动提取基核的选项
+        "AutoExtractSeedOther": {
+            // 适用于除选择作物任务以外的其他任务中是否自动提取基核的选项
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "default_case": "Yes",

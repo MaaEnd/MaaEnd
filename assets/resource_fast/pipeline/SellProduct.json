@@ -7,18 +7,45 @@
     },
     "SellProductAtDevelopment": {
         "doc": "位于地区建设界面",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InRegionalDevelopment"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
         "next": [
+            "SellProductAuto",
             "SellProductValleyIV",
             "SellProductWuling",
             "SellProductTaskEnd"
+        ]
+    },
+    "SellProductAuto": {
+        "doc": "自动选择起始地区售卖流程",
+        "max_hit": 1,
+        "next": [
+            "SellProductAutoValleyIV",
+            "SellProductAutoWuling"
+        ]
+    },
+    "SellProductAutoValleyIV": {
+        "doc": "自动选择四号谷地售卖流程",
+        "recognition": "And",
+        "all_of": [
+            "InValleyIVRegionalDevelopment"
+        ],
+        "next": [
+            "SellProductValleyIV",
+            "SellProductAtDevelopment"
+        ]
+    },
+    "SellProductAutoWuling": {
+        "doc": "自动选择武陵售卖流程",
+        "recognition": "And",
+        "all_of": [
+            "InWulingRegionalDevelopment"
+        ],
+        "next": [
+            "SellProductWuling",
+            "SellProductAtDevelopment"
         ]
     },
     "SellProductValleyIV": {

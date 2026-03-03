@@ -54,17 +54,7 @@
         "action": "Click",
         "next": [
             "InValleyIVLocalDepotNode"
-        ],
-        // 可能会遇到元素为加载完成，必须等待页面稳定后才能继续
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        ]
     },
     "DeliveryJobsEnterWulingDepot": {
         "doc": "进入武陵仓储节点",
@@ -76,16 +66,7 @@
         "action": "Click",
         "next": [
             "InWulingLocalDepotNode"
-        ],
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        }
+        ]
     },
     "DeliveryJobsDepotLocked": {
         "doc": "仓储节点未解锁",

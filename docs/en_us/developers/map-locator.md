@@ -8,19 +8,16 @@ This document explains how to use nodes related to **MapLocator**.
 
 ### Scope and Limitations
 
-MapLocator acts strictly as the "bright eyes of the system"—providing high-frequency, high-precision **coordinate and rotation recognition**, and belongs to the Recognition layer. To achieve actions like "making the character run to a specified coordinate", you need to integrate a pathfinding algorithm (e.g., A*) in the outer layer and issue control codes for physical operations (like mouse rotation, keyboard movement) through the Action layer. This module does not automatically take over game control.
+MapLocator acts strictly as the "bright eyes of the system"—providing high-frequency, high-precision **coordinate and rotation recognition**, and belongs to the Recognition layer. To achieve actions like "making the character run to a specified coordinate", you need to integrate a pathfinding algorithm (e.g., A\*) in the outer layer and issue control codes for physical operations (like mouse rotation, keyboard movement) through the Action layer. This module does not automatically take over game control.
 
 ### MapLocator Core Architecture
 
 1. **Native Compute Advantage and OpenCV Integration**
    This system runs as an independent `cpp-algo` process component connected to the Pipeline. Thanks to the native C++ and OpenCV underlying image pipeline and highly optimized memory processing, it maintains extremely low runtime latency even with the inclusion of YOLO model inference.
-   
 2. **Robust Dynamic Environment Awareness with YOLO Pre-filtering**
    The system deploys an independently trained YOLOv26-small model as a pre-validation stream for scene recognition. Based on the confidence score, the model can directly confirm whether a valid minimap area (Minimap ROI) exists in the current frame, quickly filtering out disturbances caused by abnormal scenes such as full-screen menus or heavy particle occlusion, significantly reducing false positive rates.
-   
 3. **Gradient-Domain ZNCC Matching and Interference Resistance**
    Built into the system is a gradient feature extraction and ZNCC (Zero-mean Normalized Cross-Correlation) template matching mechanism optimized directly for multi-layer Alpha rendering (semi-transparent UI stacking). It maintains high matching robustness relying on edge features and contour weights when encountering flashing skill effects or drastic UI changes.
-   
 4. **Tracking Optimization via Internal MotionTracker Engine**
    The system internally records and analyzes the historical movement speed of the character. When proceeding to the next frame recognition, the algorithm will not blindly perform a global search. Instead, it estimates a reasonable movement radius (Search Bounds) for the character at that moment based on the instantaneous speed calculated from previous frames. This narrows the template matching scope, greatly boosting computation speed, and avoids erroneously matching distant but remarkably similar color blocks.
 
@@ -53,11 +50,11 @@ Supports passing advanced parameter settings in JSON string format to override d
 Upon successful localization or termination of detection, the node will output complete status feedback in a JSON structure to the `out_detail` pipeline and the console. This can be used for complex business flow routing or error handling:
 
 - `status`: [Internal status code enumeration]
-  - `0 (Success)`: Successfully localized.
-  - `1 (TrackingLost)`: Tracking dropped (global burst search also yielded no results).
-  - `2 (ScreenBlocked)`: Image overwhelmed/occluded by unknown, massive obstructions.
-  - `3 (Teleported)`: Coordinate displacement between two frames severely exceeded human/vehicle movement limits, deduced as a forced teleportation.
-  - `4 (YoloFailed)`: The initial YOLO model confirmed the current game screenshot does not contain a minimap recognition area.
+    - `0 (Success)`: Successfully localized.
+    - `1 (TrackingLost)`: Tracking dropped (global burst search also yielded no results).
+    - `2 (ScreenBlocked)`: Image overwhelmed/occluded by unknown, massive obstructions.
+    - `3 (Teleported)`: Coordinate displacement between two frames severely exceeded human/vehicle movement limits, deduced as a forced teleportation.
+    - `4 (YoloFailed)`: The initial YOLO model confirmed the current game screenshot does not contain a minimap recognition area.
 - `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map001_lv001").
 - `x`: (On Success) The global pixel coordinate on the X-axis (horizontal).
 - `y`: (On Success) The global pixel coordinate on the Y-axis (vertical).
@@ -90,7 +87,7 @@ When executing a long-distance respawn teleport, or when you need to skip the pr
         "custom_recognition": "MapLocateRecognition",
         "custom_recognition_param": {
             "loc_threshold": 0.55,
-            "yolo_threshold": 0.70,
+            "yolo_threshold": 0.7,
             "force_global_search": true
         },
         "action": "DoNothing"
