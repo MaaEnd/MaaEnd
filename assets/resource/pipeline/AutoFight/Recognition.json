@@ -252,7 +252,7 @@
     "__AutoFightRecognitionComboNotice": {
         "doc": "识别连携技提示，纯白颜色",
         "recognition": "TemplateMatch",
-        "threshold": 0.9,
+        "threshold": 0.8,
         "template": "AutoFight/Combo.png",
         "roi": [
             750,
