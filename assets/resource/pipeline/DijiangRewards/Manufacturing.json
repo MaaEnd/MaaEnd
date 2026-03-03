@@ -244,16 +244,6 @@
     },
     "Exit_MFG_Cabin": {
         "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
-        "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "recognition": {
             "type": "OCR",
             "param": {
