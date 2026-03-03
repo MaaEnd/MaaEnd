@@ -1,14 +1,9 @@
 {
     "SelectDijiangTeleport": {
-        "doc": "[导航·传送] 在地图界面识别帝江桥并点击帝江传送点",
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
+        "desc": "[导航·传送] 在地图界面识别帝江桥并点击帝江传送点",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     {
                         "sub_name": "_DijiangBridge",
@@ -44,15 +39,20 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
         }
     },
     "SelectDijiang": {
-        "doc": "[导航·地图] 在地图/选船界面点击帝江号(OMV)以进入帝江",
+        "desc": "[导航·地图] 在地图/选船界面点击帝江号(OMV)以进入帝江",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -80,7 +80,7 @@
         }
     },
     "OpenMap": {
-        "doc": "[导航·主界面] 从主界面按 M 键打开地图",
+        "desc": "[导航·主界面] 从主界面按 M 键打开地图",
         "recognition": {
             "type": "Or",
             "param": {
@@ -89,14 +89,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame1.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     172,
                                     0,
                                     183,
                                     119
-                                ]
+                                ],
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -104,14 +104,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame2.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     1182,
                                     0,
                                     98,
                                     128
-                                ]
+                                ],
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8
                             }
                         }
                     }
@@ -126,7 +126,7 @@
         }
     },
     "ControlNexusClickTips": {
-        "doc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点",
+        "desc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -147,8 +147,8 @@
                     255,
                     255
                 ],
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         },
         "action": {
@@ -162,19 +162,19 @@
                 ]
             }
         },
-        "focus": {
-            "Node.PipelineNode.Failed": "进入舱室后失败,无法识别当前环境"
-        },
         "next": [
             "AlreadyInCarbin",
             "[JumpBack]WhiteConfirmButtonType1",
             "[JumpBack]CloseRewardsButton",
             "[JumpBack]EndExchange",
             "ControlNexusClickTips"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入舱室后失败,无法识别当前环境"
+        }
     },
     "AlreadyInCarbin": {
-        "doc": "[控制中枢·状态] 红点点击后已在舱室(制造舱/培养舱)或生产助力界面，用于 next 状态判断",
+        "desc": "[控制中枢·状态] 红点点击后已在舱室(制造舱/培养舱)或生产助力界面，用于 next 状态判断",
         "recognition": {
             "type": "Or",
             "param": {
@@ -217,7 +217,7 @@
         }
     },
     "InDijiangControlNexus": {
-        "doc": "识别处于帝江号总控中枢界面",
+        "desc": "识别处于帝江号总控中枢界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

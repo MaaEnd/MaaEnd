@@ -2,7 +2,6 @@
     "__CharacterControllerDeltaSwipeAction": {
         "desc": "滑动",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Swipe",
         "begin": [
             640,
@@ -16,48 +15,49 @@
             4,
             4
         ],
-        "only_hover": true
+        "only_hover": true,
+        "post_delay": 0
     },
     "__CharacterControllerDeltaClickCenterAction": {
         "desc": "点击中心",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Click",
         "target": [
             640,
             360,
             1,
             1
-        ]
+        ],
+        "post_delay": 0
     },
     "__CharacterControllerDeltaAltKeyDownAction": {
         "desc": "alt按键",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "KeyDown",
-        "key": 18
+        "key": 18,
+        "post_delay": 0
     },
     "__CharacterControllerDeltaAltKeyUpAction": {
         "desc": "alt按键",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "KeyUp",
-        "key": 18
+        "key": 18,
+        "post_delay": 0
     },
     "__CharacterControllerAxisLongPressForwardAction": {
         "desc": "轴向前长按",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "LongPressKey",
+        "duration": 100,
         "key": 87, // W
-        "duration": 100
+        "post_delay": 0
     },
     "__CharacterControllerAxisLongPressBackwardAction": {
         "desc": "轴向后长按",
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "LongPressKey",
+        "duration": 100,
         "key": 83, // S
-        "duration": 100
+        "post_delay": 0
     }
 }

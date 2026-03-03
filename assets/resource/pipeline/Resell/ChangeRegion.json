@@ -1,6 +1,6 @@
 {
     "Wuling2FourthValley": {
-        "doc": "武陵回四号谷地",
+        "desc": "武陵回四号谷地",
         "recognition": "Or",
         "any_of": [
             "ChangeRegionButton"
@@ -12,7 +12,7 @@
         ]
     },
     "WulingToFourthValleyDone": {
-        "doc": "已切换到四号谷地",
+        "desc": "已切换到四号谷地",
         "recognition": "Or",
         "any_of": [
             "InValleyIVRegionalDevelopment"
@@ -24,7 +24,7 @@
         ]
     },
     "ChangeNextRegionPrepare": {
-        "doc": "确保当前在地区建设界面后切换下一个地区",
+        "desc": "确保当前在地区建设界面后切换下一个地区",
         "recognition": "DirectHit",
         "action": "DoNothing",
         "post_wait_freezes": 300,
@@ -36,49 +36,49 @@
         ]
     },
     "ChangeNextRegionInManagement": {
-        "doc": "已在地区建设界面，继续切换地区",
+        "desc": "已在地区建设界面，继续切换地区",
         "recognition": "Or",
         "any_of": [
             "IncomeReportButton"
         ],
-        "action": "DoNothing",
         "pre_wait_freezes": 300,
+        "action": "DoNothing",
         "next": [
             "ChangeNextRegion"
         ]
     },
     "ResellCheckInWorld1": {
-        "doc": "在大世界(模板1)，按Y进入地区建设",
+        "desc": "在大世界(模板1)，按Y进入地区建设",
         "recognition": "TemplateMatch",
-        "template": "Resell/inGame1.png",
-        "threshold": 0.8,
         "roi": [
             172,
             0,
             133,
             118
         ],
+        "template": "Resell/inGame1.png",
+        "threshold": 0.8,
         "action": "ClickKey",
-        "post_wait_freezes": 300,
-        "key": 89
+        "key": 89,
+        "post_wait_freezes": 300
     },
     "ResellCheckInWorld2": {
-        "doc": "在大世界(模板2)，按Y进入地区建设",
+        "desc": "在大世界(模板2)，按Y进入地区建设",
         "recognition": "TemplateMatch",
-        "template": "Resell/inGame2.png",
-        "threshold": 0.8,
         "roi": [
             1182,
             0,
             98,
             128
         ],
+        "template": "Resell/inGame2.png",
+        "threshold": 0.8,
         "action": "ClickKey",
-        "post_wait_freezes": 300,
-        "key": 89
+        "key": 89,
+        "post_wait_freezes": 300
     },
     "ResellEscGoBack": {
-        "doc": "未在地区建设界面，点击关闭按钮返回",
+        "desc": "未在地区建设界面，点击关闭按钮返回",
         "recognition": "Or",
         "any_of": [
             "CloseButtonType1"
@@ -86,7 +86,7 @@
         "action": "Click"
     },
     "ChangeNextRegion": {
-        "doc": "更换到下一个地区",
+        "desc": "更换到下一个地区",
         "recognition": "Or",
         "any_of": [
             "ChangeRegionButton"
@@ -99,7 +99,7 @@
         ]
     },
     "ChangeNextRegionToWuling": {
-        "doc": "切换到武陵继续售卖",
+        "desc": "切换到武陵继续售卖",
         "recognition": "Or",
         "any_of": [
             "InValleyIVRegionalDevelopment"
@@ -111,7 +111,7 @@
         ]
     },
     "ChangeNextRegionDone": {
-        "doc": "已切换到武陵",
+        "desc": "已切换到武陵",
         "recognition": "Or",
         "any_of": [
             "InWulingRegionalDevelopment"
@@ -123,19 +123,19 @@
         ]
     },
     "LastAreaFinished": {
-        "doc": "所有地区均已完成，结束售卖流程",
+        "desc": "所有地区均已完成，结束售卖流程",
         "recognition": "And",
         "all_of": [
             {
                 "sub_name": "武陵字样的位置",
                 "recognition": "OCR",
-                "threshold": 0.8,
                 "roi": [
                     714,
                     218,
                     36,
                     21
-                ]
+                ],
+                "threshold": 0.8
             },
             {
                 "sub_name": "当前查看地区字样的位置",
@@ -148,10 +148,10 @@
                 ]
             }
         ],
+        "action": "DoNothing",
+        "next": [],
         "focus": {
             "Node.Action.Starting": "所有地区均已完成"
-        },
-        "action": "DoNothing",
-        "next": []
+        }
     }
 }

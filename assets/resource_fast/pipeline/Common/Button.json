@@ -1,21 +1,21 @@
 {
     "ProtosyncMenuButton": {
-        "doc": "大世界中的协议同步器按钮",
+        "desc": "大世界中的协议同步器按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/ProtosyncMenuButton.png",
         "roi": [
             -200,
             0,
             200,
             200
         ],
+        "template": "Common/Button/ProtosyncMenuButton.png",
         "green_mask": true,
         "next": [
             "AltClickProtosyncMenuButtonKeyDown"
         ]
     },
     "AltClickProtosyncMenuButtonKeyDown": {
-        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（按住 Alt 键）",
+        "desc": "使用 Alt + 点击大世界中的协议同步器按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
         "next": [
@@ -23,15 +23,15 @@
         ]
     },
     "AltClickProtosyncMenuButtonClick": {
-        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（单击）",
-        "target": "ProtosyncMenuButton",
+        "desc": "使用 Alt + 点击大世界中的协议同步器按钮（单击）",
         "action": "Click",
+        "target": "ProtosyncMenuButton",
         "next": [
             "AltClickProtosyncMenuButtonKeyUp"
         ]
     },
     "AltClickProtosyncMenuButtonKeyUp": {
-        "doc": "使用 Alt + 点击大世界中的协议同步器按钮（释放 Alt 键）",
+        "desc": "使用 Alt + 点击大世界中的协议同步器按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
@@ -45,22 +45,22 @@
         }
     },
     "RegionalDevelopmentButton": {
-        "doc": "大世界中的地区建设按钮",
+        "desc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/RegionalDevelopmentButton.png",
-        "threshold": 0.8,
         "roi": [
             164,
             3,
             232,
             84
         ],
+        "template": "Common/Button/RegionalDevelopmentButton.png",
+        "threshold": 0.8,
         "next": [
             "AltClickRegionalDevelopmentButtonKeyDown"
         ]
     },
     "AltClickRegionalDevelopmentButtonKeyDown": {
-        "doc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
         "next": [
@@ -68,15 +68,15 @@
         ]
     },
     "AltClickRegionalDevelopmentButtonClick": {
-        "doc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",
-        "target": "RegionalDevelopmentButton",
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",
         "action": "Click",
+        "target": "RegionalDevelopmentButton",
         "next": [
             "AltClickRegionalDevelopmentButtonKeyUp"
         ]
     },
     "AltClickRegionalDevelopmentButtonKeyUp": {
-        "doc": "使用 Alt + 点击大世界中的地区建设按钮（释放 Alt 键）",
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
@@ -90,22 +90,22 @@
         }
     },
     "ControlNexusButton": {
-        "doc": "帝江号大世界中的控制枢纽按钮",
+        "desc": "帝江号大世界中的控制枢纽按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/ControlNexusButton.png",
-        "threshold": 0.8,
         "roi": [
             185,
             3,
             209,
             96
         ],
+        "template": "Common/Button/ControlNexusButton.png",
+        "threshold": 0.8,
         "next": [
             "AltClickControlNexusButtonKeyDown"
         ]
     },
     "AltClickControlNexusButtonKeyDown": {
-        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（按住 Alt 键）",
+        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
         "next": [
@@ -113,15 +113,15 @@
         ]
     },
     "AltClickControlNexusButtonClick": {
-        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（单击）",
-        "target": "ControlNexusButton",
+        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（单击）",
         "action": "Click",
+        "target": "ControlNexusButton",
         "next": [
             "AltClickControlNexusButtonKeyUp"
         ]
     },
     "AltClickControlNexusButtonKeyUp": {
-        "doc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（释放 Alt 键）",
+        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
         "post_wait_freezes": {
@@ -135,16 +135,16 @@
         }
     },
     "IncomeReportButton": {
-        "doc": "地区建设中的收支简报按钮",
+        "desc": "地区建设中的收支简报按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/IncomeReportButton.png",
-        "threshold": 0.8,
         "roi": [
             -220,
             0,
             220,
             220
         ],
+        "template": "Common/Button/IncomeReportButton.png",
+        "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -157,16 +157,16 @@
         }
     },
     "DepotButton": {
-        "doc": "地区建设中的仓储节点按钮",
+        "desc": "地区建设中的仓储节点按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/DepotButton.png",
-        "threshold": 0.8,
         "roi": [
             1007,
             331,
             40,
             52
         ],
+        "template": "Common/Button/DepotButton.png",
+        "threshold": 0.8,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -179,20 +179,20 @@
         }
     },
     "ChangeRegionButton": {
-        "doc": "地区建设中的更换地区按钮",
+        "desc": "地区建设中的更换地区按钮",
         "recognition": "TemplateMatch",
-        "template": [
-            "Common/Button/ChangeRegionButton.png",
-            "Common/Button/ChangeRegionButtonHover.png"
-        ],
-        "threshold": 0.9,
         "roi": [
             139,
             263,
             87,
             100
         ],
+        "template": [
+            "Common/Button/ChangeRegionButton.png",
+            "Common/Button/ChangeRegionButtonHover.png"
+        ],
         "method": 10001,
+        "threshold": 0.9,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -205,19 +205,19 @@
         }
     },
     "RegionalDevelopmentLevelButton": {
-        "doc": "地区建设中的地区建设等级按钮",
+        "desc": "地区建设中的地区建设等级按钮",
         "recognition": "TemplateMatch",
-        "template": [
-            "Common/Button/RegionalDevelopmentLevelButton.png",
-            "Common/Button/RegionalDevelopmentLevelButtonHover.png"
-        ],
-        "threshold": 0.9,
         "roi": [
             491,
             337,
             219,
             116
         ],
+        "template": [
+            "Common/Button/RegionalDevelopmentLevelButton.png",
+            "Common/Button/RegionalDevelopmentLevelButtonHover.png"
+        ],
+        "threshold": 0.9,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -230,7 +230,7 @@
         }
     },
     "YellowButtonBackground": {
-        "doc": "黄色按钮背景色",
+        "desc": "黄色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -245,13 +245,13 @@
                     255,
                     255
                 ],
-                "count": 3000,
-                "connected": true
+                "connected": true,
+                "count": 3000
             }
         }
     },
     "WhiteButtonBackground": {
-        "doc": "白色按钮背景色",
+        "desc": "白色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -289,13 +289,13 @@
                         165
                     ]
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         }
     },
     "GrayButtonBackground": {
-        "doc": "灰色按钮背景色",
+        "desc": "灰色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -323,17 +323,16 @@
                         83
                     ]
                 ],
-                "count": 100,
-                "connected": true
+                "connected": true,
+                "count": 100
             }
         }
     },
     "YellowConfirmButtonType1": {
-        "doc": "通用确认按钮，有文字，黄色底，圆环形标志",
+        "desc": "通用确认按钮，有文字，黄色底，圆环形标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowButtonBackground",
                     {
@@ -355,7 +354,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -372,11 +372,10 @@
         }
     },
     "YellowConfirmButtonType2": {
-        "doc": "通用确认按钮，有文字，黄色底，对号标志",
+        "desc": "通用确认按钮，有文字，黄色底，对号标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowButtonBackground",
                     {
@@ -397,7 +396,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -414,11 +414,10 @@
         }
     },
     "CancelButton": {
-        "doc": "通用取消按钮，有文字，白色底，X标志",
+        "desc": "通用取消按钮，有文字，白色底，X标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteButtonBackground",
                     {
@@ -442,7 +441,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -459,11 +459,10 @@
         }
     },
     "GrayCancelButton": {
-        "doc": "通用取消按钮，有文字，灰色底，X标志",
+        "desc": "通用取消按钮，有文字，灰色底，X标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "GrayButtonBackground",
                     {
@@ -485,7 +484,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -502,11 +502,10 @@
         }
     },
     "WhiteConfirmButtonType1": {
-        "doc": "通用确认按钮，有文字，白色底，圆环形标志",
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteButtonBackground",
                     {
@@ -528,7 +527,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -545,11 +545,10 @@
         }
     },
     "WhiteConfirmButtonType2": {
-        "doc": "通用确认按钮，有文字，白色底，对号形标志",
+        "desc": "通用确认按钮，有文字，白色底，对号形标志",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteButtonBackground",
                     {
@@ -571,7 +570,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -588,7 +588,7 @@
         }
     },
     "TeleportButton": {
-        "doc": "传送按钮",
+        "desc": "传送按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -619,22 +619,22 @@
         }
     },
     "CloseRewardsButton": {
-        "doc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
+        "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
                 "roi": [
                     571,
                     594,
                     139,
                     126
                 ],
-                "threshold": 0.9,
-                "method": 10001
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
             }
         },
         "action": {
@@ -651,22 +651,22 @@
         }
     },
     "LevelUpButton": {
-        "doc": "升级按钮，位于界面右下，无文字",
+        "desc": "升级按钮，位于界面右下，无文字",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.8,
-                "method": 10001,
-                "template": [
-                    "Common/Button/LevelUpButton.png",
-                    "Common/Button/LevelUpButtonHover.png"
-                ],
                 "roi": [
                     985,
                     591,
                     277,
                     112
-                ]
+                ],
+                "template": [
+                    "Common/Button/LevelUpButton.png",
+                    "Common/Button/LevelUpButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.8
             }
         },
         "action": {
@@ -683,7 +683,7 @@
         }
     },
     "CloseButtonType1": {
-        "doc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
+        "desc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -717,7 +717,7 @@
         }
     },
     "CloseButtonType2": {
-        "doc": "通用退出按钮，位于界面右上角的X,兼容ESC菜单",
+        "desc": "通用退出按钮，位于界面右上角的X,兼容ESC菜单",
         "recognition": {
             "type": "Or",
             "param": {
@@ -744,17 +744,17 @@
         }
     },
     "EnvironmentMonitoringButton": {
-        "doc": "环境监测按钮",
+        "desc": "环境监测按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/EnvironmentMonitoringButton.png",
-        "threshold": 0.9,
         "roi": [
             749,
             419,
             62,
             73
         ],
+        "template": "Common/Button/EnvironmentMonitoringButton.png",
         "method": 10001,
+        "threshold": 0.9,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -767,16 +767,16 @@
         }
     },
     "EnterCameraModeButton": {
-        "doc": "进入拍照按钮，位于大世界右侧界面",
+        "desc": "进入拍照按钮，位于大世界右侧界面",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/EnterCameraModeButton.png",
-        "threshold": 0.9,
         "roi": [
             1118,
             207,
             158,
             212
         ],
+        "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
         "action": "ClickKey",
         "key": 82, // R 0x52
         "post_wait_freezes": {
@@ -790,16 +790,16 @@
         }
     },
     "EnterCameraModeMenuButton": {
-        "doc": "进入拍照按钮，位于交互菜单",
+        "desc": "进入拍照按钮，位于交互菜单",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/EnterCameraModeMenuButton.png",
-        "threshold": 0.9,
         "roi": [
             755,
             387,
             310,
             178
         ],
+        "template": "Common/Button/EnterCameraModeMenuButton.png",
+        "threshold": 0.9,
         "action": "ClickKey",
         "key": 70, // F 0x46
         "post_wait_freezes": {
@@ -813,16 +813,16 @@
         }
     },
     "ShutterButton": {
-        "doc": "快门按钮",
+        "desc": "快门按钮",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/ShutterButton.png",
-        "threshold": 0.9,
         "roi": [
             1029,
             509,
             145,
             139
         ],
+        "template": "Common/Button/ShutterButton.png",
+        "threshold": 0.9,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,

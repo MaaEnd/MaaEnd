@@ -90,14 +90,14 @@
             "ProtocolSpaceIn",
             {
                 "recognition": "NeuralNetworkDetect",
-                "model": "ProtocolSpace/best.onnx",
                 "roi": [
                     0,
                     0,
                     400,
                     720
                 ],
-                "expected": 1
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
             }
         ],
         "action": "Custom",
@@ -125,14 +125,14 @@
             "ProtocolSpaceIn",
             {
                 "recognition": "NeuralNetworkDetect",
-                "model": "ProtocolSpace/best.onnx",
                 "roi": [
                     400,
                     0,
                     480,
                     720
                 ],
-                "expected": 0
+                "expected": 0,
+                "model": "ProtocolSpace/best.onnx"
             }
         ],
         "action": "Custom",
@@ -184,14 +184,14 @@
             "ProtocolSpaceIn",
             {
                 "recognition": "NeuralNetworkDetect",
-                "model": "ProtocolSpace/best.onnx",
                 "roi": [
                     0,
                     0,
                     450,
                     720
                 ],
-                "expected": 1
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
             }
         ],
         "action": "Custom",
@@ -207,14 +207,14 @@
             "ProtocolSpaceIn",
             {
                 "recognition": "NeuralNetworkDetect",
-                "model": "ProtocolSpace/best.onnx",
                 "roi": [
                     450,
                     0,
                     380,
                     720
                 ],
-                "expected": 1
+                "expected": 1,
+                "model": "ProtocolSpace/best.onnx"
             }
         ],
         "action": "Custom",

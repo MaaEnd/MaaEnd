@@ -1,6 +1,6 @@
 {
     "CreditShoppingMain": {
-        "doc": "信用点购物主入口",
+        "desc": "信用点购物主入口",
         "next": [
             "[JumpBack]CancelExit",
             "InMainWindowCreditShipping",

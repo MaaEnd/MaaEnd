@@ -1,6 +1,6 @@
 {
     "__ScenePrivateMapEnterMapNotDijiangSuccess": {
-        "doc": "在地图界面，进入非帝江号地图成功",
+        "desc": "在地图界面，进入非帝江号地图成功",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -19,7 +19,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapEnterTeleport": {
-        "doc": "在地图界面，随机选择一个传送点进入",
+        "desc": "在地图界面，随机选择一个传送点进入",
         "recognition": {
             "type": "And",
             "param": {
@@ -78,7 +78,7 @@
         ]
     },
     "__ScenePrivateMapTeleportChoose": {
-        "doc": "判断是否有多个图标重叠，导致出现候选条目",
+        "desc": "判断是否有多个图标重叠，导致出现候选条目",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -97,6 +97,9 @@
                 ]
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -105,13 +108,10 @@
                 100,
                 300
             ]
-        },
-        "action": {
-            "type": "Click"
         }
     },
     "__ScenePrivateMapTeleportConfirm": {
-        "doc": "点击确认传送",
+        "desc": "点击确认传送",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -137,7 +137,7 @@
         ]
     },
     "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear": {
-        "doc": "点击确认传送，并且清除锚点",
+        "desc": "点击确认传送，并且清除锚点",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -152,13 +152,13 @@
                 ]
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "",
             "__ScenePrivateMapSwipeToStep1Anchor": "",
             "__ScenePrivateMapSwipeToStepFinishAnchor": ""
-        },
-        "action": {
-            "type": "Click"
         },
         // 场景一：传送有loading
         // 场景二：原地传送无loading
@@ -168,7 +168,7 @@
         ]
     },
     "__ScenePrivateMapTeleportSuccess": {
-        "doc": "进入大世界，传送成功",
+        "desc": "进入大世界，传送成功",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -201,7 +201,7 @@
         ]
     },
     "__ScenePrivateMapDijiangEnterMapOverview": {
-        "doc": "在帝江号地图，进入地区总览界面",
+        "desc": "在帝江号地图，进入地区总览界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -225,7 +225,7 @@
         ]
     },
     "__ScenePrivateMapOtherAreaEnterMapOverview": {
-        "doc": "在其他区域，进入地区总览界面",
+        "desc": "在其他区域，进入地区总览界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -250,7 +250,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapOverviewSuccess": {
-        "doc": "在任意地图界面，成功进入地区总览界面",
+        "desc": "在任意地图界面，成功进入地区总览界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -371,7 +371,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMapSuccess": {
-        "doc": "成功进入地图，左上角和右上角都没有窗口遮挡",
+        "desc": "成功进入地图，左上角和右上角都没有窗口遮挡",
         "recognition": "And",
         "all_of": [
             {
@@ -443,7 +443,7 @@
         ]
     },
     "__ScenePrivateWorldEnterMapAny": {
-        "doc": "在大世界界面，进入地图界面",
+        "desc": "在大世界界面，进入地图界面",
         "recognition": "And",
         "all_of": [
             "InWorld"

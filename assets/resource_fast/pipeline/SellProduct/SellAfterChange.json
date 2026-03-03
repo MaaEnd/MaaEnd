@@ -1,6 +1,6 @@
 {
     "SellProductCanSellAfterChange": {
-        "doc": "更换货品后重新判断能否售卖",
+        "desc": "更换货品后重新判断能否售卖",
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -9,18 +9,18 @@
         ]
     },
     "SellProductClickBarRightAfterChange": {
-        "doc": "换货后点击进度条最右侧",
+        "desc": "换货后点击进度条最右侧",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "SellProduct/SellProductBarRight.png"
-                ],
                 "roi": [
                     1115,
                     507,
                     88,
                     103
+                ],
+                "template": [
+                    "SellProduct/SellProductBarRight.png"
                 ]
             }
         },
@@ -51,18 +51,18 @@
         ]
     },
     "SellProductDragBarAfterChange": {
-        "doc": "换货后备选方案-滑动滑动条",
+        "desc": "换货后备选方案-滑动滑动条",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "SellProduct/SellProductBar.png"
-                ],
                 "roi": [
                     1000,
                     500,
                     200,
                     150
+                ],
+                "template": [
+                    "SellProduct/SellProductBar.png"
                 ]
             }
         },
@@ -89,7 +89,7 @@
         ]
     },
     "SellProductSellAfterChange": {
-        "doc": "换货后交易",
+        "desc": "换货后交易",
         "recognition": "And",
         "all_of": [
             "SellProductSell"
@@ -112,31 +112,31 @@
         ]
     },
     "SellProductSellCheckAfterChange": {
-        "doc": "换货后交易确认，完成后直接离开据点",
+        "desc": "换货后交易确认，完成后直接离开据点",
         "recognition": "And",
         "all_of": [
             "SellProductSellCheck"
         ],
-        "post_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 100,
         "next": [
             "SellProductOutpostDone"
         ]
     },
     "SellProductZeroProductRetry": {
-        "doc": "更换货品后仍无货，进入换据点流程",
-        "focus": {
-            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
-        },
+        "desc": "更换货品后仍无货，进入换据点流程",
         "recognition": "And",
         "all_of": [
             "SellProductZeroProduct"
         ],
         "next": [
             "SellProductOutpostDone"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        }
     }
 }

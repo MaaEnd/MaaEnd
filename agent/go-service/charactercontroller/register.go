@@ -8,7 +8,7 @@ var (
 	_ maa.CustomActionRunner = &CharacterControllerForwardAxisAction{}
 )
 
- // Register registers all custom recognition and action components for charactercontroller package
+// Register registers all custom recognition and action components for charactercontroller package
 func Register() {
 	maa.AgentServerRegisterCustomAction("CharacterControllerYawDeltaAction", &CharacterControllerYawDeltaAction{})
 	maa.AgentServerRegisterCustomAction("CharacterControllerPitchDeltaAction", &CharacterControllerPitchDeltaAction{})

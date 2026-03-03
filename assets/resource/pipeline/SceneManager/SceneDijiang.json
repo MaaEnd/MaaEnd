@@ -1,6 +1,6 @@
 {
     "__ScenePrivateMapAnyEnterWorldDijiang": {
-        "doc": "在大世界界面，进入帝江号大世界",
+        "desc": "在大世界界面，进入帝江号大世界",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -13,7 +13,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapDijiang": {
-        "doc": "在任意地图界面，进入帝江号地图",
+        "desc": "在任意地图界面，进入帝江号地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -26,7 +26,7 @@
         ]
     },
     "__ScenePrivateMapNotDijiangEnterMapDijiang": {
-        "doc": "在地图非帝江号界面，进入帝江号地图",
+        "desc": "在地图非帝江号界面，进入帝江号地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -58,7 +58,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapDijiangSuccess": {
-        "doc": "在地图界面，成功进入帝江号地图",
+        "desc": "在地图界面，成功进入帝江号地图",
         "recognition": "And",
         "all_of": [
             "InMapDijiang"
@@ -67,7 +67,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapDijiangEnterTeleport": {
-        "doc": "在帝江号地图界面，随机选择一个传送点进入",
+        "desc": "在帝江号地图界面，随机选择一个传送点进入",
         "recognition": {
             "type": "And",
             "param": {
@@ -112,7 +112,7 @@
         ]
     },
     "__ScenePrivateAnyEnterWorldDijiangSuccess": {
-        "doc": "在任意界面，成功进入帝江号大世界",
+        "desc": "在任意界面，成功进入帝江号大世界",
         "recognition": {
             "type": "And",
             "param": {
@@ -156,14 +156,7 @@
         }
     },
     "__ScenePrivateWorldEnterMenuControlNexus": {
-        "doc": "从主界面按 I 键打开帝江号总控中枢入口",
-        "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
-        },
-        "focus": {
-            "Node.PipelineNode.Failed": "进入帝江号总控中枢界面失败"
-        },
+        "desc": "从主界面按 I 键打开帝江号总控中枢入口",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -185,12 +178,19 @@
                 "key": 73 // I
             }
         },
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
         "next": [
             "__ScenePrivateWorldEnterMenuControlNexusSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号总控中枢界面失败"
+        }
     },
     "__ScenePrivateWorldEnterMenuControlNexusSuccess": {
-        "doc": "识别处于帝江号总控中枢界面",
+        "desc": "识别处于帝江号总控中枢界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -207,7 +207,7 @@
         }
     },
     "__ScenePrivateMapDijiangEnterWorldAnchor": {
-        "doc": "在帝江号地图，进入[锚点]大世界",
+        "desc": "在帝江号地图，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapDijiang"

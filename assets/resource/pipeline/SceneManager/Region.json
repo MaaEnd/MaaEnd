@@ -1,7 +1,7 @@
 {
     // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
-        "doc": "在任意地图界面",
+        "desc": "在任意地图界面",
         "recognition": "TemplateMatch",
         "roi": [
             -350,
@@ -14,7 +14,7 @@
         ]
     },
     "InMapWulingWulingCity": {
-        "doc": "在武陵-武陵城地图界面",
+        "desc": "在武陵-武陵城地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -35,7 +35,7 @@
         ]
     },
     "InMapWulingJingyuValley": {
-        "doc": "在武陵-景玉谷地图界面",
+        "desc": "在武陵-景玉谷地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -56,7 +56,7 @@
         ]
     },
     "InMapDijiang": {
-        "doc": "在帝江号地图界面",
+        "desc": "在帝江号地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -75,7 +75,7 @@
         ]
     },
     "InMapValleyIVOriginiumSciencePark": {
-        "doc": "在四号谷地-源石研究园地图界面",
+        "desc": "在四号谷地-源石研究园地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -98,7 +98,7 @@
         ]
     },
     "InMapValleyIVOriginLodespring": {
-        "doc": "在四号谷地-矿脉源区地图界面",
+        "desc": "在四号谷地-矿脉源区地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -121,7 +121,7 @@
         ]
     },
     "InMapValleyIVPowerPlateau": {
-        "doc": "在四号谷地-供能高地地图界面",
+        "desc": "在四号谷地-供能高地地图界面",
         "recognition": "And",
         "all_of": [
             "InMapAny",
@@ -143,7 +143,7 @@
         ]
     },
     "InNoticeRewards": {
-        "doc": "在奖励领取界面",
+        "desc": "在奖励领取界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

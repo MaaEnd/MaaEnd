@@ -1,380 +1,380 @@
 {
     "ResellROIProductRow1Col1Price": {
         //当商品有两行时，可以用这个区域识别第一行价格，标记为第一行
-        "doc": "第一行第一列商品价格区域",
+        "desc": "第一行第一列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             72,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col2Price": {
-        "doc": "第一行第二列商品价格区域",
+        "desc": "第一行第二列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             222,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col3Price": {
-        "doc": "第一行第三列商品价格区域",
+        "desc": "第一行第三列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             372,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col4Price": {
-        "doc": "第一行第四列商品价格区域",
+        "desc": "第一行第四列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             522,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col5Price": {
-        "doc": "第一行第五列商品价格区域",
+        "desc": "第一行第五列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             672,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col6Price": {
-        "doc": "第一行第六列商品价格区域",
+        "desc": "第一行第六列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             822,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col7Price": {
-        "doc": "第一行第七列商品价格区域",
+        "desc": "第一行第七列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             980,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow1Col8Price": {
-        "doc": "第一行第八列商品价格区域",
+        "desc": "第一行第八列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             1122,
             350,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col1Price": {
         //当商品只有一行时，可以用这个区域识别第一行价格，标记为第二行
-        "doc": "第二行第一列商品价格区域",
+        "desc": "第二行第一列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             72,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col2Price": {
-        "doc": "第二行第二列商品价格区域",
+        "desc": "第二行第二列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             222,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col3Price": {
-        "doc": "第二行第三列商品价格区域",
+        "desc": "第二行第三列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             372,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col4Price": {
-        "doc": "第二行第四列商品价格区域",
+        "desc": "第二行第四列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             522,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col5Price": {
-        "doc": "第二行第五列商品价格区域",
+        "desc": "第二行第五列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             672,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col6Price": {
-        "doc": "第二行第六列商品价格区域",
+        "desc": "第二行第六列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             822,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col7Price": {
-        "doc": "第二行第七列商品价格区域",
+        "desc": "第二行第七列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             980,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow2Col8Price": {
-        "doc": "第二行第八列商品价格区域",
+        "desc": "第二行第八列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             1122,
             484,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col1Price": {
         //当商品有两行时，可以用这个区域识别第二行价格，标记为第三行
-        "doc": "第三行第一列商品价格区域",
+        "desc": "第三行第一列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             72,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col2Price": {
-        "doc": "第三行第二列商品价格区域",
+        "desc": "第三行第二列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             222,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col3Price": {
-        "doc": "第三行第三列商品价格区域",
+        "desc": "第三行第三列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             372,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col4Price": {
-        "doc": "第三行第四列商品价格区域",
+        "desc": "第三行第四列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             522,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col5Price": {
-        "doc": "第三行第五列商品价格区域",
+        "desc": "第三行第五列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             672,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col6Price": {
-        "doc": "第三行第六列商品价格区域",
+        "desc": "第三行第六列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             822,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col7Price": {
-        "doc": "第三行第七列商品价格区域",
+        "desc": "第三行第七列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             980,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIProductRow3Col8Price": {
-        "doc": "第三行第八列商品价格区域",
+        "desc": "第三行第八列商品价格区域",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             1122,
             567,
             141,
             40
-        ]
+        ],
+        "threshold": 0.8
     },
     "ResellROIViewFriendPrice": {
-        "doc": "查看好友价格按钮区域",
+        "desc": "查看好友价格按钮区域",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "好友",
-        "threshold": 0.8,
         "roi": [
             944,
             446,
             98,
             26
-        ]
+        ],
+        "expected": "好友",
+        "threshold": 0.8,
+        "order_by": "Expected"
     },
     "ResellROIDetailCostPrice": {
-        "doc": "商品详情页成本价格区域",
+        "desc": "商品详情页成本价格区域",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "[0-9]+",
-        "threshold": 0.8,
         "roi": [
             1002,
             240,
             71,
             26
         ],
+        "expected": "[0-9]+",
         "only_rec": true,
-        "color_filter": "ResellROITextColorGrey"
+        "color_filter": "ResellROITextColorGrey",
+        "threshold": 0.8,
+        "order_by": "Expected"
     },
     "ResellROIFriendSalePrice": {
-        "doc": "好友出售价格区域",
+        "desc": "好友出售价格区域",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "[0-9]+",
-        "threshold": 0.8,
         "roi": [
             797,
             294,
             45,
             28
         ],
+        "expected": "[0-9]+",
         "only_rec": true,
         "color_filter": "ResellROITextColorGrey",
+        "threshold": 0.8,
+        "order_by": "Expected",
         "action": "DoNothing",
         "next": []
     },
     "ResellROIQuotaCurrent": {
-        "doc": "当前配额区域 (x/y格式)",
+        "desc": "当前配额区域 (x/y格式)",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "(\\d+)/(\\d+)",
-        "threshold": 0.3,
         "roi": [
             180,
             135,
             75,
             30
-        ]
+        ],
+        "expected": "(\\d+)/(\\d+)",
+        "threshold": 0.3,
+        "order_by": "Expected"
     },
     "ResellROIQuotaNextAddHours": {
-        "doc": "下次增加配额区域 - 小时格式 (a小时后+b)",
+        "desc": "下次增加配额区域 - 小时格式 (a小时后+b)",
         "recognition": "OCR",
-        "order_by": "Expected",
+        "roi": [
+            250,
+            130,
+            140,
+            30
+        ],
         "expected": "(\\d+)\\s*小时.*?[+]\\s*(\\d+)",
         "threshold": 0.3,
-        "roi": [
-            250,
-            130,
-            140,
-            30
-        ]
+        "order_by": "Expected"
     },
     "ResellROIQuotaNextAddMinutes": {
-        "doc": "下次增加配额区域 - 分钟格式 (a分钟后+b)",
+        "desc": "下次增加配额区域 - 分钟格式 (a分钟后+b)",
         "recognition": "OCR",
-        "order_by": "Expected",
+        "roi": [
+            250,
+            130,
+            140,
+            30
+        ],
         "expected": "(\\d+)\\s*分钟.*?[+]\\s*(\\d+)",
         "threshold": 0.3,
-        "roi": [
-            250,
-            130,
-            140,
-            30
-        ]
+        "order_by": "Expected"
     },
     "ResellROIQuotaNextAddFallback": {
-        "doc": "下次增加配额区域 - 兜底格式 (+b)",
+        "desc": "下次增加配额区域 - 兜底格式 (+b)",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "[+]\\s*(\\d+)",
-        "threshold": 0.3,
         "roi": [
             250,
             130,
             140,
             30
-        ]
+        ],
+        "expected": "[+]\\s*(\\d+)",
+        "threshold": 0.3,
+        "order_by": "Expected"
     },
     "ResellROIFriendLoading": {
-        "doc": "好友加载中区域",
+        "desc": "好友加载中区域",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "expected": "加载中",
-        "threshold": 0.85,
         "roi": [
             694,
             376,
             145,
             95
         ],
+        "expected": "加载中",
+        "threshold": 0.85,
+        "order_by": "Expected",
         "action": "DoNothing",
         "next": [
             "ResellROIFriendSalePrice",
@@ -382,7 +382,7 @@
         ]
     },
     "ResellROITextColorGrey": {
-        "doc": "文本颜色为灰色区域",
+        "desc": "文本颜色为灰色区域",
         "recognition": "ColorMatch",
         "roi": [
             0,

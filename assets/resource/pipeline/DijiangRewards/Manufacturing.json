@@ -1,6 +1,6 @@
 {
     "MFG_ReceiveRewards": {
-        "doc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
+        "desc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -15,22 +15,22 @@
                 ]
             }
         },
-        "focus": {
-            "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
-        },
         "next": [
             "EntryMFGCarbinSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
+        }
     },
     "EntryMFGCarbinSuccess": {
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "InMFGCarbin",
                     "FacilityDetails"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "next": [
@@ -41,7 +41,7 @@
         ]
     },
     "MFGCarbinNeedReStock": {
-        "doc": "[制造舱·需要补货] 识别需要补货的奖励，点击补货",
+        "desc": "[制造舱·需要补货] 识别需要补货的奖励，点击补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -66,15 +66,15 @@
         ]
     },
     "MFGCarbinNeedReStockClose": {
-        "doc": "[制造舱·需要补货] 点击补货完成界面确认按钮",
+        "desc": "[制造舱·需要补货] 点击补货完成界面确认按钮",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteConfirmButtonType1",
                     "WhiteButtonConfirmText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": "Click",
@@ -84,15 +84,15 @@
         ]
     },
     "MFGCarbinNeedTake": {
-        "doc": "[制造舱·需要领取] 识别需要领取的奖励，点击领取",
+        "desc": "[制造舱·需要领取] 识别需要领取的奖励，点击领取",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "MFGCarbinNeedTakeText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -103,7 +103,7 @@
         ]
     },
     "MFGCarbinNeedTakeClose": {
-        "doc": "[制造舱·需要领取] 点击领取完成界面确认按钮",
+        "desc": "[制造舱·需要领取] 点击领取完成界面确认按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -120,15 +120,15 @@
         ]
     },
     "MFGCarbinNeedAssist": {
-        "doc": "[制造舱·需要助力] 识别需要助力的奖励，点击使用助力",
+        "desc": "[制造舱·需要助力] 识别需要助力的奖励，点击使用助力",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "InMFGCarbin",
                     "NeedAssistColor"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -147,15 +147,15 @@
         ]
     },
     "MFGCarbinNeedAssistUseAssist": {
-        "doc": "[制造舱·需要助力] 点击使用助力",
+        "desc": "[制造舱·需要助力] 点击使用助力",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "UseAssistText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -167,7 +167,7 @@
         ]
     },
     "MFGCarbinNeedAssistAssistMAX": {
-        "doc": "[制造舱·需要助力] 点击最大助力",
+        "desc": "[制造舱·需要助力] 点击最大助力",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -190,15 +190,15 @@
         ]
     },
     "MFGCarbinNeedAssistConfirm": {
-        "doc": "[制造舱·需要助力] 点击确认使用助力",
+        "desc": "[制造舱·需要助力] 点击确认使用助力",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "MFGCarbinNeedAssistConfirmText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -209,7 +209,7 @@
         ]
     },
     "MFGCarbinNeedAssistClose": {
-        "doc": "[制造舱·需要助力] 点击助力使用完成界面关闭按钮",
+        "desc": "[制造舱·需要助力] 点击助力使用完成界面关闭按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -226,7 +226,7 @@
         ]
     },
     "Exit_MFG_Cabin": {
-        "doc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
+        "desc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {

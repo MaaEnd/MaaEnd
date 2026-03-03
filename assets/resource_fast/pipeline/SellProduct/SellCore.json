@@ -1,12 +1,15 @@
 {
     "SellProductAtSell": {
-        "focus": {
-            "Node.Recognition.Succeeded": "已进入售卖界面"
-        },
-        "doc": "位于出售页面",
+        "desc": "位于出售页面",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    900,
+                    550,
+                    350,
+                    150
+                ],
                 "expected": [
                     // 交易
                     "交易",
@@ -27,21 +30,18 @@
                     "insufficient",
                     "不足",
                     "거점 관리권 보유량 부족"
-                ],
-                "roi": [
-                    900,
-                    550,
-                    350,
-                    150
                 ]
             }
         },
         "next": [
             "SellProductCanSell"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入售卖界面"
+        }
     },
     "SellProductCanSell": {
-        "doc": "判断当前能不能出售的虚节点",
+        "desc": "判断当前能不能出售的虚节点",
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -50,7 +50,7 @@
         ]
     },
     "SellProductZeroProductColorMatch": {
-        "doc": "识别红色文字判断是否有货",
+        "desc": "识别红色文字判断是否有货",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -76,7 +76,7 @@
         }
     },
     "SellProductWhiteTextPosition": {
-        "doc": "识别白色文字位置，判断是否有货",
+        "desc": "识别白色文字位置，判断是否有货",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -102,7 +102,7 @@
         }
     },
     "SellProductZeroProduct": {
-        "doc": "货物数量不足，先尝试更换货品，失败则换据点",
+        "desc": "货物数量不足，先尝试更换货品，失败则换据点",
         "recognition": {
             "type": "Or",
             "param": {
@@ -139,13 +139,16 @@
         ]
     },
     "SellProductZeroMoney": {
-        "focus": {
-            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
-        },
-        "doc": "调度券余量为0",
+        "desc": "调度券余量为0",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    900,
+                    611,
+                    350,
+                    77
+                ],
                 "expected": [
                     // 不足
                     "不足",
@@ -154,24 +157,27 @@
                     "insufficient",
                     "不足",
                     "거점 관리권 보유량 부족"
-                ],
-                "roi": [
-                    900,
-                    611,
-                    350,
-                    77
                 ]
             }
         },
         "next": [
             "SellProductOutpostDone"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+        }
     },
     "SellProductChangeProduct": {
-        "doc": "识别更换货品并点击，进入更换UI",
+        "desc": "识别更换货品并点击，进入更换UI",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    1115,
+                    344,
+                    172,
+                    149
+                ],
                 "expected": [
                     // 更换货品
                     "更换货品",
@@ -179,12 +185,6 @@
                     "Switch Goods",
                     "商品変更",
                     "상품 교체"
-                ],
-                "roi": [
-                    1115,
-                    344,
-                    172,
-                    149
                 ]
             }
         },
@@ -197,10 +197,16 @@
         ]
     },
     "SellProductSelectNewProduct": {
-        "doc": "在更换UI中识别新货物并点击",
+        "desc": "在更换UI中识别新货物并点击",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    511,
+                    180,
+                    274,
+                    83
+                ],
                 "expected": [
                     // 本地仓储
                     "本地仓储",
@@ -208,12 +214,6 @@
                     "Local Depot",
                     "地域在庫",
                     "지역 저장고"
-                ],
-                "roi": [
-                    511,
-                    180,
-                    274,
-                    83
                 ]
             }
         },
@@ -226,7 +226,7 @@
         ]
     },
     "SellProductSelectNewProductConfirm": {
-        "doc": "点击确认",
+        "desc": "点击确认",
         "recognition": {
             "type": "And",
             "param": {
@@ -244,20 +244,20 @@
         ]
     },
     "SellProductClickBarRight": {
-        "doc": "点击进度条最右侧",
+        "desc": "点击进度条最右侧",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "method": 10001,
-                "template": [
-                    "SellProduct/SellProductBarRight.png"
-                ],
                 "roi": [
                     1115,
                     507,
                     88,
                     103
-                ]
+                ],
+                "template": [
+                    "SellProduct/SellProductBarRight.png"
+                ],
+                "method": 10001
             }
         },
         "pre_wait_freezes": 100,
@@ -289,20 +289,20 @@
         ]
     },
     "SellProductDragBar": {
-        "doc": "备选方案-滑动滑动条",
+        "desc": "备选方案-滑动滑动条",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "method": 10001,
-                "template": [
-                    "SellProduct/SellProductBar.png"
-                ],
                 "roi": [
                     1000,
                     500,
                     200,
                     150
-                ]
+                ],
+                "template": [
+                    "SellProduct/SellProductBar.png"
+                ],
+                "method": 10001
             }
         },
         "pre_wait_freezes": 100,
@@ -329,10 +329,16 @@
         ]
     },
     "SellProductSell": {
-        "doc": "交易",
+        "desc": "交易",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    1000,
+                    640,
+                    250,
+                    100
+                ],
                 "expected": [
                     // 交易
                     "交易",
@@ -341,12 +347,6 @@
                     "trade",
                     "取引",
                     "거래"
-                ],
-                "roi": [
-                    1000,
-                    640,
-                    250,
-                    100
                 ]
             }
         },
@@ -368,7 +368,7 @@
         ]
     },
     "SellProductSellCheck": {
-        "doc": "交易后确认",
+        "desc": "交易后确认",
         "recognition": {
             "type": "And",
             "param": {
@@ -378,14 +378,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": [
-                                    "SellProduct/SellProductCheckHeader.png"
-                                ],
                                 "roi": [
                                     577,
                                     10,
                                     138,
                                     118
+                                ],
+                                "template": [
+                                    "SellProduct/SellProductCheckHeader.png"
                                 ]
                             }
                         }
@@ -393,35 +393,35 @@
                 ]
             }
         },
-        "post_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 100,
         "next": [
             "SellProductSellCheckComplete"
         ]
     },
     "SellProductSellCheckComplete": {
-        "doc": "交易完成，奖励界面已关闭",
-        "focus": {
-            "Node.Action.Succeeded": "成功完成一次交易"
-        },
+        "desc": "交易完成，奖励界面已关闭",
         "next": [
             "SellProductCanSellAfterChange"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "成功完成一次交易"
+        }
     },
     "SellProductOutpostDone": {
-        "doc": "虚节点：这个据点已经被售卖完毕",
+        "desc": "虚节点：这个据点已经被售卖完毕",
         "next": [
             "[Anchor]SellProductNextOutpost"
         ]
     },
     "SellProductNextOutpost": {
-        "doc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
+        "desc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
     },
     "SellProductBackToRegionalConstruction": {
-        "doc": "返回区域建设界面",
+        "desc": "返回区域建设界面",
         "recognition": "And",
         "all_of": [
             "CloseButtonType1"

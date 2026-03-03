@@ -1,6 +1,6 @@
 {
     "MFGCarbinNeedAssistConfirmText": {
-        "doc": "[制造舱·需要助力] 识别确认使用助力按钮",
+        "desc": "[制造舱·需要助力] 识别确认使用助力按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -18,7 +18,7 @@
         }
     },
     "UseAssistText": {
-        "doc": "[需要助力] 识别使用助力按钮",
+        "desc": "[需要助力] 识别使用助力按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -36,7 +36,7 @@
         }
     },
     "MFGCarbinNeedTakeText": {
-        "doc": "[制造舱·需要领取] 识别领取按钮",
+        "desc": "[制造舱·需要领取] 识别领取按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -54,7 +54,7 @@
         }
     },
     "ReceptionRoomCollectCluesText": {
-        "doc": "[会客室·线索] 识别需要收集线索的奖励颜色",
+        "desc": "[会客室·线索] 识别需要收集线索的奖励颜色",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -65,15 +65,15 @@
                     14,
                     -3
                 ],
-                "only_rec": true,
                 "expected": [
                     "领取"
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "WhiteButtonConfirmText": {
-        "doc": "白色按钮上的确认文本识别",
+        "desc": "白色按钮上的确认文本识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -91,7 +91,7 @@
         }
     },
     "ReceiveAllText": {
-        "doc": "全部接收按钮文本识别",
+        "desc": "全部接收按钮文本识别",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -109,7 +109,7 @@
         }
     },
     "ReceptionRoomNeedReceiveCluesText": {
-        "doc": "[会客室·线索] 识别需要领取线索的奖励文本",
+        "desc": "[会客室·线索] 识别需要领取线索的奖励文本",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -127,7 +127,7 @@
         }
     },
     "ReceptionRoomNeedCollectCluesText": {
-        "doc": "[会客室·线索] 识别需要收集线索的奖励文本",
+        "desc": "[会客室·线索] 识别需要收集线索的奖励文本",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -148,7 +148,6 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "only_rec": true,
                 "roi": "ClueItem",
                 "roi_offset": [
                     165,
@@ -158,12 +157,13 @@
                 ],
                 "expected": [
                     "^(20|[3-9]|1[0-9])$"
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "StartExchangeText": {
-        "doc": "[会客室·交流] 识别开始交流按钮",
+        "desc": "[会客室·交流] 识别开始交流按钮",
         "recognition": {
             "type": "OCR",
             "param": {

@@ -1,5 +1,7 @@
 {
     "DailyRewardStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "[JumpBack]DailyEmailRewardSub",
             "[JumpBack]DailyTaskRewardSub",
@@ -7,71 +9,69 @@
             "[JumpBack]DailyProtocolPassRewardSub",
             "[JumpBack]DailyEventRewardSub",
             "DailyRewardEnd"
-        ],
-        "post_delay": 0,
-        "pre_delay": 0
+        ]
     },
     "DailyRewardEnd": {
-        "post_delay": 0,
-        "pre_delay": 0
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "DailyEmailRewardSub": {
         "enabled": false,
-        "focus": {
-            "Node.Recognition.Succeeded": "开始领取邮件奖励"
-        },
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEmailStart"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "开始领取邮件奖励"
+        }
     },
     "DailyTaskRewardSub": {
         "enabled": false,
-        "focus": {
-            "Node.Recognition.Succeeded": "开始领取每日任务奖励"
-        },
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyTaskStart"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "开始领取每日任务奖励"
+        }
     },
     "DailyClaimDeliveryJobsRewardSub": {
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DailyRewards.ClaimDeliveryJobsStart"
-        },
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyTaskClaimDeliveryJobsMain"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DailyRewards.ClaimDeliveryJobsStart"
+        }
     },
     "DailyEventRewardSub": {
         "enabled": false,
-        "focus": {
-            "Node.Recognition.Succeeded": "开始领取活动奖励"
-        },
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEventStart"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "开始领取活动奖励"
+        }
     },
     "DailyProtocolPassRewardSub": {
         "enabled": false,
-        "focus": {
-            "Node.Recognition.Succeeded": "开始领取通行证奖励"
-        },
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyProtocolPassStart"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "开始领取通行证奖励"
+        }
     }
 }

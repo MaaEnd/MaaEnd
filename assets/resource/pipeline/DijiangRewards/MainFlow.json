@@ -1,9 +1,6 @@
 {
     "ControlNexus": {
-        "doc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
-        "focus": {
-            "Node.PipelineNode.Failed": "未识别到指定舱室"
-        },
+        "desc": "[主流程·控制中枢] 识别处于帝江号总控中枢界面，按 next 分发至会客室/制造舱/培养舱/好友助力/滑动等子任务或意外处理",
         "max_hit": 1,
         "recognition": {
             "type": "TemplateMatch",
@@ -27,18 +24,21 @@
             "[JumpBack]RecoveryEmotion",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "未识别到指定舱室"
+        }
     },
     "ExitInviteFriend": {
-        "doc": "错误进入邀请好友界面,需要退出",
+        "desc": "错误进入邀请好友界面,需要退出",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteConfirmButtonType1",
                     "InviteFriend"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "next": [
@@ -64,10 +64,7 @@
         }
     },
     "InMainWindow_Normal": {
-        "doc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
-        "focus": {
-            "Node.PipelineNode.Failed": "进入帝江号失败"
-        },
+        "desc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
         "recognition": {
             "type": "Or",
             "param": {
@@ -76,14 +73,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame1.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     172,
                                     0,
                                     183,
                                     119
-                                ]
+                                ],
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -91,14 +88,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame2.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     1182,
                                     0,
                                     98,
                                     128
-                                ]
+                                ],
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -114,13 +111,13 @@
             "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入帝江号失败"
+        }
     },
     "InMainWindow_NeedCredit": {
-        "doc": "[联动主流程·入口]识别主界面或已在控制中枢，进入会客室做线索交流以获取信用点",
-        "focus": {
-            "Node.PipelineNode.Failed": "进入会客室获取信用点失败"
-        },
+        "desc": "[联动主流程·入口]识别主界面或已在控制中枢，进入会客室做线索交流以获取信用点",
         "recognition": {
             "type": "Or",
             "param": {
@@ -129,14 +126,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame1.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     172,
                                     0,
                                     183,
                                     119
-                                ]
+                                ],
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -144,14 +141,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame2.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     1182,
                                     0,
                                     98,
                                     128
-                                ]
+                                ],
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -169,14 +166,13 @@
             "[JumpBack]OpenMap",
             "[JumpBack]CancelExit",
             "[JumpBack]CancelButton"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室获取信用点失败"
+        }
     },
     "InMainWindow": {
-        "doc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
-        "post_wait_freezes": {
-            "time": 100,
-            "timeout": 2000
-        },
+        "desc": "[主流程·状态] 识别处于游戏主界面(非基建内)，用于流程结束或跳转判断",
         "recognition": {
             "type": "Or",
             "param": {
@@ -185,14 +181,14 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame1.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     172,
                                     0,
                                     183,
                                     119
-                                ]
+                                ],
+                                "template": "Resell/inGame1.png",
+                                "threshold": 0.8
                             }
                         }
                     },
@@ -200,19 +196,23 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "template": "Resell/inGame2.png",
-                                "threshold": 0.8,
                                 "roi": [
                                     1182,
                                     0,
                                     98,
                                     128
-                                ]
+                                ],
+                                "template": "Resell/inGame2.png",
+                                "threshold": 0.8
                             }
                         }
                     }
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 2000
         },
         "next": [
             "GrayCancelButtonWithStop",
@@ -220,11 +220,10 @@
         ]
     },
     "GrayCancelButtonWithStop": {
-        "doc": "特殊取消按钮，有文字，灰色底，X标志,最后会结束任务",
+        "desc": "特殊取消按钮，有文字，灰色底，X标志,最后会结束任务",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "GrayButtonBackground",
                     {
@@ -246,7 +245,8 @@
                             }
                         }
                     }
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -276,18 +276,18 @@
                     218
                 ],
                 "method": 40,
-                "upper": [
-                    40,
-                    255,
-                    255
-                ],
                 "lower": [
                     30,
                     100,
                     100
                 ],
-                "count": 200,
-                "connected": true
+                "upper": [
+                    40,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 200
             }
         }
     },
@@ -296,7 +296,6 @@
             "type": "OCR",
             "param": {
                 "roi": "LasCarbinColor",
-                "only_rec": true,
                 "roi_offset": [
                     0,
                     0,
@@ -305,12 +304,13 @@
                 ],
                 "expected": [
                     "培养舱"
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "InLastCarbin": {
-        "doc": "[主流程·控制中枢] 识别已滑到最后一个培养舱且无红点，进入完成分支",
+        "desc": "[主流程·控制中枢] 识别已滑到最后一个培养舱且无红点，进入完成分支",
         "recognition": {
             "type": "And",
             "param": {
@@ -325,22 +325,18 @@
         ]
     },
     "FinishAllDijiangTask": {
-        "doc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
-        "focus": {
-            "Node.PipelineNode.Failed": "帝江基建流程结束后未能返回主界面"
-        },
+        "desc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonType2",
             "[JumpBack]GrayCancelButton"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "帝江基建流程结束后未能返回主界面"
+        }
     },
     "CancelExit": {
-        "doc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
+        "desc": "[主流程·意外] 出现退出确认弹窗时点击取消，避免误退",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -357,14 +353,14 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
         }
     },
     "CarbinSwipe": {
-        "doc": "[主流程·控制中枢] 在总控中枢界面向右滑动，以露出更多舱室(如培养舱)",
-        "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
-        },
+        "desc": "[主流程·控制中枢] 在总控中枢界面向右滑动，以露出更多舱室(如培养舱)",
         "max_hit": 3, //滑动次数过多直接判定失败，避免死循环
         "recognition": {
             "type": "TemplateMatch",
@@ -383,14 +379,18 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 180,
                 "target_offset": [
                     600,
                     20,
                     0,
                     0
-                ]
+                ],
+                "dx": 180
             }
+        },
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
         }
     }
 }

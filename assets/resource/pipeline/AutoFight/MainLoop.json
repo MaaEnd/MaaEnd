@@ -30,9 +30,9 @@
         "desc": "执行战斗操作",
         "recognition": "Custom",
         "custom_recognition": "AutoFightExecuteRecognition",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoFightExecuteAction",
-        "pre_delay": 0,
         "post_delay": 0
     }
 }

@@ -1,10 +1,7 @@
 {
     "EntryReceptionRoom_NeedCredit": {
-        "doc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
+        "desc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点",
         "max_hit": 1,
-        "focus": {
-            "Node.PipelineNode.Failed": "进入会客室失败"
-        },
         "recognition": {
             "type": "OCR",
             "param": {
@@ -26,13 +23,13 @@
             "ReceptionRoom_NeedCredit",
             "[JumpBack]EndExchange",
             "EntryReceptionRoom_NeedCredit"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室失败"
+        }
     },
     "ReceptionRoom_NeedCredit": {
-        "doc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
-        "focus": {
-            "Node.PipelineNode.Failed": "线索交流开启失败"
-        },
+        "desc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -50,10 +47,13 @@
         "next": [
             "InControlNexus_NeedCredit",
             "[JumpBack]StartExchange"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "线索交流开启失败"
+        }
     },
     "InControlNexus_NeedCredit": {
-        "doc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
+        "desc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -68,13 +68,13 @@
                 ]
             }
         },
-        "focus": {
-            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
-        },
         "next": [
             "InMainWindow",
             "[JumpBack]CloseButtonType2",
             "[JumpBack]CancelExit"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
+        }
     }
 }

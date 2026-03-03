@@ -1,6 +1,6 @@
 {
     "NeedAssistColor": {
-        "doc": "[需要助力] 识别需要助力的奖励颜色",
+        "desc": "[需要助力] 识别需要助力的奖励颜色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -21,13 +21,13 @@
                     255,
                     255
                 ],
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         }
     },
     "ReceptionRoomNeedCollectCluesColor": {
-        "doc": "[会客室·线索] 识别需要收集线索的奖励颜色",
+        "desc": "[会客室·线索] 识别需要收集线索的奖励颜色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -48,13 +48,13 @@
                     255,
                     255
                 ],
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         }
     },
     "ReceptionRoomNeedReceiveCluesColor": {
-        "doc": "[会客室·线索] 识别需要领取线索的奖励颜色",
+        "desc": "[会客室·线索] 识别需要领取线索的奖励颜色",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -75,13 +75,13 @@
                     255,
                     255
                 ],
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         }
     },
     "ReceptionRoomSetClueTips": {
-        "doc": "任务提示的红点",
+        "desc": "任务提示的红点",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -102,13 +102,13 @@
                     255,
                     255
                 ],
-                "count": 40,
-                "connected": true
+                "connected": true,
+                "count": 40
             }
         }
     },
     "EndExchangeCountDown": {
-        "doc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
+        "desc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -125,7 +125,7 @@
         }
     },
     "ClueTimeLabel": {
-        "doc": "识别线索的剩余天数",
+        "desc": "识别线索的剩余天数",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -137,18 +137,6 @@
                     41
                 ],
                 "method": 40,
-                "upper": [
-                    [
-                        39,
-                        255,
-                        200
-                    ],
-                    [
-                        180,
-                        255,
-                        255
-                    ]
-                ],
                 "lower": [
                     [
                         39,
@@ -161,13 +149,25 @@
                         100
                     ]
                 ],
-                "count": 20,
-                "connected": true
+                "upper": [
+                    [
+                        39,
+                        255,
+                        200
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 20
             }
         }
     },
     "DeleteClue": {
-        "doc": "[会客室·线索] 识别「删除」红点，表示已有线索可点击替换",
+        "desc": "[会客室·线索] 识别「删除」红点，表示已有线索可点击替换",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -179,18 +179,18 @@
                     22
                 ],
                 "method": 40,
-                "upper": [
-                    180,
-                    255,
-                    255
-                ],
                 "lower": [
                     170,
                     100,
                     100
                 ],
-                "count": 20,
-                "connected": true
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 20
             }
         }
     },
@@ -211,7 +211,7 @@
         }
     },
     "ClueLibrary": {
-        "doc": "[会客室·线索] 识别「线索库存」字样，表示有线索库存可用",
+        "desc": "[会客室·线索] 识别「线索库存」字样，表示有线索库存可用",
         "recognition": {
             "type": "OCR",
             "param": {

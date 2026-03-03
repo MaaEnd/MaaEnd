@@ -1,6 +1,6 @@
 {
     "BatchAddFriendsMain": {
-        "doc": "批量添加好友主入口",
+        "desc": "批量添加好友主入口",
         "next": [
             "BatchAddFriendsOpenAddPage",
             "BatchAddFriendsOnAddPage",
@@ -8,18 +8,18 @@
         ]
     },
     "BatchAddFriendsOpenAddPage": {
-        "doc": "进入添加好友界面",
+        "desc": "进入添加好友界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "BatchAddFriends/addFriend.png",
-                "threshold": 0.8,
                 "roi": [
                     620,
                     0,
                     200,
                     120
-                ]
+                ],
+                "template": "BatchAddFriends/addFriend.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -31,7 +31,7 @@
         ]
     },
     "BatchAddFriendsOnAddPage": {
-        "doc": "确认已进入添加好友页面",
+        "desc": "确认已进入添加好友页面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -55,14 +55,14 @@
         ]
     },
     "BatchAddFriendsSearchFlow": {
-        "doc": "搜索流程入口",
+        "desc": "搜索流程入口",
         "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsTriggerSearch"
         ]
     },
     "BatchAddFriendsTriggerSearch": {
-        "doc": "点击搜索按钮",
+        "desc": "点击搜索按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -89,7 +89,8 @@
         ]
     },
     "BatchAddFriendsWaitSearchLoadingExit": {
-        "doc": "等待搜索加载结束",
+        "desc": "等待搜索加载结束",
+        "max_hit": 30,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -109,14 +110,13 @@
             "param": {}
         },
         "post_wait_freezes": 1000,
-        "max_hit": 30,
         "next": [
             "BatchAddFriendsWaitSearchLoadingExit",
             "BatchAddFriendsSearchReady"
         ]
     },
     "BatchAddFriendsSearchReady": {
-        "doc": "搜索就绪",
+        "desc": "搜索就绪",
         "recognition": "DirectHit",
         "action": {
             "type": "DoNothing",
@@ -127,7 +127,7 @@
         ]
     },
     "BatchAddFriendsClickAddButton": {
-        "doc": "点击添加好友",
+        "desc": "点击添加好友",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -155,10 +155,7 @@
         ]
     },
     "BatchAddFriendsFriendListFullToast": {
-        "doc": "好友列表已满提示",
-        "focus": {
-            "Node.Recognition.Succeeded": "好友列表已满，结束任务"
-        },
+        "desc": "好友列表已满提示",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -185,10 +182,13 @@
         "next": [
             "BatchAddFriendsStrangersEnd",
             "BatchAddFriendsUIDEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "好友列表已满，结束任务"
+        }
     },
     "BatchAddFriendsAfterAddEnd": {
-        "doc": "点击添加好友后结束",
+        "desc": "点击添加好友后结束",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -201,7 +201,7 @@
         ]
     },
     "BatchAddFriendsHasAddButtonStranger": {
-        "doc": "存在添加好友按钮（陌生人列表）",
+        "desc": "存在添加好友按钮（陌生人列表）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -228,7 +228,7 @@
         ]
     },
     "BatchAddFriendsClickAddButtonStranger": {
-        "doc": "点击添加好友（陌生人列表）",
+        "desc": "点击添加好友（陌生人列表）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -256,7 +256,7 @@
         ]
     },
     "BatchAddFriendsStrangersOnAdd": {
-        "doc": "陌生人添加进度",
+        "desc": "陌生人添加进度",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -270,7 +270,7 @@
         ]
     },
     "BatchAddFriendsSwipeList": {
-        "doc": "陌生人列表向下滑",
+        "desc": "陌生人列表向下滑",
         "recognition": "DirectHit",
         "action": {
             "type": "Swipe",
@@ -292,7 +292,7 @@
         ]
     },
     "BatchAddFriendsStrangersAfterSwipe": {
-        "doc": "下滑后再次尝试添加，否则换一批",
+        "desc": "下滑后再次尝试添加，否则换一批",
         "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsHasAddButtonStranger",
@@ -301,7 +301,7 @@
         ]
     },
     "BatchAddFriendsHandleSearchResult": {
-        "doc": "处理搜索结果",
+        "desc": "处理搜索结果",
         "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsSearchUidNotFound",
@@ -310,10 +310,7 @@
         ]
     },
     "BatchAddFriendsSearchUidNotFound": {
-        "doc": "UID 不存在",
-        "focus": {
-            "Node.Recognition.Succeeded": "UID 不存在，尝试下一个"
-        },
+        "desc": "UID 不存在",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -332,13 +329,13 @@
         },
         "next": [
             "BatchAddFriendsUIDLoopTop"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "UID 不存在，尝试下一个"
+        }
     },
     "BatchAddFriendsSearchEmptyResult": {
-        "doc": "搜索结果为空",
-        "focus": {
-            "Node.Recognition.Succeeded": "未搜索到相关玩家"
-        },
+        "desc": "搜索结果为空",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -361,10 +358,13 @@
         },
         "next": [
             "BatchAddFriendsUIDLoopTop"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未搜索到相关玩家"
+        }
     },
     "BatchAddFriendsUIDLoopTop": {
-        "doc": "UID 列表循环入口",
+        "desc": "UID 列表循环入口",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -378,20 +378,20 @@
         ]
     },
     "BatchAddFriendsUIDLoopCounter": {
-        "doc": "UID 列表循环计数",
+        "desc": "UID 列表循环计数",
+        "max_hit": 20,
         "recognition": "DirectHit",
         "action": {
             "type": "DoNothing",
             "param": {}
         },
-        "max_hit": 20,
         "next": [
             "BatchAddFriendsUIDClearSearchBoxTemplate",
             "BatchAddFriendsUIDFocusSearchBoxDispatch"
         ]
     },
     "BatchAddFriendsUIDClearSearchBoxTemplate": {
-        "doc": "清空搜索框",
+        "desc": "清空搜索框",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -416,7 +416,7 @@
         ]
     },
     "BatchAddFriendsUIDFocusSearchBoxDispatch": {
-        "doc": "聚焦搜索框（UID 模式）",
+        "desc": "聚焦搜索框（UID 模式）",
         "recognition": "DirectHit",
         "action": {
             "type": "DoNothing",
@@ -428,7 +428,7 @@
         ]
     },
     "BatchAddFriendsUIDFocusSearchBoxTemplate": {
-        "doc": "聚焦搜索框（模板识别）",
+        "desc": "聚焦搜索框（模板识别）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -453,7 +453,7 @@
         ]
     },
     "BatchAddFriendsUIDFocusSearchBox": {
-        "doc": "聚焦搜索框（UID 模式）",
+        "desc": "聚焦搜索框（UID 模式）",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -479,7 +479,7 @@
         ]
     },
     "BatchAddFriendsUIDEnterUID": {
-        "doc": "输入 UID",
+        "desc": "输入 UID",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -492,20 +492,20 @@
         ]
     },
     "BatchAddFriendsUIDEnd": {
-        "doc": "UID 列表模式结束",
-        "focus": {
-            "Node.Action.Succeeded": "UID 添加结束"
-        },
+        "desc": "UID 列表模式结束",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "BatchAddFriendsUIDFinishAction"
             }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "UID 添加结束"
         }
     },
     "BatchAddFriendsStrangersStart": {
-        "doc": "陌生人批量添加入口",
+        "desc": "陌生人批量添加入口",
         "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsHasAddButtonStranger",
@@ -514,15 +514,15 @@
         ]
     },
     "BatchAddFriendsAddStrangersLoop": {
-        "doc": "陌生人批量添加计数",
-        "recognition": "DirectHit",
+        "desc": "陌生人批量添加计数",
         "max_hit": 20,
+        "recognition": "DirectHit",
         "next": [
             "BatchAddFriendsClickAddButtonStranger"
         ]
     },
     "BatchAddFriendsChangeBatch": {
-        "doc": "换一批",
+        "desc": "换一批",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -548,7 +548,7 @@
         ]
     },
     "BatchAddFriendsWaitChangeBatchLoadingExit": {
-        "doc": "等待换一批加载结束",
+        "desc": "等待换一批加载结束",
         "recognition": "DirectHit",
         "action": {
             "type": "DoNothing",
@@ -561,7 +561,7 @@
         ]
     },
     "BatchAddFriendsAddButtonVisibleAfterChangeBatch": {
-        "doc": "换一批后检测到添加好友按钮",
+        "desc": "换一批后检测到添加好友按钮",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -587,36 +587,33 @@
         ]
     },
     "BatchAddFriendsWaitChangeBatchTick": {
-        "doc": "换一批等待节拍",
+        "desc": "换一批等待节拍",
+        "max_hit": 20,
         "recognition": "DirectHit",
         "action": {
             "type": "DoNothing",
             "param": {}
         },
         "post_wait_freezes": 200,
-        "max_hit": 20,
         "next": [
             "BatchAddFriendsWaitChangeBatchLoadingExit"
         ]
     },
     "BatchAddFriendsStrangersEnd": {
-        "doc": "陌生人批量添加结束",
-        "focus": {
-            "Node.Action.Succeeded": "陌生人列表添加结束"
-        },
+        "desc": "陌生人批量添加结束",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "BatchAddFriendsStrangersFinishAction"
             }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "陌生人列表添加结束"
         }
     },
     "BatchAddFriendsStart": {
-        "doc": "批量添加好友逻辑",
-        "focus": {
-            "Node.Action.Succeeded": "开始批量添加好友"
-        },
+        "desc": "批量添加好友逻辑",
         "recognition": "DirectHit",
         "action": {
             "type": "Custom",
@@ -629,6 +626,9 @@
             "BatchAddFriendsStrangersStart",
             "BatchAddFriendsUIDEnd",
             "BatchAddFriendsStrangersEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "开始批量添加好友"
+        }
     }
 }

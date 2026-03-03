@@ -1,6 +1,6 @@
 {
     "InMFGCarbin": {
-        "doc": "[制造舱] 在制造舱界面，识别制造舱标题",
+        "desc": "[制造舱] 在制造舱界面，识别制造舱标题",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -17,7 +17,7 @@
         }
     },
     "InReceptionRoom": {
-        "doc": "[会客室] 在会客室界面，识别会客室标题",
+        "desc": "[会客室] 在会客室界面，识别会客室标题",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -34,7 +34,7 @@
         }
     },
     "FacilityDetails": {
-        "doc": "[设施详情] 识别设施详情标题",
+        "desc": "[设施详情] 识别设施详情标题",
         "recognition": {
             "type": "OCR",
             "param": {

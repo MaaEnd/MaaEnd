@@ -1,22 +1,15 @@
 {
     "RecoveryEmotion": {
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
+        "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
         "max_hit": 1,
-        "doc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
-        "focus": {
-            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
-        },
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "InDijiangControlNexus",
                     "NeedAssistColor"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -30,20 +23,27 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
+        },
         "next": [
             "RecoveryEmotionAssistUseAssist"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
+        }
     },
     "RecoveryEmotionAssistUseAssist": {
-        "doc": "[恢复心情·需要助力] 点击使用助力",
+        "desc": "[恢复心情·需要助力] 点击使用助力",
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "UseAssistText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -54,10 +54,7 @@
         ]
     },
     "EmotionFull": {
-        "doc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
-        "focus": {
-            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
-        },
+        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -75,10 +72,13 @@
         },
         "next": [
             "BackToControlNexus"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+        }
     },
     "StartRecoveryEmotion": {
-        "doc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
+        "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -101,17 +101,17 @@
         ]
     },
     "SelectLowEmotion": {
-        "doc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
+        "desc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
         "max_hit": 10,
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 2,
                 "all_of": [
                     "EmotionIcon",
                     "EmotionBar",
                     "EmotionEmpty"
-                ]
+                ],
+                "box_index": 2
             }
         },
         "action": {
@@ -127,7 +127,7 @@
         }
     },
     "EmotionIcon": {
-        "doc": "[恢复心情·状态] 心情图标位置",
+        "desc": "[恢复心情·状态] 心情图标位置",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -147,7 +147,7 @@
         }
     },
     "EmotionBar": {
-        "doc": "[恢复心情·状态] 心情条位置",
+        "desc": "[恢复心情·状态] 心情条位置",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -173,7 +173,7 @@
         }
     },
     "EmotionEmpty": {
-        "doc": "[恢复心情·状态] 识别心情条空缺的干员",
+        "desc": "[恢复心情·状态] 识别心情条空缺的干员",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -194,17 +194,14 @@
                     27,
                     25
                 ],
-                "count": 30,
                 "connected": true,
+                "count": 30,
                 "order_by": "Vertical"
             }
         }
     },
     "CouldNotAssistEmotion": {
-        "doc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
-        "focus": {
-            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
-        },
+        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -224,10 +221,13 @@
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]BackToControlNexus",
             "[JumpBack]CloseButtonType1"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
+        }
     },
     "BackToControlNexus": {
-        "doc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
+        "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

@@ -1,7 +1,7 @@
 {
     // 只能使用本文件中定义的接口，禁止引用 SceneManager 文件夹内的 __ScenePrivate 节点
     "SceneAnyEnterWorld": {
-        "doc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
+        "desc": "从任意界面进入谷地/武陵/帝江任意一个大世界",
         "next": [
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
@@ -12,7 +12,7 @@
         ]
     },
     "SceneEnterMapAny": {
-        "doc": "从任意界面进入任意一个地图界面",
+        "desc": "从任意界面进入任意一个地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -21,7 +21,7 @@
         ]
     },
     "SceneEnterWorldFactory": {
-        "doc": "从任意界面进入大世界工厂模式",
+        "desc": "从任意界面进入大世界工厂模式",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -33,7 +33,7 @@
         ]
     },
     "SceneDialogConfirm": {
-        "doc": "点击对话框的确认按钮",
+        "desc": "点击对话框的确认按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -81,7 +81,7 @@
         }
     },
     "SceneDialogCancel": {
-        "doc": "点击对话框的取消按钮",
+        "desc": "点击对话框的取消按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -129,7 +129,7 @@
         }
     },
     "SceneNoticeRewardsConfirm": {
-        "doc": "点击奖励界面的确认按钮",
+        "desc": "点击奖励界面的确认按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -145,7 +145,7 @@
         }
     },
     "SceneWaitLoadingExit": {
-        "doc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
+        "desc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -169,11 +169,11 @@
         ]
     },
     "SceneCheckYellowColor": {
-        "doc": "检查颜色准确性:黄色",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:黄色",
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneCheckYellowColorSuccess",
             "SceneCheckYellowColorFailed",
@@ -181,10 +181,7 @@
         ]
     },
     "SceneCheckYellowColorSuccess": {
-        "doc": "检查颜色准确性:黄色 成功",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:黄色 成功",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -195,24 +192,24 @@
                     85
                 ],
                 "method": 40,
-                "upper": [
-                    30,
-                    255,
-                    255
-                ],
                 "lower": [
                     30,
                     255,
                     1
+                ],
+                "upper": [
+                    30,
+                    255,
+                    255
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SceneCheckYellowColorFailed": {
-        "doc": "检查颜色准确性:黄色 失败",
-        "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
-        },
+        "desc": "检查颜色准确性:黄色 失败",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -227,19 +224,22 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SceneCheckColorFailedScreenShot"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #807F00; font-weight: bold;\">黄色 (#807F00)</span>"
+        }
     },
     "SceneCheckTealColor": {
-        "doc": "检查颜色准确性:青色",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:青色",
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneCheckTealColorSuccess",
             "SceneCheckTealColorFailed",
@@ -247,10 +247,7 @@
         ]
     },
     "SceneCheckTealColorSuccess": {
-        "doc": "检查颜色准确性:青色 成功",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:青色 成功",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -261,24 +258,24 @@
                     85
                 ],
                 "method": 40,
-                "upper": [
-                    90,
-                    255,
-                    255
-                ],
                 "lower": [
                     90,
                     255,
                     1
+                ],
+                "upper": [
+                    90,
+                    255,
+                    255
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SceneCheckTealColorFailed": {
-        "doc": "检查颜色准确性:青色 失败",
-        "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
-        },
+        "desc": "检查颜色准确性:青色 失败",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -293,19 +290,22 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SceneCheckColorFailedScreenShot"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #007F7F; font-weight: bold;\">青色 (#007F7F)</span>"
+        }
     },
     "SceneCheckPurpleColor": {
-        "doc": "检查颜色准确性:紫色",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:紫色",
         "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SceneCheckPurpleColorSuccess",
             "SceneCheckPurpleColorFailed",
@@ -313,10 +313,7 @@
         ]
     },
     "SceneCheckPurpleColorSuccess": {
-        "doc": "检查颜色准确性:紫色 成功",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性:紫色 成功",
         "recognition": {
             "type": "ColorMatch",
             "param": {
@@ -327,24 +324,24 @@
                     85
                 ],
                 "method": 40,
-                "upper": [
-                    150,
-                    255,
-                    255
-                ],
                 "lower": [
                     150,
                     255,
                     1
+                ],
+                "upper": [
+                    150,
+                    255,
+                    255
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SceneCheckPurpleColorFailed": {
-        "doc": "检查颜色准确性:紫色 失败",
-        "focus": {
-            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
-        },
+        "desc": "检查颜色准确性:紫色 失败",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -359,21 +356,24 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SceneCheckColorFailedScreenShot"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "<span style=\"color: red; font-weight: bold;\">识别颜色失败:</span><span style=\"color: #80007F; font-weight: bold;\">紫色 (#80007F)</span>"
+        }
     },
     "SceneCheckColorFailedScreenShot": {
-        "doc": "检查颜色准确性失败时，截图保存到 debug 目录",
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
+        "desc": "检查颜色准确性失败时，截图保存到 debug 目录",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": {
             "type": "Screencap"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

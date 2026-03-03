@@ -1,58 +1,58 @@
 {
     "DailyEmailAlreadyInEmail": {
-        "focus": {
-            "Node.Recognition.Succeeded": "已进入邮件界面"
-        },
-        "next": [
-            "DailyEmailExistTSA",
-            "DailyEmailReceiveEmail"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "邮件",
-                    "收件箱"
-                ],
                 "roi": [
                     5,
                     2,
                     252,
                     97
+                ],
+                "expected": [
+                    "邮件",
+                    "收件箱"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "next": [
+            "DailyEmailExistTSA",
+            "DailyEmailReceiveEmail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已进入邮件界面"
         }
     },
     "DailyEmailCheckEmailEnd": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "返回主界面"
-        },
         "recognition": {
+            "type": "And",
             "param": {
                 "all_of": [
                     "CloseButtonType1"
                 ]
-            },
-            "type": "And"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
         },
         "repeat": 2,
-        "repeat_wait_freezes": 1000
+        "repeat_wait_freezes": 1000,
+        "focus": {
+            "Node.Recognition.Succeeded": "返回主界面"
+        }
     },
     "DailyEmailStart": {
-        "doc": "邮件奖励流程入口",
+        "desc": "邮件奖励流程入口",
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEmailWorldEnterMenuEmail",
             "[JumpBack]SceneAnyEnterWorld"
-        ],
-        "post_delay": 0,
-        "pre_delay": 0
+        ]
     },
     "DailyEmailWorldEnterMenuEmail": {
-        "doc": "从大世界进入邮箱界面",
+        "desc": "从大世界进入邮箱界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -68,15 +68,15 @@
                 "green_mask": true
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEmailHasUnreadMessage",
             "DailyEmailNoUnreadMessage"
         ]
     },
     "DailyEmailHasUnreadMessage": {
-        "doc": "大世界有未读邮件,尝试打开邮件",
+        "desc": "大世界有未读邮件,尝试打开邮件",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -97,16 +97,16 @@
                 "key": 75 // K
             }
         },
-        "focus": {
-            "Node.Action.Succeeded": "尝试打开邮件"
-        },
         "post_wait_freezes": 400,
         "next": [
             "DailyEmailAlreadyInEmail"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "尝试打开邮件"
+        }
     },
     "DailyEmailNoUnreadMessage": {
-        "doc": "大世界没有未读邮件，不进行操作",
+        "desc": "大世界没有未读邮件，不进行操作",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -127,144 +127,144 @@
         }
     },
     "DailyEmailConfirmEmail": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "获取邮件奖励"
-        },
-        "next": [
-            "DailyEmailCheckEmailEnd"
-        ],
-        "pre_wait_freezes": 200,
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "邮箱奖励"
-                ],
                 "roi": [
                     473,
                     16,
                     330,
                     155
+                ],
+                "expected": [
+                    "邮箱奖励"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "DailyEmailCheckEmailEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "获取邮件奖励"
         }
     },
     "DailyEmailConfirmTSA": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "next": [
-            "DailyEmailReceiveEmail"
-        ],
-        "pre_wait_freezes": 200,
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "获得道具"
-                ],
                 "roi": [
                     442,
                     8,
                     409,
                     187
+                ],
+                "expected": [
+                    "获得道具"
                 ]
-            },
-            "type": "OCR"
-        }
-    },
-    "DailyEmailExistTSA": {
-        "action": {
-            "param": {},
-            "type": "Click"
+            }
         },
-        "focus": {
-            "Node.Recognition.Succeeded": "收取暂存区物资"
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {}
         },
         "next": [
-            "DailyEmailReceiveTSA"
-        ],
+            "DailyEmailReceiveEmail"
+        ]
+    },
+    "DailyEmailExistTSA": {
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "template": [
                     "CheckEmail/TSA.png"
                 ]
-            },
-            "type": "TemplateMatch"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "DailyEmailReceiveTSA"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "收取暂存区物资"
         }
     },
     "DailyEmailNoEmailRewards": {
-        "focus": {
-            "Node.Recognition.Succeeded": "暂无邮件奖励"
-        },
-        "next": [
-            "DailyEmailCheckEmailEnd"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "暂无附件"
-                ],
                 "roi": [
                     318,
                     22,
                     625,
                     176
+                ],
+                "expected": [
+                    "暂无附件"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "next": [
+            "DailyEmailCheckEmailEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "暂无邮件奖励"
         }
     },
     "DailyEmailReceiveEmail": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "next": [
-            "DailyEmailNoEmailRewards",
-            "DailyEmailConfirmEmail"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "全部收取"
-                ],
                 "roi": [
                     7,
                     587,
                     406,
                     125
+                ],
+                "expected": [
+                    "全部收取"
                 ]
-            },
-            "type": "OCR"
-        }
-    },
-    "DailyEmailReceiveTSA": {
+            }
+        },
         "action": {
-            "param": {},
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
         "next": [
-            "DailyEmailConfirmTSA"
-        ],
-        "pre_wait_freezes": 200,
+            "DailyEmailNoEmailRewards",
+            "DailyEmailConfirmEmail"
+        ]
+    },
+    "DailyEmailReceiveTSA": {
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "全部领取"
-                ],
                 "roi": [
                     497,
                     426,
                     342,
                     128
+                ],
+                "expected": [
+                    "全部领取"
                 ]
-            },
-            "type": "OCR"
-        }
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "DailyEmailConfirmTSA"
+        ]
     }
 }

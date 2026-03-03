@@ -279,26 +279,26 @@
     },
     "__ScenePrivateMapSwipeToStep0AnchorClear": {
         "desc": "清理滑动锚点",
+        "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": ""
         },
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__ScenePrivateMapSwipeToStep1AnchorClear": {
         "desc": "清理滑动锚点",
+        "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep1Anchor": ""
         },
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__ScenePrivateMapSwipeToStepFinishAnchorClear": {
         "desc": "清理滑动锚点",
+        "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStepFinishAnchor": ""
         },
-        "pre_delay": 0,
         "post_delay": 0
     }
 }

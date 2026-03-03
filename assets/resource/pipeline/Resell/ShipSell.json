@@ -1,6 +1,6 @@
 {
     "DebugShipEntry": {
-        "doc": "调试入口：在点击进入好友飞船开始",
+        "desc": "调试入口：在点击进入好友飞船开始",
         "recognition": {
             "type": "DirectHit"
         },
@@ -9,7 +9,7 @@
         ]
     },
     "ResellShipWalkAS_KeyDownA": {
-        "doc": "按下A键（开始A+S走路撞墙）",
+        "desc": "按下A键（开始A+S走路撞墙）",
         "recognition": {
             "type": "DirectHit"
         },
@@ -25,7 +25,7 @@
         ]
     },
     "ResellShipWalkAS_KeyDownS": {
-        "doc": "按下S键",
+        "desc": "按下S键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -35,7 +35,6 @@
                 "key": 83
             }
         },
-        "post_delay": 0,
         "post_wait_freezes": {
             "time": 500,
             "target": [
@@ -46,12 +45,13 @@
             ],
             "timeout": 15000
         },
+        "post_delay": 0,
         "next": [
             "ResellShipWalkAS_KeyUpA"
         ]
     },
     "ResellShipWalkAS_KeyUpA": {
-        "doc": "松开A键（撞墙后停止）",
+        "desc": "松开A键（撞墙后停止）",
         "recognition": {
             "type": "DirectHit"
         },
@@ -67,7 +67,7 @@
         ]
     },
     "ResellShipWalkAS_KeyUpS": {
-        "doc": "松开S键",
+        "desc": "松开S键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -83,7 +83,7 @@
         ]
     },
     "ResellShipWalkAW_KeyDownA": {
-        "doc": "按下A键（开始A+W走向终端）",
+        "desc": "按下A键（开始A+W走向终端）",
         "recognition": {
             "type": "DirectHit"
         },
@@ -99,7 +99,7 @@
         ]
     },
     "ResellShipWalkAW_KeyDownW": {
-        "doc": "按下W键",
+        "desc": "按下W键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -115,28 +115,28 @@
         ]
     },
     "ResellShipDetectTerminal": {
-        "doc": "检测物资调度终端（持续检测直到找到）",
+        "desc": "检测物资调度终端（持续检测直到找到）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/terminal.png",
-                "threshold": 0.7,
                 "roi": [
                     400,
                     200,
                     480,
                     320
-                ]
+                ],
+                "template": "Resell/terminal.png",
+                "threshold": 0.7
             }
         },
         "post_delay": 0,
+        "timeout": 20000,
         "next": [
             "ResellShipWalkAW_KeyUpA"
-        ],
-        "timeout": 20000
+        ]
     },
     "ResellShipWalkAW_KeyUpA": {
-        "doc": "找到终端，松开A键",
+        "desc": "找到终端，松开A键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -152,7 +152,7 @@
         ]
     },
     "ResellShipWalkAW_KeyUpW": {
-        "doc": "松开W键",
+        "desc": "松开W键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -168,7 +168,7 @@
         ]
     },
     "ResellShipWalkAW_KeyUpA_Timeout": {
-        "doc": "超时，松开A键",
+        "desc": "超时，松开A键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -183,7 +183,7 @@
         ]
     },
     "ResellShipWalkAW_KeyUpW_Timeout": {
-        "doc": "超时，松开W键",
+        "desc": "超时，松开W键",
         "recognition": {
             "type": "DirectHit"
         },
@@ -199,7 +199,7 @@
         ]
     },
     "ResellShipInteract": {
-        "doc": "交互终端（按F键）",
+        "desc": "交互终端（按F键）",
         "recognition": {
             "type": "DirectHit"
         },
@@ -215,39 +215,39 @@
         ]
     },
     "ResellShipInTerminal": {
-        "doc": "检测是否进入终端界面",
+        "desc": "检测是否进入终端界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/inTerminal.png",
-                "threshold": 0.8,
                 "roi": [
                     0,
                     50,
                     250,
                     250
-                ]
+                ],
+                "template": "Resell/inTerminal.png",
+                "threshold": 0.8
             }
         },
         "post_delay": 0,
+        "timeout": 5000,
         "next": [
             "ResellShipPage1Click"
-        ],
-        "timeout": 5000
+        ]
     },
     "ResellShipPage1Click": {
-        "doc": "【第一页】点击第一个商品",
+        "desc": "【第一页】点击第一个商品",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/storeItem.png",
-                "threshold": 0.8,
                 "roi": [
                     0,
                     220,
                     250,
                     460
-                ]
+                ],
+                "template": "Resell/storeItem.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -268,18 +268,18 @@
         ]
     },
     "ResellShipPage1SellSwipe": {
-        "doc": "【第一页】拉满数量滑条",
+        "desc": "【第一页】拉满数量滑条",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/Confirm.png",
-                "threshold": 0.8,
                 "roi": [
                     1010,
                     525,
                     120,
                     122
-                ]
+                ],
+                "template": "Resell/Confirm.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -301,43 +301,43 @@
         ]
     },
     "ResellShipPage1SellExecute": {
-        "doc": "【第一页】点击确认售卖",
+        "desc": "【第一页】点击确认售卖",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/Confirm.png",
-                "threshold": 0.8,
                 "roi": [
                     1010,
                     525,
                     120,
                     122
-                ]
+                ],
+                "template": "Resell/Confirm.png",
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
-        "post_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
         "next": [
             "ResellShipPage1SellSuccess",
             "ResellShipPage1SellExecute"
         ]
     },
     "ResellShipPage1SellSuccess": {
-        "doc": "【第一页】售卖成功，点击确认",
+        "desc": "【第一页】售卖成功，点击确认",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/success.png",
-                "threshold": 0.8,
                 "roi": [
                     577,
                     601,
                     124,
                     119
-                ]
+                ],
+                "template": "Resell/success.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -349,18 +349,18 @@
         ]
     },
     "ResellShipPage1NoStock": {
-        "doc": "【第一页】没有库存，按ESC关闭弹窗",
+        "desc": "【第一页】没有库存，按ESC关闭弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/noStock.png",
-                "threshold": 0.8,
                 "roi": [
                     200,
                     500,
                     200,
                     100
-                ]
+                ],
+                "template": "Resell/noStock.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -375,7 +375,7 @@
         ]
     },
     "ResellShipSwitchPage": {
-        "doc": "按E翻到第二页",
+        "desc": "按E翻到第二页",
         "recognition": {
             "type": "DirectHit"
         },
@@ -391,18 +391,18 @@
         ]
     },
     "ResellShipPage2Click": {
-        "doc": "【第二页】点击第一个商品",
+        "desc": "【第二页】点击第一个商品",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/storeItem.png",
-                "threshold": 0.8,
                 "roi": [
                     0,
                     220,
                     250,
                     460
-                ]
+                ],
+                "template": "Resell/storeItem.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -423,18 +423,18 @@
         ]
     },
     "ResellShipPage2SellSwipe": {
-        "doc": "【第二页】拉满数量滑条",
+        "desc": "【第二页】拉满数量滑条",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/Confirm.png",
-                "threshold": 0.8,
                 "roi": [
                     1010,
                     525,
                     120,
                     122
-                ]
+                ],
+                "template": "Resell/Confirm.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -456,43 +456,43 @@
         ]
     },
     "ResellShipPage2SellExecute": {
-        "doc": "【第二页】点击确认售卖",
+        "desc": "【第二页】点击确认售卖",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/Confirm.png",
-                "threshold": 0.8,
                 "roi": [
                     1010,
                     525,
                     120,
                     122
-                ]
+                ],
+                "template": "Resell/Confirm.png",
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
-        "post_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
         "next": [
             "ResellShipPage2SellSuccess",
             "ResellShipPage2SellExecute"
         ]
     },
     "ResellShipPage2SellSuccess": {
-        "doc": "【第二页】售卖成功，点击确认",
+        "desc": "【第二页】售卖成功，点击确认",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/success.png",
-                "threshold": 0.8,
                 "roi": [
                     577,
                     601,
                     124,
                     119
-                ]
+                ],
+                "template": "Resell/success.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -504,18 +504,18 @@
         ]
     },
     "ResellShipPage2NoStock": {
-        "doc": "【第二页】没有库存，按ESC关闭弹窗",
+        "desc": "【第二页】没有库存，按ESC关闭弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/noStock.png",
-                "threshold": 0.8,
                 "roi": [
                     200,
                     500,
                     200,
                     100
-                ]
+                ],
+                "template": "Resell/noStock.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -530,7 +530,7 @@
         ]
     },
     "ResellShipExitSell": {
-        "doc": "ESC退出出售界面，开始检测环境",
+        "desc": "ESC退出出售界面，开始检测环境",
         "recognition": {
             "type": "DirectHit"
         },
@@ -548,18 +548,18 @@
         ]
     },
     "ResellShipExitTerminal": {
-        "doc": "【环境检测1】在终端界面 -> ESC",
+        "desc": "【环境检测1】在终端界面 -> ESC",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/inTerminal.png",
-                "threshold": 0.8,
                 "roi": [
                     0,
                     50,
                     250,
                     250
-                ]
+                ],
+                "template": "Resell/inTerminal.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -575,18 +575,18 @@
         ]
     },
     "ResellShipExitToFriendPage": {
-        "doc": "【环境检测2】在船坞 -> ESC",
+        "desc": "【环境检测2】在船坞 -> ESC",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/inShip.png",
-                "threshold": 0.8,
                 "roi": [
                     0,
                     0,
                     125,
                     125
-                ]
+                ],
+                "template": "Resell/inShip.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -601,18 +601,19 @@
         ]
     },
     "ResellShipEndVisitCheck": {
-        "doc": "检测结束拜访按钮（右下角）",
+        "desc": "检测结束拜访按钮（右下角）",
+        "max_hit": 3,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/endVisitCheck.png",
-                "threshold": 0.7,
                 "roi": [
                     1000,
                     600,
                     280,
                     120
-                ]
+                ],
+                "template": "Resell/endVisitCheck.png",
+                "threshold": 0.7
             }
         },
         "action": {
@@ -620,24 +621,23 @@
         },
         "post_delay": 0,
         "timeout": 5000,
-        "max_hit": 3,
         "next": [
             "ResellShipEndVisitConfirm"
         ]
     },
     "ResellShipEndVisitConfirm": {
-        "doc": "确认结束拜访弹窗",
+        "desc": "确认结束拜访弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/endVisitConfirm.png",
-                "threshold": 0.7,
                 "roi": [
                     400,
                     300,
                     500,
                     300
-                ]
+                ],
+                "template": "Resell/endVisitConfirm.png",
+                "threshold": 0.7
             }
         },
         "action": {
@@ -651,18 +651,18 @@
         ]
     },
     "ResellShipReturnOwnShip": {
-        "doc": "等待返回自己的飞船（检测黑屏加载）",
+        "desc": "等待返回自己的飞船（检测黑屏加载）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "Resell/inGame1.png",
-                "threshold": 0.8,
                 "roi": [
                     172,
                     0,
                     133,
                     118
-                ]
+                ],
+                "template": "Resell/inGame1.png",
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
