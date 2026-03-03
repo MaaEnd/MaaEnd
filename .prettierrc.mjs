@@ -37,5 +37,17 @@ export default {
                 bracketSameLine: false,
             },
         },
+        {
+            files: [
+                "*.mts",
+            ],
+            options: {
+                tabWidth: 2,
+                semi: false,
+                trailingComma: "all",
+                bracketSpacing: true,
+                singleQuote: true,
+            },
+        },
     ],
 };
