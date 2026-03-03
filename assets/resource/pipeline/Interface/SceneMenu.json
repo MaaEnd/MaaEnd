@@ -1,6 +1,6 @@
 {
     "SceneEnterMenuList": {
-        "doc": "从任意界面进入菜单总列表",
+        "desc": "从任意界面进入菜单总列表",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -9,7 +9,7 @@
         ]
     },
     "SceneEnterMenuRegionalDevelopment": {
-        "doc": "从任意界面进入地区建设菜单",
+        "desc": "从任意界面进入地区建设菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -18,7 +18,7 @@
         ]
     },
     "SceneEnterMenuEvent": {
-        "doc": "从任意界面进入活动菜单",
+        "desc": "从任意界面进入活动菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -27,7 +27,7 @@
         ]
     },
     "SceneEnterMenuValuables": {
-        "doc": "从任意界面进入贵重品库菜单",
+        "desc": "从任意界面进入贵重品库菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -36,7 +36,7 @@
         ]
     },
     "SceneEnterMenuOperationalManual": {
-        "doc": "从任意界面进入行动手册菜单",
+        "desc": "从任意界面进入行动手册菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -45,7 +45,7 @@
         ]
     },
     "SceneEnterMenuProtocolPass": {
-        "doc": "从任意界面进入通行证菜单",
+        "desc": "从任意界面进入通行证菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -54,7 +54,7 @@
         ]
     },
     "SceneEnterMenuFriends": {
-        "doc": "从任意界面进入好友菜单",
+        "desc": "从任意界面进入好友菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -63,7 +63,7 @@
         ]
     },
     "SceneEnterMenuGearAssembly": {
-        "doc": "从任意界面进入装备加工界面",
+        "desc": "从任意界面进入装备加工界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -72,7 +72,7 @@
         ]
     },
     "SceneEnterMenuBluePrint": {
-        "doc": "从任意界面进入蓝图菜单",
+        "desc": "从任意界面进入蓝图菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -81,7 +81,7 @@
         ]
     },
     "SceneEnterMenuEmail": {
-        "doc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
+        "desc": "从任意界面进入邮箱界面，无未读邮箱时会任务失败，不建议使用",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -90,7 +90,7 @@
         ]
     },
     "SceneEnterMenuBackpack": {
-        "doc": "从任意界面进入背包界面，左侧不一定有仓库",
+        "desc": "从任意界面进入背包界面，左侧不一定有仓库",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -99,7 +99,7 @@
         ]
     },
     "SceneEnterMenuBackpackWithDepot": {
-        "doc": "从任意界面进入背包界面，左侧包含所有仓库",
+        "desc": "从任意界面进入背包界面，左侧包含所有仓库",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -108,7 +108,7 @@
         ]
     },
     "SceneEnterMenuBaker": {
-        "doc": "从任意界面进入Baker界面",
+        "desc": "从任意界面进入Baker界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -117,7 +117,7 @@
         ]
     },
     "SceneEnterMenuWiki": {
-        "doc": "从任意界面进入百科界面",
+        "desc": "从任意界面进入百科界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -126,7 +126,7 @@
         ]
     },
     "SceneEnterMenuShop": {
-        "doc": "从任意界面进入商店界面",
+        "desc": "从任意界面进入商店界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -135,7 +135,7 @@
         ]
     },
     "SceneEnterMenuDijiangControlNexus": {
-        "doc": "从任意界面进入帝江号控制中枢菜单",
+        "desc": "从任意界面进入帝江号控制中枢菜单",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [

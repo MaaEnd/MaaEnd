@@ -5,9 +5,13 @@
         "format": "prettier --write \"**/*.{json,yml,yaml,md}\"",
         "format:check": "prettier --check \"**/*.{json,yml,yaml,md}\"",
         "format:go": "cd agent/go-service && go fmt ./...",
-        "format:all": "pnpm format && pnpm format:go"
+        "format:all": "pnpm format && pnpm format:go",
+        "check": "maa-tools check"
     },
     "devDependencies": {
+        "@nekosu/maa-tools": "1.0.6",
+        "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
+        "@types/node": "^24.11.0",
         "prettier": "3.5.3",
         "prettier-plugin-multiline-arrays": "4.1.4"
     },

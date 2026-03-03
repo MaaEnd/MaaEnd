@@ -198,7 +198,8 @@
                     "name": "Yes",
                     "option": [
                         "KeepFuturePromising",
-                        "KeepSlot3Level3Practical"
+                        "KeepSlot3Level3Practical",
+                        "DiscardUnmatched"
                     ]
                 },
                 {
@@ -311,6 +312,34 @@
                     }
                 }
             }
+        },
+        "DiscardUnmatched": {
+            "type": "switch",
+            "label": "$option.DiscardUnmatched.label",
+            "description": "$option.DiscardUnmatched.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "discard_unmatched": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
         }
     }
 }

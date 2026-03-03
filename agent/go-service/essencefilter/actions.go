@@ -661,11 +661,20 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			{Name: "EssenceFilterLockItemLog"},
 		})
 	} else {
-		log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
-		LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-			{Name: "EssenceFilterRowNextItem"},
-		})
+		// 未匹配：根据选项决定是跳过还是废弃
+		if opts.DiscardUnmatched {
+			log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, discard item")
+			LogMXUHTML(ctx, `<div style="color: #ff6b6b; font-weight: 900;">🗑️ 未匹配到目标技能组合，废弃该物品</div>`)
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+				{Name: "EssenceFilterDiscardItemLog"},
+			})
+		} else {
+			log.Info().Strs("skills", skills).Msg("<EssenceFilter> not matched, skip to next item")
+			LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+				{Name: "EssenceFilterRowNextItem"},
+			})
+		}
 	}
 
 	currentSkills = [3]string{}

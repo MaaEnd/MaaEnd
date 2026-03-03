@@ -1,9 +1,15 @@
 {
     "WulingSwitchToSkyKingFlats": {
-        "doc": "OCR 切换至天王坪援建点（模糊匹配）",
+        "desc": "OCR 切换至天王坪援建点（模糊匹配）",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    123,
+                    64,
+                    189,
+                    52
+                ],
                 "expected": [
                     "天王坪",
                     "天王坪援助",
@@ -11,12 +17,6 @@
                     "Sky King",
                     "天王原",
                     "천왕"
-                ],
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
                 ]
             }
         },
@@ -29,20 +29,17 @@
         ]
     },
     "WulingVerifyAtSkyKingFlats": {
-        "doc": "检测：已切换至天王坪援建点",
-        "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
-        },
+        "desc": "检测：已切换至天王坪援建点",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "roi": [
                     123,
                     64,
                     189,
                     52
                 ],
+                "method": 40,
                 "lower": [
                     [
                         22,
@@ -59,6 +56,9 @@
                 ],
                 "count": 30
             }
+        },
+        "anchor": {
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "next": [
             "SellProductAtSell"

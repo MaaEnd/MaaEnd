@@ -92,6 +92,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().Str("map", param.MapName).Int("targets_count", len(param.Path)).Msg("Starting navigation to targets")
 
+	// Reset walk-run state
+	aw.KeyDownSync(KEY_S, 50)
+	aw.KeyTypeSync(KEY_SHIFT, 50)
+	aw.KeyUpSync(KEY_S, 50)
+	aw.KeyTypeSync(KEY_W, 50)
+	isSlowWalking := false
+
 	// For each target point
 	for i, target := range param.Path {
 		targetX, targetY := target[0], target[1]
@@ -197,20 +204,25 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 				log.Debug().Int("cur", rot).Int("target", targetRot).Int("delta", deltaRot).Msg("Adjusting rotation")
 
-				if math.Abs(float64(deltaRot)) > param.RotationUpperThreshold {
-					// Stop and rotate for large misalignment
-					aw.KeyUpSync(KEY_W, 0)
-					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100, 100)
-					aw.KeyDownSync(KEY_W, 100)
-				} else {
-					// Just rotate for small misalignment
-					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100, 100)
-					aw.KeyDownSync(KEY_W, 100)
+				// Enable slow walk if delta rotation is large, otherwise disable slow walk
+				if (math.Abs(float64(deltaRot)) > param.RotationUpperThreshold) != isSlowWalking {
+					aw.KeyTypeSync(KEY_CTRL, 100)
+					isSlowWalking = !isSlowWalking
 				}
-			} else {
+
+				// Do rotation adjustment
+				aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100)
 				aw.KeyDownSync(KEY_W, 100)
+			} else {
+				// Rotation is good, disable slow walk if it was enabled
+				if isSlowWalking {
+					aw.KeyTypeSync(KEY_CTRL, 100)
+					isSlowWalking = false
+				}
+				aw.KeyDownSync(KEY_W, 100)
+
+				// Sprint if target is far enough
 				if dist > param.SprintThreshold {
-					// Sprint if target is far enough
 					aw.KeyTypeSync(KEY_SHIFT, 100)
 				}
 				lastRotationAdjustTime = time.Time{} // Reset

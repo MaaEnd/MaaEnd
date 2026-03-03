@@ -1,6 +1,6 @@
 {
     "RealTimeQuickTeleportList": {
-        "doc": "从传送点列表中点击传送点图标（当多个地图标点重叠时）",
+        "desc": "从传送点列表中点击传送点图标（当多个地图标点重叠时）",
         "recognition": "OCR",
         "roi": [
             931,
@@ -9,37 +9,37 @@
             198
         ],
         "expected": "协议传送点",
-        "action": "Click",
         "pre_delay": 0,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "点击协议传送点"
-        },
+        "action": "Click",
         "post_wait_freezes": 80,
+        "post_delay": 0,
         "next": [
             "RealTimeQuickTeleportDirect",
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击协议传送点"
+        }
     },
     "RealTimeQuickTeleportDirect": {
-        "doc": "直接点击传送按钮",
+        "desc": "直接点击传送按钮",
         "recognition": "TemplateMatch",
-        "template": "RealTimeTask/Teleport.png",
-        "threshold": 0.8,
         "roi": [
             1210,
             648,
             26,
             26
         ],
+        "template": "RealTimeTask/Teleport.png",
+        "threshold": 0.8,
         "pre_delay": 100,
         "action": "Click",
-        "focus": {
-            "Node.Action.Succeeded": "点击传送按钮"
-        },
         "post_wait_freezes": 80,
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击传送按钮"
+        }
     }
 }

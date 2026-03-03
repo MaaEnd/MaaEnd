@@ -382,11 +382,6 @@ func getAllPuzzleThumbLoc(img image.Image) [][2]int {
 
 			if variance > PUZZLE_THUMB_COLOR_VAR_GRT {
 				// Color variation is sufficient, likely a puzzle thumbnail
-				if variance > PUZZLE_THUMB_COLOR_VAR_LES {
-					// False-positive
-					log.Warn().Msg("Detected uncertain puzzle thumbnail area, skipping")
-					return [][2]int{}
-				}
 				if hasGap {
 					// False-positive
 					log.Warn().Msg("Detected non-contiguous puzzle thumbnails (gap found), skipping")

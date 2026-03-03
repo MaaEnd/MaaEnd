@@ -1,16 +1,7 @@
 {
     "VFTheHubLocationAssertion": {
-        "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
-            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
-        },
-        "focus": {
-            "Node.Action.Starting": "📍附近的重度淤积点：\n**枢纽区重度淤积点**"
-        },
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
         "recognition": {
+            "type": "Custom",
             "param": {
                 "custom_recognition": "MapTrackerAssertLocation",
                 "custom_recognition_param": {
@@ -26,12 +17,22 @@
                         }
                     ]
                 }
-            },
-            "type": "Custom"
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "VFTheHubMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "VFTheHubWalkAround1"
+        },
+        "next": [
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Starting": "📍附近的重度淤积点：\n**枢纽区重度淤积点**"
         }
     },
     "VFTheHubMoveToTriggerPoint": {
         "action": {
+            "type": "Custom",
             "param": {
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
@@ -48,18 +49,18 @@
                     ],
                     "arrival_threshold": 3.5
                 }
-            },
-            "type": "Custom"
-        },
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点"
+            }
         },
         "next": [
             "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
     },
     "VFTheHubWalkAround1": {
         "action": {
+            "type": "Custom",
             "param": {
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
@@ -74,19 +75,19 @@
                     "rotation_upper_threshold": 120.0,
                     "sprint_threshold": 6.0
                 }
-            },
-            "type": "Custom"
-        },
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
+            }
         },
         "next": [
             "AutoEssenceCheckOngoing",
             "VFTheHubWalkAround2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
     },
     "VFTheHubWalkAround2": {
         "action": {
+            "type": "Custom",
             "param": {
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
@@ -101,15 +102,14 @@
                     "rotation_upper_threshold": 120.0,
                     "sprint_threshold": 6.0
                 }
-            },
-            "type": "Custom"
-        },
-        "focus": {
-            "Node.Action.Starting": "🚶正在散步中"
+            }
         },
         "next": [
             "AutoEssenceCheckOngoing",
             "VFTheHubWalkAround1"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
     }
 }

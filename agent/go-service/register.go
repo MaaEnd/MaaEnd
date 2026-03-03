@@ -5,6 +5,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
@@ -12,13 +13,13 @@ import (
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/screenshot"
 	"github.com/rs/zerolog/log"
 )
 
 func registerAll() {
 	// Register all custom components from each package
 	importtask.Register()
+	charactercontroller.Register()
 	resell.Register()
 	puzzle.Register()
 	essencefilter.Register()
@@ -27,7 +28,6 @@ func registerAll() {
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
-	screenshot.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()

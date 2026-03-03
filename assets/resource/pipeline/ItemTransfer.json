@@ -156,8 +156,8 @@
             551,
             292
         ],
-        "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
         "threshold": 0.8,
         "order_by": "Score",
         "next": [
@@ -165,6 +165,7 @@
         ]
     },
     "ItemTransferScrollDownwardRepo": {
+        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             640,
@@ -175,7 +176,6 @@
             248
         ],
         "end_hold": 500,
-        "max_hit": 1,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
@@ -184,7 +184,8 @@
         ]
     },
     "ItemTransferScrollUpwardRepo": {
-        "doc": "触底后回顶",
+        "desc": "触底后回顶",
+        "max_hit": 1,
         "action": "Swipe",
         "begin": [
             640,
@@ -195,7 +196,6 @@
             455
         ],
         "end_hold": 500,
-        "max_hit": 1,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
@@ -216,8 +216,8 @@
         ]
     },
     "ItemTransferTransferToBag": {
-        "target": "ItemTransferFindItemInRepo",
         "action": "Click",
+        "target": "ItemTransferFindItemInRepo",
         "next": [
             "ItemTransferCtrlKeyUpRepo"
         ]
@@ -312,8 +312,8 @@
             349,
             285
         ],
-        "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
         "threshold": 0.8,
         "order_by": "Score",
         "next": [
@@ -321,6 +321,7 @@
         ]
     },
     "ItemTransferScrollDownwardBag": {
+        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             837,
@@ -331,7 +332,6 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 2,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
@@ -340,7 +340,8 @@
         ]
     },
     "ItemTransferScrollUpwardBag": {
-        "doc": "触底后回顶",
+        "desc": "触底后回顶",
+        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             837,
@@ -351,7 +352,6 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 2,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
@@ -366,8 +366,8 @@
         ]
     },
     "ItemTransferTransferToRepo": {
-        "target": "ItemTransferFindItemInBag",
         "action": "Click",
+        "target": "ItemTransferFindItemInBag",
         "next": [
             "ItemTransferCtrlKeyUpBag"
         ]
@@ -477,8 +477,8 @@
             349,
             285
         ],
-        "model": "ItemTransfer/ItemTransfer.onnx",
         "expected": 0,
+        "model": "ItemTransfer/ItemTransfer.onnx",
         "threshold": 0.8,
         "order_by": "Score",
         "next": [
@@ -486,6 +486,7 @@
         ]
     },
     "ItemTransferScrollDownwardBagReturn": {
+        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             837,
@@ -496,7 +497,6 @@
             228
         ],
         "end_hold": 500,
-        "max_hit": 2,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
@@ -505,7 +505,8 @@
         ]
     },
     "ItemTransferScrollUpwardBagReturn": {
-        "doc": "触底后回顶",
+        "desc": "触底后回顶",
+        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             837,
@@ -516,7 +517,6 @@
             472
         ],
         "end_hold": 500,
-        "max_hit": 2,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
@@ -531,8 +531,8 @@
         ]
     },
     "ItemTransferTransferToRepoReturn": {
-        "target": "ItemTransferFindItemInBagReturn",
         "action": "Click",
+        "target": "ItemTransferFindItemInBagReturn",
         "next": [
             "ItemTransferCtrlKeyUpBagReturn"
         ]

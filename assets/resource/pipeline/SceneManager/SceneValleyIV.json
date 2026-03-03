@@ -1,6 +1,6 @@
 {
     "__ScenePrivateMapAnyEnterWorldValleyIVTheHub": {
-        "doc": "在任意地图界面，进入四号谷地-枢纽区大世界",
+        "desc": "在任意地图界面，进入四号谷地-枢纽区大世界",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -13,7 +13,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVTheHub": {
-        "doc": "在任意地图界面，进入四号谷地-枢纽区地图",
+        "desc": "在任意地图界面，进入四号谷地-枢纽区地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -27,7 +27,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVValleyPass": {
-        "doc": "在任意地图界面，进入四号谷地-谷地通道地图",
+        "desc": "在任意地图界面，进入四号谷地-谷地通道地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -41,7 +41,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginiumSciencePark": {
-        "doc": "在任意地图界面，进入四号谷地-源石研究园地图",
+        "desc": "在任意地图界面，进入四号谷地-源石研究园地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -55,7 +55,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarry": {
-        "doc": "在任意地图界面，进入四号谷地-阿伯莉采石场地图",
+        "desc": "在任意地图界面，进入四号谷地-阿伯莉采石场地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -69,7 +69,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespring": {
-        "doc": "在任意地图界面，进入四号谷地-矿脉源区地图",
+        "desc": "在任意地图界面，进入四号谷地-矿脉源区地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -83,7 +83,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateau": {
-        "doc": "在任意地图界面，进入四号谷地-供能高地地图",
+        "desc": "在任意地图界面，进入四号谷地-供能高地地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -97,7 +97,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapValleyIVTheHubSuccess": {
-        "doc": "在地图界面，成功进入四号谷地-枢纽区地图",
+        "desc": "在地图界面，成功进入四号谷地-枢纽区地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -120,7 +120,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVValleyPassSuccess": {
-        "doc": "在地图界面，成功进入四号谷地-谷地通道地图",
+        "desc": "在地图界面，成功进入四号谷地-谷地通道地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -142,7 +142,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginiumScienceParkSuccess": {
-        "doc": "在地图界面，成功进入四号谷地-源石研究园地图",
+        "desc": "在地图界面，成功进入四号谷地-源石研究园地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -165,7 +165,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVAburreyQuarrySuccess": {
-        "doc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
+        "desc": "在地图界面，成功进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -188,7 +188,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVOriginLodespringSuccess": {
-        "doc": "在地图界面，成功进入四号谷地-矿脉源区地图",
+        "desc": "在地图界面，成功进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -211,7 +211,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
-        "doc": "在地图界面，成功进入四号谷地-供能高地地图",
+        "desc": "在地图界面，成功进入四号谷地-供能高地地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -324,7 +324,7 @@
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVAburreyQuarry": {
-        "doc": "在地图总览界面，进入四号谷地-阿伯莉采石场地图",
+        "desc": "在地图总览界面，进入四号谷地-阿伯莉采石场地图",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -347,7 +347,7 @@
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVOriginLodespring": {
-        "doc": "在地图总览界面，进入四号谷地-矿脉源区地图",
+        "desc": "在地图总览界面，进入四号谷地-矿脉源区地图",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -370,7 +370,7 @@
         ]
     },
     "__ScenePrivateMapOverviewEnterMapValleyIVPowerPlateau": {
-        "doc": "在地图总览界面，进入四号谷地-供能高地地图",
+        "desc": "在地图总览界面，进入四号谷地-供能高地地图",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -393,7 +393,7 @@
         ]
     },
     "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
-        "doc": "在四号谷地总览界面，进入枢纽区地图",
+        "desc": "在四号谷地总览界面，进入枢纽区地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -418,7 +418,7 @@
         ]
     },
     "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass": {
-        "doc": "在四号谷地总览界面，进入谷地通道地图",
+        "desc": "在四号谷地总览界面，进入谷地通道地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -471,7 +471,7 @@
         ]
     },
     "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry": {
-        "doc": "在四号谷地总览界面，进入阿伯莉采石场地图",
+        "desc": "在四号谷地总览界面，进入阿伯莉采石场地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -499,7 +499,7 @@
         ]
     },
     "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring": {
-        "doc": "在四号谷地总览界面，进入矿脉源区地图",
+        "desc": "在四号谷地总览界面，进入矿脉源区地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -525,7 +525,7 @@
         ]
     },
     "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
-        "doc": "在四号谷地总览界面，进入供能高地地图",
+        "desc": "在四号谷地总览界面，进入供能高地地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -551,7 +551,7 @@
         ]
     },
     "__ScenePrivateMapValleyIVOriginiumScienceParkEnterWorldAnchor": {
-        "doc": "在四号谷地-源石研究园地图界面，进入[锚点]大世界",
+        "desc": "在四号谷地-源石研究园地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapValleyIVOriginiumSciencePark"
@@ -568,7 +568,7 @@
         ]
     },
     "__ScenePrivateMapValleyIVOriginLodespringEnterWorldAnchor": {
-        "doc": "在四号谷地-矿脉源区地图界面，进入[锚点]大世界",
+        "desc": "在四号谷地-矿脉源区地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapValleyIVOriginLodespring"
@@ -585,7 +585,7 @@
         ]
     },
     "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
-        "doc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
+        "desc": "在四号谷地-供能高地地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapValleyIVPowerPlateau"
@@ -602,7 +602,7 @@
         ]
     },
     "__ScenePrivateMapValleyIVTheHubEnterTeleport": {
-        "doc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
+        "desc": "在四号谷地-枢纽区地图界面，随机选择一个传送点进入",
         "recognition": {
             "type": "And",
             "param": {

@@ -1,35 +1,35 @@
 {
     "RealTimeAutoZipline": {
-        "doc": "自动长距滑索",
+        "desc": "自动长距滑索",
         "recognition": "TemplateMatch",
-        "template": "RealTimeTask/Zipline.png",
-        "threshold": 0.8,
         "roi": [
             1040,
             432,
             137,
             123
         ],
-        "action": "DoNothing",
+        "template": "RealTimeTask/Zipline.png",
+        "threshold": 0.8,
         "pre_delay": 0,
+        "action": "DoNothing",
         "post_delay": 0,
         "next": [
             "RealTimeAutoZiplineClick"
         ]
     },
     "RealTimeAutoZiplineClick": {
-        "doc": "确认长距滑索",
+        "desc": "确认长距滑索",
         // 找确认按钮
         "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 69,
-        "focus": {
-            "Node.Action.Succeeded": "确认长距滑索"
-        },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "RealTimeTaskMainDelay"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "确认长距滑索"
+        }
     }
 }
