@@ -101,7 +101,7 @@
             "AutoEssenceDismissWarning1",
             "[Anchor]AutoEssenceWalkAround"
         ],
-        "pre_wait_freezes": 3000,
+        "pre_wait_freezes": 1000,
         "post_delay": 1000,
         "recognition": {
             "param": {
@@ -219,7 +219,7 @@
             "type": "Click"
         },
         "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScaling1"
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScaling"
         },
         "focus": {
             "Node.Action.Starting": "👆点击领取奖励按钮"
@@ -263,6 +263,15 @@
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
+    "AutoEssenceChooseScaling": {
+        "next": [
+            "[JumpBack]AutoEssenceChooseScaling1",
+            "[JumpBack]AutoEssenceChooseOverrideOff",
+            "[JumpBack]AutoEssenceChooseOverrideOn",
+            "AutoEssenceConfirmObtain"
+        ],
+        "post_delay": 1000
+    },
     "AutoEssenceChooseScaling1": {
         "action": {
             "type": "Click"
@@ -270,11 +279,6 @@
         "focus": {
             "Node.Action.Starting": "👆点击单倍领取按钮"
         },
-        "next": [
-            "[JumpBack]AutoEssenceChooseOverrideOff",
-            "[JumpBack]AutoEssenceChooseOverrideOn",
-            "AutoEssenceConfirmObtain"
-        ],
         "recognition": {
             "param": {
                 "order_by": "Score",
