@@ -352,5 +352,11 @@
     "preset.AutoTrading.label": "自动倒卖",
     "preset.AutoTrading.description": "自动买卖及生产相关",
     "preset.EssenceFarming.label": "基质刷取",
-    "preset.EssenceFarming.description": "基质养成及筛选相关"
+    "preset.EssenceFarming.description": "基质养成及筛选相关",
+    "task.AutoSwitchUITask.label": "🌐 自动切换界面语言",
+    "task.AutoSwitchUITask.description": "根据您的选择，自动将游戏界面语言切换为简体中文或英文。",
+    "option.AutoSwitchUITargetLanguage.label": "目标语言",
+    "option.AutoSwitchUITargetLanguage.description": "选择自动化过程中使用的语言",
+    "language.Chinese": "简体中文",
+    "language.English": "英文"
 }

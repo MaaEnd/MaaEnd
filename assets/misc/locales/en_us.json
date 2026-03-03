@@ -352,5 +352,11 @@
     "preset.AutoTrading.label": "Auto Trading",
     "preset.AutoTrading.description": "Auto trading and production related tasks.",
     "preset.EssenceFarming.label": "Essence Farming",
-    "preset.EssenceFarming.description": "Essence farming and filtering related tasks."
+    "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
+    "task.AutoSwitchUITask.label": "🌐 Auto Switch UI Language",
+    "task.AutoSwitchUITask.description": "Automatically switch game UI language to Chinese or English based on your selection.",
+    "option.AutoSwitchUITargetLanguage.label": "Target UI Language",
+    "option.AutoSwitchUITargetLanguage.description": "Select which language to use during automation",
+    "language.Chinese": "Simplified Chinese",
+    "language.English": "English"
 }

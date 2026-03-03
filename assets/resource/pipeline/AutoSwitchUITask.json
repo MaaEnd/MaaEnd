@@ -1,0 +1,357 @@
+{
+    "AutoSwitchGameUIStart": {
+        "doc": "自动切换游戏UI语言 - 主入口",
+        "next": [
+            "AutoSwitchGameUISetTargetFromOption"
+        ]
+    },
+    "AutoSwitchGameUISetTargetFromOption": {
+        "doc": "根据用户选择设置目标语言",
+        "next": [
+            "AutoSwitchGameUITargetCN",
+            "AutoSwitchGameUITargetEN"
+        ]
+    },
+    "AutoSwitchGameUITargetCN": {
+        "doc": "目标语言：简体中文",
+        "enabled": false,
+        "next": [
+            "AutoSwitchGameUISetTargetCN"
+        ]
+    },
+    "AutoSwitchGameUITargetEN": {
+        "doc": "目标语言: English",
+        "enabled": false,
+        "next": [
+            "AutoSwitchGameUISetTargetEN"
+        ]
+    },
+    "AutoSwitchGameUISetTargetCN": {
+        "doc": "设置目标为简体中文",
+        "recognition": "DirectHit",
+        "next": [
+            "AutoSwitchGameUICheckIfInSettings",
+            "AutoSwitchGameUIDetectScreen"
+        ]
+    },
+    "AutoSwitchGameUISetTargetEN": {
+        "doc": "设置目标为English",
+        "recognition": "DirectHit",
+        "next": [
+            "AutoSwitchGameUICheckIfInSettings",
+            "AutoSwitchGameUIDetectScreen"
+        ]
+    },
+    "AutoSwitchGameUICheckIfInSettings": {
+        "doc": "检查是否已在语言设置页面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    441,
+                    11,
+                    402,
+                    33
+                ],
+                "template": [
+                    "Settings/SettingsLanguageIcon.png"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]AutoSwitchGameUISwitch",
+            "[JumpBack]AutoSwitchGameUIDetectScreen"
+        ]
+    },
+    "AutoSwitchGameUIDetectScreen": {
+        "doc": "检测当前在哪个界面并导航到语言设置",
+        "next": [
+            "AutoSwitchGameUIDetectStartScreen",
+            "CustomSceneEnterMenuListForSettings"
+        ]
+    },
+    "AutoSwitchGameUIDetectStartScreen": {
+        "doc": "检测是否在开始界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SceneManager/LoginExit.png"
+                ],
+                "roi": [
+                    0,
+                    594,
+                    116,
+                    126
+                ]
+            }
+        },
+        "next": [
+            "SceneEnterMenuSettingFromStart",
+            "[JumpBack]CustomSceneEnterMenuListForSettings"
+        ]
+    },
+    "CustomSceneEnterMenuListForSettings": {
+        "doc": "从任意界面进入菜单列表，然后前往设置页面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "Custom__ScenePrivateWorldEnterMenuList",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "Custom__ScenePrivateWorldEnterMenuList": {
+        "doc": "从大世界进入菜单列表",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "SceneManager/WorldMenu.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // ESC
+            }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                420,
+                -100,
+                450,
+                100
+            ]
+        },
+        "next": [
+            "Custom__ScenePrivateAnyEnterMenuListSuccess"
+        ]
+    },
+    "Custom__ScenePrivateAnyEnterMenuListSuccess": {
+        "doc": "成功进入菜单列表，准备点击设置图标",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    420,
+                    -100,
+                    450,
+                    100
+                ],
+                "expected": [
+                    "ENDFIELD"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuSettings"
+        ]
+    },
+    "AutoSwitchGameUISwitch": {
+        "doc": "打开语言下拉菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1152,
+                    97,
+                    28,
+                    29
+                ],
+                "template": [
+                    "Settings/SettingsLanguageDropdown.png"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_delay": 500,
+        "next": [
+            "AutoSwitchGameUIClickTargetOption",
+            "[JumpBack]AutoSwitchGameUIScrollToFindTarget"
+        ]
+    },
+    "AutoSwitchGameUIClickTargetOption": {
+        "doc": "点击目标语言选项",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "简体中文",
+                    "English"
+                ],
+                "roi": [
+                    922,
+                    134,
+                    76,
+                    150
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoSwitchGameUIConfirmLanguage"
+        ],
+        "on_error": [
+            "[JumpBack]AutoSwitchGameUIScrollToFindTarget"
+        ]
+    },
+    "AutoSwitchGameUIScrollToFindTarget": {
+        "doc": "滚动查找目标语言",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    962,
+                    197,
+                    5,
+                    5
+                ],
+                "dy": 840
+            }
+        },
+        "post_wait_freezes": 2000,
+        "next": [
+            "AutoSwitchGameUIClickTargetOption"
+        ]
+    },
+    "AutoSwitchGameUIConfirmLanguage": {
+        "doc": "确认语言选择",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    816,
+                    447,
+                    38,
+                    32
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "AutoSwitchGameUIEnd"
+        ]
+    },
+    "AutoSwitchGameUIEnd": {
+        "action": {
+            "param": {},
+            "type": "StopTask"
+        }
+    },
+    "__ScenePrivateWorldEnterMenuSettings": {
+        "doc": "菜单列表点击设置图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    72,
+                    0,
+                    306,
+                    193
+                ],
+                "template": [
+                    "Settings/SettingsIcon.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingsSuccess"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuSettingsStart": {
+        "doc": "开始界面点击设置图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1232,
+                    27,
+                    38,
+                    155
+                ],
+                "template": [
+                    "Settings/SettingsIconStart.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuSettingsSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuSettingsSuccess": {
+        "doc": "已进入设置页面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    441,
+                    11,
+                    402,
+                    33
+                ],
+                "template": [
+                    "Settings/SettingsLanding.png"
+                ]
+            }
+        },
+        "next": [
+            "__ScenePrivateMenuSettingsClickLanguage"
+        ]
+    },
+    "__ScenePrivateMenuSettingsClickLanguage": {
+        "doc": "点击语言设置选项卡",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    441,
+                    11,
+                    402,
+                    33
+                ],
+                "template": [
+                    "Settings/SettingsLanguageIcon.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500,
+        "next": [
+            "AutoSwitchGameUISwitch"
+        ]
+    },
+    "SceneEnterMenuSettingFromStart": {
+        "doc": "从开始界面进入设置页面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuSettingsStart"
+        ]
+    }
+}

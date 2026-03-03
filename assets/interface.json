@@ -141,6 +141,7 @@
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
         "tasks/SellProduct.json",
+        "tasks/AutoSwitchUITask.json",
         "tasks/AutoResell.json",
         "tasks/AutoEssence.json",
         "tasks/EssenceFilter.json",

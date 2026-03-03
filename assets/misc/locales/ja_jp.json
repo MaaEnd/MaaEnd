@@ -352,5 +352,11 @@
     "preset.AutoTrading.label": "自動転売",
     "preset.AutoTrading.description": "自動売買および生産関連。",
     "preset.EssenceFarming.label": "エッセンス周回",
-    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。"
+    "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
+    "task.AutoSwitchUITask.label": "🌐 UI言語自動切換",
+    "task.AutoSwitchUITask.description": "選択に応じて、ゲームのUI言語を中国語（簡体字）または英語に自動的に切り替えます。",
+    "option.AutoSwitchUITargetLanguage.label": "ターゲット言語",
+    "option.AutoSwitchUITargetLanguage.description": "自動化中に使用する言語を選択",
+    "language.Chinese": "簡体字中国語",
+    "language.English": "英語"
 }

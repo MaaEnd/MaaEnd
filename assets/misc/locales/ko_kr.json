@@ -352,5 +352,11 @@
     "preset.AutoTrading.label": "자동 거래",
     "preset.AutoTrading.description": "자동 매매 및 생산 관련 임무입니다.",
     "preset.EssenceFarming.label": "에센스 파밍",
-    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다."
+    "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
+    "task.AutoSwitchUITask.label": "🌐 UI 언어 자동 전환",
+    "task.AutoSwitchUITask.description": "선택에 따라 게임 UI 언어를 중국어(간체) 또는 영어로 자동 전환합니다.",
+    "option.AutoSwitchUITargetLanguage.label": "대상 언어",
+    "option.AutoSwitchUITargetLanguage.description": "자동화 중 사용할 언어 선택",
+    "language.Chinese": "중국어(간체)",
+    "language.English": "영어"
 }

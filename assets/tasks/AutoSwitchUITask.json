@@ -1,0 +1,65 @@
+{
+    "task": [
+        {
+            "name": "AutoSwitchUITask",
+            "label": "$task.AutoSwitchUITask.label",
+            "entry": "AutoSwitchGameUIStart",
+            "description": "$task.AutoSwitchUITask.description",
+            "option": [
+                "AutoSwitchUITargetLanguage"
+            ]
+        }
+    ],
+    "option": {
+        "AutoSwitchUITargetLanguage": {
+            "type": "select",
+            "label": "$option.AutoSwitchUITargetLanguage.label",
+            "description": "$option.AutoSwitchUITargetLanguage.description",
+            "default_case": "English",
+            "cases": [
+                {
+                    "name": "Chinese",
+                    "label": "$language.Chinese",
+                    "pipeline_override": {
+                        "AutoSwitchGameUITargetCN": {
+                            "enabled": true
+                        },
+                        "AutoSwitchGameUITargetEN": {
+                            "enabled": false
+                        },
+                        "AutoSwitchGameUIClickTargetOption": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "简体中文"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "English",
+                    "label": "$language.English",
+                    "pipeline_override": {
+                        "AutoSwitchGameUITargetCN": {
+                            "enabled": false
+                        },
+                        "AutoSwitchGameUITargetEN": {
+                            "enabled": true
+                        },
+                        "AutoSwitchGameUIClickTargetOption": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "English"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

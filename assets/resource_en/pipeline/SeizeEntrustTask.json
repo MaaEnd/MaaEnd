@@ -38,5 +38,12 @@
             "Accept",
             "Delivery"
         ]
+    },
+    "isSeizeEntrustTaskSuccessful": {
+        "expected": [
+            "continue",
+            "Quickly",
+            "accepted"
+        ]
     }
 }
