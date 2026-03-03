@@ -190,7 +190,8 @@
             "[JumpBack]TeleportButton",
             "[JumpBack]SelectDijiangTeleport",
             "[JumpBack]OpenMap",
-            "[JumpBack]CancelExit"
+            "[JumpBack]CancelExit",
+            "[JumpBack]CancelButton"
         ]
     },
     "InMainWindow": {

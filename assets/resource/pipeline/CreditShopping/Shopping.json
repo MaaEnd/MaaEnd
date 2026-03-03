@@ -31,6 +31,35 @@
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "CreditShoppingReserveCredit",
+            "ADBSpecial",
+            "RefreshItem",
+            "CreditShoppingNothingToBuy"
+        ]
+    },
+    "ADBSpecial": {
+        "doc": "ADB特殊流程,向上滑动一段",
+        "enabled": false,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    500
+                ],
+                "end": [
+                    640,
+                    300
+                ],
+                "duration": 500
+            }
+        },
+        "next": [
+            "AutoGetCredits",
+            "CreditShoppingBuyFirst",
+            "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyBlacklist",
+            "CreditShippingCanNotToBuy",
+            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
