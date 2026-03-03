@@ -3,7 +3,8 @@
         "doc": "自动生态农场主入口",
         "next": [
             //测试节点
-            //"_AutoEcoFarmSwipeToTargetStart",
+            //"MapTrackerTestLoop"
+            "_AutoEcoFarmFindWulinEcoFarm",
             "_AutoEcoFarmGotoValleyIVEcoFarmStart",
             "_AutoEcoFarmGotoWulinEcoFarmStart",
             "AutoEcoFarmExit"

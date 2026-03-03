@@ -15,19 +15,22 @@
     "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandStart"
+            "_AutoEcoFindFarmFarmlandValleyStart"
         ]
     },
     //武陵的节点出入口
     "_AutoEcoFarmGotoWulinEcoFarmStart": {
         "doc": "这块代码是用来前往武陵农场的",
-        "max_hit": 1
-        //////////正在施工中//////////
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInWulingCityCore", //检测是否传送成功
+            "[JumpBack]SceneEnterWorldWulingWulingCityCore" //传送到谷地源石园区山道缓坡
+        ]
     },
     "_AutoEcoFarmGotoWulinEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandStart"
+            "_AutoEcoFindFarmFarmlandWulinStart"
         ]
     },
     //内部节点
@@ -66,20 +69,20 @@
                     241
                 ],
                 [
-                    523,
-                    257
+                    521,
+                    251
                 ],
                 [
                     527,
-                    277
+                    258
                 ],
                 [
-                    523,
-                    291
+                    526,
+                    280
                 ],
                 [
-                    542,
-                    306
+                    526,
+                    292
                 ],
                 [
                     548,
@@ -92,11 +95,84 @@
                 [
                     560,
                     332
+                ],
+                [
+                    571,
+                    344
                 ]
             ]
         },
         "next": [
             "_AutoEcoFarmGotoValleyIVEcoFarmExit"
+        ]
+    },
+    //去武陵农场部分
+    "_AutoEcoFarmInWulingCityCore": {
+        "doc": "确认已经在武陵集成核心区",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        320,
+                        230,
+                        64,
+                        55
+                    ]
+                }
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "_AutoEcoFarmGotoWulinEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmGotoWulinEcoFarm": {
+        "doc": "前往源石研究园生态农场",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    383,
+                    237
+                ],
+                [
+                    391,
+                    232
+                ],
+                [
+                    403,
+                    229
+                ],
+                [
+                    411,
+                    223
+                ],
+                [
+                    418,
+                    213
+                ],
+                [
+                    426,
+                    200
+                ],
+                [
+                    426,
+                    193
+                ],
+                [
+                    443,
+                    193
+                ]
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmGotoWulinEcoFarmExit"
         ]
     }
 }
