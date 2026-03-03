@@ -527,23 +527,45 @@
     },
     "__ScenePrivateMenuListEnterMenuFriends": {
         "doc": "从菜单列表进入好友菜单",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -400,
-                    0,
-                    400,
-                    720
-                ],
-                "expected": [
-                    "好友",
-                    "Friends",
-                    "フレンド",
-                    "친구"
-                ]
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            420,
+                            -100,
+                            450,
+                            100
+                        ],
+                        "expected": [
+                            "ENDFIELD"
+                        ]
+                    }
+                }
+            },
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "好友",
+                            "Friends",
+                            "フレンド",
+                            "친구"
+                        ]
+                    }
+                }
             }
-        },
+        ],
+        "box_index": 1,
         "action": {
             "type": "Click"
         },

@@ -225,7 +225,7 @@
     },
     "DailyTaskCreation": {
         "desc": "检测是否有简易制作任务",
-        "enabled": true,
+        "enabled": false,
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
