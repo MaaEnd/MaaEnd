@@ -49,9 +49,7 @@
         },
         "next": [
             "InControlNexus_NeedCredit",
-            "[JumpBack]CloseRewardsButton",
-            "[JumpBack]StartExchange",
-            "[JumpBack]ExitReceptionRoom"
+            "[JumpBack]StartExchange"
         ]
     },
     "InControlNexus_NeedCredit": {
@@ -78,26 +76,5 @@
             "[JumpBack]CloseButtonType2",
             "[JumpBack]CancelExit"
         ]
-    },
-    "StartExchange": {
-        "doc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    633,
-                    476,
-                    444,
-                    175
-                ],
-                "template": [
-                    "Common/Button/YellowConfirmButtonType1.png",
-                    "Common/Button/YellowConfirmButtonType1Hover.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        }
     }
 }

@@ -86,6 +86,44 @@
             "ReceptionRoomNeedCollectClues",
             "ReceptionRoomNeedReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
+            "StartExchange",
+            "ExitClueLibrary",
+            "ExitReceptionRoom"
+        ]
+    },
+    "StartExchange": {
+        "doc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "StartExchangeText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseRewardsButton"
+        ]
+    },
+    "CloseExchangeRewards": {
+        "doc": "[会客室·线索] 识别线索交流结束界面关闭按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
@@ -126,6 +164,8 @@
         },
         "next": [
             "[JumpBack]ReceptionRoomSetClues",
+            "StartExchange",
+            "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
     },
@@ -336,6 +376,8 @@
         "next": [
             "ReceptionRoomNeedReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
+            "StartExchange",
+            "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
     },

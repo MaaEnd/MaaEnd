@@ -161,5 +161,23 @@
                 ]
             }
         }
+    },
+    "StartExchangeText": {
+        "doc": "[会客室·交流] 识别开始交流按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -68,
+                    -17,
+                    62,
+                    33
+                ],
+                "expected": [
+                    "开展交流"
+                ]
+            }
+        }
     }
 }
