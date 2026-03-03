@@ -64,7 +64,7 @@
             150,
             150
         ],
-        "template": "ProtocolSpace/RetreatSpace.png",
+        "template": "ProtocolSpace/RetreatSpace.png"
     },
     "ProtocolSpaceEnterSpaceSuccess": {
         "desc": "进入协议空间成功",
