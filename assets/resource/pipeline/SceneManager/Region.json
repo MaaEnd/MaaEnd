@@ -141,5 +141,23 @@
                 ]
             }
         ]
+    },
+    "InNoticeRewards": {
+        "doc": "在奖励领取界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    520,
+                    0,
+                    240,
+                    180
+                ],
+                "template": [
+                    "SceneManager/NoticeRewardsIcon.png"
+                ],
+                "threshold": 0.9
+            }
+        }
     }
 }

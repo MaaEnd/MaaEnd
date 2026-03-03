@@ -1,0 +1,50 @@
+{
+    "CharacterControllerExampleYawDeltaLeft": {
+        "desc": "向左转动视角示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerYawDeltaAction",
+        "custom_action_param": {
+            "delta": -90 // 这个不准，看着用
+        }
+    },
+    "CharacterControllerExampleYawDeltaRight": {
+        "desc": "向右转动视角示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerYawDeltaAction",
+        "custom_action_param": {
+            "delta": 90 // 这个不准，看着用
+        }
+    },
+    "CharacterControllerExamplePitchDeltaUp": {
+        "desc": "向上转动视角示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerPitchDeltaAction",
+        "custom_action_param": {
+            "delta": 45 // 这个不准，看着用
+        }
+    },
+    "CharacterControllerExamplePitchDeltaDown": {
+        "desc": "向下转动视角示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerPitchDeltaAction",
+        "custom_action_param": {
+            "delta": -45 // 这个不准，看着用
+        }
+    },
+    "CharacterControllerExampleForwardAxisForward": {
+        "desc": "向前移动示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": 1 // 这个不准，看着用
+        }
+    },
+    "CharacterControllerExampleForwardAxisBackward": {
+        "desc": "向后移动示例",
+        "action": "Custom",
+        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action_param": {
+            "axis": -1 // 这个不准，看着用
+        }
+    }
+}

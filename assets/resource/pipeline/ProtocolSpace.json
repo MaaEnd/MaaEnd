@@ -1,0 +1,11 @@
+{
+    "ProtocolSpaceEntry": {
+        "desc": "协议空间任务入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationalManualOpen",
+            "[JumpBack]SceneEnterMenuOperationalManual"
+        ]
+    }
+}

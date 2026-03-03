@@ -434,7 +434,9 @@
                                 ],
                                 "template": [
                                     "Common/Button/CancelButtonType1.png",
-                                    "Common/Button/CancelButtonType1Hover.png"
+                                    "Common/Button/CancelButtonType1Hover.png",
+                                    "Common/Button/CancelButtonType1Line.png",
+                                    "Common/Button/CancelButtonType1LineHover.png"
                                 ],
                                 "threshold": 0.9
                             }

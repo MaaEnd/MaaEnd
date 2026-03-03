@@ -134,23 +134,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    520,
-                                    0,
-                                    240,
-                                    180
-                                ],
-                                "template": [
-                                    "SceneManager/NoticeRewardsIcon.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    },
+                    "InNoticeRewards",
                     "CloseRewardsButton"
                 ],
                 "box_index": 1

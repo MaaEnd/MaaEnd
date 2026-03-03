@@ -1,0 +1,299 @@
+{
+    "task": [
+        {
+            "name": "ProtocolSpace",
+            "label": "$task.ProtocolSpace.label",
+            "entry": "ProtocolSpaceEntry",
+            "description": "$task.ProtocolSpace.description",
+            "option": [
+                "ProtocolSpaceCustom",
+                "ProtocolSpaceUsePermit",
+                "ProtocolSpaceTab"
+            ],
+            "controller": [
+                "Win32-Front"
+            ]
+        }
+    ],
+    "option": {
+        "ProtocolSpaceCustom": {
+            "type": "input",
+            "label": "$option.ProtocolSpaceCustom.label",
+            "inputs": [
+                {
+                    "name": "ProtocolSpaceSuccessCount",
+                    "label": "$option.ProtocolSpaceCustom.inputs.ProtocolSpaceSuccessCount.label",
+                    "pipeline_type": "int",
+                    "verify": "^[1-5]$",
+                    "default": "3"
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount",
+                    "label": "$option.ProtocolSpaceCustom.inputs.ProtocolSpaceFailedCount.label",
+                    "pipeline_type": "int",
+                    "verify": "^[1-5]$",
+                    "default": "3"
+                }
+            ],
+            "pipeline_override": {
+                "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                    "max_hit": "{ProtocolSpaceSuccessCount}"
+                },
+                "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                    "max_hit": "{ProtocolSpaceFailedCount}"
+                }
+            }
+        },
+        "ProtocolSpaceUsePermit": {
+            "type": "switch",
+            "label": "$option.ProtocolSpaceUsePermit.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "ProtocolSpaceRewardUsePermit": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ProtocolSpaceTab": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceTab.label",
+            "cases": [
+                {
+                    "name": "OperatorProgression",
+                    "label": "$option.OperatorProgression.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "员养成",
+                                "Operator Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/SkillUp.png"
+                        }
+                    },
+                    "option": [
+                        "OperatorProgression"
+                    ]
+                },
+                {
+                    "name": "WeaponProgression",
+                    "label": "$option.WeaponProgression.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "武器养成",
+                                "Weapon Progression"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/WeaponTune.png"
+                        }
+                    },
+                    "option": [
+                        "WeaponProgression"
+                    ]
+                },
+                {
+                    "name": "CrisisDrills",
+                    "label": "$option.CrisisDrills.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+                            "expected": [
+                                "危境预演",
+                                "Crisis Drills"
+                            ],
+                            "anchor": {
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable",
+                                "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable"
+                            }
+                        },
+                        "ProtocolSpaceOperationalManualScrollEnd": {
+                            "template": "ProtocolSpace/AdvancedProgression5.png"
+                        }
+                    },
+                    "option": [
+                        "CrisisDrills"
+                    ]
+                }
+            ]
+        },
+        "OperatorProgression": {
+            "type": "select",
+            "label": "$option.OperatorProgression.label",
+            "cases": [
+                {
+                    "name": "OperatorEXP",
+                    "label": "$option.OperatorProgression.OperatorEXP.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/OperatorEXP.png"
+                        }
+                    },
+                    "option": [
+                        "RewardsSetOption"
+                    ]
+                },
+                {
+                    "name": "Promotions",
+                    "label": "$option.OperatorProgression.Promotions.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/Promotions.png"
+                        }
+                    },
+                    "option": [
+                        "RewardsSetOption"
+                    ]
+                },
+                {
+                    "name": "T-Creds",
+                    "label": "$option.OperatorProgression.TCreds.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/T-Creds.png"
+                        }
+                    }
+                },
+                {
+                    "name": "SkillUp",
+                    "label": "$option.OperatorProgression.SkillUp.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/SkillUp.png"
+                        }
+                    },
+                    "option": [
+                        "RewardsSetOption"
+                    ]
+                }
+            ]
+        },
+        "WeaponProgression": {
+            "type": "select",
+            "label": "$option.WeaponProgression.label",
+            "cases": [
+                {
+                    "name": "WeaponEXP",
+                    "label": "$option.WeaponProgression.WeaponEXP.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/WeaponEXP.png"
+                        }
+                    }
+                },
+                {
+                    "name": "WeaponTune",
+                    "label": "$option.WeaponProgression.WeaponTune.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/WeaponTune.png"
+                        }
+                    },
+                    "option": [
+                        "RewardsSetOption"
+                    ]
+                }
+            ]
+        },
+        "CrisisDrills": {
+            "type": "select",
+            "label": "$option.CrisisDrills.label",
+            "cases": [
+                {
+                    "name": "AdvancedProgression1",
+                    "label": "$option.CrisisDrills.AdvancedProgression1.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression1.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression2",
+                    "label": "$option.CrisisDrills.AdvancedProgression2.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression2.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression3",
+                    "label": "$option.CrisisDrills.AdvancedProgression3.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression3.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression4",
+                    "label": "$option.CrisisDrills.AdvancedProgression4.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression4.png"
+                        }
+                    }
+                },
+                {
+                    "name": "AdvancedProgression5",
+                    "label": "$option.CrisisDrills.AdvancedProgression5.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceFindTargetRecognition": {
+                            "template": "ProtocolSpace/AdvancedProgression5.png"
+                        }
+                    }
+                }
+            ]
+        },
+        "RewardsSetOption": {
+            "type": "select",
+            "label": "$option.RewardsSetOption.label",
+            "cases": [
+                {
+                    "name": "RewardsSetA",
+                    "label": "A",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "A"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "RewardsSetB",
+                    "label": "B",
+                    "pipeline_override": {
+                        "ProtocolSpaceNormalPrepareChooseRewardABText": {
+                            "expected": [
+                                "B"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

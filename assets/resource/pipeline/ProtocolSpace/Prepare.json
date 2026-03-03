@@ -1,0 +1,209 @@
+{
+    "ProtocolSpaceNormalPrepareEnter": {
+        "desc": "进入普通协议空间准备选择界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "expected": [
+            "协议空间",
+            "Protocol Space"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 200,
+        "next": [
+            "ProtocolSpaceNormalPrepareChooseLevel"
+        ]
+    },
+    "ProtocolSpaceNormalPrepareChooseLevel": {
+        "desc": "在普通协议空间准备界面，选择关卡",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            150,
+            400
+        ],
+        "expected": [
+            "五级",
+            "Level 5"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "ProtocolSpacePrepareSanityLow",
+            "ProtocolSpacePrepareLock",
+            "ProtocolSpaceNormalPrepareChooseReward",
+            "ProtocolSpaceEnterSpace"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "选择五级关卡"
+        }
+    },
+    "ProtocolSpaceNormalPrepareChooseReward": {
+        "desc": "在普通协议空间准备界面，选择奖励",
+        "recognition": "OCR",
+        "roi": [
+            780,
+            500,
+            500,
+            150
+        ],
+        "expected": [
+            "自选",
+            "Options"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                240,
+                200,
+                200,
+                350
+            ]
+        },
+        "next": [
+            "[JumpBack]ProtocolSpaceNormalPrepareChooseRewardAB",
+            "ProtocolSpaceNormalPrepareChooseRewardClose"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "选择自选奖励"
+        }
+    },
+    "ProtocolSpaceNormalPrepareChooseRewardABText": {
+        "desc": "在普通协议空间准备界面，选择奖励AB",
+        "recognition": "OCR",
+        "roi": [
+            240,
+            200,
+            200,
+            350
+        ],
+        "expected": [
+            "A"
+        ]
+    },
+    "ProtocolSpaceNormalPrepareChooseRewardAB": {
+        "desc": "在普通协议空间准备界面，选择奖励AB",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceNormalPrepareChooseRewardABText",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceNormalPrepareChooseRewardABText",
+                "roi_offset": [
+                    0,
+                    0,
+                    0,
+                    100
+                ],
+                "lower": [
+                    240,
+                    210,
+                    0
+                ],
+                "upper": [
+                    255,
+                    255,
+                    30
+                ],
+                "connected": true,
+                "count": 30
+            }
+        ],
+        "box_index": 1,
+        "action": "Click"
+    },
+    "ProtocolSpaceNormalPrepareChooseRewardClose": {
+        "desc": "关闭普通协议空间准备界面奖励选择",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -300,
+            0,
+            300,
+            200
+        ],
+        "template": "ProtocolSpace/RewardClose.png",
+        "threshold": 0.9,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceEnterSpace"
+        ]
+    },
+    "ProtocolSpaceDeepDivePrepareEnter": {
+        "desc": "进入深潜协议空间准备选择界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "expected": [
+            "协议空间",
+            "Protocol Space"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 200,
+        "next": [
+            "ProtocolSpacePrepareSanityLow",
+            "ProtocolSpacePrepareLock",
+            "ProtocolSpaceEnterSpace"
+        ]
+    },
+    "ProtocolSpacePrepareSanityLowFilter": {
+        "recognition": "ColorMatch",
+        "lower": [
+            100,
+            50,
+            50
+        ],
+        "upper": [
+            220,
+            120,
+            120
+        ],
+        "method": 4
+    },
+    "ProtocolSpacePrepareSanityLow": {
+        "desc": "理智不足",
+        "recognition": "OCR",
+        "color_filter": "ProtocolSpacePrepareSanityLowFilter",
+        "roi": [
+            960,
+            650,
+            55,
+            22
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "only_rec": true,
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，结束任务"
+        }
+    },
+    "ProtocolSpacePrepareLock": {
+        "desc": "未解锁",
+        "recognition": "OCR",
+        "roi": [
+            -480,
+            -90,
+            480,
+            90
+        ],
+        "expected": [
+            "解锁",
+            "unlock"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "协议空间未解锁"
+        }
+    }
+}
