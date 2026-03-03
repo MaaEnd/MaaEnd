@@ -7,7 +7,7 @@
         ]
     },
     "DeliveryJobsLoop": {
-        "doc": "主循环，确保在地区建设界面",
+        "doc": "主循环，同时支持地区建设界面和本地仓储节点界面",
         "recognition": "Or",
         "any_of": [
             "InRegionalDevelopment",
