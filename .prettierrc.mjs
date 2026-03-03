@@ -6,6 +6,10 @@ export default {
         maafwSort.patchPlugin(multilineArrays),
     ],
     multilineArraysWrapThreshold: 1,
+    maafwInterfacePatterns: [
+        "/interface.json",
+        "/tasks/.*\.json",
+    ],
     tabWidth: 4,
     printWidth: 120,
     useTabs: false,
