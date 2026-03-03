@@ -17,8 +17,8 @@
             }
         }
     },
-    "MFGCarbinNeedAssistUseAssistText": {
-        "doc": "[制造舱·需要助力] 识别使用助力按钮",
+    "UseAssistText": {
+        "doc": "[需要助力] 识别使用助力按钮",
         "recognition": {
             "type": "OCR",
             "param": {

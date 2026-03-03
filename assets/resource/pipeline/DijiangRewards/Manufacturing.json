@@ -154,7 +154,7 @@
                 "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
-                    "MFGCarbinNeedAssistUseAssistText"
+                    "UseAssistText"
                 ]
             }
         },

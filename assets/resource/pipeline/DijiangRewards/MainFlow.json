@@ -26,10 +26,7 @@
             "[JumpBack]GrowthChamber",
             "[JumpBack]RecoveryEmotion",
             "InLastCarbin",
-            "[JumpBack]CarbinSwipe",
-            "[JumpBack]WhiteConfirmButtonType1",
-            "[JumpBack]CloseRewardsButton",
-            "[JumpBack]CloseAssist"
+            "[JumpBack]CarbinSwipe"
         ]
     },
     "ExitInviteFriend": {
