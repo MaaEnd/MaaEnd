@@ -16,6 +16,23 @@
             }
         }
     },
+    "InReceptionRoom": {
+        "doc": "[会客室] 在会客室界面，识别会客室标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    96,
+                    64
+                ],
+                "expected": [
+                    "会客室"
+                ]
+            }
+        }
+    },
     "FacilityDetails": {
         "doc": "[设施详情] 识别设施详情标题",
         "recognition": {

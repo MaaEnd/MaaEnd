@@ -73,7 +73,7 @@
                 "box_index": 1,
                 "all_of": [
                     "WhiteConfirmButtonType1",
-                    "MFGCarbinNeedReStockText"
+                    "WhiteButtonConfirmText"
                 ]
             }
         },
