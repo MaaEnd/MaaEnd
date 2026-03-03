@@ -8,6 +8,7 @@
         "format:all": "pnpm format && pnpm format:go"
     },
     "devDependencies": {
+        "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "prettier": "3.5.3",
         "prettier-plugin-multiline-arrays": "4.1.4"
     },
