@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@nekosu/prettier-plugin-maafw-sort':
-        specifier: 1.0.3
-        version: 1.0.3
+        specifier: 1.0.4
+        version: 1.0.4
       prettier:
         specifier: 3.5.3
         version: 3.5.3
@@ -48,8 +48,8 @@ packages:
     resolution: {integrity: sha512-Yyy843MnUPsyGaDt07b4/Y8Sbh9Vcka1XwxVI5eWV7x8kigF+NtH5onsLlHELfF/rsjchVOnWRlBCkCpjltoJA==}
     engines: {node: '>=22'}
 
-  '@nekosu/prettier-plugin-maafw-sort@1.0.3':
-    resolution: {integrity: sha512-+4WV1vUp+kNpsjNPpjAp1pLYG08CzpnkFnFwdroHH8eSi4phec6dOAY07xKqZowUoQ6TIx/7oa8yUdThiRPSgg==}
+  '@nekosu/prettier-plugin-maafw-sort@1.0.4':
+    resolution: {integrity: sha512-k8ZS9aGzlNW32oKBJ/wT+q9zJ/fSthpWFgSZPgTra4fLXvuzpGs92oK3lN76kDU+lXufDSg8kMIv65zKmquvUQ==}
 
   '@types/luxon@3.7.1':
     resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
@@ -158,7 +158,7 @@ snapshots:
       luxon: 3.7.2
       type-fest: 5.4.4
 
-  '@nekosu/prettier-plugin-maafw-sort@1.0.3':
+  '@nekosu/prettier-plugin-maafw-sort@1.0.4':
     dependencies:
       '@babel/types': 7.29.0
 
