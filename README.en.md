@@ -41,6 +41,9 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
     - **Auto petting**: Automatically pet mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
 - 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
 - 💎 **Matrix recognition**: Smart recognition of matrix affixes, automatically keeping optimal stats and clearing junk in one go.
+- 🎱 **Auto Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
+- 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks (currently in Beta, optimizations ongoing 🔥)!
+- ⚔️ **Protocol Space**: Automatically consume sanity to farm Protocol Space rewards until it's fully depleted, your best helper for clearing sanity!
 - 🔫 **Armory upgrade & assembly**: Automate weapon enhancement and gear assembly to free your hands and boost power easily.
 - 💰 **Semi‑auto trading/reselling**: Automatically identify and buy the most profitable goods, auto visit friends' ships, and optionally auto switch instances. (Selling still requires manual operation for now.)
 - 🛒 **One‑click product selling**: Automatically exchange products at bases into coupons/vouchers; let MaaEnd handle the repetitive clicking.
