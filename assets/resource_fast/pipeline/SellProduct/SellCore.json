@@ -54,6 +54,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
+                "method": 10001,
                 "template": [
                     "SellProduct/SellProductBarRight.png"
                 ],
@@ -65,6 +66,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {
@@ -97,6 +99,7 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
+                "method": 10001,
                 "template": [
                     "SellProduct/SellProductBar.png"
                 ],
@@ -108,6 +111,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "action": {
             "type": "Swipe",
             "param": {
@@ -195,6 +199,7 @@
                 ]
             }
         },
+        "post_wait_freezes": 100,
         "action": {
             "type": "Click",
             "param": {}
