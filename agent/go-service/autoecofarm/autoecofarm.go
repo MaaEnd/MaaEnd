@@ -142,6 +142,7 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 type MoveToTargetPartParams struct {
 	StepRatio float64 `json:"stepRatio"`
 	Threshold int     `json:"threshold"`
+	Duration  int     `json:"duration"`
 }
 type MoveToTargetPart struct{}
 
@@ -149,8 +150,9 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	log.Debug().Msgf("start")
 	//读取参数
 	var params = MoveToTargetPartParams{
-		StepRatio: 0.8,
+		StepRatio: 0.5,
 		Threshold: 50,
+		Duration:  200,
 	}
 
 	//解析 JSON 参数到结构体中
@@ -164,6 +166,7 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	stepRatio := params.StepRatio
 	threshold := params.Threshold
+	duration := time.Duration(params.Duration) * time.Millisecond
 
 	//判断box是否为空
 	if arg.Box.X() == 0 || arg.Box.Y() == 0 || arg.Box.Width() == 0 || arg.Box.Height() == 0 {
@@ -191,29 +194,23 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	dx := targetCenterX - screenCenterX
 	dy := targetCenterY - screenCenterY
 	//只要x轴距离够小就行，y不考虑
+	msg1 := fmt.Sprintf("目标距离%d", dx)
+	maafocus.NodeActionStarting(ctx, msg1)
+
 	distance := int(math.Abs(float64(dx)))
 	if distance < threshold {
-		log.Info().Msgf("目标距离小于阈值（%.2f < %d），停止移动", distance, params.Threshold)
-		return true
+		msg1 := fmt.Sprintf("目标距离小于阈值（%d < %d），停止移动视角", distance, params.Threshold)
+		maafocus.NodeActionStarting(ctx, msg1)
+		log.Info().Msgf("目标距离小于阈值（%d < %d），停止移动", distance, params.Threshold)
+		return false
 	}
 	//如果不在阈值下，则根据比例拉近屏幕并且返回true
 
 	ctx.RunActionDirect("Swipe", maa.SwipeParam{
 		Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
-		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + int(float64(dx)*stepRatio), screenCenterY + int(float64(dy)*stepRatio), 1, 1})},
-		Duration:  []time.Duration{1000 * time.Millisecond},
+		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + int(float64(dx)*stepRatio), screenCenterY + dy, 1, 1})},
+		Duration:  []time.Duration{duration},
 		OnlyHover: true,
-	}, maa.Rect{0, 0, 0, 0}, nil)
-
-	//转完还得点一下alt加左键解除占用
-	ctx.RunActionDirect("KeyDown", maa.KeyDownParam{
-		Key: KEY_ALT,
-	}, maa.Rect{0, 0, 0, 0}, nil)
-
-	ctx.RunActionDirect("Click", maa.ClickParam{}, maa.Rect{0, 0, 0, 0}, nil)
-
-	ctx.RunActionDirect("KeyUp", maa.KeyUpParam{
-		Key: KEY_ALT,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 
 	return true

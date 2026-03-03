@@ -2,13 +2,13 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
-            //测试节点
-            //"MapTrackerTestLoop"
-            "_AutoEcoFarmFindWulinEcoFarm",
+            "_AutoEcoFarmSwipeToTargetValleyIVStart",
             "_AutoEcoFarmGotoValleyIVEcoFarmStart",
             "_AutoEcoFarmGotoWulinEcoFarmStart",
             "AutoEcoFarmExit"
         ]
     },
-    "AutoEcoFarmExit": {}
+    "AutoEcoFarmExit": {
+        "doc": "退出任务"
+    }
 }

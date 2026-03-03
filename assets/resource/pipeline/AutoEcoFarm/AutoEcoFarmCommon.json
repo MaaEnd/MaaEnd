@@ -14,5 +14,131 @@
             }
         },
         "max_hit": 3 //默认为3，超过就不要再试了免得死循环
+    },
+    //强制结束任务前解除占用
+    "_AutoEcoFarmMoveToTargetErr": {
+        "doc": "这是个异常处理节点，触发时解除占用并结束任务",
+        "focus": {
+            "Node.Action.Failed": "出现异常情况，脚本提前中止"
+        },
+        "next": [
+            "_AutoEcoFarmMoveToTargetErr1"
+        ]
+    },
+    "_AutoEcoFarmMoveToTargetErr1": {
+        "doc": "先解除w键占用",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": []
+    },
+    "_AutoEcoFarmMoveToTargetErr2": {
+        "doc": "恢复跑步模式，方式是按一下shift",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 16 //shift键
+            }
+        },
+        "next": [
+            "AutoEcoFarmExit"
+        ]
+    },
+    //下面这段代码是在地图上清除标记，只留工业设备，用来找农田的，要加jumpback
+    "_AutoEcoFarmClickTargetManager": {
+        "doc": "点开标记显示管理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    635,
+                    156,
+                    48
+                ],
+                "expected": [
+                    "标记|显示|管理"
+                ]
+            }
+        },
+        "action": "Click",
+        "max_hit": 3,
+        "next": [
+            "_AutoEcoFarmClickClear"
+        ]
+    },
+    "_AutoEcoFarmClickClear": {
+        "doc": "点击清空选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    49,
+                    637,
+                    142,
+                    50
+                ],
+                "expected": [
+                    "清空"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmScrollToIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmScrollToIndustrialFacilities": {
+        "doc": "滚动一下",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "dy": -480,
+                "target": [
+                    159,
+                    347,
+                    19,
+                    15
+                ]
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "_AutoEcoFarmClickIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmClickIndustrialFacilities": {
+        "doc": "点击工业设备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    18,
+                    44,
+                    337,
+                    593
+                ],
+                "expected": [
+                    "工业设备"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmExitTargetManager"
+        ]
+    },
+    "_AutoEcoFarmExitTargetManager": {
+        "doc": "按一下esc",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        }
     }
 }

@@ -6,13 +6,20 @@
 //开始工作后，节点会使用自定义的识别方式查找目标，然后一点点将目标挪到视野正中间
 //节点从Start进入，开始前要保证目标可以被看到
 //节点从Exit离开，这里关联下一个阶段的节点
+//无法中断循环，需要单独将判断距离在范围内做成custom的recognition节点
 { //节点出入口
-    "_AutoEcoFarmSwipeToTargetStart": {
-        "doc": "这是一个微调视角直到目标到屏幕中间的节点，可以通用，其他人只需要按以下步骤操作",
-        "max_hit": 1,
+    "_AutoEcoFarmSwipeToTargetValleyIVStart": {
+        "doc": "[谷地版]微调视角直到目标到屏幕中间",
         "next": [
-            "_AutoEcoFarmTargeInWorld",
-            "[JumpBack]SceneAnyEnterWorld"
+            "[JumpBack]_AutoEcoFarmSwipeLoopValleyIV",
+            "_AutoEcoFarmSwipeToTargetExit"
+        ]
+    },
+    "_AutoEcoFarmSwipeToTargetWulinStart": {
+        "doc": "[武陵版]微调视角直到目标到屏幕中间",
+        "next": [
+            "[JumpBack]_AutoEcoFarmSwipeLoopWuLin",
+            "_AutoEcoFarmSwipeToTargetExit"
         ]
     },
     "_AutoEcoFarmSwipeToTargetExit": {
@@ -35,9 +42,11 @@
                 "threshold": 0.3
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            //自循环，直到识别框距离中心够近，或者超过最大尝试次数
             "_AutoEcoFarmSwipeToTarget",
+            //如果返回了false直接结束任务
             "_AutoEcoFarmSwipeToTargetExit"
         ]
     },
@@ -52,19 +61,37 @@
                     //移动屏幕中心距离目标的多少比例，参数越大，移动越豪放，但容易过头，越小不容易过头，但会比较慢
                     "stepRatio": 0.5,
                     //与目标x轴距离低于多少像素后停止
-                    "threshold": 10
+                    "threshold": 50,
+                    //每次拉动用时，用时越短越容易拉过头，但效率越高
+                    "duration": 100
                 },
                 //这里记得改成识别节点一样的名字
                 "target": "_AutoEcoFarmTargeRecognition"
             }
         },
-        //超过多少次强制停止，防止死循环
-        "max_hit": 5,
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
-            "_AutoEcoFarmTargeRecognition"
+            "_AutoEcoFarmAltDown"
         ]
     },
     //下面是内部节点，不用改
+    "_AutoEcoFarmSwipeLoopValleyIV": {
+        "doc": "控制谷地循环次数的节点",
+        "max_hit": 20,
+        "next": [
+            "_AutoEcoFarmTargeInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
+    "_AutoEcoFarmSwipeLoopWuLin": {
+        "doc": "控制谷地循环次数的节点",
+        "max_hit": 20,
+        "next": [
+            "_AutoEcoFarmTargeInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
+        ]
+    },
     "_AutoEcoFarmTargeInWorld": {
         "doc": "判断是否在大世界，避免误识别地图上的标点",
         "recognition": {
@@ -84,7 +111,7 @@
         },
         "next": [
             "_AutoEcoFarmTargeRecognition",
-            "_AutoEcoFarmSwipeToGround"
+            "[JumpBack]_AutoEcoFarmSwipeToGround"
         ]
     },
     "_AutoEcoFarmSwipeToGround": {
@@ -119,6 +146,8 @@
                 "key": 18 //alt键
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "_AutoEcoFarmClick"
         ]
@@ -128,6 +157,8 @@
         "action": {
             "type": "Click"
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "_AutoEcoFarmAltUp"
         ]
@@ -140,8 +171,7 @@
                 "key": 18 //alt键
             }
         },
-        "next": [
-            "_AutoEcoFarmTargeInWorld"
-        ]
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }
