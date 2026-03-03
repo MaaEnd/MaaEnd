@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@nekosu/prettier-plugin-maafw-sort':
+        specifier: 1.0.2
+        version: 1.0.2
       prettier:
         specifier: 3.5.3
         version: 3.5.3
@@ -29,9 +32,24 @@ packages:
     resolution: {integrity: sha512-EeuSiPc0RCLOQk+2NnLC8hpWg+fHvWibjASUKEhsEpORrDX9yn4WFXKXev1SlymT2/TylEYyZFmiJv8DFjo6ww==}
     engines: {node: '>=22'}
 
+  '@babel/helper-string-parser@7.27.1':
+    resolution: {integrity: sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/helper-validator-identifier@7.28.5':
+    resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.29.0':
+    resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
+    engines: {node: '>=6.9.0'}
+
   '@date-vir/duration@8.1.1':
     resolution: {integrity: sha512-Yyy843MnUPsyGaDt07b4/Y8Sbh9Vcka1XwxVI5eWV7x8kigF+NtH5onsLlHELfF/rsjchVOnWRlBCkCpjltoJA==}
     engines: {node: '>=22'}
+
+  '@nekosu/prettier-plugin-maafw-sort@1.0.2':
+    resolution: {integrity: sha512-9xba4EodFPpQTS3VoGsDfp7qvJYcvzg7FmcDLAsUPLy6cJ4gITZQvPiFHS/5jk9XMEqVDYH5rq/+8r8r3sPSCg==}
 
   '@types/luxon@3.7.1':
     resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
@@ -124,12 +142,25 @@ snapshots:
       json5: 2.2.3
       type-fest: 5.4.4
 
+  '@babel/helper-string-parser@7.27.1': {}
+
+  '@babel/helper-validator-identifier@7.28.5': {}
+
+  '@babel/types@7.29.0':
+    dependencies:
+      '@babel/helper-string-parser': 7.27.1
+      '@babel/helper-validator-identifier': 7.28.5
+
   '@date-vir/duration@8.1.1':
     dependencies:
       '@augment-vir/assert': 31.65.0
       '@types/luxon': 3.7.1
       luxon: 3.7.2
       type-fest: 5.4.4
+
+  '@nekosu/prettier-plugin-maafw-sort@1.0.2':
+    dependencies:
+      '@babel/types': 7.29.0
 
   '@types/luxon@3.7.1': {}
 
