@@ -60,7 +60,7 @@
         "action": "Click",
         "anchor": {
             "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
-            "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable",
+            "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
         },
         "post_wait_freezes": 200,
         "next": [
