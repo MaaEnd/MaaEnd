@@ -1,5 +1,5 @@
 {
-    "MFGCarbinNeedAssistCanfirmText": {
+    "MFGCarbinNeedAssistConfirmText": {
         "doc": "[制造舱·需要助力] 识别确认使用助力按钮",
         "recognition": {
             "type": "OCR",

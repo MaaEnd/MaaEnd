@@ -163,7 +163,7 @@
         },
         "next": [
             "MFGCarbinNeedAssistAssistMAX",
-            "MFGCarbinNeedAssistCanfirm"
+            "MFGCarbinNeedAssistConfirm"
         ]
     },
     "MFGCarbinNeedAssistAssistMAX": {
@@ -186,10 +186,10 @@
             "type": "Click"
         },
         "next": [
-            "MFGCarbinNeedAssistCanfirm"
+            "MFGCarbinNeedAssistConfirm"
         ]
     },
-    "MFGCarbinNeedAssistCanfirm": {
+    "MFGCarbinNeedAssistConfirm": {
         "doc": "[制造舱·需要助力] 点击确认使用助力",
         "recognition": {
             "type": "And",
@@ -197,7 +197,7 @@
                 "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
-                    "MFGCarbinNeedAssistCanfirmText"
+                    "MFGCarbinNeedAssistConfirmText"
                 ]
             }
         },
