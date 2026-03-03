@@ -25,7 +25,8 @@
                     "description": "$option.CreditShoppingOptions.inputs.buy_first.description",
                     "pipeline_type": "string",
                     "default": "嵌晶玉|武库配额"
-                }, {
+                },
+                {
                     "name": "blacklist",
                     "label": "$option.CreditShoppingBlackOptions.inputs.blacklist.label",
                     "description": "$option.CreditShoppingBlackOptions.inputs.blacklist.description",
@@ -39,7 +40,8 @@
                 },
                 "BuyFirstOCR_CanNotAfford": {
                     "expected": "^({buy_first})$"
-                },                "BlacklistOCR": {
+                },
+                "BlacklistOCR": {
                     "expected": "^(?!({blacklist})$).*$"
                 }
             }
