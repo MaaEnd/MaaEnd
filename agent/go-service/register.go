@@ -11,7 +11,6 @@ import (
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/screenshot"
 	"github.com/rs/zerolog/log"
 )
 
@@ -25,7 +24,6 @@ func registerAll() {
 	maptracker.Register()
 	batchaddfriends.Register()
 	autofight.Register()
-	screenshot.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()
