@@ -11,7 +11,7 @@
             "AutoEssenceChooseScaling1",
             "VFTheHubLocationAssertion",
             "VFOriginiumScienceParkLocationAssertion",
-            // "VFOriginLodespringLocationAssertion", // Will be enabled in future versions
+            "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion"
         ],
