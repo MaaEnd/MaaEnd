@@ -45,7 +45,20 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_wait_freezes": 400,
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickOriginClicked"
+        ]
+    },
+    "ItemTransferClickOriginClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "ORIGIN_REGION",
         "next": [
             "ItemTransferClickConfirmOrigin",
             "ItemTransferAtOrigin"
@@ -255,7 +268,20 @@
         ],
         "expected": "DESTINATION_REGION",
         "action": "Click",
-        "post_wait_freezes": 400,
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickDestinationClicked"
+        ]
+    },
+    "ItemTransferClickDestinationClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "DESTINATION_REGION",
         "next": [
             "ItemTransferClickConfirmDestination",
             "ItemTransferAtDestination"
@@ -420,7 +446,20 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_wait_freezes": 400,
+        "post_delay": 400,
+        "next": [
+            "ItemTransferClickOriginReturnClicked"
+        ]
+    },
+    "ItemTransferClickOriginReturnClicked": {
+        "recognition": "OCR",
+        "roi": [
+            596,
+            346,
+            213,
+            23
+        ],
+        "expected": "ORIGIN_REGION",
         "next": [
             "ItemTransferClickConfirmOriginReturn",
             "ItemTransferAtOriginReturn"
