@@ -71,6 +71,12 @@
             "YellowConfirmButtonType1",
             "DeliveryJobsCheckTaskTransferText"
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            // 转交完任务之后会直接回到本地仓储节点界面
+            // 需要等待本地仓储界面完全加载完成，才继续后面的流程
+            // 否则会因为无法识别到相关货物，导致退出去重新进入本地仓储界面
+            "InLocalDepotNode"
+        ]
     }
 }
