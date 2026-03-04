@@ -107,7 +107,7 @@
             "type": "Click"
         },
         "next": [
-            "CloseRewardsButton"
+            "CloseExchangeRewards"
         ]
     },
     "CloseExchangeRewards": {
@@ -144,7 +144,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 80,
             "timeout": 1000
         },
         "next": [
@@ -387,8 +387,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "ReceptionRoomSetClueTips",
-                    "InReceptionRoom"
+                    "ReceptionRoomSetClueTips"
                 ]
             }
         },
@@ -402,10 +401,6 @@
                     0
                 ]
             }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
         },
         "next": [
             "ReadySetClues",
@@ -493,6 +488,16 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 2000,
+            "target": [
+                916,
+                44,
+                364,
+                59
+            ]
+        },
         "action": "Click",
         "next": [
             "ExitReceptionRoom"
@@ -513,6 +518,16 @@
                     "会客室"
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 2000,
+            "target": [
+                916,
+                44,
+                364,
+                59
+            ]
         },
         "action": {
             "type": "Click",

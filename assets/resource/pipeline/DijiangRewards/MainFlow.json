@@ -29,40 +29,6 @@
             "Node.PipelineNode.Failed": "未识别到指定舱室"
         }
     },
-    "ExitInviteFriend": {
-        "desc": "错误进入邀请好友界面,需要退出",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "WhiteConfirmButtonType1",
-                    "InviteFriend"
-                ],
-                "box_index": 1
-            }
-        },
-        "next": [
-            "InDijiangControlNexus",
-            "[JumpBack]CloseButtonType1"
-        ]
-    },
-    "InviteFriend": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "WhiteConfirmButtonType1",
-                "roi_offset": [
-                    -105,
-                    -24,
-                    105,
-                    51
-                ],
-                "expected": [
-                    "邀请好友"
-                ]
-            }
-        }
-    },
     "InMainWindow_Normal": {
         "desc": "[主流程·入口] 识别主界面或已在控制中枢，进入控制中枢或经地图/传送跳转至帝江号",
         "recognition": {

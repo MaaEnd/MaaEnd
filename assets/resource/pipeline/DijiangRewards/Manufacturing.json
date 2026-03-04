@@ -1,6 +1,7 @@
 {
     "MFG_ReceiveRewards": {
         "desc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
+        "max_hit": 2,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -196,7 +197,7 @@
             "param": {
                 "all_of": [
                     "YellowConfirmButtonType1",
-                    "MFGCarbinNeedAssistConfirmText"
+                    "YellowButtonConfirmText"
                 ],
                 "box_index": 1
             }
@@ -246,6 +247,10 @@
             "param": {
                 "contact": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 2000
         }
     }
 }

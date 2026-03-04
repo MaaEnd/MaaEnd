@@ -1,15 +1,15 @@
 {
-    "MFGCarbinNeedAssistConfirmText": {
-        "desc": "[制造舱·需要助力] 识别确认使用助力按钮",
+    "YellowButtonConfirmText": {
+        "desc": "识别确认按钮",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "确认"
@@ -24,13 +24,31 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "使用助力"
+                ]
+            }
+        }
+    },
+    "ClaimAllText": {
+        "desc": "培养舱界面识别全部收取",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -72,
+                    -2,
+                    72,
+                    5
+                ],
+                "expected": [
+                    "全部收取"
                 ]
             }
         }
@@ -42,10 +60,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "收取"
@@ -79,10 +97,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType1",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "确认"
@@ -97,10 +115,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "全部接收"
@@ -169,13 +187,49 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -101,
-                    -22,
-                    68,
-                    46
+                    -72,
+                    -2,
+                    72,
+                    5
                 ],
                 "expected": [
                     "开展交流"
+                ]
+            }
+        }
+    },
+    "ConfirmExtractText": {
+        "desc": "白色按钮上的确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -72,
+                    -2,
+                    72,
+                    5
+                ],
+                "expected": [
+                    "确认提取"
+                ]
+            }
+        }
+    },
+    "GrayButtonCancelText": {
+        "doc": "灰色按钮上的取消文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrayCancelButton",
+                "roi_offset": [
+                    -72,
+                    -2,
+                    72,
+                    5
+                ],
+                "expected": [
+                    "取消"
                 ]
             }
         }
