@@ -149,6 +149,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				return false
 			}
 
+			// Check arrival timeout
+			deltaArrivalMs := now.Sub(lastArrivalTime).Milliseconds()
+			if deltaArrivalMs > param.ArrivalTimeout {
+				log.Error().Msg("Arrival timeout, stopping task")
+				doEmergencyStop(aw, param.NoPrint)
+				return false
+			}
+
 			// Run inference to get current location and rotation
 			result, err := doInfer(ctx, ctrl, param)
 			if err != nil {
@@ -178,14 +186,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					}
 				}
 				break
-			}
-
-			// Check arrival timeout
-			deltaArrivalMs := now.Sub(lastArrivalTime).Milliseconds()
-			if deltaArrivalMs > param.ArrivalTimeout {
-				log.Error().Msg("Arrival timeout, stopping task")
-				doEmergencyStop(aw, param.NoPrint)
-				return false
 			}
 
 			log.Debug().Int("x", curX).Int("y", curY).Float64("dist", dist).Msg("Navigating to target")
