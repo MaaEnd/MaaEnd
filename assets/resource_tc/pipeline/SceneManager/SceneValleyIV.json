@@ -16,11 +16,5 @@
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
         "expected": "供能高地"
-    },
-    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
-        "expected": "高"
-    },
-    "[2]": {
-        "expected": "收集"
     }
 }

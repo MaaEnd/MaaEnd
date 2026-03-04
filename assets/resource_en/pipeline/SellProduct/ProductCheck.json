@@ -1,7 +1,4 @@
 {
-    "[1]": {
-        "expected": "Production Assist"
-    },
     "SellProductChangeProduct": {
         "expected": "Switch Goods"
     },

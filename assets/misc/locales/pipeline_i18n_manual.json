@@ -1,0 +1,482 @@
+{
+    "BakerCheckHome": {
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "BAKER"
+        }
+    },
+    "BakerCheckMsg": {
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "会话消息"
+        }
+    },
+    "BakerCheckTask": {
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "事务通讯"
+        }
+    },
+    "BakerOverCheck": {
+        "path": "./assets/resource/pipeline/BAKER.json",
+        "i18n": {
+            "zh_cn": "当前无"
+        }
+    },
+    "BatchAddFriendsFriendListFullToast": {
+        "path": "./assets/resource/pipeline/BatchAddFriends.json",
+        "i18n": {
+            "zh_cn": "好友列表已满"
+        }
+    },
+    "CraftingCheckMaterialEnough": {
+        "path": "./assets/resource/pipeline/Crafting.json",
+        "i18n": {
+            "zh_cn": "空间已满"
+        }
+    },
+    "GearAssemblyCheckMaterialEnough": {
+        "path": "./assets/resource/pipeline/GearAssembly.json",
+        "i18n": {
+            "zh_cn": "空间已满"
+        }
+    },
+    "ItemTransferClickOrigin": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "ORIGIN_REGION"
+        }
+    },
+    "ItemTransferClickDestination": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "DESTINATION_REGION"
+        }
+    },
+    "ItemTransferCheckIfFull": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "已满"
+        }
+    },
+    "ItemTransferClickOriginReturn": {
+        "path": "./assets/resource/pipeline/ItemTransfer.json",
+        "i18n": {
+            "zh_cn": "ORIGIN_REGION"
+        }
+    },
+    "LoginFailed": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "登录失败"
+        }
+    },
+    "WaitLoadingText": {
+        "path": "./assets/resource/pipeline/OpenGame.json",
+        "i18n": {
+            "zh_cn": "NOW|LOAD|ING"
+        }
+    },
+    "ProdManualOpenInList": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "每获取对应数量物品"
+        }
+    },
+    "ProdManualReceiveReward": {
+        "path": "./assets/resource/pipeline/ProdManual.json",
+        "i18n": {
+            "zh_cn": "键领取"
+        }
+    },
+    "ResellWaitForStableStore": {
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "稳定需求"
+        }
+    },
+    "ResellClickToUnstableStore": {
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "弹性需求"
+        }
+    },
+    "ResellStartCheckStock": {
+        "path": "./assets/resource/pipeline/Resell.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "CheckMaterialEnough": {
+        "path": "./assets/resource/pipeline/SimpleProductionBatch.json",
+        "i18n": {
+            "zh_cn": "空间已满"
+        }
+    },
+    "ProductionAssistOCR": {
+        "path": "./assets/resource/pipeline/VisitFriends.json",
+        "i18n": {
+            "zh_cn": "[1-5]"
+        }
+    },
+    "ClueExchangeOCR": {
+        "path": "./assets/resource/pipeline/VisitFriends.json",
+        "i18n": {
+            "zh_cn": "[1-5]"
+        }
+    },
+    "__AutoFightRecognitionCharactorLevelShow": {
+        "path": "./assets/resource/pipeline/AutoFight/Recognition.json",
+        "i18n": {
+            "zh_cn": "\\d.*\\d"
+        }
+    },
+    "__AutoFightRecognitionSwitchOperatorsTip": {
+        "path": "./assets/resource/pipeline/AutoFight/Recognition.json",
+        "i18n": {
+            "zh_cn": "切"
+        }
+    },
+    "BuyFirstOCR": {
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(嵌晶玉|武库配额|折金票)$"
+        }
+    },
+    "BuyFirstOCR_CanNotAfford": {
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(嵌晶玉|武库配额|折金票)$"
+        }
+    },
+    "BlacklistOCR": {
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "^(?!(协议棱柱组)$).*$"
+        }
+    },
+    "IsDiscount": {
+        "path": "./assets/resource/pipeline/CreditShopping/Item.json",
+        "i18n": {
+            "zh_cn": "99|95|75|50|25"
+        }
+    },
+    "CreditShoppingReserveCredit": {
+        "path": "./assets/resource/pipeline/CreditShopping/Shopping.json",
+        "i18n": {
+            "zh_cn": "^([12]?\\d{1,2})$"
+        }
+    },
+    "CreditNum": {
+        "path": "./assets/resource/pipeline/CreditShopping/Shopping.json",
+        "i18n": {
+            "zh_cn": "^([3-9]\\d{2}|[1-9]\\d{3,})$"
+        }
+    },
+    "DailyEmailNoEmailRewards": {
+        "path": "./assets/resource/pipeline/DailyRewards/Emails.json",
+        "i18n": {
+            "zh_cn": "暂无附件"
+        }
+    },
+    "DailyEventRecognitionItemText": {
+        "path": "./assets/resource/pipeline/DailyRewards/Event.json",
+        "i18n": {
+            "zh_cn": ".{3,}"
+        }
+    },
+    "SelectGrowTarget": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "菌"
+        }
+    },
+    "CheckGrowTargetEmpty": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "^([1-9][0-9]*)([/|\\]]).*$"
+        }
+    },
+    "NoMaterials": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "缺少原料"
+        }
+    },
+    "InSelectGrowSwipe": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "选择培养对象"
+        }
+    },
+    "Grow": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "^培养$"
+        }
+    },
+    "InGrow": {
+        "path": "./assets/resource/pipeline/DijiangRewards/GrowthChamber.json",
+        "i18n": {
+            "zh_cn": "选择培养对象"
+        }
+    },
+    "SelectDijiang": {
+        "path": "./assets/resource/pipeline/DijiangRewards/Navigation.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "EntryReceptionRoom_NeedCredit": {
+        "path": "./assets/resource/pipeline/DijiangRewards/NeedCredit.json",
+        "i18n": {
+            "zh_cn": "^会客室$"
+        }
+    },
+    "EntryReceptionRoom": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "^会客室$"
+        }
+    },
+    "SendClues": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "已达自有线索库容量上限"
+        }
+    },
+    "SendCluesSwipe": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "线索"
+        }
+    },
+    "ReadySetClues": {
+        "path": "./assets/resource/pipeline/DijiangRewards/ReceptionRoom.json",
+        "i18n": {
+            "zh_cn": "线索"
+        }
+    },
+    "EmotionFull": {
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "干员心情已满"
+        }
+    },
+    "CouldNotAssistEmotion": {
+        "path": "./assets/resource/pipeline/DijiangRewards/RecoveryEmotion.json",
+        "i18n": {
+            "zh_cn": "没有更多的心情激励点数"
+        }
+    },
+    "CheckEternalSunsetText": {
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "栖霞驻影"
+        }
+    },
+    "CheckCleansingJadeText": {
+        "path": "./assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal.json",
+        "i18n": {
+            "zh_cn": "漱玉"
+        }
+    },
+    "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+        "path": "./assets/resource/pipeline/ProtocolSpace/OperationalManual.json",
+        "i18n": {
+            "zh_cn": "员养成"
+        }
+    },
+    "ProtocolSpacePrepareSanityLow": {
+        "path": "./assets/resource/pipeline/ProtocolSpace/Prepare.json",
+        "i18n": {
+            "zh_cn": "\\d"
+        }
+    },
+    "ResellClickStock": {
+        "path": "./assets/resource/pipeline/Resell/GotoSell.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellEnterShip": {
+        "path": "./assets/resource/pipeline/Resell/GotoSell.json",
+        "i18n": {
+            "zh_cn": ".*飞船.*"
+        }
+    },
+    "ResellROIDetailCostPrice": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellROIFriendSalePrice": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[0-9]+"
+        }
+    },
+    "ResellROIQuotaCurrent": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)/(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddHours": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)\\s*小时.*?[+]\\s*(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddMinutes": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "(\\d+)\\s*分钟.*?[+]\\s*(\\d+)"
+        }
+    },
+    "ResellROIQuotaNextAddFallback": {
+        "path": "./assets/resource/pipeline/Resell/ResellROI.json",
+        "i18n": {
+            "zh_cn": "[+]\\s*(\\d+)"
+        }
+    },
+    "InMapDijiang": {
+        "path": "./assets/resource/pipeline/SceneManager/Region.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "__ScenePrivateMapNotDijiangEnterMapDijiang": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneDijiang.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "__ScenePrivateMapEnterMapNotDijiangSuccess": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneMap.json",
+        "i18n": {
+            "zh_cn": "[Oo].?[Mm].?[Vv]"
+        }
+    },
+    "__ScenePrivateAnyEnterMenuBakerSuccess": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneMenu.json",
+        "i18n": {
+            "zh_cn": "BAKER"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVTheHub": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "枢"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVValleyPass": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "谷"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginiumSciencePark": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "源"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVAburreyQuarry": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "阿"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVOriginLodespring": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "矿"
+        }
+    },
+    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneValleyIV.json",
+        "i18n": {
+            "zh_cn": "供"
+        }
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneWuling.json",
+        "i18n": {
+            "zh_cn": "武"
+        }
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
+        "path": "./assets/resource/pipeline/SceneManager/SceneWuling.json",
+        "i18n": {
+            "zh_cn": "景"
+        }
+    },
+    "ClueItemCount": {
+        "path": "./assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json",
+        "i18n": {
+            "zh_cn": "^(20|[3-9]|1[0-9])$"
+        }
+    },
+    "OCREssenceInventoryNumber": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\d+(\\/\\d+)?"
+        }
+    },
+    "EssenceFilterCheckItemSlot1": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot1Level": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "EssenceFilterCheckItemSlot2": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot2Level": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "EssenceFilterCheckItemSlot3": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": ".*"
+        }
+    },
+    "EssenceFilterCheckItemSlot3Level": {
+        "path": "./assets/resource_fast/pipeline/EssenceFilter.json",
+        "i18n": {
+            "zh_cn": "\\+?\\d+"
+        }
+    },
+    "DeliveryJobsOngoingDelivery": {
+        "path": "./assets/resource_fast/pipeline/DeliveryJobs/PackCargo.json",
+        "i18n": {
+            "zh_cn": "有待运送的货物"
+        }
+    },
+    "SellProductZeroProduct": {
+        "path": "./assets/resource_fast/pipeline/SellProduct/SellCore.json",
+        "i18n": {
+            "zh_cn": "^[0-9]{1,3}$"
+        }
+    },
+    "SellProductZeroMoney": {
+        "path": "./assets/resource_fast/pipeline/SellProduct/SellCore.json",
+        "i18n": {
+            "zh_cn": "不足"
+        }
+    }
+}

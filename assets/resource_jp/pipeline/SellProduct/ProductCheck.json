@@ -1,7 +1,4 @@
 {
-    "[1]": {
-        "expected": "生産サポート"
-    },
     "SellProductChangeProduct": {
         "expected": "商品変更"
     },

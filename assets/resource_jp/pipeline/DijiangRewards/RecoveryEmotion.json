@@ -1,7 +1,4 @@
 {
-    "[0]": {
-        "expected": "製造室"
-    },
     "ExitRecoveryEmotion": {
         "expected": "対象オペレーターを選んでください"
     },

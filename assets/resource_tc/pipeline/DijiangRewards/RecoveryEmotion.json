@@ -1,7 +1,4 @@
 {
-    "[0]": {
-        "expected": "製造艙"
-    },
     "ExitRecoveryEmotion": {
         "expected": "選擇待恢復心情的幹員"
     },

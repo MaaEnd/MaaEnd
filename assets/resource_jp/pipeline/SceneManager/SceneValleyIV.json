@@ -16,11 +16,5 @@
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
         "expected": "エネルギー高地"
-    },
-    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
-        "expected": "高"
-    },
-    "[2]": {
-        "expected": "探索"
     }
 }

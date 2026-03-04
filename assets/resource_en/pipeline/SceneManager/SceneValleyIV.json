@@ -16,11 +16,5 @@
     },
     "__ScenePrivateMapAnyEnterMapValleyIVPowerPlateauSuccess": {
         "expected": "Power Plateau"
-    },
-    "__ScenePrivateMapOverviewValleyIVEnterMapValleyIVPowerPlateau": {
-        "expected": "HIGH"
-    },
-    "[2]": {
-        "expected": "Gathering"
     }
 }

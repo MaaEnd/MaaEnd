@@ -38,6 +38,9 @@ from typing import Any, Dict
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 PIPELINE_I18N_PATH = REPO_ROOT / "assets" / "misc" / "locales" / "pipeline_i18n.json"
+PIPELINE_I18N_MANUAL_PATH = (
+    REPO_ROOT / "assets" / "misc" / "locales" / "pipeline_i18n_manual.json"
+)
 
 LANG_TO_RESOURCE_ROOT = {
     "en_us": REPO_ROOT / "assets" / "resource_en" / "pipeline",
@@ -94,6 +97,14 @@ def main() -> int:
         print(f"[apply] pipeline_i18n.json 结构异常，期望为对象")
         return 1
 
+    # 读取用户手工翻译文件：用于覆盖自动翻译结果
+    try:
+        manual_data = load_json(PIPELINE_I18N_MANUAL_PATH)
+    except FileNotFoundError:
+        manual_data = {}
+    if not isinstance(manual_data, dict):
+        manual_data = {}
+
     # files_map[lang][target_path] = { node_name: { "expected": text } }
     files_map: Dict[str, Dict[Path, Dict[str, Dict[str, str]]]] = {
         lang: {} for lang in LANG_TO_RESOURCE_ROOT.keys()
@@ -111,6 +122,16 @@ def main() -> int:
         if not isinstance(i18n, dict):
             continue
 
+        # 如果手工翻译文件中存在同名节点，则用其中的翻译覆盖自动结果
+        manual_entry = manual_data.get(node_name)
+        if isinstance(manual_entry, dict):
+            manual_i18n = manual_entry.get("i18n", {})
+            if isinstance(manual_i18n, dict):
+                for lang in ("zh_tc", "en_us", "ja_jp"):
+                    v = manual_i18n.get(lang)
+                    if isinstance(v, str) and v.strip():
+                        i18n[lang] = v
+
         for lang in ("en_us", "zh_tc", "ja_jp"):
             text = i18n.get(lang)
             if not isinstance(text, str) or not text.strip():
@@ -124,35 +145,13 @@ def main() -> int:
             nodes = lang_files.setdefault(target_path, {})
             nodes[node_name] = {"expected": text}
 
-    # 实际写入/合并到各语言资源文件
+    # 完整写入各语言资源文件（不做增量合并，确保移除陈旧节点）
     total_files = 0
     for lang, lang_files in files_map.items():
         for path, nodes in lang_files.items():
-            if path.is_file():
-                try:
-                    existing = load_json(path)
-                except Exception:  # noqa: BLE001
-                    existing = {}
-            else:
-                existing = {}
-
-            if not isinstance(existing, dict):
-                existing = {}
-
-            # 合并：以新生成内容为准覆盖同名节点的 expected
-            for node_name, node_value in nodes.items():
-                if not isinstance(node_value, dict):
-                    continue
-                cur = existing.get(node_name)
-                if isinstance(cur, dict):
-                    cur.update(node_value)
-                    existing[node_name] = cur
-                else:
-                    existing[node_name] = node_value
-
-            save_json(path, existing)
+            save_json(path, nodes)
             total_files += 1
-            print(f"[apply] 更新 {lang}: {path.relative_to(REPO_ROOT)}")
+            print(f"[apply] 写入 {lang}: {path.relative_to(REPO_ROOT)}")
 
     print(f"[apply] 完成，共写入/更新 {total_files} 个多语言资源文件。")
     return 0

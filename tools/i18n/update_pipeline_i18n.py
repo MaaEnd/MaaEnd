@@ -33,7 +33,6 @@ from __future__ import annotations
 
 import jsonc
 import re
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 
@@ -46,6 +45,9 @@ PIPELINE_DIRS = [
 ]
 
 PIPELINE_I18N_PATH = REPO_ROOT / "assets" / "misc" / "locales" / "pipeline_i18n.json"
+PIPELINE_I18N_MANUAL_PATH = (
+    REPO_ROOT / "assets" / "misc" / "locales" / "pipeline_i18n_manual.json"
+)
 
 TEXT_TABLE_DIR = REPO_ROOT / "tools" / "i18n"
 TEXT_TABLE_FILES = {
@@ -124,7 +126,9 @@ def extract_expected(
 
         if cn_reverse:
             for t in texts:
-                if t in cn_reverse:
+                # 跳过单字匹配：单个汉字在文本表中命中率极高但语义无关，
+                # 会导致错误的自动翻译（如 "高" → "HIGH"）
+                if len(t) >= 2 and t in cn_reverse:
                     return t
 
         for t in texts:
@@ -150,6 +154,22 @@ def is_ocr_node(obj: Dict[str, Any]) -> bool:
     return False
 
 
+def _resolve_node_name(path_stack: List[str]) -> str:
+    """
+    从路径栈中提取真实的 pipeline 节点名。
+
+    Pipeline JSON 顶层为 { "NodeName": { ... } } 的平铺结构，
+    因此第一层 key（path_stack[0]）即为节点名。
+    跳过以 "[" 开头的数组下标片段。
+    """
+    if not path_stack:
+        return ""
+    top = path_stack[0]
+    if top.startswith("["):
+        return ""
+    return top
+
+
 def walk_for_ocr_nodes(
     obj: Any,
     path_stack: List[str],
@@ -158,19 +178,20 @@ def walk_for_ocr_nodes(
 ) -> None:
     """
     深度优先遍历 JSON，收集 OCR 节点：
-    - node_name: 当前字典在父级中的 key
+    - node_name: 所属的顶层 pipeline 节点 key
     - expected: 提取到的 expected 文本
     - doc: doc/desc/description 中任意一个
     """
     if isinstance(obj, dict):
         if is_ocr_node(obj):
-            node_name = path_stack[-1] if path_stack else ""
-            expected = extract_expected(obj, cn_reverse)
-            doc = obj.get("doc") or obj.get("desc") or obj.get("description")
-            if expected:
-                results.append(
-                    (node_name, expected, doc if isinstance(doc, str) else None)
-                )
+            node_name = _resolve_node_name(path_stack)
+            if node_name:
+                expected = extract_expected(obj, cn_reverse)
+                doc = obj.get("doc") or obj.get("desc") or obj.get("description")
+                if expected:
+                    results.append(
+                        (node_name, expected, doc if isinstance(doc, str) else None)
+                    )
 
         for key, value in obj.items():
             path_stack.append(str(key))
@@ -230,6 +251,15 @@ def main() -> int:
 
     updated = dict(existing)
 
+    # 加载手工翻译文件：只追加 / 更新，不删除已有条目
+    try:
+        manual_existing = load_json(PIPELINE_I18N_MANUAL_PATH)
+    except FileNotFoundError:
+        manual_existing = {}
+    if not isinstance(manual_existing, dict):
+        manual_existing = {}
+    manual_updated: Dict[str, Any] = dict(manual_existing)
+
     pipeline_files = iter_pipeline_files()
     print(f"[i18n] 扫描 JSON 文件数：{len(pipeline_files)}")
 
@@ -253,7 +283,14 @@ def main() -> int:
 
             entry = updated.get(node_name, {})
 
-            # 保留已有 doc，若为空则用新的
+            existing_path = entry.get("path")
+            if existing_path and existing_path != rel_path:
+                print(
+                    f"[i18n] WARNING: 节点名 '{node_name}' 跨文件冲突："
+                    f"{existing_path} vs {rel_path}，重置为 {rel_path}"
+                )
+                entry = {}
+
             if doc:
                 entry.setdefault("doc", doc)
 
@@ -263,21 +300,17 @@ def main() -> int:
             if not isinstance(i18n, dict):
                 i18n = {}
 
-            # 写入 / 保持 zh_cn
             if not i18n.get("zh_cn"):
                 i18n["zh_cn"] = zh_cn_text
 
-            # 尝试通过文本表补全 zh_tc / en_us / ja_jp
-            ids = cn_reverse.get(zh_cn_text, [])
+            # 使用已持久化的 zh_cn 做文本表查找，避免与实际存储值不一致
+            stored_zh_cn = i18n.get("zh_cn", "")
+            ids = cn_reverse.get(stored_zh_cn, [])
             target_id = ids[0] if ids else None
             if target_id:
-                for lang_key, table_key in (
-                    ("zh_tc", "zh_tc"),
-                    ("en_us", "en_us"),
-                    ("ja_jp", "ja_jp"),
-                ):
+                for lang_key in ("zh_tc", "en_us", "ja_jp"):
                     if not i18n.get(lang_key):
-                        table = all_tables.get(table_key, {})
+                        table = all_tables.get(lang_key, {})
                         text = table.get(target_id)
                         if isinstance(text, str):
                             i18n[lang_key] = text
@@ -285,8 +318,33 @@ def main() -> int:
             entry["i18n"] = i18n
             updated[node_name] = entry
 
+            # 若该节点仅有 zh_cn，没有其它语言翻译，则写入/更新到手工翻译文件：
+            # - 只追加、补全基础信息
+            # - 不覆盖用户已经填写的翻译
+            has_zh_cn = bool(i18n.get("zh_cn"))
+            has_other = any(bool(i18n.get(k)) for k in ("zh_tc", "en_us", "ja_jp"))
+            if has_zh_cn and not has_other:
+                manual_entry = manual_updated.get(node_name, {})
+                if not isinstance(manual_entry, dict):
+                    manual_entry = {}
+
+                # 保持用户已有的 path，不强制覆盖
+                manual_entry.setdefault("path", rel_path)
+
+                manual_i18n = manual_entry.get("i18n")
+                if not isinstance(manual_i18n, dict):
+                    manual_i18n = {}
+
+                # 只在不存在时写入 zh_cn，避免覆盖用户手动修改
+                manual_i18n.setdefault("zh_cn", i18n["zh_cn"])
+
+                manual_entry["i18n"] = manual_i18n
+                manual_updated[node_name] = manual_entry
+
     save_json(PIPELINE_I18N_PATH, updated)
+    save_json(PIPELINE_I18N_MANUAL_PATH, manual_updated)
     print(f"[i18n] 已更新：{PIPELINE_I18N_PATH}")
+    print(f"[i18n] 已更新手工翻译清单：{PIPELINE_I18N_MANUAL_PATH}")
     return 0
 
 
