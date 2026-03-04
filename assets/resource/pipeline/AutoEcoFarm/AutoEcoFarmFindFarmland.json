@@ -169,7 +169,7 @@
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse",
+            "[JumpBack]_AutoEcoFarmMoveMouse"
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
             //这里结束，触发Jumpback
         ]
