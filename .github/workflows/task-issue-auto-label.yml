@@ -15,11 +15,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            // 1) 组装用于匹配的 issue 文本（标题 + 正文）
             const issue = context.payload.issue;
             const title = issue.title || '';
             const body = issue.body || '';
             const issueText = `${title}\n${body}`.toLowerCase();
 
+            // 2) 拉取仓库全部 label（自动分页）
             const allLabels = await github.paginate(
               github.rest.issues.listLabelsForRepo,
               {
@@ -31,6 +33,7 @@ jobs:
 
             const matchedLabels = [];
 
+            // 3) 只处理形如 "task: xxxx" 的标签，并提取关键词 xxxx
             for (const label of allLabels) {
               const name = label.name || '';
               const match = name.match(/^task:\s*(.+)$/i);
@@ -43,16 +46,19 @@ jobs:
                 continue;
               }
 
+              // 4) 用关键词与 issue 文本做子串匹配，命中则记录原标签名
               if (issueText.includes(keyword.toLowerCase())) {
                 matchedLabels.push(name);
               }
             }
 
+            // 5) 无命中则结束，不做写操作
             if (matchedLabels.length === 0) {
               console.log('No task label matched.');
               return;
             }
 
+            // 6) 一次性把所有命中的 task 标签加到当前 issue
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
