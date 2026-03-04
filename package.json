@@ -9,7 +9,7 @@
         "check": "maa-tools check"
     },
     "devDependencies": {
-        "@nekosu/maa-tools": "1.0.6",
+        "@nekosu/maa-tools": "1.0.8",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",
         "prettier": "3.5.3",

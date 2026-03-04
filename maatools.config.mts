@@ -1,5 +1,4 @@
-import type { FullConfig, TestCases } from '@nekosu/maa-tools'
-import fs from 'node:fs/promises'
+import { loadAllTestCases, type FullConfig, type TestCases } from '@nekosu/maa-tools'
 import path from 'node:path'
 
 async function fetchCases(): Promise<TestCases[]> {
@@ -18,27 +17,28 @@ async function fetchCases(): Promise<TestCases[]> {
   }
 
   const testsRoot = path.resolve(import.meta.dirname, 'tests')
-  const testCaseFiles = await Array.fromAsync(fs.glob('**/test_*.json', { cwd: testsRoot }))
-  testCaseFiles.sort((a, b) => a.localeCompare(b))
-  return (
-    await Promise.all(
-      testCaseFiles.map(async (file) => {
-        try {
-          const content = await fs.readFile(path.resolve(testsRoot, file), 'utf8')
-          const testCases = JSON.parse(content) as TestCases
-          const resourcePath = resourceMap[testCases.configs.resource]
-          const controllerPath = controllerMap[testCases.configs.controller]
-          if (!resourcePath || !controllerPath) {
-            return null
-          }
-          testCases.configs.imageRoot = path.join(controllerPath, resourcePath)
-          return testCases
-        } catch {
-          return null
-        }
-      }),
-    )
-  ).filter((tc) => !!tc)
+  const [
+    allTestCases,
+    failPaths,
+  ] = await loadAllTestCases(testsRoot, '**/test_*.json')
+  for (const file of failPaths) {
+    console.log(`load testcases failed: ${file}`)
+  }
+
+  for (const testCases of allTestCases) {
+    const controllerPath = controllerMap[testCases.configs.controller]
+    const resourcePath = resourceMap[testCases.configs.resource]
+    if (!controllerPath) {
+      console.log(`unknown controller: ${testCases.configs.controller}`)
+      continue
+    }
+    if (!resourcePath) {
+      console.log(`unknown resource: ${testCases.configs.resource}`)
+      continue
+    }
+    testCases.configs.imageRoot = path.join(controllerPath, resourcePath)
+  }
+  return allTestCases
 }
 
 const config: FullConfig = {
@@ -57,7 +57,7 @@ const config: FullConfig = {
   test: {
     interfacePath: 'assets/interface.json',
     casesCwd: 'tests/MaaEndTesting',
-    cases: await fetchCases(),
+    cases: fetchCases,
   },
 }
 
