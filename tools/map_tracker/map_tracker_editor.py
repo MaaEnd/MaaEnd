@@ -994,12 +994,8 @@ class LocationService:
                                         data_obj.get("message")
                                     ):
                                         continue
-                                    if data_obj.get("hit") is False:
-                                        continue
 
-                                    log_map_name = data_obj.get(
-                                        "mapName"
-                                    ) or data_obj.get("map_name")
+                                    log_map_name = data_obj.get("MapName")
                                     if not log_map_name:
                                         continue
                                     if unique_map_key(log_map_name) != unique_map_key(
@@ -1009,8 +1005,8 @@ class LocationService:
                                             "mismatch", str(log_map_name)
                                         )
 
-                                    x = data_obj.get("x")
-                                    y = data_obj.get("y")
+                                    x = data_obj.get("X")
+                                    y = data_obj.get("Y")
                                     if x is None or y is None:
                                         continue
 
