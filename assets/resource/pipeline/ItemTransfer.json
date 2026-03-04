@@ -1,13 +1,14 @@
 {
     "ItemTransfer": {
         "recognition": "DirectHit",
-        "doc": "next 分别为: 识别“仓库切换”以确认在背包界面并开始，传送到帝江号会客室，视角抬至最高",
+        "desc": "由于半透明问题，强制将用户传送到帝江号会客室并将视角抬至最高",
         "next": [
             "ItemTransferStart",
             "[JumpBack]SceneEnterWorldDijiang2"
         ]
     },
     "ItemTransferStart": {
+        "desc": "识别“拜访好友”以确认在帝江号会客室开始",
         "recognition": "OCR",
         "roi": [
             868,
@@ -16,6 +17,24 @@
             27
         ],
         "expected": "拜访好友",
+        "next": [
+            "ItemTransferStartMoveCamera"
+        ]
+    },
+    "ItemTransferStartMoveCamera": {
+        "desc": "在开始任务前强制将视角抬至最高",
+        "action": "Custom",
+        "custom_action": "CharacterControllerPitchDeltaAction",
+        "custom_action_param": {
+            "delta": -180
+        },
+        "max_hit": 3,
+        "next": [
+            "ItemTransferStartMoveCamera",
+            "ItemTransferStartOpenRepo"
+        ]
+    },
+    "ItemTransferStartOpenRepo": {
         "action": "ClickKey",
         "key": 66, // B
         "post_wait_freezes": 400,
