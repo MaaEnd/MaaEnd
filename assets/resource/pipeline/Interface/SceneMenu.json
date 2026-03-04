@@ -107,15 +107,6 @@
             "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
-    "SceneEnterMenuBackpackWithDepotAtReceptionRoom": {
-        "desc": "从任意界面进入帝江号会客室，然后进入背包界面（左侧一定包含所有仓库）",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot",
-            "[JumpBack]SceneEnterWorldDijiang2"
-        ]
-    },
     "SceneEnterMenuBaker": {
         "desc": "从任意界面进入Baker界面",
         "pre_delay": 0,
