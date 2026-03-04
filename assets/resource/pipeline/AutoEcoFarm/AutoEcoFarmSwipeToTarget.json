@@ -45,8 +45,29 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "_AutoEcoFarmSwipeToTarget",
-            //如果返回了false直接结束任务
+            //目标在中央则直接结束该子任务，否则正常做下去触发Jumpback再来一次
+            "_AutoEcoFarmTargeInCenter",
+            "_AutoEcoFarmSwipeToTarget"
+        ]
+    },
+        "_AutoEcoFarmTargeInCenter": {
+        "doc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    620,
+                    0,
+                    40,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "_AutoEcoFarmSwipeToTargetExit"
         ]
     },
@@ -60,8 +81,6 @@
                 "custom_action_param": {
                     //移动屏幕中心距离目标的多少比例，参数越大，移动越豪放，但容易过头，越小不容易过头，但会比较慢
                     "stepRatio": 0.5,
-                    //与目标x轴距离低于多少像素后停止
-                    "threshold": 50,
                     //每次拉动用时，用时越短越容易拉过头，但效率越高
                     "duration": 100
                 },
@@ -172,6 +191,9 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "next": [
+            //触发Jumpback
+        ]
     }
 }

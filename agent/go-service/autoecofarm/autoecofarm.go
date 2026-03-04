@@ -141,7 +141,6 @@ func (self *MoveToTarget3D) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool
 // 定义获取参数的字段
 type MoveToTargetPartParams struct {
 	StepRatio float64 `json:"stepRatio"`
-	Threshold int     `json:"threshold"`
 	Duration  int     `json:"duration"`
 }
 type MoveToTargetPart struct{}
@@ -151,7 +150,6 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	//读取参数
 	var params = MoveToTargetPartParams{
 		StepRatio: 0.5,
-		Threshold: 50,
 		Duration:  200,
 	}
 
@@ -165,7 +163,6 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	stepRatio := params.StepRatio
-	threshold := params.Threshold
 	duration := time.Duration(params.Duration) * time.Millisecond
 
 	//判断box是否为空
@@ -190,20 +187,10 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	screenCenterX := screenW / 2
 	screenCenterY := screenH / 2
 
-	//计算距离，x轴距离在阈值以下则直接返回false
+	//计算距离
 	dx := targetCenterX - screenCenterX
 	dy := targetCenterY - screenCenterY
-	//只要x轴距离够小就行，y不考虑
-	msg1 := fmt.Sprintf("目标距离%d", dx)
-	maafocus.NodeActionStarting(ctx, msg1)
 
-	distance := int(math.Abs(float64(dx)))
-	if distance < threshold {
-		msg1 := fmt.Sprintf("目标距离小于阈值（%d < %d），停止移动视角", distance, params.Threshold)
-		maafocus.NodeActionStarting(ctx, msg1)
-		log.Info().Msgf("目标距离小于阈值（%d < %d），停止移动", distance, params.Threshold)
-		return false
-	}
 	//如果不在阈值下，则根据比例拉近屏幕并且返回true
 
 	ctx.RunActionDirect("Swipe", maa.SwipeParam{
