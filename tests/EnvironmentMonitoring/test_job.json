@@ -1,0 +1,26 @@
+{
+  "configs": {
+    "name": "环境监测（官服-ADB）",
+    "resource": "官服",
+    "controller": "ADB",
+    "imageRoot": "Win32/Official_CN"
+  },
+  "cases": [
+    {
+      "image": "环境监测/环境监测终端_城郊监测终端_接取委托",
+      "hits": ["EternalSunsetJob"]
+    },
+    {
+      "image": "环境监测/环境监测终端_城郊监测终端_前往任务",
+      "hits": ["EternalSunsetJob"]
+    },
+    {
+      "image": "环境监测/拍照模式_拍摄目标",
+      "hits": ["EnvironmentMonitoringShutterButtonHighlighted"]
+    },
+    {
+      "image": "环境监测/拍照模式_拍摄目标未达成",
+      "hits": []
+    }
+  ]
+}

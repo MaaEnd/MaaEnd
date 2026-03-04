@@ -1,0 +1,40 @@
+{
+  "configs": {
+    "name": "自动转交送货任务（官服-ADB），测试地区识别",
+    "resource": "官服",
+    "controller": "ADB",
+    "imageRoot": "ADB/Official_CN"
+  },
+  "cases": [
+    {
+      "name": "大世界主页",
+      "image": "自动转交送货任务/大世界主页",
+      "hits": ["InWorld"]
+    },
+    {
+      "name": "大世界主页（有送货任务）",
+      "image": "自动转交送货任务/大世界主页_送货任务",
+      "hits": ["InWorld"]
+    },
+    {
+      "name": "在四号谷地的地区建设",
+      "image": "自动转交送货任务/四号谷地_地区建设",
+      "hits": ["InValleyIVRegionalDevelopment", "InRegionalDevelopment"]
+    },
+    {
+      "name": "在武陵的地区建设",
+      "image": "自动转交送货任务/武陵_地区建设",
+      "hits": ["InWulingRegionalDevelopment", "InRegionalDevelopment"]
+    },
+    {
+      "name": "在四号谷地的仓储节点",
+      "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱",
+      "hits": ["InValleyIVLocalDepotNode"]
+    },
+    {
+      "name": "在武陵的仓储节点",
+      "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱",
+      "hits": ["InWulingLocalDepotNode"]
+    }
+  ]
+}
