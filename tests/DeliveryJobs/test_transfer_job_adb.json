@@ -1,12 +1,12 @@
 {
     "configs": {
-        "name": "自动转交送货任务(官服-Win32)，测试转交任务",
+        "name": "自动转交送货任务(官服-ADB)，测试转交任务",
         "resource": "官服",
-        "controller": "Win32"
+        "controller": "ADB"
     },
     "cases": [
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱",
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_查看任务",
             "hits": ["DeliveryJobsEnterDeliveryJob"]
         },
         {

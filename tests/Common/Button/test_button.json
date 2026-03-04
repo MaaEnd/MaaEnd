@@ -1,8 +1,8 @@
 {
     "configs": {
-        "name": "通用按钮(官服-ADB)",
+        "name": "通用按钮(官服-Win32)",
         "resource": "官服",
-        "controller": "ADB"
+        "controller": "Win32"
     },
     "cases": [
         {
@@ -14,49 +14,28 @@
             "hits": ["YellowConfirmButtonType2"]
         },
         {
-            "image": "基建任务/帝江号_控制中枢_会客室_需要领取",
-            "hits": ["YellowConfirmButtonType2"]
-        },
-        {
             "image": "基建任务/帝江号_控制中枢_会客室_点击开展交流",
             "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "基建任务/帝江号_控制中枢_会客室_需要领取",
+            "hits": ["YellowConfirmButtonType2"]
         },
         {
             "image": "基建任务/帝江号_控制中枢_制造舱_确认收货",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "自动转交送货任务/武陵_地区建设_仓储节点_我转交的委托_获得奖励",
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_我转交的委托_获得奖励",
             "hits": ["CloseRewardsButton"]
         },
-        // 还没有适配这种情况
-        // {
-        //     "image": "通用/按钮/帝江号_地区建设按钮_白色背景",
-        //     "hits": [
-        //         {
-        //             "node": "RegionalDevelopmentButton",
-        //             "box": [
-        //                 278,
-        //                 18,
-        //                 45,
-        //                 38
-        //             ]
-        //         }
-        //     ]
-        // },
         {
-            "image": "自动转交送货任务/大世界主页",
-            "hits": [
-                {
-                    "node": "RegionalDevelopmentButton",
-                    "box": [
-                        278,
-                        18,
-                        45,
-                        38
-                    ]
-                }
-            ]
+            "image": "升级武器/WrongUpLevelButton",
+            "hits": []
+        },
+        {
+            "image": "升级武器/UpLevelButton",
+            "hits": ["LevelUpButton"]
         }
     ]
 }
