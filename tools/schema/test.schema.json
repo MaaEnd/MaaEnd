@@ -1,6 +1,5 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://example.com/schemas/maa-tools-test.schema.json",
     "title": "Maa Tools Test Cases",
     "description": "`maa-tools` 测试用例文件结构",
     "type": "object",

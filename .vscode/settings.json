@@ -40,11 +40,12 @@
                 "/tests/**/*.json",
                 "/tests/**/*.jsonc"
             ],
-            "url": "/tests/maa-tools-test.schema.json"
+            "url": "/tools/schema/test.schema.json"
         }
     ],
     "files.associations": {
-        "**/assets/**/*.json": "jsonc"
+        "**/assets/**/*.json": "jsonc",
+        "**/tests/**/*.json": "jsonc"
     },
     "[json][jsonc]": {
         "editor.formatOnSave": true,
