@@ -21,7 +21,7 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "[JumpBack]EndExchange",
+            "WhiteConfirmButtonType1",
             "EntryReceptionRoom_NeedCredit"
         ],
         "focus": {
@@ -46,6 +46,7 @@
         },
         "next": [
             "InControlNexus_NeedCredit",
+            "WhiteConfirmButtonType1",
             "[JumpBack]StartExchange"
         ],
         "focus": {

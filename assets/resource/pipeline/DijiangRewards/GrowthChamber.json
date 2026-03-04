@@ -1,6 +1,7 @@
 {
     "GrowthChamber": {
         "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
+        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -16,14 +17,108 @@
             }
         },
         "next": [
-            "[JumpBack]Grow",
-            "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]CloseRewardsButton",
+            "ClaimAllGrowReward",
+            "Grow",
             "ExitGrowthChamber"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
         }
+    },
+    "ClaimAllGrowReward": {
+        "desc": "领取培养奖励",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "ClaimAllText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "next": [
+            "ClaimAllGrowRewardClose"
+        ]
+    },
+    "ClaimAllGrowRewardClose": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "next": [
+            "Grow",
+            "ExitGrowthChamber"
+        ]
+    },
+    "Grow": {
+        "desc": "点击培养按钮",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "^培养$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "next": [
+            "InGrow"
+        ]
+    },
+    "InGrow": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    296,
+                    111
+                ],
+                "expected": [
+                    "选择培养对象"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]SortBy",
+            "[JumpBack]SortOrder",
+            "[JumpBack]SelectGrow",
+            "[JumpBack]InSelectGrowSwipe",
+            "InGrowthChamber"
+        ]
     },
     "SelectGrowTarget": {
         "desc": "选择培养目标",
@@ -37,9 +132,9 @@
                     383
                 ],
                 "expected": [
-                    "菌",
-                    "石",
-                    "叶"
+                    "菌$",
+                    "石$",
+                    "叶$"
                 ]
             }
         }
@@ -59,11 +154,29 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]ConfirmGrow",
             "ExtractSeed",
             "ExitGrow",
             "InGrowthChamber"
         ]
+    },
+    "ConfirmGrow": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "box_index": 1,
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "CheckGrowTargetEmpty": {
         "desc": "检查选择的培养对象是否为空",
@@ -99,7 +212,10 @@
                     "生产助力"
                 ]
             }
-        }
+        },
+        "next": [
+            "ExitGrowthChamber"
+        ]
     },
     "ExitGrow": {
         "desc": "不需要提取基核,直接退出培养界面",
@@ -141,35 +257,67 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]WhiteConfirmButtonType2",
-            "GrowCloseRewardsButton",
+            "ConfirmExtractSeed",
             "NoMaterials"
         ]
     },
-    "GrowCloseRewardsButton": {
-        "desc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
+    "ConfirmExtractSeed": {
+        "desc": "确认提取基核",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
-                ],
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
-                "threshold": 0.9
+                "box_index": 1,
+                "all_of": [
+                    "WhiteConfirmButtonType2",
+                    "ConfirmExtractText"
+                ]
             }
         },
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
         "next": [
-            "GrayCancelButton"
+            "ExtractSeedClose"
         ]
+    },
+    "ExtractSeedClose": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "next": [
+            "BackToGrow"
+        ]
+    },
+    "BackToGrow": {
+        "desc": "提取基核后返回培养界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrayCancelButton",
+                    "GrayButtonCancelText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "NoMaterials": {
         "desc": "缺少原料无法获取",
@@ -225,57 +373,6 @@
                 "dx": 120
             }
         }
-    },
-    "Grow": {
-        "desc": "点击培养按钮",
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    484,
-                    213,
-                    726,
-                    283
-                ],
-                "expected": [
-                    "^培养$"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 150,
-            "timeout": 2000
-        },
-        "next": [
-            "InGrow"
-        ]
-    },
-    "InGrow": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    296,
-                    111
-                ],
-                "expected": [
-                    "选择培养对象"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]SortBy",
-            "[JumpBack]SortOrder",
-            "[JumpBack]SelectGrow",
-            "[JumpBack]InSelectGrowSwipe",
-            "InGrowthChamber"
-        ]
     },
     "SortBy": {
         "desc": "排序,选择基础排序内容",
@@ -402,6 +499,10 @@
                     "培养舱"
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
         },
         "action": {
             "type": "Click",

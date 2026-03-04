@@ -666,7 +666,7 @@
                     "Common/Button/LevelUpButtonHover.png"
                 ],
                 "method": 10001,
-                "threshold": 0.8
+                "threshold": 0.9
             }
         },
         "action": {

@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@nekosu/maa-tools':
-        specifier: 1.0.6
-        version: 1.0.6
+        specifier: 1.0.8
+        version: 1.0.8
       '@nekosu/prettier-plugin-maafw-sort':
         specifier: 1.0.4
         version: 1.0.4
@@ -77,14 +77,14 @@ packages:
   '@nekosu/maa-locale@1.0.0':
     resolution: {integrity: sha512-koFytJsmBKLuGy92KjcyKsNQfKdZlfhtYGtSFRJMl5III1gbSIr1kiIG/lWScHzooKk+nlN+iGwggN8oXfLPJQ==}
 
-  '@nekosu/maa-pipeline-manager@1.0.0':
-    resolution: {integrity: sha512-sASAYLawbTMZaOuCq5wWVU2FhR1RQ6Clx0SkjZ1uW5At12Mhp1gAcQ6oDqsmi/pFx8jxRzXx6lXsU0zKXj4Riw==}
+  '@nekosu/maa-pipeline-manager@1.0.1':
+    resolution: {integrity: sha512-rpQCXIGkehi9wfCxQEZbVLpCojGzACBV9DneFb2mgvpjKCo/WIt00q0xBu4hqPi6dls13rPHJ3CzTY9fHHI1dQ==}
 
   '@nekosu/maa-tasker@1.0.0':
     resolution: {integrity: sha512-p5SaBJGvAMr5J2uk6imoiK7eIF7yA67HndWyfxddAHHdoyliai2dkHqBhTmDDuRmmAJ/ly4INg5Hnx8CI7Po3A==}
 
-  '@nekosu/maa-tools@1.0.6':
-    resolution: {integrity: sha512-I2mGKMhBaXNssTokZq7rHaR6biTJZMVHcJMJKnXMMbpx/RZyGitGEAdhU3OzNW6/hddLNyCitP7JBlzAx0nh2w==}
+  '@nekosu/maa-tools@1.0.8':
+    resolution: {integrity: sha512-2wiOOaS9DW3M4Mt3bW/ZH0ltujHk/FIg2PAnMEbKG7uwlLW08mEUvIGC/ZOcVkRfsce5zihcYNNq6lHPixptEA==}
     hasBin: true
 
   '@nekosu/maa-version-manager@1.0.2':
@@ -641,7 +641,7 @@ snapshots:
 
   '@nekosu/maa-locale@1.0.0': {}
 
-  '@nekosu/maa-pipeline-manager@1.0.0':
+  '@nekosu/maa-pipeline-manager@1.0.1':
     dependencies:
       '@nekosu/maa-locale': 1.0.0
       '@nekosu/maa-tasker': 1.0.0
@@ -652,13 +652,14 @@ snapshots:
     dependencies:
       '@nekosu/simple-parser': 1.0.0
 
-  '@nekosu/maa-tools@1.0.6':
+  '@nekosu/maa-tools@1.0.8':
     dependencies:
       '@actions/core': 3.0.0
       '@nekosu/maa-locale': 1.0.0
-      '@nekosu/maa-pipeline-manager': 1.0.0
+      '@nekosu/maa-pipeline-manager': 1.0.1
       '@nekosu/maa-version-manager': 1.0.2
       jiti: 2.6.1
+      jsonc-parser: 3.3.1
       workerpool: 10.0.1
     transitivePeerDependencies:
       - supports-color

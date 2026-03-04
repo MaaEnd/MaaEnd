@@ -1,0 +1,21 @@
+{
+    "configs": {
+        "name": "自动转交送货任务(官服-Win32)，测试转交任务",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱",
+            "hits": ["DeliveryJobsEnterDeliveryJob"]
+        },
+        {
+            "image": "自动转交送货任务/任务_送货任务_转交运送委托",
+            "hits": ["DeliveryJobsClickTransferJob"]
+        },
+        {
+            "image": "自动转交送货任务/任务_送货任务_确认转交",
+            "hits": ["DeliveryJobsConfirmTaskTransfer"]
+        }
+    ]
+}

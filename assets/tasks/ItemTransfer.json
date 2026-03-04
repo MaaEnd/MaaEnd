@@ -1670,20 +1670,16 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": "四号谷地"
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": "四号谷地"
                         }
                     }
                 },
@@ -1692,16 +1688,16 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": "武陵"
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": "武陵"
                         }
                     }
                 }
@@ -1718,12 +1714,10 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": "四号谷地"
                         }
                     }
                 },
@@ -1732,10 +1726,10 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": "武陵"
                         }
                     }
                 }

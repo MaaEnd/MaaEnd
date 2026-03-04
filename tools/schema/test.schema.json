@@ -1,0 +1,113 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Maa Tools Test Cases",
+    "description": "`maa-tools` 测试用例文件结构",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "configs",
+        "cases"
+    ],
+    "properties": {
+        "configs": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "resource",
+                "controller"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "测试配置名称（可选）"
+                },
+                "resource": {
+                    "type": "string",
+                    "description": "资源服别，如 官服"
+                },
+                "controller": {
+                    "type": "string",
+                    "description": "控制器类型，如 ADB / Win32 / PlayCover"
+                }
+            }
+        },
+        "cases": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/$defs/case"
+            }
+        }
+    },
+    "$defs": {
+        "case": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "image",
+                "hits"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "用例名称"
+                },
+                "image": {
+                    "type": "string",
+                    "description": "对应图片名（不含扩展名）"
+                },
+                "hits": {
+                    "type": "array",
+                    "description": "期望命中的节点列表；可为空数组表示不应命中",
+                    "items": {
+                        "$ref": "#/$defs/hitItem"
+                    }
+                }
+            }
+        },
+        "hitItem": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "description": "仅校验节点命中，如 InValleyIVLocalDepotNode"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["node"],
+                    "properties": {
+                        "node": {
+                            "type": "string",
+                            "description": "节点名"
+                        },
+                        "box": {
+                            "type": "array",
+                            "description": "期望识别框 [x, y, width, height]",
+                            "prefixItems": [
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 0
+                                }
+                            ],
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "items": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
