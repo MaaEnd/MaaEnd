@@ -30,19 +30,22 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 
 ## ✨ Features
 
-- 🎁 **One‑click preset scenes**: Daily routines, quick claiming rewards, AFK assistance, trading & reselling, Ling Su leveling, and more. Common scenarios can be switched with a single click to save configuration time.
+- 🎁 **One‑click preset scenes**: Daily routines, quick claiming rewards, AFK assistance, trading & reselling, Essence farming, and more. Common scenarios can be switched with a single click to save configuration time.
 - 🎮 **Real‑time early‑game assistant**: On‑screen recognition with just‑in‑time automation to handle key operations so you can focus on playing.
     - **Auto story**: Skip dialogues, intelligently choose branches, and fast‑forward story segments in one click (or enjoy the story slowly if you prefer).
     - **Interaction handling**: Auto click guidance cursors, flip manuals/pages, tap to continue, close archive voice, and more — no more frantic clicking.
-    - **Combat assistance**: Auto basic attacks, skills, ultimates, and chains; supports target locking and focus fire to make battles easier.
+    - **Combat assistance**: Auto basic attacks, dodges, skills, ultimates, and chains; supports target locking and focus fire to make battles easier.
     - **Auto loot**: Pick up every shiny drop and gathering point automatically so you never miss any resources.
     - **Convenience actions**: Instant teleport confirmations, auto zipline usage, and faster traversal.
     - **Puzzle helper**: Encounter a puzzle while exploring? Let the AI solve it in seconds (you can also enable the looped "🧩 Auto Puzzle Solver").
     - **Auto petting**: Automatically pet mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
 - 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
-- 💎 **Matrix recognition**: Smart recognition of matrix affixes, automatically keeping optimal stats and clearing junk in one go.
+- 💎 **Essence filtering**: Smart recognition of essence stats, automatically locking and keeping optimal ones for easy junk clearing.
+- 🎱 **Auto Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
+- 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks (currently in Beta, optimizations ongoing 🔥)!
+- ⚔️ **Protocol Space**: Automatically consume sanity to farm Protocol Space rewards until it's fully depleted, your best helper for clearing sanity!
 - 🔫 **Armory upgrade & assembly**: Automate weapon enhancement and gear assembly to free your hands and boost power easily.
-- 💰 **Semi‑auto trading/reselling**: Automatically identify and buy the most profitable goods, auto visit friends' ships, and optionally auto switch instances. (Selling still requires manual operation for now.)
+- 💰 **Auto trading/reselling**: Automatically identify and buy the most profitable goods, auto visit friends' ships to sell in one go; or just get purchase recommendations to maximize profit! 💸
 - 🛒 **One‑click product selling**: Automatically exchange products at bases into coupons/vouchers; let MaaEnd handle the repetitive clicking.
 - 💳 **Credit shop purchasing**: Auto‑buy credit shop items based on your configured wish list so you can "AFK shop" safely.
 - 🐌 **Inventory transfer**: Move warehouse stock across regions on the Di Jiang ship in one batch (batteries/ore/sand leaves etc.).

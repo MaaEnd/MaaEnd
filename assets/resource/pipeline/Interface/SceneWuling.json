@@ -1,6 +1,6 @@
 {
     "SceneEnterMapWulingWulingCity": {
-        "doc": "从任意界面进入武陵-武陵城地图界面",
+        "desc": "从任意界面进入武陵-武陵城地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -9,7 +9,7 @@
         ]
     },
     "SceneEnterMapWulingJingyuValley": {
-        "doc": "从任意界面进入武陵-景玉谷地图界面",
+        "desc": "从任意界面进入武陵-景玉谷地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -18,9 +18,8 @@
         ]
     },
     "SceneEnterWorldWulingJingyuValley0": {
-        "doc": "从任意界面进入-景玉谷-生态实验站",
+        "desc": "从任意界面进入-景玉谷-生态实验站",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -29,15 +28,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley0Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley1": {
-        "doc": "从任意界面进入-景玉谷-踩道大世界",
+        "desc": "从任意界面进入-景玉谷-踩道大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -46,15 +45,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley1Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley2": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟外大世界",
+        "desc": "从任意界面进入-景玉谷-聚宝窟外大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -63,15 +62,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley2Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley3": {
-        "doc": "从任意界面进入-景玉谷-清波寨外寨大世界",
+        "desc": "从任意界面进入-景玉谷-清波寨外寨大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -80,15 +79,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley3Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley4": {
-        "doc": "从任意界面进入-景玉谷-聚宝窟内大世界",
+        "desc": "从任意界面进入-景玉谷-聚宝窟内大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -97,15 +96,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley5": {
-        "doc": "从任意界面进入-景玉谷-天王坪大世界",
+        "desc": "从任意界面进入-景玉谷-天王坪大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -114,15 +113,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley5Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley6": {
-        "doc": "从任意界面进入-景玉谷-驮鼻山大世界",
+        "desc": "从任意界面进入-景玉谷-驮鼻山大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -131,15 +130,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley6Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley7": {
-        "doc": "从任意界面进入-景玉谷-迷踪林大世界",
+        "desc": "从任意界面进入-景玉谷-迷踪林大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -148,15 +147,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley7Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley8": {
-        "doc": "从任意界面进入-景玉谷-摘菱屿大世界",
+        "desc": "从任意界面进入-景玉谷-摘菱屿大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -165,15 +164,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley8Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley9": {
-        "doc": "从任意界面进入-景玉谷-南山大世界",
+        "desc": "从任意界面进入-景玉谷-南山大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -182,15 +181,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley9Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingJingyuValley10": {
-        "doc": "从任意界面进入-景玉谷-水泽涧大世界",
+        "desc": "从任意界面进入-景玉谷-水泽涧大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -199,15 +198,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
     "SceneEnterWorldWulingWulingCityCore": {
-        "doc": "从任意界面进入武陵-武陵城核心区大世界",
+        "desc": "从任意界面进入武陵-武陵城核心区大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -216,15 +215,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCityCoreTry3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity0": {
-        "doc": "从任意界面进入武陵-武陵城-观测站大世界",
+        "desc": "从任意界面进入武陵-武陵城-观测站大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -233,15 +232,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity0Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity1": {
-        "doc": "从任意界面进入武陵-武陵城-界石坪大世界",
+        "desc": "从任意界面进入武陵-武陵城-界石坪大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
@@ -250,15 +249,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity1Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity2": {
-        "doc": "从任意界面进入武陵-武陵城-待修缮区大世界",
+        "desc": "从任意界面进入武陵-武陵城-待修缮区大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -267,15 +266,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity2Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity3": {
-        "doc": "从任意界面进入武陵-武陵城-方兴衢大世界",
+        "desc": "从任意界面进入武陵-武陵城-方兴衢大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -284,15 +283,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity3Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity4": {
-        "doc": "从任意界面进入武陵-武陵城-天师府学院大世界",
+        "desc": "从任意界面进入武陵-武陵城-天师府学院大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -301,15 +300,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity4Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity5": {
-        "doc": "从任意界面进入武陵-武陵城-天井院大世界",
+        "desc": "从任意界面进入武陵-武陵城-天井院大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
@@ -318,15 +317,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity5Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity6": {
-        "doc": "从任意界面进入武陵-武陵城-储备站大世界",
+        "desc": "从任意界面进入武陵-武陵城-储备站大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomRight",
@@ -335,15 +334,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity6Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
     "SceneEnterWorldWulingWulingCity7": {
-        "doc": "从任意界面进入武陵-武陵城-三窟岗大世界",
+        "desc": "从任意界面进入武陵-武陵城-三窟岗大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
@@ -352,6 +351,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingWulingCity7Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
             "[JumpBack]SceneEnterMapWulingWulingCity"

@@ -1,6 +1,6 @@
 {
     "GrowthChamber": {
-        "doc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
+        "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -15,18 +15,18 @@
                 ]
             }
         },
-        "focus": {
-            "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
-        },
         "next": [
             "[JumpBack]Grow",
             "[JumpBack]YellowConfirmButtonType1",
             "[JumpBack]CloseRewardsButton",
             "ExitGrowthChamber"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
+        }
     },
     "SelectGrowTarget": {
-        "doc": "选择培养目标",
+        "desc": "选择培养目标",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -45,7 +45,7 @@
         }
     },
     "SelectGrow": {
-        "doc": "选择培养目标",
+        "desc": "选择培养目标",
         "recognition": {
             "type": "And",
             "param": {
@@ -66,7 +66,7 @@
         ]
     },
     "CheckGrowTargetEmpty": {
-        "doc": "检查选择的培养对象是否为空",
+        "desc": "检查选择的培养对象是否为空",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -77,15 +77,15 @@
                     23,
                     0
                 ],
-                "only_rec": true,
                 "expected": [
                     "^([1-9][0-9]*)([/|\\]]).*$"
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
     "InGrowthChamber": {
-        "doc": "已经回到培养舱界面,任务完成",
+        "desc": "已经回到培养舱界面,任务完成",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -102,7 +102,7 @@
         }
     },
     "ExitGrow": {
-        "doc": "不需要提取基核,直接退出培养界面",
+        "desc": "不需要提取基核,直接退出培养界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -122,7 +122,7 @@
         ]
     },
     "ExtractSeed": {
-        "doc": "提取基核",
+        "desc": "提取基核",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -147,19 +147,19 @@
         ]
     },
     "GrowCloseRewardsButton": {
-        "doc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
+        "desc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
                 "roi": [
                     571,
                     594,
                     139,
                     126
+                ],
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
                 ],
                 "threshold": 0.9
             }
@@ -172,7 +172,7 @@
         ]
     },
     "NoMaterials": {
-        "doc": "缺少原料无法获取",
+        "desc": "缺少原料无法获取",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -199,7 +199,7 @@
         ]
     },
     "InSelectGrowSwipe": {
-        "doc": "在选择培养对象界面滑动",
+        "desc": "在选择培养对象界面滑动",
         "max_hit": 50,
         "recognition": {
             "type": "OCR",
@@ -218,20 +218,16 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 120,
                 "target": [
                     231,
                     381
-                ]
+                ],
+                "dx": 120
             }
         }
     },
     "Grow": {
-        "doc": "点击培养按钮",
-        "post_wait_freezes": {
-            "time": 150,
-            "timeout": 2000
-        },
+        "desc": "点击培养按钮",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -249,6 +245,10 @@
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
         },
         "next": [
             "InGrow"
@@ -278,7 +278,7 @@
         ]
     },
     "SortBy": {
-        "doc": "排序,选择基础排序内容",
+        "desc": "排序,选择基础排序内容",
         "enabled": false,
         "recognition": {
             "type": "OCR",
@@ -314,7 +314,7 @@
         ]
     },
     "ChooseSortBy": {
-        "doc": "选择具体排序方式",
+        "desc": "选择具体排序方式",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -337,7 +337,7 @@
         }
     },
     "SwipeChooseSortBy": {
-        "doc": "选择排序方式时候滚动一次",
+        "desc": "选择排序方式时候滚动一次",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",
@@ -364,7 +364,7 @@
         }
     },
     "SortOrder": {
-        "doc": "排序,选择正序或者倒序",
+        "desc": "排序,选择正序或者倒序",
         "enabled": false,
         "recognition": {
             "type": "OCR",
@@ -388,7 +388,7 @@
         }
     },
     "ExitGrowthChamber": {
-        "doc": "[培养舱·离开] 返回控制中枢",
+        "desc": "[培养舱·离开] 返回控制中枢",
         "recognition": {
             "type": "OCR",
             "param": {

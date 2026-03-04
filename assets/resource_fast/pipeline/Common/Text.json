@@ -1,8 +1,7 @@
 {
     "CheckRegionalDevelopmentText": {
-        "doc": "检查地区建设界面左上角的文字",
+        "desc": "检查地区建设界面左上角的文字",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             0,
             0,
@@ -15,12 +14,12 @@
             "Regional Development",
             "地域建設",
             "지역 건설"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckRegionalDevelopmentValleyIVText": {
-        "doc": "检查四号谷地地区建设左边的文字",
+        "desc": "检查四号谷地地区建设左边的文字",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             23,
             155,
@@ -34,12 +33,12 @@
             "Valley",
             "四号谷地",
             "4번 협곡"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckRegionalDevelopmentWulingText": {
-        "doc": "检查武陵地区建设左边的文字",
+        "desc": "检查武陵地区建设左边的文字",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             23,
             155,
@@ -52,12 +51,12 @@
             "Wuling",
             "武陵",
             "무릉"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckLocalDepotNodeText": {
-        "doc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
+        "desc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             55,
             62,
@@ -70,12 +69,12 @@
             "Local Depot Node",
             "地域保管ボックス",
             "현재 지역 저장고 노드"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckCourierInfoText": {
-        "doc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
+        "desc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             67,
             125,
@@ -88,12 +87,12 @@
             "Courier Info",
             "配達員詳細",
             "운송인 정보"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckLocalDepotNodeOriginiumScienceParkText": {
-        "doc": "检查本地仓储节点中是否有源石研究园",
+        "desc": "检查本地仓储节点中是否有源石研究园",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             67,
             224,
@@ -106,12 +105,12 @@
             "Originium Science Park",
             "源石研究パーク",
             "오리지늄 연구 구역"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckLocalDepotNodeOriginLodespringText": {
-        "doc": "检查本地仓储节点中是否有矿脉源区",
+        "desc": "检查本地仓储节点中是否有矿脉源区",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             67,
             224,
@@ -124,12 +123,12 @@
             "Origin Lodespring",
             "鉱山エリア",
             "광맥 구역"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckLocalDepotNodePowerPlateauText": {
-        "doc": "检查本地仓储节点中是否有供能高地",
+        "desc": "检查本地仓储节点中是否有供能高地",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             67,
             224,
@@ -142,12 +141,12 @@
             "Power Plateau",
             "エネルギー高地",
             "에너지 공급 고지"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckLocalDepotNodeWulingCityText": {
-        "doc": "检查本地仓储节点中是否有武陵城区",
+        "desc": "检查本地仓储节点中是否有武陵城区",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             67,
             224,
@@ -160,12 +159,12 @@
             "Wuling City",
             "武陵城内",
             "무릉성 도심"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "CheckChangeRegionConfirmText": {
-        "doc": "检查更换地区确认界面中的文本",
+        "desc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             400,
             240,
@@ -179,6 +178,7 @@
             "Switch to view the development status of the selected region?",
             "この地域の建設状況を確認しますか？",
             "선택한 지역의 건설 상황을 확인하시겠습니까?"
-        ]
+        ],
+        "order_by": "Expected"
     }
 }

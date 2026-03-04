@@ -2,9 +2,8 @@
     // 转交任务的流程
     // 进入送货任务 -> 点击转交任务 -> 确认转交任务
     "DeliveryJobsEnterDeliveryJob": {
-        "doc": "进入送货任务",
+        "desc": "进入送货任务",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             79,
             550,
@@ -18,15 +17,15 @@
             "任務確認",
             "임무 확인"
         ],
+        "order_by": "Expected",
         "action": "Click",
         "next": [
             "DeliveryJobsClickTransferJob"
         ]
     },
     "DeliveryJobsClickTransferJob": {
-        "doc": "单击转交任务",
+        "desc": "单击转交任务",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             366,
             620,
@@ -40,15 +39,15 @@
             "外部委託",
             "운송 의뢰 위탁"
         ],
+        "order_by": "Expected",
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmTaskTransfer"
         ]
     },
     "DeliveryJobsCheckTaskTransferText": {
-        "doc": "检查转交任务文本",
+        "desc": "检查转交任务文本",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             401,
             238,
@@ -62,15 +61,22 @@
             "Transfer delivery job to another courier?",
             "配達任務を他人に委託しますか？",
             "운송 임무를 다른 사람에게 위탁하시겠습니까?"
-        ]
+        ],
+        "order_by": "Expected"
     },
     "DeliveryJobsConfirmTaskTransfer": {
-        "doc": "确认转交任务",
+        "desc": "确认转交任务",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1",
             "DeliveryJobsCheckTaskTransferText"
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            // 转交完任务之后会直接回到本地仓储节点界面
+            // 需要等待本地仓储界面完全加载完成，才继续后面的流程
+            // 否则会因为无法识别到相关货物，导致退出去重新进入本地仓储界面
+            "InLocalDepotNode"
+        ]
     }
 }

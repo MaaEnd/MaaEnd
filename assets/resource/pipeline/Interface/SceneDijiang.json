@@ -1,6 +1,6 @@
 {
     "SceneEnterMapDijiang": {
-        "doc": "从任意界面进入帝江号地图界面",
+        "desc": "从任意界面进入帝江号地图界面",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -9,7 +9,7 @@
         ]
     },
     "SceneEnterWorldDijiang": {
-        "doc": "从任意界面进入帝江号大世界",
+        "desc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -18,9 +18,8 @@
         ]
     },
     "SceneEnterWorldDijiang0": {
-        "doc": "从任意界面进入帝江号-舰桥大世界",
+        "desc": "从任意界面进入帝江号-舰桥大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
@@ -29,15 +28,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang0Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang0Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"
         ]
     },
     "SceneEnterWorldDijiang1": {
-        "doc": "从任意界面进入帝江号-基建区大世界",
+        "desc": "从任意界面进入帝江号-基建区大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopRight",
@@ -46,15 +45,15 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang1Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang1Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"
         ]
     },
     "SceneEnterWorldDijiang2": {
-        "doc": "从任意界面进入帝江号-会客室大世界",
+        "desc": "从任意界面进入帝江号-会客室大世界",
         "pre_delay": 0,
-        "post_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
             "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1TopLeft",
@@ -63,6 +62,7 @@
             "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldDijiang2Try2",
             "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldDijiang2Try3"
         },
+        "post_delay": 0,
         "next": [
             "__ScenePrivateMapDijiangEnterWorldAnchor",
             "[JumpBack]SceneEnterMapDijiang"

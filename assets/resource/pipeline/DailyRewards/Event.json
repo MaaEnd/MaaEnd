@@ -1,8 +1,8 @@
 {
     "DailyEventStart": {
         "desc": "每日奖励活动入口",
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEventEnterMenu",
             "[JumpBack]SceneEnterMenuEvent"
@@ -28,8 +28,8 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEventUnreadItemInit",
             "DailyEventFinish"
@@ -43,8 +43,8 @@
                 "custom_recognition": "DailyEventUnreadItemInitRecognition"
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "[JumpBack]DailyEventUnreadItemSwitch",
             "DailyEventFinish"
@@ -58,19 +58,19 @@
                 "custom_recognition": "DailyEventUnreadItemSwitchRecognition"
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_delay": 0,
-        "pre_delay": 0,
         "post_wait_freezes": 400,
-        "focus": {
-            "Node.Recognition.Succeeded": "切换活动"
-        },
+        "post_delay": 0,
         "next": [
             "DailyEventUnreadDetailInit",
             "DailyEventFinish"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "切换活动"
+        }
     },
     "DailyEventUnreadDetailInit": {
         "desc": "检查画面右侧是否有未处理的活动奖励",
@@ -80,8 +80,8 @@
                 "custom_recognition": "DailyEventUnreadDetailInitRecognition"
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "DailyEventUnreadDetailPick"
         ]
@@ -97,9 +97,6 @@
         "action": {
             "type": "Click"
         },
-        "focus": {
-            "Node.Recognition.Succeeded": "点击领取奖励"
-        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -114,7 +111,10 @@
             "DailyEventUnreadDetailPick",
             "DailyEventUnreadDetailInit",
             "DailyEventFinish"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "点击领取奖励"
+        }
     },
     "DailyEventFinish": {
         "desc": "结束任务",
@@ -157,15 +157,15 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "threshold": 0.7,
                 "expected": [
                     ".{3,}" // 匹配三个及以上字符
-                ]
+                ],
+                "threshold": 0.7
             }
         }
     },
     "DailyEventRewardsConfirm": {
-        "doc": "出现奖励点击奖励界面的确认按钮",
+        "desc": "出现奖励点击奖励界面的确认按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -211,9 +211,6 @@
         "action": {
             "type": "Click"
         },
-        "focus": {
-            "Node.Recognition.Succeeded": "点击确认领取奖励"
-        },
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -226,6 +223,9 @@
         "next": [
             "DailyEventUnreadDetailInit",
             "DailyEventFinish"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "点击确认领取奖励"
+        }
     }
 }

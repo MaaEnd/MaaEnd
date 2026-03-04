@@ -2,7 +2,7 @@
     // 地区建设页面切换地区
     // 单击更换按钮 -> 选择地区（通过锚点指定） -> 单击确认按钮 -> 确认进入地区（通过锚点指定）
     "GoToValleyIV": {
-        "doc": "前往四号谷地地区建设界面",
+        "desc": "前往四号谷地地区建设界面",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
@@ -13,7 +13,7 @@
         ]
     },
     "GoToWuling": {
-        "doc": "前往武陵地区建设界面",
+        "desc": "前往武陵地区建设界面",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
@@ -24,7 +24,7 @@
         ]
     },
     "RegionalDevelopmentChangeToValleyIV": {
-        "doc": "更改至四号谷地",
+        "desc": "更改至四号谷地",
         "anchor": {
             "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectValleyIV",
             "RegionalDevelopmentInDestinationRegion": "InValleyIVRegionalDevelopment"
@@ -34,7 +34,7 @@
         ]
     },
     "RegionalDevelopmentChangeToWuling": {
-        "doc": "更改至武陵",
+        "desc": "更改至武陵",
         "anchor": {
             "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectWuling",
             "RegionalDevelopmentInDestinationRegion": "InWulingRegionalDevelopment"
@@ -44,7 +44,7 @@
         ]
     },
     "RegionalDevelopmentEnterChangeRegionMenu": {
-        "doc": "进入更改地区界面",
+        "desc": "进入更改地区界面",
         "recognition": "And",
         "all_of": [
             "ChangeRegionButton"
@@ -55,9 +55,8 @@
         ]
     },
     "RegionalDevelopmentSelectValleyIV": {
-        "doc": "选择四号谷地",
+        "desc": "选择四号谷地",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             429,
             145,
@@ -72,15 +71,15 @@
             "四号谷地",
             "4번 협곡"
         ],
+        "order_by": "Expected",
         "action": "Click",
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
     },
     "RegionalDevelopmentSelectWuling": {
-        "doc": "选择武陵",
+        "desc": "选择武陵",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             429,
             145,
@@ -94,13 +93,14 @@
             "武陵",
             "무릉"
         ],
+        "order_by": "Expected",
         "action": "Click",
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
         ]
     },
     "RegionalDevelopmentConfirmChangeToRegion": {
-        "doc": "确认更改至选定地区",
+        "desc": "确认更改至选定地区",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1",

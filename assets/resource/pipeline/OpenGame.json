@@ -1,5 +1,6 @@
 {
     "AndroidOpenGame": {
+        "pre_delay": 0,
         //
         "action": {
             "type": "StartApp",
@@ -8,7 +9,6 @@
             }
         },
         "post_delay": 0,
-        "pre_delay": 0,
         "next": [
             "OpenGame"
         ]
@@ -43,6 +43,12 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
+                "roi": [
+                    657,
+                    30,
+                    308,
+                    124
+                ],
                 "lower": [
                     0,
                     0,
@@ -52,12 +58,6 @@
                     0,
                     0,
                     0
-                ],
-                "roi": [
-                    657,
-                    30,
-                    308,
-                    124
                 ]
             }
         }
@@ -66,13 +66,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "OpenGame/CloseGameButton.png",
                 "roi": [
                     0,
                     626,
                     69,
                     63
-                ]
+                ],
+                "template": "OpenGame/CloseGameButton.png"
             }
         }
     },
@@ -80,13 +80,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "OpenGame/ConfirmButton.png",
                 "roi": [
                     519,
                     570,
                     259,
                     149
-                ]
+                ],
+                "template": "OpenGame/ConfirmButton.png"
             }
         },
         "action": {
@@ -97,16 +97,16 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "登录失败",
-                    "检查网络",
-                    "状态后重试"
-                ],
                 "roi": [
                     477,
                     314,
                     329,
                     59
+                ],
+                "expected": [
+                    "登录失败",
+                    "检查网络",
+                    "状态后重试"
                 ]
             }
         },
@@ -118,14 +118,14 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "确认"
-                ],
                 "roi": [
                     528,
                     417,
                     217,
                     56
+                ],
+                "expected": [
+                    "确认"
                 ]
             }
         },
@@ -137,17 +137,17 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "点击",
-                    "任意",
-                    "位置",
-                    "继续"
-                ],
                 "roi": [
                     1101,
                     357,
                     158,
                     40
+                ],
+                "expected": [
+                    "点击",
+                    "任意",
+                    "位置",
+                    "继续"
                 ]
             }
         },
@@ -159,13 +159,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "OpenGame/LoadingIcon.png",
                 "roi": [
                     638,
                     272,
                     325,
                     127
-                ]
+                ],
+                "template": "OpenGame/LoadingIcon.png"
             }
         }
     },
@@ -173,16 +173,16 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "NOW",
-                    "LOAD",
-                    "ING"
-                ],
                 "roi": [
                     1116,
                     651,
                     121,
                     45
+                ],
+                "expected": [
+                    "NOW",
+                    "LOAD",
+                    "ING"
                 ]
             }
         }
@@ -201,15 +201,15 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "点击确认今日",
-                    "今日月卡奖励"
-                ],
                 "roi": [
                     499,
                     458,
                     314,
                     159
+                ],
+                "expected": [
+                    "点击确认今日",
+                    "今日月卡奖励"
                 ]
             }
         },
@@ -221,14 +221,14 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "领取"
-                ],
                 "roi": [
                     891,
                     257,
                     235,
                     108
+                ],
+                "expected": [
+                    "领取"
                 ]
             }
         },
@@ -244,14 +244,14 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "获得奖励"
-                ],
                 "roi": [
                     588,
                     67,
                     111,
                     74
+                ],
+                "expected": [
+                    "获得奖励"
                 ]
             }
         },
@@ -272,18 +272,18 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "OpenGame/CloseButtonPC.png",
-                    "OpenGame/CloseButton.png"
-                ],
                 "roi": [
                     928,
                     10,
                     345,
                     281
                 ],
-                "threshold": 0.65,
-                "green_mask": true
+                "template": [
+                    "OpenGame/CloseButtonPC.png",
+                    "OpenGame/CloseButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.65
             }
         },
         "action": {
@@ -294,14 +294,14 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "OpenGame/Character.png"
-                ],
                 "roi": [
                     1,
                     581,
                     211,
                     139
+                ],
+                "template": [
+                    "OpenGame/Character.png"
                 ],
                 "threshold": 0.9
             }

@@ -1,0 +1,232 @@
+{
+    "NeedAssistColor": {
+        "desc": "[需要助力] 识别需要助力的奖励颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1112,
+                    0,
+                    168,
+                    74
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
+    "ReceptionRoomNeedCollectCluesColor": {
+        "desc": "[会客室·线索] 识别需要收集线索的奖励颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1223,
+                    102,
+                    57,
+                    80
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
+    "ReceptionRoomNeedReceiveCluesColor": {
+        "desc": "[会客室·线索] 识别需要领取线索的奖励颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1185,
+                    190,
+                    95,
+                    60
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
+    "ReceptionRoomSetClueTips": {
+        "desc": "任务提示的红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    43,
+                    79,
+                    1116,
+                    485
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    0
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
+    "EndExchangeCountDown": {
+        "desc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    631,
+                    506,
+                    379,
+                    189
+                ],
+                "expected": [
+                    "00:00:00"
+                ]
+            }
+        }
+    },
+    "ClueTimeLabel": {
+        "desc": "识别线索的剩余天数",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ReadySetClues",
+                "roi_offset": [
+                    -200,
+                    71,
+                    58,
+                    41
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        39,
+                        255,
+                        100
+                    ],
+                    [
+                        170,
+                        100,
+                        100
+                    ]
+                ],
+                "upper": [
+                    [
+                        39,
+                        255,
+                        200
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 20
+            }
+        }
+    },
+    "DeleteClue": {
+        "desc": "[会客室·线索] 识别「删除」红点，表示已有线索可点击替换",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "ReadySetClues",
+                "roi_offset": [
+                    0,
+                    -19,
+                    238,
+                    22
+                ],
+                "method": 40,
+                "lower": [
+                    170,
+                    100,
+                    100
+                ],
+                "upper": [
+                    180,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 20
+            }
+        }
+    },
+    "ClueItem": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    126,
+                    157,
+                    120,
+                    555
+                ],
+                "expected": [
+                    "自有库存"
+                ]
+            }
+        }
+    },
+    "ClueLibrary": {
+        "desc": "[会客室·线索] 识别「线索库存」字样，表示有线索库存可用",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    723,
+                    29,
+                    265,
+                    107
+                ],
+                "expected": [
+                    "线索库存",
+                    "收集线索",
+                    "接收线索"
+                ]
+            }
+        }
+    }
+}

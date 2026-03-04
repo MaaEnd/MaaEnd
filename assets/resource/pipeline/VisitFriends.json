@@ -1,6 +1,6 @@
 {
     "FriendVisitMain": {
-        "doc": "入口：优先识别当前界面，再决定按 Esc 后的行为（好友船 Esc→好友列表，己方世界 Esc→暂停菜单）",
+        "desc": "入口：优先识别当前界面，再决定按 Esc 后的行为（好友船 Esc→好友列表，己方世界 Esc→暂停菜单）",
         "next": [
             "OnFriendList",
             "OpenFriendList",
@@ -10,17 +10,17 @@
         ]
     },
     "OpenFriendListFromFriendShip": {
-        "doc": "在好友船上时按 Esc 会打开好友列表（而非暂停菜单），按下 Esc 后进入好友列表",
+        "desc": "在好友船上时按 Esc 会打开好友列表（而非暂停菜单），按下 Esc 后进入好友列表",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ArriveShip.png",
                 "roi": [
                     1166,
                     0,
                     114,
                     76
                 ],
+                "template": "VisitFriends/ArriveShip.png",
                 "threshold": 0.8
             }
         },
@@ -36,15 +36,15 @@
         ]
     },
     "EnterPauseMenu": {
-        "doc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船时有效）",
+        "desc": "在己方世界按下 Esc 唤出暂停界面，等待「好友」按钮（仅在非好友船时有效）",
         "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 0,
                 "all_of": [
                     "InWorld"
-                ]
+                ],
+                "box_index": 0
             }
         },
         "action": {
@@ -59,17 +59,17 @@
         ]
     },
     "OpenFriendList": {
-        "doc": "发现「好友」按钮，按下",
+        "desc": "发现「好友」按钮，按下",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/FriendList.png",
                 "roi": [
                     898,
                     62,
                     382,
                     612
                 ],
+                "template": "VisitFriends/FriendList.png",
                 "threshold": 0.8
             }
         },
@@ -82,17 +82,17 @@
         ]
     },
     "OnFriendList": {
-        "doc": "识别是否位于好友列表界面",
+        "desc": "识别是否位于好友列表界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/OnFriendList.png",
                 "roi": [
                     12,
                     44,
                     80,
                     64
                 ],
+                "template": "VisitFriends/OnFriendList.png",
                 "threshold": 0.8
             }
         },
@@ -104,21 +104,21 @@
         ]
     },
     "PriorStealGateProductionAndClueCheck": {
-        "doc": "偷菜模式：助力生产和线索交流 - 剩余次数均大于0",
+        "desc": "偷菜模式：助力生产和线索交流 - 剩余次数均大于0",
         "recognition": "And",
         "all_of": [
             "ProductionAssistOCR",
             "ClueExchangeOCR"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "助力生产和线索交流剩余次数均大于0,进入偷菜模式"
-        },
         "next": [
             "ProductionAssist"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "助力生产和线索交流剩余次数均大于0,进入偷菜模式"
+        }
     },
     "ProductionAssistOCR": {
-        "doc": "助力生产 - 剩余次数大于0",
+        "desc": "助力生产 - 剩余次数大于0",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -143,7 +143,7 @@
         ]
     },
     "ClueExchangeOCR": {
-        "doc": "线索交流 - 剩余次数大于0",
+        "desc": "线索交流 - 剩余次数大于0",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -168,7 +168,7 @@
         ]
     },
     "ProductionAssist": {
-        "doc": "开始助力生产",
+        "desc": "开始助力生产",
         "recognition": "DirectHit",
         "next": [
             "ProductionAssistCheckPriorSteal",
@@ -180,8 +180,7 @@
         ]
     },
     "ProductionAssistCheckPriorSteal": {
-        "doc": "偷菜模式：找到可以线索交流也能助力生产的好友舰船",
-        "pre_wait_freezes": 200,
+        "desc": "偷菜模式：找到可以线索交流也能助力生产的好友舰船",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -189,6 +188,7 @@
                 "threshold": 0.95
             }
         },
+        "pre_wait_freezes": 200,
         "action": {
             "type": "Click",
             "param": {}
@@ -201,17 +201,17 @@
         ]
     },
     "GrowthChamberCheck": {
-        "doc": "偷菜模式：有菜可偷",
+        "desc": "偷菜模式：有菜可偷",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/GrowthChamberOpen.png",
                 "roi": [
                     821,
                     382,
                     105,
                     42
                 ],
+                "template": "VisitFriends/GrowthChamberOpen.png",
                 "threshold": 0.95
             }
         },
@@ -224,7 +224,7 @@
         ]
     },
     "SkipConfirmBackToFriendList": {
-        "doc": "没有菜可偷时，不点确认，按 Esc 返回好友列表",
+        "desc": "没有菜可偷时，不点确认，按 Esc 返回好友列表",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -243,9 +243,8 @@
         ]
     },
     "ProductionAssistCheckPriorStealRetry": {
-        "doc": "子菜单未打开时重试点击",
+        "desc": "子菜单未打开时重试点击",
         "max_hit": 10,
-        "pre_wait_freezes": 500,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -253,11 +252,12 @@
                 "threshold": 0.95
             }
         },
-        "post_wait_freezes": 400,
+        "pre_wait_freezes": 500,
         "action": {
             "type": "Click",
             "param": {}
         },
+        "post_wait_freezes": 400,
         "next": [
             "GrowthChamberCheck",
             "SkipConfirmBackToFriendList",
@@ -265,7 +265,7 @@
         ]
     },
     "ProductionAssistCheck": {
-        "doc": "找到能助力生产的好友",
+        "desc": "找到能助力生产的好友",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -289,7 +289,8 @@
         ]
     },
     "ProductionAssistSwipe": {
-        "doc": "好友界面向下滑找更多好友",
+        "desc": "好友界面向下滑找更多好友",
+        "max_hit": 100,
         "recognition": "Or",
         "any_of": [
             "ProductionAssistOCR",
@@ -309,7 +310,6 @@
                 "end_hold": 200
             }
         },
-        "max_hit": 100,
         //理论上好友列表滑到底也不一定能找到能助力的，设置较大重试次数,且如果没有助力和线索次数会跳过该节点,如果不设定max_hit可能会无限重试
         //后面有go大手子可以重构这里,比如成功一次助力和线索就重置max_hit,或者滑到底后识别到底了再停止重试
         "next": [
@@ -317,7 +317,7 @@
         ]
     },
     "VisitorTerminalSwipeFacilityList": {
-        "doc": "访客终端界面为了露出培养仓助力按钮而向左划。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
+        "desc": "访客终端界面为了露出培养仓助力按钮而向左划。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
         "recognition": "DirectHit",
         "action": {
             "type": "Swipe",
@@ -342,7 +342,7 @@
         ]
     },
     "VisitorTerminalGrowthChamberIcon": {
-        "doc": "定位培养仓图标（24×24），供后续节点基于其位置用 roi 搜索助力按钮",
+        "desc": "定位培养仓图标（24×24），供后续节点基于其位置用 roi 搜索助力按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -359,9 +359,9 @@
         ]
     },
     "VisitorTerminalSwipeForGrowthChamber": {
-        "doc": "未找到培养仓图标时向左划一次再重试，避免用无效 roi 进 AssistGrowthChamber。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
-        "recognition": "DirectHit",
+        "desc": "未找到培养仓图标时向左划一次再重试，避免用无效 roi 进 AssistGrowthChamber。post_wait_freezes 用于等待滑动动画结束、界面回位后再识别下一节点，避免动画未结束时误判",
         "max_hit": 11,
+        "recognition": "DirectHit",
         "action": {
             "type": "Swipe",
             "param": {
@@ -385,7 +385,7 @@
         ]
     },
     "VisitorTerminalMeetingRoomCheck": {
-        "doc": "还能看到会客室按钮，继续向左划",
+        "desc": "还能看到会客室按钮，继续向左划",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -402,17 +402,17 @@
         ]
     },
     "ConfirmVisitToAssist": {
-        "doc": "确定访问",
+        "desc": "确定访问",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/Confirm.png",
                 "roi": [
                     795,
                     426,
                     76,
                     72
                 ],
+                "template": "VisitFriends/Confirm.png",
                 "threshold": 0.8
             }
         },
@@ -425,17 +425,17 @@
         ]
     },
     "OnAssist": {
-        "doc": "正在好友的船上，按 Y 打开访客终端",
+        "desc": "正在好友的船上，按 Y 打开访客终端",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ArriveShip.png",
                 "roi": [
                     1166,
                     0,
                     114,
                     76
                 ],
+                "template": "VisitFriends/ArriveShip.png",
                 "threshold": 0.8
             }
         },
@@ -451,17 +451,17 @@
         ]
     },
     "WaitOpenTerminalAssistStealVeg": {
-        "doc": "偷菜模式：在能助力培养仓的好友船上的访客终端界面",
+        "desc": "偷菜模式：在能助力培养仓的好友船上的访客终端界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/TerminalIsOpen.png",
                 "roi": [
                     116,
                     218,
                     191,
                     294
                 ],
+                "template": "VisitFriends/TerminalIsOpen.png",
                 "threshold": 0.8
             }
         },
@@ -471,17 +471,17 @@
         ]
     },
     "WaitOpenTerminalAssist": {
-        "doc": "在能助力的好友船上的访客终端界面",
+        "desc": "在能助力的好友船上的访客终端界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/TerminalIsOpen.png",
                 "roi": [
                     116,
                     218,
                     191,
                     294
                 ],
+                "template": "VisitFriends/TerminalIsOpen.png",
                 "threshold": 0.8
             }
         },
@@ -491,17 +491,17 @@
         ]
     },
     "VisitorTerminalClueExchangeFirst": {
-        "doc": "访客终端界面，先点点线索交流",
+        "desc": "访客终端界面，先点点线索交流",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ClueExchange.png",
                 "roi": [
                     450,
                     542,
                     702,
                     96
                 ],
+                "template": "VisitFriends/ClueExchange.png",
                 "threshold": 0.8
             }
         },
@@ -515,19 +515,19 @@
         ]
     },
     "VisitorTerminalAssistGrowthChamber": {
-        "doc": "在培养仓图标附近区域（roi 基于 GrowthChamberIcon 位置 + offset）匹配并点击助力按钮",
+        "desc": "在培养仓图标附近区域（roi 基于 GrowthChamberIcon 位置 + offset）匹配并点击助力按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ProductionAssist.png",
-                "threshold": 0.8,
                 "roi": "VisitorTerminalGrowthChamberIcon",
                 "roi_offset": [
                     -12,
                     -12,
                     176,
                     136
-                ]
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -539,7 +539,7 @@
         ]
     },
     "VisitorTerminalAssist": {
-        "doc": "访客终端能助力的就助力",
+        "desc": "访客终端能助力的就助力",
         "recognition": "TemplateMatch",
         "template": [
             "VisitFriends/ProductionAssist.png",
@@ -556,7 +556,7 @@
         ]
     },
     "VisitorTerminalCloseSeedDialog": {
-        "doc": "确认助力培养仓后弹出的获得种子二级页面",
+        "desc": "确认助力培养仓后弹出的获得种子二级页面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -573,7 +573,7 @@
         ]
     },
     "ExitTerminalAssist": {
-        "doc": "按 Esc 从访客终端退出",
+        "desc": "按 Esc 从访客终端退出",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -585,17 +585,17 @@
         ]
     },
     "ExitAssist": {
-        "doc": "助力完毕，离开好友的船",
+        "desc": "助力完毕，离开好友的船",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/Leave.png",
                 "roi": [
                     0,
                     0,
                     65,
                     62
                 ],
+                "template": "VisitFriends/Leave.png",
                 "threshold": 0.8
             }
         },
@@ -619,17 +619,17 @@
         ]
     },
     "ClueExchangeCheck": {
-        "doc": "是否有可以线索交流的好友，如果有就点进去",
+        "desc": "是否有可以线索交流的好友，如果有就点进去",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ClueExchangeAvailable.png",
                 "roi": [
                     1124,
                     95,
                     105,
                     539
                 ],
+                "template": "VisitFriends/ClueExchangeAvailable.png",
                 "threshold": 0.95
             }
         },
@@ -649,9 +649,9 @@
         ]
     },
     "ClueExchangeSwipe": {
-        "doc": "为了找可以线索交流的好友而下滑",
-        "recognition": "DirectHit",
+        "desc": "为了找可以线索交流的好友而下滑",
         "max_hit": 12,
+        "recognition": "DirectHit",
         "action": {
             "type": "Swipe",
             "param": {
@@ -671,17 +671,17 @@
         ]
     },
     "ConfirmVisitToExchange": {
-        "doc": "为了线索交流确认访问好友二级菜单",
+        "desc": "为了线索交流确认访问好友二级菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/Confirm.png",
                 "roi": [
                     778,
                     425,
                     111,
                     83
                 ],
+                "template": "VisitFriends/Confirm.png",
                 "threshold": 0.8
             }
         },
@@ -694,17 +694,17 @@
         ]
     },
     "OnExchange": {
-        "doc": "到达能线索交流的好友船上",
+        "desc": "到达能线索交流的好友船上",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/ArriveShip.png",
                 "roi": [
                     1194,
                     0,
                     86,
                     69
                 ],
+                "template": "VisitFriends/ArriveShip.png",
                 "threshold": 0.8
             }
         },
@@ -719,17 +719,17 @@
         ]
     },
     "WaitOpenTerminalExchange": {
-        "doc": "在能线索交流的好友船上的访客终端界面",
+        "desc": "在能线索交流的好友船上的访客终端界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/TerminalIsOpen.png",
                 "roi": [
                     116,
                     218,
                     191,
                     294
                 ],
+                "template": "VisitFriends/TerminalIsOpen.png",
                 "threshold": 0.8
             }
         },
@@ -739,7 +739,7 @@
         ]
     },
     "VisitorTerminalExchange": {
-        "doc": "访客终端能助力的就助力",
+        "desc": "访客终端能助力的就助力",
         "recognition": "TemplateMatch",
         "template": [
             "VisitFriends/ProductionAssist.png",
@@ -756,7 +756,7 @@
         ]
     },
     "ExitTerminalExchange": {
-        "doc": "线索交换完毕，按 Esc 返回",
+        "desc": "线索交换完毕，按 Esc 返回",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -768,17 +768,17 @@
         ]
     },
     "ExitFriendHome": {
-        "doc": "按 Esc 离开好友的船",
+        "desc": "按 Esc 离开好友的船",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "VisitFriends/Leave.png",
                 "roi": [
                     0,
                     0,
                     65,
                     62
                 ],
+                "template": "VisitFriends/Leave.png",
                 "threshold": 0.8
             }
         },
@@ -793,127 +793,21 @@
         ]
     },
     "VisitFailed": {
+        "desc": "当执行完助力生产和线索交流逻辑后,还有助力生产和线索交流次数未消耗完,回调任务失败日志",
         "recognition": "Or",
-        "doc": "当执行完助力生产和线索交流逻辑后,还有助力生产和线索交流次数未消耗完,回调任务失败日志",
         "any_of": [
             "ProductionAssistOCR",
             "ClueExchangeOCR"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "任务失败,有助力生产或线索交流次数未消耗完,建议手动进行剩余次数的助力和线索"
-        },
         "next": [
             "VisitEnd"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "任务失败,有助力生产或线索交流次数未消耗完,建议手动进行剩余次数的助力和线索"
+        }
     },
     "VisitEnd": {
-        "doc": "访问结束",
-        "action": {
-            "type": "DoNothing",
-            "param": {}
-        },
-        "next": [
-            "ClickVisitEnd",
-            "ReturnToMenu"
-        ]
-    },
-    "ClickVisitEnd": {
-        "doc": "点击右下角结束拜访",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/EndVisit.png",
-                "roi": [
-                    1194,
-                    638,
-                    58,
-                    50
-                ],
-                "threshold": 0.95
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ConfirmVisitEnd"
-        ]
-    },
-    "ConfirmVisitEnd": {
-        "doc": "确认结束拜访",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/Confirm.png",
-                "roi": [
-                    805,
-                    433,
-                    59,
-                    65
-                ],
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "VisitComplete"
-        ]
-    },
-    "ReturnToMenu": {
-        "doc": "关闭好友列表，回到最初级 Esc 界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/CloseFriendList.png",
-                "threshold": 0.9,
-                "roi": [
-                    1208,
-                    0,
-                    51,
-                    52
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ExitMenu"
-        ]
-    },
-    "ExitMenu": {
-        "doc": "退出最初级 Esc 界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": "VisitFriends/FriendList.png",
-                "roi": [
-                    898,
-                    62,
-                    382,
-                    612
-                ],
-                "threshold": 0.8
-            }
-        },
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 27
-            }
-        },
-        "post_delay": 400,
-        "next": [
-            "VisitComplete"
-        ]
-    },
-    "VisitComplete": {
-        "doc": "结束节点,无需延迟",
+        "desc": "访问结束",
         "pre_delay": 0,
         "post_delay": 0
     }

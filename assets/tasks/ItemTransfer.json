@@ -646,21 +646,16 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 138
+                            "expected": 138,
+                            "threshold": 0.7
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 138
+                            "expected": 138,
+                            "threshold": 0.7
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 138
-                        },
-                        "ItemTransferRepoToBag": {
-                            "next": [
-                                "ItemTransferClickSortDescending",
-                                "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
-                                "ItemTransferScrollDownwardRepo"
-                            ]
+                            "expected": 138,
+                            "threshold": 0.7
                         }
                     }
                 },
@@ -1244,6 +1239,384 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 124
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "label": "$item.SCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 0
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 0
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 0
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "label": "$item.CannedCitromeB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 5
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "label": "$item.BuckCapsuleB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 6
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "label": "$item.LCValleyBattery",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 8
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 8
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 8
+                        }
+                    }
+                },
+                {
+                    "name": "基础航天建材",
+                    "label": "$item.AerospaceMaterialI",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 19
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 19
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 19
+                        }
+                    }
+                },
+                {
+                    "name": "工业爆炸物",
+                    "label": "$item.IndustrialExplosive",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 36
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 36
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 36
+                        }
+                    }
+                },
+                {
+                    "name": "息壤装备原件",
+                    "label": "$item.XiraniteComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 42
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 42
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 42
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "label": "$item.CannedCitromeC",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 60
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 60
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 60
+                        }
+                    }
+                },
+                {
+                    "name": "琼叶参种子",
+                    "label": "$item.RedjadeGinsengSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 86
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 86
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 86
+                        }
+                    }
+                },
+                {
+                    "name": "灰芦麦种子",
+                    "label": "$item.ReedRyeSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 76
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 76
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 76
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "label": "$item.CannedCitromeA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 100
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "label": "$item.BuckCapsuleA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 102
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 102
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 102
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶装备原件",
+                    "label": "$item.AmethystComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 106
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 106
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 106
+                        }
+                    }
+                },
+                {
+                    "name": "苦叶椒种子",
+                    "label": "$item.TartpepperSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 126
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 126
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 126
+                        }
+                    }
+                },
+                {
+                    "name": "荆刺芽针粉末",
+                    "label": "$item.ThornyYazhenPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 129
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 129
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 129
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "label": "$item.BuckCapsuleC",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 131
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 131
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 131
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁装备原件",
+                    "label": "$item.FerriumComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 143
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 143
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 143
+                        }
+                    }
+                },
+                {
+                    "name": "蓬茸锦草粉末",
+                    "label": "$item.FluffedJincaoPowder",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 145
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 145
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 145
+                        }
+                    }
+                },
+                {
+                    "name": "金石稻种子",
+                    "label": "$item.AmberRiceSeed",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/植物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 166
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 166
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 166
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$item.JincaoDrink",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 177
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 177
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 177
+                        }
+                    }
+                },
+                {
+                    "name": "高晶装备原件",
+                    "label": "$item.CrystonComponent",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/产物.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 186
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 186
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 186
                         }
                     }
                 }

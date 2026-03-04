@@ -1,6 +1,6 @@
 {
     "__ScenePrivateAnyEnterWorldSuccess": {
-        "doc": "从任意界面进入大世界成功",
+        "desc": "从任意界面进入大世界成功",
         "recognition": {
             "type": "And",
             "param": {
@@ -10,10 +10,20 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 0,
+        "pre_wait_freezes": {
+            "target": [
+                70, 
+                80, 
+                70, 
+                60
+            ],
+            "time": 400,
+            "timeout": 2000
+        }
     },
     "__ScenePrivateWorldFactoryDisableEnterFactoryActive": {
-        "doc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",
+        "desc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",
         "recognition": {
             "type": "And",
             "param": {
@@ -61,7 +71,7 @@
         ]
     },
     "__ScenePrivateWorldFactoryNotActiveEnterFactoryActive": {
-        "doc": "在大世界工厂模式未激活，进入工厂模式",
+        "desc": "在大世界工厂模式未激活，进入工厂模式",
         "recognition": {
             "type": "And",
             "param": {
@@ -113,7 +123,7 @@
         ]
     },
     "__ScenePrivateWorldDijiangEnterFactoryActive": {
-        "doc": "在大世界帝江号，进入工厂模式",
+        "desc": "在大世界帝江号，进入工厂模式",
         "recognition": {
             "type": "And",
             "param": {
@@ -162,7 +172,7 @@
         ]
     },
     "__ScenePrivateWorldAnyEnterFactory": {
-        "doc": "在任意大世界界面，进入工厂模式",
+        "desc": "在任意大世界界面，进入工厂模式",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -186,7 +196,7 @@
         ]
     },
     "__ScenePrivateAnyEnterWorldFactorySuccess": {
-        "doc": "从任意界面进入大世界工厂模式成功",
+        "desc": "从任意界面进入大世界工厂模式成功",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

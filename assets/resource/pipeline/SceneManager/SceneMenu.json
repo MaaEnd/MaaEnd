@@ -1,6 +1,6 @@
 {
     "__ScenePrivateWorldEnterMenuList": {
-        "doc": "从大世界进入菜单总列表",
+        "desc": "从大世界进入菜单总列表",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -36,7 +36,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuListSuccess": {
-        "doc": "成功进入菜单总列表",
+        "desc": "成功进入菜单总列表",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -55,7 +55,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuRegionalDevelopment": {
-        "doc": "从大世界进入地区建设菜单",
+        "desc": "从大世界进入地区建设菜单",
         "recognition": {
             "type": "And",
             "param": {
@@ -75,7 +75,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuRegionalDevelopment": {
-        "doc": "从菜单列表进入地区建设菜单",
+        "desc": "从菜单列表进入地区建设菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -111,7 +111,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuRegionalDevelopmentSuccess": {
-        "doc": "成功进入地区建设菜单",
+        "desc": "成功进入地区建设菜单",
         "recognition": {
             "type": "And",
             "param": {
@@ -124,7 +124,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuEvent": {
-        "doc": "从大世界进入活动菜单",
+        "desc": "从大世界进入活动菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -160,7 +160,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuEvent": {
-        "doc": "从菜单列表进入活动菜单",
+        "desc": "从菜单列表进入活动菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -196,7 +196,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuEventSuccess": {
-        "doc": "成功进入活动菜单",
+        "desc": "成功进入活动菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -219,7 +219,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuValuables": {
-        "doc": "从大世界进入贵重品库菜单",
+        "desc": "从大世界进入贵重品库菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -255,7 +255,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuValuables": {
-        "doc": "从菜单列表进入贵重品库菜单",
+        "desc": "从菜单列表进入贵重品库菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -291,7 +291,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuValuablesSuccess": {
-        "doc": "成功进入贵重品库菜单",
+        "desc": "成功进入贵重品库菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -314,7 +314,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuOperationalManual": {
-        "doc": "从大世界进入行动手册菜单",
+        "desc": "从大世界进入行动手册菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -350,7 +350,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuOperationalManual": {
-        "doc": "从菜单列表进入行动手册菜单",
+        "desc": "从菜单列表进入行动手册菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -386,7 +386,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuOperationalManualSuccess": {
-        "doc": "成功进入行动手册菜单",
+        "desc": "成功进入行动手册菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -409,7 +409,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuProtocolPass": {
-        "doc": "从大世界进入通行证菜单",
+        "desc": "从大世界进入通行证菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -445,7 +445,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuProtocolPass": {
-        "doc": "从菜单列表进入通行证菜单",
+        "desc": "从菜单列表进入通行证菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -481,7 +481,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuProtocolPassSuccess": {
-        "doc": "成功进入通行证菜单",
+        "desc": "成功进入通行证菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -502,7 +502,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuFriends": {
-        "doc": "从大世界进入好友菜单",
+        "desc": "从大世界进入好友菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -526,7 +526,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuFriends": {
-        "doc": "从菜单列表进入好友菜单",
+        "desc": "从菜单列表进入好友菜单",
         "recognition": "And",
         "all_of": [
             {
@@ -583,7 +583,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuFriendsSuccess": {
-        "doc": "成功进入好友菜单",
+        "desc": "成功进入好友菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -687,7 +687,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuGearAssembly": {
-        "doc": "从大世界进入装备加工界面",
+        "desc": "从大世界进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -711,7 +711,7 @@
         ]
     },
     "__ScenePrivateMenuListEnterMenuGearAssembly": {
-        "doc": "从菜单列表进入装备加工界面",
+        "desc": "从菜单列表进入装备加工界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -747,7 +747,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuGearAssemblySuccess": {
-        "doc": "成功进入装备加工界面",
+        "desc": "成功进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -768,7 +768,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldEnterMenuEmail": {
-        "doc": "从大世界进入邮箱菜单",
+        "desc": "从大世界进入邮箱菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -804,7 +804,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuEmailSuccess": {
-        "doc": "成功进入邮箱菜单",
+        "desc": "成功进入邮箱菜单",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -827,7 +827,7 @@
         "post_delay": 0
     },
     "__ScenePrivateWorldFactoryEnterMenuBluePrint": {
-        "doc": "从大世界工厂模式进入蓝图菜单",
+        "desc": "从大世界工厂模式进入蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -862,7 +862,7 @@
         ]
     },
     "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
-        "doc": "从大世界工厂模式进入装备加工界面",
+        "desc": "从大世界工厂模式进入装备加工界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -897,7 +897,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuBluePrintSuccess": {
-        "doc": "成功切换到蓝图菜单",
+        "desc": "成功切换到蓝图菜单",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1038,7 +1038,7 @@
         ]
     },
     "__ScenePrivateWorldEnterMenuBaker": {
-        "doc": "从大世界进入Baker界面",
+        "desc": "从大世界进入Baker界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1074,7 +1074,7 @@
         ]
     },
     "__ScenePrivateAnyEnterMenuBakerSuccess": {
-        "doc": "成功进入Baker界面",
+        "desc": "成功进入Baker界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -1198,23 +1198,19 @@
         ]
     },
     "__ScenePrivateWorldEnterMenuCheckMainUI": {
-        "doc": "检测主界面（未展开），点击 ` 展开",
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 1000
-        },
+        "desc": "检测主界面（未展开），点击 ` 展开",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SceneManager/Expand.png",
-                "threshold": 0.8,
-                "green_mask": true,
                 "roi": [
                     700,
                     0,
                     580,
                     83
-                ]
+                ],
+                "template": "SceneManager/Expand.png",
+                "green_mask": true,
+                "threshold": 0.8
             }
         },
         "action": {
@@ -1222,27 +1218,24 @@
             "param": {
                 "key": 192 // `
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 1000
         }
     },
     "__ScenePrivateWorldEnterMenuEntryShop": {
-        "doc": "进入商店",
-        "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
-        },
-        "focus": {
-            "Node.PipelineNode.Failed": "进入商店菜单失败"
-        },
+        "desc": "进入商店",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "SceneManager/ShoppingEntry.png",
                 "roi": [
                     700,
                     0,
                     425,
                     80
-                ]
+                ],
+                "template": "SceneManager/ShoppingEntry.png"
             }
         },
         "action": {
@@ -1251,12 +1244,19 @@
                 "key": 116 // F5
             }
         },
+        "post_wait_freezes": {
+            "time": 500,
+            "timeout": 2000
+        },
         "next": [
             "__ScenePrivateAnyEnterMenuShopSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入商店菜单失败"
+        }
     },
     "__ScenePrivateAnyEnterMenuShopSuccess": {
-        "doc": "成功进入商店菜单",
+        "desc": "成功进入商店菜单",
         "recognition": {
             "type": "OCR",
             "param": {

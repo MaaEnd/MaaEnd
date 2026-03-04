@@ -1,9 +1,9 @@
 {
     "__ScenePrivateNextTrue": {
-        "doc": "识别结果永远为真，用于退出next循环"
+        "desc": "识别结果永远为真，用于退出next循环"
     },
     "__ScenePrivateAnyExit": {
-        "doc": "退出当前场景，返回上一个场景",
+        "desc": "退出当前场景，返回上一个场景",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -13,7 +13,7 @@
         "post_delay": 800 // 等待弹框出现完毕
     },
     "__ScenePrivateEndVisitConfirm": {
-        "doc": "识别结束拜访的确认弹框",
+        "desc": "识别结束拜访的确认弹框",
         "recognition": {
             "type": "OCR",
             "param": {

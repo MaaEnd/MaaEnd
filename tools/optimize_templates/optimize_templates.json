@@ -412,5 +412,18 @@
     "resource/image/MapLocator/ValleyIV/Lv006Tier109": "57edef6b188cf66a7d893e74b23f3b77121ca84be85d27c44f96870c869dd8fb",
     "resource/image/MapLocator/ValleyIV/Lv001Tier174": "94b21030bc3d0787ab394c91e22731c5aadae942dd0f88f788740ce1aa72ae0f",
     "resource/image/MapLocator/ValleyIV/Lv007Tier130": "a12d365e12cef6ab9918b971959cf843f377b21c4f2c0cb2d38197c0b256cca6",
-    "resource/image/MapLocator/ValleyIV/Lv002Tier120": "e200185038411d8566c6bdd116433cdc4b3b8da8c77ad277fb500ac9fc2adc1c"
+    "resource/image/MapLocator/ValleyIV/Lv002Tier120": "e200185038411d8566c6bdd116433cdc4b3b8da8c77ad277fb500ac9fc2adc1c",
+    "resource/image/ProtocolSpace/OperatorEXP": "f167ac798184323a584ca8ebf3671bf6999b3530d542b983a6df04adad218e81",
+    "resource/image/ProtocolSpace/WeaponTune": "3cd10b6965779bd374a3af02771e97b3e453ce49f81746c0a9fbff831601d089",
+    "resource/image/ProtocolSpace/Promotions": "95a15330326c25dfcbcc8072f2c6d3277f91cabd9460fd1fdf04304eba09e72a",
+    "resource/image/ProtocolSpace/AdvancedProgression3": "9294495ba481629847aff070e83f0bfa5f68bdf2c73cb5c72bf73c0ec9a3c844",
+    "resource/image/ProtocolSpace/RetreatSpace": "d774e1c78c01ff2d6540ec4f07167e671a2cbee08baa11ab81a2bff70f242b3c",
+    "resource/image/ProtocolSpace/AdvancedProgression1": "2821c2afd98083ebda0847f1648cee672da117d7b7f225c202cdffbe351bd40e",
+    "resource/image/ProtocolSpace/RewardClose": "137ca95fb8bc822f37ee24626fc873bf4853f9f6aa7735151a81b5e5cd65fb6a",
+    "resource/image/ProtocolSpace/AdvancedProgression5": "4343192818c92f9137b3641ffbc22b14b7f9c45fc4c618df82c22d64643e54ae",
+    "resource/image/ProtocolSpace/SkillUp": "7d009095a599588def79a3105db63bcd15202952ba394518620634d98c2bc917",
+    "resource/image/ProtocolSpace/WeaponEXP": "8ef4e08bbb86bae51d44047459ac3a150689502c2d2b7d92aa35e15974002a5d",
+    "resource/image/ProtocolSpace/AdvancedProgression4": "f10ed409c594b85ec0b5d62cd2172356bf34e55fa3f0c043e3504b857d38a9b8",
+    "resource/image/ProtocolSpace/AdvancedProgression2": "e06a467a3a75637d5753a8d1627eece202ff21bc44b53642287d9285ab037a7d",
+    "resource/image/ProtocolSpace/T-Creds": "baa557a2562540d75c29525e3eb93c0c294fc8d59fd591646724b08e759c785a"
 }

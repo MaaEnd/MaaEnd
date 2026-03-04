@@ -26,21 +26,21 @@
                     60,
                     0
                 ],
-                "upper": [
-                    255,
-                    168,
-                    168
-                ],
                 "lower": [
                     243,
                     0,
                     0
+                ],
+                "upper": [
+                    255,
+                    168,
+                    168
                 ]
             }
         }
     },
     "CanNotFlash": {
-        "doc": "无法刷新（信用点不足）",
+        "desc": "无法刷新（信用点不足）",
         "recognition": "And",
         "all_of": [
             "RefreshText",

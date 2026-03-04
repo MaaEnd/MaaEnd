@@ -222,10 +222,10 @@ func (aw *ActionWrapper) KeyTypeSync(keyCode int, delayMillis int) {
 }
 
 // RotateCamera performs a camera rotation via series of mouse-keyboard operations
-func (aw *ActionWrapper) RotateCamera(dx int, durationMillis int, delayMillis int) {
+func (aw *ActionWrapper) RotateCamera(dx int, delayMillis int) {
 	cx, cy := WORK_W/2, WORK_H/2
-	stepDelayMillis := delayMillis / 3
-	aw.SwipeSync(cx, cy, dx, 0, durationMillis)
+	stepDelayMillis := delayMillis / 4
+	aw.SwipeSync(cx, cy, dx, 0, stepDelayMillis)
 	aw.KeyDownSync(KEY_ALT, stepDelayMillis)
 	aw.ClickSync(0, cx, cy, stepDelayMillis)
 	aw.KeyUpSync(KEY_ALT, stepDelayMillis)

@@ -1,13 +1,13 @@
 {
     "EnvironmentMonitoringMain": {
-        "doc": "环境监测",
+        "desc": "环境监测",
         "next": [
             "EnvironmentMonitoringGoToMonitoringTerminal",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
     "EnvironmentMonitoringGoToMonitoringTerminal": {
-        "doc": "前往监测终端",
+        "desc": "前往监测终端",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
@@ -19,7 +19,7 @@
         ]
     },
     "EnvironmentMonitoringLoop": {
-        "doc": "主循环，确保在环境监测界面",
+        "desc": "主循环，确保在环境监测界面",
         "recognition": "And",
         "all_of": [
             "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
@@ -37,6 +37,6 @@
         ]
     },
     "EnvironmentMonitoringFinish": {
-        "doc": "环境监测完成"
+        "desc": "环境监测完成"
     }
 }

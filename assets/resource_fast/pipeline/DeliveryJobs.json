@@ -1,13 +1,13 @@
 {
     // 自动转交运送委托
     "DeliveryJobsMain": {
-        "doc": "开始自动转交运送委托",
+        "desc": "开始自动转交运送委托",
         "next": [
             "DeliveryJobsLoop"
         ]
     },
     "DeliveryJobsLoop": {
-        "doc": "主循环，同时支持地区建设界面和本地仓储节点界面",
+        "desc": "主循环，同时支持地区建设界面和本地仓储节点界面",
         "recognition": "Or",
         "any_of": [
             "InRegionalDevelopment",
@@ -21,7 +21,7 @@
         ]
     },
     "DeliveryJobsAuto": {
-        "doc": "自动选择起始地区运送委托",
+        "desc": "自动选择起始地区运送委托",
         "max_hit": 1,
         "next": [
             "DeliveryJobsAutoValleyIV",
@@ -29,7 +29,7 @@
         ]
     },
     "DeliveryJobsAutoValleyIV": {
-        "doc": "自动选择四号谷地运送委托",
+        "desc": "自动选择四号谷地运送委托",
         "recognition": "Or",
         "any_of": [
             "InValleyIVRegionalDevelopment",
@@ -41,7 +41,7 @@
         ]
     },
     "DeliveryJobsAutoWuling": {
-        "doc": "自动选择武陵运送委托",
+        "desc": "自动选择武陵运送委托",
         "recognition": "Or",
         "any_of": [
             "InWulingRegionalDevelopment",
@@ -53,7 +53,7 @@
         ]
     },
     "DeliveryJobsValleyIV": {
-        "doc": "四号谷地运送委托",
+        "desc": "四号谷地运送委托",
         "max_hit": 1,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
@@ -66,7 +66,7 @@
         ]
     },
     "DeliveryJobsWuling": {
-        "doc": "武陵运送委托",
+        "desc": "武陵运送委托",
         "max_hit": 1,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
@@ -77,6 +77,6 @@
         ]
     },
     "DeliveryJobsFinished": {
-        "doc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服"
+        "desc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服"
     }
 }

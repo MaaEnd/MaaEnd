@@ -439,23 +439,39 @@
             ]
         },
         "AutoTaskInterval": {
-            "type": "input",
+            "type": "select",
             "label": "$option.AutoTaskInterval.label",
-            "inputs": [
+            "description": "$option.AutoTaskInterval.description",
+            "default_case": "AutoTaskIntervalNormal",
+            "cases": [
                 {
-                    "name": "CheckInterval",
-                    "label": "$option.AutoTaskInterval.inputs.CheckInterval.label",
-                    "description": "$option.AutoTaskInterval.inputs.CheckInterval.description",
-                    "pipeline_type": "int",
-                    "verify": "^\\d+$",
-                    "default": "400"
+                    "name": "AutoTaskIntervalFast",
+                    "label": "$option.AutoTaskInterval.cases.AutoTaskIntervalFast.label",
+                    "pipeline_override": {
+                        "RealTimeSleep": {
+                            "post_delay": 50
+                        }
+                    }
+                },
+                {
+                    "name": "AutoTaskIntervalNormal",
+                    "label": "$option.AutoTaskInterval.cases.AutoTaskIntervalNormal.label",
+                    "pipeline_override": {
+                        "RealTimeSleep": {
+                            "post_delay": 200
+                        }
+                    }
+                },
+                {
+                    "name": "AutoTaskIntervalSlow",
+                    "label": "$option.AutoTaskInterval.cases.AutoTaskIntervalSlow.label",
+                    "pipeline_override": {
+                        "RealTimeSleep": {
+                            "post_delay": 400
+                        }
+                    }
                 }
-            ],
-            "pipeline_override": {
-                "RealTimeTaskMain": {
-                    "post_delay": "{CheckInterval}"
-                }
-            }
+            ]
         },
         "AutoZipline": {
             "type": "switch",

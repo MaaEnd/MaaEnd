@@ -1,6 +1,6 @@
 {
     "InWorld": {
-        "doc": "在大世界界面",
+        "desc": "在大世界界面",
         "recognition": "Or",
         "any_of": [
             "ProtosyncMenuButton",
@@ -8,14 +8,14 @@
         ]
     },
     "InDijiangWorld": {
-        "doc": "在帝江号大世界中",
+        "desc": "在帝江号大世界中",
         "recognition": "And",
         "all_of": [
             "ControlNexusButton"
         ]
     },
     "InRegionalDevelopment": {
-        "doc": "在地区建设界面",
+        "desc": "在地区建设界面",
         "recognition": "And",
         "all_of": [
             "CheckRegionalDevelopmentText",
@@ -24,7 +24,7 @@
         ]
     },
     "InValleyIVRegionalDevelopment": {
-        "doc": "在四号谷地地区建设界面",
+        "desc": "在四号谷地地区建设界面",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment",
@@ -32,7 +32,7 @@
         ]
     },
     "InWulingRegionalDevelopment": {
-        "doc": "在武陵地区建设界面",
+        "desc": "在武陵地区建设界面",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment",
@@ -40,14 +40,23 @@
         ]
     },
     "InLocalDepotNode": {
-        "doc": "在本地仓储节点界面",
+        "desc": "在本地仓储节点界面",
         "recognition": "And",
         "all_of": [
             "CheckLocalDepotNodeText"
-        ]
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        }
     },
     "InClaimDeliveryJobsNode": {
-        "doc": "在[我转交的委托]界面",
+        "desc": "在[我转交的委托]界面",
         "recognition": "And",
         "all_of": [
             "CheckLocalDepotNodeText",
@@ -55,7 +64,7 @@
         ]
     },
     "InValleyIVLocalDepotNode": {
-        "doc": "在四号谷地本地仓储节点界面",
+        "desc": "在四号谷地本地仓储节点界面",
         "recognition": "And",
         "all_of": [
             "InLocalDepotNode",
@@ -73,7 +82,7 @@
         }
     },
     "InWulingLocalDepotNode": {
-        "doc": "在武陵本地仓储节点界面",
+        "desc": "在武陵本地仓储节点界面",
         "recognition": "And",
         "all_of": [
             "InLocalDepotNode",

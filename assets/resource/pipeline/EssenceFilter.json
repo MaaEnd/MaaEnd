@@ -14,13 +14,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "EssenceFilter/EssenceTabNotChoose.png",
                 "roi": [
                     350,
                     0,
                     500,
                     80
                 ],
+                "template": "EssenceFilter/EssenceTabNotChoose.png",
                 "threshold": 0.9
             }
         },

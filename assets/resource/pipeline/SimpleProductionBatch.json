@@ -11,20 +11,20 @@
     // [ 1. 2. 3. 4. 5.] 循环进行，可以变相加速
     // 只有检测到 [2] [5] 直接结束任务
     "SimpleProductionBatchStart": {
-        "doc": "开始执行批量简易制作",
+        "desc": "开始执行批量简易制作",
         "next": [
             "CheckIsSimpleProductionPage",
             "SimpleProductionBatchEnd"
         ]
     },
     "SimpleProductionBatchEnd": {
-        "doc": "不是简易制作页面，非法情况直接结束",
+        "desc": "不是简易制作页面，非法情况直接结束",
         "focus": {
             "Node.Action.Succeeded": "$task.SimpleProductionBatch.error_not_found"
         }
     },
     "SimpleProductionBatchLoop": {
-        "doc": "SimpleProductionBatch 的循环模式。能进到这里说明确定是在简易制作页面了，只有执行到无法制作的时候才会退出",
+        "desc": "SimpleProductionBatch 的循环模式。能进到这里说明确定是在简易制作页面了，只有执行到无法制作的时候才会退出",
         "next": [
             "CheckIsSimpleProductionPage",
             // 循环模式中不是简易制作页面 ↑ 就是成功页面 ↓
@@ -33,43 +33,43 @@
         ]
     },
     "CheckCantProduceAnyMore": {
-        "doc": "检测是否材料不足，没有材料直接结束",
+        "desc": "检测是否材料不足，没有材料直接结束",
         "recognition": "OCR",
-        "expected": [
-            "当前材料不足"
-        ],
         "roi": [
             986,
             616,
             294,
             104
+        ],
+        "expected": [
+            "当前材料不足"
         ]
     },
     "CheckMaterialEnough": {
-        "doc": "检测背包是否已满，背包已满直接结束",
+        "desc": "检测背包是否已满，背包已满直接结束",
         "recognition": "OCR",
-        "expected": [
-            "空间已满",
-            "可销毁或丢弃部分"
-        ],
         "roi": [
             409,
             81,
             439,
             82
+        ],
+        "expected": [
+            "空间已满",
+            "可销毁或丢弃部分"
         ]
     },
     "CheckIsSimpleProductionPage": {
-        "doc": "检测是否处于 [简易制作页面]",
+        "desc": "检测是否处于 [简易制作页面]",
         "recognition": "OCR",
-        "expected": [
-            "应急食药"
-        ],
         "roi": [
             0,
             0,
             263,
             117
+        ],
+        "expected": [
+            "应急食药"
         ],
         "next": [
             "CheckCantProduceAnyMore", // 进行材料退出判断，在这里直接判断到就直接退出
@@ -78,16 +78,16 @@
         ]
     },
     "ClickMaxBtn": {
-        "doc": "点击最大数量按钮",
+        "desc": "点击最大数量按钮",
         "recognition": "TemplateMatch",
-        "template": "SimpleProductionBatch/MaxProductionBtn.png",
-        "threshold": 0.95,
         "roi": [
             1192,
             562,
             81,
             80
         ],
+        "template": "SimpleProductionBatch/MaxProductionBtn.png",
+        "threshold": 0.95,
         "action": "Click",
         "next": [
             // 点击完 Max 制作按钮直接点击制作按钮
@@ -95,15 +95,15 @@
         ]
     },
     "ClickProduceBtn": {
-        "doc": "点击制作按钮",
+        "desc": "点击制作按钮",
         "recognition": "TemplateMatch",
-        "template": "SimpleProductionBatch/ProduceBtn.png",
         "roi": [
             1134,
             614,
             139,
             95
         ],
+        "template": "SimpleProductionBatch/ProduceBtn.png",
         "action": "Click",
         "next": [
             "CheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
@@ -114,14 +114,14 @@
     },
     "ClickSimpleProductionSuccess": {
         "recognition": "OCR",
-        "expected": [
-            "制作成功"
-        ],
         "roi": [
             570,
             55,
             142,
             84
+        ],
+        "expected": [
+            "制作成功"
         ],
         "next": [
             "ClickSimpleProductionRightDown"
@@ -129,20 +129,21 @@
     },
     "ClickSimpleProductionSuccess2": {
         "recognition": "OCR",
-        "expected": [
-            "制作成功"
-        ],
         "roi": [
             559,
             335,
             161,
             102
         ],
+        "expected": [
+            "制作成功"
+        ],
         "next": [
             "ClickSimpleProductionRightDown"
         ]
     },
     "ClickSimpleProductionRightDown": {
+        "pre_delay": 0,
         "action": "Click", // 看到制作成功之后，点击一下右下角
         "target": [
             // 右下角固定的一块区域
@@ -151,7 +152,6 @@
             203,
             117
         ],
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             // 点击之后 进入 loop

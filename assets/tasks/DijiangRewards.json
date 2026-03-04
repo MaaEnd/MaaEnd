@@ -499,11 +499,11 @@
                             "recognition": {
                                 "type": "And",
                                 "param": {
-                                    "box_index": 1,
                                     "all_of": [
                                         "SelectGrowTarget",
                                         "CheckGrowTargetEmpty"
-                                    ]
+                                    ],
+                                    "box_index": 1
                                 }
                             }
                         },
