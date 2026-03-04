@@ -1,0 +1,13 @@
+{
+    "task": [
+        {
+            "name": "GiftOperator",
+            "label": "$task.GiftOperator.label",
+            "entry": "GiftOperatorMain",
+            "description": "$task.GiftOperator.description",
+            "controller": [
+                "Win32-Front"
+            ]
+        }
+    ]
+}

@@ -364,5 +364,5 @@
     "preset.EssenceFarming.label": "基質刷取",
     "preset.EssenceFarming.description": "基質養成及篩選相關",
     "task.GiftOperator.label": "🎁贈送幹員禮物",
-    "task.GiftOperator.description": "從任意介面進入帝江號艦橋，為幹員送禮物（開發中）"
+    "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。\n注意：此任務僅在「電腦端-前台」連接配置下可用。執行期間請勿移動滑鼠，否則可能導致任務失敗。"
 }

@@ -364,5 +364,5 @@
     "preset.EssenceFarming.label": "基质刷取",
     "preset.EssenceFarming.description": "基质养成及筛选相关",
     "task.GiftOperator.label": "🎁赠送干员礼物",
-    "task.GiftOperator.description": "从任意界面进入帝江号舰桥，为干员送礼物（开发中）"
+    "task.GiftOperator.description": "给一名幸运干员赠送一个礼物，顺便领取 TA 给的礼物（如果有）。\n注意：此任务仅在「电脑端-前台」连接配置下可用。执行期间请勿移动鼠标，否则可能导致任务失败。"
 }

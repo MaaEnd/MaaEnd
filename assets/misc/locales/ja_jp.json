@@ -364,5 +364,5 @@
     "preset.EssenceFarming.label": "エッセンス周回",
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
-    "task.GiftOperator.description": "任意の画面から帝江号ブリッジに移動し、オペレーターにプレゼントを贈る（開発中）"
+    "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。\n注意：このタスクは「PC版-フォアグラウンド」接続設定でのみ利用可能です。実行中はマウスを動かさないでください。タスクが失敗する可能性があります。"
 }

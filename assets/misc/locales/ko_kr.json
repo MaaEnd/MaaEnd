@@ -364,5 +364,5 @@
     "preset.EssenceFarming.label": "에센스 파밍",
     "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
-    "task.GiftOperator.description": "임의의 화면에서 제강호 함교로 이동하여 오퍼레이터에게 선물하기 (개발 중)"
+    "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).\n주의: 이 작업은 \"Win32-Front\" 컨트롤러에서만 사용할 수 있습니다. 실행 중 마우스를 움직이지 마세요. 작업이 실패할 수 있습니다."
 }

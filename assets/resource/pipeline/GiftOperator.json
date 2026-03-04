@@ -1,0 +1,906 @@
+{
+    "$__mpe_config_新建Pipeline4": {
+        "$__mpe_code": {
+            "filePath": "F:\\Dev\\MaaEnd\\assets\\resource\\pipeline\\GiftOperator.json",
+            "filename": "新建Pipeline4",
+            "isModifiedExternally": false,
+            "lastSyncTime": 1772619008528,
+            "prefix": "",
+            "savedViewport": {
+                "x": -1393,
+                "y": -845,
+                "zoom": 0.8
+            },
+            "version": "v1.2.1"
+        }
+    },
+    "$__mpe_external_SceneEnterWorldDijiang0_新建Pipeline4": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3212,
+                "y": 1140
+            }
+        }
+    },
+    "GiftOperatorBagFull": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3212,
+                "y": 388
+            }
+        },
+        "doc": "背包已满，无法领取礼物",
+        "focus": {
+            "Node.Recognition.Succeeded": "⚠️ 背包已满，无法领取干员礼物，请手动清理背包"
+        },
+        "next": [
+            "GiftOperatorBagFullLeave"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "礼物"
+                ],
+                "roi": [
+                    528,
+                    107,
+                    219,
+                    34
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "GiftOperatorBagFullDialog": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3852,
+                "y": 382
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "背包满离开后跳过对话",
+        "recognition": {
+            "param": {
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorBagFullLeave": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3532,
+                "y": 376
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "背包满时点击离开",
+        "next": [
+            "GiftOperatorBagFullDialog"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    945,
+                    404,
+                    228,
+                    249
+                ],
+                "template": [
+                    "GiftOperator/Leave.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorBranchGift": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2892,
+                "y": 12
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "分支1：可以赠送礼物",
+        "next": [
+            "GiftOperatorGiftUI"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    929,
+                    393,
+                    239,
+                    220
+                ],
+                "template": [
+                    "GiftOperator/GiftGiving.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorBranchMaxAffinity": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2892,
+                "y": 740
+            }
+        },
+        "doc": "分支3：好感度已满",
+        "focus": {
+            "Node.Recognition.Succeeded": "⚠️ 干员好感度已满"
+        },
+        "next": [
+            "GiftOperatorLeave"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    951,
+                    410,
+                    236,
+                    195
+                ],
+                "template": [
+                    "GiftOperator/LikeAbility.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorBranchReceive": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2892,
+                "y": 377
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "分支2：干员给你送礼，点击领取",
+        "next": [
+            "GiftOperatorReceiveDialog",
+            "GiftOperatorBagFull"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    948,
+                    462,
+                    193,
+                    133
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipTip.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorChatAltDown": {
+        "$__mpe_code": {
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "doc": "按下 ALT 激活光标，准备点击干员对话",
+        "next": [
+            "GiftOperatorWaitChat"
+        ]
+    },
+    "GiftOperatorChatAltUp": {
+        "$__mpe_code": {
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "doc": "松开 ALT",
+        "next": [
+            "GiftOperatorSkipDialog"
+        ]
+    },
+    "GiftOperatorCheckContact": {
+        "$__mpe_code": {
+            "position": {
+                "x": 332,
+                "y": 1299
+            }
+        },
+        "doc": "确认已进入干员联络界面",
+        "next": [
+            "GiftOperatorSelectOp1"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "干员联络"
+                ],
+                "roi": [
+                    144,
+                    105,
+                    163,
+                    75
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "GiftOperatorCheckSelected1": {
+        "$__mpe_code": {
+            "position": {
+                "x": 972,
+                "y": 1267
+            }
+        },
+        "doc": "确认第一个干员已选中",
+        "next": [
+            "GiftOperatorSelectOp2"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect1.png"
+                ],
+                "threshold": 0.8
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorCheckSelected2": {
+        "$__mpe_code": {
+            "position": {
+                "x": 1612,
+                "y": 1283
+            }
+        },
+        "doc": "确认第二个干员已选中",
+        "next": [
+            "GiftOperatorSelectOp3"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorCheckSelected3": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2252,
+                "y": 1283
+            }
+        },
+        "doc": "确认第三个干员已选中",
+        "next": [
+            "GiftOperatorConfirmSelect"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    537,
+                    170,
+                    574,
+                    324
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect3.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorClickContact": {
+        "$__mpe_code": {
+            "position": {
+                "x": 13,
+                "y": 1336
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "按住 ALT 点击干员联络台",
+        "max_hit": 3,
+        "next": [
+            "GiftOperatorContactAltUp"
+        ],
+        "on_error": [
+            "GiftOperatorRetryFromBridge"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    722,
+                    312,
+                    481,
+                    362
+                ],
+                "template": [
+                    "GiftOperator/OperatorContact.png"
+                ],
+                "threshold": [
+                    0.7
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorClickGift": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3532,
+                "y": 64
+            }
+        },
+        "action": {
+            "param": {
+                "target": [
+                    80,
+                    550,
+                    16,
+                    16
+                ]
+            },
+            "type": "Click"
+        },
+        "doc": "选择礼物",
+        "next": [
+            "GiftOperatorGiftSelected"
+        ]
+    },
+    "GiftOperatorConfirmGift": {
+        "$__mpe_code": {
+            "position": {
+                "x": 4172,
+                "y": 41
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "点击赠送按钮",
+        "next": [
+            "GiftOperatorGiftDialog"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    1201,
+                    629,
+                    48,
+                    62
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ],
+                "threshold": [
+                    0.46
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorConfirmSelect": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2572,
+                "y": 1279
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "点击确认按钮呼唤干员",
+        "next": [
+            "GiftOperatorChatAltDown"
+        ],
+        "on_error": [
+            "GiftOperatorRetryFromBridge"
+        ],
+        "recognition": {
+            "param": {
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorContactAltDown": {
+        "$__mpe_code": {
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyDown"
+        },
+        "doc": "按下 ALT 激活鼠标光标，准备点击联络台",
+        "next": [
+            "GiftOperatorClickContact"
+        ]
+    },
+    "GiftOperatorContactAltUp": {
+        "$__mpe_code": {
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        },
+        "action": {
+            "param": {
+                "key": 18
+            },
+            "type": "KeyUp"
+        },
+        "doc": "松开 ALT",
+        "next": [
+            "GiftOperatorCheckContact"
+        ]
+    },
+    "GiftOperatorGiftDialog": {
+        "$__mpe_code": {
+            "position": {
+                "x": 4492,
+                "y": 27
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "赠送后跳过对话",
+        "next": [
+            "GiftOperatorLeave"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorGiftSelected": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3852,
+                "y": 26
+            }
+        },
+        "doc": "确认礼物已选中",
+        "next": [
+            "GiftOperatorConfirmGift"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    69,
+                    504,
+                    63,
+                    53
+                ],
+                "template": [
+                    "GiftOperator/YellowSelect1.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorGiftUI": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3212,
+                "y": 49
+            }
+        },
+        "doc": "进入送礼界面，确认已加载",
+        "next": [
+            "GiftOperatorClickGift"
+        ],
+        "recognition": {
+            "param": {
+                "expected": [
+                    "默认"
+                ],
+                "roi": [
+                    44,
+                    649,
+                    36,
+                    25
+                ]
+            },
+            "type": "OCR"
+        }
+    },
+    "GiftOperatorInDijiang0": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3212,
+                "y": 1280
+            }
+        },
+        "doc": "确认已在帝江号舰桥大世界",
+        "next": [
+            "GiftOperatorMove"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": [
+                    "GiftOperator/Check_Dijiang.png"
+                ],
+                "threshold": 0.7
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorLeave": {
+        "$__mpe_code": {
+            "position": {
+                "x": 4812,
+                "y": 96
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "点击离开",
+        "recognition": {
+            "param": {
+                "roi": [
+                    945,
+                    404,
+                    228,
+                    249
+                ],
+                "template": [
+                    "GiftOperator/Leave.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorMain": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2892,
+                "y": 1357
+            }
+        },
+        "doc": "赠送干员礼物 - 入口节点",
+        "next": [
+            "GiftOperatorInDijiang0",
+            "[JumpBack]SceneEnterWorldDijiang0"
+        ],
+        "post_delay": 0,
+        "pre_delay": 0
+    },
+    "GiftOperatorMove": {
+        "$__mpe_code": {
+            "position": {
+                "x": 3532,
+                "y": 1443
+            }
+        },
+        "action": {
+            "param": {
+                "custom_action": "ReplayRecordedInput",
+                "custom_action_param": {
+                    "steps": [
+                        {
+                            "action": "down",
+                            "key": "W",
+                            "t": 0
+                        },
+                        {
+                            "action": "down",
+                            "key": "A",
+                            "t": 0
+                        },
+                        {
+                            "action": "up",
+                            "key": "A",
+                            "t": 1613
+                        },
+                        {
+                            "action": "down",
+                            "key": "A",
+                            "t": 2542
+                        },
+                        {
+                            "action": "up",
+                            "key": "W",
+                            "t": 5325
+                        },
+                        {
+                            "action": "down",
+                            "key": "W",
+                            "t": 5982
+                        },
+                        {
+                            "action": "up",
+                            "key": "W",
+                            "t": 7560
+                        },
+                        {
+                            "action": "up",
+                            "key": "A",
+                            "t": 8389
+                        },
+                        {
+                            "action": "down",
+                            "key": "A",
+                            "t": 9740
+                        },
+                        {
+                            "action": "up",
+                            "key": "A",
+                            "t": 9963
+                        }
+                    ]
+                }
+            },
+            "type": "Custom"
+        },
+        "doc": "回放录制的 W/A 操作走到干员联络台",
+        "next": [
+            "GiftOperatorContactAltDown"
+        ]
+    },
+    "GiftOperatorReceiveDialog": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2252,
+                "y": 577
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "领取成功后跳过对话，回到对话流程",
+        "next": [
+            "GiftOperatorChatAltDown",
+            "GiftOperatorWaitChat",
+            "GiftOperatorSkipDialog",
+            "GiftOperatorBranchGift",
+            "GiftOperatorBranchMaxAffinity",
+            "GiftOperatorLeave"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorRetryFromBridge": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2892,
+                "y": 1066
+            }
+        },
+        "doc": "识别联络台失败，返回舰桥重新走",
+        "focus": {
+            "Node.Action.Succeeded": "未找到干员联络台，正在返回舰桥重试"
+        },
+        "next": [
+            "GiftOperatorInDijiang0",
+            "[JumpBack]SceneEnterWorldDijiang0"
+        ]
+    },
+    "GiftOperatorSelectOp1": {
+        "$__mpe_code": {
+            "position": {
+                "x": 652,
+                "y": 1314
+            }
+        },
+        "action": {
+            "param": {
+                "target": [
+                    589,
+                    242,
+                    5,
+                    3
+                ]
+            },
+            "type": "Click"
+        },
+        "doc": "选择第一个干员",
+        "next": [
+            "GiftOperatorCheckSelected1"
+        ]
+    },
+    "GiftOperatorSelectOp2": {
+        "$__mpe_code": {
+            "position": {
+                "x": 1292,
+                "y": 1314
+            }
+        },
+        "action": {
+            "param": {
+                "target": [
+                    683,
+                    242,
+                    2,
+                    2
+                ]
+            },
+            "type": "Click"
+        },
+        "doc": "选择第二个干员",
+        "next": [
+            "GiftOperatorCheckSelected2"
+        ]
+    },
+    "GiftOperatorSelectOp3": {
+        "$__mpe_code": {
+            "position": {
+                "x": 1932,
+                "y": 1314
+            }
+        },
+        "action": {
+            "param": {
+                "target": [
+                    773,
+                    239,
+                    3,
+                    5
+                ]
+            },
+            "type": "Click"
+        },
+        "doc": "选择第三个干员",
+        "next": [
+            "GiftOperatorCheckSelected3"
+        ]
+    },
+    "GiftOperatorSkipDialog": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2572,
+                "y": 623
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "跳过对话，然后判断三种分支",
+        "next": [
+            "GiftOperatorBranchGift",
+            "GiftOperatorBranchReceive",
+            "GiftOperatorBranchMaxAffinity"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    630,
+                    680,
+                    20,
+                    35
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    },
+    "GiftOperatorWaitChat": {
+        "$__mpe_code": {
+            "position": {
+                "x": 2252,
+                "y": 931
+            }
+        },
+        "action": {
+            "param": {},
+            "type": "Click"
+        },
+        "doc": "等待干员出现并点击对话",
+        "next": [
+            "GiftOperatorChatAltUp"
+        ],
+        "on_error": [
+            "GiftOperatorRetryFromBridge"
+        ],
+        "recognition": {
+            "param": {
+                "roi": [
+                    750,
+                    377,
+                    427,
+                    312
+                ],
+                "template": [
+                    "GiftOperator/OperatorChat.png"
+                ]
+            },
+            "type": "TemplateMatch"
+        }
+    }
+}

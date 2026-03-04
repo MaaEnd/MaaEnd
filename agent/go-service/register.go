@@ -7,6 +7,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
+	inputreplay "github.com/MaaXYZ/MaaEnd/agent/go-service/input-replay"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
@@ -26,6 +27,7 @@ func registerAll() {
 	batchaddfriends.Register()
 	autofight.Register()
 	screenshot.Register()
+	inputreplay.Register()
 
 	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
 	aspectratio.Register()

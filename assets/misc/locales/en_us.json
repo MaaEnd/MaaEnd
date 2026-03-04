@@ -364,5 +364,5 @@
     "preset.EssenceFarming.label": "Essence Farming",
     "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
     "task.GiftOperator.label": "🎁Gift to Operator",
-    "task.GiftOperator.description": "Navigate to Dijiang Bridge from any screen and give gifts to operators (WIP)"
+    "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).\nNote: This task requires the \"Win32-Front\" controller. Do not move the mouse during execution, as it may cause the task to fail."
 }
