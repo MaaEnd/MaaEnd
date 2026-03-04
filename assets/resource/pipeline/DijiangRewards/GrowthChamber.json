@@ -171,6 +171,9 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 100
+        },
         "action": {
             "type": "Click"
         }
