@@ -1,0 +1,65 @@
+name: task issue auto label
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  auto-label-task:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Match task labels by issue content
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title || '';
+            const body = issue.body || '';
+            const issueText = `${title}\n${body}`.toLowerCase();
+
+            const allLabels = await github.paginate(
+              github.rest.issues.listLabelsForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+              }
+            );
+
+            const matchedLabels = [];
+
+            for (const label of allLabels) {
+              const name = label.name || '';
+              const match = name.match(/^task:\s*(.+)$/i);
+              if (!match) {
+                continue;
+              }
+
+              const keyword = (match[1] || '').trim();
+              if (!keyword) {
+                continue;
+              }
+
+              if (issueText.includes(keyword.toLowerCase())) {
+                matchedLabels.push(name);
+              }
+            }
+
+            if (matchedLabels.length === 0) {
+              console.log('No task label matched.');
+              return;
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: matchedLabels,
+            });
+
+            console.log(
+              `Added labels to issue #${issue.number}: ${matchedLabels.join(', ')}`
+            );
