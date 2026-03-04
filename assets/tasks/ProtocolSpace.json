@@ -6,7 +6,8 @@
             "entry": "ProtocolSpaceEntry",
             "description": "$task.ProtocolSpace.description",
             "option": [
-                "ProtocolSpaceCustom",
+                "ProtocolSpaceSuccessCount",
+                "ProtocolSpaceFailedCount",
                 "ProtocolSpaceUsePermit",
                 "ProtocolSpaceTab"
             ],
@@ -16,33 +17,117 @@
         }
     ],
     "option": {
-        "ProtocolSpaceCustom": {
-            "type": "input",
-            "label": "$option.ProtocolSpaceCustom.label",
-            "inputs": [
+        "ProtocolSpaceSuccessCount": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceSuccessCount.label",
+            "default_case": "ProtocolSpaceSuccessCountUnlimited",
+            "cases": [
                 {
-                    "name": "ProtocolSpaceSuccessCount",
-                    "label": "$option.ProtocolSpaceCustom.inputs.ProtocolSpaceSuccessCount.label",
-                    "pipeline_type": "int",
-                    "verify": "^[1-5]$",
-                    "default": "3"
+                    "name": "ProtocolSpaceSuccessCount1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                            "max_hit": 0
+                        }
+                    }
                 },
                 {
-                    "name": "ProtocolSpaceFailedCount",
-                    "label": "$option.ProtocolSpaceCustom.inputs.ProtocolSpaceFailedCount.label",
-                    "pipeline_type": "int",
-                    "verify": "^[1-5]$",
-                    "default": "3"
-                }
-            ],
-            "pipeline_override": {
-                "ProtocolSpaceOperationSuccessExitToWorldContinue": {
-                    "max_hit": "{ProtocolSpaceSuccessCount}"
+                    "name": "ProtocolSpaceSuccessCount2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                            "max_hit": 1
+                        }
+                    }
                 },
-                "ProtocolSpaceOperationFailedExitToWorldContinue": {
-                    "max_hit": "{ProtocolSpaceFailedCount}"
+                {
+                    "name": "ProtocolSpaceSuccessCount3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceSuccessCount4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                            "max_hit": 3
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceSuccessCount5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationSuccessExitToWorldContinue": {
+                            "max_hit": 4
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceSuccessCountUnlimited",
+                    "label": "$option.ProtocolSpaceCountUnlimited.label"
                 }
-            }
+            ]
+        },
+        "ProtocolSpaceFailedCount": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceFailedCount.label",
+            "default_case": "ProtocolSpaceFailedCount3",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceFailedCount1",
+                    "label": "1",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                            "max_hit": 0
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount2",
+                    "label": "2",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                            "max_hit": 1
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount3",
+                    "label": "3",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                            "max_hit": 2
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount4",
+                    "label": "4",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                            "max_hit": 3
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCount5",
+                    "label": "5",
+                    "pipeline_override": {
+                        "ProtocolSpaceOperationFailedExitToWorldContinue": {
+                            "max_hit": 4
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceFailedCountUnlimited",
+                    "label": "$option.ProtocolSpaceCountUnlimited.label"
+                }
+            ]
         },
         "ProtocolSpaceUsePermit": {
             "type": "switch",
