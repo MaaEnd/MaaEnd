@@ -93,9 +93,8 @@ func (a *CharacterControllerForwardAxisAction) Run(ctx *maa.Context, arg *maa.Cu
 
 func moveToTargetNeuralNetworkDetect(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg.RecognitionDetail == nil || !arg.RecognitionDetail.Hit {
-		// Target not visible — rotate right to search for it.
-		log.Debug().Msg("target not detected, rotating to search")
-		return true
+		log.Debug().Msg("recognition detail missing or not a hit")
+		return false
 	}
 
 	box := arg.Box
