@@ -108,7 +108,7 @@
         ]
     },
     "SceneEnterMenuBackpackWithDepotAtReceptionRoom": {
-        "desc": "从帝江号会客室进入背包界面，左侧包含所有仓库",
+        "desc": "从任意界面进入帝江号会客室，然后进入背包界面（左侧一定包含所有仓库）",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
