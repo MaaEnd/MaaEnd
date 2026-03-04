@@ -22,7 +22,7 @@
         },
         "next": [
             "Guard_CheckMailboxandClickToContinue",
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ]
     },
     "Guard_CheckMailboxandClickToContinue": {
@@ -55,7 +55,7 @@
             }
         },
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "跳过点击任意处继续"
@@ -121,7 +121,7 @@
             }
         },
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "识别到剧情文档/语音，准备关闭"
@@ -150,7 +150,7 @@
         "post_wait_freezes": 100,
         "next": [
             "HandleTutorialConfirm",
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "点击说明书翻页"
@@ -178,7 +178,7 @@
         "action": "Click",
         "post_wait_freezes": 100,
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "点击说明书确认键"
@@ -216,7 +216,7 @@
         },
         "post_wait_freezes": 200,
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "点击引导箭头"
@@ -251,7 +251,7 @@
         },
         "post_wait_freezes": 100,
         "next": [
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "点击引导箭头"

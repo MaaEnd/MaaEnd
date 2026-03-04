@@ -26,7 +26,7 @@
         "key": 69,
         "post_delay": 0,
         "next": [
-            "RealTimeTaskMainDelay"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "确认长距滑索"

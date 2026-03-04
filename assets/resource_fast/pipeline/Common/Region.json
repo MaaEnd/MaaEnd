@@ -44,7 +44,16 @@
         "recognition": "And",
         "all_of": [
             "CheckLocalDepotNodeText"
-        ]
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        }
     },
     "InClaimDeliveryJobsNode": {
         "desc": "在[我转交的委托]界面",

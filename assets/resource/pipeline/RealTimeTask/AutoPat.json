@@ -44,7 +44,7 @@
         "post_delay": 50,
         "next": [
             "RealTimeAutoPat",
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "拍一拍"

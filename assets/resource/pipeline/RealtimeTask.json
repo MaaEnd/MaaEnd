@@ -4,31 +4,31 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]AutoFightRealtimeTask",
-            "AutoPickFalls",
-            "AutoPickInteractive",
-            "RealTimeAutoSkip",
-            "RealTimeQuickTeleportList",
-            "RealTimeQuickTeleportDirect",
-            "RealTimeAutoZipline",
-            "HandleTutorialGuide_RightUp",
-            "HandleTutorialGuide_LeftUp",
-            "CheckAnywhere",
-            "HandleTutorialPaging",
-            "HandleTutorialConfirm",
-            "CheckSpecialInfoPanel",
+            "[JumpBack]RealTimeAutoPat",
+            "[JumpBack]AutoPickFalls",
+            "[JumpBack]AutoPickInteractive",
+            "[JumpBack]RealTimeAutoZipline",
+            "[JumpBack]HandleTutorialGuide_RightUp",
+            "[JumpBack]HandleTutorialGuide_LeftUp",
+            "[JumpBack]CheckAnywhere",
+            "[JumpBack]HandleTutorialPaging",
+            "[JumpBack]HandleTutorialConfirm",
+            "[JumpBack]CheckSpecialInfoPanel",
+            "[JumpBack]RealTimeQuickTeleportList",
+            "[JumpBack]RealTimeQuickTeleportDirect",
             "[JumpBack]PuzzleSolverOnScenePrepare",
             "[JumpBack]PuzzleSolverOnSceneMain",
-            "RealTimeAutoPat",
-            "RealTimeTaskMainDelay"
+            "[JumpBack]RealTimeAutoSkip",
+            "[JumpBack]AutoFightRealtimeTask",
+            "[JumpBack]RealTimeSleep"
         ]
     },
-    "RealTimeTaskMainDelay": {
-        "desc": "实时任务主入口",
+    "RealTimeSleep": {
         "pre_delay": 0,
-        "post_delay": 400,
-        "next": [
-            "RealTimeTaskMain"
-        ]
+        "post_delay": 200
+    },
+    "RealTimeFakeTrue": {
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

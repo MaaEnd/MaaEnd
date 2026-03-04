@@ -6,20 +6,6 @@
             "param": {
                 "all_of": [
                     {
-                        "sub_name": "icon",
-                        "recognition": "TemplateMatch",
-                        "roi": [
-                            755,
-                            330,
-                            297,
-                            312
-                        ],
-                        "template": [
-                            "RealTimeTask/AutoPickF.png"
-                        ],
-                        "threshold": 0.6
-                    },
-                    {
                         "sub_name": "number",
                         "recognition": "TemplateMatch",
                         "roi": [
@@ -32,6 +18,20 @@
                             "RealTimeTask/AutoPickF1.png"
                         ],
                         "threshold": 0.95
+                    },
+                    {
+                        "sub_name": "icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
+                        "template": [
+                            "RealTimeTask/AutoPickF.png"
+                        ],
+                        "threshold": 0.6
                     }
                 ]
             }
@@ -46,7 +46,7 @@
         "post_delay": 50,
         "next": [
             "AutoPickFalls",
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "拾取掉落物"
@@ -120,7 +120,7 @@
         "post_delay": 50,
         "next": [
             "AutoPickInteractive",
-            "RealTimeTaskMain"
+            "RealTimeFakeTrue"
         ],
         "focus": {
             "Node.Action.Succeeded": "拾取交互物"

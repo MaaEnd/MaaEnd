@@ -50,11 +50,7 @@
                 ],
                 "threshold": 0.8
             }
-        },
-        "next": [
-            "ClickVisitEnd",
-            "ReturnToMenu"
-        ]
+        }
     },
     "ExitAssist": {
         "recognition": {
@@ -160,32 +156,6 @@
             "ProductionAssistOCR",
             "VisitEnd",
             "ClueExchangeOCR"
-        ]
-    },
-    "ReturnToMenu": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1203,
-                    10,
-                    75,
-                    51
-                ],
-                "template": [
-                    "VisitFriends/CloseFriendList.png"
-                ],
-                "threshold": [
-                    0.8
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "VisitComplete"
         ]
     },
     "SwipeTerminalBar": {
