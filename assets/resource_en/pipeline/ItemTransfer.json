@@ -1,4 +1,10 @@
 {
+    "ItemTransferStart": {
+        "expected": [
+            "Visit",
+            "Friends"
+        ]
+    },
     "ItemTransferSwitchRepoToOrigin": {
         "expected": [
             "Switch",
