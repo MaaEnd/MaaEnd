@@ -1,6 +1,6 @@
 {
     "ResellMain": {
-        "doc": "一键倒卖主入口",
+        "desc": "一键倒卖主入口",
         "pre_delay": 0,
         "post_delay": 500,
         "next": [
@@ -9,16 +9,16 @@
         ]
     },
     "ResellStageCheckArea": {
-        "doc": "检查当前地区",
+        "desc": "检查当前地区",
         "recognition": "TemplateMatch",
-        "template": "Resell/inManagement.png",
-        "threshold": 0.8,
         "roi": [
             1139,
             63,
             135,
             127
         ],
+        "template": "Resell/inManagement.png",
+        "threshold": 0.8,
         "action": "DoNothing",
         "next": [
             "ResellAreaInFourthValley",
@@ -28,9 +28,8 @@
         ]
     },
     "ResellAreaInFourthValley": {
-        "doc": "在四号谷地，进入地区建设管理",
+        "desc": "在四号谷地，进入地区建设管理",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             25,
             174,
@@ -39,18 +38,18 @@
         ],
         "expected": "四号谷地",
         "threshold": 0.8,
+        "order_by": "Expected",
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
+        "post_delay": 500,
         "next": [
             "ResellStageEnterStore",
             "ResellStageCheckArea"
         ]
     },
     "ResellFristAreaInWuLing": {
-        "doc": "直接在武陵，进入四号谷地",
+        "desc": "直接在武陵，进入四号谷地",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             25,
             174,
@@ -59,18 +58,18 @@
         ],
         "expected": "武陵",
         "threshold": 0.8,
+        "order_by": "Expected",
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
+        "post_delay": 500,
         "next": [
             "Wuling2FourthValley",
             "ResellStageCheckArea"
         ]
     },
     "ResellAreaInWuLing": {
-        "doc": "在武陵，进入地区建设管理",
+        "desc": "在武陵，进入地区建设管理",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             25,
             174,
@@ -79,35 +78,35 @@
         ],
         "expected": "武陵",
         "threshold": 0.8,
+        "order_by": "Expected",
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
+        "post_delay": 500,
         "next": [
             "ResellStageEnterStore",
             "ResellStageCheckArea"
         ]
     },
     "ResellStageEnterStore": {
-        "doc": "进入商店",
+        "desc": "进入商店",
         "recognition": "TemplateMatch",
-        "template": "Resell/EnterStore.png",
         "roi": [
             719,
             291,
             117,
             120
         ],
+        "template": "Resell/EnterStore.png",
         "threshold": 0.8,
-        "post_delay": 500,
         "action": "Click",
+        "post_delay": 500,
         "next": [
             "ResellWaitForStableStore"
         ]
     },
     "ResellWaitForStableStore": {
-        "doc": "轮询 OCR 识别稳定需求物资调度页面加载完成",
+        "desc": "轮询 OCR 识别稳定需求物资调度页面加载完成",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             0,
             0,
@@ -118,6 +117,7 @@
             "稳定需求"
         ],
         "threshold": 0.6,
+        "order_by": "Expected",
         "action": "DoNothing",
         "next": [
             "ResellClickToUnstableStore",
@@ -125,9 +125,8 @@
         ]
     },
     "ResellClickToUnstableStore": {
-        "doc": "识别并点击弹性需求物资标签",
+        "desc": "识别并点击弹性需求物资标签",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             300,
             50,
@@ -138,6 +137,7 @@
             "弹性需求"
         ],
         "threshold": 0.6,
+        "order_by": "Expected",
         "action": "Click",
         "post_delay": 500,
         "next": [
@@ -146,16 +146,16 @@
         ]
     },
     "ResellWaitForUnstableStore": {
-        "doc": "轮询匹配左侧市场图标，确认切换到弹性需求物资页面",
+        "desc": "轮询匹配左侧市场图标，确认切换到弹性需求物资页面",
         "recognition": "TemplateMatch",
-        "template": "Resell/inUnstableStore.png",
-        "threshold": 0.8,
         "roi": [
             0,
             209,
             128,
             126
         ],
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
         "action": "DoNothing",
         "next": [
             "ResellinUnstableStore",
@@ -163,42 +163,41 @@
         ]
     },
     "ResellinUnstableStore": {
-        "doc": "在弹性需求物资商店，滚动至最底端，开始识别价格",
+        "desc": "在弹性需求物资商店，滚动至最底端，开始识别价格",
         "recognition": "DirectHit",
-        "post_wait_freezes": 600,
         "action": "Scroll",
         "target": [
             640,
             360
         ],
         "dy": -240,
+        "post_wait_freezes": 600,
         "next": [
             "ResellStartCheckStock",
             "ResellStart"
         ]
     },
     "ResellStartCheckStock": {
-        "doc": "检查库存",
+        "desc": "检查库存",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             70,
             385,
             1151,
             254
         ],
-        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "expected": "[0-9]+",
+        "order_by": "Expected",
         "action": "Click",
+        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "next": [
             "ResellCheckSoldout",
             "ResellCheckStockRemain"
         ]
     },
     "ResellCheckSoldout": {
-        "doc": "识别库存是否售罄，售罄则切换区域",
+        "desc": "识别库存是否售罄，售罄则切换区域",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             951,
             571,
@@ -206,25 +205,26 @@
             26
         ],
         "expected": "无法购买",
+        "order_by": "Expected",
         "action": "DoNothing",
-        "focus": {
-            "Node.Action.Starting": "当前地区已售罄，切换下个地区"
-        },
         "next": [
             "ChangeNextRegionPrepare"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "当前地区已售罄，切换下个地区"
+        }
     },
     "ResellCheckStockRemain": {
-        "doc": "识别库存未售罄，开始选择倒卖商品",
+        "desc": "识别库存未售罄，开始选择倒卖商品",
         "recognition": "TemplateMatch",
-        "template": "Resell/Confirm.png",
-        "threshold": 0.8,
         "roi": [
             1010,
             525,
             120,
             122
         ],
+        "template": "Resell/Confirm.png",
+        "threshold": 0.8,
         "action": "ClickKey",
         "key": 27,
         "next": [
@@ -232,18 +232,18 @@
         ]
     },
     "ResellStart": {
-        "doc": "开始识别价格，选择倒卖商品",
+        "desc": "开始识别价格，选择倒卖商品",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "Custom",
         "custom_action": "ResellInitAction",
+        "post_delay": 500,
         "next": [
             "ResellCheckQuota"
         ]
     },
     "ResellWaitFriendPrice": {
-        "doc": "轮询等待好友价格加载完成（加载中消失或售价可见）",
+        "desc": "轮询等待好友价格加载完成（加载中消失或售价可见）",
         "recognition": "DirectHit",
         "action": "DoNothing",
         "next": [

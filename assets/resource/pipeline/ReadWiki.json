@@ -7,13 +7,13 @@
     },
     "WikiOnHomePage": {
         "recognition": "OCR",
-        "expected": "终末地百科",
         "roi": [
             4,
             1,
             253,
             100
         ],
+        "expected": "终末地百科",
         "next": [
             "WikiClickHomePageUnreadBadge",
             "WikiClickChapterUnreadBadge",
@@ -25,13 +25,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiBackButton.png",
                 "roi": [
                     1164,
                     0,
                     116,
                     99
-                ]
+                ],
+                "template": "ReadWiki/WikiBackButton.png"
             }
         },
         "action": {
@@ -47,13 +47,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiExitButton.png",
                 "roi": [
                     1164,
                     0,
                     116,
                     99
-                ]
+                ],
+                "template": "ReadWiki/WikiExitButton.png"
             }
         },
         "action": "Click"
@@ -63,13 +63,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiUnreadBadge.png",
                 "roi": [
                     184,
                     243,
                     1008,
                     116
-                ]
+                ],
+                "template": "ReadWiki/WikiUnreadBadge.png"
             }
         },
         "action": {
@@ -95,13 +95,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiUnreadBadge.png",
                 "roi": [
                     21,
                     51,
                     350,
                     58
-                ]
+                ],
+                "template": "ReadWiki/WikiUnreadBadge.png"
             }
         },
         "action": {
@@ -123,25 +123,16 @@
         ]
     },
     "WikiClickRealUnreadPage": {
-        "post_wait_freezes": {
-            "time": 50,
-            "target": [
-                756,
-                675,
-                30,
-                11
-            ]
-        },
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiUnreadBadge.png",
                 "roi": [
                     206,
                     130,
                     160,
                     585
-                ]
+                ],
+                "template": "ReadWiki/WikiUnreadBadge.png"
             }
         },
         "action": {
@@ -155,6 +146,15 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
+        },
         "next": [
             "[JumpBack]WikiNextPage",
             "WikiClickRealUnreadPage",
@@ -167,15 +167,15 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": [
-                    "ReadWiki/WikiUnreadBadge.png",
-                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png"
-                ],
                 "roi": [
                     136,
                     640,
                     65,
                     58
+                ],
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png"
                 ]
             }
         },
@@ -201,18 +201,17 @@
         ]
     },
     "WikiNextPage": {
-        "doc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
-        "timeout": 1000,
+        "desc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "ReadWiki/WikiNextPage.png",
                 "roi": [
                     748,
                     673,
                     48,
                     19
-                ]
+                ],
+                "template": "ReadWiki/WikiNextPage.png"
             }
         },
         "action": {
@@ -229,6 +228,7 @@
                 "end_hold": 200
             }
         },
+        "timeout": 1000,
         "next": [
             "WikiNextPage"
         ]

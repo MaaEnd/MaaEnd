@@ -1,0 +1,183 @@
+{
+    "MFGCarbinNeedAssistConfirmText": {
+        "desc": "[制造舱·需要助力] 识别确认使用助力按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        }
+    },
+    "UseAssistText": {
+        "desc": "[需要助力] 识别使用助力按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "使用助力"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedTakeText": {
+        "desc": "[制造舱·需要领取] 识别领取按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "收取"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomCollectCluesText": {
+        "desc": "[会客室·线索] 识别需要收集线索的奖励颜色",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType2",
+                "roi_offset": [
+                    -45,
+                    2,
+                    14,
+                    -3
+                ],
+                "expected": [
+                    "领取"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "WhiteButtonConfirmText": {
+        "desc": "白色按钮上的确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        }
+    },
+    "ReceiveAllText": {
+        "desc": "全部接收按钮文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType2",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "全部接收"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedReceiveCluesText": {
+        "desc": "[会客室·线索] 识别需要领取线索的奖励文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomNeedReceiveCluesColor",
+                "roi_offset": [
+                    -63,
+                    31,
+                    81,
+                    36
+                ],
+                "expected": [
+                    "接收"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomNeedCollectCluesText": {
+        "desc": "[会客室·线索] 识别需要收集线索的奖励文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomNeedCollectCluesColor",
+                "roi_offset": [
+                    -63,
+                    31,
+                    81,
+                    36
+                ],
+                "expected": [
+                    "收集"
+                ]
+            }
+        }
+    },
+    "ClueItemCount": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ClueItem",
+                "roi_offset": [
+                    165,
+                    0,
+                    -46,
+                    0
+                ],
+                "expected": [
+                    "^(20|[3-9]|1[0-9])$"
+                ],
+                "only_rec": true
+            }
+        }
+    },
+    "StartExchangeText": {
+        "desc": "[会客室·交流] 识别开始交流按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -101,
+                    -22,
+                    68,
+                    46
+                ],
+                "expected": [
+                    "开展交流"
+                ]
+            }
+        }
+    }
+}

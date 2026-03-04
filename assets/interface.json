@@ -146,6 +146,7 @@
         "tasks/ReadAllWiki.json",
         "tasks/Weapon.json",
         "tasks/GearAssembly.json",
+        "tasks/ProtocolSpace.json",
         "tasks/Crafting.json",
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",

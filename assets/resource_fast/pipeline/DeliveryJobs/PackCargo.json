@@ -2,16 +2,15 @@
     // 装箱货物的流程如下：
     // 选择装箱货物类型（下一步）->装满货物（下一步）->货物竞价->调度申请（下一步）->单击屏幕继续->回到大世界界面
     "DeliveryJobsPackCargo": {
-        "doc": "装箱货物",
+        "desc": "装箱货物",
         "next": [
             "DeliveryJobsInCargoPackGoods",
             "DeliveryJobsInCargoRedistributionBid"
         ]
     },
     "DeliveryJobsInCargoPackGoods": {
-        "doc": "检查是否在货物装箱界面，货物装箱时进入的界面",
+        "desc": "检查是否在货物装箱界面，货物装箱时进入的界面",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             20,
             1,
@@ -25,14 +24,14 @@
             "パッキング",
             "화물 포장"
         ],
+        "order_by": "Expected",
         "next": [
             "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
         ]
     },
     "DeliveryJobsInCargoRedistributionBid": {
-        "doc": "检查是否在调度申请界面，查看报价时进入的界面",
+        "desc": "检查是否在调度申请界面，查看报价时进入的界面",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             20,
             1,
@@ -46,13 +45,14 @@
             "取引申請",
             "관리 신청"
         ],
+        "order_by": "Expected",
         "next": [
             "DeliveryJobsOngoingDelivery",
             "DeliveryJobsRedistributionBidNextStep"
         ]
     },
     "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-        "doc": "选择装箱货物类型后下一步",
+        "desc": "选择装箱货物类型后下一步",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2",
@@ -64,15 +64,15 @@
         ]
     },
     "DeliveryJobsCargoFillToMax": {
-        "doc": "装满货物",
+        "desc": "装满货物",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoFillToMax.png",
         "roi": [
             1141,
             156,
             78,
             89
         ],
+        "template": "DeliveryJobs/CargoFillToMax.png",
         "threshold": 0.8,
         "action": "Click",
         "next": [
@@ -80,7 +80,7 @@
         ]
     },
     "DeliveryJobsFillToMaxNextStep": {
-        "doc": "装满货物后下一步",
+        "desc": "装满货物后下一步",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2",
@@ -94,15 +94,15 @@
         ]
     },
     "DeliveryJobsCargoBid": {
-        "doc": "货物竞价",
+        "desc": "货物竞价",
         "recognition": "TemplateMatch",
-        "template": "DeliveryJobs/CargoBid.png",
         "roi": [
             789,
             524,
             220,
             143
         ],
+        "template": "DeliveryJobs/CargoBid.png",
         "threshold": 0.8,
         "action": "Click",
         "next": [
@@ -111,7 +111,7 @@
         ]
     },
     "DeliveryJobsRedistributionBidNextStep": {
-        "doc": "调度申请后下一步",
+        "desc": "调度申请后下一步",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2",
@@ -125,7 +125,7 @@
         ]
     },
     "DeliveryJobsDeliverQuickly": {
-        "doc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
+        "desc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
         "recognition": "OCR",
         "roi": [
             0,
@@ -146,9 +146,8 @@
         ]
     },
     "DeliveryJobsClickScreenToContinue": {
-        "doc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
+        "desc": "单击屏幕继续，会直接回到大世界界面。跳出循环",
         "recognition": "OCR",
-        "order_by": "Expected",
         "roi": [
             525,
             643,
@@ -162,10 +161,11 @@
             "クリックして続行",
             "화면을 눌러 계속하기"
         ],
+        "order_by": "Expected",
         "action": "Click"
     },
     "DeliveryJobsOngoingDelivery": {
-        "doc": "有待运送的货物，无法继续装箱流程，退出任务",
+        "desc": "有待运送的货物，无法继续装箱流程，退出任务",
         "recognition": "OCR",
         "roi": [
             882,

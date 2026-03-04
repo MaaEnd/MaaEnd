@@ -1,7 +1,7 @@
 {
     // 在商店中购买物品的节点
     "CreditShoppingBuyFirstItem": {
-        "doc": "点击购买商品",
+        "desc": "点击购买商品",
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyFirst",
@@ -18,7 +18,7 @@
         ]
     },
     "CreditShoppingBuyNormalItemWithDiscount": {
-        "doc": "点击购买商品(有折扣)",
+        "desc": "点击购买商品(有折扣)",
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyNormalWithDiscount",
@@ -29,7 +29,7 @@
         ]
     },
     "CreditShoppingBuyBlacklistItem": {
-        "doc": "点击购买商品",
+        "desc": "点击购买商品",
         "recognition": "DirectHit",
         "action": "Click",
         "target": "CreditShoppingBuyBlacklist",
@@ -40,8 +40,14 @@
         ]
     },
     "CreditShoppingBuyFailed": {
-        "doc": "购买失败（已售罄/信用点不足）",
+        "desc": "购买失败（已售罄/信用点不足）",
         "recognition": "ColorMatch",
+        "roi": [
+            571,
+            497,
+            133,
+            95
+        ],
         "lower": [
             210,
             94,
@@ -52,44 +58,38 @@
             94,
             104
         ],
-        "roi": [
-            571,
-            497,
-            133,
-            95
-        ],
         "action": "DoNothing",
         "next": [
             "CreditShoppingCloseDialog"
         ]
     },
     "CreditShoppingCloseDialog": {
-        "doc": "关闭对话框",
+        "desc": "关闭对话框",
         "recognition": "TemplateMatch",
-        "template": "Common/Button/CloseButtonType2.png",
         "roi": [
             1066,
             63,
             148,
             97
         ],
+        "template": "Common/Button/CloseButtonType2.png",
         "action": "Click",
         "next": [
             "CreditShoppingCloseDialog"
         ]
     },
     "CreditShoppingBuyConfirm": {
-        "doc": "购买确认",
+        "desc": "购买确认",
         "recognition": "TemplateMatch",
-        "template": [
-            "Common/Button/YellowConfirmButtonType1.png",
-            "Common/Button/YellowConfirmButtonType1Hover.png"
-        ],
         "roi": [
             1050,
             559,
             168,
             113
+        ],
+        "template": [
+            "Common/Button/YellowConfirmButtonType1.png",
+            "Common/Button/YellowConfirmButtonType1Hover.png"
         ],
         "threshold": 0.8,
         "action": "Click",

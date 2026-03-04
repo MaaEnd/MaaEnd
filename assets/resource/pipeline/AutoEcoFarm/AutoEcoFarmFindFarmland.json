@@ -6,23 +6,44 @@
     "_AutoEcoFindFarmFarmlandValleyStart": {
         "doc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
         "next": [
-            "_AutoEcoFarmFindValleyIVEcoFarm",
-            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+            "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmValleyIV",
+            "_AutoEcoFindFarmFarmlandValleyIVExit"
         ]
     },
     "_AutoEcoFindFarmFarmlandWulinStart": {
         "doc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
         "next": [
+            "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmWulin",
+            "_AutoEcoFindFarmFarmlandWulinExit"
+        ]
+    },
+    "_AutoEcoFindFarmFarmlandValleyIVExit": {
+        "next": [
+            "_AutoEcoFarmSwipeToTargetValleyIVStart"
+        ]
+    },
+    "_AutoEcoFindFarmFarmlandWulinExit": {
+        "next": [
+            "_AutoEcoFarmSwipeToTargetWulinStart"
+        ]
+    },
+    //内部节点
+    "_AutoEcoFarmFindValleyIVEcoFarmValleyIV": {
+        "doc": "[四号谷地版]任务主体",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmFindValleyIVEcoFarm",
+            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
+        ]
+    },
+    "_AutoEcoFarmFindValleyIVEcoFarmWulin": {
+        "doc": "[武陵版]任务主体",
+        "max_hit": 1,
+        "next": [
             "_AutoEcoFarmFindWulinEcoFarm",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
-    "_AutoEcoFindFarmFarmlandExit": {
-        "next": [
-            "_AutoEcoFarmSwipeToTargetStart"
-        ]
-    },
-    //内部节点
     "_AutoEcoFarmFindValleyIVEcoFarm": {
         "doc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
@@ -50,6 +71,8 @@
             "_AutoEcoFarmFindFarmland",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
+            //不行的话尝试筛选标记
+            "[JumpBack]_AutoEcoFarmClickTargetManager",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
@@ -81,6 +104,8 @@
             "_AutoEcoFarmFindFarmland",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullWulinEcoFarmToCenter",
+            //不行的话尝试筛选标记
+            "[JumpBack]_AutoEcoFarmClickTargetManager",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
@@ -146,7 +171,7 @@
             "_AutoEcoFarmSetTarget",
             "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            "_AutoEcoFindFarmFarmlandExit"
+            //这里结束，触发Jumpback
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
@@ -167,7 +192,7 @@
             }
         },
         "next": [
-            "_AutoEcoFindFarmFarmlandExit"
+            //这里结束，触发Jumpback
         ]
     },
     "_AutoEcoFarmSetTarget": {
@@ -191,7 +216,7 @@
             "type": "Click"
         },
         "next": [
-            "_AutoEcoFindFarmFarmlandExit"
+            //这里结束，触发Jumpback
         ]
     },
     "_AutoEcoFarmMutiSelection": {

@@ -1,21 +1,21 @@
 {
     "ValleyIVSwitchToRefugeeCamp": {
-        "doc": "OCR 切换至难民暂居处",
+        "desc": "OCR 切换至难民暂居处",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    123,
+                    64,
+                    189,
+                    52
+                ],
                 "expected": [
                     "难民暂居处",
                     "難民暫居處",
                     "Refugee Camp",
                     "仮設居住地",
                     "유랑자 임시 거주지"
-                ],
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
                 ]
             }
         },
@@ -28,20 +28,17 @@
         ]
     },
     "ValleyIVVerifyAtRefugeeCamp": {
-        "doc": "检测：已切换至难民暂居处",
-        "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
-        },
+        "desc": "检测：已切换至难民暂居处",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "roi": [
                     146,
                     64,
                     166,
                     34
                 ],
+                "method": 40,
                 "lower": [
                     [
                         22,
@@ -59,26 +56,29 @@
                 "count": 30
             }
         },
+        "anchor": {
+            "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
+        },
         "next": [
             "SellProductAtSell"
         ]
     },
     "ValleyIVSwitchToInfrastructureOutpost": {
-        "doc": "OCR 切换至基建前站",
+        "desc": "OCR 切换至基建前站",
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "基建前站",
-                    "Infra-Station",
-                    "建設基地",
-                    "기초 건설 주둔지"
-                ],
                 "roi": [
                     447,
                     64,
                     166,
                     50
+                ],
+                "expected": [
+                    "基建前站",
+                    "Infra-Station",
+                    "建設基地",
+                    "기초 건설 주둔지"
                 ]
             }
         },
@@ -91,20 +91,17 @@
         ]
     },
     "ValleyIVVerifyAtInfrastructureOutpost": {
-        "doc": "检测：已切换至基建前站",
-        "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
-        },
+        "desc": "检测：已切换至基建前站",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "roi": [
                     447,
                     64,
                     166,
                     34
                 ],
+                "method": 40,
                 "lower": [
                     [
                         22,
@@ -122,27 +119,30 @@
                 "count": 30
             }
         },
+        "anchor": {
+            "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
+        },
         "next": [
             "SellProductAtSell"
         ]
     },
     "ValleyIVSwitchToReconstructionCommand": {
-        "doc": "OCR 切换至重建指挥部",
+        "desc": "OCR 切换至重建指挥部",
         "recognition": {
             "type": "OCR",
             "param": {
+                "roi": [
+                    754,
+                    64,
+                    260,
+                    55
+                ],
                 "expected": [
                     "重建指挥部",
                     "重建指揮部",
                     "Reconstruction HQ",
                     "再建管理本部",
                     "재건 지휘부"
-                ],
-                "roi": [
-                    754,
-                    64,
-                    260,
-                    55
                 ]
             }
         },
@@ -155,20 +155,17 @@
         ]
     },
     "ValleyIVVerifyAtReconstructionCommand": {
-        "doc": "检测：已切换至重建指挥部",
-        "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
-        },
+        "desc": "检测：已切换至重建指挥部",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "method": 40,
                 "roi": [
                     754,
                     64,
                     166,
                     34
                 ],
+                "method": 40,
                 "lower": [
                     [
                         22,
@@ -185,6 +182,9 @@
                 ],
                 "count": 30
             }
+        },
+        "anchor": {
+            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
         },
         "next": [
             "SellProductAtSell"

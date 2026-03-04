@@ -11,14 +11,14 @@
     "GearAssemblyCheckIsAssemblePage": {
         "desc": "检测是否处于 [装备制作]",
         "recognition": "OCR",
-        "expected": [
-            "套组装备"
-        ],
         "roi": [
             0,
             0,
             263,
             117
+        ],
+        "expected": [
+            "套组装备"
         ],
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
@@ -30,36 +30,36 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "降序"
-                ],
                 "roi": [
                     44,
                     648,
                     351,
                     35
+                ],
+                "expected": [
+                    "降序"
                 ]
             }
         },
-        "post_wait_freezes": 1,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": 1
     },
     "GearAssemblyClickProduceBtn": {
         "desc": "点击制作按钮",
         "recognition": "OCR",
-        "expected": [
-            "制作"
-        ],
         "roi": [
             1134,
             614,
             139,
             95
         ],
-        "post_wait_freezes": 100,
+        "expected": [
+            "制作"
+        ],
         "action": "Click",
+        "post_wait_freezes": 100,
         "next": [
             "GearAssemblyCheckMaterialEnough", // 进行背包满退出判断，在这里直接判断到就直接退出
             // 检查下是不是进入成功页面
@@ -69,15 +69,15 @@
     "GearAssemblyCheckMaterialEnough": {
         "desc": "检测背包是否已满，背包已满直接结束",
         "recognition": "OCR",
-        "expected": [
-            "空间已满",
-            "可销毁或丢弃部分"
-        ],
         "roi": [
             409,
             81,
             439,
             82
+        ],
+        "expected": [
+            "空间已满",
+            "可销毁或丢弃部分"
         ],
         "next": [
             "GearAssemblyCreationFinish",
@@ -88,13 +88,13 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "DailyRewards/CloseReward.png",
                 "roi": [
                     622,
                     645,
                     37,
                     38
                 ],
+                "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9
             }
         },
@@ -107,8 +107,6 @@
         ]
     },
     "GearAssemblyCreationFinish": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -123,6 +121,8 @@
                 ],
                 "green_mask": true
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

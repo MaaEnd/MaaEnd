@@ -1,0 +1,280 @@
+{
+    "ProtocolSpaceOperationalManualOpen": {
+        "desc": "进入行动手册菜单",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    60
+                ],
+                "expected": [
+                    "行动手册",
+                    "Operational Manual",
+                    "案内所",
+                    "작전 매뉴얼",
+                    "行動手冊"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "ProtocolSpaceOperationalManualSwitchIndexTab"
+        ]
+    },
+    "ProtocolSpaceOperationalManualSwitchIndexTab": {
+        "desc": "在行动手册界面，切换到索引标签页",
+        "recognition": "OCR",
+        "roi": [
+            150,
+            100,
+            1000,
+            100
+        ],
+        "expected": [
+            "索引",
+            "Index"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "next": [
+            "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
+        ]
+    },
+    "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab": {
+        "desc": "在行动手册界面，切换到协议空间对应标签页",
+        "recognition": "OCR",
+        "roi": [
+            160,
+            190,
+            250,
+            430
+        ],
+        "expected": [
+            "员养成",
+            "Operator Progression"
+        ],
+        "action": "Click",
+        "anchor": {
+            "ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable",
+            "ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor": "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable"
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
+            "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
+            "[JumpBack]ProtocolSpaceOperationalManualScrollList",
+            "ProtocolSpaceOperationalManualScrollEnd"
+        ]
+    },
+    "ProtocolSpaceOperationalManualScrollList": {
+        "desc": "滚动右侧模拟空间列表",
+        "action": "Swipe",
+        "begin": [
+            850,
+            500
+        ],
+        "end": [
+            850,
+            280
+        ],
+        "end_hold": 200
+    },
+    "ProtocolSpaceOperationalManualScrollEnd": {
+        "desc": "右侧滚动模拟空间列表找到最后一个item图标，表示到末尾了",
+        "recognition": "TemplateMatch",
+        "roi": [
+            400,
+            180,
+            200,
+            430
+        ],
+        "template": "ProtocolSpace/SkillUp.png",
+        "threshold": 0.9,
+        "focus": {
+            "Node.Recognition.Succeeded": "未找到模拟空间入口，停止任务"
+        }
+    },
+    "ProtocolSpaceFindTargetRecognition": {
+        "desc": "找协议空间入口图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            400,
+            180,
+            200,
+            430
+        ],
+        "template": "ProtocolSpace/OperatorEXP.png",
+        "threshold": 0.9
+    },
+    "ProtocolSpaceEnterButtonEnableRecognition": {
+        "recognition": "OCR",
+        "roi": "ProtocolSpaceFindTargetRecognition",
+        "roi_offset": [
+            400,
+            0,
+            150,
+            0
+        ],
+        "expected": [
+            "前往",
+            "Go"
+        ]
+    },
+    "ProtocolSpaceEnterButtonDisableRecognition": {
+        "recognition": "OCR",
+        "roi": "ProtocolSpaceFindTargetRecognition",
+        "roi_offset": [
+            400,
+            0,
+            150,
+            0
+        ],
+        "expected": [
+            "前往",
+            "Go"
+        ]
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceNormalDisable": {
+        "desc": "在当前页面找普通协议空间入口，未开启",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceFindTargetRecognition",
+            "ProtocolSpaceEnterButtonDisableRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceFindTargetRecognition",
+                "roi_offset": [
+                    300,
+                    -50,
+                    150,
+                    0
+                ],
+                "lower": [
+                    30,
+                    30,
+                    30
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "count:": 500
+            }
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "协议空间未开启"
+        }
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceNormalEnable": {
+        "desc": "在当前页面找普通协议空间入口，已开启",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceFindTargetRecognition",
+            "ProtocolSpaceEnterButtonEnableRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceFindTargetRecognition",
+                "roi_offset": [
+                    300,
+                    -50,
+                    150,
+                    0
+                ],
+                "lower": [
+                    30,
+                    30,
+                    30
+                ],
+                "upper": [
+                    70,
+                    70,
+                    70
+                ],
+                "count:": 500
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceNormalPrepareEnter"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入协议空间"
+        }
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveDisable": {
+        "desc": "在当前页面找深潜协议空间入口，未开启",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceFindTargetRecognition",
+            "ProtocolSpaceEnterButtonEnableRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceFindTargetRecognition",
+                "roi_offset": [
+                    300,
+                    -50,
+                    150,
+                    0
+                ],
+                "lower": [
+                    180,
+                    5,
+                    45
+                ],
+                "upper": [
+                    255,
+                    40,
+                    65
+                ],
+                "count:": 500
+            }
+        ],
+        "box_index": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "协议空间未开启"
+        }
+    },
+    "ProtocolSpaceOperationalManualFindProtocolSpaceDeepDiveEnable": {
+        "desc": "在当前页面找深潜协议空间入口，已开启",
+        "recognition": "And",
+        "all_of": [
+            "ProtocolSpaceFindTargetRecognition",
+            "ProtocolSpaceEnterButtonEnableRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceFindTargetRecognition",
+                "roi_offset": [
+                    300,
+                    -50,
+                    150,
+                    0
+                ],
+                "lower": [
+                    180,
+                    5,
+                    45
+                ],
+                "upper": [
+                    255,
+                    40,
+                    65
+                ],
+                "count:": 500
+            }
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceDeepDivePrepareEnter"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入协议空间"
+        }
+    }
+}

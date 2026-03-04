@@ -246,10 +246,22 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 				finalLoc = &globalInferState.convinced
 			}
 		} else {
-			// This hit is far from both convinced and pending locations, start a new pending
-			globalInferState.pending = *loc
-			globalInferState.pendingFirstHitTime = nowMs
-			globalInferState.pendingHitCount = 1
+			// This hit is far from both convinced and pending locations
+			if nowMs-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS {
+				// It's an immediate track loss, start a new pending
+				globalInferState.pending = *loc
+				globalInferState.pendingFirstHitTime = nowMs
+				globalInferState.pendingHitCount = 1
+			} else {
+				// It's a stale track loss, directly replace convinced with this new hit
+				globalInferState.convinced = *loc
+				globalInferState.convincedLastHitTime = nowMs
+				globalInferState.convincedMoveSpeed = 0
+				globalInferState.convincedMoveDirection = 0
+				globalInferState.pending = emptyLocationRawResult
+				globalInferState.pendingHitCount = 0
+				finalLoc = &globalInferState.convinced
+			}
 		}
 	}
 

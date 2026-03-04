@@ -13,20 +13,20 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "武器"
-                ],
                 "roi": [
                     0,
                     0,
                     155,
                     72
+                ],
+                "expected": [
+                    "武器"
                 ]
             }
         },
         "pre_delay": 0,
-        "post_delay": 0,
         "post_wait_freezes": 1,
+        "post_delay": 0,
         "next": [
             "[JumpBack]WeaponUpgradeSwitchLowLevel",
             "[JumpBack]WeaponUpgradeSwitchAscending",
@@ -38,14 +38,14 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.8,
-                "template": "Weapon/WeaponDetails.png",
                 "roi": [
                     985,
                     591,
                     277,
                     112
-                ]
+                ],
+                "template": "Weapon/WeaponDetails.png",
+                "threshold": 0.8
             }
         },
         "action": {
@@ -80,14 +80,14 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.8,
-                "template": "Weapon/EmptyUpgradeMaterial.png",
                 "roi": [
                     22,
                     555,
                     90,
                     87
-                ]
+                ],
+                "template": "Weapon/EmptyUpgradeMaterial.png",
+                "threshold": 0.8
             }
         },
         "post_wait_freezes": 100,
@@ -100,48 +100,46 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.8,
-                "template": "Weapon/AddUpgradeMaterialButton.png",
                 "roi": [
                     1215,
                     54,
                     39,
                     104
-                ]
+                ],
+                "template": "Weapon/AddUpgradeMaterialButton.png",
+                "threshold": 0.8
             }
         },
-        "post_wait_freezes": 100,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": 100
     },
     "WeaponUpgradeConfirmUpgradeLevel": {
         "desc": "确认升级等级",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "threshold": 0.8,
-                "template": "Weapon/CorfirmUpgradeButton.png",
                 "roi": [
                     985,
                     591,
                     277,
                     112
-                ]
+                ],
+                "template": "Weapon/CorfirmUpgradeButton.png",
+                "threshold": 0.8
             }
         },
-        "post_wait_freezes": 10,
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": 10,
         "next": [
             "WeaponUpgradeWeaponFinished",
             "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "WeaponUpgradeWeaponFinished": {
-        "pre_delay": 0,
-        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -156,28 +154,30 @@
                 ],
                 "green_mask": true
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "WeaponUpgradeSwitchLowLevel": {
         "desc": "识别品质，切换到等级分类",
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "品质"
-                ],
                 "roi": [
                     16,
                     561,
                     277,
                     133
+                ],
+                "expected": [
+                    "品质"
                 ]
             }
         },
-        "post_wait_freezes": 1,
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": 1,
         "next": [
             "WeaponUpgradeClickLevelSort",
             "WeaponUpgradeSwitchLowLevel"
@@ -187,41 +187,41 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "武器等级"
-                ],
                 "roi": [
                     16,
                     561,
                     277,
                     133
+                ],
+                "expected": [
+                    "武器等级"
                 ]
             }
         },
-        "post_wait_freezes": 1,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": 1
     },
     "WeaponUpgradeSwitchAscending": {
         "desc": "识别到降序，变成升序",
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "降序"
-                ],
                 "roi": [
                     16,
                     561,
                     277,
                     133
+                ],
+                "expected": [
+                    "降序"
                 ]
             }
         },
-        "post_wait_freezes": 1,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": 1
     }
 }

@@ -1,11 +1,7 @@
 {
     "MapTrackerTestLoop": {
-        "next": [
-            "MapTrackerTestLoop"
-        ],
-        "pre_delay": 1000,
-        "rate_limit": 1000,
         "recognition": {
+            "type": "Custom",
             "param": {
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
@@ -13,12 +9,17 @@
                     "precision": 0.8,
                     "print": true
                 }
-            },
-            "type": "Custom"
-        }
+            }
+        },
+        "pre_delay": 1000,
+        "rate_limit": 1000,
+        "next": [
+            "MapTrackerTestLoop"
+        ]
     },
     "MapTrackerTest": {
         "recognition": {
+            "type": "Custom",
             "param": {
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
@@ -26,8 +27,7 @@
                     "precision": 0.8,
                     "print": true
                 }
-            },
-            "type": "Custom"
+            }
         }
     }
 }

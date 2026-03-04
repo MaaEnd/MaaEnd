@@ -1,20 +1,20 @@
 {
     "RealTimeAutoSkip": {
-        "doc": "自动剧情入口",
+        "desc": "自动剧情入口",
         "recognition": "Or",
         // 防止背景变化过大，使用左上角和右上角两个画面进行匹配
         "any_of": [
             {
                 // 匹配左上角log图标
                 "recognition": "TemplateMatch",
-                "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
-                "template": "RealTimeTask/AutoSkipLog.png",
                 "roi": [
                     10,
                     20,
                     55,
                     40
-                ]
+                ],
+                "template": "RealTimeTask/AutoSkipLog.png",
+                "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
             },
             {
                 // 匹配右上角Auto和Esc图标
@@ -22,37 +22,37 @@
                 "all_of": [
                     {
                         "recognition": "TemplateMatch",
-                        "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
-                        "template": "RealTimeTask/AutoSkipA.png",
                         "roi": [
                             1140,
                             0,
                             120,
                             90
-                        ]
+                        ],
+                        "template": "RealTimeTask/AutoSkipA.png",
+                        "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
                     },
                     {
                         "recognition": "TemplateMatch",
-                        "threshold": 0.7, // 图片alpha值较低，难以匹配，阈值不能太高
-                        "template": "RealTimeTask/AutoSkipEsc.png",
                         "roi": [
                             1140,
                             0,
                             120,
                             90
-                        ]
+                        ],
+                        "template": "RealTimeTask/AutoSkipEsc.png",
+                        "threshold": 0.7 // 图片alpha值较低，难以匹配，阈值不能太高
                     }
                 ]
             }
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "进入剧情场景"
-        },
         "next": [
             "RealTimeAutoSkipEntry"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入剧情场景"
+        }
     },
     "RealTimeAutoSkipEntry": {
         "recognition": "DirectHit",
@@ -67,52 +67,52 @@
         ]
     },
     "RealTimeAutoSkipExit": {
-        "doc": "auto图标消失，退出剧情",
+        "desc": "auto图标消失，退出剧情",
         // 找右上角退出按钮
         "recognition": "TemplateMatch",
+        "roi": [
+            1140,
+            0,
+            120,
+            90
+        ],
+        "template": "RealTimeTask/AutoSkipA.png",
         "threshold": 0.7,
         "inverse": true,
-        "template": "RealTimeTask/AutoSkipA.png",
-        "roi": [
-            1140,
-            0,
-            120,
-            90
-        ],
-        "action": "Click",
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "退出剧情场景"
-        },
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "退出剧情场景"
+        }
     },
     "RealTimeAutoSkipAll": {
-        "doc": "自动跳过全部剧情",
+        "desc": "自动跳过全部剧情",
         // 找右上角跳过按钮
         "recognition": "TemplateMatch",
-        "threshold": 0.7,
-        "template": "RealTimeTask/AutoSkipEsc.png",
         "roi": [
             1140,
             0,
             120,
             90
         ],
+        "template": "RealTimeTask/AutoSkipEsc.png",
+        "threshold": 0.7,
         "action": "Click",
         "post_wait_freezes": 100,
-        "focus": {
-            "Node.Action.Succeeded": "跳过全部剧情"
-        },
         "next": [
             "RealTimeAutoSkipAllConfirm",
             "RealTimeAutoSkipEntry"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "跳过全部剧情"
+        }
     },
     "RealTimeAutoSkipAllConfirm": {
-        "doc": "确认跳过全部剧情",
+        "desc": "确认跳过全部剧情",
         // 找中间跳过确认按钮
         "recognition": "ColorMatch",
         "roi": [
@@ -121,79 +121,79 @@
             200,
             100
         ],
-        "upper": [
-            255,
-            249,
-            11
-        ],
         "lower": [
             245,
             229,
             0
         ],
+        "upper": [
+            255,
+            249,
+            11
+        ],
         "count": 200,
         "action": "Click",
-        "focus": {
-            "Node.Action.Succeeded": "确认跳过全部剧情"
-        },
         "next": [
             "RealTimeAutoSkipEntry"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "确认跳过全部剧情"
+        }
     },
     "RealTimeAutoSkipChoose": {
-        "doc": "自动跳过剧情中分支选择",
+        "desc": "自动跳过剧情中分支选择",
         // 找右侧区域是否有待选择的功能点
         "recognition": "TemplateMatch",
-        "threshold": 0.9,
-        "template": "RealTimeTask/AutoSkipTip.png",
         "roi": [
             900,
             400,
             300,
             300
         ],
+        "template": "RealTimeTask/AutoSkipTip.png",
+        "threshold": 0.9,
         "action": "Click",
-        "focus": {
-            "Node.Action.Succeeded": "选择剧情分支"
-        },
         "next": [
             "RealTimeAutoSkipEntry"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "选择剧情分支"
+        }
     },
     "RealTimeAutoSkipNext": {
-        "doc": "自动点击剧情下一步",
+        "desc": "自动点击剧情下一步",
         // 查找游戏下方三角形按钮
         "recognition": "Or",
         "any_of": [
             {
                 "recognition": "TemplateMatch",
-                "threshold": 0.7,
-                "template": "RealTimeTask/AutoSkipNext.png",
                 "roi": [
                     630,
                     680,
                     20,
                     35
-                ]
+                ],
+                "template": "RealTimeTask/AutoSkipNext.png",
+                "threshold": 0.7
             },
             {
                 "recognition": "TemplateMatch",
-                "threshold": 0.7,
-                "template": "RealTimeTask/AutoSkipNext2.png",
                 "roi": [
                     630,
                     680,
                     20,
                     35
-                ]
+                ],
+                "template": "RealTimeTask/AutoSkipNext2.png",
+                "threshold": 0.7
             }
         ],
         "action": "Click",
-        "focus": {
-            "Node.Action.Succeeded": "点击剧情下一步"
-        },
         "next": [
             "RealTimeAutoSkipEntry"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击剧情下一步"
+        }
     }
 }

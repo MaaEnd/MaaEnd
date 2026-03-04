@@ -1,6 +1,6 @@
 {
     "__ScenePrivateMapAnyEnterMapWulingWulingCity": {
-        "doc": "在任意地图界面，进入武陵-武陵城地图",
+        "desc": "在任意地图界面，进入武陵-武陵城地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -12,7 +12,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValley": {
-        "doc": "在任意地图界面，进入武陵-景玉谷地图",
+        "desc": "在任意地图界面，进入武陵-景玉谷地图",
         "recognition": "And",
         "all_of": [
             "InMapAny"
@@ -24,7 +24,7 @@
         ]
     },
     "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess": {
-        "doc": "在地图界面，成功进入武陵-武陵城地图",
+        "desc": "在地图界面，成功进入武陵-武陵城地图",
         "recognition": "And",
         "all_of": [
             "InMapWulingWulingCity"
@@ -33,7 +33,7 @@
         "post_delay": 0
     },
     "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess": {
-        "doc": "在地图界面，成功进入武陵-景玉谷地图",
+        "desc": "在地图界面，成功进入武陵-景玉谷地图",
         "recognition": "And",
         "all_of": [
             "InMapWulingJingyuValley"
@@ -110,7 +110,7 @@
         ]
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
-        "doc": "在武陵总览界面，进入武陵-武陵城地图",
+        "desc": "在武陵总览界面，进入武陵-武陵城地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -135,7 +135,7 @@
         ]
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
-        "doc": "在武陵总览界面，进入武陵-景玉谷地图",
+        "desc": "在武陵总览界面，进入武陵-景玉谷地图",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -160,7 +160,7 @@
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchor": {
-        "doc": "在武陵-武陵城地图界面，进入[锚点]大世界",
+        "desc": "在武陵-武陵城地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapWulingWulingCity"
@@ -177,7 +177,7 @@
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor": {
-        "doc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
+        "desc": "在武陵-景玉谷地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapWulingJingyuValley"

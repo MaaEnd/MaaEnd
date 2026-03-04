@@ -1,6 +1,6 @@
 {
     "RealTimeTaskMain": {
-        "doc": "实时任务主入口",
+        "desc": "实时任务主入口",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -24,7 +24,7 @@
         ]
     },
     "RealTimeTaskMainDelay": {
-        "doc": "实时任务主入口",
+        "desc": "实时任务主入口",
         "pre_delay": 0,
         "post_delay": 400,
         "next": [

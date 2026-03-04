@@ -3,20 +3,20 @@
     // 任务 1：全屏阻断点击 (Priority: High)
     // ========================================================
     "CheckAnywhere": {
-        "doc": "检测屏幕上出现的'点击任意处继续'提示",
+        "desc": "检测屏幕上出现的'点击任意处继续'提示",
         "recognition": {
             "type": "OCR",
             "param": {
-                "expected": [
-                    "点击任意处继续",
-                    "点击任意处",
-                    "任意处继续"
-                ],
                 "roi": [
                     50,
                     25,
                     1150,
                     680
+                ],
+                "expected": [
+                    "点击任意处继续",
+                    "点击任意处",
+                    "任意处继续"
                 ]
             }
         },
@@ -26,20 +26,20 @@
         ]
     },
     "Guard_CheckMailboxandClickToContinue": {
-        "doc": "后置拦截：如果检测到是邮箱界面，则跳过全屏点击，防止误触邮件内容,否则点击",
+        "desc": "后置拦截：如果检测到是邮箱界面，则跳过全屏点击，防止误触邮件内容,否则点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/MailHeader.png",
-                // 这种静态UI非常标准，阈值可以拉高，防止误判
-                "threshold": 0.8,
                 // 只看左上角标题栏，非常高效且精准
                 "roi": [
                     29,
                     9,
                     60,
                     80
-                ]
+                ],
+                "template": "CloseInfo/MailHeader.png",
+                // 这种静态UI非常标准，阈值可以拉高，防止误判
+                "threshold": 0.8
             }
         },
         "inverse": true,
@@ -54,66 +54,63 @@
                 ]
             }
         },
-        "focus": {
-            "Node.Action.Succeeded": "跳过点击任意处继续"
-        },
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "跳过点击任意处继续"
+        }
     },
     // ========================================================
     // 任务 2：特殊 UI 检测 (Priority: Medium)
     // ========================================================
     "CheckSpecialInfoPanel": {
-        "doc": "检测并关闭特殊信息面板(档案/语音)",
+        "desc": "检测并关闭特殊信息面板(档案/语音)",
         "recognition": "And",
         "all_of": [
             {
-                "doc": "检测是否处于目标界面 (Or)",
+                "desc": "检测是否处于目标界面 (Or)",
                 "recognition": "Or",
                 "any_of": [
                     {
-                        "doc": "检测档案界面",
+                        "desc": "检测档案界面",
                         "recognition": "TemplateMatch",
-                        "template": "CloseInfo/DocHeader.png",
-                        "threshold": 0.8,
                         "roi": [
                             401,
                             87,
                             477,
                             36
-                        ]
+                        ],
+                        "template": "CloseInfo/DocHeader.png",
+                        "threshold": 0.8
                     },
                     {
-                        "doc": "检测语音界面",
+                        "desc": "检测语音界面",
                         "recognition": "TemplateMatch",
-                        "template": "CloseInfo/VoiceBar.png",
-                        "threshold": 0.8,
                         "roi": [
                             228,
                             127,
                             40,
                             471
-                        ]
+                        ],
+                        "template": "CloseInfo/VoiceBar.png",
+                        "threshold": 0.8
                     }
                 ]
             },
             {
-                "doc": "识别退出按钮并获取其坐标",
+                "desc": "识别退出按钮并获取其坐标",
                 "recognition": "TemplateMatch",
-                "template": "CloseInfo/CloseButton.png",
-                "threshold": 0.8,
                 "roi": [
                     1050,
                     0,
                     230,
                     80
-                ]
+                ],
+                "template": "CloseInfo/CloseButton.png",
+                "threshold": 0.8
             }
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "识别到剧情文档/语音，准备关闭"
-        },
         "action": {
             "type": "Click",
             "param": {
@@ -125,82 +122,85 @@
         },
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到剧情文档/语音，准备关闭"
+        }
     },
     // ========================================================
     // 任务 3：教程翻页 (Priority: Medium)
     // ========================================================
     "HandleTutorialPaging": {
-        "doc": "识别说明书翻页箭头",
+        "desc": "识别说明书翻页箭头",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/TutorialNext.png",
-                "threshold": 0.75,
                 // ROI 扩大：X 向左延伸到 1000，确保 16:10 也能包住
                 "roi": [
                     1000,
                     250,
                     280,
                     200
-                ]
+                ],
+                "template": "CloseInfo/TutorialNext.png",
+                "threshold": 0.75
             }
         },
         "action": "Click",
         "post_wait_freezes": 100,
-        "focus": {
-            "Node.Action.Succeeded": "点击说明书翻页"
-        },
         "next": [
             "HandleTutorialConfirm",
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击说明书翻页"
+        }
     },
     // ========================================================
     // 任务 4：教程确认 (Priority: Medium)
     // ========================================================
     "HandleTutorialConfirm": {
-        "doc": "识别说明书底部的黄色确认按钮",
+        "desc": "识别说明书底部的黄色确认按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/TutorialConfirm.png",
-                "threshold": 0.8,
                 // 稍微放宽一点点
                 "roi": [
                     500,
                     600,
                     300,
                     100
-                ]
+                ],
+                "template": "CloseInfo/TutorialConfirm.png",
+                "threshold": 0.8
             }
         },
         "action": "Click",
         "post_wait_freezes": 100,
-        "focus": {
-            "Node.Action.Succeeded": "点击说明书确认键"
-        },
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击说明书确认键"
+        }
     },
     // ========================================================
     // 任务 5：强制指引 (Priority: High)
     // ========================================================
     "HandleTutorialGuide_RightUp": {
-        "doc": "检测并点击新手引导的指引箭头",
+        "desc": "检测并点击新手引导的指引箭头",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/RightUpHand.png",
-                "threshold": 0.66,
-                "green_mask": true,
                 "roi": [
                     0,
                     0,
                     1280,
                     720
-                ]
+                ],
+                "template": "CloseInfo/RightUpHand.png",
+                "green_mask": true,
+                "threshold": 0.66
             }
         },
         "action": {
@@ -214,28 +214,28 @@
                 ]
             }
         },
-        "focus": {
-            "Node.Action.Succeeded": "点击引导箭头"
-        },
         "post_wait_freezes": 200,
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击引导箭头"
+        }
     },
     "HandleTutorialGuide_LeftUp": {
-        "doc": "检测新手引导箭头(指向左上)",
+        "desc": "检测新手引导箭头(指向左上)",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "template": "CloseInfo/LeftUpHand.png",
-                "threshold": 0.66,
-                "green_mask": true,
                 "roi": [
                     0,
                     80,
                     1280,
                     640
-                ]
+                ],
+                "template": "CloseInfo/LeftUpHand.png",
+                "green_mask": true,
+                "threshold": 0.66
             }
         },
         "action": {
@@ -250,11 +250,11 @@
             }
         },
         "post_wait_freezes": 100,
-        "focus": {
-            "Node.Action.Succeeded": "点击引导箭头"
-        },
         "next": [
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击引导箭头"
+        }
     }
 }

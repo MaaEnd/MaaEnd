@@ -1,71 +1,70 @@
 {
     "ResellGotoSell": {
-        "doc": "出发倒卖",
+        "desc": "出发倒卖",
         "recognition": "TemplateMatch",
-        "template": "Resell/inUnstableStore.png",
-        "threshold": 0.8,
         "roi": [
             0,
             209,
             128,
             126
         ],
+        "template": "Resell/inUnstableStore.png",
+        "threshold": 0.8,
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
+        "post_delay": 500,
         "next": [
             "ResellClickStock",
             "ResellStageEnterStore"
         ]
     },
     "ResellClickStock": {
-        "doc": "点击库存",
+        "desc": "点击库存",
         "recognition": "OCR",
-        "order_by": "Expected",
-        "threshold": 0.8,
         "roi": [
             80,
             241,
             139,
             142
         ],
-        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "expected": "[0-9]+",
+        "threshold": 0.8,
+        "order_by": "Expected",
         "action": "Click",
+        "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "next": [
             "ResellListFriends"
         ]
     },
     "ResellListFriends": {
-        "doc": "打开好友列表",
+        "desc": "打开好友列表",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             944,
             446,
             98,
             26
         ],
+        "threshold": 0.8,
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
+        "post_delay": 500,
         "next": [
             "ResellClickFriend"
         ]
     },
     "ResellClickFriend": {
-        "doc": "点击好友",
+        "desc": "点击好友",
         "recognition": "TemplateMatch",
-        "template": "Resell/back.png",
-        "threshold": 0.8,
         "roi": [
             940,
             88,
             117,
             116
         ],
+        "template": "Resell/back.png",
+        "threshold": 0.8,
         "pre_delay": 500,
-        "post_delay": 500,
         "action": "Click",
         "target": [
             480,
@@ -73,44 +72,45 @@
             28,
             28
         ],
+        "post_delay": 500,
         "next": [
             "ResellEnterShip"
         ]
     },
     "ResellEnterShip": {
-        "doc": "进入好友的船坞",
+        "desc": "进入好友的船坞",
         "recognition": "OCR",
-        "threshold": 0.8,
         "roi": [
             532,
             333,
             89,
             19
         ],
-        "order_by": "Expected",
         "expected": ".*飞船.*",
+        "threshold": 0.8,
+        "order_by": "Expected",
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "Click",
+        "post_delay": 500,
         "next": [
             "ResellinShip",
             "[JumpBack]WaitLoadingColor"
         ]
     },
     "ResellinShip": {
-        "doc": "在好友的船坞，进入商店",
+        "desc": "在好友的船坞，进入商店",
         "recognition": "TemplateMatch",
-        "template": "Resell/inShip.png",
-        "threshold": 0.8,
         "roi": [
             0,
             0,
             125,
             125
         ],
+        "template": "Resell/inShip.png",
+        "threshold": 0.8,
         "pre_delay": 0,
-        "post_delay": 500,
         "action": "DoNothing",
+        "post_delay": 500,
         "next": [
             "ResellShipWalkAS_KeyDownA"
         ]

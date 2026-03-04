@@ -7,6 +7,7 @@
         ]
     },
     "__AutoFightActionAttackClick": {
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             600,
@@ -14,25 +15,25 @@
             80,
             80
         ],
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__AutoFightActionComboClick": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 69, // E键
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__AutoFightActionDodge": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 160, // Shift键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发闪避"
         }
     },
     "__AutoFightActionLockTarget": {
+        "pre_delay": 0,
         "action": "Click",
         "target": [
             600,
@@ -41,115 +42,114 @@
             80
         ],
         "contact": 2,
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "锁定目标"
         }
     },
     "__AutoFightActionAttackKeyPress": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 48, // 0键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发普攻"
         }
     },
     "__AutoFightActionSkillOperators1": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 49, // 1键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员1技能"
         }
     },
     "__AutoFightActionSkillOperators2": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 50, // 2键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员2技能"
         }
     },
     "__AutoFightActionSkillOperators3": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 51, // 3键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员3技能"
         }
     },
     "__AutoFightActionSkillOperators4": {
+        "pre_delay": 0,
         "action": "ClickKey",
         "key": 52, // 4键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员4技能"
         }
     },
     "__AutoFightActionEndSkillOperators1KeyDown": {
+        "pre_delay": 0,
         "action": "KeyDown",
         "key": 49, // 1键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员1终结技"
         }
     },
     "__AutoFightActionEndSkillOperators1KeyUp": {
+        "pre_delay": 0,
         "action": "KeyUp",
         "key": 49, // 1键
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators2KeyDown": {
+        "pre_delay": 0,
         "action": "KeyDown",
         "key": 50, // 2键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员2终结技"
         }
     },
     "__AutoFightActionEndSkillOperators2KeyUp": {
+        "pre_delay": 0,
         "action": "KeyUp",
         "key": 50, // 2键
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators3KeyDown": {
+        "pre_delay": 0,
         "action": "KeyDown",
         "key": 51, // 3键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员3终结技"
         }
     },
     "__AutoFightActionEndSkillOperators3KeyUp": {
+        "pre_delay": 0,
         "action": "KeyUp",
         "key": 51, // 3键
-        "pre_delay": 0,
         "post_delay": 0
     },
     "__AutoFightActionEndSkillOperators4KeyDown": {
+        "pre_delay": 0,
         "action": "KeyDown",
         "key": 52, // 4键
-        "pre_delay": 0,
         "post_delay": 0,
         "focus": {
             "Node.Action.Succeeded": "触发干员4终结技"
         }
     },
     "__AutoFightActionEndSkillOperators4KeyUp": {
+        "pre_delay": 0,
         "action": "KeyUp",
         "key": 52, // 4键
-        "pre_delay": 0,
         "post_delay": 0
     }
 }

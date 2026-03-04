@@ -2,7 +2,6 @@
     // ADB 中直接单击即可
     "RegionalDevelopmentButton": {
         "action": "Click",
-        "next": [],
         "post_wait_freezes": {
             "time": 80,
             "target": [
@@ -11,11 +10,11 @@
                 0,
                 0
             ]
-        }
+        },
+        "next": []
     },
     "ControlNexusButton": {
         "action": "Click",
-        "next": [],
         "post_wait_freezes": {
             "time": 80,
             "target": [
@@ -24,7 +23,8 @@
                 0,
                 0
             ]
-        }
+        },
+        "next": []
     },
     "EnterCameraModeButton": {
         "action": "Click"

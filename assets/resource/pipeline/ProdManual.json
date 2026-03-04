@@ -38,18 +38,18 @@
     "ProdManualCraftingEnterManual": {
         "desc": "在简易制作界面，点击进入简制手册",
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "简制手册"
-                ],
                 "roi": [
                     983,
                     5,
                     289,
                     77
+                ],
+                "expected": [
+                    "简制手册"
                 ]
-            },
-            "type": "OCR"
+            }
         },
         "action": {
             "type": "Click"
@@ -62,6 +62,7 @@
     "ProdManualOpenItem": {
         "desc": "硬编码打开第一个item",
         "action": {
+            "type": "Click",
             "param": {
                 "target": [
                     305,
@@ -69,8 +70,7 @@
                     1,
                     1
                 ]
-            },
-            "type": "Click"
+            }
         },
         "post_wait_freezes": 400,
         "next": [
@@ -78,82 +78,72 @@
         ]
     },
     "ProdManualAlreadyIn": {
-        "next": [
-            "[JumpBack]ProdManualReceiveReward",
-            "[JumpBack]ProdManualConfirmUpdate",
-            "ProdManualDone"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "返回"
-                ],
                 "roi": [
                     960,
                     87,
                     189,
                     98
+                ],
+                "expected": [
+                    "返回"
                 ]
-            },
-            "type": "OCR"
-        }
-    },
-    "ProdManualConfirmReward": {
-        "action": {
-            "param": {},
-            "type": "Click"
+            }
         },
         "next": [
-            "ProdManualNext",
-            "ProdManualConfirmUpdate",
-            "ProdManualConfirmReward"
-        ],
+            "[JumpBack]ProdManualReceiveReward",
+            "[JumpBack]ProdManualConfirmUpdate",
+            "ProdManualDone"
+        ]
+    },
+    "ProdManualConfirmReward": {
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "奖励"
-                ],
                 "roi": [
                     475,
                     9,
                     332,
                     182
+                ],
+                "expected": [
+                    "奖励"
                 ]
-            },
-            "type": "OCR"
-        }
-    },
-    "ProdManualConfirmUpdate": {
+            }
+        },
         "action": {
-            "param": {},
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
         "next": [
             "ProdManualNext",
-            "ProdManualConfirmUpdate"
-        ],
+            "ProdManualConfirmUpdate",
+            "ProdManualConfirmReward"
+        ]
+    },
+    "ProdManualConfirmUpdate": {
         "recognition": {
+            "type": "OCR",
             "param": {
                 "expected": [
                     "点击屏幕继续"
                 ]
-            },
-            "type": "OCR"
-        }
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualNext",
+            "ProdManualConfirmUpdate"
+        ]
     },
     "ProdManualNext": {
-        "action": {
-            "param": {
-                "target_offset": [
-                    10,
-                    14,
-                    -26,
-                    -28
-                ]
-            },
-            "type": "Click"
-        },
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     933,
@@ -164,35 +154,61 @@
                 "template": [
                     "ProdManual/NextPM.png"
                 ]
-            },
-            "type": "TemplateMatch"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    10,
+                    14,
+                    -26,
+                    -28
+                ]
+            }
         }
     },
     "ProdManualOpenInBackpack": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "进入简易制作界面"
-        },
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "简易制作"
-                ],
                 "roi": [
                     884,
                     118,
                     280,
                     136
+                ],
+                "expected": [
+                    "简易制作"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易制作界面"
         }
     },
     "ProdManualOpenInList": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    428,
+                    79,
+                    431,
+                    150
+                ],
+                "expected": [
+                    "每获取对应数量物品",
+                    "可解锁相应内容"
+                ]
+            }
+        },
         "action": {
+            "type": "Click",
             "param": {
                 "target": [
                     305,
@@ -200,42 +216,15 @@
                     1,
                     1
                 ]
-            },
-            "type": "Click"
+            }
         },
         "focus": {
             "Node.Recognition.Succeeded": "进入收集进度界面"
-        },
-        "recognition": {
-            "param": {
-                "expected": [
-                    "每获取对应数量物品",
-                    "可解锁相应内容"
-                ],
-                "roi": [
-                    428,
-                    79,
-                    431,
-                    150
-                ]
-            },
-            "type": "OCR"
         }
     },
     "ProdManualOpenInMain": {
-        "action": {
-            "param": {
-                "key": 18
-            },
-            "type": "KeyDown"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "进入背包界面"
-        },
-        "next": [
-            "ProdManualOpenInMainClick"
-        ],
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     916,
@@ -247,16 +236,27 @@
                     "ProdManual/Backpack.png",
                     "ProdManual/Backpack2.png"
                 ]
-            },
-            "type": "TemplateMatch"
+            }
+        },
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18
+            }
+        },
+        "next": [
+            "ProdManualOpenInMainClick"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
         }
     },
     "ProdManualOpenInMainClick": {
         "action": {
+            "type": "Click",
             "param": {
                 "target": "ProdManualOpenInMain"
-            },
-            "type": "Click"
+            }
         },
         "next": [
             "ProdManualOpenInMainDone"
@@ -264,56 +264,57 @@
     },
     "ProdManualOpenInMainDone": {
         "action": {
+            "type": "KeyUp",
             "param": {
                 "key": 18
-            },
-            "type": "KeyUp"
+            }
         }
     },
     "ProdManualOpenInMenu": {
-        "focus": {
-            "Node.Recognition.Succeeded": "进入背包界面"
-        },
-        "next": [
-            "ProdManualOpenInMenuSwipe"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "探索等级"
-                ],
                 "roi": [
                     195,
                     390,
                     400,
                     203
+                ],
+                "expected": [
+                    "探索等级"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "next": [
+            "ProdManualOpenInMenuSwipe"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入背包界面"
         }
     },
     "ProdManualOpenInMenuOpen": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "背包"
-                ],
                 "roi": [
                     1000,
                     282,
                     194,
                     160
+                ],
+                "expected": [
+                    "背包"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
         }
     },
     "ProdManualOpenInMenuSwipe": {
         "action": {
+            "type": "Swipe",
             "param": {
                 "begin": [
                     1099,
@@ -329,88 +330,81 @@
                         0
                     ]
                 ]
-            },
-            "type": "Swipe"
+            }
         },
+        "post_delay": 500,
         "next": [
             "ProdManualOpenInMenuOpen"
-        ],
-        "post_delay": 500
+        ]
     },
     "ProdManualOpenInProd": {
-        "focus": {
-            "Node.Recognition.Succeeded": "进入简易手册界面"
-        },
-        "next": [
-            "ProdManualOpenInProdClick"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "应急食药"
-                ],
                 "roi": [
                     10,
                     5,
                     276,
                     136
+                ],
+                "expected": [
+                    "应急食药"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "next": [
+            "ProdManualOpenInProdClick"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入简易手册界面"
         }
     },
     "ProdManualOpenInProdClick": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "简制手册"
-                ],
                 "roi": [
                     983,
                     5,
                     289,
                     77
+                ],
+                "expected": [
+                    "简制手册"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
         }
     },
     "ProdManualBackAtBackpack": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1010,
+                    62,
+                    194,
+                    144
+                ],
+                "template": [
+                    "ProdManual/CloseList.png"
+                ]
+            }
+        },
         "action": {
-            "param": {},
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
         "focus": {
             "Node.Action.Succeeded": "已返回主界面"
-        },
-        "recognition": {
-            "param": {
-                "roi": [
-                    1010,
-                    62,
-                    194,
-                    144
-                ],
-                "template": [
-                    "ProdManual/CloseList.png"
-                ]
-            },
-            "type": "TemplateMatch"
         }
     },
     "ProdManualBackAtList": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "next": [
-            "ProdManualBackAtProd"
-        ],
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1010,
@@ -421,42 +415,42 @@
                 "template": [
                     "ProdManual/CloseList.png"
                 ]
-            },
-            "type": "TemplateMatch"
-        }
-    },
-    "ProdManualBackAtPM": {
+            }
+        },
         "action": {
-            "param": {},
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
         "next": [
-            "ProdManualBackAtList"
-        ],
+            "ProdManualBackAtProd"
+        ]
+    },
+    "ProdManualBackAtPM": {
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "返回"
-                ],
                 "roi": [
                     960,
                     87,
                     189,
                     98
+                ],
+                "expected": [
+                    "返回"
                 ]
-            },
-            "type": "OCR"
-        }
-    },
-    "ProdManualBackAtProd": {
+            }
+        },
         "action": {
-            "param": {},
-            "type": "Click"
+            "type": "Click",
+            "param": {}
         },
         "next": [
-            "ProdManualBackAtBackpack"
-        ],
+            "ProdManualBackAtList"
+        ]
+    },
+    "ProdManualBackAtProd": {
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1139,
@@ -467,53 +461,59 @@
                 "template": [
                     "CloseInfo/CloseButton.png"
                 ]
-            },
-            "type": "TemplateMatch"
-        }
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualBackAtBackpack"
+        ]
     },
     "ProdManualDone": {
-        "focus": {
-            "Node.Action.Succeeded": "返回主界面",
-            "Node.Recognition.Succeeded": "奖励已全部领取"
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "ProdManualBackAtPM"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Action.Succeeded": "返回主界面",
+            "Node.Recognition.Succeeded": "奖励已全部领取"
+        }
     },
     "ProdManualStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "ProdManualBackpackEnterCrafting",
             "[JumpBack]SceneEnterMenuBackpack"
-        ],
-        "post_delay": 0,
-        "pre_delay": 0
+        ]
     },
     "ProdManualReceiveReward": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Recognition.Succeeded": "领取收集奖励"
-        },
-        "next": [
-            "ProdManualConfirmReward"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "键领取"
-                ],
                 "roi": [
                     830,
                     505,
                     352,
                     150
+                ],
+                "expected": [
+                    "键领取"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "ProdManualConfirmReward"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "领取收集奖励"
         }
     }
 }

@@ -1,6 +1,6 @@
 {
     "__ScenePrivateLogin": {
-        "doc": "处理登录界面",
+        "desc": "处理登录界面",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -21,7 +21,7 @@
         ]
     },
     "__ScenePrivateLoginContinue": {
-        "doc": "等待登录页面出现按钮继续",
+        "desc": "等待登录页面出现按钮继续",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -51,7 +51,7 @@
         ]
     },
     "__ScenePrivateLoginMonthlyPassConfirm": {
-        "doc": "领取月卡，无法跳过必须领取",
+        "desc": "领取月卡，无法跳过必须领取",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -85,7 +85,7 @@
         }
     },
     "__ScenePrivateLoginCloseDialog": {
-        "doc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
+        "desc": "关闭所有待领取的弹窗，此功能目的是进入游戏，奖励领取统一在单独任务中处理",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -94,7 +94,7 @@
         }
     },
     "__ScenePrivateLoginSuccess": {
-        "doc": "进入大世界成功",
+        "desc": "进入大世界成功",
         "recognition": {
             "type": "And",
             "param": {

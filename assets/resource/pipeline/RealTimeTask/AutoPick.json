@@ -1,6 +1,6 @@
 {
     "AutoPickFalls": {
-        "doc": "拾取掉落物",
+        "desc": "拾取掉落物",
         "recognition": {
             "type": "And",
             "param": {
@@ -36,24 +36,24 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 70
             }
         },
-        "focus": {
-            "Node.Action.Succeeded": "拾取掉落物"
-        },
-        "pre_delay": 0,
         "post_delay": 50,
         "next": [
             "AutoPickFalls",
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拾取掉落物"
+        }
     },
     "AutoPickInteractive": {
-        "doc": "拾取交互物",
+        "desc": "拾取交互物",
         "recognition": {
             "type": "And",
             "param": {
@@ -61,18 +61,24 @@
                     {
                         "sub_name": "icon",
                         "recognition": "TemplateMatch",
-                        "template": "RealTimeTask/AutoPick.png",
                         "roi": [
                             755,
                             330,
                             297,
                             312
                         ],
+                        "template": "RealTimeTask/AutoPick.png",
                         "threshold": 0.9
                     },
                     {
-                        "recognition": "OCR",
                         "sub_name": "material",
+                        "recognition": "OCR",
+                        "roi": [
+                            755,
+                            330,
+                            297,
+                            312
+                        ],
                         "expected": [
                             "萤壳虫",
                             "灼壳虫",
@@ -99,31 +105,25 @@
                             "中红柱状菌",
                             "纯晶多齿叶",
                             "星门菌"
-                        ],
-                        "roi": [
-                            755,
-                            330,
-                            297,
-                            312
                         ]
                     }
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 70
             }
         },
-        "focus": {
-            "Node.Action.Succeeded": "拾取交互物"
-        },
-        "pre_delay": 0,
         "post_delay": 50,
         "next": [
             "AutoPickInteractive",
             "RealTimeTaskMain"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "拾取交互物"
+        }
     }
 }

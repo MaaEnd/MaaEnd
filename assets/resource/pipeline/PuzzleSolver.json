@@ -1,7 +1,7 @@
 {
     // 终末地电路拼图游戏的自动化 Pipeline
     "PuzzleSolverMain": {
-        "doc": "主入口节点（终末地电路拼图游戏的自动化任务）",
+        "desc": "主入口节点（终末地电路拼图游戏的自动化任务）",
         "recognition": "DirectHit",
         "next": [
             "PuzzleSolverOnScenePrepare",
@@ -10,15 +10,15 @@
         ]
     },
     "PuzzleSolverOnScenePrepare": {
-        "doc": "解谜的准备界面（匹配屏幕左侧的特征性图案）",
+        "desc": "解谜的准备界面（匹配屏幕左侧的特征性图案）",
         "recognition": "TemplateMatch",
-        "template": "PuzzleSolver/ScenePrepare.png",
         "roi": [
             167,
             199,
             354,
             296
         ],
+        "template": "PuzzleSolver/ScenePrepare.png",
         "next": [
             "PuzzleSolverFindStartButton"
         ],
@@ -30,15 +30,15 @@
         }
     },
     "PuzzleSolverFindStartButton": {
-        "doc": "查找并点击“修复”按钮以开始拼图解谜",
+        "desc": "查找并点击“修复”按钮以开始拼图解谜",
         "recognition": "TemplateMatch",
-        "template": "PuzzleSolver/ButtonStart.png",
         "roi": [
             999,
             469,
             134,
             140
         ],
+        "template": "PuzzleSolver/ButtonStart.png",
         "action": "Click",
         "post_wait_freezes": 100, // 点击后，等待界面加载
         "next": [
@@ -49,15 +49,15 @@
         ]
     },
     "PuzzleSolverOnSceneMain": {
-        "doc": "解谜的主界面（匹配屏幕右上角的特征性图案）",
+        "desc": "解谜的主界面（匹配屏幕右上角的特征性图案）",
         "recognition": "TemplateMatch",
-        "template": "PuzzleSolver/SceneMain.png",
         "roi": [
             944,
             0,
             236,
             164
         ],
+        "template": "PuzzleSolver/SceneMain.png",
         "rate_limit": 100, // 快速轮询
         "next": [
             "PuzzleSolverFindUnavailableTip",
@@ -66,15 +66,15 @@
         ]
     },
     "PuzzleSolverFindUnavailableTip": {
-        "doc": "查找是否存在“有尚未了解的元件样式”的提示",
+        "desc": "查找是否存在“有尚未了解的元件样式”的提示",
         "recognition": "TemplateMatch",
-        "template": "PuzzleSolver/TipUnavailable.png",
         "roi": [
             497,
             314,
             129,
             128
         ],
+        "template": "PuzzleSolver/TipUnavailable.png",
         "post_delay": 5000,
         "next": [
             "PuzzleSolverOnPass"
@@ -84,33 +84,33 @@
         }
     },
     "PuzzleSolverFindCompleteTip": {
-        "doc": "查找是否存在“拼图已完成”的提示",
+        "desc": "查找是否存在“拼图已完成”的提示",
         "recognition": "TemplateMatch",
-        "template": "PuzzleSolver/TipComplete.png",
         "roi": [
             426,
             318,
             428,
             119
         ],
+        "template": "PuzzleSolver/TipComplete.png",
         "post_delay": 5000,
         "next": [
             "PuzzleSolverOnPass"
         ]
     },
     "PuzzleSolverSolvePuzzleReady": {
-        "doc": "准备执行拼图解决方案（守卫节点）",
+        "desc": "准备执行拼图解决方案（守卫节点）",
         "recognition": "DirectHit",
-        "timeout": 10000, // 缩小超时阈值（默认 20000）
         "pre_delay": 0, // 此节点为守卫节点，无需延迟
         "post_delay": 0, // 此节点为守卫节点，无需延迟
+        "timeout": 10000, // 缩小超时阈值（默认 20000）
         "next": [
             "PuzzleSolverSolvePuzzle",
             "PuzzleSolverOnFail"
         ]
     },
     "PuzzleSolverSolvePuzzle": {
-        "doc": "执行拼图解决方案（识别+计算+自动化操作）",
+        "desc": "执行拼图解决方案（识别+计算+自动化操作）",
         "recognition": "Custom",
         "custom_recognition": "PuzzleRecognition",
         "action": "Custom",
@@ -133,7 +133,7 @@
     // 下面是一些回调节点的定义
     // 向回调节点的 next 列表中添加 "PuzzleSolverMain" 即可实现自动重试
     "PuzzleSolverMaybeLoop": {
-        "doc": "回调：决定自循环（守卫节点）",
+        "desc": "回调：决定自循环（守卫节点）",
         "recognition": "DirectHit",
         "pre_delay": 0, // 此节点为守卫节点，无需延迟
         "post_delay": 0, // 此节点为守卫节点，无需延迟
@@ -142,8 +142,9 @@
         ]
     },
     "PuzzleSolverOnSuccess": {
-        "doc": "回调：解谜成功后触发，关闭拼图界面",
+        "desc": "回调：解谜成功后触发，关闭拼图界面",
         "recognition": "DirectHit",
+        "pre_wait_freezes": 500, // 等待结算动画结束
         "action": "LongPress",
         "target": [
             640,
@@ -151,7 +152,6 @@
         ],
         "duration": 250,
         "post_delay": 2000,
-        "pre_wait_freezes": 500, // 等待结算动画结束
         "next": [
             // 默认情况下，任务到这里就结束了
         ],
@@ -160,7 +160,7 @@
         }
     },
     "PuzzleSolverOnMiss": {
-        "doc": "回调：未能按预期找到界面的UI元素时触发",
+        "desc": "回调：未能按预期找到界面的UI元素时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
@@ -170,7 +170,7 @@
         }
     },
     "PuzzleSolverOnPass": {
-        "doc": "回调：无需执行下一步操作时触发",
+        "desc": "回调：无需执行下一步操作时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
@@ -180,7 +180,7 @@
         }
     },
     "PuzzleSolverOnFail": {
-        "doc": "回调：核心任务（PuzzleSolverSolvePuzzle）识别未命中时触发",
+        "desc": "回调：核心任务（PuzzleSolverSolvePuzzle）识别未命中时触发",
         "recognition": "DirectHit",
         "next": [
             // 默认情况下，任务到这里就结束了
