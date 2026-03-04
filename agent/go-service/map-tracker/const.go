@@ -59,11 +59,11 @@ var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
 	ArrivalThreshold:       3.5,
 	ArrivalTimeout:         60000,
-	RotationLowerThreshold: 6.0,
-	RotationUpperThreshold: 30.0,
-	RotationSpeed:          2.0,
+	RotationLowerThreshold: 7.5,
+	RotationUpperThreshold: 60.0,
+	RotationSpeed:          2.75,
 	RotationTimeout:        30000,
-	SprintThreshold:        25.0,
+	SprintThreshold:        15.0,
 	StuckThreshold:         2000,
 	StuckTimeout:           10000,
 }
