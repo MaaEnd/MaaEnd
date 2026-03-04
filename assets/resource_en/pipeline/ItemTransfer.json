@@ -1,10 +1,4 @@
 {
-    "ItemTransferStart": {
-        "expected": [
-            "Depot",
-            "Storage"
-        ]
-    },
     "ItemTransferSwitchRepoToOrigin": {
         "expected": [
             "Switch",

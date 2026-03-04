@@ -391,7 +391,7 @@
         "key": 17,
         "next": [
             "ItemTransferCheckIfFull",
-            "ItemTransferStart",
+            "ItemTransferSwitchRepoToOrigin",
             "ItemTransferStop"
         ]
     },

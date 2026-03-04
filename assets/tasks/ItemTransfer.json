@@ -1655,7 +1655,7 @@
                 }
             ],
             "pipeline_override": {
-                "ItemTransferStart": {
+                "ItemTransferSwitchRepoToOrigin": {
                     "max_hit": "{Times}"
                 }
             }
