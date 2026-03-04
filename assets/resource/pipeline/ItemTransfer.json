@@ -1,22 +1,10 @@
 {
     "ItemTransfer": {
         "recognition": "DirectHit",
+        "doc": "next 分别为: 识别“仓库切换”以确认在背包界面并开始，传送到帝江号会客室，视角抬至最高",
         "next": [
-            "ItemTransferStart",
-            "[JumpBack]SceneEnterMenuBackpackWithDepot"
-        ]
-    },
-    "ItemTransferStart": {
-        "recognition": "OCR",
-        "roi": [
-            182,
-            125,
-            160,
-            39
-        ],
-        "expected": "仓库",
-        "next": [
-            "ItemTransferSwitchRepoToOrigin"
+            "ItemTransferSwitchRepoToOrigin",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotAtReceptionRoom"
         ]
     },
     "ItemTransferSwitchRepoToOrigin": {
