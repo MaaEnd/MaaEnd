@@ -25,7 +25,7 @@
     },
     "RealTimeSleep": {
         "pre_delay": 0,
-        "post_delay": 100
+        "post_delay": 200
     },
     "RealTimeFakeTrue": {
         "pre_delay": 0,
