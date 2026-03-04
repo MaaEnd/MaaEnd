@@ -34,6 +34,13 @@
                 "/install/config/maa_pi_config.json"
             ],
             "url": "/tools/schema/interface_config.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tests/**/*.json",
+                "/tests/**/*.jsonc"
+            ],
+            "url": "/tests/maa-tools-test.schema.json"
         }
     ],
     "files.associations": {
