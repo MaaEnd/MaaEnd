@@ -91,7 +91,7 @@ class _RealtimePathLayer(Layer):
             drawer.line(
                 (psx, psy),
                 (sx, sy),
-                color=0x2E7DFF,
+                color=0x22AAFF,
                 thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
             )
 
@@ -136,6 +136,7 @@ class PathEditPage:
 
     SIDEBAR_W = 240
     STATUS_BAR_H = 32
+    QUICK_BAR_H = 32
     LINE_WIDTH = 1.75
     POINT_RADIUS = 4.5
     POINT_SELECTION_THRESHOLD = 10
@@ -214,6 +215,9 @@ class PathEditPage:
         self._btn_save_rect: tuple | None = None
         self._btn_record_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
+        self._btn_quick_generate_rect: tuple | None = None
+        self._btn_quick_undo_rect: tuple | None = None
+        self._quick_undo_state: dict | None = None
         self._frame_interval = 1.0 / 60.0
         self._last_render_ts = 0.0
 
@@ -300,11 +304,76 @@ class PathEditPage:
             updated = True
 
         if updated:
+            if self._quick_undo_state and self._recorded_path:
+                self._quick_undo_state = None
             if self._recorded_path:
                 last_point = self._recorded_path[-1]
                 self.view.maybe_center_to(last_point[0], last_point[1])
             self.render_page()
         return updated
+
+    @staticmethod
+    def _angle_close(v1: tuple[float, float], v2: tuple[float, float]) -> bool:
+        x1, y1 = v1
+        x2, y2 = v2
+        n1 = math.hypot(x1, y1)
+        n2 = math.hypot(x2, y2)
+        if n1 == 0.0 or n2 == 0.0:
+            return False
+        dot = x1 * x2 + y1 * y2
+        cos_val = max(-1.0, min(1.0, dot / (n1 * n2)))
+        angle = math.degrees(math.acos(cos_val))
+        return angle < 6.0
+
+    def _generate_path_from_recorded(self):
+        if len(self._recorded_path) < 2:
+            return
+        self._quick_undo_state = {
+            "points": [list(p) for p in self.points],
+            "recorded_path": [list(p) for p in self._recorded_path],
+            "recorded_keys": set(self._recorded_keys),
+            "selected_idx": self.selected_idx,
+            "recording_active": self._recording_active,
+            "recording_start_time": self._recording_start_time,
+            "recording_last_ts": self._recording_last_ts,
+            "recording_last_poll": self._recording_last_poll,
+        }
+        result: list[list[int]] = []
+        for point in self._recorded_path:
+            if len(result) < 2:
+                result.append([point[0], point[1]])
+                continue
+            p2 = result[-2]
+            p1 = result[-1]
+            v1 = (point[0] - p2[0], point[1] - p2[1])
+            v2 = (point[0] - p1[0], point[1] - p1[1])
+            if self._angle_close(v1, v2):
+                result.pop()
+            result.append([point[0], point[1]])
+        self.points = result
+        self.selected_idx = len(self.points) - 1 if self.points else -1
+        self._recorded_path = []
+        self._recorded_keys.clear()
+        self._recording_active = False
+        self._update_status(
+            0x50DC50, f"Generated path from realtime history ({len(self.points)} pts)"
+        )
+
+    def _undo_generate_path(self):
+        if not self._quick_undo_state:
+            return
+        self.points = [list(p) for p in self._quick_undo_state["points"]]
+        self._recorded_path = [list(p) for p in self._quick_undo_state["recorded_path"]]
+        self._recorded_keys = set(self._quick_undo_state["recorded_keys"])
+        self.selected_idx = int(self._quick_undo_state["selected_idx"])
+        self._recording_active = bool(self._quick_undo_state["recording_active"])
+        self._recording_start_time = float(
+            self._quick_undo_state["recording_start_time"]
+        )
+        self._recording_last_ts = float(self._quick_undo_state["recording_last_ts"])
+        self._recording_last_poll = float(self._quick_undo_state["recording_last_poll"])
+        self._quick_undo_state = None
+        self._update_status(0xD2D200, "Reverted the generated path.")
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates.
@@ -362,9 +431,90 @@ class PathEditPage:
             thickness=1,
         )
 
+        self._render_quick_bar(drawer)
         self._render_status_bar(drawer)
         self._render_sidebar(drawer)
         cv2.imshow(self.window_name, drawer.get_image())
+
+    def _render_quick_bar(self, drawer: "Drawer"):
+        x1 = self.SIDEBAR_W
+        x2 = self.window_w
+        y2 = max(0, self.window_h - self.STATUS_BAR_H)
+        y1 = max(0, y2 - self.QUICK_BAR_H)
+        self._btn_quick_generate_rect = None
+        self._btn_quick_undo_rect = None
+
+        if self._quick_undo_state and len(self._recorded_path) == 0:
+            drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+            prompt = "You can undo the previous path generation."
+            drawer.text(
+                prompt,
+                (x1 + 10, y2 - 10),
+                0.45,
+                color=0xFFFFFF,
+                thickness=1,
+            )
+
+            btn_label = "[Undo!]"
+            btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+            btn_pad_x = 12
+            btn_pad_y = 6
+            btn_w = btn_size[0] + btn_pad_x * 2
+            btn_h = btn_size[1] + btn_pad_y * 2
+            btn_x2 = x2 - 10
+            btn_x1 = btn_x2 - btn_w
+            btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
+            btn_y2 = btn_y1 + btn_h
+            self._btn_quick_undo_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
+            drawer.rect(
+                (btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB44022, thickness=-1
+            )
+            drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
+            drawer.text_centered(
+                btn_label,
+                (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
+                0.45,
+                color=0xFFFFFF,
+                thickness=1,
+            )
+            return
+
+        if len(self._recorded_path) < 2:
+            return
+
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+        prompt = "Do you want to generate a new path by the realime path record?"
+        prompt_size = drawer.get_text_size(prompt, 0.45, thickness=1)
+        prompt_x = x1 + 10
+        prompt_y = y2 - 10
+        drawer.text(
+            prompt,
+            (prompt_x, prompt_y),
+            0.45,
+            color=0x50DC50,
+            thickness=1,
+        )
+
+        btn_label = "[Sure!]"
+        btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+        btn_pad_x = 12
+        btn_pad_y = 6
+        btn_w = btn_size[0] + btn_pad_x * 2
+        btn_h = btn_size[1] + btn_pad_y * 2
+        btn_x2 = x2 - 10
+        btn_x1 = btn_x2 - btn_w
+        btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
+        btn_y2 = btn_y1 + btn_h
+        self._btn_quick_generate_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
+        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0x1C8A1C, thickness=-1)
+        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
+        drawer.text_centered(
+            btn_label,
+            (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
+            0.45,
+            color=0xFFFFFF,
+            thickness=1,
+        )
 
     def _render_status_bar(self, drawer: "Drawer"):
         x1 = self.SIDEBAR_W
@@ -615,6 +765,15 @@ class PathEditPage:
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
                 return  # Prevent event propagation
+
+            if self._hit_button(x, y, self._btn_quick_generate_rect):
+                self._generate_path_from_recorded()
+                self.render_page(force=True)
+                return
+            if self._hit_button(x, y, self._btn_quick_undo_rect):
+                self._undo_generate_path()
+                self.render_page(force=True)
+                return
 
             # ── Map area clicks ─────────────────────────────────
 
