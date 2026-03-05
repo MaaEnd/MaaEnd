@@ -340,12 +340,6 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    80,
-                                    40
-                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType1.png",
                                     "Common/Button/YellowConfirmButtonType1Hover.png"
@@ -383,12 +377,6 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": "YellowButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    80,
-                                    40
-                                ],
                                 "template": [
                                     "Common/Button/YellowConfirmButtonType2.png"
                                 ],
@@ -428,7 +416,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    80,
+                                    60,
                                     40
                                 ],
                                 "template": [
@@ -473,7 +461,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    80,
+                                    60,
                                     40
                                 ],
                                 "template": [
@@ -516,7 +504,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    80,
+                                    60,
                                     40
                                 ],
                                 "template": [
@@ -559,7 +547,7 @@
                                 "roi_offset": [
                                     -20,
                                     -20,
-                                    80,
+                                    60,
                                     40
                                 ],
                                 "template": [
@@ -648,6 +636,10 @@
                 0,
                 0
             ]
+        },
+        "pre_wait_freezes": {
+            "time": 50,
+            "timeout": 1000
         }
     },
     "LevelUpButton": {

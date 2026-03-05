@@ -1,4 +1,16 @@
 {
+    "EntryReceptionRoom": {
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000,
+            "target": [
+                627,
+                594,
+                419,
+                48
+            ]
+        }
+    },
     "ExitReceptionRoom": {
         "action": {
             "type": "ClickKey",

@@ -13,245 +13,122 @@ import math
 import re
 import json
 import time
+from datetime import datetime, timezone
 from typing import NamedTuple
 import numpy as np
-from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2, MapName
+from utils import (
+    _R,
+    _G,
+    _Y,
+    _C,
+    _A,
+    _0,
+    Color,
+    Drawer,
+    cv2,
+    MapName,
+    SelectMapPage,
+    ViewportManager,
+    Layer,
+)
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
 SERVICE_LOG_FILE = "install/debug/go-service.log"
 
 
-class SelectMapPage:
-    """Map selection page"""
+class _MapLayer(Layer):
+    def __init__(self, view: ViewportManager, img: np.ndarray):
+        super().__init__(view)
+        self._img = img
+        self._scaled_img: np.ndarray | None = None
+        self._scaled_zoom: float | None = None
 
-    def __init__(self, map_dir=MAP_DIR):
-        self.map_dir = map_dir
-        self.map_files = self._load_and_sort_maps()
-        self.rows, self.cols = 2, 5
-        self.nav_height = 90
-        self.window_w, self.window_h = 1280, 720
-        self.cell_size = min(
-            self.window_w // self.cols, (self.window_h - self.nav_height) // self.rows
-        )
-        self.page_size = self.rows * self.cols
-        self.window_name = "MapTracker Tool - Map Selector"
+    def render(self, drawer: Drawer) -> None:
+        zoom = self.view.zoom
+        if self._scaled_img is None or self._scaled_zoom != zoom:
+            scaled_w = max(1, int(self._img.shape[1] * zoom))
+            scaled_h = max(1, int(self._img.shape[0] * zoom))
+            self._scaled_img = cv2.resize(
+                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
+            )
+            self._scaled_zoom = zoom
 
-        self.current_page = 0
-        self.cached_page = -1
-        self.cached_img = None
-        self.selected_index = -1
-        self.total_pages = math.ceil(len(self.map_files) / self.page_size)
+        scaled_img = self._scaled_img
+        if scaled_img is None:
+            return
 
-    def _load_and_sort_maps(self):
-        map_files = [f for f in os.listdir(self.map_dir) if f.endswith(".png")]
-        if not map_files:
-            return []
+        scaled_h, scaled_w = scaled_img.shape[:2]
+        src_x1 = int(round(self.view._vx * zoom))
+        src_y1 = int(round(self.view._vy * zoom))
+        dst_x = max(0, -src_x1)
+        dst_y = max(0, -src_y1)
+        src_x1 = max(0, src_x1)
+        src_y1 = max(0, src_y1)
+        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
+        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
 
-        def natural_sort_key(s):
-            return [
-                int(text) if text.isdigit() else text.lower()
-                for text in re.split("([0-9]+)", s)
-            ]
+        copy_w = src_x2 - src_x1
+        copy_h = src_y2 - src_y1
+        if copy_w > 0 and copy_h > 0:
+            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
+                scaled_img[src_y1:src_y2, src_x1:src_x2]
+            )
 
-        map_files.sort(key=lambda x: (len(x), natural_sort_key(x)))
-        return map_files
 
-    def _render_page(self):
-        if self.cached_page == self.current_page:
-            return self.cached_img
-        drawer: Drawer = Drawer.new(self.window_w, self.window_h)
-        start_idx = self.current_page * self.page_size
-        end_idx = min(start_idx + self.page_size, len(self.map_files))
+class _RealtimePathLayer(Layer):
+    def __init__(self, view: ViewportManager, page: "PathEditPage"):
+        super().__init__(view)
+        self._page = page
 
-        # Content area height (excluding bottom navigation)
-        content_h = self.window_h - self.nav_height
-        content_w = self.window_w
+    def render(self, drawer: Drawer) -> None:
+        points = self._page._recorded_path
+        if len(points) < 2:
+            return
+        for i in range(1, len(points)):
+            psx, psy = self.view.get_view_coords(points[i - 1][0], points[i - 1][1])
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.line(
+                (psx, psy),
+                (sx, sy),
+                color=0x22AAFF,
+                thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
+            )
 
-        # Calculate horizontal and vertical spacing (space-between)
-        if self.cols > 1:
-            gap_x = int((content_w - self.cols * self.cell_size) / (self.cols - 1))
-        else:
-            gap_x = 0
-        if self.rows > 1:
-            gap_y = int((content_h - self.rows * self.cell_size) / (self.rows - 1))
-        else:
-            gap_y = 0
 
-        # Draw map previews in space-between layout
-        for i in range(start_idx, end_idx):
-            idx_in_page = i - start_idx
-            r = idx_in_page // self.cols
-            c = idx_in_page % self.cols
+class _PathLayer(Layer):
+    def __init__(self, view: ViewportManager, page: "PathEditPage"):
+        super().__init__(view)
+        self._page = page
 
-            cell_x = int(c * (self.cell_size + gap_x))
-            cell_y = int(r * (self.cell_size + gap_y))
-
-            path = os.path.join(self.map_dir, self.map_files[i])
-            img = cv2.imread(path)
-            if img is not None:
-                h, w = img.shape[:2]
-                # Calculate scaling to maintain aspect ratio, fit image completely into cell
-                scale = min(self.cell_size / w, self.cell_size / h)
-                new_w = max(1, int(w * scale))
-                new_h = max(1, int(h * scale))
-                resized = cv2.resize(img, (new_w, new_h))
-                # Center the image within the cell
-                x1 = cell_x
-                y1 = cell_y
-                x2 = x1 + self.cell_size
-                y2 = y1 + self.cell_size
-                # Calculate placement offset
-                dx = (self.cell_size - new_w) // 2
-                dy = (self.cell_size - new_h) // 2
-                dest_x1 = x1 + dx
-                dest_y1 = y1 + dy
-                dest_x2 = dest_x1 + new_w
-                dest_y2 = dest_y1 + new_h
-                # Boundary clipping (to prevent exceeding content area)
-                dest_x2 = min(self.window_w, dest_x2)
-                dest_y2 = min(content_h, dest_y2)
-                src_x2 = dest_x2 - dest_x1
-                src_y2 = dest_y2 - dest_y1
-                if src_x2 > 0 and src_y2 > 0:
-                    drawer._img[
-                        dest_y1 : dest_y1 + src_y2, dest_x1 : dest_x1 + src_x2
-                    ] = resized[0:src_y2, 0:src_x2]
-
-                # Label (bottom)
-                label = self.map_files[i]
-                drawer.rect(
-                    (x1, y1 + self.cell_size - 30),
-                    (x1 + self.cell_size, y1 + self.cell_size),
-                    color=0x000000,
-                    thickness=-1,
-                )
-                drawer.text_centered(
-                    label,
-                    (x1 + self.cell_size // 2, y1 + self.cell_size - 10),
-                    0.4,
-                    color=0xFFFFFF,
-                    thickness=1,
+    def render(self, drawer: Drawer) -> None:
+        points = self._page.points
+        # Draw path lines
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            if i > 0:
+                psx, psy = self.view.get_view_coords(points[i - 1][0], points[i - 1][1])
+                drawer.line(
+                    (psx, psy),
+                    (sx, sy),
+                    color=0xFF0000,
+                    thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
                 )
 
-        # Bottom navigation bar
-        drawer.line(
-            (0, content_h),
-            (self.window_w, content_h),
-            color=0x808080,
-            thickness=2,
-        )
+        # Draw point circles
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.circle(
+                (sx, sy),
+                int(self._page.POINT_RADIUS * max(0.5, self.view.zoom**0.5)),
+                color=0xFFA500 if i == self._page.drag_idx else 0xFF0000,
+                thickness=-1,
+            )
 
-        # Top navigation prompt text
-        drawer.text_centered(
-            "Please click a map to continue",
-            (drawer.w // 2, content_h + 30),
-            0.7,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Left arrow
-        drawer.text(
-            "< PREV",
-            (150, self.window_h - 20),
-            0.6,
-            color=0x00FF00 if self.current_page > 0 else 0x808080,
-            thickness=2,
-        )
-
-        # Middle page info
-        page_text = f"Page {self.current_page + 1} / {self.total_pages}"
-        drawer.text_centered(
-            page_text,
-            (drawer.w // 2, self.window_h - 20),
-            0.5,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Right arrow
-        drawer.text(
-            "NEXT >",
-            (self.window_w - 200, self.window_h - 20),
-            0.6,
-            color=0x00FF00 if self.current_page < self.total_pages - 1 else 0x808080,
-            thickness=2,
-        )
-
-        self.cached_img = drawer.get_image()
-        self.cached_page = self.current_page
-        return self.cached_img
-
-    def _handle_mouse(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            # Content area height (excluding bottom navigation)
-            content_h = self.window_h - self.nav_height
-            if y < content_h:
-                # Use layout calculation to determine which cell the click falls into
-                if self.cols > 1:
-                    gap_x = int(
-                        (self.window_w - self.cols * self.cell_size) / (self.cols - 1)
-                    )
-                else:
-                    gap_x = 0
-                if self.rows > 1:
-                    gap_y = int(
-                        (content_h - self.rows * self.cell_size) / (self.rows - 1)
-                    )
-                else:
-                    gap_y = 0
-
-                found = False
-                for r in range(self.rows):
-                    for c in range(self.cols):
-                        cell_x = int(c * (self.cell_size + gap_x))
-                        cell_y = int(r * (self.cell_size + gap_y))
-                        if (
-                            x >= cell_x
-                            and x < cell_x + self.cell_size
-                            and y >= cell_y
-                            and y < cell_y + self.cell_size
-                        ):
-                            idx = self.current_page * self.page_size + r * self.cols + c
-                            if idx < len(self.map_files):
-                                self.selected_index = idx
-                                found = True
-                                break
-                    if found:
-                        break
-            else:
-                # Bottom navigation
-                if x < self.window_w // 3:
-                    if self.current_page > 0:
-                        self.current_page -= 1
-                elif x > 2 * self.window_w // 3:
-                    if self.current_page < self.total_pages - 1:
-                        self.current_page += 1
-
-    def run(self):
-        if not self.map_files:
-            print(f"Error: No maps found in {self.map_dir}")
-            return None
-
-        cv2.namedWindow(self.window_name)
-        cv2.setMouseCallback(self.window_name, self._handle_mouse)
-
-        while True:
-            cv2.imshow(self.window_name, self._render_page())
-
-            if self.selected_index != -1:
-                break
-            key = cv2.waitKey(30) & 0xFF
-            if key == 27:  # ESC
-                break
-            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
-                break
-
-        cv2.destroyAllWindows()
-        if self.selected_index != -1:
-            return self.map_files[self.selected_index]
-        return None
+        # Draw point index labels
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
 
 
 class PathEditPage:
@@ -259,6 +136,7 @@ class PathEditPage:
 
     SIDEBAR_W = 240
     STATUS_BAR_H = 32
+    QUICK_BAR_H = 32
     LINE_WIDTH = 1.75
     POINT_RADIUS = 4.5
     POINT_SELECTION_THRESHOLD = 10
@@ -297,20 +175,21 @@ class PathEditPage:
         self._point_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
-        self.location_service = LocationService()
-
-        self.scale = 1.0
-        self.offset_x, self.offset_y = 0, 0
         self.window_w, self.window_h = 1280, 720
         self.window_name = "MapTracker Tool - Path Editor"
+        self.view = ViewportManager(
+            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
+        )
+        self._map_layer = _MapLayer(self.view, self.img)
+        self._path_layer = _PathLayer(self.view, self)
+        self._realtime_layer = _RealtimePathLayer(self.view, self)
+        self.view.fit_to(self.points)
 
         self.drag_idx = -1
         self.selected_idx = -1
         self.panning = False
         self.pan_start = (0, 0)
         self.mouse_pos: tuple[int, int] = (-1, -1)  # For crosshair display
-        self._scaled_img: np.ndarray | None = None
-        self._scaled_scale: float | None = None
 
         # Action state for point interactions (left button)
         self.action_down_idx = -1
@@ -324,13 +203,23 @@ class PathEditPage:
         self._status: PathEditPage.StatusRecord = self.StatusRecord(
             0, 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
-        self._modal_active: bool = False
-        self._modal_text: str = ""
+        self.location_service = LocationService()
+        self._recording_active = False
+        self._recording_start_time = 0.0
+        self._recording_last_ts = 0.0
+        self._recording_last_poll = 0.0
+        self._recorded_path: list[list[int]] = []
+        self._recorded_keys: set[tuple[float, int, int]] = set()
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
-        self._btn_loc_rect: tuple | None = None
+        self._btn_record_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
+        self._btn_quick_generate_rect: tuple | None = None
+        self._btn_quick_undo_rect: tuple | None = None
+        self._quick_undo_state: dict | None = None
+        self._frame_interval = 1.0 / 120.0
+        self._last_render_ts = 0.0
 
     # ------------------------------------------------------------------
     # Helpers
@@ -358,45 +247,144 @@ class PathEditPage:
             self._update_status(0xFC4040, "Failed to save changes!")
             print(f"  {_Y}Failed to save path to file.{_0}")
 
-    def _apply_realtime_location(self):
-        """Append the latest realtime location from service log."""
-        self._modal_active = True
-        self._modal_text = "Connecting to service"
-        self._render()
+    def _start_recording(self):
+        self._recording_active = True
+        self._recording_start_time = time.time()
+        self._recording_last_ts = self._recording_start_time
+        self._recording_last_poll = 0.0
+        self._recorded_path = []
+        self._recorded_keys.clear()
+        self._update_status(0x78DCFF, "Realtime path recording started.")
+        self.render_page(force=True)
 
-        result = self.location_service.wait_for_new_location(
-            self.map_name, timeout_seconds=5.0
+    def _stop_recording(self):
+        self._recording_active = False
+        self._update_status(0xD2D200, "Realtime path recording stopped.")
+        self.render_page(force=True)
+
+    def _toggle_recording(self):
+        if self._recording_active:
+            self._stop_recording()
+        else:
+            self._start_recording()
+
+    def _update_recording(self):
+        if not self._recording_active:
+            return False
+        now = time.time()
+        if now - self._recording_last_poll < 0.5:
+            return False
+        self._recording_last_poll = now
+
+        locations = self.location_service.get_locations(
+            self.map_name, self._recording_last_ts
+        )
+        if not locations:
+            return False
+
+        updated = False
+        for loc in locations:
+            ts = loc.get("timestamp")
+            if ts is None or ts < self._recording_last_ts:
+                continue
+            x = loc.get("x")
+            y = loc.get("y")
+            if x is None or y is None:
+                continue
+            key = (ts, int(x), int(y))
+            if key in self._recorded_keys:
+                self._recording_last_ts = max(self._recording_last_ts, ts)
+                continue
+            if self._recorded_path and [x, y] == self._recorded_path[-1]:
+                self._recording_last_ts = max(self._recording_last_ts, ts)
+                continue
+            self._recorded_path.append([x, y])
+            self._recorded_keys.add(key)
+            self._recording_last_ts = max(self._recording_last_ts, ts)
+            updated = True
+
+        if updated:
+            if self._quick_undo_state and self._recorded_path:
+                self._quick_undo_state = None
+            if self._recorded_path:
+                last_point = self._recorded_path[-1]
+                self.view.maybe_center_to(last_point[0], last_point[1])
+            self.render_page()
+        return updated
+
+    @staticmethod
+    def _angle_close(v1: tuple[float, float], v2: tuple[float, float]) -> bool:
+        x1, y1 = v1
+        x2, y2 = v2
+        n1 = math.hypot(x1, y1)
+        n2 = math.hypot(x2, y2)
+        if n1 == 0.0 or n2 == 0.0:
+            return False
+        dot = x1 * x2 + y1 * y2
+        cos_val = max(-1.0, min(1.0, dot / (n1 * n2)))
+        angle = math.degrees(math.acos(cos_val))
+        return angle < 12.0
+
+    def _generate_path_from_recorded(self):
+        if len(self._recorded_path) < 2:
+            return
+        self._quick_undo_state = {
+            "points": [list(p) for p in self.points],
+            "recorded_path": [list(p) for p in self._recorded_path],
+            "recorded_keys": set(self._recorded_keys),
+            "selected_idx": self.selected_idx,
+            "recording_active": self._recording_active,
+            "recording_start_time": self._recording_start_time,
+            "recording_last_ts": self._recording_last_ts,
+            "recording_last_poll": self._recording_last_poll,
+        }
+        result: list[list[int]] = []
+        for point in self._recorded_path:
+            if len(result) < 2:
+                result.append([point[0], point[1]])
+                continue
+            p2 = result[-2]
+            p1 = result[-1]
+            v1 = (point[0] - p2[0], point[1] - p2[1])
+            v2 = (point[0] - p1[0], point[1] - p1[1])
+            if self._angle_close(v1, v2):
+                result.pop()
+            result.append([point[0], point[1]])
+        self.points = result
+        self.selected_idx = len(self.points) - 1 if self.points else -1
+        self._recorded_path = []
+        self._recorded_keys.clear()
+        self._recording_active = False
+        self._update_status(
+            0x50DC50, f"Generated path from realtime history ({len(self.points)} pts)"
         )
 
-        self._modal_active = False
-        self._modal_text = ""
-        if result.status == "ok":
-            x = result.payload["x"]
-            y = result.payload["y"]
-            self.points.append([x, y])
-            self.selected_idx = len(self.points) - 1
-            self._update_status(0x78DCFF, f"Realtime location added: ({x}, {y})")
-        elif result.status == "mismatch":
-            self._update_status(
-                0xFC4040, f"Error located map mismatch ({result.payload})"
-            )
-        else:
-            self._update_status(0xD2D200, str(result.payload))
+    def _undo_generate_path(self):
+        if not self._quick_undo_state:
+            return
+        self.points = [list(p) for p in self._quick_undo_state["points"]]
+        self._recorded_path = [list(p) for p in self._quick_undo_state["recorded_path"]]
+        self._recorded_keys = set(self._quick_undo_state["recorded_keys"])
+        self.selected_idx = int(self._quick_undo_state["selected_idx"])
+        self._recording_active = bool(self._quick_undo_state["recording_active"])
+        self._recording_start_time = float(
+            self._quick_undo_state["recording_start_time"]
+        )
+        self._recording_last_ts = float(self._quick_undo_state["recording_last_ts"])
+        self._recording_last_poll = float(self._quick_undo_state["recording_last_poll"])
+        self._quick_undo_state = None
+        self._update_status(0xD2D200, "Reverted the generated path.")
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates.
 
         The usable map area starts at x = SIDEBAR_W.
         """
-        mx = round(screen_x / self.scale + self.offset_x)
-        my = round(screen_y / self.scale + self.offset_y)
-        return mx, my
+        return self.view.get_real_coords(screen_x, screen_y)
 
     def _get_screen_coords(self, map_x, map_y):
         """Convert original map coordinates to screen (viewport) coordinates."""
-        sx = round((map_x - self.offset_x) * self.scale)
-        sy = round((map_y - self.offset_y) * self.scale)
-        return sx, sy
+        return self.view.get_view_coords(map_x, map_y)
 
     def _is_on_line(self, mx, my, p1, p2, threshold=10):
         """Check if a point is on the line between two points"""
@@ -417,64 +405,17 @@ class PathEditPage:
     # Rendering
     # ------------------------------------------------------------------
 
+    def render_page(self, *, force: bool = False):
+        now = time.monotonic()
+        if force or now - self._last_render_ts >= self._frame_interval:
+            self._last_render_ts = now
+            self._render()
+
     def _render(self):
         drawer = Drawer.new(self.window_w, self.window_h)
-
-        if self._scaled_img is None or self._scaled_scale != self.scale:
-            scaled_w = max(1, int(self.img.shape[1] * self.scale))
-            scaled_h = max(1, int(self.img.shape[0] * self.scale))
-            self._scaled_img = cv2.resize(
-                self.img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
-            )
-            self._scaled_scale = self.scale
-
-        scaled_img = self._scaled_img
-        if scaled_img is not None:
-            scaled_h, scaled_w = scaled_img.shape[:2]
-            src_x1 = int(round(self.offset_x * self.scale))
-            src_y1 = int(round(self.offset_y * self.scale))
-            dst_x = max(0, -src_x1)
-            dst_y = max(0, -src_y1)
-            src_x1 = max(0, src_x1)
-            src_y1 = max(0, src_y1)
-            src_x2 = min(scaled_w, src_x1 + self.window_w - dst_x)
-            src_y2 = min(scaled_h, src_y1 + self.window_h - dst_y)
-
-            copy_w = src_x2 - src_x1
-            copy_h = src_y2 - src_y1
-            if copy_w > 0 and copy_h > 0:
-                drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
-                    scaled_img[src_y1:src_y2, src_x1:src_x2]
-                )
-
-        # Draw path lines
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            if i > 0:
-                psx, psy = self._get_screen_coords(
-                    self.points[i - 1][0], self.points[i - 1][1]
-                )
-                drawer.line(
-                    (psx, psy),
-                    (sx, sy),
-                    color=0xFF0000,
-                    thickness=max(1, int(self.LINE_WIDTH * self.scale**0.5)),
-                )
-
-        # Draw point circles
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            drawer.circle(
-                (sx, sy),
-                int(self.POINT_RADIUS * max(0.5, self.scale**0.5)),
-                color=0xFFA500 if i == self.drag_idx else 0xFF0000,
-                thickness=-1,
-            )
-
-        # Draw point index labels
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
+        self._map_layer.render(drawer)
+        self._realtime_layer.render(drawer)
+        self._path_layer.render(drawer)
 
         # Draw crosshair at current mouse position
         drawer.line(
@@ -490,30 +431,96 @@ class PathEditPage:
             thickness=1,
         )
 
-        if self._modal_active:
-            x1 = self.SIDEBAR_W
-            x2 = self.window_w
-            y1 = 0
-            y2 = self.window_h
-            drawer.mask((x1, y1), (x2, y2), color=0x000000, alpha=0.7)
-            drawer.text_centered(
-                self._modal_text or "Connecting to service",
-                (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2),
-                0.7,
-                color=0xFFFFFF,
-                thickness=2,
-            )
-
+        self._render_quick_bar(drawer)
         self._render_status_bar(drawer)
         self._render_sidebar(drawer)
         cv2.imshow(self.window_name, drawer.get_image())
+
+    def _render_quick_bar(self, drawer: "Drawer"):
+        x1 = self.SIDEBAR_W
+        x2 = self.window_w
+        y2 = max(0, self.window_h - self.STATUS_BAR_H)
+        y1 = max(0, y2 - self.QUICK_BAR_H)
+        self._btn_quick_generate_rect = None
+        self._btn_quick_undo_rect = None
+
+        if self._quick_undo_state and len(self._recorded_path) == 0:
+            drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+            prompt = "You can undo the previous path generation."
+            drawer.text(
+                prompt,
+                (x1 + 10, y2 - 10),
+                0.45,
+                color=0xFFFFFF,
+                thickness=1,
+            )
+
+            btn_label = "[Undo!]"
+            btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+            btn_pad_x = 12
+            btn_pad_y = 6
+            btn_w = btn_size[0] + btn_pad_x * 2
+            btn_h = btn_size[1] + btn_pad_y * 2
+            btn_x2 = x2 - 10
+            btn_x1 = btn_x2 - btn_w
+            btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
+            btn_y2 = btn_y1 + btn_h
+            self._btn_quick_undo_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
+            drawer.rect(
+                (btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB44022, thickness=-1
+            )
+            drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
+            drawer.text_centered(
+                btn_label,
+                (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
+                0.45,
+                color=0xFFFFFF,
+                thickness=1,
+            )
+            return
+
+        if len(self._recorded_path) < 2:
+            return
+
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+        prompt = "Do you want to generate a new path from the realtime path record?"
+        prompt_x = x1 + 10
+        prompt_y = y2 - 10
+        drawer.text(
+            prompt,
+            (prompt_x, prompt_y),
+            0.45,
+            color=0x50DC50,
+            thickness=1,
+        )
+
+        btn_label = "[Sure!]"
+        btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+        btn_pad_x = 12
+        btn_pad_y = 6
+        btn_w = btn_size[0] + btn_pad_x * 2
+        btn_h = btn_size[1] + btn_pad_y * 2
+        btn_x2 = x2 - 10
+        btn_x1 = btn_x2 - btn_w
+        btn_y1 = y1 + (self.QUICK_BAR_H - btn_h) // 2
+        btn_y2 = btn_y1 + btn_h
+        self._btn_quick_generate_rect = (btn_x1, btn_y1, btn_x2, btn_y2)
+        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0x1C8A1C, thickness=-1)
+        drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
+        drawer.text_centered(
+            btn_label,
+            (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
+            0.45,
+            color=0xFFFFFF,
+            thickness=1,
+        )
 
     def _render_status_bar(self, drawer: "Drawer"):
         x1 = self.SIDEBAR_W
         x2 = self.window_w
         y2 = self.window_h
         y1 = max(0, y2 - self.STATUS_BAR_H)
-        drawer.mask((x1, y1), (x2, y2), color=0x000000, alpha=0.8)
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
         if not self._status:
             return
 
@@ -526,18 +533,13 @@ class PathEditPage:
         )
 
     def _render_sidebar(self, drawer: "Drawer"):
-        """Draw the left sidebar with a 90%-opaque black background.
-
-        Strategy: Extract the existing sidebar pixels, blend them with
-        semi-transparent black, then render UI directly on top.
-        """
+        """Draw the left sidebar with a solid black background."""
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
 
         # ── Extract and blend sidebar background ──────────────────────────
-        # Blend with semi-transparent black
-        drawer.mask((0, 0), (sw, h), color=0x000000, alpha=0.9)
+        drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
 
         # ── Right border ─────────────────────────────────────────────────
         drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
@@ -599,30 +601,35 @@ class PathEditPage:
             )
             cy = save_y1 + 8
 
-        # Realtime location button
-        loc_y0 = cy
-        loc_y1 = cy + btn_h
-        self._btn_loc_rect = (btn_x0, loc_y0, btn_x0 + btn_w, loc_y1)
+        # Realtime path recording button
+        record_y0 = cy
+        record_y1 = cy + btn_h
+        self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
         drawer.rect(
-            (btn_x0, loc_y0),
-            (btn_x0 + btn_w, loc_y1),
+            (btn_x0, record_y0),
+            (btn_x0 + btn_w, record_y1),
             color=0x1A40B8,
             thickness=-1,
         )
         drawer.rect(
-            (btn_x0, loc_y0),
-            (btn_x0 + btn_w, loc_y1),
+            (btn_x0, record_y0),
+            (btn_x0 + btn_w, record_y1),
             color=0xB4B4B4,
             thickness=1,
         )
+        record_label = (
+            "[R] Stop Path Recording"
+            if self._recording_active
+            else "[R] Record Realtime Path"
+        )
         drawer.text_centered(
-            "[G] Get Realtime Location",
-            (btn_x0 + btn_w // 2, loc_y0 + btn_h - 8),
+            record_label,
+            (btn_x0 + btn_w // 2, record_y0 + btn_h - 8),
             0.42,
             color=0xFFFFFF,
             thickness=1,
         )
-        cy = loc_y1 + 8
+        cy = record_y1 + 8
 
         # Finish button – always present
         finish_y0 = cy
@@ -652,7 +659,7 @@ class PathEditPage:
 
         # ── Status section (bottom) ──────────────────────────────────────
         drawer.text(
-            f"Zoom: {self.scale:.2f}x",
+            f"Zoom: {self.view.zoom:.2f}x",
             (pad, h - 75),
             0.45,
             color=0xD2D200,
@@ -665,6 +672,10 @@ class PathEditPage:
         else:
             line = f"Points: {len(self.points)}"
         drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF, thickness=1)
+        record_line = f"History: {len(self._recorded_path)}"
+        if self._recording_active:
+            record_line += " (Recording)"
+        drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF, thickness=1)
 
     # ------------------------------------------------------------------
     # Mouse / keyboard handling
@@ -687,32 +698,25 @@ class PathEditPage:
     def _handle_mouse(self, event, x, y, flags, param):
         # Track mouse position for crosshair
         self.mouse_pos = (x, y)
-        if self._modal_active:
-            if event == cv2.EVENT_MOUSEMOVE:
-                self._render()
-            return  # Prevent all interactions when modal is active
-
         # ── Map area events ──────────────────────────────────────────────
         mx, my = self._get_map_coords(x, y)
         if event == cv2.EVENT_MOUSEWHEEL:
-            self.scale *= 1.14514 if flags > 0 else 1 / 1.14514
-            self.scale = max(0.5, min(self.scale, 10.0))
+            if flags > 0:
+                self.view.zoom_in()
+            else:
+                self.view.zoom_out()
 
-            self.offset_x = mx - x / self.scale
-            self.offset_y = my - y / self.scale
-            self._scaled_img = None
-            self._scaled_scale = None
-            self._render()
+            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
+            self.render_page()
 
         elif event == cv2.EVENT_MOUSEMOVE:
             # Pan
             if self.panning:
-                dx = (x - self.pan_start[0]) / self.scale
-                dy = (y - self.pan_start[1]) / self.scale
-                self.offset_x -= dx
-                self.offset_y -= dy
+                dx = (x - self.pan_start[0]) / self.view.zoom
+                dy = (y - self.pan_start[1]) / self.view.zoom
+                self.view.pan_by(-dx, -dy)
                 self.pan_start = (x, y)
-                self._render()
+                self.render_page()
                 return
 
             # Action (left button) dragging
@@ -720,7 +724,7 @@ class PathEditPage:
                 if self.action_dragging and self.drag_idx != -1:
                     self.points[self.drag_idx] = [mx, my]
                     self.action_moved = True
-                    self._render()
+                    self.render_page()
                     return
 
                 dx = x - self.action_down_pos[0]
@@ -731,13 +735,13 @@ class PathEditPage:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
                         self.points[self.drag_idx] = [mx, my]
-                        self._render()
+                        self.render_page()
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [mx, my]
                 self.action_dragging = True
-            self._render()
+            self.render_page()
 
         elif event == cv2.EVENT_RBUTTONDOWN:
             if x < self.SIDEBAR_W:
@@ -753,13 +757,21 @@ class PathEditPage:
             if x < self.SIDEBAR_W:
                 if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
                     self._do_save()
-                    self._render()
-                elif self._hit_button(x, y, self._btn_loc_rect):
-                    self._apply_realtime_location()
-                    self._render()
+                    self.render_page(force=True)
+                elif self._hit_button(x, y, self._btn_record_rect):
+                    self._toggle_recording()
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
                 return  # Prevent event propagation
+
+            if self._hit_button(x, y, self._btn_quick_generate_rect):
+                self._generate_path_from_recorded()
+                self.render_page(force=True)
+                return
+            if self._hit_button(x, y, self._btn_quick_undo_rect):
+                self._undo_generate_path()
+                self.render_page(force=True)
+                return
 
             # ── Map area clicks ─────────────────────────────────
 
@@ -800,7 +812,7 @@ class PathEditPage:
                         inserted = False
                         for i in range(1, len(self.points)):
                             map_threshold = self.POINT_SELECTION_THRESHOLD / max(
-                                0.01, self.scale
+                                0.01, self.view.zoom
                             )
                             if self._is_on_line(
                                 mx,
@@ -830,7 +842,7 @@ class PathEditPage:
             self.action_down_pos = (0, 0)
             self.action_moved = False
             self.action_dragging = False
-            self._render()
+            self.render_page()
 
     # ------------------------------------------------------------------
     # Main loop
@@ -840,11 +852,11 @@ class PathEditPage:
         cv2.namedWindow(self.window_name)
         cv2.setMouseCallback(self.window_name, self._handle_mouse)
 
-        self._render()
+        self.render_page(force=True)
         while not self.done:
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
-            key = cv2.waitKey(30) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == 27 or key == ord("f") or key == ord("F"):  # ESC / F → Finish
                 break
             if (
@@ -853,10 +865,10 @@ class PathEditPage:
                 and self.is_dirty
             ):
                 self._do_save()
-                self._render()
-            if key == ord("g") or key == ord("G"):
-                self._apply_realtime_location()
-                self._render()
+                self.render_page(force=True)
+            if key == ord("r") or key == ord("R"):
+                self._toggle_recording()
+            self._update_recording()
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
@@ -896,151 +908,135 @@ def unique_map_key(name: str) -> str:
 
 
 class LocationService:
-    """Read realtime location from a jsonl service log."""
+    """Read locations from a jsonl service log."""
 
-    class LocationServiceResult(NamedTuple):
-        status: str
-        payload: dict | str
-
-    MAX_LOOKBACK_LINES = 600
-    READ_CHUNK_SIZE = 8192
     MESSAGE_KEYWORDS = ("Map tracking inference completed",)
 
     def __init__(self, log_file: str = SERVICE_LOG_FILE):
         self.log_file = log_file
-
-    def _read_last_lines(self) -> list[str]:
-        if not os.path.exists(self.log_file):
-            return []
-        try:
-            with open(self.log_file, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                end_pos = f.tell()
-                if end_pos == 0:
-                    return []
-
-                buffer = b""
-                pos = end_pos
-                lines: list[bytes] = []
-                while pos > 0 and len(lines) <= self.MAX_LOOKBACK_LINES:
-                    read_size = min(self.READ_CHUNK_SIZE, pos)
-                    pos -= read_size
-                    f.seek(pos, os.SEEK_SET)
-                    chunk = f.read(read_size)
-                    if not chunk:
-                        break
-                    buffer = chunk + buffer
-                    while b"\n" in buffer:
-                        head, buffer = buffer.rsplit(b"\n", 1)
-                        lines.append(buffer)
-                        buffer = head
-                        if len(lines) > self.MAX_LOOKBACK_LINES:
-                            break
-                if buffer and len(lines) <= self.MAX_LOOKBACK_LINES:
-                    lines.append(buffer)
-                lines = list(reversed(lines))
-                return [
-                    line.decode("utf-8", errors="ignore")
-                    for line in lines[-self.MAX_LOOKBACK_LINES :]
-                    if line
-                ]
-        except Exception:
-            return []
+        self._offset = 0
+        self._buffer = b""
+        self._last_map_key: str | None = None
+        self._last_start_time = 0.0
 
     def _is_target_message(self, message: str | None) -> bool:
         if not message:
             return False
         return any(key in message for key in self.MESSAGE_KEYWORDS)
 
-    def wait_for_new_location(
-        self, expected_map_name: str, timeout_seconds: float = 5.0
-    ) -> "LocationService.LocationServiceResult":
-        if not os.path.exists(self.log_file):
-            return self.LocationServiceResult("not_found", "Log file not found.")
+    def _parse_timestamp(self, value) -> float | None:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                pass
+            try:
+                if value.endswith("Z"):
+                    value = value[:-1] + "+00:00"
+                parsed = datetime.fromisoformat(value)
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                return parsed.timestamp()
+            except ValueError:
+                return None
+        return None
 
+    def _parse_location_line(self, line: str, expected_map_name: str) -> dict | None:
+        try:
+            data_obj = json.loads(line)
+        except Exception:
+            return None
+        if not isinstance(data_obj, dict):
+            return None
+        if not self._is_target_message(data_obj.get("message")):
+            return None
+
+        log_map_name = data_obj.get("MapName")
+        if not log_map_name:
+            return None
+        if unique_map_key(log_map_name) != unique_map_key(expected_map_name):
+            return None
+
+        x = data_obj.get("X")
+        y = data_obj.get("Y")
+        if x is None or y is None:
+            return None
+
+        ts = None
+        for key in ("time", "timestamp", "ts"):
+            if key in data_obj:
+                ts = self._parse_timestamp(data_obj.get(key))
+                if ts is not None:
+                    break
+
+        return {
+            "x": int(round(x)),
+            "y": int(round(y)),
+            "timestamp": ts,
+            "raw": data_obj,
+        }
+
+    def get_locations(self, expected_map_name: str, start_time: float) -> list[dict]:
+        if not os.path.exists(self.log_file):
+            return []
+
+        map_key = unique_map_key(expected_map_name)
+        if self._last_map_key != map_key or start_time < self._last_start_time:
+            self._offset = 0
+            self._buffer = b""
+        self._last_map_key = map_key
+        self._last_start_time = start_time
+
+        results: list[dict] = []
         try:
             with open(self.log_file, "rb") as f:
                 f.seek(0, os.SEEK_END)
-                pos = f.tell()
-                buffer = b""
-                start_time = time.time()
+                end_pos = f.tell()
+                if end_pos < self._offset:
+                    self._offset = 0
+                    self._buffer = b""
+                if end_pos > self._offset:
+                    f.seek(self._offset, os.SEEK_SET)
+                    data = f.read(end_pos - self._offset)
+                    self._offset = end_pos
+                    if data:
+                        self._buffer += data
 
-                while time.time() - start_time <= timeout_seconds:
-                    try:
-                        f.seek(0, os.SEEK_END)
-                        end_pos = f.tell()
-                        if end_pos < pos:
-                            pos = end_pos
-                            buffer = b""
-                        if end_pos > pos:
-                            f.seek(pos, os.SEEK_SET)
-                            data = f.read(end_pos - pos)
-                            pos = end_pos
-                            if data:
-                                buffer += data
-                                while b"\n" in buffer:
-                                    line, buffer = buffer.split(b"\n", 1)
-                                    if not line:
-                                        continue
-                                    try:
-                                        text = line.decode("utf-8", errors="ignore")
-                                        data_obj = json.loads(text)
-                                    except Exception:
-                                        continue
-
-                                    if not isinstance(data_obj, dict):
-                                        continue
-                                    if not self._is_target_message(
-                                        data_obj.get("message")
-                                    ):
-                                        continue
-
-                                    log_map_name = data_obj.get("MapName")
-                                    if not log_map_name:
-                                        continue
-                                    if unique_map_key(log_map_name) != unique_map_key(
-                                        expected_map_name
-                                    ):
-                                        return self.LocationServiceResult(
-                                            "mismatch", str(log_map_name)
-                                        )
-
-                                    x = data_obj.get("X")
-                                    y = data_obj.get("Y")
-                                    if x is None or y is None:
-                                        continue
-
-                                    print(f"  {_G}Realtime location fetched.{_0}")
-                                    return self.LocationServiceResult(
-                                        "ok",
-                                        {
-                                            "x": int(round(x)),
-                                            "y": int(round(y)),
-                                            "raw": data_obj,
-                                        },
-                                    )
-                    except Exception:
-                        pass
-
-                    cv2.waitKey(1)
-                    time.sleep(0.05)
-
+            if self._buffer:
+                lines = self._buffer.split(b"\n")
+                self._buffer = lines[-1]
+                for raw in lines[:-1]:
+                    if not raw:
+                        continue
+                    line = raw.decode("utf-8", errors="ignore")
+                    if not line.strip():
+                        continue
+                    record = self._parse_location_line(line, expected_map_name)
+                    if record is None:
+                        continue
+                    ts = record.get("timestamp")
+                    if ts is None or ts < start_time:
+                        continue
+                    results.append(record)
         except Exception:
-            print(f"  {_R}Location service unavailable because error reading log file.")
-            print(
-                f"    {_Y}Please ensure the node 'MapTrackerTestLoop' is running.{_0}"
-            )
-            print("  Check the documentation for more details.")
-            return self.LocationServiceResult("not_found", "Log file unavailable.")
+            return []
 
-        print(f"  {_R}Timeout connecting to location service. Please ensure:{_0}")
-        print(f"    {_Y}- The node 'MapTrackerTestLoop' is running.{_0}")
-        print(f"    {_Y}- The game window can be fully captured.{_0}")
-        print("    Check the documentation for more details.")
-        return self.LocationServiceResult(
-            "not_found",
-            "Timeout connecting to location service. Check the console for details.",
-        )
+        results.sort(key=lambda item: item.get("timestamp") or 0.0)
+        deduped: list[dict] = []
+        last_xy: tuple[int, int] | None = None
+        for item in results:
+            x = item.get("x")
+            y = item.get("y")
+            if x is None or y is None:
+                continue
+            xy = (int(x), int(y))
+            if last_xy == xy:
+                continue
+            deduped.append(item)
+            last_xy = xy
+        return deduped
 
 
 class PipelineHandler:

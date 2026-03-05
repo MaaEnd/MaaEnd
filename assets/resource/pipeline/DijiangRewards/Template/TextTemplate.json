@@ -203,7 +203,7 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "WhiteConfirmButtonType1",
+                "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
                     -72,
                     -2,

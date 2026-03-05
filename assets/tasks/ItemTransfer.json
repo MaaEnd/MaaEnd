@@ -6,17 +6,44 @@
             "entry": "ItemTransfer",
             "description": "$task.ItemTransfer.description",
             "option": [
+                "AutoTeleport",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion"
             ],
             "controller": [
+                "Win32-Window",
                 "Win32-Front"
             ]
         }
     ],
     "option": {
+        "AutoTeleport": {
+            "type": "switch",
+            "label": "$option.ItemTransferAutoTeleport.label",
+            "description": "$option.ItemTransferAutoTeleport.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": [
+                                "ItemTransferStart",
+                                "[JumpBack]SceneEnterWorldDijiang2"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
         "WhatToTransfer": {
             "type": "select",
             "label": "$option.ItemTransferWhatToTransfer.label",

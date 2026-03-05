@@ -40,7 +40,7 @@ func GetImageStats(img *image.RGBA) StatsResult {
 	count := float64(w * h * 3)
 	mean := sum / count
 	variance := sumSq - count*(mean*mean)
-	if variance < 0 {
+	if variance < 1e-12 {
 		return StatsResult{Mean: mean, Std: 0}
 	}
 	return StatsResult{mean, math.Sqrt(variance)}
@@ -83,4 +83,16 @@ func (ia *IntegralArray) GetAreaIntegral(x, y, w, h int) (float64, float64) {
 	sum := ia.Sum[idx22] - ia.Sum[idx12] - ia.Sum[idx21] + ia.Sum[idx11]
 	sumSq := ia.SumSq[idx22] - ia.SumSq[idx12] - ia.SumSq[idx21] + ia.SumSq[idx11]
 	return sum, sumSq
+}
+
+// GetAreaStats returns the mean and standard deviation (unnormalized) for a given rectangle area using the integral array
+func (ia *IntegralArray) GetAreaStats(x, y, w, h int) StatsResult {
+	sum, sumSq := ia.GetAreaIntegral(x, y, w, h)
+	count := float64(w * h * 3)
+	mean := sum / count
+	variance := sumSq - count*(mean*mean)
+	if variance < 1e-12 {
+		return StatsResult{Mean: mean, Std: 0}
+	}
+	return StatsResult{mean, math.Sqrt(variance)}
 }

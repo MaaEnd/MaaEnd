@@ -5,20 +5,28 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/subtask"
 	"github.com/rs/zerolog/log"
 )
 
 func registerAll() {
-	// Register all custom components from each package
-	importtask.Register()
+	// Pre-Check Custom
+	aspectratio.Register()
+	hdrcheck.Register()
+
+	// General Custom
+	subtask.Register()
+
+	// Business Custom
+	blueprintimport.Register()
 	charactercontroller.Register()
 	resell.Register()
 	puzzle.Register()
@@ -28,12 +36,6 @@ func registerAll() {
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
-
-	// Register aspect ratio checker (uses TaskerSink, not custom action/recognition)
-	aspectratio.Register()
-
-	// Register HDR checker (uses TaskerSink, warns if HDR is enabled but doesn't stop task)
-	hdrcheck.Register()
 
 	log.Info().
 		Msg("All custom components and sinks registered successfully")

@@ -566,7 +566,16 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 				expectedCenterY := int(float64(stableLocY-mapData.OffsetY) * scale)
 				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
 
-				matchX, matchY, matchVal := MatchTemplateAround(mapData.Img, mapData.Integral, miniMap, miniStats, expectedCenterX, expectedCenterY, searchRadius)
+				matchX, matchY, matchVal := minicv.MatchTemplateInArea(
+					mapData.Img,
+					mapData.Integral,
+					miniMap,
+					miniStats,
+					expectedCenterX-searchRadius,
+					expectedCenterY-searchRadius,
+					searchRadius*2,
+					searchRadius*2,
+				)
 
 				if matchVal > param.Threshold {
 					// Fast search hit
@@ -626,7 +635,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	}
 
 	if singleMapToTry != nil {
-		matchX, matchY, matchVal := MatchTemplateOptimized(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
+		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
 		bestVal = matchVal
 		bestX = int(float64(matchX+miniMapW/2)/scale) + singleMapToTry.OffsetX
 		bestY = int(float64(matchY+miniMapH/2)/scale) + singleMapToTry.OffsetY
@@ -643,7 +652,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			wg.Add(1)
 			go func(m MapCache) {
 				defer wg.Done()
-				matchX, matchY, matchVal := MatchTemplateOptimized(m.Img, m.Integral, miniMap, miniStats)
+				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.Integral, miniMap, miniStats)
 				mx := int(float64(matchX+miniMapW/2)/scale) + m.OffsetX
 				my := int(float64(matchY+miniMapH/2)/scale) + m.OffsetY
 				resChan <- mapResult{matchVal, mx, my, m.Name}
@@ -750,7 +759,7 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 
 			// Match against pointer template
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := MatchTemplateOptimized(rotatedRGBA, integral, i.pointer, pointerStats)
+			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, i.pointer, pointerStats)
 
 			resChan <- result{a, matchVal}
 		}(angle)
