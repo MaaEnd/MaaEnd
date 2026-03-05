@@ -26,9 +26,9 @@
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
-                "screencap": "PrintWindow",
+                "screencap": "Background",
                 "mouse": "SendMessageWithCursorPos",
-                "keyboard": "SendMessage"
+                "keyboard": "PostMessage"
             },
             "permission_required": true
         },
@@ -40,22 +40,8 @@
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
-                "screencap": "PrintWindow",
+                "screencap": "Background",
                 "mouse": "SendMessageWithWindowPos",
-                "keyboard": "SendMessage"
-            },
-            "permission_required": true
-        },
-        {
-            "name": "Win32",
-            "label": "$controller.Win32.label",
-            "description": "$controller.Win32.description",
-            "type": "Win32",
-            "win32": {
-                "class_regex": "UnityWndClass",
-                "window_regex": "Endfield",
-                "screencap": "FramePool",
-                "mouse": "SendMessageWithCursorPos",
                 "keyboard": "PostMessage"
             },
             "permission_required": true
