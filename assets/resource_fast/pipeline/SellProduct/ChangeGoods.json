@@ -1,5 +1,5 @@
 {
-    "SellProductChectSelectGoodsText": {
+    "SellProductCheckSelectGoodsText": {
         "desc": "检查选择交易货品的文本",
         "recognition": "OCR",
         "roi": [
@@ -61,7 +61,7 @@
         "recognition": "And",
         "all_of": [
             "SellProductCheckNextGoodsText",
-            "SellProductChectSelectGoodsText"
+            "SellProductCheckSelectGoodsText"
         ],
         "action": "Click",
         "next": [
@@ -73,7 +73,7 @@
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType2",
-            "SellProductChectSelectGoodsText"
+            "SellProductCheckSelectGoodsText"
         ],
         "action": "Click",
         "next": [
