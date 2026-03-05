@@ -21,7 +21,13 @@
         },
         "post_wait_freezes": {
             "time": 100,
-            "timeout": 1000
+            "timeout": 1000,
+            "target": [
+                662,
+                543,
+                309,
+                48
+            ]
         },
         "next": [
             "WaitEndExchange",
