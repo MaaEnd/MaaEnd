@@ -636,6 +636,10 @@
                 0,
                 0
             ]
+        },
+        "pre_wait_freezes": {
+            "time": 50,
+            "timeout": 1000
         }
     },
     "LevelUpButton": {
