@@ -16,6 +16,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EntryMFGCarbinSuccess"
         ],
@@ -34,6 +37,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedTake",
             "MFGCarbinNeedReStock",
@@ -59,6 +65,9 @@
                 "index": -1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -78,6 +87,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Click",
         "next": [
             "MFGCarbinNeedAssist",
@@ -96,6 +108,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -113,6 +128,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Click",
         "next": [
             "MFGCarbinNeedReStock",
@@ -132,6 +150,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -159,6 +180,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -183,6 +207,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -202,6 +229,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -219,6 +249,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
