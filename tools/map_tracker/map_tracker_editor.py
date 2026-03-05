@@ -16,11 +16,119 @@ import time
 from datetime import datetime, timezone
 from typing import NamedTuple
 import numpy as np
-from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2, MapName, SelectMapPage
+from utils import (
+    _R,
+    _G,
+    _Y,
+    _C,
+    _A,
+    _0,
+    Color,
+    Drawer,
+    cv2,
+    MapName,
+    SelectMapPage,
+    ViewportManager,
+    Layer,
+)
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
 SERVICE_LOG_FILE = "install/debug/go-service.log"
+
+
+class _MapLayer(Layer):
+    def __init__(self, view: ViewportManager, img: np.ndarray):
+        super().__init__(view)
+        self._img = img
+        self._scaled_img: np.ndarray | None = None
+        self._scaled_zoom: float | None = None
+
+    def render(self, drawer: Drawer) -> None:
+        zoom = self.view.zoom
+        if self._scaled_img is None or self._scaled_zoom != zoom:
+            scaled_w = max(1, int(self._img.shape[1] * zoom))
+            scaled_h = max(1, int(self._img.shape[0] * zoom))
+            self._scaled_img = cv2.resize(
+                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
+            )
+            self._scaled_zoom = zoom
+
+        scaled_img = self._scaled_img
+        if scaled_img is None:
+            return
+
+        scaled_h, scaled_w = scaled_img.shape[:2]
+        src_x1 = int(round(self.view._vx * zoom))
+        src_y1 = int(round(self.view._vy * zoom))
+        dst_x = max(0, -src_x1)
+        dst_y = max(0, -src_y1)
+        src_x1 = max(0, src_x1)
+        src_y1 = max(0, src_y1)
+        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
+        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
+
+        copy_w = src_x2 - src_x1
+        copy_h = src_y2 - src_y1
+        if copy_w > 0 and copy_h > 0:
+            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
+                scaled_img[src_y1:src_y2, src_x1:src_x2]
+            )
+
+
+class _RealtimePathLayer(Layer):
+    def __init__(self, view: ViewportManager, page: "PathEditPage"):
+        super().__init__(view)
+        self._page = page
+
+    def render(self, drawer: Drawer) -> None:
+        points = self._page._recorded_path
+        if len(points) < 2:
+            return
+        for i in range(1, len(points)):
+            psx, psy = self.view.get_view_coords(points[i - 1][0], points[i - 1][1])
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.line(
+                (psx, psy),
+                (sx, sy),
+                color=0x2E7DFF,
+                thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
+            )
+
+
+class _PathLayer(Layer):
+    def __init__(self, view: ViewportManager, page: "PathEditPage"):
+        super().__init__(view)
+        self._page = page
+
+    def render(self, drawer: Drawer) -> None:
+        points = self._page.points
+        # Draw path lines
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            if i > 0:
+                psx, psy = self.view.get_view_coords(points[i - 1][0], points[i - 1][1])
+                drawer.line(
+                    (psx, psy),
+                    (sx, sy),
+                    color=0xFF0000,
+                    thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
+                )
+
+        # Draw point circles
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.circle(
+                (sx, sy),
+                int(self._page.POINT_RADIUS * max(0.5, self.view.zoom**0.5)),
+                color=0xFFA500 if i == self._page.drag_idx else 0xFF0000,
+                thickness=-1,
+            )
+
+        # Draw point index labels
+        for i in range(len(points)):
+            sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
+            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
 
 
 class PathEditPage:
@@ -66,18 +174,21 @@ class PathEditPage:
         self._point_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
-        self.scale = 1.0
-        self.offset_x, self.offset_y = 0, 0
         self.window_w, self.window_h = 1280, 720
         self.window_name = "MapTracker Tool - Path Editor"
+        self.view = ViewportManager(
+            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
+        )
+        self._map_layer = _MapLayer(self.view, self.img)
+        self._path_layer = _PathLayer(self.view, self)
+        self._realtime_layer = _RealtimePathLayer(self.view, self)
+        self.view.fit_to(self.points)
 
         self.drag_idx = -1
         self.selected_idx = -1
         self.panning = False
         self.pan_start = (0, 0)
         self.mouse_pos: tuple[int, int] = (-1, -1)  # For crosshair display
-        self._scaled_img: np.ndarray | None = None
-        self._scaled_scale: float | None = None
 
         # Action state for point interactions (left button)
         self.action_down_idx = -1
@@ -157,7 +268,7 @@ class PathEditPage:
         if not self._recording_active:
             return False
         now = time.time()
-        if now - self._recording_last_poll < 0.2:
+        if now - self._recording_last_poll < 0.5:
             return False
         self._recording_last_poll = now
 
@@ -189,6 +300,9 @@ class PathEditPage:
             updated = True
 
         if updated:
+            if self._recorded_path:
+                last_point = self._recorded_path[-1]
+                self.view.maybe_center_to(last_point[0], last_point[1])
             self.render_page()
         return updated
 
@@ -197,15 +311,11 @@ class PathEditPage:
 
         The usable map area starts at x = SIDEBAR_W.
         """
-        mx = round(screen_x / self.scale + self.offset_x)
-        my = round(screen_y / self.scale + self.offset_y)
-        return mx, my
+        return self.view.get_real_coords(screen_x, screen_y)
 
     def _get_screen_coords(self, map_x, map_y):
         """Convert original map coordinates to screen (viewport) coordinates."""
-        sx = round((map_x - self.offset_x) * self.scale)
-        sy = round((map_y - self.offset_y) * self.scale)
-        return sx, sy
+        return self.view.get_view_coords(map_x, map_y)
 
     def _is_on_line(self, mx, my, p1, p2, threshold=10):
         """Check if a point is on the line between two points"""
@@ -234,77 +344,9 @@ class PathEditPage:
 
     def _render(self):
         drawer = Drawer.new(self.window_w, self.window_h)
-
-        if self._scaled_img is None or self._scaled_scale != self.scale:
-            scaled_w = max(1, int(self.img.shape[1] * self.scale))
-            scaled_h = max(1, int(self.img.shape[0] * self.scale))
-            self._scaled_img = cv2.resize(
-                self.img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
-            )
-            self._scaled_scale = self.scale
-
-        scaled_img = self._scaled_img
-        if scaled_img is not None:
-            scaled_h, scaled_w = scaled_img.shape[:2]
-            src_x1 = int(round(self.offset_x * self.scale))
-            src_y1 = int(round(self.offset_y * self.scale))
-            dst_x = max(0, -src_x1)
-            dst_y = max(0, -src_y1)
-            src_x1 = max(0, src_x1)
-            src_y1 = max(0, src_y1)
-            src_x2 = min(scaled_w, src_x1 + self.window_w - dst_x)
-            src_y2 = min(scaled_h, src_y1 + self.window_h - dst_y)
-
-            copy_w = src_x2 - src_x1
-            copy_h = src_y2 - src_y1
-            if copy_w > 0 and copy_h > 0:
-                drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
-                    scaled_img[src_y1:src_y2, src_x1:src_x2]
-                )
-
-        # Draw recorded history path lines
-        for i in range(1, len(self._recorded_path)):
-            psx, psy = self._get_screen_coords(
-                self._recorded_path[i - 1][0], self._recorded_path[i - 1][1]
-            )
-            sx, sy = self._get_screen_coords(
-                self._recorded_path[i][0], self._recorded_path[i][1]
-            )
-            drawer.line(
-                (psx, psy),
-                (sx, sy),
-                color=0x2E7DFF,
-                thickness=max(1, int(self.LINE_WIDTH * self.scale**0.5)),
-            )
-
-        # Draw path lines
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            if i > 0:
-                psx, psy = self._get_screen_coords(
-                    self.points[i - 1][0], self.points[i - 1][1]
-                )
-                drawer.line(
-                    (psx, psy),
-                    (sx, sy),
-                    color=0xFF0000,
-                    thickness=max(1, int(self.LINE_WIDTH * self.scale**0.5)),
-                )
-
-        # Draw point circles
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            drawer.circle(
-                (sx, sy),
-                int(self.POINT_RADIUS * max(0.5, self.scale**0.5)),
-                color=0xFFA500 if i == self.drag_idx else 0xFF0000,
-                thickness=-1,
-            )
-
-        # Draw point index labels
-        for i in range(len(self.points)):
-            sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
-            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
+        self._map_layer.render(drawer)
+        self._realtime_layer.render(drawer)
+        self._path_layer.render(drawer)
 
         # Draw crosshair at current mouse position
         drawer.line(
@@ -469,7 +511,7 @@ class PathEditPage:
 
         # ── Status section (bottom) ──────────────────────────────────────
         drawer.text(
-            f"Zoom: {self.scale:.2f}x",
+            f"Zoom: {self.view.zoom:.2f}x",
             (pad, h - 75),
             0.45,
             color=0xD2D200,
@@ -511,22 +553,20 @@ class PathEditPage:
         # ── Map area events ──────────────────────────────────────────────
         mx, my = self._get_map_coords(x, y)
         if event == cv2.EVENT_MOUSEWHEEL:
-            self.scale *= 1.14514 if flags > 0 else 1 / 1.14514
-            self.scale = max(0.5, min(self.scale, 10.0))
+            if flags > 0:
+                self.view.zoom_in()
+            else:
+                self.view.zoom_out()
 
-            self.offset_x = mx - x / self.scale
-            self.offset_y = my - y / self.scale
-            self._scaled_img = None
-            self._scaled_scale = None
+            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
             self.render_page()
 
         elif event == cv2.EVENT_MOUSEMOVE:
             # Pan
             if self.panning:
-                dx = (x - self.pan_start[0]) / self.scale
-                dy = (y - self.pan_start[1]) / self.scale
-                self.offset_x -= dx
-                self.offset_y -= dy
+                dx = (x - self.pan_start[0]) / self.view.zoom
+                dy = (y - self.pan_start[1]) / self.view.zoom
+                self.view.pan_by(-dx, -dy)
                 self.pan_start = (x, y)
                 self.render_page()
                 return
@@ -615,7 +655,7 @@ class PathEditPage:
                         inserted = False
                         for i in range(1, len(self.points)):
                             map_threshold = self.POINT_SELECTION_THRESHOLD / max(
-                                0.01, self.scale
+                                0.01, self.view.zoom
                             )
                             if self._is_on_line(
                                 mx,

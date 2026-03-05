@@ -323,6 +323,107 @@ class Drawer:
         return Drawer(img, **kwargs)
 
 
+class ViewportManager:
+    ZOOM_STEP = 1.14514
+
+    def __init__(
+        self,
+        vw: int,
+        vh: int,
+        *,
+        zoom: float = 1.0,
+        min_zoom: float = 0.5,
+        max_zoom: float = 10.0,
+        vx: float = 0.0,
+        vy: float = 0.0,
+    ):
+        self._vw = vw
+        self._vh = vh
+        self._zoom = zoom
+        self._min_zoom = min_zoom
+        self._max_zoom = max_zoom
+        self._vx = vx
+        self._vy = vy
+
+    @property
+    def zoom(self) -> float:
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, value: float) -> None:
+        self._zoom = max(self._min_zoom, min(self._max_zoom, value))
+
+    def get_real_coords(self, view_x: int, view_y: int) -> tuple[int, int]:
+        rx = round(view_x / self._zoom + self._vx)
+        ry = round(view_y / self._zoom + self._vy)
+        return rx, ry
+
+    def get_view_coords(self, real_x: int, real_y: int) -> tuple[int, int]:
+        vx = round((real_x - self._vx) * self._zoom)
+        vy = round((real_y - self._vy) * self._zoom)
+        return vx, vy
+
+    def zoom_in(self) -> None:
+        self.zoom = self._zoom * self.ZOOM_STEP
+
+    def zoom_out(self) -> None:
+        self.zoom = self._zoom / self.ZOOM_STEP
+
+    def set_view_origin(self, vx: float, vy: float) -> None:
+        self._vx = vx
+        self._vy = vy
+
+    def pan_by(self, dx: float, dy: float) -> None:
+        self._vx += dx
+        self._vy += dy
+
+    def maybe_center_to(self, real_x: int, real_y: int, padding: float = 0.3) -> None:
+        padding = max(0.0, min(0.49, padding))
+        view_w = self._vw / self._zoom
+        view_h = self._vh / self._zoom
+        pad_w = view_w * padding
+        pad_h = view_h * padding
+        left = self._vx + pad_w
+        right = self._vx + view_w - pad_w
+        top = self._vy + pad_h
+        bottom = self._vy + view_h - pad_h
+        if left <= real_x <= right and top <= real_y <= bottom:
+            return
+        self._vx = real_x - view_w / 2.0
+        self._vy = real_y - view_h / 2.0
+
+    def fit_to(self, real_points: list[Point], padding: float = 0.3) -> None:
+        if not real_points:
+            return
+        min_x = min(p[0] for p in real_points)
+        max_x = max(p[0] for p in real_points)
+        min_y = min(p[1] for p in real_points)
+        max_y = max(p[1] for p in real_points)
+        span_x = max(1.0, float(max_x - min_x))
+        span_y = max(1.0, float(max_y - min_y))
+
+        padding = max(0.0, min(0.49, padding))
+        fit_w = max(1.0, self._vw * (1.0 - 2.0 * padding))
+        fit_h = max(1.0, self._vh * (1.0 - 2.0 * padding))
+        target_zoom = min(fit_w / span_x, fit_h / span_y)
+        self.zoom = target_zoom
+
+        view_w = self._vw / self._zoom
+        view_h = self._vh / self._zoom
+        center_x = (min_x + max_x) / 2.0
+        center_y = (min_y + max_y) / 2.0
+        self._vx = center_x - view_w / 2.0
+        self._vy = center_y - view_h / 2.0
+
+
+class Layer:
+    def __init__(self, view: ViewportManager):
+        self.view = view
+
+    def render(self, drawer: "Drawer") -> None:
+        return None
+
+
 class SelectMapPage:
     """Map selection page."""
 
