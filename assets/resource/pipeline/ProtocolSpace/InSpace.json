@@ -104,7 +104,6 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "recognition": "NeuralNetworkDetect",
             "align_threshold": 120
         },
         "post_delay": 0
@@ -180,7 +179,6 @@
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "recognition": "NeuralNetworkDetect",
             "align_threshold": 120
         },
         "post_delay": 0

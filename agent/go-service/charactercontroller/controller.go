@@ -91,7 +91,7 @@ func (a *CharacterControllerForwardAxisAction) Run(ctx *maa.Context, arg *maa.Cu
 	return true
 }
 
-func moveToTargetNeuralNetworkDetect(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int) bool {
+func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int) bool {
 	if arg.RecognitionDetail == nil || !arg.RecognitionDetail.Hit {
 		log.Debug().Msg("recognition detail missing or not a hit")
 		return false
@@ -137,8 +137,7 @@ type CharacterMoveToTargetAction struct{}
 
 func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	var params struct {
-		Recognition    string `json:"recognition"`
-		AlignThreshold *int   `json:"align_threshold"`
+		AlignThreshold *int `json:"align_threshold"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().Err(err).Msg("Failed to parse CustomActionParam")
@@ -148,10 +147,5 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 	if params.AlignThreshold != nil {
 		alignThreshold = *params.AlignThreshold
 	}
-	recognition := params.Recognition
-	if recognition == "NeuralNetworkDetect" {
-		return moveToTargetNeuralNetworkDetect(ctx, arg, alignThreshold)
-	}
-	log.Warn().Str("recognition", recognition).Msg("Unsupported recognition method")
-	return false
+	return moveToTarget(ctx, arg, alignThreshold)
 }

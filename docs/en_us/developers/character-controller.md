@@ -58,10 +58,6 @@ Required parameters:
 
 #### Node Parameters
 
-Required parameters:
-
-- `recognition`: String, specifies the recognition method used. Currently only `"NeuralNetworkDetect"` is supported.
-
 Optional parameters:
 
 - `align_threshold`: Positive integer, default `120`. The horizontal pixel tolerance for centering on the target. When the horizontal offset between the target center and the screen center is less than this value, the target is considered aligned and the node switches to forward/backward movement.
@@ -76,10 +72,6 @@ On each invocation, one of the following actions is taken based on the current f
 | Target is to the right of screen center (beyond `align_threshold`) | Rotate view right |
 | Target is aligned, but Y coordinate > 480 (target in lower half of screen, already passed) | Step backward |
 | Target is aligned, and Y coordinate ≤ 480 (target in upper half of screen) | Step forward |
-
-> [!NOTE]
->
-> The `recognition` field must match the node's own recognition method. Currently only `NeuralNetworkDetect` is supported.
 
 ## Full Example
 
