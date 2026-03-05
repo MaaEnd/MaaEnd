@@ -48,6 +48,6 @@
         }
     },
     "CharacterControllerExampleMoveToTarget": {
-        "desc": "像目标前进示例，以协议空间内物体为例，详见ProtocolSpaceEnterSpaceSuccess"
+        "desc": "向目标前进示例，以协议空间内物体为例，详见ProtocolSpaceEnterSpaceSuccess"
     }
 }
