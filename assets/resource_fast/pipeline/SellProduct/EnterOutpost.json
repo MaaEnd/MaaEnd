@@ -48,7 +48,7 @@
     "SellProductGoToWulingOutpost": {
         "desc": "前往武陵据点",
         "anchor": {
-            "SellProductInOutpost": "InWulingOutpost",
+            "SellProductInOutpost": "SellProductInWulingOutpost",
             "SellProductEnterOutpost": "SellProductEnterWulingOutpost",
             "SellProductGoToRegion": "GoToWuling"
         },
