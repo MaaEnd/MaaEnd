@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import math
 from typing import Literal
 
 _R = "\033[31m"
@@ -320,3 +321,238 @@ class Drawer:
     def new(w: int, h: int, **kwargs) -> "Drawer":
         img = np.zeros((h, w, 3), dtype=np.uint8)
         return Drawer(img, **kwargs)
+
+
+class SelectMapPage:
+    """Map selection page."""
+
+    def __init__(self, map_dir: str = "assets/resource/image/MapTracker/map"):
+        self.map_dir = map_dir
+        self.map_files = self._load_and_sort_maps()
+        self.rows, self.cols = 2, 5
+        self.nav_height = 90
+        self.window_w, self.window_h = 1280, 720
+        self.cell_size = min(
+            self.window_w // self.cols, (self.window_h - self.nav_height) // self.rows
+        )
+        self.page_size = self.rows * self.cols
+        self.window_name = "MapTracker Tool - Map Selector"
+
+        self.current_page = 0
+        self.cached_page = -1
+        self.cached_img = None
+        self.selected_index = -1
+        self.total_pages = math.ceil(len(self.map_files) / self.page_size)
+
+    def _load_and_sort_maps(self) -> list[str]:
+        map_files = [f for f in os.listdir(self.map_dir) if f.endswith(".png")]
+        if not map_files:
+            return []
+
+        def natural_sort_key(s: str) -> list[str | int]:
+            return [
+                int(text) if text.isdigit() else text.lower()
+                for text in re.split("([0-9]+)", s)
+            ]
+
+        map_files.sort(key=lambda x: (len(x), natural_sort_key(x)))
+        return map_files
+
+    def _render_page(self):
+        if self.cached_page == self.current_page:
+            return self.cached_img
+        drawer: Drawer = Drawer.new(self.window_w, self.window_h)
+        start_idx = self.current_page * self.page_size
+        end_idx = min(start_idx + self.page_size, len(self.map_files))
+
+        # Content area height (excluding bottom navigation)
+        content_h = self.window_h - self.nav_height
+        content_w = self.window_w
+
+        # Calculate horizontal and vertical spacing (space-between)
+        if self.cols > 1:
+            gap_x = int((content_w - self.cols * self.cell_size) / (self.cols - 1))
+        else:
+            gap_x = 0
+        if self.rows > 1:
+            gap_y = int((content_h - self.rows * self.cell_size) / (self.rows - 1))
+        else:
+            gap_y = 0
+
+        # Draw map previews in space-between layout
+        for i in range(start_idx, end_idx):
+            idx_in_page = i - start_idx
+            r = idx_in_page // self.cols
+            c = idx_in_page % self.cols
+
+            cell_x = int(c * (self.cell_size + gap_x))
+            cell_y = int(r * (self.cell_size + gap_y))
+
+            path = os.path.join(self.map_dir, self.map_files[i])
+            img = cv2.imread(path)
+            if img is not None:
+                h, w = img.shape[:2]
+                # Calculate scaling to maintain aspect ratio, fit image completely into cell
+                scale = min(self.cell_size / w, self.cell_size / h)
+                new_w = max(1, int(w * scale))
+                new_h = max(1, int(h * scale))
+                resized = cv2.resize(img, (new_w, new_h))
+                # Center the image within the cell
+                x1 = cell_x
+                y1 = cell_y
+                x2 = x1 + self.cell_size
+                y2 = y1 + self.cell_size
+                # Calculate placement offset
+                dx = (self.cell_size - new_w) // 2
+                dy = (self.cell_size - new_h) // 2
+                dest_x1 = x1 + dx
+                dest_y1 = y1 + dy
+                dest_x2 = dest_x1 + new_w
+                dest_y2 = dest_y1 + new_h
+                # Boundary clipping (to prevent exceeding content area)
+                dest_x2 = min(self.window_w, dest_x2)
+                dest_y2 = min(content_h, dest_y2)
+                src_x2 = dest_x2 - dest_x1
+                src_y2 = dest_y2 - dest_y1
+                if src_x2 > 0 and src_y2 > 0:
+                    drawer._img[
+                        dest_y1 : dest_y1 + src_y2, dest_x1 : dest_x1 + src_x2
+                    ] = resized[0:src_y2, 0:src_x2]
+
+                # Label (bottom)
+                label = self.map_files[i]
+                drawer.rect(
+                    (x1, y1 + self.cell_size - 30),
+                    (x1 + self.cell_size, y1 + self.cell_size),
+                    color=0x000000,
+                    thickness=-1,
+                )
+                drawer.text_centered(
+                    label,
+                    (x1 + self.cell_size // 2, y1 + self.cell_size - 10),
+                    0.4,
+                    color=0xFFFFFF,
+                    thickness=1,
+                )
+
+        # Bottom navigation bar
+        drawer.line(
+            (0, content_h),
+            (self.window_w, content_h),
+            color=0x808080,
+            thickness=2,
+        )
+
+        # Top navigation prompt text
+        drawer.text_centered(
+            "Please click a map to continue",
+            (drawer.w // 2, content_h + 30),
+            0.7,
+            color=0xFFFFFF,
+            thickness=1,
+        )
+
+        # Left arrow
+        drawer.text(
+            "< PREV",
+            (150, self.window_h - 20),
+            0.6,
+            color=0x44DD66 if self.current_page > 0 else 0x808080,
+            thickness=2,
+        )
+
+        # Middle page info
+        page_text = f"Page {self.current_page + 1} / {self.total_pages}"
+        drawer.text_centered(
+            page_text,
+            (drawer.w // 2, self.window_h - 20),
+            0.5,
+            color=0xFFFFFF,
+            thickness=1,
+        )
+
+        # Right arrow
+        drawer.text(
+            "NEXT >",
+            (self.window_w - 200, self.window_h - 20),
+            0.6,
+            color=0x44DD66 if self.current_page < self.total_pages - 1 else 0x808080,
+            thickness=2,
+        )
+
+        self.cached_img = drawer.get_image()
+        self.cached_page = self.current_page
+        return self.cached_img
+
+    def _handle_mouse(self, event, x, y, flags, param):
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # Content area height (excluding bottom navigation)
+            content_h = self.window_h - self.nav_height
+            if y < content_h:
+                # Use layout calculation to determine which cell the click falls into
+                if self.cols > 1:
+                    gap_x = int(
+                        (self.window_w - self.cols * self.cell_size) / (self.cols - 1)
+                    )
+                else:
+                    gap_x = 0
+                if self.rows > 1:
+                    gap_y = int(
+                        (content_h - self.rows * self.cell_size) / (self.rows - 1)
+                    )
+                else:
+                    gap_y = 0
+
+                found = False
+                for r in range(self.rows):
+                    for c in range(self.cols):
+                        cell_x = int(c * (self.cell_size + gap_x))
+                        cell_y = int(r * (self.cell_size + gap_y))
+                        if (
+                            x >= cell_x
+                            and x < cell_x + self.cell_size
+                            and y >= cell_y
+                            and y < cell_y + self.cell_size
+                        ):
+                            idx = self.current_page * self.page_size + r * self.cols + c
+                            if idx < len(self.map_files):
+                                self.selected_index = idx
+                                found = True
+                                break
+                    if found:
+                        break
+            else:
+                # Bottom navigation
+                if x < self.window_w // 3:
+                    if self.current_page > 0:
+                        self.current_page -= 1
+                elif x > 2 * self.window_w // 3:
+                    if self.current_page < self.total_pages - 1:
+                        self.current_page += 1
+
+    def run(self):
+        if not self.map_files:
+            print(f"{_R}Error: No map files found in {self.map_dir}{_0}")
+            print(
+                "  Please ensure the current working directory of this program is correct!"
+            )
+            return None
+
+        cv2.namedWindow(self.window_name)
+        cv2.setMouseCallback(self.window_name, self._handle_mouse)
+
+        while True:
+            cv2.imshow(self.window_name, self._render_page())
+
+            if self.selected_index != -1:
+                break
+            key = cv2.waitKey(30) & 0xFF
+            if key == 27:  # ESC
+                break
+            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
+                break
+
+        cv2.destroyAllWindows()
+        if self.selected_index != -1:
+            return self.map_files[self.selected_index]
+        return None
