@@ -229,6 +229,7 @@
                 ]
             }
         },
+        "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
             "SellProductCanSellAfterChange"
@@ -236,5 +237,88 @@
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
+    },
+    "SellProductCanSellAfterChange": {
+        "desc": "更换货品后重新判断能否售卖",
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductClickBarRightAfterChange",
+            "SellProductDragBarAfterChange"
+        ]
+    },
+    "SellProductZeroProductRetry": {
+        "desc": "更换货品后仍无货，进入换据点流程",
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        }
+    },
+    "SellProductClickBarRightAfterChange": {
+        "desc": "换货后点击进度条最右侧",
+        "recognition": "And",
+        "all_of": [
+            "SellProductClickBarRight"
+        ],
+        "action": "Click",
+        "target_offset": [
+            40,
+            21,
+            -30,
+            -43
+        ],
+        "post_wait_freezes": 80,
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductSellAfterChange"
+        ]
+    },
+    "SellProductDragBarAfterChange": {
+        "desc": "换货后备选方案-滑动滑动条",
+        "recognition": "And",
+        "all_of": [
+            "SellProductDragBar"
+        ],
+        "action": "Swipe",
+        "end_offset": [
+            [
+                0,
+                0,
+                400,
+                0
+            ]
+        ],
+        "duration": [
+            500
+        ],
+        "next": [
+            "SellProductZeroProductRetry",
+            "SellProductZeroMoney",
+            "SellProductSellAfterChange"
+        ]
+    },
+    "SellProductSellAfterChange": {
+        "desc": "换货后交易",
+        "recognition": "And",
+        "all_of": [
+            "SellProductSell"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductSellCheckAfterChange"
+        ]
+    },
+    "SellProductSellCheckAfterChange": {
+        "desc": "换货后交易确认，完成后直接离开据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductSellCheck"
+        ],
+        "pre_wait_freezes": 80,
+        "action": "Click"
     }
 }
