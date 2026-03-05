@@ -1,5 +1,7 @@
 {
     "MapTrackerTestLoop": {
+        "doc": "此节点用于持续运行小地图定位，可与路径编辑工具结合使用",
+        "rate_limit": 500,
         "recognition": {
             "type": "Custom",
             "param": {
@@ -11,8 +13,7 @@
                 }
             }
         },
-        "pre_delay": 1000,
-        "rate_limit": 1000,
+        "max_hit": 3600,
         "next": [
             "MapTrackerTestLoop"
         ]
