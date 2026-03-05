@@ -483,8 +483,7 @@ class PathEditPage:
             return
 
         drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
-        prompt = "Do you want to generate a new path by the realime path record?"
-        prompt_size = drawer.get_text_size(prompt, 0.45, thickness=1)
+        prompt = "Do you want to generate a new path from the realtime path record?"
         prompt_x = x1 + 10
         prompt_y = y2 - 10
         drawer.text(
@@ -540,7 +539,6 @@ class PathEditPage:
         pad = 15
 
         # ── Extract and blend sidebar background ──────────────────────────
-        # Blend with semi-transparent black
         drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
 
         # ── Right border ─────────────────────────────────────────────────
