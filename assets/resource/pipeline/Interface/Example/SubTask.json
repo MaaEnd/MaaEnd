@@ -9,7 +9,9 @@
                 "SubTaskExampleStepOne",
                 "SubTaskExampleStepTwo"
             ],
+            // 任一 sub 失败，是否继续执行后续 sub。可选字段，默认 false
             "continue": false,
+            // 任一 sub 失败，是否 action 视为失败。可选字段，默认 true
             "strict": true
         },
         "next": []
