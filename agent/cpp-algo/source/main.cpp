@@ -21,7 +21,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    std::cout << "Hello, cpp-algo!" << std::endl;
+    // std::cout << "Hello, cpp-algo!" << std::endl;
 
     MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
 
