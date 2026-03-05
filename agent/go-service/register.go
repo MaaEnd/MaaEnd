@@ -9,7 +9,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
@@ -17,15 +17,15 @@ import (
 )
 
 func registerAll() {
-    // Pre-Check Custom
+	// Pre-Check Custom
 	aspectratio.Register()
 	hdrcheck.Register()
 
-    // General Custom
+	// General Custom
 	subtask.Register()
 
-    // Business Custom
-	importtask.Register()
+	// Business Custom
+	blueprintimport.Register()
 	charactercontroller.Register()
 	resell.Register()
 	puzzle.Register()

@@ -1,4 +1,4 @@
-package importtask
+package blueprintimport
 
 import (
 	"encoding/json"
