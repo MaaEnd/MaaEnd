@@ -238,7 +238,7 @@
             "type": "Click"
         },
         "next": [
-            "BackToControlNexus"
+            "CloseButtonType1"
         ]
     },
     "BackToControlNexus": {
