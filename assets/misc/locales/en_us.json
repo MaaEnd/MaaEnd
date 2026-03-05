@@ -414,5 +414,7 @@
     "preset.EssenceFarming.label": "Essence Farming",
     "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
     "task.AutoEcoFarm.label": "🌾Auto Eco-Farm",
-    "task.AutoEcoFarm.description": "Automatically performs harvesting, planting, and watering operations."
+    "task.AutoEcoFarm.description": "Automatically performs harvesting, planting, and watering operations.",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"Farmland Search Scheme",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"Run once from bottom-right to top-left. Farmlands should be arranged in a dense formation, preferably square."
 }

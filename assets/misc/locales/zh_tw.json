@@ -414,5 +414,8 @@
     "preset.EssenceFarming.label": "基質刷取",
     "preset.EssenceFarming.description": "基質養成及篩選相關",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
-    "task.AutoEcoFarm.description": "自動完成收菜、種植、澆水等相關操作"
+    "task.AutoEcoFarm.description": "自動完成收菜、種植、澆水等相關操作",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"搜尋農田的方案",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"從右下到左上跑一次，需要把農田擺成密集陣型，最好是方形"
+
 }
