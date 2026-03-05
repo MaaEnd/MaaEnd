@@ -7,7 +7,7 @@
     "global.region.WulingCity": "武陵城區",
     "task.EnvironmentMonitoring.description": "自動完成環境監測任務（目前為測試版，功能可能不穩定）",
     "task.EnvironmentMonitoring.label": "🌿環境監測（測試版）",
-    "task.DeliveryJobs.PackCargoSelectItem.description": "是否填入指定貨物。啟用後會依設定選擇指定貨物進行填入（可能失敗）。",
+    "task.DeliveryJobs.PackCargoSelectItem.description": "是否填入指定貨物。啟用後會依設定選擇指定貨物進行填入。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定貨物",
     "task.DeliveryJobs.WhatToFillValleyIV": "要填入的貨物（四號谷地）",
     "task.DeliveryJobs.WhatToFillWuling": "要填入的貨物（武陵）",

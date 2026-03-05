@@ -7,7 +7,7 @@
     "global.region.WulingCity": "Wuling City",
     "task.EnvironmentMonitoring.description": "Automatically complete environment monitoring tasks (currently in beta and may be unstable)",
     "task.EnvironmentMonitoring.label": "🌿Environment Monitoring (Beta)",
-    "task.DeliveryJobs.PackCargoSelectItem.description": "Whether to fill with specific goods. If enabled, it selects the configured goods to fill (may fail).",
+    "task.DeliveryJobs.PackCargoSelectItem.description": "Whether to fill with specific goods. If enabled, it selects the configured goods to fill.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",
     "task.DeliveryJobs.WhatToFillValleyIV": "Goods to Fill (Valley IV)",
     "task.DeliveryJobs.WhatToFillWuling": "Goods to Fill (Wuling)",
