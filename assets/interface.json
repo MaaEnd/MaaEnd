@@ -68,7 +68,7 @@
             "win32": {
                 "class_regex": "UnityWndClass",
                 "window_regex": "Endfield",
-                "screencap": "DXGI_DesktopDup_Window",
+                "screencap": "ScreenDC",
                 "mouse": "Seize",
                 "keyboard": "Seize"
             },
