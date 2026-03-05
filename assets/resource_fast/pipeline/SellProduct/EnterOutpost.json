@@ -48,7 +48,8 @@
         "all_of": [
             "SellProductInOutpost",
             "SellProductCheckRefugeeCampTabText"
-        ]
+        ],
+        "pre_wait_freezes": 80
     },
     "SellProductInWulingOutpost": {
         "desc": "在武陵据点",
@@ -56,7 +57,8 @@
         "all_of": [
             "SellProductInOutpost",
             "SellProductCheckSkyKingFlatsTabText"
-        ]
+        ],
+        "pre_wait_freezes": 80
     },
     "SellProductGoToOutpost": {
         "desc": "前往据点",
@@ -133,6 +135,18 @@
         "action": "Click",
         "next": [
             "SellProductInWulingOutpost"
+        ]
+    },
+    "SellProductBackToRegionalConstruction": {
+        "desc": "返回区域建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "SellProductInOutpost"
+        ],
+        "action": "Click",
+        "next": [
+            "InRegionalDevelopment"
         ]
     }
 }

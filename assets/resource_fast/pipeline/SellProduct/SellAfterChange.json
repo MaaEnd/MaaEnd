@@ -10,40 +10,18 @@
     },
     "SellProductClickBarRightAfterChange": {
         "desc": "换货后点击进度条最右侧",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1115,
-                    507,
-                    88,
-                    103
-                ],
-                "template": [
-                    "SellProduct/SellProductBarRight.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    40,
-                    21,
-                    -30,
-                    -43
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                1210,
-                554,
-                45,
-                39
-            ]
-        },
+        "recognition": "And",
+        "all_of": [
+            "SellProductClickBarRight"
+        ],
+        "action": "Click",
+        "target_offset": [
+            40,
+            21,
+            -30,
+            -43
+        ],
+        "post_wait_freezes": 80,
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -52,36 +30,22 @@
     },
     "SellProductDragBarAfterChange": {
         "desc": "换货后备选方案-滑动滑动条",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1000,
-                    500,
-                    200,
-                    150
-                ],
-                "template": [
-                    "SellProduct/SellProductBar.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "end_offset": [
-                    [
-                        0,
-                        0,
-                        400,
-                        0
-                    ]
-                ],
-                "duration": [
-                    500
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "SellProductDragBar"
+        ],
+        "action": "Swipe",
+        "end_offset": [
+            [
+                0,
+                0,
+                400,
+                0
+            ]
+        ],
+        "duration": [
+            500
+        ],
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
@@ -94,19 +58,7 @@
         "all_of": [
             "SellProductSell"
         ],
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                533,
-                300,
-                213,
-                103
-            ]
-        },
+        "action": "Click",
         "next": [
             "SellProductSellCheckAfterChange"
         ]
@@ -117,10 +69,7 @@
         "all_of": [
             "SellProductSellCheck"
         ],
-        "action": {
-            "type": "Click",
-            "param": {}
-        }
+        "action": "Click"
     },
     "SellProductZeroProductRetry": {
         "desc": "更换货品后仍无货，进入换据点流程",

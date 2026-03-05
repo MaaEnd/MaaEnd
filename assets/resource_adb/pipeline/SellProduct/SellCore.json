@@ -16,16 +16,11 @@
         ]
     },
     "SellProductClickBarRight": {
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    7,
-                    8,
-                    -19,
-                    -15
-                ]
-            }
-        }
+        "target_offset": [
+            7,
+            8,
+            -19,
+            -15
+        ]
     }
 }
