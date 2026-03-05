@@ -163,10 +163,23 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	stepRatio := params.StepRatio
+	if stepRatio <= 0 {
+		log.Error().Err(err).Msg("每步移动比例必须大于0")
+		return false // 必须返回false，终止执行
+	} else if stepRatio > 1 {
+		log.Error().Err(err).Msg("每步移动比例必须小于1")
+		return false // 必须返回false，终止执行
+	}
+
 	duration := time.Duration(params.Duration) * time.Millisecond
 
+	if duration <= 0 {
+		log.Error().Err(err).Msg("移动用时必须大于0")
+		return false // 必须返回false，终止执行
+	}
+
 	//判断box是否为空
-	if arg.Box.X() == 0 || arg.Box.Y() == 0 || arg.Box.Width() == 0 || arg.Box.Height() == 0 {
+	if arg.Box.Width() <= 0 || arg.Box.Height() {
 		err := fmt.Errorf("目标坐标/尺寸为空（X:%d,Y:%d,W:%d,H:%d）",
 			arg.Box.X(), arg.Box.Y(), arg.Box.Width(), arg.Box.Height())
 		log.Error().Err(err).Msg("目标坐标读取失败")
