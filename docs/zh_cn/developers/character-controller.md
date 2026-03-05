@@ -6,6 +6,10 @@
 
 **CharacterController** 提供了一组用于**控制游戏角色**的自定义 Action，包括视角旋转、前后移动以及朝向目标自动移动等功能。这些节点通常与 MapTracker 配合使用，实现更精确的角色控制。
 
+> [!IMPORTANT]
+>
+> CharacterController 的所有节点依赖键盘/鼠标输入，**必须在前台模式（Seize）下运行**，否则输入事件无法正确传递至游戏。请在 `interface.json` 或用户配置中确保控制器使用 `Seize` 连接方式。
+
 ## 节点说明
 
 下面将详细介绍 CharacterController 提供的节点的具体用法。这些节点都是 Custom 类型的节点，需要在 pipeline 中指定 `custom_action` 来使用。

@@ -6,6 +6,10 @@ This document describes how to use nodes related to CharacterController.
 
 **CharacterController** provides a set of custom Actions for **controlling the game character**, including view rotation, forward/backward movement, and automatic movement toward a recognized target. These nodes are typically used alongside MapTracker for precise character control.
 
+> [!IMPORTANT]
+>
+> All CharacterController nodes rely on keyboard/mouse input and **must run in foreground mode (Seize)**. Without it, input events cannot be delivered to the game correctly. Please ensure the controller is configured to use the `Seize` connection method in `interface.json` or user settings.
+
 ## Node Descriptions
 
 The following details the specific usage of the nodes provided by CharacterController. These nodes are all Custom type nodes and need to specify `custom_action` in the pipeline to use.
