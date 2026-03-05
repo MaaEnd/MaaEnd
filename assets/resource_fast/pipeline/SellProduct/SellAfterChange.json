@@ -8,6 +8,16 @@
             "SellProductDragBarAfterChange"
         ]
     },
+    "SellProductZeroProductRetry": {
+        "desc": "更换货品后仍无货，进入换据点流程",
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+        }
+    },
     "SellProductClickBarRightAfterChange": {
         "desc": "换货后点击进度条最右侧",
         "recognition": "And",
@@ -70,15 +80,5 @@
             "SellProductSellCheck"
         ],
         "action": "Click"
-    },
-    "SellProductZeroProductRetry": {
-        "desc": "更换货品后仍无货，进入换据点流程",
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
-        }
     }
 }

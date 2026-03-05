@@ -16,6 +16,7 @@
             "SellProductBackToRegionalConstruction"
         ]
     },
+
     "SellProductRefugeeCamp": {
         "desc": "难民暂居处售卖",
         "max_hit": 1,
@@ -28,6 +29,93 @@
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
         ]
     },
+
+    "SellProductInfrastructureOutpost": {
+        "desc": "基建前站售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostTabText"
+        ],
+        "next": [
+            "SellProductInfrastructureOutpostSell",
+            "[JumpBack]SellProductGoToInfrastructureOutpost"
+        ]
+    },
+
+    "SellProductReconstructionCommand": {
+        "desc": "重建指挥部售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "next": [
+            "SellProductReconstructionCommandSell",
+            "[JumpBack]SellProductGoToReconstructionCommandOutpost"
+        ]
+    },
+
+    "SellProductRefugeeCampSell": {
+        "desc": "难民暂居处售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+
+    "SellProductInfrastructureOutpostSell": {
+        "desc": "基建前站售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+
+    "SellProductReconstructionCommandSell": {
+        "desc": "重建指挥部售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+
+    "SellProductInRefugeeCamp": {
+        "desc": "在难民暂居处",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampText",
+            "SellProductInOutpost"
+        ]
+    },
+
+    "SellProductInInfrastructureOutpost": {
+        "desc": "在基建前站",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostText",
+            "SellProductInOutpost"
+        ]
+    },
+
+    "SellProductInReconstructionCommand": {
+        "desc": "在重建指挥部",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandText",
+            "SellProductInOutpost"
+        ]
+    },
+
     "SellProductGoToRefugeeCampOutpost": {
         "desc": "前往难民暂居处据点",
         "recognition": "And",
@@ -41,28 +129,7 @@
             "SellProductInRefugeeCamp"
         ]
     },
-    "SellProductRefugeeCampSell": {
-        "desc": "难民暂居处售卖",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInRefugeeCamp"
-        ],
-        "next": [
-            "SellProductAtSell"
-        ]
-    },
-    "SellProductInfrastructureOutpost": {
-        "desc": "基建前站售卖",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckInfrastructureOutpostTabText"
-        ],
-        "next": [
-            "SellProductInfrastructureOutpostSell",
-            "[JumpBack]SellProductGoToInfrastructureOutpost"
-        ]
-    },
+
     "SellProductGoToInfrastructureOutpost": {
         "desc": "前往基建前站据点",
         "recognition": "And",
@@ -76,28 +143,7 @@
             "SellProductInInfrastructureOutpost"
         ]
     },
-    "SellProductInfrastructureOutpostSell": {
-        "desc": "基建前站售卖",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInInfrastructureOutpost"
-        ],
-        "next": [
-            "SellProductAtSell"
-        ]
-    },
-    "SellProductReconstructionCommand": {
-        "desc": "重建指挥部售卖",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckReconstructionCommandTabText"
-        ],
-        "next": [
-            "SellProductReconstructionCommandSell",
-            "[JumpBack]SellProductGoToReconstructionCommandOutpost"
-        ]
-    },
+
     "SellProductGoToReconstructionCommandOutpost": {
         "desc": "前往重建指挥部据点",
         "recognition": "And",
@@ -109,16 +155,6 @@
         "action": "Click",
         "next": [
             "SellProductInReconstructionCommand"
-        ]
-    },
-    "SellProductReconstructionCommandSell": {
-        "desc": "重建指挥部售卖",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInReconstructionCommand"
-        ],
-        "next": [
-            "SellProductAtSell"
         ]
     },
 
@@ -139,31 +175,7 @@
             "유랑자 임시 거주지"
         ]
     },
-    "SellProductCheckRefugeeCampText": {
-        "desc": "检查难民暂居处大字文本",
-        "recognition": "OCR",
-        "roi": [
-            198,
-            167,
-            331,
-            127
-        ],
-        "expected": [
-            "难民暂居处",
-            "難民暫居處",
-            "Refugee Camp",
-            "仮設居住地",
-            "유랑자 임시 거주지"
-        ]
-    },
-    "SellProductInRefugeeCamp": {
-        "desc": "在难民暂居处",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckRefugeeCampText",
-            "SellProductInOutpost"
-        ]
-    },
+
     "SellProductCheckInfrastructureOutpostTabText": {
         "desc": "检查基建前站文本",
         "recognition": "OCR",
@@ -180,30 +192,7 @@
             "기초 건설 주둔지"
         ]
     },
-    "SellProductCheckInfrastructureOutpostText": {
-        "desc": "检查基建前站大字文本",
-        "recognition": "OCR",
-        "roi": [
-            198,
-            167,
-            331,
-            127
-        ],
-        "expected": [
-            "基建前站",
-            "Infra-Station",
-            "建設基地",
-            "기초 건설 주둔지"
-        ]
-    },
-    "SellProductInInfrastructureOutpost": {
-        "desc": "在基建前站",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckInfrastructureOutpostText",
-            "SellProductInOutpost"
-        ]
-    },
+
     "SellProductCheckReconstructionCommandTabText": {
         "desc": "检查重建指挥部文本",
         "recognition": "OCR",
@@ -221,6 +210,42 @@
             "재건 지휘부"
         ]
     },
+
+    "SellProductCheckRefugeeCampText": {
+        "desc": "检查难民暂居处大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "Refugee Camp",
+            "仮設居住地",
+            "유랑자 임시 거주지"
+        ]
+    },
+
+    "SellProductCheckInfrastructureOutpostText": {
+        "desc": "检查基建前站大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "基建前站",
+            "Infra-Station",
+            "建設基地",
+            "기초 건설 주둔지"
+        ]
+    },
+
     "SellProductCheckReconstructionCommandText": {
         "desc": "检查重建指挥部大字文本",
         "recognition": "OCR",
@@ -236,14 +261,6 @@
             "Reconstruction HQ",
             "再建管理本部",
             "재건 지휘부"
-        ]
-    },
-    "SellProductInReconstructionCommand": {
-        "desc": "在重建指挥部",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckReconstructionCommandText",
-            "SellProductInOutpost"
         ]
     }
 }

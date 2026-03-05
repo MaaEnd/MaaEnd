@@ -14,6 +14,7 @@
             "SellProductBackToRegionalConstruction"
         ]
     },
+
     "SellProductSkyKingFlats": {
         "desc": "天王坪援建点售卖",
         "max_hit": 1,
@@ -26,6 +27,27 @@
             "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
         ]
     },
+
+    "SellProductSkyKingFlatsSell": {
+        "desc": "天王坪援建点售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+
+    "SellProductInSkyKingFlats": {
+        "desc": "在天王坪援建点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSkyKingFlatsText",
+            "SellProductInOutpost"
+        ]
+    },
+
     "SellProductGoToSkyKingFlatsOutpost": {
         "desc": "前往天王坪援建点据点",
         "recognition": "And",
@@ -39,16 +61,7 @@
             "SellProductInSkyKingFlats"
         ]
     },
-    "SellProductSkyKingFlatsSell": {
-        "desc": "天王坪援建点售卖",
-        "recognition": "And",
-        "all_of": [
-            "SellProductInSkyKingFlats"
-        ],
-        "next": [
-            "SellProductAtSell"
-        ]
-    },
+
     "SellProductCheckSkyKingFlatsTabText": {
         "desc": "检查天王坪援建点文本",
         "recognition": "OCR",
@@ -67,6 +80,7 @@
             "천왕"
         ]
     },
+
     "SellProductCheckSkyKingFlatsText": {
         "desc": "检查天王坪援建点大字文本",
         "recognition": "OCR",
@@ -83,14 +97,6 @@
             "Sky King",
             "天王原",
             "천왕"
-        ]
-    },
-    "SellProductInSkyKingFlats": {
-        "desc": "在天王坪援建点",
-        "recognition": "And",
-        "all_of": [
-            "SellProductCheckSkyKingFlatsText",
-            "SellProductInOutpost"
         ]
     }
 }
