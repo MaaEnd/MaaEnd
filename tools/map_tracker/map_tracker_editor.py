@@ -99,6 +99,8 @@ class PathEditPage:
         self._btn_save_rect: tuple | None = None
         self._btn_loc_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
+        self._frame_interval = 1.0 / 120.0
+        self._last_render_ts = 0.0
 
     # ------------------------------------------------------------------
     # Helpers
@@ -130,7 +132,7 @@ class PathEditPage:
         """Append the latest realtime location from service log."""
         self._modal_active = True
         self._modal_text = "Connecting to service"
-        self._render()
+        self.render_page(force=True)
 
         result = self.location_service.wait_for_new_location(
             self.map_name, timeout_seconds=5.0
@@ -184,6 +186,12 @@ class PathEditPage:
     # ------------------------------------------------------------------
     # Rendering
     # ------------------------------------------------------------------
+
+    def render_page(self, *, force: bool = False):
+        now = time.monotonic()
+        if force or now - self._last_render_ts >= self._frame_interval:
+            self._last_render_ts = now
+            self._render()
 
     def _render(self):
         drawer = Drawer.new(self.window_w, self.window_h)
@@ -457,7 +465,7 @@ class PathEditPage:
         self.mouse_pos = (x, y)
         if self._modal_active:
             if event == cv2.EVENT_MOUSEMOVE:
-                self._render()
+                self.render_page()
             return  # Prevent all interactions when modal is active
 
         # ── Map area events ──────────────────────────────────────────────
@@ -470,7 +478,7 @@ class PathEditPage:
             self.offset_y = my - y / self.scale
             self._scaled_img = None
             self._scaled_scale = None
-            self._render()
+            self.render_page()
 
         elif event == cv2.EVENT_MOUSEMOVE:
             # Pan
@@ -480,7 +488,7 @@ class PathEditPage:
                 self.offset_x -= dx
                 self.offset_y -= dy
                 self.pan_start = (x, y)
-                self._render()
+                self.render_page()
                 return
 
             # Action (left button) dragging
@@ -488,7 +496,7 @@ class PathEditPage:
                 if self.action_dragging and self.drag_idx != -1:
                     self.points[self.drag_idx] = [mx, my]
                     self.action_moved = True
-                    self._render()
+                    self.render_page()
                     return
 
                 dx = x - self.action_down_pos[0]
@@ -499,13 +507,13 @@ class PathEditPage:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
                         self.points[self.drag_idx] = [mx, my]
-                        self._render()
+                        self.render_page()
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [mx, my]
                 self.action_dragging = True
-            self._render()
+            self.render_page()
 
         elif event == cv2.EVENT_RBUTTONDOWN:
             if x < self.SIDEBAR_W:
@@ -521,10 +529,10 @@ class PathEditPage:
             if x < self.SIDEBAR_W:
                 if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
                     self._do_save()
-                    self._render()
+                    self.render_page(force=True)
                 elif self._hit_button(x, y, self._btn_loc_rect):
                     self._apply_realtime_location()
-                    self._render()
+                    self.render_page(force=True)
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
                 return  # Prevent event propagation
@@ -598,7 +606,7 @@ class PathEditPage:
             self.action_down_pos = (0, 0)
             self.action_moved = False
             self.action_dragging = False
-            self._render()
+            self.render_page()
 
     # ------------------------------------------------------------------
     # Main loop
@@ -608,11 +616,11 @@ class PathEditPage:
         cv2.namedWindow(self.window_name)
         cv2.setMouseCallback(self.window_name, self._handle_mouse)
 
-        self._render()
+        self.render_page(force=True)
         while not self.done:
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
-            key = cv2.waitKey(30) & 0xFF
+            key = cv2.waitKey(5) & 0xFF
             if key == 27 or key == ord("f") or key == ord("F"):  # ESC / F → Finish
                 break
             if (
@@ -621,10 +629,10 @@ class PathEditPage:
                 and self.is_dirty
             ):
                 self._do_save()
-                self._render()
+                self.render_page(force=True)
             if key == ord("g") or key == ord("G"):
                 self._apply_realtime_location()
-                self._render()
+                self.render_page(force=True)
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
