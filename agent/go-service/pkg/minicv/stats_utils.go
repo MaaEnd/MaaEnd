@@ -40,7 +40,7 @@ func GetImageStats(img *image.RGBA) StatsResult {
 	count := float64(w * h * 3)
 	mean := sum / count
 	variance := sumSq - count*(mean*mean)
-	if variance < 1e-6 {
+	if variance < 1e-12 {
 		return StatsResult{Mean: mean, Std: 0}
 	}
 	return StatsResult{mean, math.Sqrt(variance)}
@@ -91,7 +91,7 @@ func (ia *IntegralArray) GetAreaStats(x, y, w, h int) StatsResult {
 	count := float64(w * h * 3)
 	mean := sum / count
 	variance := sumSq - count*(mean*mean)
-	if variance < 1e-6 {
+	if variance < 1e-12 {
 		return StatsResult{Mean: mean, Std: 0}
 	}
 	return StatsResult{mean, math.Sqrt(variance)}
