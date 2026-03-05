@@ -37,7 +37,7 @@
     "SellProductGoToValleyIVOutpost": {
         "desc": "前往四号谷地据点",
         "anchor": {
-            "SellProductInOutpost": "InValleyIVOutpost",
+            "SellProductInOutpost": "SellProductInValleyIVOutpost",
             "SellProductEnterOutpost": "SellProductEnterValleyIVOutpost",
             "SellProductGoToRegion": "GoToValleyIV"
         },
