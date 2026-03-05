@@ -85,7 +85,8 @@
             "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
             "ExitClueLibrary",
-            "ExitReceptionRoom"
+            "ExitReceptionRoom",
+            "EndExchange"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
