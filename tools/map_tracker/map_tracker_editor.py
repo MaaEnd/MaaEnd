@@ -218,7 +218,7 @@ class PathEditPage:
         self._btn_quick_generate_rect: tuple | None = None
         self._btn_quick_undo_rect: tuple | None = None
         self._quick_undo_state: dict | None = None
-        self._frame_interval = 1.0 / 60.0
+        self._frame_interval = 1.0 / 120.0
         self._last_render_ts = 0.0
 
     # ------------------------------------------------------------------
@@ -323,7 +323,7 @@ class PathEditPage:
         dot = x1 * x2 + y1 * y2
         cos_val = max(-1.0, min(1.0, dot / (n1 * n2)))
         angle = math.degrees(math.acos(cos_val))
-        return angle < 6.0
+        return angle < 12.0
 
     def _generate_path_from_recorded(self):
         if len(self._recorded_path) < 2:
