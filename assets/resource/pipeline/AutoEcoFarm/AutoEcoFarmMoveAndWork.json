@@ -33,9 +33,10 @@
     "_AutoEcoFarmJump2": {
         "doc": "按一下空格",
         "action": {
-            "type": "ClickKey",
+            "type": "LongPressKey",
             "param": {
-                "key": 32 //空格键
+                "key": 32, //空格键
+                "duration": 500
             }
         },
         "pre_delay": 0,
@@ -59,22 +60,70 @@
             "_AutoEcoFarmMoveToTargetErr"
         ]
     },
+    "_AutoEcoFarmLastJump": {
+        "doc": "识别标记消失后最后往前跳一次",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmLastJump2"
+        ]
+    },
+    "_AutoEcoFarmLastJump2": {
+        "doc": "按一下空格",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 32, //空格键
+                "duration": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmLastJump3"
+        ]
+    },
+    "_AutoEcoFarmLastJump3": {
+        "doc": "松开w",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        //稍微加点延迟保证停稳
+        "post_wait_freezes": 200,
+        "next": [
+            //最后识别一次，这次要是没菜单了就结束任务，否则回到工作流程
+            "_AutoEcoFarmFindMenuIcon",
+            "_AutoEcoFarmCancelMove"
+        ]
+    },
     "_AutoEcoFarmFindMenuLoop": {
         "doc": "循环识别菜单",
         //最大连跑60秒，超过就直接结束任务
         "max_hit": 120,
         "next": [
-            //先判断标记还在不在，不在的话找菜单
-            "_AutoEcoFarmNoTarget",
             //识别失败的情况下判断是否还在农场内，如果不在则证明跑出农场了，结束该子任务
             "_AutoEcoFarmFindMenuIcon",
+            //第二次保障，判断标记还在不在
+            "_AutoEcoFarmTargetExists",
+            //第三层保障，如果还在农田内则任不会结束
             "_AutoEcoFarmInAnyFarm",
-            //不在的话结束任务
+            //所有条件都不满足的情况下，启动最后一跳，再给一次机会
+            "_AutoEcoFarmLastJump",
+            //意外错误的话直接退出任务
             "_AutoEcoFarmCancelMove"
         ]
     },
-    "_AutoEcoFarmNoTarget": {
-        "doc": "确定农场标记还在不在屏幕中，如果不在的话就结束",
+    "_AutoEcoFarmTargetExists": {
+        "doc": "确定农场标记还在不在屏幕中，如果在的话继续循环",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -88,16 +137,14 @@
                 "threshold": 0.4
             }
         },
-        "inverse": true,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            //如果找不到标记了就结束任务了
-            "_AutoEcoFarmCancelMove"
+            "_AutoEcoFarmJump"
         ]
     },
     "_AutoEcoFarmInAnyFarm": {
-        "doc": "确认是否在任意农场内",
+        "doc": "确认是否在任意农场内,还在的话继续循环",
         "recognition": {
             "type": "Or",
             "param": {
@@ -109,22 +156,6 @@
         },
         "next": [
             "_AutoEcoFarmJump"
-        ]
-    },
-    "_AutoEcoFarmInAnyFarmLoop": {
-        "doc": "确认是否在任意农场内",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "_AutoEcoFarmInValleyIVFarm",
-                    "_AutoEcoFarmInWulinFarm"
-                ]
-            }
-        },
-        "next": [
-            "_AutoEcoFarmInAnyFarmLoop",
-            "AutoEcoFarmExit"
         ]
     },
     "_AutoEcoFarmInValleyIVFarm": {
@@ -143,7 +174,7 @@
                     ]
                 }
             ],
-            "precision": 0.8
+            "precision": 1
         }
     },
     "_AutoEcoFarmInWulinFarm": {
@@ -162,7 +193,7 @@
                     ]
                 }
             ],
-            "precision": 0.8
+            "precision": 1
         }
     },
     "_AutoEcoFarmFindMenuIcon": {
@@ -177,17 +208,51 @@
                     266
                 ],
                 "expected": [
-                    "收获|育种|浇水"
+                    "收获|育苗|浇水"
                 ],
                 "threshold": 0.7
             }
         },
+        "next": [
+            "_AutoEcoFarmWork1"
+        ]
+    },
+    "_AutoEcoFarmWork1": {
+        "doc": "按下alt",
         "action": {
-            "type": "ClickKey",
+            "type": "KeyDown",
             "param": {
-                "key": 70 //F键
+                "key": 18 //alt键
             }
         },
+        "next": [
+            "_AutoEcoFarmWork2"
+        ]
+    },
+    "_AutoEcoFarmWork2": {
+        "doc": "按下鼠标左键,点击菜单",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "_AutoEcoFarmFindMenuIcon"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmWork3"
+        ]
+    },
+    "_AutoEcoFarmWork3": {
+        "doc": "松开alt",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "_AutoEcoFarmStopToWork"
         ]
@@ -200,9 +265,13 @@
                 "key": 87 //w键
             }
         },
+        //每次操作后休息30秒等队友完成工作
+        "post_delay": 30000,
+        "focus": {
+            "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
+        },
         "next": [
-            //在停着的情况下直接识别，如果识别识别继续移动
-            "[JumpBack]_AutoEcoFarmIsWorking",
+            //第二个循环，这个循环有标记就点标记回循环，没有标记就继续移动
             "_AutoEcoFarmFindMenuIcon",
             "_AutoEcoFarmJump"
         ]

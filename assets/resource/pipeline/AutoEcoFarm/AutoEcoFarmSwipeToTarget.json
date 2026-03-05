@@ -10,16 +10,27 @@
 { //节点出入口
     "_AutoEcoFarmSwipeToTargetValleyIVStart": {
         "doc": "[谷地版]微调视角直到目标到屏幕中间",
+        "anchor": {
+            "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopValleyIV"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmSwipeLoopValleyIV",
-            "_AutoEcoFarmSwipeToTargetExit"
+            "_AutoEcoFarmSwipeToTargetStart"
         ]
     },
     "_AutoEcoFarmSwipeToTargetWulinStart": {
         "doc": "[武陵版]微调视角直到目标到屏幕中间",
+        "anchor": {
+            "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopWuLin"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmSwipeLoopWuLin",
-            "_AutoEcoFarmSwipeToTargetExit"
+            "_AutoEcoFarmSwipeToTargetStart"
+        ]
+    },
+    "_AutoEcoFarmSwipeToTargetStart": {
+        "doc": "微调视角直到目标到屏幕中间",
+        "next": [
+            "_AutoEcoFarmInWorld",
+            "[JumpBack]SceneAnyEnterWorld"
         ]
     },
     "_AutoEcoFarmSwipeToTargetExit": {
@@ -45,8 +56,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            //目标在中央则直接结束该子任务，否则正常做下去触发Jumpback再来一次
-            "_AutoEcoFarmTargeInCenter",
             "_AutoEcoFarmSwipeToTarget"
         ]
     },
@@ -95,23 +104,7 @@
         ]
     },
     //下面是内部节点，不用改
-    "_AutoEcoFarmSwipeLoopValleyIV": {
-        "doc": "控制谷地循环次数的节点",
-        "max_hit": 20,
-        "next": [
-            "_AutoEcoFarmTargeInWorld",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
-    },
-    "_AutoEcoFarmSwipeLoopWuLin": {
-        "doc": "控制谷地循环次数的节点",
-        "max_hit": 20,
-        "next": [
-            "_AutoEcoFarmTargeInWorld",
-            "[JumpBack]SceneAnyEnterWorld"
-        ]
-    },
-    "_AutoEcoFarmTargeInWorld": {
+    "_AutoEcoFarmInWorld": {
         "doc": "判断是否在大世界，避免误识别地图上的标点",
         "recognition": {
             "type": "OCR",
@@ -129,32 +122,25 @@
             }
         },
         "next": [
-            "_AutoEcoFarmTargeRecognition",
-            "[JumpBack]_AutoEcoFarmSwipeToGround"
+            "[Anchor]_AutoEcoFarmSwipeLoop"
         ]
     },
-    "_AutoEcoFarmSwipeToGround": {
-        "doc": "移动视角到地面",
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    640,
-                    360,
-                    1,
-                    1
-                ],
-                "end": [
-                    640,
-                    720,
-                    1,
-                    1
-                ]
-            }
-        },
-        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
+    "_AutoEcoFarmSwipeLoopValleyIV": {
+        "doc": "[四号谷地版]控制循环次数节点",
+        "max_hit": 10,
         "next": [
-            "_AutoEcoFarmAltDown"
+            "_AutoEcoFarmTargeRecognition",
+            "[JumpBack]_AutoEcoFarmSwipeToGround",
+            "_AutoEcoFarmMoveToTargetErrFindTarget"
+        ]
+    },
+    "_AutoEcoFarmSwipeLoopWuLin": {
+        "doc": "[武陵版]控制循环次数节点",
+        "max_hit": 10,
+        "next": [
+            "_AutoEcoFarmTargeRecognition",
+            "[JumpBack]_AutoEcoFarmSwipeToGround",
+            "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
     "_AutoEcoFarmAltDown": {
@@ -191,7 +177,11 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            //触发Jumpback
+            //目标在中央则直接结束该子任务，否则继续循环
+            "_AutoEcoFarmTargeInCenter",
+            "[Anchor]_AutoEcoFarmSwipeLoop",
+            //循环控制节点超上限后会失效，直接结束任务
+            "_AutoEcoFarmMoveToTargetErr"
         ]
     }
 }

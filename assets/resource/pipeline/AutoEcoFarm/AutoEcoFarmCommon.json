@@ -25,6 +25,15 @@
             "_AutoEcoFarmMoveToTargetErr1"
         ]
     },
+    "_AutoEcoFarmMoveToTargetErrFindTarget": {
+        "doc": "这是个异常处理节点，触发时解除占用并结束任务",
+        "focus": {
+            "Node.Recognition.Failed": "在识别标记时出现异常情况，脚本提前中止"
+        },
+        "next": [
+            "_AutoEcoFarmMoveToTargetErr1"
+        ]
+    },
     "_AutoEcoFarmMoveToTargetErr1": {
         "doc": "先解除w键占用",
         "action": {
@@ -140,5 +149,69 @@
                 "key": 27 //esc键
             }
         }
+    },
+    "_AutoEcoFarmSwipeToGround": {
+        "doc": "移动视角到地面，配合jumpback使用",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
+                "end": [
+                    640,
+                    720,
+                    1,
+                    1
+                ]
+            }
+        },
+        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
+        "next": [
+            "_AutoEcoFarmSwipeToGround2"
+        ]
+    },
+    "_AutoEcoFarmSwipeToGround2": {
+        "doc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmSwipeToGround3"
+        ]
+    },
+    "_AutoEcoFarmSwipeToGround3": {
+        "doc": "按下鼠标左键",
+        "action": {
+            "type": "Click"
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmSwipeToGround4"
+        ]
+    },
+    "_AutoEcoFarmSwipeToGround4": {
+        "doc": "松开alt",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmJumpBack": {
+        "doc": "空节点，用来触发jumpback"
     }
 }

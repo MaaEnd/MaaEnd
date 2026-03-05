@@ -65,9 +65,5 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
-    },
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
     }
 }

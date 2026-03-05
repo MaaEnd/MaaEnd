@@ -156,6 +156,7 @@
             }
         },
         "max_hit": 10,
+        "post_wait_freezes": 200,
         "next": [
             "_AutoEcoFarmFindValleyIVEcoFarm"
         ]
@@ -175,6 +176,7 @@
             }
         },
         "max_hit": 10,
+        "post_wait_freezes": 200,
         "next": [
             "_AutoEcoFarmFindWulinEcoFarm"
         ]
@@ -198,12 +200,40 @@
             "type": "Click"
         },
         "next": [
+            "_AutoEcoFarmIsMrarking",
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
             "[JumpBack]_AutoEcoFarmMoveMouse"
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
             //这里结束，触发Jumpback
+        ]
+    },
+    "_AutoEcoFarmIsMrarking": {
+        "doc": "找到标记两个字说明点歪了，按一下esc",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    937,
+                    33,
+                    281,
+                    45
+                ],
+                "expected": [
+                    "标记"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmFindFarmland"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
