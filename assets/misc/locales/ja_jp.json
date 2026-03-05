@@ -376,7 +376,7 @@
     "controller.Win32-Window-Background.label": "PC-バックグラウンド",
     "controller.Win32-Window-Background.description": "純粋なバックグラウンドコントローラーです。ゲームの最小化に対応しており、マウスを奪いません。ただし、ゲームウィンドウが乱れて飛び回る場合がありますが、使用には支障ありません。干渉を避けるためにゲームを最小化することをお勧めします。",
     "controller.Win32-Front.label": "PC-前面",
-    "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。PC に複数の GPU（内蔵 + 外付けを含む）がある場合、MXU とゲームは同じ GPU 上で動作している必要があります。",
+    "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
     "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md",

@@ -376,7 +376,7 @@
     "controller.Win32-Window-Background.label": "电脑端-后台",
     "controller.Win32-Window-Background.description": "纯后台控制器。支持游戏最小化，不抢占鼠标。但会导致游戏窗口乱飞，不影响使用，建议将游戏最小化以避免干扰",
     "controller.Win32-Front.label": "电脑端-前台",
-    "controller.Win32-Front.description": "前台控制。需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标。若电脑有多个显卡（包括核显+独显），MXU 需和游戏在同一显卡上才能使用",
+    "controller.Win32-Front.description": "前台控制。需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md",

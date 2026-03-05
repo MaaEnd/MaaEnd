@@ -376,7 +376,7 @@
     "controller.Win32-Window-Background.label": "PC-백그라운드",
     "controller.Win32-Window-Background.description": "순수 백그라운드 컨트롤러입니다. 게임 최소화를 지원하며 마우스를 점유하지 않습니다. 단, 게임 창이 무작위로 이동할 수 있으나 사용에는 영향이 없습니다. 방해를 피하기 위해 게임을 최소화하는 것을 권장합니다.",
     "controller.Win32-Front.label": "PC-포그라운드",
-    "controller.Win32-Front.description": "포그라운드 제어입니다. 게임 창이 항상 최앞단에 있고 가려지지 않아야 하며, 마우스를 완전히 점유합니다. PC에 여러 GPU(내장+외장 포함)가 있는 경우 MXU와 게임이 동일한 GPU에서 실행되어야 합니다.",
+    "controller.Win32-Front.description": "포그라운드 제어입니다. 게임 창이 항상 최앞단에 있고 가려지지 않아야 하며, 마우스를 완전히 점유합니다.",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "안드로이드 에뮬레이터 및 실물 안드로이드 기기를 지원합니다.",
     "contact.file": "misc/locales/CONTACT/CONTACT.ko_kr.md",

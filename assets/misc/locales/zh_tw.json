@@ -230,7 +230,7 @@
     "controller.Win32-Window-Background.label": "電腦端-後台",
     "controller.Win32-Window-Background.description": "純後台控制器。支援遊戲最小化，不搶占滑鼠。但可能導致遊戲視窗亂飛，不影響使用，建議將遊戲最小化以避免干擾",
     "controller.Win32-Front.label": "電腦端-前台",
-    "controller.Win32-Front.description": "前台控制。需要遊戲視窗保持在最前且不被遮擋，會完全搶占滑鼠。若電腦有多張顯示卡（包括內顯+獨顯），MXU 需要和遊戲在同一張顯示卡上才能使用",
+    "controller.Win32-Front.description": "前台控制。需要遊戲視窗保持在最前且不被遮擋，會完全搶占滑鼠",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支援安卓模擬器及實體安卓裝置",
     "task.ItemTransfer.label": "🐌庫存轉移",
