@@ -137,14 +137,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
-	var rotStep int
-	if param.Precision < 0.3 {
-		rotStep = 12
-	} else if param.Precision < 0.6 {
-		rotStep = 6
-	} else {
-		rotStep = 3
-	}
+	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
 
 	// Initialize resources on first run
 	i.initMaps(ctx)

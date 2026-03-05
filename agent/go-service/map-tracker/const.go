@@ -62,7 +62,6 @@ var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
 	RotationLowerThreshold: 7.5,
 	RotationUpperThreshold: 60.0,
 	RotationSpeed:          2.75,
-	RotationTimeout:        30000,
 	SprintThreshold:        15.0,
 	StuckThreshold:         2000,
 	StuckTimeout:           10000,
