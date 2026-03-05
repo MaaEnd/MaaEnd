@@ -125,6 +125,9 @@
                 ]
             }
         },
+        "next": [
+            "SellProductAtDevelopment"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "据点管理未解锁"
         }
