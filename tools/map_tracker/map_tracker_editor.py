@@ -914,6 +914,10 @@ class LocationService:
 
     def __init__(self, log_file: str = SERVICE_LOG_FILE):
         self.log_file = log_file
+        self._offset = 0
+        self._buffer = b""
+        self._last_map_key: str | None = None
+        self._last_start_time = 0.0
 
     def _is_target_message(self, message: str | None) -> bool:
         if not message:
@@ -978,10 +982,35 @@ class LocationService:
         if not os.path.exists(self.log_file):
             return []
 
+        map_key = unique_map_key(expected_map_name)
+        if self._last_map_key != map_key or start_time < self._last_start_time:
+            self._offset = 0
+            self._buffer = b""
+        self._last_map_key = map_key
+        self._last_start_time = start_time
+
         results: list[dict] = []
         try:
-            with open(self.log_file, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
+            with open(self.log_file, "rb") as f:
+                f.seek(0, os.SEEK_END)
+                end_pos = f.tell()
+                if end_pos < self._offset:
+                    self._offset = 0
+                    self._buffer = b""
+                if end_pos > self._offset:
+                    f.seek(self._offset, os.SEEK_SET)
+                    data = f.read(end_pos - self._offset)
+                    self._offset = end_pos
+                    if data:
+                        self._buffer += data
+
+            if self._buffer:
+                lines = self._buffer.split(b"\n")
+                self._buffer = lines[-1]
+                for raw in lines[:-1]:
+                    if not raw:
+                        continue
+                    line = raw.decode("utf-8", errors="ignore")
                     if not line.strip():
                         continue
                     record = self._parse_location_line(line, expected_map_name)
