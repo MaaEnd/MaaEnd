@@ -376,7 +376,7 @@
     "controller.Win32.label": "PC-Express",
     "controller.Win32.description": "Greatly improves response speed, ideal for users who value efficiency. Supports game minimization, may occasionally grab the mouse. May not work on some computers.",
     "controller.Win32-Front.label": "PC-Foreground",
-    "controller.Win32-Front.description": "Foreground control. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse.",
+    "controller.Win32-Front.description": "Foreground control. Requires the game window to remain in the foreground and unobstructed; will fully grab the mouse. If your PC has multiple GPUs (including integrated + dedicated), MXU and the game must run on the same GPU.",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Supports Android emulators and physical Android devices.",
     "contact.file": "misc/locales/CONTACT/CONTACT.en_us.md",

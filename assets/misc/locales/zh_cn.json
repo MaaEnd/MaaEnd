@@ -376,7 +376,7 @@
     "controller.Win32.label": "电脑端-极速",
     "controller.Win32.description": "极大提升响应速度，适合追求效率的用户。支持游戏最小化，会间接性抢占鼠标。部分电脑可能无法使用",
     "controller.Win32-Front.label": "电脑端-前台",
-    "controller.Win32-Front.description": "前台控制。需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标",
+    "controller.Win32-Front.description": "前台控制。需要游戏窗口保持在最前且不被遮挡，会完全抢占鼠标。若电脑有多个显卡（包括核显+独显），MXU 需和游戏在同一显卡上才能使用",
     "controller.ADB.label": "安卓端",
     "controller.ADB.description": "支持安卓模拟器和实体安卓设备",
     "contact.file": "misc/locales/CONTACT/CONTACT.zh_cn.md",

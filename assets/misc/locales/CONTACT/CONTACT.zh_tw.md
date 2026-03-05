@@ -1,4 +1,4 @@
-- 用戶群: 1082597011
+- 用戶群: 755643532
 - 開發群: 1072587329 （幹活群，歡迎加入一起開發，但不受理用戶問題）
 - 官網: [maaend.com](https://maaend.com)
 - 開源代碼: [GitHub](https://github.com/MaaEnd/MaaEnd)

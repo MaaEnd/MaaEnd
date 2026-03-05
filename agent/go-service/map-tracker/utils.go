@@ -194,10 +194,11 @@ func (aw *ActionWrapper) ClickSync(contact, x, y int, delayMillis int) {
 }
 
 // SwipeSync performs a swipe from (x, y) to (x+dx, y+dy)
-func (aw *ActionWrapper) SwipeSync(x, y, dx, dy int, delayMillis int) {
+func (aw *ActionWrapper) SwipeSync(x, y, dx, dy int, durationMillis, delayMillis int) {
 	aw.ctx.RunActionDirect("Swipe", maa.SwipeParam{
 		Begin:     maa.NewTargetRect(maa.Rect{x, y, 4, 4}),
 		End:       []maa.Target{maa.NewTargetRect(maa.Rect{x + dx, y + dy, 4, 4})},
+		Duration:  []time.Duration{time.Duration(durationMillis) * time.Millisecond},
 		OnlyHover: true,
 	}, maa.Rect{0, 0, 0, 0}, nil)
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
@@ -222,10 +223,14 @@ func (aw *ActionWrapper) KeyTypeSync(keyCode int, delayMillis int) {
 }
 
 // RotateCamera performs a camera rotation via series of mouse-keyboard operations
-func (aw *ActionWrapper) RotateCamera(dx int, delayMillis int) {
+func (aw *ActionWrapper) RotateCamera(dx int, durationMillis, delayMillis int) {
 	cx, cy := WORK_W/2, WORK_H/2
-	stepDelayMillis := delayMillis / 4
-	aw.SwipeSync(cx, cy, dx, 0, stepDelayMillis)
+	aw.SwipeSync(cx, cy, dx, 0, durationMillis, delayMillis)
+}
+
+func (aw *ActionWrapper) ResetCamera(delayMillis int) {
+	cx, cy := WORK_W/2, WORK_H/2
+	stepDelayMillis := delayMillis / 3
 	aw.KeyDownSync(KEY_ALT, stepDelayMillis)
 	aw.ClickSync(0, cx, cy, stepDelayMillis)
 	aw.KeyUpSync(KEY_ALT, stepDelayMillis)

@@ -994,12 +994,8 @@ class LocationService:
                                         data_obj.get("message")
                                     ):
                                         continue
-                                    if data_obj.get("hit") is False:
-                                        continue
 
-                                    log_map_name = data_obj.get(
-                                        "mapName"
-                                    ) or data_obj.get("map_name")
+                                    log_map_name = data_obj.get("MapName")
                                     if not log_map_name:
                                         continue
                                     if unique_map_key(log_map_name) != unique_map_key(
@@ -1009,8 +1005,8 @@ class LocationService:
                                             "mismatch", str(log_map_name)
                                         )
 
-                                    x = data_obj.get("x")
-                                    y = data_obj.get("y")
+                                    x = data_obj.get("X")
+                                    y = data_obj.get("Y")
                                     if x is None or y is None:
                                         continue
 
@@ -1045,47 +1041,6 @@ class LocationService:
             "not_found",
             "Timeout connecting to location service. Check the console for details.",
         )
-
-    def get_latest_location(
-        self, expected_map_name: str
-    ) -> "LocationService.LocationServiceResult":
-        lines = self._read_last_lines()
-        if not lines:
-            return self.LocationServiceResult(
-                "not_found", "Log file not found or empty."
-            )
-
-        for line in reversed(lines):
-            try:
-                data = json.loads(line)
-            except Exception:
-                continue
-
-            if not isinstance(data, dict):
-                continue
-
-            if not self._is_target_message(data.get("message")):
-                continue
-
-            if data.get("hit") is False:
-                continue
-
-            log_map_name = data.get("mapName") or data.get("map_name")
-            if not log_map_name:
-                continue
-            if unique_map_key(log_map_name) != unique_map_key(expected_map_name):
-                return self.LocationServiceResult("mismatch", str(log_map_name))
-
-            x = data.get("x")
-            y = data.get("y")
-            if x is None or y is None:
-                continue
-
-            return self.LocationServiceResult(
-                "ok", {"x": int(round(x)), "y": int(round(y)), "raw": data}
-            )
-
-        return self.LocationServiceResult("not_found", "No matching log entry.")
 
 
 class PipelineHandler:

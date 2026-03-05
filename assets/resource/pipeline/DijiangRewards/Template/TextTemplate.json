@@ -217,7 +217,7 @@
         }
     },
     "GrayButtonCancelText": {
-        "doc": "灰色按钮上的取消文本识别",
+        "desc": "灰色按钮上的取消文本识别",
         "recognition": {
             "type": "OCR",
             "param": {

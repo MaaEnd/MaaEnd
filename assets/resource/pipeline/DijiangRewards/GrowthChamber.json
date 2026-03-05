@@ -30,11 +30,11 @@
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "YellowConfirmButtonType1",
                     "ClaimAllText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -57,12 +57,12 @@
                 ]
             }
         },
-        "action": {
-            "type": "Click"
-        },
         "pre_wait_freezes": {
             "time": 80,
             "timeout": 1000
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "Grow",
@@ -164,18 +164,18 @@
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteConfirmButtonType1",
                     "WhiteButtonConfirmText"
-                ]
+                ],
+                "box_index": 1
             }
-        },
-        "post_wait_freezes": {
-            "time": 100
         },
         "action": {
             "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100
         }
     },
     "CheckGrowTargetEmpty": {
@@ -266,11 +266,11 @@
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
                     "WhiteConfirmButtonType2",
                     "ConfirmExtractText"
-                ]
+                ],
+                "box_index": 1
             }
         },
         "action": {
@@ -293,12 +293,12 @@
                 ]
             }
         },
-        "action": {
-            "type": "Click"
-        },
         "pre_wait_freezes": {
             "time": 80,
             "timeout": 1000
+        },
+        "action": {
+            "type": "Click"
         },
         "next": [
             "BackToGrow"
@@ -500,15 +500,15 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
         "action": {
             "type": "Click",
             "param": {
                 "contact": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
         }
     }
 }

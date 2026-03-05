@@ -488,6 +488,7 @@
                 ]
             }
         },
+        "action": "Click",
         "post_wait_freezes": {
             "time": 80,
             "timeout": 2000,
@@ -498,7 +499,6 @@
                 59
             ]
         },
-        "action": "Click",
         "next": [
             "ExitReceptionRoom"
         ]
@@ -519,6 +519,12 @@
                 ]
             }
         },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
         "post_wait_freezes": {
             "time": 80,
             "timeout": 2000,
@@ -528,12 +534,6 @@
                 364,
                 59
             ]
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
         }
     }
 }

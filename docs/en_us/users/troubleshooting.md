@@ -32,7 +32,7 @@ When submitting a Bug Report, you **must** provide the following information:
 1. Enable **"Save Debug Images"** in the settings.
 2. Attempt to reproduce the issue again.
 3. Upload the debug images generated in the `debug/vision/` directory.
-4. If the files are too large to upload, you can upload them to the QQ Group File (1082597011) and note the specific file name in the issue.
+4. If the files are too large to upload, you can upload them to the QQ Group File (755643532) and note the specific file name in the issue.
 5. Remember to turn this off after feedback-otherwise, your hard drive might crash (for real 😉).
 
 ### 💥 Program Crashes (Unexpected Exit)
@@ -45,5 +45,5 @@ If the program disappears directly or pops up an error box, please try to provid
 ## 4. Communication & Feedback
 
 - **GitHub Issue**: [Click to Submit](https://github.com/MaaEnd/MaaEnd/issues)
-- **User QQ Group**: [1082597011](https://qm.qq.com/q/SMko3OzTWK)
+- **User QQ Group**: [755643532](https://qm.qq.com/q/o4HDYMHUGc)
 - **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Working group-welcome to join development, but user issues are not handled here)

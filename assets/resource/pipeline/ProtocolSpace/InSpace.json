@@ -101,12 +101,12 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "recognition": "NeuralNetworkDetect"
-        }
+            "align_threshold": 120
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchStartNotFound": {
         "desc": "光点未找到，向右旋转",
@@ -115,12 +115,12 @@
             "ProtocolSpaceIn"
         ],
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterControllerYawDeltaAction",
         "custom_action_param": {
             "delta": 45
-        }
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchStartTouch": {
         "desc": "判断出现触碰提示，开始触碰",
@@ -176,12 +176,12 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "post_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "recognition": "NeuralNetworkDetect"
-        }
+            "align_threshold": 120
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchExitNotFound": {
         "desc": "退出未找到，向右旋转",
@@ -189,13 +189,13 @@
         "all_of": [
             "ProtocolSpaceIn"
         ],
-        "action": "Custom",
         "pre_delay": 0,
-        "post_delay": 0,
+        "action": "Custom",
         "custom_action": "CharacterControllerYawDeltaAction",
         "custom_action_param": {
             "delta": 90
-        }
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchExitTouch": {
         "desc": "判断出现触碰提示，开始触碰",

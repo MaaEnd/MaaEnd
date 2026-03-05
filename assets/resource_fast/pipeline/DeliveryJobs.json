@@ -7,11 +7,10 @@
         ]
     },
     "DeliveryJobsLoop": {
-        "desc": "主循环，同时支持地区建设界面和本地仓储节点界面",
-        "recognition": "Or",
-        "any_of": [
-            "InRegionalDevelopment",
-            "InLocalDepotNode"
+        "desc": "主循环，仅支持从地区建设界面开始",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
         ],
         "next": [
             "DeliveryJobsAuto",

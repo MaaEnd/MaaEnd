@@ -376,7 +376,7 @@
     "controller.Win32.label": "PC-高速",
     "controller.Win32.description": "応答速度を大幅に向上させ、効率を重視するユーザーに最適です。ゲームの最小化に対応しており、間接的にマウスを奪うことがあります。一部のPCでは使用できない場合があります。",
     "controller.Win32-Front.label": "PC-前面",
-    "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。",
+    "controller.Win32-Front.description": "前面制御です。ゲームウィンドウを最前面に表示し、遮られないようにする必要があります。マウスを完全に占有します。PC に複数の GPU（内蔵 + 外付けを含む）がある場合、MXU とゲームは同じ GPU 上で動作している必要があります。",
     "controller.ADB.label": "Android",
     "controller.ADB.description": "Androidエミュレーターおよび実機Androidデバイスに対応しています。",
     "contact.file": "misc/locales/CONTACT/CONTACT.ja_jp.md",

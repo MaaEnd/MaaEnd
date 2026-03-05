@@ -46,6 +46,14 @@ type MapTrackerMoveParam struct {
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
 }
 
+type PlayerMovementType byte
+
+const (
+	MOVEMENT_WALK   PlayerMovementType = 1
+	MOVEMENT_RUN    PlayerMovementType = 2
+	MOVEMENT_SPRINT PlayerMovementType = 3
+)
+
 //go:embed messages/emergency_stop.html
 var emergencyStopHTML string
 
@@ -90,14 +98,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	}
 
-	log.Info().Str("map", param.MapName).Int("targets_count", len(param.Path)).Msg("Starting navigation to targets")
+	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
-	// Reset walk-run state
+	// Reset player movement type by sprint once
 	aw.KeyDownSync(KEY_S, 50)
 	aw.KeyTypeSync(KEY_SHIFT, 50)
 	aw.KeyUpSync(KEY_S, 50)
 	aw.KeyTypeSync(KEY_W, 50)
-	isSlowWalking := false
+	movementType := MOVEMENT_RUN
 
 	// For each target point
 	for i, target := range param.Path {
@@ -137,7 +145,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check stopping signal
 			if ctx.GetTasker().Stopping() {
 				log.Warn().Msg("Task is stopping, exiting navigation loop")
-				aw.KeyUpSync(KEY_W, 100)
+				aw.KeyUpSync(KEY_W, 25)
 				return false
 			}
 
@@ -153,12 +161,34 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			result, err := doInfer(ctx, ctrl, param)
 			if err != nil {
 				log.Error().Err(err).Msg("Inference failed during navigation")
-				aw.KeyUpSync(KEY_W, 100)
+				aw.KeyUpSync(KEY_W, 25)
 				continue
 			}
-
 			curX, curY := result.X, result.Y
 			rot := result.Rot
+
+			// Calculate rotation difference
+			targetRot := calcTargetRotation(curX, curY, targetX, targetY)
+			deltaRot := calcDeltaRotation(rot, targetRot)
+
+			// Check arrival
+			dist := math.Hypot(float64(curX-targetX), float64(curY-targetY))
+			if dist < param.ArrivalThreshold {
+				log.Info().Int("x", curX).Int("y", curY).Int("index", i).Msg("Target point reached")
+				// Peek next target's direction
+				if i < len(param.Path)-1 {
+					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
+					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
+					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
+					// Pause slightly if next target is in a very different direction
+					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
+						aw.KeyUpSync(KEY_W, 25)
+					}
+				}
+				break
+			}
+
+			log.Debug().Int("x", curX).Int("y", curY).Float64("dist", dist).Msg("Navigating to target")
 
 			// Check Stuck
 			if prevLocation != nil && prevLocation[0] == curX && prevLocation[1] == curY {
@@ -177,19 +207,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				prevLocationTime = now
 			}
 
-			// Check arrival
-			dist := math.Hypot(float64(curX-targetX), float64(curY-targetY))
-			if dist < param.ArrivalThreshold {
-				log.Info().Int("x", curX).Int("y", curY).Int("index", i).Msg("Target point reached")
-				break
-			}
-
-			log.Debug().Int("x", curX).Int("y", curY).Float64("dist", dist).Msg("Navigating to target")
-
-			// Calculate & adjust rotation
-			targetRot := calcTargetRotation(curX, curY, targetX, targetY)
-			deltaRot := calcDeltaRotation(rot, targetRot)
-
 			// Check rotation and adjust if needed
 			if math.Abs(float64(deltaRot)) > param.RotationLowerThreshold {
 				if lastRotationAdjustTime.IsZero() {
@@ -204,34 +221,54 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 				log.Debug().Int("cur", rot).Int("target", targetRot).Int("delta", deltaRot).Msg("Adjusting rotation")
 
-				// Enable slow walk if delta rotation is large, otherwise disable slow walk
-				if (math.Abs(float64(deltaRot)) > param.RotationUpperThreshold) != isSlowWalking {
-					aw.KeyTypeSync(KEY_CTRL, 100)
-					isSlowWalking = !isSlowWalking
+				// Ensure no sprinting: forcibly set to 'walk'
+				if movementType > MOVEMENT_RUN {
+					aw.KeyTypeSync(KEY_CTRL, 25)
+					movementType = MOVEMENT_WALK
+				}
+
+				// Ensure a proper movement type: 'walk' if needs large rotation adjustment, otherwise 'run'
+				if math.Abs(float64(deltaRot)) > param.RotationUpperThreshold {
+					if movementType > MOVEMENT_WALK {
+						aw.KeyTypeSync(KEY_CTRL, 25)
+						movementType = MOVEMENT_WALK
+					}
+					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 50, 25)
+					aw.KeyDownSync(KEY_W, 50)
+				} else {
+					if movementType < MOVEMENT_RUN {
+						aw.KeyTypeSync(KEY_CTRL, 25)
+						movementType = MOVEMENT_RUN
+					}
+					aw.KeyDownSync(KEY_W, 25)
+					aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 50, 25)
 				}
 
 				// Do rotation adjustment
-				aw.RotateCamera(int(float64(deltaRot)*param.RotationSpeed), 100)
-				aw.KeyDownSync(KEY_W, 100)
+				aw.ResetCamera(50)
 			} else {
-				// Rotation is good, disable slow walk if it was enabled
-				if isSlowWalking {
-					aw.KeyTypeSync(KEY_CTRL, 100)
-					isSlowWalking = false
+				// Rotation is good: at least set to 'run'
+				if movementType < MOVEMENT_RUN {
+					aw.KeyTypeSync(KEY_CTRL, 25)
+					movementType = MOVEMENT_RUN
 				}
-				aw.KeyDownSync(KEY_W, 100)
+				aw.KeyDownSync(KEY_W, 25)
 
-				// Sprint if target is far enough
 				if dist > param.SprintThreshold {
-					aw.KeyTypeSync(KEY_SHIFT, 100)
+					// Target is far enough: enable 'sprint'
+					if movementType < MOVEMENT_SPRINT {
+						aw.KeyTypeSync(KEY_SHIFT, 100)
+						movementType = MOVEMENT_SPRINT
+					}
 				}
 				lastRotationAdjustTime = time.Time{} // Reset
 			}
 		}
-
 		// End of loop, one target reached
-		aw.KeyUpSync(KEY_W, 100)
 	}
+
+	// End of all targets reached, stop movement
+	aw.KeyUpSync(KEY_W, 25)
 
 	// Show finished UI summary
 	if !param.NoPrint {
