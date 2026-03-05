@@ -51,20 +51,35 @@
     "SellProductValleyIV": {
         "desc": "四号谷地售卖流程入口",
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToValleyIV"
+            ]
+        },
         "next": [
             "SellProductEnterManagementLocked",
-            "[JumpBack]SellProductGoToValleyIVOutpost"
+            "[JumpBack]SellProductValleyIVSell",
+            "SellProductAtDevelopment"
         ]
     },
     "SellProductWuling": {
         "desc": "武陵售卖流程入口",
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToWuling"
+            ]
+        },
         "next": [
             "SellProductEnterManagementLocked",
-            "[JumpBack]SellProductGoToWulingOutpost"
+            "[JumpBack]SellProductWulingSell",
+            "SellProductAtDevelopment"
         ]
     },
-
     "SellProductEnterManagementLocked": {
         "desc": "识别据点管理是否未解锁",
         "recognition": {
@@ -85,7 +100,6 @@
             "Node.Recognition.Succeeded": "据点管理未解锁"
         }
     },
-
     "SellProductTaskEnd": {
         "desc": "任务结束",
         "focus": {

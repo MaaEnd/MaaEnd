@@ -1,4 +1,54 @@
 {
+    "SellProductWulingSell": {
+        "desc": "在武陵售卖",
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductGoToWulingOutpost"
+            ]
+        },
+        "next": [
+            "[JumpBack]SellProductSkyKingFlats",
+            "SellProductBackToRegionalConstruction"
+        ]
+    },
+    "SellProductSkyKingFlats": {
+        "desc": "天王坪援建点售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSkyKingFlatsTabText"
+        ],
+        "next": [
+            "SellProductSkyKingFlatsSell",
+            "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
+        ]
+    },
+    "SellProductGoToSkyKingFlatsOutpost": {
+        "desc": "前往天王坪援建点据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInWulingOutpost",
+            "SellProductCheckSkyKingFlatsTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInSkyKingFlats"
+        ]
+    },
+    "SellProductSkyKingFlatsSell": {
+        "desc": "天王坪援建点售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductCheckSkyKingFlatsTabText": {
         "desc": "检查天王坪援建点文本",
         "recognition": "OCR",

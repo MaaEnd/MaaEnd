@@ -1,4 +1,127 @@
 {
+    "SellProductValleyIVSell": {
+        "desc": "在四号谷地售卖",
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductGoToValleyIVOutpost"
+            ]
+        },
+        "next": [
+            "[JumpBack]SellProductRefugeeCamp",
+            "[JumpBack]SellProductInfrastructureOutpost",
+            "[JumpBack]SellProductReconstructionCommand",
+            "SellProductBackToRegionalConstruction"
+        ]
+    },
+    "SellProductRefugeeCamp": {
+        "desc": "难民暂居处售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "next": [
+            "SellProductRefugeeCampSell",
+            "[JumpBack]SellProductGoToRefugeeCampOutpost"
+        ]
+    },
+    "SellProductGoToRefugeeCampOutpost": {
+        "desc": "前往难民暂居处据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInRefugeeCamp"
+        ]
+    },
+    "SellProductRefugeeCampSell": {
+        "desc": "难民暂居处售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductInfrastructureOutpost": {
+        "desc": "基建前站售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostTabText"
+        ],
+        "next": [
+            "SellProductInfrastructureOutpostSell",
+            "[JumpBack]SellProductGoToInfrastructureOutpost"
+        ]
+    },
+    "SellProductGoToInfrastructureOutpost": {
+        "desc": "前往基建前站据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckInfrastructureOutpostTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInInfrastructureOutpost"
+        ]
+    },
+    "SellProductInfrastructureOutpostSell": {
+        "desc": "基建前站售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+    "SellProductReconstructionCommand": {
+        "desc": "重建指挥部售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "next": [
+            "SellProductReconstructionCommandSell",
+            "[JumpBack]SellProductGoToReconstructionCommandOutpost"
+        ]
+    },
+    "SellProductGoToReconstructionCommandOutpost": {
+        "desc": "前往重建指挥部据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInReconstructionCommand"
+        ]
+    },
+    "SellProductReconstructionCommandSell": {
+        "desc": "重建指挥部售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
+
     "SellProductCheckRefugeeCampTabText": {
         "desc": "检查难民暂居处文本",
         "recognition": "OCR",
