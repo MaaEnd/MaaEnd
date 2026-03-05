@@ -17,6 +17,7 @@ from cli_support import Console, init_localization
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
+MAAEND_REPO: str = "MaaEnd/MaaEnd"
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -101,6 +102,7 @@ except KeyError as e:
     raise RuntimeError(f"Unsupported OS for MaaFramework: {OS_KEYWORD}") from e
 
 MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
+CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
 TIMEOUT: int = 30
 CACHE_DIR: Path = PROJECT_BASE / ".cache"
 VERSION_FILE_NAME: str = "version.json"
@@ -740,6 +742,154 @@ def install_mxu(
             return False, local_version, False
 
 
+def find_cpp_algo_binary(search_root: Path) -> Path | None:
+    preferred_names = (
+        ["cpp-algo.exe", "cpp-algo"] if OS_KEYWORD == "win" else ["cpp-algo", "cpp-algo.exe"]
+    )
+    candidates: list[Path] = []
+    for name in preferred_names:
+        candidates.extend(path for path in search_root.rglob(name) if path.is_file())
+
+    if not candidates:
+        return None
+
+    def _score(path: Path) -> tuple[int, int, int]:
+        path_parts = [part.lower() for part in path.parts]
+        has_agent_dir = 0 if "agent" in path_parts else 1
+        preferred_name_rank = 0 if path.name.lower() == preferred_names[0] else 1
+        return has_agent_dir, preferred_name_rank, len(path_parts)
+
+    candidates.sort(key=_score)
+    return candidates[0]
+
+
+def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
+    agent_dir = install_root / "agent"
+    agent_dir.mkdir(parents=True, exist_ok=True)
+
+    target_path = agent_dir / CPP_ALGO_DIST_NAME
+    shutil.copy2(src_path, target_path)
+    print(Console.ok(t("inf_updated_file", name=target_path.name)))
+
+    if OS_KEYWORD != "win":
+        target_path.chmod(target_path.stat().st_mode | 0o111)
+
+    pdb_src = src_path.with_suffix(".pdb")
+    if pdb_src.exists():
+        pdb_target = agent_dir / f"{Path(CPP_ALGO_DIST_NAME).stem}.pdb"
+        shutil.copy2(pdb_src, pdb_target)
+        print(Console.ok(t("inf_updated_file", name=pdb_target.name)))
+
+
+def install_cpp_algo(
+    install_root: Path,
+    skip_if_exist: bool = True,
+    update_mode: bool = False,
+    local_version: str | None = None,
+) -> tuple[bool, str | None, bool]:
+    real_install_root = install_root.resolve()
+    cpp_algo_path = real_install_root / "agent" / CPP_ALGO_DIST_NAME
+    cpp_algo_installed = cpp_algo_path.exists()
+
+    if skip_if_exist and cpp_algo_installed:
+        print(Console.ok(t("inf_cpp_algo_installed_skip")))
+        return True, local_version, False
+
+    url, filename, remote_version = get_latest_release_url(
+        MAAEND_REPO, ["maaend", OS_KEYWORD, ARCH_KEYWORD]
+    )
+    if not url or not filename:
+        print(Console.err(t("err_cpp_algo_url_not_found")))
+        return False, local_version, False
+
+    if (
+        update_mode
+        and cpp_algo_installed
+        and local_version
+        and remote_version
+        and compare_semver(local_version, remote_version) >= 0
+    ):
+        print(Console.ok(t("inf_cpp_algo_latest_version", version=local_version)))
+        return True, local_version, False
+
+    cache_dir = ensure_cache_dir()
+    download_path = cache_dir / filename
+    if not download_file(url, download_path, resume=True):
+        return False, local_version, False
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+
+        print(Console.info(t("inf_extract_install_cpp_algo")))
+        try:
+            lower_filename = filename.lower()
+            if lower_filename.endswith(".dmg"):
+                if platform.system() != "Darwin":
+                    print(Console.err(t("err_cpp_algo_dmg_unsupported")))
+                    return False, local_version, False
+
+                mount_dir = tmp_path / "mounted"
+                mount_dir.mkdir(parents=True, exist_ok=True)
+                attach_result = subprocess.run(
+                    [
+                        "hdiutil",
+                        "attach",
+                        str(download_path),
+                        "-nobrowse",
+                        "-readonly",
+                        "-mountpoint",
+                        str(mount_dir),
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                if attach_result.returncode != 0:
+                    error_message = (
+                        attach_result.stderr.strip()
+                        or attach_result.stdout.strip()
+                        or str(attach_result.returncode)
+                    )
+                    print(Console.err(t("err_cpp_algo_dmg_attach_failed", error=error_message)))
+                    return False, local_version, False
+
+                try:
+                    cpp_algo_src = find_cpp_algo_binary(mount_dir)
+                    if not cpp_algo_src:
+                        print(Console.err(t("err_cpp_algo_not_found", name=CPP_ALGO_DIST_NAME)))
+                        return False, local_version, False
+                    copy_cpp_algo_binary(cpp_algo_src, real_install_root)
+                finally:
+                    detach_result = subprocess.run(
+                        ["hdiutil", "detach", str(mount_dir), "-force"],
+                        capture_output=True,
+                        text=True,
+                    )
+                    if detach_result.returncode != 0:
+                        error_message = (
+                            detach_result.stderr.strip()
+                            or detach_result.stdout.strip()
+                            or str(detach_result.returncode)
+                        )
+                        print(Console.warn(t("wrn_cpp_algo_dmg_detach_failed", error=error_message)))
+            else:
+                extract_root = tmp_path / "extracted"
+                extract_root.mkdir(parents=True, exist_ok=True)
+                shutil.unpack_archive(str(download_path), extract_root)
+
+                cpp_algo_src = find_cpp_algo_binary(extract_root)
+                if not cpp_algo_src:
+                    print(Console.err(t("err_cpp_algo_not_found", name=CPP_ALGO_DIST_NAME)))
+                    return False, local_version, False
+                copy_cpp_algo_binary(cpp_algo_src, real_install_root)
+
+            print(Console.ok(t("inf_cpp_algo_install_complete")))
+            cleanup_cache_file(download_path)
+            return True, remote_version or local_version, True
+        except Exception as e:
+            print(Console.err(t("err_cpp_algo_install_failed", error=e)))
+            return False, local_version, False
+
+
 def _is_cn_locale() -> bool:
     """检测当前系统语言是否为简体中文"""
     import locale as _locale
@@ -814,6 +964,19 @@ def main() -> None:
     if mxu_version:
         versions["mxu"] = mxu_version
     any_downloaded = any_downloaded or mxu_downloaded
+
+    cpp_algo_ok, cpp_algo_version, cpp_algo_downloaded = install_cpp_algo(
+        install_dir,
+        skip_if_exist=not args.update,
+        update_mode=args.update,
+        local_version=local_versions.get("cpp_algo"),
+    )
+    if not cpp_algo_ok:
+        print(Console.err(t("fatal_cpp_algo_failed")))
+        sys.exit(1)
+    if cpp_algo_version:
+        versions["cpp_algo"] = cpp_algo_version
+    any_downloaded = any_downloaded or cpp_algo_downloaded
 
     if not args.ci and any_downloaded:
         write_versions_file(version_file, versions)
