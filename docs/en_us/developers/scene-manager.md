@@ -36,7 +36,7 @@ When a business node fails to recognize the expected screen, the framework will 
 
 ### Examples
 
-For concrete usage examples, see `assets/resource/pipeline/SceneManager/SceneExample.json`, which contains complete example nodes for both normal scene interfaces and teleport interfaces.
+For concrete usage examples, see `assets/resource/pipeline/Interface/Example/Scene.json`, which contains complete example nodes for both normal scene interfaces and teleport interfaces.
 
 ## 3. Conventions for Universal Jump Interfaces
 

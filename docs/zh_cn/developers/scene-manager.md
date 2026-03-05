@@ -34,7 +34,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 示例
 
-具体用法示例请参考 `assets/resource/pipeline/SceneManager/SceneExample.json`，其中包含普通场景接口与传送接口的完整示例节点。
+具体用法示例请参考 `assets/resource/pipeline/Interface/Example/Scene.json`，其中包含普通场景接口与传送接口的完整示例节点。
 
 ## 3. 万能跳转接口约定
 
