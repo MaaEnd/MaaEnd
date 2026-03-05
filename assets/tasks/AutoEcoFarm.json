@@ -7,8 +7,53 @@
             "description": "$task.AutoEcoFarm.description",
             "controller": [
                 "Win32-Front"
+            ],
+            "option": [
+                "FarmlandFindingScheme"
             ]
         }
     ],
-    "option": {}
+    "option": {
+        "FarmlandFindingScheme": {
+            "type": "select",
+            "label": "查找农田的方案",
+            "default_case": "从右下到左上",
+            "cases": [
+                {
+                    "name": "从右下到左上",
+                    "label": "从右下到左上，只跑一次，太远的可能漏",
+                    "pipeline_override": {
+                        "_AutoEcoFarmFindFarmland": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "order_by": "Horizontal"
+                                }
+                            }
+                        },
+                        "_AutoEcoFarmFindValleyIVEcoFarmAny": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "多次随机找田",
+                    "label": "多次随机找田，效率比较低，但不容易漏",
+                    "pipeline_override": {
+                        "_AutoEcoFarmFindFarmland": {
+                            "recognition": {
+                                "type": "TemplateMatch",
+                                "param": {
+                                    "order_by": "Random"
+                                }
+                            }
+                        },
+                        "_AutoEcoFarmFindValleyIVEcoFarmAny": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

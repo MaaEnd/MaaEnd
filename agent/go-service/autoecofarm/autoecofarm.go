@@ -192,13 +192,24 @@ func (m *MoveToTargetPart) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	dy := targetCenterY - screenCenterY
 
 	//如果不在阈值下，则根据比例拉近屏幕并且返回true
+	//如果目标坐标在下半屏，即在背后，则横向拉一个较大的距离转镜头
 
-	ctx.RunActionDirect("Swipe", maa.SwipeParam{
-		Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
-		End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + int(float64(dx)*stepRatio), screenCenterY + dy, 1, 1})},
-		Duration:  []time.Duration{duration},
-		OnlyHover: true,
-	}, maa.Rect{0, 0, 0, 0}, nil)
+	if targetCenterY > screenCenterY+120 {
+		ctx.RunActionDirect("Swipe", maa.SwipeParam{
+			Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
+			End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX * 2, screenCenterY, 1, 1})},
+			Duration:  []time.Duration{duration},
+			OnlyHover: true,
+		}, maa.Rect{0, 0, 0, 0}, nil)
+	} else {
+		ctx.RunActionDirect("Swipe", maa.SwipeParam{
+			Begin:     maa.NewTargetRect(maa.Rect{screenCenterX, screenCenterY, 1, 1}),
+			End:       []maa.Target{maa.NewTargetRect(maa.Rect{screenCenterX + int(float64(dx)*stepRatio), screenCenterY + dy, 1, 1})},
+			Duration:  []time.Duration{duration},
+			OnlyHover: true,
+		}, maa.Rect{0, 0, 0, 0}, nil)
+
+	}
 
 	return true
 }

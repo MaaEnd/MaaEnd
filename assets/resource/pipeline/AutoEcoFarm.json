@@ -2,7 +2,8 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
-            "_AutoEcoFarmSwipeToTargetValleyIVStart",
+            //"_AutoEcoFarmNoTargetLoop",
+            //"_AutoEcoFindFarmFarmlandWulinStart",
             "_AutoEcoFarmGotoValleyIVEcoFarmStart",
             "_AutoEcoFarmGotoWulinEcoFarmStart",
             "AutoEcoFarmExit"
@@ -10,5 +11,28 @@
     },
     "AutoEcoFarmExit": {
         "doc": "退出任务"
-    }
+    },
+    "_AutoEcoFarmNoTargetLoop": {
+        "doc": "确定农场标记还在不在屏幕中间，如果不在的话说明跟丢了或者已经到了，那就结束任务",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    420,
+                    100,
+                    440,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.4
+            }
+        },
+        "inverse": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            //如果找不到标记了就结束任务了
+            "_AutoEcoFarmNoTargetLoop"
+        ]
+    },
 }

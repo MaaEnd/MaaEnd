@@ -39,7 +39,7 @@
                     720
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.3
+                "threshold": 0.4
             }
         },
         "pre_delay": 0,
@@ -50,19 +50,19 @@
             "_AutoEcoFarmSwipeToTarget"
         ]
     },
-        "_AutoEcoFarmTargeInCenter": {
+    "_AutoEcoFarmTargeInCenter": {
         "doc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
                     620,
-                    0,
+                    300,
                     40,
-                    720
+                    100
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "threshold": 0.3
+                "threshold": 0.4
             }
         },
         "pre_delay": 0,
@@ -165,14 +165,12 @@
                 "key": 18 //alt键
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "next": [
             "_AutoEcoFarmClick"
         ]
     },
     "_AutoEcoFarmClick": {
-        "doc": "按下alt",
+        "doc": "按下鼠标左键",
         "action": {
             "type": "Click"
         },
