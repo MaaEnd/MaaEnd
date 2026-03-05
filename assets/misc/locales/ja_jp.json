@@ -349,6 +349,8 @@
     "item.AmberRiceSeed": "金石稲の種",
     "item.JincaoDrink": "錦草ソーダⅠ",
     "item.CrystonComponent": "高晶装備部品",
+    "option.ItemTransferAutoTeleport.label": "推奨地点へ自動テレポート",
+    "option.ItemTransferAutoTeleport.description": "有効にすると、帝江号応接室へ自動テレポートしカメラを調整します。`PC版-フォアグラウンド`のみ使用可能。\n無効にするとテレポートをスキップして直接転送を開始します。応接室で手動で見上げてバッグを開く必要があります。\n**このオプションを有効にしていないことによる認識 issue は当面受け付けません。**",
     "option.ItemTransferOriginRegion.label": "出発エリア (起点)",
     "option.ItemTransferOriginRegion.description": "アイテムが現在保管されている倉庫エリア。",
     "option.ItemTransferDestinationRegion.label": "到着エリア (終点)",
