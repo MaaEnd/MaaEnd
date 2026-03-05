@@ -323,6 +323,8 @@
     "item.AmberRiceSeed": "Amber Rice Seed",
     "item.JincaoDrink": "Jincao Drink",
     "item.CrystonComponent": "Cryston Component",
+    "option.ItemTransferAutoTeleport.label": "Auto Teleport to Recommended Location",
+    "option.ItemTransferAutoTeleport.description": "When enabled, automatically teleports to the Dijiang Parlor and adjusts the camera. When disabled, skips teleportation and starts transfer directly (you need to be near the warehouse terminal).",
     "option.ItemTransferOriginRegion.label": "Source Region (Starting Point)",
     "option.ItemTransferOriginRegion.description": "The warehouse region where the item is currently located.",
     "option.ItemTransferDestinationRegion.label": "Destination Region (End Point)",

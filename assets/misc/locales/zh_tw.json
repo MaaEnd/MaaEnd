@@ -325,6 +325,8 @@
     "item.AmberRiceSeed": "金石稻種子",
     "item.JincaoDrink": "錦草飲料",
     "item.CrystonComponent": "高晶裝備原件",
+    "option.ItemTransferAutoTeleport.label": "自動傳送至推薦地點",
+    "option.ItemTransferAutoTeleport.description": "開啟後將自動傳送至帝江號會客室並調整視角，關閉後跳過傳送直接開始搬運（需手動前往倉庫終端附近）。",
     "option.ItemTransferOriginRegion.label": "來源區域 (起點)",
     "option.ItemTransferOriginRegion.description": "物品當前所在的倉庫區域。",
     "option.ItemTransferDestinationRegion.label": "目標區域 (終點)",
