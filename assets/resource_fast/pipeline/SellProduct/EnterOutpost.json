@@ -1,0 +1,138 @@
+{
+    "SellProductCheckOutpostText": {
+        "desc": "检查左上角据点文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            60
+        ],
+        "expected": [
+            "据点",
+            "據點",
+            "Outpost",
+            "拠点",
+            "거점"
+        ]
+    },
+    "SellProductCheckQTYInCurrentTradeText": {
+        "desc": "检查本次交易份数文本",
+        "recognition": "OCR",
+        "roi": [
+            948,
+            482,
+            255,
+            106
+        ],
+        "expected": [
+            "本次交易份数",
+            "本次交易份數",
+            "QTY in current trade",
+            "取引予定数",
+            "이번 거래 수량"
+        ]
+    },
+    "SellProductInOutpost": {
+        "desc": "在据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckOutpostText",
+            "SellProductCheckQTYInCurrentTradeText"
+        ],
+        "pre_wait_freezes": 80
+    },
+    "SellProductInValleyIVOutpost": {
+        "desc": "在四号谷地据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ]
+    },
+    "SellProductInWulingOutpost": {
+        "desc": "在武陵据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost",
+            "SellProductCheckSkyKingFlatsTabText"
+        ]
+    },
+    "SellProductGoToOutpost": {
+        "desc": "前往据点",
+        "next": [
+            "[Anchor]SellProductInOutpost",
+            "[Anchor]SellProductEnterOutpost",
+            "[JumpBack][Anchor]SellProductGoToRegion"
+        ]
+    },
+    "SellProductGoToValleyIVOutpost": {
+        "desc": "前往四号谷地据点",
+        "anchor": {
+            "SellProductInOutpost": "InValleyIVOutpost",
+            "SellProductEnterOutpost": "SellProductEnterValleyIVOutpost",
+            "SellProductGoToRegion": "GoToValleyIV"
+        },
+        "next": [
+            "SellProductGoToOutpost"
+        ]
+    },
+    "SellProductGoToWulingOutpost": {
+        "desc": "前往武陵据点",
+        "anchor": {
+            "SellProductInOutpost": "InWulingOutpost",
+            "SellProductEnterOutpost": "SellProductEnterWulingOutpost",
+            "SellProductGoToRegion": "GoToWuling"
+        },
+        "next": [
+            "SellProductGoToOutpost"
+        ]
+    },
+    "SellProductEnterOutpostManagement": {
+        "desc": "位于地区建设，进入据点管理",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    700,
+                    100,
+                    550,
+                    500
+                ],
+                "expected": [
+                    // 据点管理
+                    "据点管理",
+                    "據點管理",
+                    "Outpost",
+                    "outpost",
+                    "拠点管理",
+                    "거점 관리"
+                ]
+            }
+        }
+    },
+    "SellProductEnterValleyIVOutpost": {
+        "desc": "进入四号谷地据点管理",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InValleyIVRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductInValleyIVOutpost"
+        ]
+    },
+    "SellProductEnterWulingOutpost": {
+        "desc": "进入武陵据点管理",
+        "recognition": "And",
+        "all_of": [
+            "SellProductEnterOutpostManagement",
+            "InWulingRegionalDevelopment"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductInWulingOutpost"
+        ]
+    }
+}

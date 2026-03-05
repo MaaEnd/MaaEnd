@@ -120,20 +120,13 @@
         "action": {
             "type": "Click",
             "param": {}
-        },
-        "post_wait_freezes": 100,
-        "next": [
-            "SellProductOutpostDone"
-        ]
+        }
     },
     "SellProductZeroProductRetry": {
         "desc": "更换货品后仍无货，进入换据点流程",
         "recognition": "And",
         "all_of": [
             "SellProductZeroProduct"
-        ],
-        "next": [
-            "SellProductOutpostDone"
         ],
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"

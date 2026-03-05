@@ -1,67 +1,46 @@
 {
-    "WulingSwitchToSkyKingFlats": {
-        "desc": "OCR 切换至天王坪援建点（模糊匹配）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "expected": [
-                    "天王坪",
-                    "天王坪援助",
-                    "天王坪援建",
-                    "Sky King",
-                    "天王原",
-                    "천왕"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "WulingVerifyAtSkyKingFlats"
+    "SellProductCheckSkyKingFlatsTabText": {
+        "desc": "检查天王坪援建点文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+            "천왕"
         ]
     },
-    "WulingVerifyAtSkyKingFlats": {
-        "desc": "检测：已切换至天王坪援建点",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
-        "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
-        },
-        "next": [
-            "SellProductAtSell"
+    "SellProductCheckSkyKingFlatsText": {
+        "desc": "检查天王坪援建点大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+            "천왕"
+        ]
+    },
+    "SellProductInSkyKingFlats": {
+        "desc": "在天王坪援建点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSkyKingFlatsText",
+            "SellProductInOutpost"
         ]
     }
 }

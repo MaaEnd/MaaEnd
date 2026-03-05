@@ -1,193 +1,126 @@
 {
-    "ValleyIVSwitchToRefugeeCamp": {
-        "desc": "OCR 切换至难民暂居处",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "expected": [
-                    "难民暂居处",
-                    "難民暫居處",
-                    "Refugee Camp",
-                    "仮設居住地",
-                    "유랑자 임시 거주지"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ValleyIVVerifyAtRefugeeCamp"
+    "SellProductCheckRefugeeCampTabText": {
+        "desc": "检查难民暂居处文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "Refugee Camp",
+            "仮設居住地",
+            "유랑자 임시 거주지"
         ]
     },
-    "ValleyIVVerifyAtRefugeeCamp": {
-        "desc": "检测：已切换至难民暂居处",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    146,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
-        "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
-        },
-        "next": [
-            "SellProductAtSell"
+    "SellProductCheckRefugeeCampText": {
+        "desc": "检查难民暂居处大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "Refugee Camp",
+            "仮設居住地",
+            "유랑자 임시 거주지"
         ]
     },
-    "ValleyIVSwitchToInfrastructureOutpost": {
-        "desc": "OCR 切换至基建前站",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    447,
-                    64,
-                    166,
-                    50
-                ],
-                "expected": [
-                    "基建前站",
-                    "Infra-Station",
-                    "建設基地",
-                    "기초 건설 주둔지"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ValleyIVVerifyAtInfrastructureOutpost"
+    "SellProductInRefugeeCamp": {
+        "desc": "在难民暂居处",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampText",
+            "SellProductInOutpost"
         ]
     },
-    "ValleyIVVerifyAtInfrastructureOutpost": {
-        "desc": "检测：已切换至基建前站",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    447,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
-        "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
-        },
-        "next": [
-            "SellProductAtSell"
+    "SellProductCheckInfrastructureOutpostTabText": {
+        "desc": "检查基建前站文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "基建前站",
+            "Infra-Station",
+            "建設基地",
+            "기초 건설 주둔지"
         ]
     },
-    "ValleyIVSwitchToReconstructionCommand": {
-        "desc": "OCR 切换至重建指挥部",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    754,
-                    64,
-                    260,
-                    55
-                ],
-                "expected": [
-                    "重建指挥部",
-                    "重建指揮部",
-                    "Reconstruction HQ",
-                    "再建管理本部",
-                    "재건 지휘부"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ValleyIVVerifyAtReconstructionCommand"
+    "SellProductCheckInfrastructureOutpostText": {
+        "desc": "检查基建前站大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "基建前站",
+            "Infra-Station",
+            "建設基地",
+            "기초 건설 주둔지"
         ]
     },
-    "ValleyIVVerifyAtReconstructionCommand": {
-        "desc": "检测：已切换至重建指挥部",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    754,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
-        "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
-        },
-        "next": [
-            "SellProductAtSell"
+    "SellProductInInfrastructureOutpost": {
+        "desc": "在基建前站",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostText",
+            "SellProductInOutpost"
+        ]
+    },
+    "SellProductCheckReconstructionCommandTabText": {
+        "desc": "检查重建指挥部文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "Reconstruction HQ",
+            "再建管理本部",
+            "재건 지휘부"
+        ]
+    },
+    "SellProductCheckReconstructionCommandText": {
+        "desc": "检查重建指挥部大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "Reconstruction HQ",
+            "再建管理本部",
+            "재건 지휘부"
+        ]
+    },
+    "SellProductInReconstructionCommand": {
+        "desc": "在重建指挥部",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandText",
+            "SellProductInOutpost"
         ]
     }
 }

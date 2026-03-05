@@ -52,44 +52,19 @@
         "desc": "四号谷地售卖流程入口",
         "max_hit": 1,
         "next": [
-            "SellProductValleyIVEnterOutpostManagement",
             "SellProductEnterManagementLocked",
-            "[JumpBack]GoToValleyIV"
+            "[JumpBack]SellProductGoToValleyIVOutpost"
         ]
     },
     "SellProductWuling": {
         "desc": "武陵售卖流程入口",
         "max_hit": 1,
         "next": [
-            "SellProductWulingEnterOutpostManagement",
             "SellProductEnterManagementLocked",
-            "[JumpBack]GoToWuling"
+            "[JumpBack]SellProductGoToWulingOutpost"
         ]
     },
-    "SellProductValleyIVEnterOutpostManagement": {
-        "desc": "位于四号谷地",
-        "recognition": "And",
-        "all_of": [
-            "SellProductEnterOutpostManagement",
-            "InValleyIVRegionalDevelopment"
-        ],
-        "action": "Click",
-        "next": [
-            "ValleyIVSwitchToRefugeeCamp"
-        ]
-    },
-    "SellProductWulingEnterOutpostManagement": {
-        "desc": "位于武陵",
-        "recognition": "And",
-        "all_of": [
-            "SellProductEnterOutpostManagement",
-            "InWulingRegionalDevelopment"
-        ],
-        "action": "Click",
-        "next": [
-            "WulingSwitchToSkyKingFlats"
-        ]
-    },
+
     "SellProductEnterManagementLocked": {
         "desc": "识别据点管理是否未解锁",
         "recognition": {
@@ -106,62 +81,11 @@
                 ]
             }
         },
-        "next": [
-            "SellProductRegionExitGate"
-        ],
         "focus": {
             "Node.Recognition.Succeeded": "据点管理未解锁"
         }
     },
-    "SellProductEnterOutpostManagement": {
-        "desc": "位于地区建设，进入据点管理",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    700,
-                    100,
-                    550,
-                    500
-                ],
-                "expected": [
-                    // 据点管理
-                    "据点管理",
-                    "據點管理",
-                    "Outpost",
-                    "outpost",
-                    "拠点管理",
-                    "거점 관리"
-                ]
-            }
-        }
-    },
-    "SellProductRegionExitGate": {
-        "desc": "虚拟出口节点：地区售卖完成，等待回到地区建设界面后路由至下一地区或结束",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    250,
-                    250,
-                    100
-                ],
-                "expected": [
-                    // 更换
-                    "更换",
-                    "更換",
-                    "Switch",
-                    "switch",
-                    "変更",
-                    "교체"
-                ]
-            }
-        },
-        "next": [
-            "SellProductAtDevelopment"
-        ]
-    },
+
     "SellProductTaskEnd": {
         "desc": "任务结束",
         "focus": {

@@ -134,8 +134,7 @@
             }
         },
         "next": [
-            "SellProductChangeProduct",
-            "SellProductOutpostDone"
+            "SellProductChangeProduct"
         ]
     },
     "SellProductZeroMoney": {
@@ -160,9 +159,6 @@
                 ]
             }
         },
-        "next": [
-            "SellProductOutpostDone"
-        ],
         "focus": {
             "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
         }
@@ -411,12 +407,6 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
-    "SellProductOutpostDone": {
-        "desc": "虚节点：这个据点已经被售卖完毕",
-        "next": [
-            "[Anchor]SellProductNextOutpost"
-        ]
-    },
     "SellProductNextOutpost": {
         "desc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
     },
@@ -424,7 +414,8 @@
         "desc": "返回区域建设界面",
         "recognition": "And",
         "all_of": [
-            "CloseButtonType1"
+            "CloseButtonType1",
+            "SellProductInOutpost"
         ],
         "action": "Click",
         "next": [
