@@ -4,6 +4,7 @@ import sys
 import shutil
 import subprocess
 import platform
+import traceback
 import urllib.request
 import urllib.error
 import json
@@ -103,6 +104,10 @@ except KeyError as e:
 
 MXU_DIST_NAME: str = "mxu.exe" if OS_KEYWORD == "win" else "mxu"
 CPP_ALGO_DIST_NAME: str = "cpp-algo.exe" if OS_KEYWORD == "win" else "cpp-algo"
+ARCH_VARIANT_HINTS: dict[str, tuple[str, ...]] = {
+    "x86_64": ("x86_64", "amd64", "x64"),
+    "aarch64": ("aarch64", "arm64"),
+}
 TIMEOUT: int = 30
 CACHE_DIR: Path = PROJECT_BASE / ".cache"
 VERSION_FILE_NAME: str = "version.json"
@@ -753,14 +758,54 @@ def find_cpp_algo_binary(search_root: Path) -> Path | None:
     if not candidates:
         return None
 
-    def _score(path: Path) -> tuple[int, int, int]:
+    def _arch_rank(path_parts: list[str]) -> int:
+        joined_path = "/".join(path_parts)
+        preferred_hints = set(ARCH_VARIANT_HINTS.get(ARCH_KEYWORD, ()))
+        all_hints = {hint for hints in ARCH_VARIANT_HINTS.values() for hint in hints}
+        has_preferred_arch = any(hint in joined_path for hint in preferred_hints)
+        has_other_arch = any(hint in joined_path for hint in (all_hints - preferred_hints))
+        if has_preferred_arch:
+            return 0
+        if has_other_arch:
+            return 2
+        return 1
+
+    def _score(path: Path) -> tuple[int, int, int, int]:
         path_parts = [part.lower() for part in path.parts]
-        has_agent_dir = 0 if "agent" in path_parts else 1
+        in_agent_dir = "agent" in path_parts
+        agent_dir_rank = 0 if in_agent_dir else 1
         preferred_name_rank = 0 if path.name.lower() == preferred_names[0] else 1
-        return has_agent_dir, preferred_name_rank, len(path_parts)
+        return agent_dir_rank, preferred_name_rank, _arch_rank(path_parts), len(path_parts)
 
     candidates.sort(key=_score)
     return candidates[0]
+
+
+def _replace_file_with_retry(src_path: Path, target_path: Path) -> None:
+    tmp_target = target_path.with_name(f".{target_path.name}.tmp")
+    while True:
+        try:
+            tmp_target.unlink(missing_ok=True)
+            shutil.copy2(src_path, tmp_target)
+            os.replace(tmp_target, target_path)
+            return
+        except PermissionError as e:
+            tmp_target.unlink(missing_ok=True)
+            print(Console.err(t("err_permission_denied", error=e)))
+            cmd = input(t("prompt_retry_or_quit")).strip().lower()
+            if cmd == "q":
+                raise
+        except Exception:
+            tmp_target.unlink(missing_ok=True)
+            raise
+
+
+def _is_supported_archive(path: Path) -> bool:
+    lower_name = path.name.lower()
+    for _, extensions, _ in shutil.get_unpack_formats():
+        if any(lower_name.endswith(ext.lower()) for ext in extensions):
+            return True
+    return False
 
 
 def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
@@ -768,7 +813,7 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
     agent_dir.mkdir(parents=True, exist_ok=True)
 
     target_path = agent_dir / CPP_ALGO_DIST_NAME
-    shutil.copy2(src_path, target_path)
+    _replace_file_with_retry(src_path, target_path)
     print(Console.ok(t("inf_updated_file", name=target_path.name)))
 
     if OS_KEYWORD != "win":
@@ -777,7 +822,7 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
     pdb_src = src_path.with_suffix(".pdb")
     if pdb_src.exists():
         pdb_target = agent_dir / f"{Path(CPP_ALGO_DIST_NAME).stem}.pdb"
-        shutil.copy2(pdb_src, pdb_target)
+        _replace_file_with_retry(pdb_src, pdb_target)
         print(Console.ok(t("inf_updated_file", name=pdb_target.name)))
 
 
@@ -872,11 +917,15 @@ def install_cpp_algo(
                         )
                         print(Console.warn(t("wrn_cpp_algo_dmg_detach_failed", error=error_message)))
             else:
-                extract_root = tmp_path / "extracted"
-                extract_root.mkdir(parents=True, exist_ok=True)
-                shutil.unpack_archive(str(download_path), extract_root)
+                cpp_algo_src: Path | None = None
+                if _is_supported_archive(download_path):
+                    extract_root = tmp_path / "extracted"
+                    extract_root.mkdir(parents=True, exist_ok=True)
+                    shutil.unpack_archive(str(download_path), extract_root)
+                    cpp_algo_src = find_cpp_algo_binary(extract_root)
+                elif download_path.is_file():
+                    cpp_algo_src = download_path
 
-                cpp_algo_src = find_cpp_algo_binary(extract_root)
                 if not cpp_algo_src:
                     print(Console.err(t("err_cpp_algo_not_found", name=CPP_ALGO_DIST_NAME)))
                     return False, local_version, False
@@ -886,7 +935,9 @@ def install_cpp_algo(
             cleanup_cache_file(download_path)
             return True, remote_version or local_version, True
         except Exception as e:
-            print(Console.err(t("err_cpp_algo_install_failed", error=e)))
+            traceback.print_exc()
+            error_with_type = f"{type(e).__name__}: {e}"
+            print(Console.err(t("err_cpp_algo_install_failed", error=error_with_type)))
             return False, local_version, False
 
 
