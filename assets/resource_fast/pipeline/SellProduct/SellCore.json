@@ -204,6 +204,7 @@
         "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
+            "SellProductZeroProduct",
             "SellProductAtSellAfterChange"
         ],
         "focus": {
