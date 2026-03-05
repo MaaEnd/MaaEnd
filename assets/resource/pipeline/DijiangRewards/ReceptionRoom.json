@@ -409,6 +409,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ReadySetClues",
             "EndExchange",
@@ -435,6 +438,9 @@
                 "order_by": "Vertical"
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AlreadyHaveClues",
             "SetClues"
@@ -445,6 +451,9 @@
     },
     "AlreadyHaveClues": {
         "desc": "[会客室·线索] 识别「已填入」，无需再放置线索",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -463,6 +472,9 @@
     },
     "SetClues": {
         "desc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "Or",
             "param": {
