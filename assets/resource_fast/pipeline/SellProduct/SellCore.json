@@ -1,6 +1,6 @@
 {
     "SellProductAtSell": {
-        "desc": "位于出售页面",
+        "desc": "开始售卖货品",
         "recognition": "And",
         "all_of": [
             "SellProductInOutpost"
@@ -65,26 +65,18 @@
         "any_of": [
             "SellProductZeroProductColorMatch",
             {
-                "recognition": {
-                    "type": "And",
-                    "param": {
-                        "all_of": [
-                            "SellProductWhiteTextPosition",
-                            {
-                                "recognition": {
-                                    "type": "OCR",
-                                    "param": {
-                                        "roi": "SellProductWhiteTextPosition",
-                                        "expected": [
-                                            "^[0-9]{1,3}$"
-                                        ],
-                                        "only_rec": true
-                                    }
-                                }
-                            }
-                        ]
+                "recognition": "And",
+                "all_of": [
+                    "SellProductWhiteTextPosition",
+                    {
+                        "recognition": "OCR",
+                        "roi": "SellProductWhiteTextPosition",
+                        "expected": [
+                            "^[0-9]{1,3}$"
+                        ],
+                        "only_rec": true
                     }
-                }
+                ]
             }
         ],
         "next": [
@@ -143,37 +135,29 @@
     },
     "SellProductDragBar": {
         "desc": "备选方案-滑动滑动条",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1000,
-                    500,
-                    200,
-                    150
-                ],
-                "template": [
-                    "SellProduct/SellProductBar.png"
-                ],
-                "method": 10001
-            }
-        },
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "end_offset": [
-                    [
-                        0,
-                        0,
-                        400,
-                        0
-                    ]
-                ],
-                "duration": [
-                    500
-                ]
-            }
-        },
+        "recognition": "TemplateMatch",
+        "roi": [
+            1000,
+            500,
+            200,
+            150
+        ],
+        "template": [
+            "SellProduct/SellProductBar.png"
+        ],
+        "method": 10001,
+        "action": "Swipe",
+        "end_offset": [
+            [
+                0,
+                0,
+                400,
+                0
+            ]
+        ],
+        "duration": [
+            500
+        ],
         "next": [
             "SellProductZeroProduct",
             "SellProductZeroMoney",
@@ -205,41 +189,37 @@
     },
     "SellProductSellCheck": {
         "desc": "交易后确认",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseRewardsButton",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    577,
-                                    10,
-                                    138,
-                                    118
-                                ],
-                                "template": [
-                                    "SellProduct/SellProductCheckHeader.png"
-                                ]
-                            }
-                        }
-                    }
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    577,
+                    10,
+                    138,
+                    118
+                ],
+                "template": [
+                    "SellProduct/SellProductCheckHeader.png"
                 ]
             }
-        },
+        ],
         "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
-            "SellProductCanSellAfterChange"
+            "SellProductAtSellAfterChange"
         ],
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
-    "SellProductCanSellAfterChange": {
-        "desc": "更换货品后重新判断能否售卖",
+    "SellProductAtSellAfterChange": {
+        "desc": "更换货品后重新开始售卖货品",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
         "next": [
             "SellProductZeroProductRetry",
             "SellProductZeroMoney",
