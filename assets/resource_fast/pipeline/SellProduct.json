@@ -61,8 +61,7 @@
         },
         "next": [
             "SellProductEnterOutpostLocked",
-            "[JumpBack]SellProductValleyIVSell",
-            "SellProductAtDevelopment"
+            "SellProductValleyIVSell"
         ]
     },
     "SellProductWuling": {
@@ -77,8 +76,7 @@
         },
         "next": [
             "SellProductEnterOutpostLocked",
-            "[JumpBack]SellProductWulingSell",
-            "SellProductAtDevelopment"
+            "SellProductWulingSell"
         ]
     },
     "SellProductTaskEnd": {

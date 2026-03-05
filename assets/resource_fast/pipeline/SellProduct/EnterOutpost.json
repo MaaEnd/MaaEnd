@@ -165,7 +165,7 @@
         ],
         "action": "Click",
         "next": [
-            "InRegionalDevelopment"
+            "SellProductAtDevelopment"
         ]
     }
 }
