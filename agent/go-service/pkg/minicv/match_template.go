@@ -39,3 +39,80 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 	}
 	return (float64(dot) - count*imgStats.Mean*tplStats.Mean) / stdProd
 }
+
+// MatchTemplate performs template matching on the whole image,
+// returns (x, y, score) of the best match
+func MatchTemplate(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+) (int, int, float64) {
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, 0, 0, iw, ih)
+}
+
+// MatchTemplateInArea performs template matching such that the center of the template
+// remains within the specified rectangle (ax, ay, aw, ah).
+// Returns (x, y, score) of the best match, where (x, y) is the top-left corner.
+func MatchTemplateInArea(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	tplStats StatsResult,
+	ax, ay, aw, ah int,
+) (int, int, float64) {
+	iw, ih := img.Rect.Dx(), img.Rect.Dy()
+	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
+
+	// Calculate search bounds for the top-left corner (x, y)
+	minX, minY := max(0, ax-tw/2), max(0, ay-th/2)
+	maxX, maxY := min(iw-tw, ax+aw-tw/2), min(ih-th, ay+ah-th/2)
+
+	if minX > maxX || minY > maxY {
+		return 0, 0, 0.0
+	}
+
+	type result struct {
+		x, y int
+		s    float64
+	}
+
+	numWorkers, step := 4, 3
+	resChan := make(chan result, numWorkers)
+
+	for i := range numWorkers {
+		go func(id int) {
+			lx, ly, lm := 0, 0, -1.0
+			for y := minY + id*step; y <= maxY; y += numWorkers * step {
+				for x := minX; x <= maxX; x += step {
+					s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
+					if s > lm {
+						lm, lx, ly = s, x, y
+					}
+				}
+			}
+			resChan <- result{lx, ly, lm}
+		}(i)
+	}
+
+	bc := result{minX, minY, -1.0}
+	for range numWorkers {
+		r := <-resChan
+		if r.s > bc.s {
+			bc = r
+		}
+	}
+
+	fm, fx, fy := bc.s, bc.x, bc.y
+	// Fine-tuning pass around the best result
+	for y := max(minY, bc.y-step+1); y <= min(maxY, bc.y+step-1); y++ {
+		for x := max(minX, bc.x-step+1); x <= min(maxX, bc.x+step-1); x++ {
+			s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
+			if s > fm {
+				fm, fx, fy = s, x, y
+			}
+		}
+	}
+	return fx, fy, fm
+}
