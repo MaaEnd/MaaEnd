@@ -11,6 +11,7 @@
     },
     "AutoEcoFarmExit": {
         "doc": "退出任务"
+<<<<<<< Updated upstream
     },
     "_AutoEcoFarmNoTargetLoop": {
         "doc": "确定农场标记还在不在屏幕中间，如果不在的话说明跟丢了或者已经到了，那就结束任务",
@@ -35,4 +36,7 @@
             "_AutoEcoFarmNoTargetLoop"
         ]
     },
+=======
+    }
+>>>>>>> Stashed changes
 }
