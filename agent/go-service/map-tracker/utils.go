@@ -3,7 +3,6 @@ package maptracker
 
 import (
 	"image"
-	"math"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
@@ -41,7 +40,7 @@ func MatchTemplateOptimized(
 			lx, ly, lm := 0, 0, -1.0
 			for y := minY + id*step; y < minY+rows; y += numWorkers * step {
 				for x := minX; x <= maxX; x += step {
-					s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+					s := minicv.ComputeNCC(hRGBA, hInt, nRGBA, nStats, x, y)
 					if s > lm {
 						lm, lx, ly = s, x, y
 					}
@@ -63,7 +62,7 @@ func MatchTemplateOptimized(
 	// Fine-tuning pass around the best result
 	for y := max(minY, bc.y-step+1); y < min(maxY+1, bc.y+step); y++ {
 		for x := max(minX, bc.x-step+1); x < min(maxX+1, bc.x+step); x++ {
-			s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+			s := minicv.ComputeNCC(hRGBA, hInt, nRGBA, nStats, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
@@ -114,7 +113,7 @@ func MatchTemplateAround(
 					break
 				}
 				for x := minX; x <= maxX; x += step {
-					s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+					s := minicv.ComputeNCC(hRGBA, hInt, nRGBA, nStats, x, y)
 					if s > lm {
 						lm, lx, ly = s, x, y
 					}
@@ -136,41 +135,13 @@ func MatchTemplateAround(
 	// Fine-tuning pass around the best result
 	for y := max(minY, bc.y-step+1); y < min(maxY+1, bc.y+step); y++ {
 		for x := max(minX, bc.x-step+1); x < min(maxX+1, bc.x+step); x++ {
-			s := computeNCCFast(hRGBA, hInt, nRGBA, x, y, nStats)
+			s := minicv.ComputeNCC(hRGBA, hInt, nRGBA, nStats, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
 			}
 		}
 	}
 	return fx, fy, fm
-}
-
-func computeNCCFast(hRGBA *image.RGBA, hInt minicv.IntegralArray, nRGBA *image.RGBA, ox, oy int, nStats minicv.StatsResult) float64 {
-	nW, nH := nRGBA.Rect.Dx(), nRGBA.Rect.Dy()
-	hp, np, hs, ns := hRGBA.Pix, nRGBA.Pix, hRGBA.Stride, nRGBA.Stride
-	var dot uint64
-	rb := oy*hs + ox*4
-	for y := 0; y < nH; y++ {
-		hi, ni := rb, y*ns
-		for x := 0; x < nW; x++ {
-			dot += uint64(hp[hi]) * uint64(np[ni])
-			dot += uint64(hp[hi+1]) * uint64(np[ni+1])
-			dot += uint64(hp[hi+2]) * uint64(np[ni+2])
-			hi += 4
-			ni += 4
-		}
-		rb += hs
-	}
-	shn := float64(dot)
-	sh, ssh := hInt.GetAreaIntegral(ox, oy, nW, nH)
-	cnt := float64(nW * nH * 3)
-	mh := sh / cnt
-	vh := ssh - cnt*mh*mh
-	if vh < 1e-3 {
-		return 0.0
-	}
-	dh := math.Sqrt(vh)
-	return (shn - cnt*mh*nStats.Mean) / (dh * nStats.Std)
 }
 
 /* ******** Actions ******** */
