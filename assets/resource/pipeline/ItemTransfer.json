@@ -1,7 +1,7 @@
 {
     "ItemTransfer": {
         "recognition": "DirectHit",
-        "desc": "由于半透明问题，提供导航选项，自动将用户传送到帝江号会客室并将视角抬至最高",
+        "desc": "由于半透明问题，在 tasks 中提供 AutoTeleport 导航选项，自动将用户传送到帝江号会客室并将视角抬至最高；由于只能使用前台控制器，默认不开启",
         "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]
