@@ -237,8 +237,30 @@
         "pre_wait_freezes": 200,
         "next": [
             "ProtocolSpaceRewardUsePermit",
+            "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
         ]
+    },    
+    "ProtocolSpaceRewardDontUsePermit": {
+        "desc": "协议空间奖励界面不使用许可",
+        "recognition": "OCR",
+        "roi": [
+            360,
+            250,
+            560,
+            100
+        ],
+        "expected": [
+            "消耗",
+            "Cost"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardClaim"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "不使用理智消耗许可"
+        }
     },
     "ProtocolSpaceRewardUsePermit": {
         "desc": "协议空间奖励界面使用许可",
@@ -265,7 +287,7 @@
         }
     },
     "ProtocolSpaceRewardClaim": {
-        "desc": "协议空间奖励界面直接领取",
+        "desc": "协议空间奖励界面直接领取，比如体力活动时无需选择",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1"
