@@ -13,6 +13,7 @@ import math
 import re
 import json
 import time
+from datetime import datetime, timezone
 from typing import NamedTuple
 import numpy as np
 from utils import _R, _G, _Y, _C, _A, _0, Color, Drawer, cv2, MapName, SelectMapPage
@@ -65,8 +66,6 @@ class PathEditPage:
         self._point_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
-        self.location_service = LocationService()
-
         self.scale = 1.0
         self.offset_x, self.offset_y = 0, 0
         self.window_w, self.window_h = 1280, 720
@@ -92,14 +91,19 @@ class PathEditPage:
         self._status: PathEditPage.StatusRecord = self.StatusRecord(
             0, 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
-        self._modal_active: bool = False
-        self._modal_text: str = ""
+        self.location_service = LocationService()
+        self._recording_active = False
+        self._recording_start_time = 0.0
+        self._recording_last_ts = 0.0
+        self._recording_last_poll = 0.0
+        self._recorded_path: list[list[int]] = []
+        self._recorded_keys: set[tuple[float, int, int]] = set()
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
-        self._btn_loc_rect: tuple | None = None
+        self._btn_record_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
-        self._frame_interval = 1.0 / 120.0
+        self._frame_interval = 1.0 / 60.0
         self._last_render_ts = 0.0
 
     # ------------------------------------------------------------------
@@ -128,30 +132,65 @@ class PathEditPage:
             self._update_status(0xFC4040, "Failed to save changes!")
             print(f"  {_Y}Failed to save path to file.{_0}")
 
-    def _apply_realtime_location(self):
-        """Append the latest realtime location from service log."""
-        self._modal_active = True
-        self._modal_text = "Connecting to service"
+    def _start_recording(self):
+        self._recording_active = True
+        self._recording_start_time = time.time()
+        self._recording_last_ts = self._recording_start_time
+        self._recording_last_poll = 0.0
+        self._recorded_path = []
+        self._recorded_keys.clear()
+        self._update_status(0x78DCFF, "Realtime path recording started.")
         self.render_page(force=True)
 
-        result = self.location_service.wait_for_new_location(
-            self.map_name, timeout_seconds=5.0
-        )
+    def _stop_recording(self):
+        self._recording_active = False
+        self._update_status(0xD2D200, "Realtime path recording stopped.")
+        self.render_page(force=True)
 
-        self._modal_active = False
-        self._modal_text = ""
-        if result.status == "ok":
-            x = result.payload["x"]
-            y = result.payload["y"]
-            self.points.append([x, y])
-            self.selected_idx = len(self.points) - 1
-            self._update_status(0x78DCFF, f"Realtime location added: ({x}, {y})")
-        elif result.status == "mismatch":
-            self._update_status(
-                0xFC4040, f"Error located map mismatch ({result.payload})"
-            )
+    def _toggle_recording(self):
+        if self._recording_active:
+            self._stop_recording()
         else:
-            self._update_status(0xD2D200, str(result.payload))
+            self._start_recording()
+
+    def _update_recording(self):
+        if not self._recording_active:
+            return False
+        now = time.time()
+        if now - self._recording_last_poll < 0.2:
+            return False
+        self._recording_last_poll = now
+
+        locations = self.location_service.get_locations(
+            self.map_name, self._recording_last_ts
+        )
+        if not locations:
+            return False
+
+        updated = False
+        for loc in locations:
+            ts = loc.get("timestamp")
+            if ts is None or ts < self._recording_last_ts:
+                continue
+            x = loc.get("x")
+            y = loc.get("y")
+            if x is None or y is None:
+                continue
+            key = (ts, int(x), int(y))
+            if key in self._recorded_keys:
+                self._recording_last_ts = max(self._recording_last_ts, ts)
+                continue
+            if self._recorded_path and [x, y] == self._recorded_path[-1]:
+                self._recording_last_ts = max(self._recording_last_ts, ts)
+                continue
+            self._recorded_path.append([x, y])
+            self._recorded_keys.add(key)
+            self._recording_last_ts = max(self._recording_last_ts, ts)
+            updated = True
+
+        if updated:
+            self.render_page()
+        return updated
 
     def _get_map_coords(self, screen_x, screen_y):
         """Convert screen (viewport) coordinates to original map coordinates.
@@ -223,6 +262,21 @@ class PathEditPage:
                     scaled_img[src_y1:src_y2, src_x1:src_x2]
                 )
 
+        # Draw recorded history path lines
+        for i in range(1, len(self._recorded_path)):
+            psx, psy = self._get_screen_coords(
+                self._recorded_path[i - 1][0], self._recorded_path[i - 1][1]
+            )
+            sx, sy = self._get_screen_coords(
+                self._recorded_path[i][0], self._recorded_path[i][1]
+            )
+            drawer.line(
+                (psx, psy),
+                (sx, sy),
+                color=0x2E7DFF,
+                thickness=max(1, int(self.LINE_WIDTH * self.scale**0.5)),
+            )
+
         # Draw path lines
         for i in range(len(self.points)):
             sx, sy = self._get_screen_coords(self.points[i][0], self.points[i][1])
@@ -266,20 +320,6 @@ class PathEditPage:
             thickness=1,
         )
 
-        if self._modal_active:
-            x1 = self.SIDEBAR_W
-            x2 = self.window_w
-            y1 = 0
-            y2 = self.window_h
-            drawer.rect((x1, y1), (x2, y2), color=0x888888, thickness=-1)
-            drawer.text_centered(
-                self._modal_text or "Connecting to service",
-                (x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2),
-                0.7,
-                color=0xFFFFFF,
-                thickness=2,
-            )
-
         self._render_status_bar(drawer)
         self._render_sidebar(drawer)
         cv2.imshow(self.window_name, drawer.get_image())
@@ -302,11 +342,7 @@ class PathEditPage:
         )
 
     def _render_sidebar(self, drawer: "Drawer"):
-        """Draw the left sidebar with a 90%-opaque black background.
-
-        Strategy: Extract the existing sidebar pixels, blend them with
-        semi-transparent black, then render UI directly on top.
-        """
+        """Draw the left sidebar with a solid black background."""
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
@@ -375,30 +411,35 @@ class PathEditPage:
             )
             cy = save_y1 + 8
 
-        # Realtime location button
-        loc_y0 = cy
-        loc_y1 = cy + btn_h
-        self._btn_loc_rect = (btn_x0, loc_y0, btn_x0 + btn_w, loc_y1)
+        # Realtime path recording button
+        record_y0 = cy
+        record_y1 = cy + btn_h
+        self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
         drawer.rect(
-            (btn_x0, loc_y0),
-            (btn_x0 + btn_w, loc_y1),
+            (btn_x0, record_y0),
+            (btn_x0 + btn_w, record_y1),
             color=0x1A40B8,
             thickness=-1,
         )
         drawer.rect(
-            (btn_x0, loc_y0),
-            (btn_x0 + btn_w, loc_y1),
+            (btn_x0, record_y0),
+            (btn_x0 + btn_w, record_y1),
             color=0xB4B4B4,
             thickness=1,
         )
+        record_label = (
+            "[R] Stop Path Recording"
+            if self._recording_active
+            else "[R] Record Realtime Path"
+        )
         drawer.text_centered(
-            "[G] Get Realtime Location",
-            (btn_x0 + btn_w // 2, loc_y0 + btn_h - 8),
+            record_label,
+            (btn_x0 + btn_w // 2, record_y0 + btn_h - 8),
             0.42,
             color=0xFFFFFF,
             thickness=1,
         )
-        cy = loc_y1 + 8
+        cy = record_y1 + 8
 
         # Finish button – always present
         finish_y0 = cy
@@ -441,6 +482,10 @@ class PathEditPage:
         else:
             line = f"Points: {len(self.points)}"
         drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF, thickness=1)
+        record_line = f"History: {len(self._recorded_path)}"
+        if self._recording_active:
+            record_line += " (Recording)"
+        drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF, thickness=1)
 
     # ------------------------------------------------------------------
     # Mouse / keyboard handling
@@ -463,11 +508,6 @@ class PathEditPage:
     def _handle_mouse(self, event, x, y, flags, param):
         # Track mouse position for crosshair
         self.mouse_pos = (x, y)
-        if self._modal_active:
-            if event == cv2.EVENT_MOUSEMOVE:
-                self.render_page()
-            return  # Prevent all interactions when modal is active
-
         # ── Map area events ──────────────────────────────────────────────
         mx, my = self._get_map_coords(x, y)
         if event == cv2.EVENT_MOUSEWHEEL:
@@ -530,9 +570,8 @@ class PathEditPage:
                 if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
                     self._do_save()
                     self.render_page(force=True)
-                elif self._hit_button(x, y, self._btn_loc_rect):
-                    self._apply_realtime_location()
-                    self.render_page(force=True)
+                elif self._hit_button(x, y, self._btn_record_rect):
+                    self._toggle_recording()
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
                 return  # Prevent event propagation
@@ -620,7 +659,7 @@ class PathEditPage:
         while not self.done:
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
-            key = cv2.waitKey(5) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == 27 or key == ord("f") or key == ord("F"):  # ESC / F → Finish
                 break
             if (
@@ -630,9 +669,9 @@ class PathEditPage:
             ):
                 self._do_save()
                 self.render_page(force=True)
-            if key == ord("g") or key == ord("G"):
-                self._apply_realtime_location()
-                self.render_page(force=True)
+            if key == ord("r") or key == ord("R"):
+                self._toggle_recording()
+            self._update_recording()
 
         cv2.destroyAllWindows()
         return [list(p) for p in self.points]
@@ -672,151 +711,106 @@ def unique_map_key(name: str) -> str:
 
 
 class LocationService:
-    """Read realtime location from a jsonl service log."""
+    """Read locations from a jsonl service log."""
 
-    class LocationServiceResult(NamedTuple):
-        status: str
-        payload: dict | str
-
-    MAX_LOOKBACK_LINES = 600
-    READ_CHUNK_SIZE = 8192
     MESSAGE_KEYWORDS = ("Map tracking inference completed",)
 
     def __init__(self, log_file: str = SERVICE_LOG_FILE):
         self.log_file = log_file
-
-    def _read_last_lines(self) -> list[str]:
-        if not os.path.exists(self.log_file):
-            return []
-        try:
-            with open(self.log_file, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                end_pos = f.tell()
-                if end_pos == 0:
-                    return []
-
-                buffer = b""
-                pos = end_pos
-                lines: list[bytes] = []
-                while pos > 0 and len(lines) <= self.MAX_LOOKBACK_LINES:
-                    read_size = min(self.READ_CHUNK_SIZE, pos)
-                    pos -= read_size
-                    f.seek(pos, os.SEEK_SET)
-                    chunk = f.read(read_size)
-                    if not chunk:
-                        break
-                    buffer = chunk + buffer
-                    while b"\n" in buffer:
-                        head, buffer = buffer.rsplit(b"\n", 1)
-                        lines.append(buffer)
-                        buffer = head
-                        if len(lines) > self.MAX_LOOKBACK_LINES:
-                            break
-                if buffer and len(lines) <= self.MAX_LOOKBACK_LINES:
-                    lines.append(buffer)
-                lines = list(reversed(lines))
-                return [
-                    line.decode("utf-8", errors="ignore")
-                    for line in lines[-self.MAX_LOOKBACK_LINES :]
-                    if line
-                ]
-        except Exception:
-            return []
 
     def _is_target_message(self, message: str | None) -> bool:
         if not message:
             return False
         return any(key in message for key in self.MESSAGE_KEYWORDS)
 
-    def wait_for_new_location(
-        self, expected_map_name: str, timeout_seconds: float = 5.0
-    ) -> "LocationService.LocationServiceResult":
-        if not os.path.exists(self.log_file):
-            return self.LocationServiceResult("not_found", "Log file not found.")
+    def _parse_timestamp(self, value) -> float | None:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except ValueError:
+                pass
+            try:
+                if value.endswith("Z"):
+                    value = value[:-1] + "+00:00"
+                parsed = datetime.fromisoformat(value)
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                return parsed.timestamp()
+            except ValueError:
+                return None
+        return None
 
+    def _parse_location_line(self, line: str, expected_map_name: str) -> dict | None:
         try:
-            with open(self.log_file, "rb") as f:
-                f.seek(0, os.SEEK_END)
-                pos = f.tell()
-                buffer = b""
-                start_time = time.time()
-
-                while time.time() - start_time <= timeout_seconds:
-                    try:
-                        f.seek(0, os.SEEK_END)
-                        end_pos = f.tell()
-                        if end_pos < pos:
-                            pos = end_pos
-                            buffer = b""
-                        if end_pos > pos:
-                            f.seek(pos, os.SEEK_SET)
-                            data = f.read(end_pos - pos)
-                            pos = end_pos
-                            if data:
-                                buffer += data
-                                while b"\n" in buffer:
-                                    line, buffer = buffer.split(b"\n", 1)
-                                    if not line:
-                                        continue
-                                    try:
-                                        text = line.decode("utf-8", errors="ignore")
-                                        data_obj = json.loads(text)
-                                    except Exception:
-                                        continue
-
-                                    if not isinstance(data_obj, dict):
-                                        continue
-                                    if not self._is_target_message(
-                                        data_obj.get("message")
-                                    ):
-                                        continue
-
-                                    log_map_name = data_obj.get("MapName")
-                                    if not log_map_name:
-                                        continue
-                                    if unique_map_key(log_map_name) != unique_map_key(
-                                        expected_map_name
-                                    ):
-                                        return self.LocationServiceResult(
-                                            "mismatch", str(log_map_name)
-                                        )
-
-                                    x = data_obj.get("X")
-                                    y = data_obj.get("Y")
-                                    if x is None or y is None:
-                                        continue
-
-                                    print(f"  {_G}Realtime location fetched.{_0}")
-                                    return self.LocationServiceResult(
-                                        "ok",
-                                        {
-                                            "x": int(round(x)),
-                                            "y": int(round(y)),
-                                            "raw": data_obj,
-                                        },
-                                    )
-                    except Exception:
-                        pass
-
-                    cv2.waitKey(1)
-                    time.sleep(0.05)
-
+            data_obj = json.loads(line)
         except Exception:
-            print(f"  {_R}Location service unavailable because error reading log file.")
-            print(
-                f"    {_Y}Please ensure the node 'MapTrackerTestLoop' is running.{_0}"
-            )
-            print("  Check the documentation for more details.")
-            return self.LocationServiceResult("not_found", "Log file unavailable.")
+            return None
+        if not isinstance(data_obj, dict):
+            return None
+        if not self._is_target_message(data_obj.get("message")):
+            return None
 
-        print(f"  {_R}Timeout connecting to location service. Please ensure:{_0}")
-        print(f"    {_Y}- The node 'MapTrackerTestLoop' is running.{_0}")
-        print(f"    {_Y}- The game window can be fully captured.{_0}")
-        print("    Check the documentation for more details.")
-        return self.LocationServiceResult(
-            "not_found",
-            "Timeout connecting to location service. Check the console for details.",
-        )
+        log_map_name = data_obj.get("MapName")
+        if not log_map_name:
+            return None
+        if unique_map_key(log_map_name) != unique_map_key(expected_map_name):
+            return None
+
+        x = data_obj.get("X")
+        y = data_obj.get("Y")
+        if x is None or y is None:
+            return None
+
+        ts = None
+        for key in ("time", "timestamp", "ts"):
+            if key in data_obj:
+                ts = self._parse_timestamp(data_obj.get(key))
+                if ts is not None:
+                    break
+
+        return {
+            "x": int(round(x)),
+            "y": int(round(y)),
+            "timestamp": ts,
+            "raw": data_obj,
+        }
+
+    def get_locations(self, expected_map_name: str, start_time: float) -> list[dict]:
+        if not os.path.exists(self.log_file):
+            return []
+
+        results: list[dict] = []
+        try:
+            with open(self.log_file, "r", encoding="utf-8", errors="ignore") as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+                    record = self._parse_location_line(line, expected_map_name)
+                    if record is None:
+                        continue
+                    ts = record.get("timestamp")
+                    if ts is None or ts < start_time:
+                        continue
+                    results.append(record)
+        except Exception:
+            return []
+
+        results.sort(key=lambda item: item.get("timestamp") or 0.0)
+        deduped: list[dict] = []
+        last_xy: tuple[int, int] | None = None
+        for item in results:
+            x = item.get("x")
+            y = item.get("y")
+            if x is None or y is None:
+                continue
+            xy = (int(x), int(y))
+            if last_xy == xy:
+                continue
+            deduped.append(item)
+            last_xy = xy
+        return deduped
 
 
 class PipelineHandler:
