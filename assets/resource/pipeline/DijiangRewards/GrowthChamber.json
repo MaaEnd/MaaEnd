@@ -1,4 +1,35 @@
 {
+    "EntryGrowthChamber": {
+        "desc": "[培养舱·进入] 主流程: 从控制中枢点击培养舱区域进入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    647,
+                    102,
+                    438,
+                    313
+                ],
+                "expected": [
+                    "^培养舱$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "next": [
+            "GrowthChamber"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入培养舱失败,无法识别培养舱界面"
+        }
+    },
     "GrowthChamber": {
         "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
         "max_hit": 1,
@@ -126,7 +157,7 @@
             "[JumpBack]SortOrder",
             "[JumpBack]SelectGrow",
             "[JumpBack]InSelectGrowSwipe",
-            "InGrowthChamber"
+            "BackToGrowthChamber"
         ]
     },
     "SelectGrowTarget": {
@@ -166,7 +197,7 @@
             "[JumpBack]ConfirmGrow",
             "ExtractSeed",
             "ExitGrow",
-            "InGrowthChamber"
+            "BackToGrowthChamber"
         ]
     },
     "ConfirmGrow": {
@@ -206,7 +237,7 @@
             }
         }
     },
-    "InGrowthChamber": {
+    "BackToGrowthChamber": {
         "desc": "已经回到培养舱界面,任务完成",
         "recognition": {
             "type": "OCR",
