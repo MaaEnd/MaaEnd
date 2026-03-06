@@ -378,7 +378,8 @@
                             "param": {
                                 "roi": "YellowButtonBackground",
                                 "template": [
-                                    "Common/Button/YellowConfirmButtonType2.png"
+                                    "Common/Button/YellowConfirmButtonType2.png",
+                                    "Common/Button/YellowConfirmButtonType2Hover.png"
                                 ],
                                 "threshold": 0.9
                             }
