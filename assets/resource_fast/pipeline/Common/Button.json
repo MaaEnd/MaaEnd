@@ -180,19 +180,15 @@
     },
     "ChangeRegionButton": {
         "desc": "地区建设中的更换地区按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            139,
-            263,
-            87,
-            100
-        ],
-        "template": [
-            "Common/Button/ChangeRegionButton.png",
-            "Common/Button/ChangeRegionButtonHover.png"
-        ],
-        "method": 10001,
-        "threshold": 0.9,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__ChangeRegionButton",
+                    "__ChangeRegionButtonHover"
+                ]
+            }
+        },
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -204,20 +200,53 @@
             ]
         }
     },
+    "__ChangeRegionButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    139,
+                    263,
+                    87,
+                    100
+                ],
+                "template": [
+                    "Common/Button/ChangeRegionButton.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__ChangeRegionButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    139,
+                    263,
+                    87,
+                    100
+                ],
+                "template": [
+                    "Common/Button/ChangeRegionButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
     "RegionalDevelopmentLevelButton": {
         "desc": "地区建设中的地区建设等级按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            491,
-            337,
-            219,
-            116
-        ],
-        "template": [
-            "Common/Button/RegionalDevelopmentLevelButton.png",
-            "Common/Button/RegionalDevelopmentLevelButtonHover.png"
-        ],
-        "threshold": 0.9,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__RegionalDevelopmentLevelButton",
+                    "__RegionalDevelopmentLevelButtonHover"
+                ]
+            }
+        },
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -227,6 +256,40 @@
                 0,
                 0
             ]
+        }
+    },
+    "__RegionalDevelopmentLevelButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    491,
+                    337,
+                    219,
+                    116
+                ],
+                "template": [
+                    "Common/Button/RegionalDevelopmentLevelButton.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__RegionalDevelopmentLevelButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    491,
+                    337,
+                    219,
+                    116
+                ],
+                "template": [
+                    "Common/Button/RegionalDevelopmentLevelButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "YellowButtonBackground": {
@@ -358,7 +421,7 @@
             "type": "Or",
             "param": {
                 "any_of": [
-                    "__YellowConfigmButtonType1Icon",
+                    "__YellowConfigmButtonType1IconStable",
                     "__YellowConfigmButtonType1IconHover"
                 ]
             }
@@ -395,19 +458,7 @@
             "param": {
                 "all_of": [
                     "YellowButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "YellowButtonBackground",
-                                "template": [
-                                    "Common/Button/YellowConfirmButtonType2.png",
-                                    "Common/Button/YellowConfirmButtonType2Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__YellowConfirmButtonType2Icon"
                 ],
                 "box_index": 1
             }
@@ -423,6 +474,41 @@
                 0,
                 0
             ]
+        }
+    },
+    "__YellowConfirmButtonType2Icon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__YellowConfirmButtonType2IconStable",
+                    "__YellowConfirmButtonType2IconHover"
+                ]
+            }
+        }
+    },
+    "__YellowConfirmButtonType2IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__YellowConfirmButtonType2IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "CancelButton": {
@@ -432,27 +518,7 @@
             "param": {
                 "all_of": [
                     "WhiteButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "WhiteButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    60,
-                                    40
-                                ],
-                                "template": [
-                                    "Common/Button/CancelButtonType1.png",
-                                    "Common/Button/CancelButtonType1Hover.png",
-                                    "Common/Button/CancelButtonType1Line.png",
-                                    "Common/Button/CancelButtonType1LineHover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__CancelButtonIcon"
                 ],
                 "box_index": 1
             }
@@ -468,6 +534,91 @@
                 0,
                 0
             ]
+        }
+    },
+    "__CancelButtonIcon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__CancelButtonType1Icon",
+                    "__CancelButtonType1HoverIcon",
+                    "__CancelButtonType1LineIcon",
+                    "__CancelButtonType1LineHoverIcon"
+                ]
+            }
+        }
+    },
+    "__CancelButtonType1Icon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1HoverIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1LineIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1Line.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1LineHoverIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1LineHover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "GrayCancelButton": {
@@ -477,25 +628,7 @@
             "param": {
                 "all_of": [
                     "GrayButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "GrayButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    60,
-                                    40
-                                ],
-                                "template": [
-                                    "Common/Button/CancelButtonType2.png",
-                                    "Common/Button/CancelButtonType2Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__GrayCancelButtonIcon"
                 ],
                 "box_index": 1
             }
@@ -511,6 +644,53 @@
                 0,
                 0
             ]
+        }
+    },
+    "__GrayCancelButtonIcon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__GrayCancelButtonType2Icon",
+                    "__GrayCancelButtonType2HoverIcon"
+                ]
+            }
+        }
+    },
+    "__GrayCancelButtonType2Icon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GrayButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__GrayCancelButtonType2HoverIcon": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GrayButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "WhiteConfirmButtonType1": {
@@ -520,25 +700,7 @@
             "param": {
                 "all_of": [
                     "WhiteButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "WhiteButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    60,
-                                    40
-                                ],
-                                "template": [
-                                    "Common/Button/WhiteConfirmButtonType1.png",
-                                    "Common/Button/WhiteConfirmButtonType1Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__WhiteConfirmButtonType1Icon"
                 ],
                 "box_index": 1
             }
@@ -554,6 +716,53 @@
                 0,
                 0
             ]
+        }
+    },
+    "__WhiteConfirmButtonType1Icon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType1IconStable",
+                    "__WhiteConfirmButtonType1IconHover"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType1IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__WhiteConfirmButtonType1IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "WhiteConfirmButtonType2": {
@@ -563,25 +772,7 @@
             "param": {
                 "all_of": [
                     "WhiteButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "WhiteButtonBackground",
-                                "roi_offset": [
-                                    -20,
-                                    -20,
-                                    60,
-                                    40
-                                ],
-                                "template": [
-                                    "Common/Button/WhiteConfirmButtonType2.png",
-                                    "Common/Button/WhiteConfirmButtonType2Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__WhiteConfirmButtonType2Icon"
                 ],
                 "box_index": 1
             }
@@ -599,8 +790,78 @@
             ]
         }
     },
+    "__WhiteConfirmButtonType2Icon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType2IconStable",
+                    "__WhiteConfirmButtonType2IconHover"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
     "TeleportButton": {
         "desc": "传送按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__TeleportButton",
+                    "__TeleportButtonHover"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__TeleportButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -611,42 +872,38 @@
                     102
                 ],
                 "template": [
-                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButton.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__TeleportButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
                     "Common/Button/TeleportButtonHover.png"
                 ],
                 "threshold": 0.9
             }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
         }
     },
     "CloseRewardsButton": {
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
-                ],
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
-                "method": 10001,
-                "threshold": 0.9
+                "any_of": [
+                    "__CloseRewardsButton",
+                    "__CloseRewardsButtonHover"
+                ]
             }
         },
         "pre_wait_freezes": {
@@ -666,23 +923,51 @@
             ]
         }
     },
-    "LevelUpButton": {
-        "desc": "升级按钮，位于界面右下，无文字",
+    "__CloseRewardsButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    985,
-                    591,
-                    277,
-                    112
+                    571,
+                    594,
+                    139,
+                    126
                 ],
                 "template": [
-                    "Common/Button/LevelUpButton.png",
-                    "Common/Button/LevelUpButtonHover.png"
+                    "Common/Button/CloseRewardButton.png"
                 ],
                 "method": 10001,
                 "threshold": 0.9
+            }
+        }
+    },
+    "__CloseRewardsButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "template": [
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "LevelUpButton": {
+        "desc": "升级按钮，位于界面右下，无文字",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__LevelUpButton",
+                    "__LevelUpButtonHover"
+                ]
             }
         },
         "action": {
@@ -912,6 +1197,42 @@
                 0,
                 0
             ]
+        }
+    },
+    "__LevelUpButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ],
+                "template": [
+                    "Common/Button/LevelUpButton.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__LevelUpButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ],
+                "template": [
+                    "Common/Button/LevelUpButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
         }
     }
 }
