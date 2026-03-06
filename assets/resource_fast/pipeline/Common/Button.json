@@ -1174,7 +1174,7 @@
                 "template": [
                     "Common/Button/CloseButtonType1.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.8
             }
         }
     },
@@ -1192,7 +1192,7 @@
                 "template": [
                     "Common/Button/CloseButtonType2.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.8
             }
         }
     },
@@ -1210,7 +1210,7 @@
                 "template": [
                     "Common/Button/CloseButtonType3.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.8
             }
         }
     },
@@ -1228,7 +1228,7 @@
                 "template": [
                     "Common/Button/CloseButtonType4.png"
                 ],
-                "threshold": 0.9
+                "threshold": 0.8
             }
         }
     },
