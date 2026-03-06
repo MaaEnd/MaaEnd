@@ -221,7 +221,7 @@
     "task.AndroidOpenGame.label": "🎮打開遊戲",
     "task.AndroidOpenGame.description": "安卓端打開遊戲，需先手動打開模擬器",
     "task.SeizeEntrustTask.label": "🌆自動搶委託",
-    "task.SeizeEntrustTask.description": "莊天師的地盤才接單～🌆只接 7.31 萬的武陵訂單～（請在運送委託列表啟動此任務）",
+    "task.SeizeEntrustTask.description": "莊天師的地盤才接單～🌆只接 7.31 萬的武陵訂單～",
     "task.SeizeEntrustTaskisSwipeMiddle.label": "滑動中下位置查找武陵訂單",
     "task.SeizeEntrustTaskisSwipeMiddle.description": "開啟此選項後，只會滑動到中間，不會滑動到最頂部 \n 不開啟需要手動滑動到武陵訂單可能出現的位置，一般在 5 萬的谷地訂單上面，或者在列表最底部",
     "task.SeizeEntrustTaskisSwipeALL.label": "滑動遍歷全部訂單",
