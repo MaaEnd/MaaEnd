@@ -223,12 +223,8 @@
     "CisternOriginiumSlugsAdjustCamera": {
         "desc": "蓄水源石虫任务中调整朝向",
         "max_hit": 2,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "EnvironmentMonitoringSwipeScreenRight"
-            ]
-        }
+        "next": [
+            "EnvironmentMonitoringSwipeScreenRight"
+        ]
     }
 }

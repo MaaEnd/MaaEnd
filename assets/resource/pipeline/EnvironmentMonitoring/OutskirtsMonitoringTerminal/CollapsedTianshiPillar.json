@@ -227,12 +227,8 @@
     "CollapsedTianshiPillarAdjustCamera": {
         "desc": "天师柱塌陷任务中调整朝向",
         "max_hit": 2,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "EnvironmentMonitoringSwipeScreenUp"
-            ]
-        }
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
+        ]
     }
 }
