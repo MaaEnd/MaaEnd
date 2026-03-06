@@ -221,7 +221,7 @@
     "task.AndroidOpenGame.label": "🎮 ゲーム起動（Android）",
     "task.AndroidOpenGame.description": "Androidでゲームを起動します。事前にエミュレーターを手動で起動してください。",
     "task.SeizeEntrustTask.label": "🌆自動受注依頼",
-    "task.SeizeEntrustTask.description": "荘天師の勢力圏でのみ受注～🌆 7 万 3100 円の武陵注文のみ対応～（配達依頼リストより本タスクを起動してください）",
+    "task.SeizeEntrustTask.description": "荘天師の勢力圏でのみ受注～🌆 7 万 3100 円の武陵注文のみ対応～",
     "task.SeizeEntrustTaskisSwipeMiddle.label": "画面中央から下へスワイプして武陵の注文を探す",
     "task.SeizeEntrustTaskisSwipeMiddle.description": "このオプションを有効にすると、トップまでではなく中央までしかスワイプしません。\n 無効の場合、武陵の注文が表示される可能性のある位置（通常は 5 万の渓谷の注文の上、またはリストの一番下）まで手動でスワイプする必要があります。",
     "task.SeizeEntrustTaskisSwipeALL.label": "スワイプしてすべての注文をトラバースする",
