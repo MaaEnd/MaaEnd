@@ -1,0 +1,230 @@
+{
+    "IndoorCropsJob": {
+        "desc": "室内作物任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptIndoorCrops",
+            "GoToIndoorCropsMission"
+        ]
+    },
+    "CheckIndoorCropsText": {
+        "desc": "检查是否有室内作物文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "室内作物",
+            "室內作物",
+            "Indoor Crops",
+            "室内の作物",
+            "실내 작물"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckIndoorCropsReadyText": {
+        "desc": "检查室内作物委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckIndoorCropsJob": {
+        "desc": "检查室内作物委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckIndoorCropsGoToMissionText": {
+        "desc": "检查室内作物委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "InIndoorCropsMission": {
+        "desc": "是否在室内作物任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "室内作物",
+            "室內作物",
+            "Indoor Crops",
+            "室内の作物",
+            "실내 작물"
+        ],
+        "order_by": "Expected"
+    },
+    "AcceptIndoorCrops": {
+        "desc": "接取室内作物委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GoToIndoorCropsMission"
+        ]
+    },
+    "GoToIndoorCropsMission": {
+        "desc": "前往室内作物任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "IndoorCropsTrackOrGoTo"
+        ]
+    },
+    "IndoorCropsTrackOrGoTo": {
+        "desc": "在室内作物任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InIndoorCropsMission"
+        ],
+        "next": [
+            "TrackIndoorCrops",
+            "GoToIndoorCrops"
+        ]
+    },
+    "TrackIndoorCrops": {
+        "desc": "追踪室内作物任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InIndoorCropsMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToIndoorCrops"
+        ]
+    },
+    "GoToIndoorCrops": {
+        "desc": "前往室内作物",
+        "next": [
+            "GoToIndoorCropsStartPos",
+            "[JumpBack]SceneEnterWorldWulingWulingCity4"
+        ]
+    },
+    "GoToIndoorCropsStartPos": {
+        "desc": "在室内作物任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        240,
+                        695,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsMapTrackerMove": {
+        "desc": "前往室内作物",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    240,
+                    702
+                ],
+                [
+                    220,
+                    703
+                ],
+                [
+                    211,
+                    725
+                ],
+                [
+                    190,
+                    726
+                ],
+                [
+                    190,
+                    729
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoUp"
+        ]
+    }
+}

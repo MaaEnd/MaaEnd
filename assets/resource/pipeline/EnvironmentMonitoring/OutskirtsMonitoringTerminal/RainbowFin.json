@@ -1,0 +1,238 @@
+{
+    "RainbowFinJob": {
+        "desc": "七彩鳞任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowFinText",
+            "CheckRainbowFinReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptRainbowFin",
+            "GoToRainbowFinMission"
+        ]
+    },
+    "CheckRainbowFinText": {
+        "desc": "检查是否有七彩鳞文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "七彩鳞",
+            "七彩鱗",
+            "Rainbow Fin",
+            "七色鱗獣",
+            "무지개 린수"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckRainbowFinReadyText": {
+        "desc": "检查七彩鳞委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckRainbowFinJob": {
+        "desc": "检查七彩鳞委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckRainbowFinGoToMissionText": {
+        "desc": "检查七彩鳞委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "InRainbowFinMission": {
+        "desc": "是否在七彩鳞任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "七彩鳞",
+            "七彩鱗",
+            "Rainbow Fin",
+            "七色鱗獣",
+            "무지개 린수"
+        ],
+        "order_by": "Expected"
+    },
+    "AcceptRainbowFin": {
+        "desc": "接取七彩鳞委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowFinText",
+            "CheckRainbowFinJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GoToRainbowFinMission"
+        ]
+    },
+    "GoToRainbowFinMission": {
+        "desc": "前往七彩鳞任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowFinText",
+            "CheckRainbowFinGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "RainbowFinTrackOrGoTo"
+        ]
+    },
+    "RainbowFinTrackOrGoTo": {
+        "desc": "在七彩鳞任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InRainbowFinMission"
+        ],
+        "next": [
+            "TrackRainbowFin",
+            "GoToRainbowFin"
+        ]
+    },
+    "TrackRainbowFin": {
+        "desc": "追踪七彩鳞任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InRainbowFinMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToRainbowFin"
+        ]
+    },
+    "GoToRainbowFin": {
+        "desc": "前往七彩鳞",
+        "next": [
+            "GoToRainbowFinStartPos",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley10"
+        ]
+    },
+    "GoToRainbowFinStartPos": {
+        "desc": "在七彩鳞任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        125,
+                        815,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToRainbowFinMapTrackerMove"
+        ]
+    },
+    "GoToRainbowFinMapTrackerMove": {
+        "desc": "前往七彩鳞",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    130,
+                    820
+                ],
+                [
+                    141,
+                    818
+                ],
+                [
+                    159,
+                    806
+                ],
+                [
+                    177,
+                    798
+                ],
+                [
+                    190,
+                    783
+                ],
+                [
+                    193,
+                    767
+                ],
+                [
+                    205,
+                    755
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoDirectly"
+        ]
+    }
+}
