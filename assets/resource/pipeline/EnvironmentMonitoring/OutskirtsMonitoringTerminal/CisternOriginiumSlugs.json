@@ -212,6 +212,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        },
         "next": [
             "EnvironmentMonitoringTakePhotoRight"
         ]

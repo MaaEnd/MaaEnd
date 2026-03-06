@@ -89,18 +89,8 @@
             }
         ],
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
-            "EnvironmentMonitoringMain"
+            "[Anchor]EnvironmentMonitoringBactToTerminal"
         ]
     },
     "EnterCameraModeClick": {

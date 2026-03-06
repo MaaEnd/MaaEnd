@@ -204,6 +204,9 @@
                 ]
             ]
         },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+        },
         "next": [
             "EnvironmentMonitoringTakePhotoUp"
         ]
