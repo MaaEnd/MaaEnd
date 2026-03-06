@@ -17,7 +17,7 @@ as long as it is registered during the resource loading stage, it can be called 
 
 <!-- markdownlint-enable MD060 -->
 
-## subtask Action
+## SubTask Action
 
 `SubTask` is a subtask execution action invoked through `Custom`, implemented in `agent/go-service/subtask`.  
 It executes the task names specified in the `sub` field of `custom_action_param` in sequence.

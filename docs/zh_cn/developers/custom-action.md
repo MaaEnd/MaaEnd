@@ -17,7 +17,7 @@
 
 <!-- markdownlint-enable MD060 -->
 
-## subtask 动作
+## SubTask 动作
 
 `SubTask` 是一个通过 `Custom` 调用的子任务执行动作，实现位于 `agent/go-service/subtask`  
 按顺序执行 `custom_action_param` 中 `sub` 字段指定的任务名。
