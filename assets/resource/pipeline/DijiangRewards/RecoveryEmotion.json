@@ -28,7 +28,8 @@
             "timeout": 1000
         },
         "next": [
-            "RecoveryEmotionAssistUseAssist"
+            "StartRecoveryEmotion",
+            "[JumpBack]RecoveryEmotionAssistUseAssist"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
@@ -48,10 +49,7 @@
         },
         "action": {
             "type": "Click"
-        },
-        "next": [
-            "StartRecoveryEmotion"
-        ]
+        }
     },
     "EmotionFull": {
         "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",

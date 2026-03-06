@@ -2,28 +2,31 @@
     "EnvironmentMonitoringMain": {
         "desc": "环境监测",
         "next": [
-            "EnvironmentMonitoringGoToMonitoringTerminal",
+            "EnvironmentMonitoringLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
-    "EnvironmentMonitoringGoToMonitoringTerminal": {
-        "desc": "前往监测终端",
+    "EnvironmentMonitoringLoop": {
+        "desc": "主循环，确保在地区建设界面",
         "recognition": "And",
         "all_of": [
             "InRegionalDevelopment"
         ],
         "next": [
-            "EnvironmentMonitoringLoop",
-            "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal",
-            "[JumpBack]GoToWuling"
+            "EnvironmentMonitoringOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringFinish"
         ]
     },
-    "EnvironmentMonitoringLoop": {
-        "desc": "主循环，确保在环境监测界面",
-        "recognition": "And",
-        "all_of": [
-            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
-        ],
+    "EnvironmentMonitoringOutskirtsMonitoringTerminal": {
+        "desc": "城郊监测终端任务",
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            ]
+        },
         "next": [
             "[JumpBack]EternalSunsetJob",
             "[JumpBack]AncientTreeJob",
@@ -33,7 +36,19 @@
             "[JumpBack]BeaconDamagedInBlightTideJob",
             "[JumpBack]RainbowFinJob",
             "[JumpBack]CleansingJadeJob",
-            "EnvironmentMonitoringFinish"
+            "EnvironmentMonitoringBackToRegionalDevelopment"
+        ]
+    },
+    "EnvironmentMonitoringBackToRegionalDevelopment": {
+        "desc": "完成城郊监测终端后返回地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ],
+        "action": "Click",
+        "next": [
+            "EnvironmentMonitoringLoop"
         ]
     },
     "EnvironmentMonitoringFinish": {

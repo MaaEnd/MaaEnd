@@ -481,6 +481,16 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click",

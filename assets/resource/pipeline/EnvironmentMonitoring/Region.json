@@ -28,11 +28,18 @@
         "desc": "进入城郊监测终端",
         "recognition": "And",
         "all_of": [
-            "EnvironmentMonitoringButton"
+            "EnvironmentMonitoringButton",
+            "InWulingRegionalDevelopment"
         ],
-        "action": "Click",
+        "action": "Click"
+    },
+    "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal": {
+        "desc": "前往城郊监测终端",
         "next": [
-            "EnvironmentMonitoringLoop"
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal",
+            "[JumpBack]GoToWuling",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     }
 }

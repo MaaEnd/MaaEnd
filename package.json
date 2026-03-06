@@ -10,7 +10,7 @@
         "test": "maa-tools test"
     },
     "devDependencies": {
-        "@nekosu/maa-tools": "1.0.9",
+        "@nekosu/maa-tools": "1.0.11",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",
         "prettier": "3.5.3",
