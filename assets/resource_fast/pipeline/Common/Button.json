@@ -1017,11 +1017,12 @@
     "CloseRewardsButton": {
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
-            "type": "Or",
+            "type": "And",
             "param": {
-                "any_of": [
-                    "__CloseRewardsButton",
-                    "__CloseRewardsButtonHover"
+                "box_index": 1,
+                "all_of": [
+                    "DectedCloseRewardsImage",
+                    "__CloseRewardsButton"
                 ]
             }
         },
@@ -1043,6 +1044,37 @@
         }
     },
     "__CloseRewardsButton": {
+        "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志 仅",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__CloseRewardsButtonStable",
+                    "__CloseRewardsButtonHover"
+                ]
+            }
+        }
+    },
+    "DectedCloseRewardsImage": {
+        "desc": "检测到奖励界面时的图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    437,
+                    0,
+                    419,
+                    224
+                ],
+                "template": [
+                    "Common/Button/CloseRewardImage.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseRewardsButtonStable": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
