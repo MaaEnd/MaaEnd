@@ -696,13 +696,12 @@
     "WhiteConfirmButtonType1": {
         "desc": "通用确认按钮，有文字，白色底，圆环形标志",
         "recognition": {
-            "type": "And",
+            "type": "Or",
             "param": {
-                "all_of": [
-                    "WhiteButtonBackground",
-                    "__WhiteConfirmButtonType1Icon"
-                ],
-                "box_index": 1
+                "any_of": [
+                    "__WhiteConfirmButtonType1commonSearchAreas1",
+                    "__WhiteConfirmButtonType1"
+                ]
             }
         },
         "action": {
@@ -718,7 +717,67 @@
             ]
         }
     },
+    "__WhiteConfirmButtonType1": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteButtonBackground",
+                    "__WhiteConfirmButtonType1Icon"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "__WhiteConfirmButtonType1commonSearchAreas1": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType1commonSearchAreas1Stable",
+                    "__WhiteConfirmButtonType1commonSearchAreas1Hover"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType1commonSearchAreas1Stable": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    669,
+                    514,
+                    611,
+                    206
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1.png"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType1commonSearchAreas1Hover": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    669,
+                    514,
+                    611,
+                    206
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                ]
+            }
+        }
+    },
     "__WhiteConfirmButtonType1Icon": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "Or",
             "param": {
@@ -730,6 +789,7 @@
         }
     },
     "__WhiteConfirmButtonType1IconStable": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -748,6 +808,7 @@
         }
     },
     "__WhiteConfirmButtonType1IconHover": {
+        "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
