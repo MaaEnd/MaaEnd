@@ -610,20 +610,12 @@
     "CloseRewardsButton": {
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
-                ],
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
-                "method": 10001,
-                "threshold": 0.9
+                "all_of": [
+                    "DectedCloseRewardsButton",
+                    "DectedCloseRewardsImage"
+                ]
             }
         },
         "pre_wait_freezes": {
@@ -641,6 +633,45 @@
                 0,
                 0
             ]
+        }
+    },
+    "DectedCloseRewardsImage": {
+        "desc": "检测到奖励界面时的图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    437,
+                    0,
+                    419,
+                    224
+                ],
+                "template": [
+                    "Common/Button/CloseRewardImage.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "DectedCloseRewardsButton": {
+        "desc": "检测到奖励界面时的关闭按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    571,
+                    594,
+                    139,
+                    126
+                ],
+                "template": [
+                    "Common/Button/CloseRewardButton.png",
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
         }
     },
     "LevelUpButton": {
