@@ -38,10 +38,11 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS      = 150
-	ROTATION_MAX_SPEED     = 5.0
-	ROTATION_DEFAULT_SPEED = 3.0
-	ROTATION_MIN_SPEED     = 1.0
+	INFER_INTERVAL_MS               = 150
+	ROTATION_MAX_SPEED              = 5.0
+	ROTATION_DEFAULT_SPEED          = 3.0
+	ROTATION_MIN_SPEED              = 1.0
+	ROTATION_ADJUSTMENT_LOWER_BOUND = 6.0
 )
 
 // MapTrackerInfer parameters default values

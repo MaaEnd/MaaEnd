@@ -261,7 +261,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if math.Abs(float64(deltaRot)) > 1.0 {
 				// Update for adaptive mechanism
 				appliedDelta := calcAppliedDeltaRotation(deltaRot, rotationSpeed)
-				lastAdjustRot = &rot
+				rotCopy := rot
+				lastAdjustRot = &rotCopy
 				lastAdjustPos = &[2]int{curX, curY}
 				lastAdjustTime = time.Now()
 				lastAdjustApplied = appliedDelta
@@ -469,7 +470,7 @@ func calcDeltaRotation(current, target int) int {
 // calcAppliedDeltaRotation calculates the augmented rotation adjustment to apply
 func calcAppliedDeltaRotation(deltaRot int, rotationSpeed float64) int {
 	absRot := math.Abs(float64(deltaRot))
-	absRotAug := (36 / (absRot + 6)) + absRot
+	absRotAug := (ROTATION_ADJUSTMENT_LOWER_BOUND * ROTATION_ADJUSTMENT_LOWER_BOUND / (absRot + ROTATION_ADJUSTMENT_LOWER_BOUND)) + absRot
 	if deltaRot > 0 {
 		return int(math.Round(absRotAug * rotationSpeed))
 	}
