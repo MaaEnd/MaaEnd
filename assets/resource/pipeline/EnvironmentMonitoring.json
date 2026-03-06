@@ -36,6 +36,18 @@
             "[JumpBack]BeaconDamagedInBlightTideJob",
             "[JumpBack]RainbowFinJob",
             "[JumpBack]CleansingJadeJob",
+            "EnvironmentMonitoringBackToRegionalDevelopment"
+        ]
+    },
+    "EnvironmentMonitoringBackToRegionalDevelopment": {
+        "desc": "完成城郊监测终端后返回地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ],
+        "action": "Click",
+        "next": [
             "EnvironmentMonitoringLoop"
         ]
     },
