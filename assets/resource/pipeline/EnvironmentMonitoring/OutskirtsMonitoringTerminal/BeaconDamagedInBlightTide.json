@@ -229,10 +229,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "BeaconDamagedInBlightTideAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoDown"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "BeaconDamagedInBlightTideAdjustCamera": {
+        "desc": "侵蚀潮中损坏的信标任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

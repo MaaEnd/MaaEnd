@@ -205,10 +205,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "CleansingJadeAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoUp"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "CleansingJadeAdjustCamera": {
+        "desc": "漱玉任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

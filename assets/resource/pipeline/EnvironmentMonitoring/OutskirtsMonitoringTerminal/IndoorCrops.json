@@ -221,10 +221,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "IndoorCropsAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoUp"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "IndoorCropsAdjustCamera": {
+        "desc": "室内作物任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

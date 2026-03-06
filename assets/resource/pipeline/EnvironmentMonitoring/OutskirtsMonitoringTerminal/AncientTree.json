@@ -229,10 +229,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "AncientTreeAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoUp"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "AncientTreeAdjustCamera": {
+        "desc": "古树任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

@@ -213,10 +213,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "CisternOriginiumSlugsAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoRight"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "CisternOriginiumSlugsAdjustCamera": {
+        "desc": "蓄水源石虫任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenRight"
         ]
     }
 }

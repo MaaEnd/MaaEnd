@@ -209,10 +209,18 @@
             ]
         },
         "anchor": {
-            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "EternalSunsetAdjustCamera"
         },
         "next": [
-            "EnvironmentMonitoringTakePhotoUp"
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "EternalSunsetAdjustCamera": {
+        "desc": "栖霞驻影任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }
