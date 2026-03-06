@@ -32,6 +32,9 @@
         "all_of": [
             "SellProductInSkyKingFlats"
         ],
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+        },
         "next": [
             "SellProductAtSell"
         ]

@@ -8,13 +8,10 @@
         "next": [
             "SellProductZeroProductTryChangeGoods",
             "SellProductZeroProductAfterChangeStillEmpty",
-            "SellProductZeroMoney",
+            "[Anchor]SellProductZeroMoneyHandler",
             "SellProductClickBarRight",
             "SellProductDragBar"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "已进入售卖界面"
-        }
+        ]
     },
     "SellProductZeroProductColorMatch": {
         "desc": "识别红色文字判断是否有货",
@@ -119,9 +116,16 @@
             "insufficient",
             "不足",
             "거점 관리권 보유량 부족"
+        ]
+    },
+    "SellProductZeroMoneyWithTip": {
+        "desc": "调度券不足（仅未成交时提示）",
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroMoney"
         ],
         "focus": {
-            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+            "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
         }
     },
     "SellProductClickBarRight": {
@@ -222,6 +226,9 @@
         ],
         "pre_wait_freezes": 80,
         "action": "Click",
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoney"
+        },
         "next": [
             "SellProductAtSell"
         ],

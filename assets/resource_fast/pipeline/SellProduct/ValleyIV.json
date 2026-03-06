@@ -58,6 +58,9 @@
         "all_of": [
             "SellProductInRefugeeCamp"
         ],
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+        },
         "next": [
             "SellProductAtSell"
         ]
@@ -68,6 +71,9 @@
         "all_of": [
             "SellProductInInfrastructureOutpost"
         ],
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+        },
         "next": [
             "SellProductAtSell"
         ]
@@ -78,6 +84,9 @@
         "all_of": [
             "SellProductInReconstructionCommand"
         ],
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+        },
         "next": [
             "SellProductAtSell"
         ]
