@@ -1,0 +1,220 @@
+{
+    "CleansingJadeJob": {
+        "desc": "漱玉任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptCleansingJade",
+            "GoToCleansingJadeMission"
+        ]
+    },
+    "CheckCleansingJadeText": {
+        "desc": "检查是否有漱玉文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "漱玉",
+            "漱玉",
+            "Cleansing Jade",
+            "漱玉",
+            "수옥"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCleansingJadeReadyText": {
+        "desc": "检查漱玉委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            // 可以接取委托
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령",
+            // 已经接取但可以前往任务
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCleansingJadeJob": {
+        "desc": "检查漱玉委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCleansingJadeGoToMissionText": {
+        "desc": "检查漱玉委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "InCleansingJadeMission": {
+        "desc": "是否在漱玉任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "漱玉",
+            "漱玉",
+            "Cleansing Jade",
+            "漱玉",
+            "수옥"
+        ],
+        "order_by": "Expected"
+    },
+    "AcceptCleansingJade": {
+        "desc": "接取漱玉委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeMission"
+        ]
+    },
+    "GoToCleansingJadeMission": {
+        "desc": "前往漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "CleansingJadeTrackOrGoTo"
+        ]
+    },
+    "CleansingJadeTrackOrGoTo": {
+        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InCleansingJadeMission"
+        ],
+        "next": [
+            "TrackCleansingJade",
+            "GoToCleansingJade"
+        ]
+    },
+    "TrackCleansingJade": {
+        "desc": "追踪漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCleansingJadeMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCleansingJade"
+        ]
+    },
+    "GoToCleansingJade": {
+        "desc": "前往漱玉",
+        "next": [
+            "GoToCleansingJadeStartPos",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley4"
+        ]
+    },
+    "GoToCleansingJadeStartPos": {
+        "desc": "在漱玉任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001_tier_277",
+                    "target": [
+                        255,
+                        395,
+                        15,
+                        15
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeMapTrackerMove"
+        ]
+    },
+    "GoToCleansingJadeMapTrackerMove": {
+        "desc": "前往漱玉",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001_tier_277",
+            "path": [
+                [
+                    246,
+                    394
+                ]
+            ]
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhotoUp"
+        ]
+    }
+}
