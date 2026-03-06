@@ -761,7 +761,7 @@
     "__WhiteConfirmButtonType1commonSearchAreas1Hover": {
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
-            "type": "And",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     672,
