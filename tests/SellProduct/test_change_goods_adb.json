@@ -1,0 +1,29 @@
+{
+    "configs": {
+        "name": "一键售卖产品(官服-ADB)，测试更换货品",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点_难民暂居处",
+            "hits": [
+                "SellProductChangeGoods"
+            ]
+        },
+        {
+            "image": "一键售卖产品/四号谷地_据点_选择交易货品",
+            "hits": [
+                "SellProductSelectNewGood",
+                "SellProductSelectNewGoodConfirm"
+            ]
+        },
+        {
+            "image": "一键售卖产品/武陵_据点_选择交易货品",
+            "hits": [
+                "SellProductSelectNewGood",
+                "SellProductSelectNewGoodConfirm"
+            ]
+        }
+    ]
+}
