@@ -42,12 +42,16 @@ type MapTrackerMoveParam struct {
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
 }
 
-type PlayerMovementType byte
+// PlayerMovement represents different movement state in the game
+type PlayerMovement struct {
+	Speed         float64 // Movement speed (px/s)
+	RotationSpeed float64 // Rotation adjustment response speed (degrees/s)
+}
 
-const (
-	MOVEMENT_WALK   PlayerMovementType = 1
-	MOVEMENT_RUN    PlayerMovementType = 2
-	MOVEMENT_SPRINT PlayerMovementType = 3
+var (
+	MovementWalk   = PlayerMovement{2.0, 180.0}
+	MovementRun    = PlayerMovement{8.0, 360.0}
+	MovementSprint = PlayerMovement{12.0, 1800.0}
 )
 
 //go:embed messages/emergency_stop.html
@@ -101,7 +105,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	aw.KeyTypeSync(KEY_SHIFT, 50)
 	aw.KeyUpSync(KEY_S, 50)
 	aw.KeyTypeSync(KEY_W, 50)
-	movementType := MOVEMENT_RUN
+	movement := &MovementRun
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
@@ -177,7 +181,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if timeElapsed > 0 {
 					speed := distTravel / timeElapsed.Seconds()
 					// Check if player is moving sufficiently to trust rotation measurement
-					if speed > float64(MOVEMENT_WALK) && lastAdjustApplied > int(param.RotationLowerThreshold) {
+					if speed > MovementWalk.Speed && lastAdjustApplied > int(param.RotationLowerThreshold) {
 						actualRotDelta := calcDeltaRotation(*lastAdjustRot, rot)
 						idealSpeed := float64(lastAdjustApplied) / (float64(actualRotDelta) + 1e-6)
 						if idealSpeed >= ROTATION_MIN_SPEED && idealSpeed <= ROTATION_MAX_SPEED {
@@ -236,23 +240,23 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check if rotation is not good enough to sprint
 			if math.Abs(float64(deltaRot)) > param.RotationLowerThreshold {
 				// Ensure no sprinting: forcibly set to 'walk'
-				if movementType > MOVEMENT_RUN {
+				if movement.Speed > MovementRun.Speed {
 					aw.KeyTypeSync(KEY_CTRL, 25)
-					movementType = MOVEMENT_WALK
+					movement = &MovementWalk
 				}
 			} else {
 				// Rotation is good: at least set to 'run'
-				if movementType < MOVEMENT_RUN {
+				if movement.Speed < MovementRun.Speed {
 					aw.KeyTypeSync(KEY_CTRL, 25)
-					movementType = MOVEMENT_RUN
+					movement = &MovementRun
 				}
 				aw.KeyDownSync(KEY_W, 25)
 
 				if dist > param.SprintThreshold {
 					// Target is far enough: enable 'sprint'
-					if movementType < MOVEMENT_SPRINT {
+					if movement.Speed < MovementSprint.Speed {
 						aw.KeyTypeSync(KEY_SHIFT, 100)
-						movementType = MOVEMENT_SPRINT
+						movement = &MovementSprint
 					}
 				}
 			}
@@ -270,17 +274,17 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// Select appropriate rotation method based on how bad the rotation is
 				if math.Abs(float64(deltaRot)) > param.RotationUpperThreshold {
 					// Rotation is very bad: forcibly set to 'walk' for better control
-					if movementType > MOVEMENT_WALK {
+					if movement.Speed > MovementWalk.Speed {
 						aw.KeyTypeSync(KEY_CTRL, 25)
-						movementType = MOVEMENT_WALK
+						movement = &MovementWalk
 					}
 					aw.RotateCamera(appliedDelta, 50, 25)
 					aw.KeyDownSync(KEY_W, 50)
 				} else {
 					// Rotation is acceptable but can be improved: at least ensure 'run'
-					if movementType < MOVEMENT_RUN {
+					if movement.Speed < MovementRun.Speed {
 						aw.KeyTypeSync(KEY_CTRL, 25)
-						movementType = MOVEMENT_RUN
+						movement = &MovementRun
 					}
 					aw.KeyDownSync(KEY_W, 25)
 					aw.RotateCamera(appliedDelta, 50, 25)
