@@ -97,7 +97,7 @@
             "SellProductZeroProduct"
         ],
         "focus": {
-            "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
+            "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
         }
     },
     "SellProductNeedSelectGoodsTryChangeGoods": {
