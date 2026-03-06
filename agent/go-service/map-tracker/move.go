@@ -113,7 +113,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		lastAdjustTime    time.Time
 		lastAdjustPos     *[2]int
 		lastAdjustRot     *int
-		lastAdjustApplied int
+		lastAdjustApplied float64
 	)
 
 	// For each target point
@@ -178,19 +178,22 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			if lastAdjustRot != nil && lastAdjustPos != nil {
 				timeElapsed := time.Since(lastAdjustTime)
 				distTravel := math.Hypot(float64(curX-lastAdjustPos[0]), float64(curY-lastAdjustPos[1]))
+				lastAdjustRotUpperAbsBound := movement.RotationSpeed * timeElapsed.Seconds()
 				if timeElapsed > 0 {
 					speed := distTravel / timeElapsed.Seconds()
 					// Check if player is moving sufficiently to trust rotation measurement
-					if speed > MovementWalk.Speed && lastAdjustApplied > int(param.RotationLowerThreshold) {
+					if speed > MovementWalk.Speed && lastAdjustApplied > param.RotationLowerThreshold {
+						lastAdjustAppliedFixed := max(-lastAdjustRotUpperAbsBound, min(lastAdjustRotUpperAbsBound, lastAdjustApplied))
 						actualRotDelta := calcDeltaRotation(*lastAdjustRot, rot)
-						idealSpeed := float64(lastAdjustApplied) / (float64(actualRotDelta) + 1e-6)
+						idealSpeed := lastAdjustAppliedFixed / (float64(actualRotDelta) + 1e-6)
 						if idealSpeed >= ROTATION_MIN_SPEED && idealSpeed <= ROTATION_MAX_SPEED {
 							rotationSpeed = rotationSpeed*0.618 + idealSpeed*0.382
 							log.Debug().
 								Float64("idealSpeed", idealSpeed).
 								Float64("newSpeed", rotationSpeed).
 								Int("actualRotDelta", actualRotDelta).
-								Int("lastAdjustApplied", lastAdjustApplied).
+								Float64("lastAdjustApplied", lastAdjustApplied).
+								Float64("lastAdjustAppliedFixed", lastAdjustAppliedFixed).
 								Msg("Adaptive rotation speed updated")
 						}
 					}
@@ -264,7 +267,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Adjust rotation
 			if math.Abs(float64(deltaRot)) > 1.0 {
 				// Update for adaptive mechanism
-				appliedDelta := calcAppliedDeltaRotation(deltaRot, rotationSpeed)
+				appliedDelta := calcAppliedDeltaRotation(deltaRot)
 				rotCopy := rot
 				lastAdjustRot = &rotCopy
 				lastAdjustPos = &[2]int{curX, curY}
@@ -278,7 +281,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						aw.KeyTypeSync(KEY_CTRL, 25)
 						movement = &MovementWalk
 					}
-					aw.RotateCamera(appliedDelta, 50, 25)
+					aw.RotateCamera(int(appliedDelta*rotationSpeed), 50, 25)
 					aw.KeyDownSync(KEY_W, 50)
 				} else {
 					// Rotation is acceptable but can be improved: at least ensure 'run'
@@ -287,7 +290,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						movement = &MovementRun
 					}
 					aw.KeyDownSync(KEY_W, 25)
-					aw.RotateCamera(appliedDelta, 50, 25)
+					aw.RotateCamera(int(appliedDelta*rotationSpeed), 50, 25)
 				}
 				aw.ResetCamera(50)
 			}
@@ -472,11 +475,11 @@ func calcDeltaRotation(current, target int) int {
 }
 
 // calcAppliedDeltaRotation calculates the augmented rotation adjustment to apply
-func calcAppliedDeltaRotation(deltaRot int, rotationSpeed float64) int {
+func calcAppliedDeltaRotation(deltaRot int) float64 {
 	absRot := math.Abs(float64(deltaRot))
 	absRotAug := (ROTATION_ADJUSTMENT_LOWER_BOUND * ROTATION_ADJUSTMENT_LOWER_BOUND / (absRot + ROTATION_ADJUSTMENT_LOWER_BOUND)) + absRot
 	if deltaRot > 0 {
-		return int(math.Round(absRotAug * rotationSpeed))
+		return absRotAug
 	}
-	return int(math.Round(-absRotAug * rotationSpeed))
+	return math.Round(-absRotAug)
 }
