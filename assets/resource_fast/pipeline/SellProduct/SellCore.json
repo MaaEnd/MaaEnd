@@ -9,6 +9,7 @@
             "SellProductZeroProductTryChangeGoods",
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
+            "SellProductNeedSelectGoodsTryChangeGoods",
             "SellProductClickBarRight",
             "SellProductDragBar"
         ]
@@ -98,6 +99,26 @@
         "focus": {
             "Node.Action.Succeeded": "当前选择产品缺货，请制造或更换"
         }
+    },
+    "SellProductNeedSelectGoodsTryChangeGoods": {
+        "desc": "提示需要选择交易货品时，尝试更换一次货品",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            611,
+            350,
+            77
+        ],
+        "expected": [
+            "请选择用于交易的货品",
+            "請選擇用於交易的貨品",
+            "Select Goods to Trade",
+            "取引用の商品を選択してください",
+            "거래할 상품 선택 필요"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
     },
     "SellProductZeroMoney": {
         "desc": "调度券余量为0",
