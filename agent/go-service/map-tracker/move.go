@@ -184,8 +184,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				lastAdjustRotUpperAbsBound := movement.RotationSpeed * adjustElapsed.Seconds()
 				if adjustElapsed > 0 {
 					speed := distTravel / adjustElapsed.Seconds()
-					// Check if player is moving sufficiently to trust rotation measurement
-					if speed > MovementWalk.Speed && lastAdjustApplied > param.RotationLowerThreshold {
+					// Check if player is moving and rotating sufficiently to trust rotation measurement
+					if speed > MovementWalk.Speed && math.Abs(lastAdjustApplied) > param.RotationLowerThreshold {
 						lastAdjustAppliedFixed := max(-lastAdjustRotUpperAbsBound, min(lastAdjustRotUpperAbsBound, lastAdjustApplied))
 						actualRotDelta := calcDeltaRotation(*lastAdjustRot, rot)
 						idealSpeed := lastAdjustAppliedFixed / (float64(actualRotDelta) + 1e-6)
@@ -300,7 +300,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					aw.KeyDownSync(KEY_W, 25)
 					aw.RotateCamera(int(appliedDelta*rotationSpeed), 50, 25)
 				}
-				aw.ResetCamera(50)
 
 				// Update adaptive rotation state
 				rotCopy := rot
@@ -308,6 +307,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				lastAdjustPos = &[2]int{curX, curY}
 				lastAdjustTime = time.Now()
 				lastAdjustApplied = appliedDelta
+				aw.ResetCamera(50)
 			}
 		}
 		// End of loop, one target reached
@@ -402,7 +402,7 @@ func doEmergencyStop(aw *ActionWrapper, noPrint bool) {
 }
 
 func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*MapTrackerInferResult, error) {
-	// Capture Screen
+	// Capture screen
 	ctrl.PostScreencap().Wait()
 	img, err := ctrl.CacheImage()
 	if err != nil {
@@ -499,5 +499,5 @@ func calcAppliedDeltaRotation(deltaRot int) float64 {
 	if deltaRot > 0 {
 		return absRotAug
 	}
-	return math.Round(-absRotAug)
+	return -absRotAug
 }
