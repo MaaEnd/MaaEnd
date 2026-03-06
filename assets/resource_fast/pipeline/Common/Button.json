@@ -1019,11 +1019,12 @@
         "recognition": {
             "type": "And",
             "param": {
-                "box_index": 1,
                 "all_of": [
-                    "DectedCloseRewardsImage",
+                    // FIXME: 一件售卖产品里的图标不一样，暂时注释了
+                    // "DectedCloseRewardsImage",
                     "__CloseRewardsButton"
                 ]
+                // "box_index": 1
             }
         },
         "pre_wait_freezes": {
