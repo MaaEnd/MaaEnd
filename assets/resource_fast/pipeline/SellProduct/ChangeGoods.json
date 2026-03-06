@@ -77,7 +77,7 @@
         ],
         "action": "Click",
         "next": [
-            "SellProductAtSellAfterChange"
+            "SellProductAtSell"
         ]
     }
 }
