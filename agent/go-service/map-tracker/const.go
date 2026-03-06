@@ -27,7 +27,7 @@ const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
 	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
 	CONVINCED_DISTANCE_THRESHOLD     = 30
-	CONVINCED_VALID_TIME_MS          = 500
+	CONVINCED_VALID_TIME_MS          = 2000
 )
 
 // Resource paths
@@ -38,7 +38,7 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS               = 150
+	INFER_INTERVAL_MS               = 100
 	ROTATION_MAX_SPEED              = 5.0
 	ROTATION_DEFAULT_SPEED          = 3.0
 	ROTATION_MIN_SPEED              = 1.0

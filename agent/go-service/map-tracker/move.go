@@ -49,8 +49,8 @@ type PlayerMovement struct {
 }
 
 var (
-	MovementWalk   = PlayerMovement{2.0, 180.0}
-	MovementRun    = PlayerMovement{8.0, 360.0}
+	MovementWalk   = PlayerMovement{2.0, 270.0}
+	MovementRun    = PlayerMovement{8.0, 540.0}
 	MovementSprint = PlayerMovement{12.0, 1800.0}
 )
 
