@@ -64,9 +64,8 @@
         ]
     },
     "DeliveryJobsSelectItemToFillValleyIV": {
-        "doc": "选择要填充的物品（四号谷地）",
+        "desc": "选择要填充的物品（四号谷地）",
         "recognition": "TemplateMatch",
-        "action": "Click",
         "roi": [
             37,
             121,
@@ -76,14 +75,14 @@
         "template": "DeliveryJobs/SandleafPowder.png",
         "threshold": 0.8,
         "order_by": "Score",
+        "action": "Click",
         "next": [
             "DeliveryJobsFillCorrespondingGoods"
         ]
     },
     "DeliveryJobsSelectItemToFillWuling": {
-        "doc": "选择要填充的物品（武陵）",
+        "desc": "选择要填充的物品（武陵）",
         "recognition": "TemplateMatch",
-        "action": "Click",
         "roi": [
             37,
             121,
@@ -93,27 +92,28 @@
         "template": "DeliveryJobs/Yazhen.png",
         "threshold": 0.8,
         "order_by": "Score",
+        "action": "Click",
         "next": [
             "DeliveryJobsFillCorrespondingGoods"
         ]
     },
     "DeliveryJobsFillCorrespondingGoods": {
-        "desc": "手动填满对应货物",
+        "desc": "手动填满对应货物，通过单击进度条最右侧",
         "recognition": "TemplateMatch",
         "roi": [
             308,
-            598,
-            107,
-            107
+            583,
+            189,
+            122
         ],
         "template": "DeliveryJobs/FillCorrespondingGoods.png",
-        "threshold": 0.8,
-        "action": "Swipe",
-        "begin_offset": [
-            -108,
-            8,
-            -16,
-            -16
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -75,
+            0,
+            0,
+            0
         ],
         "next": [
             "DeliveryJobsFillToMaxNextStep"
