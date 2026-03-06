@@ -335,19 +335,7 @@
             "param": {
                 "all_of": [
                     "YellowButtonBackground",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": "YellowButtonBackground",
-                                "template": [
-                                    "Common/Button/YellowConfirmButtonType1.png",
-                                    "Common/Button/YellowConfirmButtonType1Hover.png"
-                                ],
-                                "threshold": 0.9
-                            }
-                        }
-                    }
+                    "__YellowConfigmButtonType1Icon"
                 ],
                 "box_index": 1
             }
@@ -363,6 +351,41 @@
                 0,
                 0
             ]
+        }
+    },
+    "__YellowConfigmButtonType1Icon": {
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__YellowConfigmButtonType1Icon",
+                    "__YellowConfigmButtonType1IconHover"
+                ]
+            }
+        }
+    },
+    "__YellowConfigmButtonType1IconStable": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__YellowConfigmButtonType1IconHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "YellowConfirmButtonType2": {
@@ -678,22 +701,14 @@
     "CloseButtonType1": {
         "desc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    882,
-                    0,
-                    398,
-                    335
-                ],
-                "template": [
-                    "Common/Button/CloseButtonType1.png",
-                    "Common/Button/CloseButtonType2.png",
-                    "Common/Button/CloseButtonType3.png",
-                    "Common/Button/CloseButtonType4.png",
-                    "Common/Button/CloseButtonType5.png"
-                ],
-                "threshold": 0.9
+                "any_of": [
+                    "__CloseButtonType1",
+                    "__CloseButtonType2",
+                    "__CloseButtonType3",
+                    "__CloseButtonType4"
+                ]
             }
         },
         "action": {
@@ -707,6 +722,78 @@
                 0,
                 0
             ]
+        }
+    },
+    "__CloseButtonType1": {
+        "desc": "使用频率最高的按钮,圆形白底黑色X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1211,
+                    10,
+                    44,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType1.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseButtonType2": {
+        "desc": "使用频率比较高的按钮,无形状白底黑色X(据点交易选择商品界面)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1056,
+                    92,
+                    105,
+                    71
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseButtonType3": {
+        "desc": "百科关闭按钮,圆形灰色底白色X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1211,
+                    10,
+                    44,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType3.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseButtonType4": {
+        "desc": "帝江号内关闭助力按钮,无形状黑底白色X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1057,
+                    101,
+                    70,
+                    62
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType4.png"
+                ],
+                "threshold": 0.9
+            }
         }
     },
     "CloseButtonType2": {
