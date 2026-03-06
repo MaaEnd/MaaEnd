@@ -1,39 +1,6 @@
 {
-    "EnvironmentMonitoringTakePhotoUp": {
-        "desc": "环境监测拍照，向上调整朝向",
-        "anchor": {
-            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenUp"
-        },
-        "next": [
-            "EnvironmentMonitoringEnterCameraMode",
-            "EnvironmentMonitoringTakePhotoDirectly"
-        ]
-    },
-    "EnvironmentMonitoringTakePhotoDown": {
-        "desc": "环境监测拍照，向下调整朝向",
-        "anchor": {
-            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenDown"
-        },
-        "next": [
-            "EnvironmentMonitoringEnterCameraMode",
-            "EnvironmentMonitoringTakePhotoDirectly"
-        ]
-    },
-    "EnvironmentMonitoringTakePhotoLeft": {
-        "desc": "环境监测拍照，向左调整朝向",
-        "anchor": {
-            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenLeft"
-        },
-        "next": [
-            "EnvironmentMonitoringEnterCameraMode",
-            "EnvironmentMonitoringTakePhotoDirectly"
-        ]
-    },
-    "EnvironmentMonitoringTakePhotoRight": {
-        "desc": "环境监测拍照，向右调整朝向",
-        "anchor": {
-            "EnvironmentMonitoringSwipeScreen": "EnvironmentMonitoringSwipeScreenRight"
-        },
+    "EnvironmentMonitoringTakePhoto": {
+        "desc": "环境监测拍照",
         "next": [
             "EnvironmentMonitoringEnterCameraMode",
             "EnvironmentMonitoringTakePhotoDirectly"
@@ -104,7 +71,7 @@
         "key": 82, // R 0x52
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack][Anchor]EnvironmentMonitoringSwipeScreen"
+            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
         ]
     },
     "EnterCameraModeLongPress": {
@@ -141,13 +108,11 @@
         "key": 82, // R 0x52
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack][Anchor]EnvironmentMonitoringSwipeScreen"
+            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
         ]
     },
     "EnvironmentMonitoringSwipeScreenUp": {
         "desc": "环境监测拍照，向上滑动屏幕调整朝向",
-        // FIXME: 以后得想办法重置 max_hit，或者用其他方法实现。不然一次任务就可能消耗掉全部的 max_hit 了。
-        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             520,
@@ -161,7 +126,6 @@
     },
     "EnvironmentMonitoringSwipeScreenDown": {
         "desc": "环境监测拍照，向下滑动屏幕调整朝向",
-        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             520,
@@ -175,7 +139,6 @@
     },
     "EnvironmentMonitoringSwipeScreenLeft": {
         "desc": "环境监测拍照，向左滑动屏幕调整朝向",
-        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             520,
@@ -189,7 +152,6 @@
     },
     "EnvironmentMonitoringSwipeScreenRight": {
         "desc": "环境监测拍照，向右滑动屏幕调整朝向",
-        "max_hit": 2,
         "action": "Swipe",
         "begin": [
             520,
