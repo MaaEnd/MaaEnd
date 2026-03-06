@@ -122,8 +122,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Int("index", i).Int("targetX", targetX).Int("targetY", targetY).Msg("Navigating to next target point")
 
 		// Show navigation UI
-		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
-			initDist := math.Hypot(float64(initRes.X-targetX), float64(initRes.Y-targetY))
+		var initDist float64
+		var initRot int
+		if initResult, err := doInfer(ctx, ctrl, param); err == nil && initResult != nil {
+			initDist = math.Hypot(float64(initResult.X-targetX), float64(initResult.Y-targetY))
+			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
 			if !param.NoPrint {
 				maafocus.NodeActionStarting(
 					aw.ctx,
@@ -206,8 +209,18 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			// Check arrival
 			dist := math.Hypot(float64(curX-targetX), float64(curY-targetY))
-			if dist < param.ArrivalThreshold {
-				log.Info().Int("x", curX).Int("y", curY).Int("index", i).Msg("Target point reached")
+			isArrived := func() bool {
+				if dist < param.ArrivalThreshold {
+					log.Info().Int("x", curX).Int("y", curY).Int("index", i).Msg("Target point reached")
+					return true
+				}
+				if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+					log.Info().Int("targetRot", targetRot).Int("initRot", initRot).Int("index", i).Msg("Target point reached (guessed by rotation)")
+					return true
+				}
+				return false
+			}
+			if isArrived() {
 				// Peek next target's direction
 				if i < len(param.Path)-1 {
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
@@ -218,6 +231,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						aw.KeyUpSync(KEY_W, 25)
 					}
 				}
+				// Finish current target
 				break
 			}
 
