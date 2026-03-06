@@ -76,7 +76,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	ctrl := ctx.GetTasker().GetController()
 	aw := NewActionWrapper(ctx, ctrl)
-	inferIntervalDuration := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
+	loopInterval := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
 
 	if param.PathTrim && len(param.Path) > 1 {
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
@@ -135,7 +135,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		var (
-			lastInferTime    = time.Time{}
+			lastLoopTime     = time.Time{}
 			lastArrivalTime  = time.Now()
 			prevLocationTime = time.Time{}
 			prevLocation     *[2]int
@@ -143,12 +143,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 		for {
 			// Calculate time since last check
-			elapsed := time.Since(lastInferTime)
-			if elapsed < inferIntervalDuration {
-				time.Sleep(inferIntervalDuration - elapsed)
+			loopElapsed := time.Since(lastLoopTime)
+			if loopElapsed < loopInterval {
+				time.Sleep(loopInterval - loopElapsed)
 			}
-			now := time.Now()
-			lastInferTime = now
+			loopStartTime := time.Now()
+			lastLoopTime = loopStartTime
 
 			// Check stopping signal
 			if ctx.GetTasker().Stopping() {
@@ -158,7 +158,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			}
 
 			// Check arrival timeout
-			deltaArrivalMs := now.Sub(lastArrivalTime).Milliseconds()
+			deltaArrivalMs := loopStartTime.Sub(lastArrivalTime).Milliseconds()
 			if deltaArrivalMs > param.ArrivalTimeout {
 				log.Error().Msg("Arrival timeout, stopping task")
 				doEmergencyStop(aw, param.NoPrint)
@@ -176,11 +176,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			rot := result.Rot
 			// Update adaptive rotation sensitivity
 			if lastAdjustRot != nil && lastAdjustPos != nil {
-				timeElapsed := time.Since(lastAdjustTime)
+				adjustElapsed := time.Since(lastAdjustTime)
 				distTravel := math.Hypot(float64(curX-lastAdjustPos[0]), float64(curY-lastAdjustPos[1]))
-				lastAdjustRotUpperAbsBound := movement.RotationSpeed * timeElapsed.Seconds()
-				if timeElapsed > 0 {
-					speed := distTravel / timeElapsed.Seconds()
+				lastAdjustRotUpperAbsBound := movement.RotationSpeed * adjustElapsed.Seconds()
+				if adjustElapsed > 0 {
+					speed := distTravel / adjustElapsed.Seconds()
 					// Check if player is moving sufficiently to trust rotation measurement
 					if speed > MovementWalk.Speed && lastAdjustApplied > param.RotationLowerThreshold {
 						lastAdjustAppliedFixed := max(-lastAdjustRotUpperAbsBound, min(lastAdjustRotUpperAbsBound, lastAdjustApplied))
@@ -225,7 +225,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			// Check Stuck
 			if prevLocation != nil && prevLocation[0] == curX && prevLocation[1] == curY {
-				deltaLocationMs := now.Sub(prevLocationTime).Milliseconds()
+				deltaLocationMs := loopStartTime.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
 					doEmergencyStop(aw, param.NoPrint)
@@ -237,7 +237,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 			} else {
 				prevLocation = &[2]int{curX, curY}
-				prevLocationTime = now
+				prevLocationTime = loopStartTime
 			}
 
 			// Check if rotation is not good enough to sprint
@@ -266,13 +266,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			// Adjust rotation
 			if math.Abs(float64(deltaRot)) > 1.0 {
-				// Update for adaptive mechanism
 				appliedDelta := calcAppliedDeltaRotation(deltaRot)
-				rotCopy := rot
-				lastAdjustRot = &rotCopy
-				lastAdjustPos = &[2]int{curX, curY}
-				lastAdjustTime = time.Now()
-				lastAdjustApplied = appliedDelta
 
 				// Select appropriate rotation method based on how bad the rotation is
 				if math.Abs(float64(deltaRot)) > param.RotationUpperThreshold {
@@ -293,6 +287,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					aw.RotateCamera(int(appliedDelta*rotationSpeed), 50, 25)
 				}
 				aw.ResetCamera(50)
+
+				// Update adaptive rotation state
+				rotCopy := rot
+				lastAdjustRot = &rotCopy
+				lastAdjustPos = &[2]int{curX, curY}
+				lastAdjustTime = time.Now()
+				lastAdjustApplied = appliedDelta
 			}
 		}
 		// End of loop, one target reached
