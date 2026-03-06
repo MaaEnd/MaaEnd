@@ -10,8 +10,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptEternalSunsetThenGoTo",
-            "GoToEternalSunset"
+            "AcceptEternalSunset",
+            "GoToEternalSunsetMission"
         ]
     },
     "AncientTreeJob": {
@@ -25,8 +25,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptAncientTreeThenGoTo",
-            "GoToAncientTree"
+            "AcceptAncientTree",
+            "GoToAncientTreeMission"
         ]
     },
     "CisternOriginiumSlugsJob": {
@@ -40,8 +40,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCisternOriginiumSlugsThenGoTo",
-            "GoToCisternOriginiumSlugs"
+            "AcceptCisternOriginiumSlugs",
+            "GoToCisternOriginiumSlugsMission"
         ]
     },
     "CollapsedTianshiPillarJob": {
@@ -55,8 +55,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCollapsedTianshiPillarThenGoTo",
-            "GoToCollapsedTianshiPillar"
+            "AcceptCollapsedTianshiPillar",
+            "GoToCollapsedTianshiPillarMission"
         ]
     },
     "IndoorCropsJob": {
@@ -70,8 +70,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptIndoorCropsThenGoTo",
-            "GoToIndoorCrops"
+            "AcceptIndoorCrops",
+            "GoToIndoorCropsMission"
         ]
     },
     "BeaconDamagedInBlightTideJob": {
@@ -85,8 +85,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptBeaconDamagedInBlightTideThenGoTo",
-            "GoToBeaconDamagedInBlightTide"
+            "AcceptBeaconDamagedInBlightTide",
+            "GoToBeaconDamagedInBlightTideMission"
         ]
     },
     "RainbowFinJob": {
@@ -100,8 +100,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptRainbowFinThenGoTo",
-            "GoToRainbowFin"
+            "AcceptRainbowFin",
+            "GoToRainbowFinMission"
         ]
     },
     "CleansingJadeJob": {
@@ -115,8 +115,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AcceptCleansingJadeThenGoTo",
-            "GoToCleansingJade"
+            "AcceptCleansingJade",
+            "GoToCleansingJadeMission"
         ]
     },
     "CheckEternalSunsetText": {
@@ -623,7 +623,322 @@
         ],
         "order_by": "Expected"
     },
-    "AcceptEternalSunsetThenGoTo": {
+    "CheckEternalSunsetGoToMissionText": {
+        "desc": "检查栖霞驻影委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckEternalSunsetText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckAncientTreeGoToMissionText": {
+        "desc": "检查古树委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckAncientTreeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCisternOriginiumSlugsGoToMissionText": {
+        "desc": "检查蓄水源石虫委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCisternOriginiumSlugsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCollapsedTianshiPillarGoToMissionText": {
+        "desc": "检查倒塌的天师桩委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCollapsedTianshiPillarText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckIndoorCropsGoToMissionText": {
+        "desc": "检查室内作物委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckIndoorCropsText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckBeaconDamagedInBlightTideGoToMissionText": {
+        "desc": "检查侵蚀潮中损坏的信标委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckBeaconDamagedInBlightTideText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckRainbowFinGoToMissionText": {
+        "desc": "检查七彩鳞委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckRainbowFinText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "CheckCleansingJadeGoToMissionText": {
+        "desc": "检查漱玉委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckCleansingJadeText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ],
+        "order_by": "Expected"
+    },
+    "TrackMissionButton": {
+        "desc": "开始追踪按钮",
+        "recognition": "OCR",
+        "roi": [
+            1021,
+            598,
+            251,
+            106
+        ],
+        "expected": [
+            "开始追踪",
+            "開始追蹤",
+            "Track",
+            "追跡開始",
+            "추적 시작"
+        ],
+        "order_by": "Expected",
+        "action": "Click"
+    },
+    "InEternalSunsetMission": {
+        "desc": "是否在栖霞驻影任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "栖霞驻影",
+            "棲霞駐影",
+            "Eternal Sunset",
+            "棲霞留影",
+            "노을의 그림자"
+        ],
+        "order_by": "Expected"
+    },
+    "InAncientTreeMission": {
+        "desc": "是否在古树任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "古树",
+            "古樹",
+            "Ancient Tree",
+            "古木",
+            "고목"
+        ],
+        "order_by": "Expected"
+    },
+    "InCisternOriginiumSlugsMission": {
+        "desc": "是否在蓄水源石虫任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "蓄水源石虫",
+            "蓄水源石蟲",
+            "Cistern Originium Slugs",
+            "貯水オリジムシ",
+            "저수 원석충"
+        ],
+        "order_by": "Expected"
+    },
+    "InCollapsedTianshiPillarMission": {
+        "desc": "是否在倒塌的天师桩任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "倒塌的天师桩",
+            "倒塌的天師樁",
+            "Collapsed Tianshi Pillar",
+            "倒れた天師杭",
+            "무너진 천사장"
+        ],
+        "order_by": "Expected"
+    },
+    "InIndoorCropsMission": {
+        "desc": "是否在室内作物任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "室内作物",
+            "室內作物",
+            "Indoor Crops",
+            "室内の作物",
+            "실내 작물"
+        ],
+        "order_by": "Expected"
+    },
+    "InBeaconDamagedInBlightTideMission": {
+        "desc": "是否在侵蚀潮中损坏的信标任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "侵蚀潮中损坏的信标",
+            "侵蝕潮中損壞的信標",
+            "Beacon Damaged in the Blight Tide",
+            "侵蝕潮で壊れたビーコン",
+            "침식 조류로 인해 훼손된 신호기"
+        ],
+        "order_by": "Expected"
+    },
+    "InRainbowFinMission": {
+        "desc": "是否在七彩鳞任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "七彩鳞",
+            "七彩鱗",
+            "Rainbow Fin",
+            "七色鱗獣",
+            "무지개 린수"
+        ],
+        "order_by": "Expected"
+    },
+    "InCleansingJadeMission": {
+        "desc": "是否在漱玉任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            314,
+            71
+        ],
+        "expected": [
+            "漱玉",
+            "漱玉",
+            "Cleansing Jade",
+            "漱玉",
+            "수옥"
+        ],
+        "order_by": "Expected"
+    },
+    "AcceptEternalSunset": {
         "desc": "接取栖霞驻影委托",
         "recognition": "And",
         "all_of": [
@@ -632,20 +947,11 @@
         ],
         "box_index": 1,
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "next": [
-            "GoToEternalSunset"
+            "GoToEternalSunsetMission"
         ]
     },
-    "AcceptAncientTreeThenGoTo": {
+    "AcceptAncientTree": {
         "desc": "接取古树委托",
         "recognition": "And",
         "all_of": [
@@ -664,10 +970,10 @@
             ]
         },
         "next": [
-            "GoToAncientTree"
+            "GoToAncientTreeMission"
         ]
     },
-    "AcceptCisternOriginiumSlugsThenGoTo": {
+    "AcceptCisternOriginiumSlugs": {
         "desc": "接取蓄水源石虫委托",
         "recognition": "And",
         "all_of": [
@@ -686,10 +992,10 @@
             ]
         },
         "next": [
-            "GoToCisternOriginiumSlugs"
+            "GoToCisternOriginiumSlugsMission"
         ]
     },
-    "AcceptCollapsedTianshiPillarThenGoTo": {
+    "AcceptCollapsedTianshiPillar": {
         "desc": "接取倒塌的天师桩委托",
         "recognition": "And",
         "all_of": [
@@ -708,10 +1014,10 @@
             ]
         },
         "next": [
-            "GoToCollapsedTianshiPillar"
+            "GoToCollapsedTianshiPillarMission"
         ]
     },
-    "AcceptIndoorCropsThenGoTo": {
+    "AcceptIndoorCrops": {
         "desc": "接取室内作物委托",
         "recognition": "And",
         "all_of": [
@@ -730,10 +1036,10 @@
             ]
         },
         "next": [
-            "GoToIndoorCrops"
+            "GoToIndoorCropsMission"
         ]
     },
-    "AcceptBeaconDamagedInBlightTideThenGoTo": {
+    "AcceptBeaconDamagedInBlightTide": {
         "desc": "接取侵蚀潮中损坏的信标委托",
         "recognition": "And",
         "all_of": [
@@ -752,10 +1058,10 @@
             ]
         },
         "next": [
-            "GoToBeaconDamagedInBlightTide"
+            "GoToBeaconDamagedInBlightTideMission"
         ]
     },
-    "AcceptRainbowFinThenGoTo": {
+    "AcceptRainbowFin": {
         "desc": "接取七彩鳞委托",
         "recognition": "And",
         "all_of": [
@@ -774,10 +1080,10 @@
             ]
         },
         "next": [
-            "GoToRainbowFin"
+            "GoToRainbowFinMission"
         ]
     },
-    "AcceptCleansingJadeThenGoTo": {
+    "AcceptCleansingJade": {
         "desc": "接取漱玉委托",
         "recognition": "And",
         "all_of": [
@@ -795,6 +1101,294 @@
                 0
             ]
         },
+        "next": [
+            "GoToCleansingJadeMission"
+        ]
+    },
+    "GoToEternalSunsetMission": {
+        "desc": "前往栖霞驻影任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckEternalSunsetText",
+            "CheckEternalSunsetGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "EternalSunsetTrackOrGoTo"
+        ]
+    },
+    "EternalSunsetTrackOrGoTo": {
+        "desc": "在栖霞驻影任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InEternalSunsetMission"
+        ],
+        "next": [
+            "TrackEternalSunset",
+            "GoToEternalSunset"
+        ]
+    },
+    "TrackEternalSunset": {
+        "desc": "追踪栖霞驻影任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InEternalSunsetMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToEternalSunset"
+        ]
+    },
+    "GoToAncientTreeMission": {
+        "desc": "前往古树任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckAncientTreeText",
+            "CheckAncientTreeGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "AncientTreeTrackOrGoTo"
+        ]
+    },
+    "AncientTreeTrackOrGoTo": {
+        "desc": "在古树任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InAncientTreeMission"
+        ],
+        "next": [
+            "TrackAncientTree",
+            "GoToAncientTree"
+        ]
+    },
+    "TrackAncientTree": {
+        "desc": "追踪古树任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InAncientTreeMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToAncientTree"
+        ]
+    },
+    "GoToCisternOriginiumSlugsMission": {
+        "desc": "前往蓄水源石虫任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "CisternOriginiumSlugsTrackOrGoTo"
+        ]
+    },
+    "CisternOriginiumSlugsTrackOrGoTo": {
+        "desc": "在蓄水源石虫任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InCisternOriginiumSlugsMission"
+        ],
+        "next": [
+            "TrackCisternOriginiumSlugs",
+            "GoToCisternOriginiumSlugs"
+        ]
+    },
+    "TrackCisternOriginiumSlugs": {
+        "desc": "追踪蓄水源石虫任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCisternOriginiumSlugsMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCisternOriginiumSlugs"
+        ]
+    },
+    "GoToCollapsedTianshiPillarMission": {
+        "desc": "前往倒塌的天师桩任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCollapsedTianshiPillarText",
+            "CheckCollapsedTianshiPillarGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "CollapsedTianshiPillarTrackOrGoTo"
+        ]
+    },
+    "CollapsedTianshiPillarTrackOrGoTo": {
+        "desc": "在倒塌的天师桩任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InCollapsedTianshiPillarMission"
+        ],
+        "next": [
+            "TrackCollapsedTianshiPillar",
+            "GoToCollapsedTianshiPillar"
+        ]
+    },
+    "TrackCollapsedTianshiPillar": {
+        "desc": "追踪倒塌的天师桩任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCollapsedTianshiPillarMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToCollapsedTianshiPillar"
+        ]
+    },
+    "GoToIndoorCropsMission": {
+        "desc": "前往室内作物任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckIndoorCropsText",
+            "CheckIndoorCropsGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "IndoorCropsTrackOrGoTo"
+        ]
+    },
+    "IndoorCropsTrackOrGoTo": {
+        "desc": "在室内作物任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InIndoorCropsMission"
+        ],
+        "next": [
+            "TrackIndoorCrops",
+            "GoToIndoorCrops"
+        ]
+    },
+    "TrackIndoorCrops": {
+        "desc": "追踪室内作物任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InIndoorCropsMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToIndoorCrops"
+        ]
+    },
+    "GoToBeaconDamagedInBlightTideMission": {
+        "desc": "前往侵蚀潮中损坏的信标任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "BeaconDamagedInBlightTideTrackOrGoTo"
+        ]
+    },
+    "BeaconDamagedInBlightTideTrackOrGoTo": {
+        "desc": "在侵蚀潮中损坏的信标任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InBeaconDamagedInBlightTideMission"
+        ],
+        "next": [
+            "TrackBeaconDamagedInBlightTide",
+            "GoToBeaconDamagedInBlightTide"
+        ]
+    },
+    "TrackBeaconDamagedInBlightTide": {
+        "desc": "追踪侵蚀潮中损坏的信标任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InBeaconDamagedInBlightTideMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToBeaconDamagedInBlightTide"
+        ]
+    },
+    "GoToRainbowFinMission": {
+        "desc": "前往七彩鳞任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckRainbowFinText",
+            "CheckRainbowFinGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "RainbowFinTrackOrGoTo"
+        ]
+    },
+    "RainbowFinTrackOrGoTo": {
+        "desc": "在七彩鳞任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InRainbowFinMission"
+        ],
+        "next": [
+            "TrackRainbowFin",
+            "GoToRainbowFin"
+        ]
+    },
+    "TrackRainbowFin": {
+        "desc": "追踪七彩鳞任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InRainbowFinMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToRainbowFin"
+        ]
+    },
+    "GoToCleansingJadeMission": {
+        "desc": "前往漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckCleansingJadeText",
+            "CheckCleansingJadeGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "CleansingJadeTrackOrGoTo"
+        ]
+    },
+    "CleansingJadeTrackOrGoTo": {
+        "desc": "在漱玉任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InCleansingJadeMission"
+        ],
+        "next": [
+            "TrackCleansingJade",
+            "GoToCleansingJade"
+        ]
+    },
+    "TrackCleansingJade": {
+        "desc": "追踪漱玉任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InCleansingJadeMission"
+        ],
+        "action": "Click",
         "next": [
             "GoToCleansingJade"
         ]
