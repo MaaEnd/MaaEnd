@@ -401,42 +401,45 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	// Run recognition
-	nodeName := "MapTrackerMove_Infer"
-	config := map[string]any{
-		nodeName: map[string]any{
-			"recognition":        "Custom",
-			"custom_recognition": "MapTrackerInfer",
-			"custom_recognition_param": map[string]any{
-				"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
-				"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
-				"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
-			},
-		},
+	inferConfig := map[string]any{
+		"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
+		"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
+		"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
 	}
 
-	res, err := ctx.RunRecognition(nodeName, img, config)
+	inferConfigBytes, err := json.Marshal(inferConfig)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to run MapTrackerInfer")
+		log.Error().Err(err).Msg("Failed to marshal inference config")
 		return nil, err
 	}
-	if res == nil || res.DetailJson == "" || res.Hit == false {
-		log.Error().Msg("Location inference not hit or result is empty")
-		return nil, fmt.Errorf("location inference not hit or result is empty")
+
+	taskDetail, err := ctx.GetTaskJob().GetDetail()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get task detail")
+		return nil, err
+	}
+
+	resultJson, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+		TaskID:                 taskDetail.ID,
+		CurrentTaskName:        taskDetail.Entry,
+		CustomRecognitionName:  "MapTrackerInfer",
+		CustomRecognitionParam: string(inferConfigBytes),
+		Img:                    img,
+		Roi:                    maa.Rect{0, 0, img.Bounds().Dx(), img.Bounds().Dy()},
+	})
+
+	if !hit {
+		log.Error().Msg("Location inference not hit")
+		return nil, fmt.Errorf("location inference not hit")
+	}
+	if resultJson == nil || resultJson.Detail == "" {
+		log.Error().Msg("Location inference result is empty")
+		return nil, fmt.Errorf("location inference result is empty")
 	}
 
 	// Extract result
 	var result MapTrackerInferResult
-	var wrapped struct {
-		Best struct {
-			Detail json.RawMessage `json:"detail"`
-		} `json:"best"`
-	}
-
-	if err := json.Unmarshal([]byte(res.DetailJson), &wrapped); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal wrapped result")
-		return nil, err
-	}
-	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
+	if err := json.Unmarshal([]byte(resultJson.Detail), &result); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, err
 	}

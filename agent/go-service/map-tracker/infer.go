@@ -119,7 +119,7 @@ var inferenceFailedHTML string
 //go:embed messages/inference_finished.html
 var inferenceFinishedHTML string
 
-var _ maa.CustomRecognitionRunner = &MapTrackerInfer{}
+var mapTrackerInferRunner maa.CustomRecognitionRunner = &MapTrackerInfer{}
 
 // Run implements maa.CustomRecognitionRunner
 func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
