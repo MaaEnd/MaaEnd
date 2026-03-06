@@ -1134,10 +1134,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1211,
-                    10,
-                    44,
-                    40
+                    1186,
+                    1,
+                    94,
+                    78
                 ],
                 "template": [
                     "Common/Button/CloseButtonType1.png"
@@ -1170,10 +1170,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1211,
-                    10,
-                    44,
-                    40
+                    1186,
+                    1,
+                    94,
+                    78
                 ],
                 "template": [
                     "Common/Button/CloseButtonType3.png"
