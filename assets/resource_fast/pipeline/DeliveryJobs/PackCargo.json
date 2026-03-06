@@ -75,6 +75,7 @@
         "template": "DeliveryJobs/SandleafPowder.png",
         "threshold": 0.8,
         "order_by": "Score",
+        "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
             "DeliveryJobsFillCorrespondingGoods"
@@ -92,6 +93,7 @@
         "template": "DeliveryJobs/Yazhen.png",
         "threshold": 0.8,
         "order_by": "Score",
+        "pre_wait_freezes": 80,
         "action": "Click",
         "next": [
             "DeliveryJobsFillCorrespondingGoods"

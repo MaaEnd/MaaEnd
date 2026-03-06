@@ -192,12 +192,6 @@
                     "name": "砂叶粉末",
                     "label": "$item.SandleafPowder",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillValleyIV": {
                             "template": "DeliveryJobs/SandleafPowder.png"
                         }
@@ -207,12 +201,6 @@
                     "name": "荞花粉末",
                     "label": "$item.BuckflowerPowder",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillValleyIV": {
                             "template": "DeliveryJobs/BuckflowerPowder.png"
                         }
@@ -222,12 +210,6 @@
                     "name": "柑实粉末",
                     "label": "$item.CitromePowder",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillValleyIV": {
                             "template": "DeliveryJobs/CitromePowder.png"
                         }
@@ -237,12 +219,6 @@
                     "name": "酮化灌木粉末",
                     "label": "$item.AketinePowder",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillValleyIV": {
                             "template": "DeliveryJobs/AketinePowder.png"
                         }
@@ -259,12 +235,6 @@
                     "name": "芽针",
                     "label": "$item.Yazhen",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillWuling": {
                             "template": "DeliveryJobs/Yazhen.png"
                         }
@@ -274,12 +244,6 @@
                     "name": "锦草",
                     "label": "$item.Jincao",
                     "pipeline_override": {
-                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
-                            "post_wait_freezes": {
-                                "time": 200,
-                                "target": [40, 140, 370, 470]
-                            }
-                        },
                         "DeliveryJobsSelectItemToFillWuling": {
                             "template": "DeliveryJobs/Jincao.png"
                         }
