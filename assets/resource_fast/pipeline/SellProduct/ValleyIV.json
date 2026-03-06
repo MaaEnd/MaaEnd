@@ -59,6 +59,7 @@
             "SellProductInRefugeeCamp"
         ],
         "anchor": {
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
@@ -72,6 +73,7 @@
             "SellProductInInfrastructureOutpost"
         ],
         "anchor": {
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
@@ -85,10 +87,44 @@
             "SellProductInReconstructionCommand"
         ],
         "anchor": {
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampZeroProductTryChangeGoods": {
+        "desc": "难民暂居处缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductInfrastructureOutpostZeroProductTryChangeGoods": {
+        "desc": "基建前站缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductReconstructionCommandZeroProductTryChangeGoods": {
+        "desc": "重建指挥部缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInRefugeeCamp": {

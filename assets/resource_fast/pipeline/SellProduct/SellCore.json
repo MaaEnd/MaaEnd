@@ -6,7 +6,7 @@
             "SellProductInOutpost"
         ],
         "next": [
-            "SellProductZeroProductTryChangeGoods",
+            "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
@@ -77,17 +77,6 @@
                     }
                 ]
             }
-        ]
-    },
-    "SellProductZeroProductTryChangeGoods": {
-        "desc": "货物数量不足，先尝试更换货品",
-        "max_hit": 1,
-        "recognition": "And",
-        "all_of": [
-            "SellProductZeroProduct"
-        ],
-        "next": [
-            "SellProductChangeGoods"
         ]
     },
     "SellProductZeroProductAfterChangeStillEmpty": {

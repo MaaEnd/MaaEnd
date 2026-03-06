@@ -33,10 +33,22 @@
             "SellProductInSkyKingFlats"
         ],
         "anchor": {
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsZeroProductTryChangeGoods": {
+        "desc": "天王坪援建点缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
         ]
     },
     "SellProductInSkyKingFlats": {
