@@ -1,12 +1,13 @@
 {
     "DeliveryJobsWulingLoop": {
         "desc": "武陵运送委托主循环",
-        "recognition": "And",
-        "all_of": [
-            "DepotButton",
-            "InWulingRegionalDevelopment"
-        ],
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "DeliveryJobsEnterWulingDepot"
+            ]
+        },
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToWulingDepot"
         },

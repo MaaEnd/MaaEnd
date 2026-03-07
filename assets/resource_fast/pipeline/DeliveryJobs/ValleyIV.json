@@ -1,12 +1,13 @@
 {
     "DeliveryJobsValleyIVLoop": {
         "desc": "四号谷地运送委托主循环",
-        "recognition": "And",
-        "all_of": [
-            "DepotButton",
-            "InValleyIVRegionalDevelopment"
-        ],
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "DeliveryJobsEnterValleyIVDepot"
+            ]
+        },
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToValleyIVDepot"
         },
