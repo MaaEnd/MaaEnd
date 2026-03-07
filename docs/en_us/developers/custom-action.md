@@ -52,7 +52,7 @@ It clears the hit counts of the nodes specified in the `nodes` field of `custom_
     - A JSON object is required, which is serialized to a string by the framework and passed to Go.
     - Field descriptions:
         - `nodes: string[]`: List of node names to clear hit counts for (required). For example, `["NodeA", "NodeB"]` will clear the hit counts of NodeA and NodeB.
-        - `strict?: bool`: Whether to use strict mode, where the current action is considered failed if any node's hit count clearing fails (optional, default `true`). When set to `false`, the action will return success even if some nodes' hit counts fail to clear.
+        - `strict?: bool`: Whether to use strict mode, where the current action is considered failed if any node's hit count clearing fails (optional, default `false`). When set to `false`, the action will return success even if some nodes' hit counts fail to clear. When set to `true`, any failure to clear a node will cause the action to return failure.
 
 - **Usage Example**
 
