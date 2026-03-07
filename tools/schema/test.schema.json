@@ -69,7 +69,7 @@
             "oneOf": [
                 {
                     "type": "string",
-                    "description": "仅校验节点命中，如 InValleyIVLocalDepotNode"
+                    "description": "仅校验节点命中，如 InWorld"
                 },
                 {
                     "type": "object",

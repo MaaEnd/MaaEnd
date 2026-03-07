@@ -90,78 +90,7 @@
         ],
         "order_by": "Expected"
     },
-    "CheckLocalDepotNodeOriginiumScienceParkText": {
-        "desc": "检查本地仓储节点中是否有源石研究园",
-        "recognition": "OCR",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "源石研究园",
-            "源石研究園",
-            "Originium Science Park",
-            "源石研究パーク",
-            "오리지늄 연구 구역"
-        ],
-        "order_by": "Expected"
-    },
-    "CheckLocalDepotNodeOriginLodespringText": {
-        "desc": "检查本地仓储节点中是否有矿脉源区",
-        "recognition": "OCR",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "矿脉源区",
-            "礦脈源區",
-            "Origin Lodespring",
-            "鉱山エリア",
-            "광맥 구역"
-        ],
-        "order_by": "Expected"
-    },
-    "CheckLocalDepotNodePowerPlateauText": {
-        "desc": "检查本地仓储节点中是否有供能高地",
-        "recognition": "OCR",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "供能高地",
-            "供能高地",
-            "Power Plateau",
-            "エネルギー高地",
-            "에너지 공급 고지"
-        ],
-        "order_by": "Expected"
-    },
-    "CheckLocalDepotNodeWulingCityText": {
-        "desc": "检查本地仓储节点中是否有武陵城区",
-        "recognition": "OCR",
-        "roi": [
-            67,
-            224,
-            1006,
-            95
-        ],
-        "expected": [
-            "武陵城区",
-            "武陵城區",
-            "Wuling City",
-            "武陵城内",
-            "무릉성 도심"
-        ],
-        "order_by": "Expected"
-    },
+
     "CheckChangeRegionConfirmText": {
         "desc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
