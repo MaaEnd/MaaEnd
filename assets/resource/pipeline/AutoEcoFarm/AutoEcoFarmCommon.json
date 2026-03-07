@@ -190,6 +190,9 @@
         "doc": "按下鼠标左键",
         "action": {
             "type": "Click"
+            ,"param":{
+                "target": [0,0,0,0]
+            }
         },
         "pre_delay": 0,
         "post_delay": 0,

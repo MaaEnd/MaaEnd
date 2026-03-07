@@ -181,8 +181,8 @@
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [540,360,1,1],
-                "end":[1820,360,1,1],
+                "begin": [540,360],
+                "end":[1000,360],
                 "duration": 200,
                 "only_hover": true
             }
@@ -210,6 +210,9 @@
         "doc": "按下鼠标左键",
         "action": {
             "type": "Click"
+            ,"param":{
+                "target": [0,0,0,0]
+            }
         },
         "pre_delay": 0,
         "post_delay": 0,
