@@ -1,0 +1,215 @@
+name: Issue Extract Error Logs
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  extract-error-logs:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Extract error log blocks
+        id: extract
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import zipfile
+          from pathlib import Path
+          from urllib.parse import unquote, urlparse
+          from urllib.request import urlopen
+
+          CONTEXT_LINES = 20
+          MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024
+          MAX_COMMENT_LENGTH = 62000
+          ALLOWED_HOSTS = {
+              "github.com",
+              "objects.githubusercontent.com",
+              "github-production-user-asset-6210df.s3.amazonaws.com",
+          }
+
+          issue_body = os.environ.get("ISSUE_BODY") or ""
+          github_output = Path(os.environ["GITHUB_OUTPUT"])
+
+          all_urls = re.findall(r"https?://[^\s)\]>\"]+", issue_body)
+          log_urls = []
+          for raw_url in all_urls:
+              parsed = urlparse(raw_url)
+              basename = Path(unquote(parsed.path)).name
+              hostname = (parsed.hostname or "").lower()
+              is_allowed_host = (
+                  hostname in ALLOWED_HOSTS
+                  or hostname.endswith(".githubusercontent.com")
+              )
+              if basename.startswith("MaaEnd-logs-v") and parsed.scheme == "https" and is_allowed_host:
+                  log_urls.append(raw_url)
+
+          # 去重并保持出现顺序
+          unique_urls = list(dict.fromkeys(log_urls))
+
+          lines = [
+              "### 自动提取日志中的错误片段",
+              "",
+          ]
+
+          workdir = Path("_issue-log-artifacts")
+          workdir.mkdir(parents=True, exist_ok=True)
+
+          def download_zip(url: str, target_path: Path):
+              with urlopen(url, timeout=20) as response:
+                  content_length = response.headers.get("Content-Length")
+                  if content_length and int(content_length) > MAX_DOWNLOAD_BYTES:
+                      raise ValueError("日志压缩包体积超过限制")
+
+                  total = 0
+                  with target_path.open("wb") as fp:
+                      while True:
+                          chunk = response.read(1024 * 1024)
+                          if not chunk:
+                              break
+                          total += len(chunk)
+                          if total > MAX_DOWNLOAD_BYTES:
+                              raise ValueError("日志压缩包体积超过限制")
+                          fp.write(chunk)
+
+          def extract_zip_safely(zip_path: Path, extract_dir: Path):
+              root_dir = extract_dir.resolve()
+              with zipfile.ZipFile(zip_path) as zf:
+                  for member in zf.infolist():
+                      member_path = Path(member.filename)
+                      resolved_member_path = (extract_dir / member_path).resolve()
+                      if root_dir not in resolved_member_path.parents and resolved_member_path != root_dir:
+                          raise ValueError(f"压缩包包含不安全路径: {member.filename}")
+                  zf.extractall(extract_dir)
+
+          def extract_blocks(log_text: str):
+              source_lines = log_text.splitlines()
+              intervals = []
+              for idx, content in enumerate(source_lines):
+                  if "[ERR]" in content:
+                      start = max(0, idx - CONTEXT_LINES)
+                      end = min(len(source_lines) - 1, idx + CONTEXT_LINES)
+                      intervals.append((start, end))
+
+              if not intervals:
+                  return []
+
+              intervals.sort()
+              merged = [list(intervals[0])]
+              for start, end in intervals[1:]:
+                  last = merged[-1]
+                  if start <= last[1] + 1:
+                      last[1] = max(last[1], end)
+                  else:
+                      merged.append([start, end])
+
+              blocks = []
+              for start, end in merged:
+                  blocks.append("\n".join(source_lines[start : end + 1]))
+              return blocks
+
+          if not unique_urls:
+              with github_output.open("a", encoding="utf-8") as fp:
+                  fp.write("has-content=false\n")
+              raise SystemExit(0)
+
+          for index, url in enumerate(unique_urls, 1):
+              lines.append(f"#### 日志链接 {index}")
+              lines.append(url)
+              lines.append("")
+
+              zip_path = workdir / f"log-{index}.zip"
+              extract_dir = workdir / f"log-{index}"
+              extract_dir.mkdir(parents=True, exist_ok=True)
+
+              try:
+                  download_zip(url, zip_path)
+              except Exception as exc:
+                  lines.append(f"下载失败：`{exc}`")
+                  lines.append("")
+                  continue
+
+              try:
+                  extract_zip_safely(zip_path, extract_dir)
+              except Exception as exc:
+                  lines.append(f"解压失败：`{exc}`")
+                  lines.append("")
+                  continue
+
+              for log_name in ("maa.log", "maa.bak.log"):
+                  matched_files = [
+                      p
+                      for p in extract_dir.rglob(log_name)
+                      if p.is_file()
+                  ]
+                  if not matched_files:
+                      lines.append(f"- 未找到 `{log_name}`")
+                      continue
+
+                  for file_idx, file_path in enumerate(matched_files, 1):
+                      try:
+                          text = file_path.read_text(
+                              encoding="utf-8",
+                              errors="backslashreplace",
+                          )
+                      except Exception as exc:
+                          lines.append(
+                              f"- 读取 `{log_name}` 失败（第 {file_idx} 个）：`{exc}`"
+                          )
+                          continue
+
+                      blocks = extract_blocks(text)
+                      if not blocks:
+                          lines.append(
+                              f"- `{log_name}`（第 {file_idx} 个）中未找到 `[ERR]`"
+                          )
+                          continue
+
+                      for block_idx, block in enumerate(blocks, 1):
+                          lines.append(
+                              f"##### {log_name}（第 {file_idx} 个）错误块 {block_idx}"
+                          )
+                          lines.append("```log")
+                          lines.append(block)
+                          lines.append("```")
+                          lines.append("")
+
+              lines.append("")
+
+          comment = "\n".join(lines).strip() + "\n"
+          if len(comment) > MAX_COMMENT_LENGTH:
+              truncated_comment = comment[:MAX_COMMENT_LENGTH]
+              if truncated_comment.count("```") % 2 == 1:
+                  truncated_comment += "\n```\n"
+              comment = (
+                  truncated_comment
+                  + "\n\n> 输出过长，已截断。请下载日志文件查看完整内容。\n"
+              )
+
+          comment_file = Path("issue-log-comment.md")
+          comment_file.write_text(comment, encoding="utf-8")
+
+          has_code_block = "```log" in comment
+          with github_output.open("a", encoding="utf-8") as fp:
+              fp.write(f"has-content={'true' if has_code_block else 'false'}\n")
+          PY
+
+      - name: Comment extracted blocks to issue
+        if: steps.extract.outputs.has-content == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('issue-log-comment.md', 'utf8');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body,
+            });
