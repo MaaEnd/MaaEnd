@@ -414,5 +414,7 @@
     "preset.EssenceFarming.label": "에센스 파밍",
     "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
     "task.AutoEcoFarm.label": "🌾자동 생태 농장",
-    "task.AutoEcoFarm.description": "자동으로 작물 수확, 재배, 관수 등의 작업을 수행합니다."
+    "task.AutoEcoFarm.description": "자동으로 작물 수확, 재배, 관수 등의 작업을 수행합니다.",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"농지 탐색 방식",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요."
 }
