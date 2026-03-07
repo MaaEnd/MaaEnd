@@ -69,6 +69,7 @@
         ],
         "action": "ClickKey",
         "key": 82, // R 0x52
+        "post_wait_freezes": 200,
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
@@ -106,6 +107,7 @@
         "desc": "进入拍照模式，退出按键",
         "action": "KeyDown",
         "key": 82, // R 0x52
+        "post_wait_freezes": 200,
         "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
