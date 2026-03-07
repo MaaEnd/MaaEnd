@@ -9,7 +9,7 @@ This document describes how to use nodes related to MapTracker.
 ### Key Concepts
 
 1. **Map Name**: Each large map has a unique name in the game, e.g., "map001_lv001", where "map001" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution).
-2. **坐标系统\***Coordinate System\*\*: The coordinates used by MapTracker are the pixel coordinates $(x, y)$ of the above large map images, with the upper-left corner of the image as the origin $(0, 0)$.
+2. **Coordinate System**: The coordinates used by MapTracker are the pixel coordinates $(x, y)$ of the above large map images, with the upper-left corner of the image as the origin $(0, 0)$.
 
 ## Node Descriptions
 
