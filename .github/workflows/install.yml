@@ -172,13 +172,23 @@ jobs:
           fi
 
           # 清理不必要的 MaaFramework 文件
+          # 根据平台确定 MaaFW 所在目录（Linux ARM64 在根目录，其他在 maafw/）
           echo "Clean unnecessary MaaFramework files"
-          find install/ -name "MaaDbgControlUnit*" -delete
-          find install/ -name "MaaThriftControlUnit*" -delete
-          find install/ -name "MaaRpc*" -delete
-          find install/ -name "MaaHttp*" -delete
-          find install/ \( -name "MaaNode*" -o -name "*.node" \) -delete
-          find install/ -name "MaaWin32ControlUnit*" -delete
+          if [[ "${{ matrix.os }}" == "linux" && "${{ matrix.arch }}" == "aarch64" ]]; then
+            MAAFW_DIR="install"
+          else
+            MAAFW_DIR="install/maafw"
+          fi
+          find "$MAAFW_DIR" -maxdepth 1 -type f \( \
+            -name "MaaDbgControlUnit*" \
+            -o -name "MaaThriftControlUnit*" \
+            -o -name "MaaWin32ControlUnit*" \
+            -o -name "MaaRpc*" \
+            -o -name "MaaHttp*" \
+            -o -name "MaaNode*" \
+            -o -name "maa_node*" \
+            -o -name "*.node" \
+          \) -exec rm -f {} +
 
           # 安装 MXU 并重命名为 MaaEnd
           echo "Install MXU"
@@ -191,11 +201,10 @@ jobs:
             fi
           fi
 
-          # 将 MaaPiCli 重命名为 MaaEnd
-          find install/ -name "MaaPiCli" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd"' _ {} \;
-          find install/ -name "MaaPiCli.exe" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd.exe"' _ {} \;
-          # 清理其他 MaaPiCli 相关文件（如 .pdb）
-          find install/ -name "MaaPiCli*" -delete
+          # 将 MaaPiCli 重命名为 MaaEnd，清理其他关联文件（如 .pdb）
+          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd"' _ {} \;
+          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli.exe" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd.exe"' _ {} \;
+          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli*" -exec rm -f {} +
 
           # 更新 interface.json 中的版本号
           echo "Update interface version to ${{ needs.meta.outputs.tag }}"
