@@ -226,6 +226,8 @@
     "task.SeizeEntrustTaskisSwipeMiddle.description": "開啟此選項後，只會滑動到中間，不會滑動到最頂部 \n 不開啟需要手動滑動到武陵訂單可能出現的位置，一般在 5 萬的谷地訂單上面，或者在列表最底部",
     "task.SeizeEntrustTaskisSwipeALL.label": "滑動遍歷全部訂單",
     "task.SeizeEntrustTaskisSwipeALL.description": "開啟此選項後會從頭到尾找一遍訂單 開啟後能在 5s 內遍歷完所有訂單才建議開啟 ~~可以用來消耗時間 ()~~",
+    "task.AutoUseSpMedication.description": "自動使用一次應急理智加強劑(+40理智)",
+    "task.AutoUseSpMedication.label": "💊應急理智加強劑",
     "resource.CN.label": "官服",
     "resource.Bilibili.label": "B 服",
     "resource.Global.label": "國際服 (Global/EN)",
@@ -419,7 +421,6 @@
     "preset.EssenceFarming.description": "基質養成及篩選相關",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
     "task.AutoEcoFarm.description": "自動完成收菜、種植、澆水等相關操作，請將武陵集成工業核心放在靠近生態農場的邊緣，避免自動尋路卡住。",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"搜尋農田的方案",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"從右下到左上跑一次，需要把農田擺成密集陣型，最好是方形"
-
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "搜尋農田的方案",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "從右下到左上跑一次，需要把農田擺成密集陣型，最好是方形"
 }
