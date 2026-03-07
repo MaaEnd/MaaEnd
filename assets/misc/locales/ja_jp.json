@@ -372,6 +372,8 @@
     "option.BatchAddFriends.inputs.UidList.description": "複数の UID はスペースまたは「、」で区切ります。空欄の場合は見知らぬ人を追加します。",
     "option.BatchAddFriends.inputs.MaxCount.label": "最大追加数",
     "option.BatchAddFriends.inputs.MaxCount.description": "指定数に達したら停止",
+    "task.AutoUseSpMedication.description": "緊急理智強化剤を1つ自動で使用する（+40理智）",
+    "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
     "resource.CN.label": "中国サーバー (官服)",
     "resource.Bilibili.label": "Bilibiliサーバー (B 服)",
     "resource.Global.label": "グローバル (Global/EN)",
@@ -419,6 +421,6 @@
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
     "task.AutoEcoFarm.description": "収穫、植栽、散水などの関連操作を自動的に実行します。武陵統合工業コアを生態農場に近い端に配置し、自動経路探索のスタックを回避してください。",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"農地探索方式",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "農地探索方式",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。"
 }

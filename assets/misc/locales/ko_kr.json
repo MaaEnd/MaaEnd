@@ -372,6 +372,8 @@
     "option.DailyTaskAssemble.desc": "활동 점수를 얻기 위해 가장 낮은 레벨의 장비를 자동으로 1회 제작합니다.",
     "option.DailyTaskCreation.label": "간편 제작",
     "option.DailyTaskCreation.desc": "활동 점수를 얻기 위해 간편 제작을 자동으로 1회 진행합니다.",
+    "task.AutoUseSpMedication.description": "응급 이성 강화제 1개 자동 사용(+40 이성)",
+    "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
     "resource.CN.label": "중국 서버 (官服)",
     "resource.Bilibili.label": "Bilibili 서버 (B 服)",
     "resource.Global.label": "글로벌 (Global/EN)",
@@ -419,6 +421,6 @@
     "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
     "task.AutoEcoFarm.label": "🌾자동 생태 농장",
     "task.AutoEcoFarm.description": "수확, 재배, 물주기 등 관련 작업을 자동으로 완료합니다. 무릉 통합 산업 코어를 생태 농장에 가까운 가장자리에 배치하여 자동 경로 탐색 시 끼임 현상을 방지해 주세요.",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"농지 탐색 방식",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요."
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "농지 탐색 방식",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요."
 }

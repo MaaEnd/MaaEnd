@@ -372,6 +372,8 @@
     "task.SeizeEntrustTaskisSwipeMiddle.description": "When enabled, it only swipes to the middle, not to the very top.\nIf disabled, you need to manually swipe to the position where Wuling Orders may appear, usually above the 50,000 Valley Order or at the very bottom of the list.",
     "task.SeizeEntrustTaskisSwipeALL.label": "Swipe to traverse all orders",
     "task.SeizeEntrustTaskisSwipeALL.description": "When enabled, it will search through all orders from start to finish. It is recommended to enable this only if all orders can be traversed within 5 seconds. ~~Can be used to kill time ()~~",
+    "task.AutoUseSpMedication.description": "Automatically use one emergency sanity booster (+40 sanity)",
+    "task.AutoUseSpMedication.label": "💊 Emergency Sanity Booster",
     "resource.CN.label": "CN Server (官服)",
     "resource.Bilibili.label": "Bilibili Server (B 服)",
     "resource.Global.label": "Global (EN)",
