@@ -477,6 +477,26 @@
             "Node.Recognition.Succeeded": "已存在旧的运送委托"
         }
     },
+    "isSeizeEntrustTaskExhausted": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    650,
+                    45,
+                    40
+                ],
+                "expected": "3/3"
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
@@ -542,6 +562,7 @@
         "timeout": 3000,
         "next": [
             "isSeizeEntrustTaskExistOldTask",
+            "isSeizeEntrustTaskExhausted",
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [
