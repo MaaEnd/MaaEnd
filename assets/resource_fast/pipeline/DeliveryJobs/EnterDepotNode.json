@@ -17,7 +17,6 @@
             "InRegionalDevelopment"
         ],
         "next": [
-            "[Anchor]DeliveryJobsInDepotNode",
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion"
         ]
@@ -25,7 +24,7 @@
     "DeliveryJobsGoToValleyIVDepot": {
         "desc": "进入四号谷地仓储节点",
         "anchor": {
-            "DeliveryJobsInDepotNode": "InValleyIVLocalDepotNode",
+            "DeliveryJobsInDepotNode": "DeliveryJobsInValleyIVLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterValleyIVDepot",
             "DeliveryJobsGoToRegion": "GoToValleyIV"
         },
@@ -36,7 +35,7 @@
     "DeliveryJobsGoToWulingDepot": {
         "desc": "进入武陵仓储节点",
         "anchor": {
-            "DeliveryJobsInDepotNode": "InWulingLocalDepotNode",
+            "DeliveryJobsInDepotNode": "DeliveryJobsInWulingLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterWulingDepot",
             "DeliveryJobsGoToRegion": "GoToWuling"
         },
@@ -53,7 +52,7 @@
         ],
         "action": "Click",
         "next": [
-            "InValleyIVLocalDepotNode"
+            "DeliveryJobsInValleyIVLocalDepotNode"
         ]
     },
     "DeliveryJobsEnterWulingDepot": {
@@ -65,7 +64,7 @@
         ],
         "action": "Click",
         "next": [
-            "InWulingLocalDepotNode"
+            "DeliveryJobsInWulingLocalDepotNode"
         ]
     },
     "DeliveryJobsDepotLocked": {
@@ -80,32 +79,16 @@
         "template": "DeliveryJobs/DepotLocked.png",
         "threshold": 0.8
     },
-    "DeliveryJobsCheckValleyIVDepotLocked": {
-        "desc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
+    "DeliveryJobsBackToRegionalConstruction": {
+        "desc": "返回地区建设界面",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsDepotLocked",
-            "InValleyIVRegionalDevelopment"
+            "CloseButtonType1",
+            "InLocalDepotNode"
         ],
+        "action": "Click",
         "next": [
             "DeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
-        }
-    },
-    "DeliveryJobsCheckWulingDepotLocked": {
-        "desc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
-        "recognition": "And",
-        "all_of": [
-            "DeliveryJobsDepotLocked",
-            "InWulingRegionalDevelopment"
-        ],
-        "next": [
-            "DeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
-        }
+        ]
     }
 }

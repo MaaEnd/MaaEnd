@@ -64,13 +64,12 @@
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_点击屏幕继续",
             "hits": [
-                "DeliveryJobsClickScreenToContinue",
                 "DeliveryJobsDeliverQuickly"
             ]
         },
         {
             "image": "自动转交送货任务/大世界主页_送货任务",
-            "hits": ["InWorld"]
+            "hits": ["DeliveryJobsBackToDepot"]
         }
     ]
 }

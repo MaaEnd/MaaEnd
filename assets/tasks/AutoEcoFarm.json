@@ -9,8 +9,12 @@
                 "Win32-Front"
             ],
             "option": [
+<<<<<<< HEAD
                 "FarmlandFindingScheme",
                 "AutoEcoFarmClearBagBeforeTasks"
+=======
+                "FarmlandFindingScheme"
+>>>>>>> upstream/main
             ]
         }
     ],

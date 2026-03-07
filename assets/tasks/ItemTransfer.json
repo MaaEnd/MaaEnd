@@ -1241,6 +1241,14 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 59
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -1295,42 +1303,6 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 0
-                        }
-                    }
-                },
-                {
-                    "name": "优质柑实罐头",
-                    "label": "$item.CannedCitromeB",
-                    "pipeline_override": {
-                        "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
-                        },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 5
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 5
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 5
-                        }
-                    }
-                },
-                {
-                    "name": "优质荞愈胶囊",
-                    "label": "$item.BuckCapsuleB",
-                    "pipeline_override": {
-                        "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
-                        },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 6
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 6
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 6
                         }
                     }
                 },
@@ -1421,6 +1393,50 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 60
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "label": "$item.CannedCitromeB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 5
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 5
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "label": "$item.CannedCitromeA",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 100
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 100
                         }
                     }
                 },
@@ -1461,20 +1477,38 @@
                     }
                 },
                 {
-                    "name": "精选柑实罐头",
-                    "label": "$item.CannedCitromeA",
+                    "name": "荞愈胶囊",
+                    "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 100
+                            "expected": 131
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 100
+                            "expected": 131
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 100
+                            "expected": 131
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "label": "$item.BuckCapsuleB",
+                    "pipeline_override": {
+                        "ItemTransferClickItemCategory": {
+                            "template": "ItemTransfer/可用道具.png"
+                        },
+                        "ItemTransferFindItemInRepo": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBag": {
+                            "expected": 6
+                        },
+                        "ItemTransferFindItemInBagReturn": {
+                            "expected": 6
                         }
                     }
                 },
@@ -1547,24 +1581,6 @@
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 129
-                        }
-                    }
-                },
-                {
-                    "name": "荞愈胶囊",
-                    "label": "$item.BuckCapsuleC",
-                    "pipeline_override": {
-                        "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
-                        },
-                        "ItemTransferFindItemInRepo": {
-                            "expected": 131
-                        },
-                        "ItemTransferFindItemInBag": {
-                            "expected": 131
-                        },
-                        "ItemTransferFindItemInBagReturn": {
-                            "expected": 131
                         }
                     }
                 },
