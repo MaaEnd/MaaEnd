@@ -45,19 +45,33 @@ func (a *ClearHitCountAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 	// 清除所有指定节点的命中计数
 	for i, nodeName := range params.Nodes {
 		if nodeName == "" {
-			log.Error().
-				Int("index", i).
-				Msg("ClearHitCount received empty node name in custom_action_param.nodes")
+			if strictMode {
+				log.Error().
+					Int("index", i).
+					Msg("ClearHitCount received empty node name in custom_action_param.nodes")
+			} else {
+				log.Warn().
+					Int("index", i).
+					Msg("ClearHitCount received empty node name in custom_action_param.nodes")
+			}
 			hasFailure = true
 			continue
 		}
 
 		if err := ctx.ClearHitCount(nodeName); err != nil {
-			log.Error().
-				Err(err).
-				Int("index", i).
-				Str("node", nodeName).
-				Msg("ClearHitCount failed to clear hit count")
+			if strictMode {
+				log.Error().
+					Err(err).
+					Int("index", i).
+					Str("node", nodeName).
+					Msg("ClearHitCount failed to clear hit count")
+			} else {
+				log.Warn().
+					Err(err).
+					Int("index", i).
+					Str("node", nodeName).
+					Msg("ClearHitCount failed to clear hit count")
+			}
 			hasFailure = true
 			continue
 		}
