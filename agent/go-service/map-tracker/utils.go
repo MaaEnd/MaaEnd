@@ -29,12 +29,9 @@ func (aw *ActionWrapper) ClickSync(contact, x, y int, delayMillis int) {
 
 // SwipeSync performs a swipe from (x, y) to (x+dx, y+dy)
 func (aw *ActionWrapper) SwipeSync(x, y, dx, dy int, durationMillis, delayMillis int) {
-	aw.ctx.RunActionDirect("Swipe", maa.SwipeParam{
-		Begin:     maa.NewTargetRect(maa.Rect{x, y, 4, 4}),
-		End:       []maa.Target{maa.NewTargetRect(maa.Rect{x + dx, y + dy, 4, 4})},
-		Duration:  []time.Duration{time.Duration(durationMillis) * time.Millisecond},
-		OnlyHover: true,
-	}, maa.Rect{0, 0, 0, 0}, nil)
+	aw.ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
+	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
+	aw.ctrl.PostTouchMove(0, int32(x+dx), int32(y+dy), 0).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 

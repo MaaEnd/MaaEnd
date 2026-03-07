@@ -80,12 +80,17 @@
             "_AutoEcoFarmSwipeToTargetExit"
         ]
     },
-        "_AutoEcoFarmTargeInBack": {
+    "_AutoEcoFarmTargeInBack": {
         "doc": "判断目标在视野下方，即背后",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "roi": [27,494,1187,161],
+                "roi": [
+                    27,
+                    494,
+                    1187,
+                    161
+                ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "threshold": 0.4
             }
@@ -97,28 +102,28 @@
         ]
     },
     //这里会调用一个Custom节点，计算要将视角拉近目标多少比例所需要的swipe的end坐标
-    "_AutoEcoFarmCalculateSwipeTarget":{
+    "_AutoEcoFarmCalculateSwipeTarget": {
         "doc": "生成拉近目标所需要的坐标",
         "recognition": {
             "type": "Custom",
-            "param":{
+            "param": {
                 "custom_recognition": "autoEcoFarmCalculateSwipeTarget",
                 "custom_recognition_param": {
                     //传入一个原始的识别结果
                     //"node_name": "_AutoEcoFarmTargeRecognition",
                     //将视角拉向目标多少比例
-                    "xStepRatio":0.5,
-                    "yStepRatio":0.8
+                    "xStepRatio": 0.5,
+                    "yStepRatio": 0.8
                 },
-                "roi":"_AutoEcoFarmTargeRecognition"
+                "roi": "_AutoEcoFarmTargeRecognition"
             }
-            
         },
-        "next": ["_AutoEcoFarmSwipeToTarget"]
+        "next": [
+            "_AutoEcoFarmSwipeToTarget"
+        ]
     },
-
     //下面是内部节点，不用改
-     "_AutoEcoFarmInWorld": {
+    "_AutoEcoFarmInWorld": {
         "doc": "判断是否在大世界，避免误识别地图上的标点",
         "recognition": {
             "type": "OCR",
@@ -139,7 +144,7 @@
             "[Anchor]_AutoEcoFarmSwipeLoop"
         ]
     },
-       "_AutoEcoFarmSwipeLoopValleyIV": {
+    "_AutoEcoFarmSwipeLoopValleyIV": {
         "doc": "[四号谷地版]控制循环次数节点",
         "max_hit": 10,
         "next": [
@@ -158,12 +163,17 @@
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
-     "_AutoEcoFarmSwipeToTarget": {
+    "_AutoEcoFarmSwipeToTarget": {
         "doc": "转向到识别结果",
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [640,360,1,1],
+                "begin": [
+                    640,
+                    360,
+                    1,
+                    1
+                ],
                 "end": "_AutoEcoFarmCalculateSwipeTarget",
                 "duration": 200,
                 "only_hover": true
@@ -171,25 +181,27 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-
         "next": [
             "_AutoEcoFarmAltDown"
         ]
     },
-         "_AutoEcoFarmSwipeTargetToFront": {
+    "_AutoEcoFarmSwipeTargetToFront": {
         "doc": "将标记拉到前面",
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [540,360],
-                "end":[1000,360],
-                "duration": 200,
+                "begin": [
+                    640,
+                    360
+                ],
+                "end": [
+                    1000,
+                    360
+                ],
+                "duration": 1000,
                 "only_hover": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-
         "next": [
             "_AutoEcoFarmAltDown"
         ]
@@ -209,9 +221,14 @@
     "_AutoEcoFarmClick": {
         "doc": "按下鼠标左键",
         "action": {
-            "type": "Click"
-            ,"param":{
-                "target": [0,0,0,0]
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    0,
+                    0
+                ]
             }
         },
         "pre_delay": 0,

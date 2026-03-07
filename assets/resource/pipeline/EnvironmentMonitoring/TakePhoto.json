@@ -23,41 +23,7 @@
         "action": "ClickKey",
         "key": 70, // F 0x46
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted"
-        ]
-    },
-    "EnvironmentMonitoringShutterButtonHighlighted": {
-        "desc": "拍照按钮高亮，拍照",
-        "recognition": "And",
-        "all_of": [
-            "ShutterButton",
-            {
-                "recognition": "ColorMatch",
-                "roi": "ShutterButton",
-                "roi_offset": [
-                    -31,
-                    -36,
-                    63,
-                    75
-                ],
-                "method": 40,
-                "lower": [
-                    20,
-                    100,
-                    160
-                ],
-                "upper": [
-                    38,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 140
-            }
-        ],
-        "action": "Click",
-        "next": [
-            "[Anchor]EnvironmentMonitoringBactToTerminal"
+            "EnvironmentMonitoringWaitShutterButton"
         ]
     },
     "EnterCameraModeClick": {
@@ -70,8 +36,7 @@
         "action": "ClickKey",
         "key": 82, // R 0x52
         "next": [
-            "EnvironmentMonitoringShutterButtonHighlighted",
-            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+            "EnvironmentMonitoringWaitShutterButton"
         ]
     },
     "EnterCameraModeLongPress": {
@@ -107,8 +72,53 @@
         "action": "KeyDown",
         "key": 82, // R 0x52
         "next": [
+            "EnvironmentMonitoringWaitShutterButton"
+        ]
+    },
+    "EnvironmentMonitoringWaitShutterButton": {
+        "desc": "拍照按钮出现后等待稳定",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_wait_freezes": 200,
+        "next": [
             "EnvironmentMonitoringShutterButtonHighlighted",
             "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+        ]
+    },
+    "EnvironmentMonitoringShutterButtonHighlighted": {
+        "desc": "拍照按钮高亮，拍照",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ShutterButton",
+                "roi_offset": [
+                    -31,
+                    -36,
+                    63,
+                    75
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    100,
+                    160
+                ],
+                "upper": [
+                    38,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 140
+            }
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]EnvironmentMonitoringBactToTerminal"
         ]
     },
     "EnvironmentMonitoringSwipeScreenUp": {

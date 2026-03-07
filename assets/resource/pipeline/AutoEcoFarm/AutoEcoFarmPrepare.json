@@ -1,0 +1,86 @@
+//这块代码用于执行任务开始前的准备工作，比如清空背包，带满4个人之类的
+{
+    "_AutoEcoFarmPrepareStart": {
+        "doc": "开始任务前的准备工作",
+        "next": [
+            "_AutoEcoFarmPrepareClearBagStart",
+            "_AutoEcoFarmPrepareExit"
+        ]
+    },
+    "_AutoEcoFarmPrepareExit": {
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
+            "_AutoEcoFarmGotoWulinEcoFarmStart",
+            "AutoEcoFarmExit"
+        ]
+    },
+    //这部分是清空背包的任务
+    "_AutoEcoFarmPrepareClearBagStart": {
+        "doc": "准备清理背包任务",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmPrepareClearBag",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "_AutoEcoFarmPrepareClearBag": {
+        "doc": "前往帝江号，并打开背包，以是否识别到一键存放为标准，识别到了就点击一下",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    896,
+                    497,
+                    57,
+                    41
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmQuickStash.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "_AutoEcoFarmPrepareStart"
+        ]
+    },
+    //这部分是带满队友的任务
+    "_AutoEcoFarmInTeam": {
+        "doc": "判断是否在队伍界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    28,
+                    11,
+                    41,
+                    34
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmTeamIcon.png"
+                ]
+            }
+        },
+        "next": []
+    },
+    "_AutoEcoFarmEditTeam": {
+        "doc": "点一下快速编辑队伍",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    28,
+                    11,
+                    41,
+                    34
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmTeamIcon.png"
+                ]
+            }
+        },
+        "next": []
+    }
+}

@@ -436,5 +436,7 @@
     "resource/image/Valuables/ValuablesTabNotChoose": "4c6b72c33d0a4676ac78cb0a41674dc17869f74a385899378cacdb54a1a737e2",
     "resource/image/Valuables/Close": "9fafba209a8c3e37bf2b9542ac5efd3251ce36bca10d124eb855d532d51955ac",
     "resource/image/Valuables/ValuablesTabChoosed": "9e035ab54589ab72a950ff57f15d9b95214404c80543b016ddc6757a6b49e055",
-    "resource/image/Valuables/EmergencySanityBooster": "75ae467396f45923532259a5559ae36907e1adfdd1b4c6f6493f06edba564830"
+    "resource/image/Valuables/EmergencySanityBooster": "75ae467396f45923532259a5559ae36907e1adfdd1b4c6f6493f06edba564830",
+    "resource/image/AutoEcoFarm/autoecofarmTeamIcon": "d62ffc446ae1dff455ce53b635043a9a13f307e0c4140056df4f50717d33c5eb",
+    "resource/image/AutoEcoFarm/autoecofarmQuickStash": "29997d7db35b8bccc30ff44d15f4cc20ee0b181d06cd79c178c0ff1b4e77385f"
 }
