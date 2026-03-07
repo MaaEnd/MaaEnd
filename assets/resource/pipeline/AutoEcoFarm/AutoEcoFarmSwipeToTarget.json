@@ -181,14 +181,13 @@
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": [540,360],
+                "begin": [640,360],
                 "end":[1000,360],
-                "duration": 200,
+                "duration": 1000,
                 "only_hover": true
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
+
 
         "next": [
             "_AutoEcoFarmAltDown"
