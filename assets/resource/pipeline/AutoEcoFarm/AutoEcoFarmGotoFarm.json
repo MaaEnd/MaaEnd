@@ -1,0 +1,178 @@
+//引用节点：MapTracker、万能跳转
+//
+//节点从Start进入，开始前必须要在地图界面
+//节点从Exit离开，这里关联下一个阶段的节点
+{
+    //四号谷地的节点出入口
+    "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
+        "doc": "这块代码是用来前往四号谷地农场的",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
+            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+        ]
+    },
+    "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
+        "next": [
+            //到目的地后开始识别农田并靠近
+            "_AutoEcoFindFarmFarmlandValleyStart"
+        ]
+    },
+    //武陵的节点出入口
+    "_AutoEcoFarmGotoWulinEcoFarmStart": {
+        "doc": "这块代码是用来前往武陵农场的",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmInWulingCityCore", //检测是否传送成功
+            "[JumpBack]SceneEnterWorldWulingWulingCityCore" //传送到谷地源石园区山道缓坡
+        ]
+    },
+    "_AutoEcoFarmGotoWulinEcoFarmExit": {
+        "next": [
+            //到目的地后开始识别农田并靠近
+            "_AutoEcoFindFarmFarmlandWulinStart"
+        ]
+    },
+    //内部节点
+    "_AutoEcoFarmInOriginiumSciencePark2": {
+        "doc": "确认已经在源石研究园山道缓坡",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        514,
+                        237,
+                        17,
+                        26
+                    ]
+                }
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmGotoValleyIVEcoFarm": {
+        "doc": "前往源石研究园生态农场",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map01_lv005",
+            "path": [
+                [
+                    522,
+                    243
+                ],
+                [
+                    522,
+                    254
+                ],
+                [
+                    527,
+                    270
+                ],
+                [
+                    527,
+                    280
+                ],
+                [
+                    526,
+                    292
+                ],
+                [
+                    547,
+                    320
+                ],
+                [
+                    547,
+                    332
+                ],
+                [
+                    554,
+                    332
+                ],
+                [
+                    569,
+                    341
+                ]
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarmExit"
+        ]
+    },
+    //去武陵农场部分
+    "_AutoEcoFarmInWulingCityCore": {
+        "doc": "确认已经在武陵集成核心区",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        320,
+                        230,
+                        64,
+                        55
+                    ]
+                }
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "_AutoEcoFarmGotoWulinEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmGotoWulinEcoFarm": {
+        "doc": "前往源石研究园生态农场",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "path": [
+                [
+                    383,
+                    237
+                ],
+                [
+                    391,
+                    232
+                ],
+                [
+                    403,
+                    229
+                ],
+                [
+                    411,
+                    223
+                ],
+                [
+                    418,
+                    213
+                ],
+                [
+                    426,
+                    200
+                ],
+                [
+                    426,
+                    193
+                ],
+                [
+                    443,
+                    192
+                ]
+            ]
+        },
+        "next": [
+            "_AutoEcoFarmGotoWulinEcoFarmExit"
+        ]
+    }
+}

@@ -32,7 +32,7 @@
         "recognition": "Or",
         "any_of": [
             "InValleyIVRegionalDevelopment",
-            "InValleyIVLocalDepotNode"
+            "DeliveryJobsInValleyIVLocalDepotNode"
         ],
         "next": [
             "DeliveryJobsValleyIV",
@@ -44,7 +44,7 @@
         "recognition": "Or",
         "any_of": [
             "InWulingRegionalDevelopment",
-            "InWulingLocalDepotNode"
+            "DeliveryJobsInWulingLocalDepotNode"
         ],
         "next": [
             "DeliveryJobsWuling",
@@ -54,25 +54,31 @@
     "DeliveryJobsValleyIV": {
         "desc": "四号谷地运送委托",
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToValleyIV"
+            ]
+        },
         "next": [
-            "[JumpBack]DeliveryJobsEnterDeliveryJob",
-            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
-            "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
-            "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
-            "DeliveryJobsValleyIVCargoNotReady",
-            "DeliveryJobsCheckValleyIVDepotLocked",
-            "[JumpBack]DeliveryJobsGoToValleyIVDepot"
+            "DeliveryJobsDepotLocked",
+            "DeliveryJobsValleyIVLoop"
         ]
     },
     "DeliveryJobsWuling": {
         "desc": "武陵运送委托",
         "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToWuling"
+            ]
+        },
         "next": [
-            "[JumpBack]DeliveryJobsEnterDeliveryJob",
-            "[JumpBack]DeliveryJobsEnterWulingCityCargo",
-            "DeliveryJobsWulingCargoNotReady",
-            "DeliveryJobsCheckWulingDepotLocked",
-            "[JumpBack]DeliveryJobsGoToWulingDepot"
+            "DeliveryJobsDepotLocked",
+            "DeliveryJobsWulingLoop"
         ]
     },
     "DeliveryJobsFinished": {

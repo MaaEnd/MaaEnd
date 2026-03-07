@@ -425,5 +425,12 @@
     "resource/image/ProtocolSpace/WeaponEXP": "8ef4e08bbb86bae51d44047459ac3a150689502c2d2b7d92aa35e15974002a5d",
     "resource/image/ProtocolSpace/AdvancedProgression4": "f10ed409c594b85ec0b5d62cd2172356bf34e55fa3f0c043e3504b857d38a9b8",
     "resource/image/ProtocolSpace/AdvancedProgression2": "e06a467a3a75637d5753a8d1627eece202ff21bc44b53642287d9285ab037a7d",
-    "resource/image/ProtocolSpace/T-Creds": "baa557a2562540d75c29525e3eb93c0c294fc8d59fd591646724b08e759c785a"
+    "resource/image/ProtocolSpace/T-Creds": "baa557a2562540d75c29525e3eb93c0c294fc8d59fd591646724b08e759c785a",
+    "resource/image/AutoEcoFarm/Sprinkler": "813d898bc799a3448af6082e29fd07161eccb7971671a938835c145b6fde2a7d",
+    "resource/image/AutoEcoFarm/MapTrackerTarget": "a53bdf0d6c18512cb35c8d9fe0bb3da6cedfd98b243d868fbb2bb56b9ef7bc5c",
+    "resource/image/AutoEcoFarm/ItemInfoGreen": "e3aa217c82c19b49666f14d533ce327c2eafc9597b79159604369a494c2a3bbe",
+    "resource/image/AutoEcoFarm/AutoEcoFarmHand": "73165e813efb8180d7db06a0e0c60fdd543b446336cc24c4e679f2331ee15c52",
+    "resource/image/AutoEcoFarm/ItemInfo": "6c28ea6aa988ccf68e5110109e4a364deb69a92f5365170493da112f3be9dcb4",
+    "resource/image/AutoEcoFarm/AutoEcoFarmFarmland": "216dc35ab9fd5134af2828da822f97ce4e79e2a32726f75b03cf94bbb1ee3640",
+    "resource/image/AutoEcoFarm/pointer": "677520eb05ba681a87df470bfa62d817fd50c7d2ccab7fdf29698dfef206a4c0"
 }

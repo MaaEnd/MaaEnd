@@ -139,6 +139,7 @@
         "tasks/BakerEntry.json",
         "tasks/GiftOperator.json",
         "tasks/SimpleProductionBatchStart.json",
+        "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",

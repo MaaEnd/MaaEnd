@@ -1,0 +1,214 @@
+{
+    "DeliveryJobsValleyIVLoop": {
+        "desc": "四号谷地运送委托主循环",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "DeliveryJobsEnterValleyIVDepot"
+            ]
+        },
+        "anchor": {
+            "DeliveryJobsGoToDepot": "DeliveryJobsGoToValleyIVDepot"
+        },
+        "next": [
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
+            "[JumpBack]DeliveryJobsEnterOriginLodespringCargo",
+            "[JumpBack]DeliveryJobsEnterPowerPlateauCargo",
+            "DeliveryJobsBackToRegionalConstruction"
+        ]
+    },
+    "DeliveryJobsInValleyIVLocalDepotNode": {
+        "desc": "在四号谷地本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText"
+        ],
+        // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        }
+    },
+    "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText": {
+        "desc": "检查本地仓储节点中是否有源石研究园",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "Originium Science Park",
+            "源石研究パーク",
+            "오리지늄 연구 구역"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckLocalDepotNodeOriginLodespringText": {
+        "desc": "检查本地仓储节点中是否有矿脉源区",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "矿脉源区",
+            "礦脈源區",
+            "Origin Lodespring",
+            "鉱山エリア",
+            "광맥 구역"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
+        "desc": "检查本地仓储节点中是否有供能高地",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "供能高地",
+            "供能高地",
+            "Power Plateau",
+            "エネルギー高地",
+            "에너지 공급 고지"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "desc": "检查源石研究园的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckOriginLodespringCargo": {
+        "desc": "检查矿脉源区的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckPowerPlateauCargo": {
+        "desc": "检查供能高地的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsEnterOriginiumScienceParkCargo": {
+        "desc": "进入源石研究园货物",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsEnterOriginLodespringCargo": {
+        "desc": "进入矿脉源区货物",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
+            "DeliveryJobsCheckOriginLodespringCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsEnterPowerPlateauCargo": {
+        "desc": "进入供能高地货物",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    }
+}

@@ -158,8 +158,56 @@
         "threshold": 0.8,
         "action": "DoNothing",
         "next": [
+            "ResellCheckSoldoutInHeader",
             "ResellinUnstableStore",
             "ResellWaitForUnstableStore"
+        ]
+    },
+    "ResellCheckSoldoutInHeader": {
+        "desc": "在商店顶部，识别库存是否售罄，售罄则切换区域",
+        "recognition": "OCR",
+        "roi": [
+            70,
+            125,
+            160,
+            50
+        ],
+        "expected": [
+            "剩余可购买数量\\s*0",
+            "剩餘可購買數量\\s*0",
+            "Can\\s*purchase\\s*0",
+            "購入可能\\s*0",
+            "남은\\s*구매\\s*가능\\s*수량\\s*0"
+        ],
+        "order_by": "Expected",
+        "action": "DoNothing",
+        "next": [
+            "ChangeNextRegionPrepare"
+        ],
+        "focus": {
+            "Node.Action.Starting": "当前地区已售罄，切换下个地区"
+        }
+    },
+    "ResellCheckStockRemainInHeader": {
+        "desc": "在商店顶部，识别库存未售罄，开始选择倒卖商品",
+        "recognition": "OCR",
+        "roi": [
+            70,
+            125,
+            160,
+            50
+        ],
+        "expected": [
+            "剩余可购买数量\\s*[1-9]+",
+            "剩餘可購買數量\\s*[1-9]+",
+            "Can\\s*purchase\\s*[1-9]+",
+            "購入可能\\s*[1-9]+",
+            "남은\\s*구매\\s*가능\\s*수량\\s*[1-9]+"
+        ],
+        "order_by": "Expected",
+        "action": "DoNothing",
+        "next": [
+            "ResellStart"
         ]
     },
     "ResellinUnstableStore": {
@@ -173,6 +221,7 @@
         "dy": -240,
         "post_wait_freezes": 600,
         "next": [
+            "ResellCheckStockRemainInHeader",
             "ResellStartCheckStock",
             "ResellStart"
         ]

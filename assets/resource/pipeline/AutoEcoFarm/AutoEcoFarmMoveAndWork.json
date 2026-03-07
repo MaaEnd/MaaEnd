@@ -1,0 +1,313 @@
+//节点从Start进入，开始前要确保农田已被标记
+//节点从Exit离开，这里关联下一个阶段的节点，里面的无限循环需要靠Maptracker检测坐标来退出
+{ //节点出入口
+    "_AutoEcoFarmMoveAndWorkStart": {
+        "doc": "这块代码的目的是按下移动键，一边移动一边识别收菜菜单，识别到了就停下，点击收菜/播种/浇水",
+        "next": [
+            "_AutoEcoFarmJump"
+        ]
+    },
+    "_AutoEcoFarmMoveAndWorkExit": {
+        "next": [
+            //在开启随机查找后会循环3次该任务增加全收集的概率
+            "_AutoEcoFarmFindValleyIVEcoFarmAny",
+            "AutoEcoFarmMain"
+        ]
+    }
+    //内部节点
+    ,
+    "_AutoEcoFarmJump": {
+        "doc": "往前跳，防止被卡住，先按下w",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJump2"
+        ]
+    },
+    "_AutoEcoFarmJump2": {
+        "doc": "按一下空格",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 32, //空格键
+                "duration": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJump3"
+        ]
+    },
+    "_AutoEcoFarmJump3": {
+        "doc": "松开w",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        //稍微加点延迟保证停稳
+        "post_delay": 200,
+        "next": [
+            "_AutoEcoFarmFindMenuLoop",
+            "_AutoEcoFarmMoveToTargetErr"
+        ]
+    },
+    "_AutoEcoFarmLastJump": {
+        "doc": "识别标记消失后最后往前跳一次",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmLastJump2"
+        ]
+    },
+    "_AutoEcoFarmLastJump2": {
+        "doc": "按一下空格",
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "key": 32, //空格键
+                "duration": 500
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmLastJump3"
+        ]
+    },
+    "_AutoEcoFarmLastJump3": {
+        "doc": "松开w",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        //稍微加点延迟保证停稳
+        "post_wait_freezes": 200,
+        "next": [
+            //最后识别一次，这次要是没菜单了就结束任务，否则回到工作流程
+            "_AutoEcoFarmFindMenuIcon",
+            "_AutoEcoFarmCancelMove"
+        ]
+    },
+    "_AutoEcoFarmFindMenuLoop": {
+        "doc": "循环识别菜单",
+        //最大连跑60秒，超过就直接结束任务
+        "max_hit": 120,
+        "next": [
+            //识别失败的情况下判断是否还在农场内，如果不在则证明跑出农场了，结束该子任务
+            "_AutoEcoFarmFindMenuIcon",
+            //第二次保障，判断标记还在不在
+            "_AutoEcoFarmTargetExists",
+            //第三层保障，如果还在农田内则任不会结束
+            "_AutoEcoFarmInAnyFarm",
+            //所有条件都不满足的情况下，启动最后一跳，再给一次机会
+            "_AutoEcoFarmLastJump",
+            //意外错误的话直接退出任务
+            "_AutoEcoFarmCancelMove"
+        ]
+    },
+    "_AutoEcoFarmTargetExists": {
+        "doc": "确定农场标记还在不在屏幕中，如果在的话继续循环",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    420,
+                    100,
+                    440,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.4
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJump"
+        ]
+    },
+    "_AutoEcoFarmInAnyFarm": {
+        "doc": "确认是否在任意农场内,还在的话继续循环",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "_AutoEcoFarmInValleyIVFarm",
+                    "_AutoEcoFarmInWulinFarm"
+                ]
+            }
+        },
+        "next": [
+            "_AutoEcoFarmJump"
+        ]
+    },
+    "_AutoEcoFarmInValleyIVFarm": {
+        "doc": "确认是否在谷地农场内",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map01_lv005",
+                    "target": [
+                        551,
+                        322,
+                        23,
+                        23
+                    ]
+                }
+            ],
+            "precision": 1
+        }
+    },
+    "_AutoEcoFarmInWulinFarm": {
+        "doc": "确认是否在武陵农场内",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv002",
+                    "target": [
+                        413,
+                        164,
+                        33,
+                        32
+                    ]
+                }
+            ],
+            "precision": 1
+        }
+    },
+    "_AutoEcoFarmFindMenuIcon": {
+        "doc": "寻找采集、播种、浇水的文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    806,
+                    340,
+                    266,
+                    266
+                ],
+                "expected": [
+                    "收获|育苗|浇水"
+                ],
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "_AutoEcoFarmWork1"
+        ]
+    },
+    "_AutoEcoFarmWork1": {
+        "doc": "按下alt",
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmWork2"
+        ]
+    },
+    "_AutoEcoFarmWork2": {
+        "doc": "按下鼠标左键,点击菜单",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "_AutoEcoFarmFindMenuIcon"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmWork3"
+        ]
+    },
+    "_AutoEcoFarmWork3": {
+        "doc": "松开alt",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 //alt键
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmStopToWork"
+        ]
+    },
+    "_AutoEcoFarmStopToWork": {
+        "doc": "松开w防止有bug导致在移动状态",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        //每次操作后休息30秒等队友完成工作
+        "post_delay": 30000,
+        "focus": {
+            "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
+        },
+        "next": [
+            //第二个循环，这个循环有标记就点标记回循环，没有标记就继续移动
+            "_AutoEcoFarmFindMenuIcon",
+            "_AutoEcoFarmJump"
+        ]
+    },
+    "_AutoEcoFarmCancelMove": {
+        "doc": "退出任务前先松开w",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "next": [
+            "_AutoEcoFarmMoveAndWorkExit"
+        ]
+    },
+    "_AutoEcoFarmIsWorking": {
+        "doc": "识别是否正在工作，识别到就等30秒",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    557,
+                    639,
+                    165,
+                    40
+                ],
+                "expected": [
+                    "中"
+                ],
+                "threshold": 0.5
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
+        },
+        "pre_delay": 30000
+    }
+}
