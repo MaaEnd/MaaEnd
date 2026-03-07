@@ -421,6 +421,6 @@
     "task.GiftOperator.description": "给一名幸运干员赠送一个礼物，顺便领取 TA 给的礼物（如果有）。\n注意：此任务仅在「电脑端-前台」连接配置下可用。执行期间请勿移动鼠标，否则可能导致任务失败。推荐优先使用预录制路线；识别寻路（MapTracker）目前仍可能不稳定。",
     "option.GiftOperatorMoveMode.label": "前往联络台方式",
     "option.GiftOperatorMoveMode.description": "可选择使用预先录制好的按键操作，或使用识别寻路前往干员联络台。推荐优先使用预录制；识别寻路（MapTracker）目前仍可能不稳定。",
-    "option.GiftOperatorMoveMode.cases.Recorded.label": "录制操作",
+    "option.GiftOperatorMoveMode.cases.Recorded.label": "预制操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "识别寻路（MapTracker）"
 }
