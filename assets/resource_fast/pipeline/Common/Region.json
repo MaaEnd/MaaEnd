@@ -62,40 +62,5 @@
             "CheckLocalDepotNodeText",
             "CheckCourierInfoText"
         ]
-    },
-    "InValleyIVLocalDepotNode": {
-        "desc": "在四号谷地本地仓储节点界面",
-        "recognition": "And",
-        "all_of": [
-            "InLocalDepotNode",
-            "CheckLocalDepotNodeOriginiumScienceParkText"
-        ],
-        // 刚进入界面时可能会遇到元素未加载完成，必须等待页面稳定后才能继续
-        "pre_wait_freezes": {
-            "time": 80,
-            "target": [
-                66,
-                221,
-                166,
-                124
-            ]
-        }
-    },
-    "InWulingLocalDepotNode": {
-        "desc": "在武陵本地仓储节点界面",
-        "recognition": "And",
-        "all_of": [
-            "InLocalDepotNode",
-            "CheckLocalDepotNodeWulingCityText"
-        ],
-        "pre_wait_freezes": {
-            "time": 80,
-            "target": [
-                66,
-                221,
-                166,
-                124
-            ]
-        }
     }
 }

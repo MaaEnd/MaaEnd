@@ -1,6 +1,6 @@
 {
     // 转交任务的流程
-    // 进入送货任务 -> 点击转交任务 -> 确认转交任务
+    // 进入送货任务 -> 点击转交任务 -> 确认转交任务 -> 回到本地仓储界面
     "DeliveryJobsEnterDeliveryJob": {
         "desc": "进入送货任务",
         "recognition": "OCR",

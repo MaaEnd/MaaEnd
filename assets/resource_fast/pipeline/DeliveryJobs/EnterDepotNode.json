@@ -17,7 +17,6 @@
             "InRegionalDevelopment"
         ],
         "next": [
-            "[Anchor]DeliveryJobsInDepotNode",
             "[Anchor]DeliveryJobsEnterDepot",
             "[JumpBack][Anchor]DeliveryJobsGoToRegion"
         ]
@@ -25,7 +24,7 @@
     "DeliveryJobsGoToValleyIVDepot": {
         "desc": "进入四号谷地仓储节点",
         "anchor": {
-            "DeliveryJobsInDepotNode": "InValleyIVLocalDepotNode",
+            "DeliveryJobsInDepotNode": "DeliveryJobsInValleyIVLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterValleyIVDepot",
             "DeliveryJobsGoToRegion": "GoToValleyIV"
         },
@@ -36,7 +35,7 @@
     "DeliveryJobsGoToWulingDepot": {
         "desc": "进入武陵仓储节点",
         "anchor": {
-            "DeliveryJobsInDepotNode": "InWulingLocalDepotNode",
+            "DeliveryJobsInDepotNode": "DeliveryJobsInWulingLocalDepotNode",
             "DeliveryJobsEnterDepot": "DeliveryJobsEnterWulingDepot",
             "DeliveryJobsGoToRegion": "GoToWuling"
         },
@@ -53,7 +52,7 @@
         ],
         "action": "Click",
         "next": [
-            "InValleyIVLocalDepotNode"
+            "DeliveryJobsInValleyIVLocalDepotNode"
         ]
     },
     "DeliveryJobsEnterWulingDepot": {
@@ -65,7 +64,7 @@
         ],
         "action": "Click",
         "next": [
-            "InWulingLocalDepotNode"
+            "DeliveryJobsInWulingLocalDepotNode"
         ]
     },
     "DeliveryJobsDepotLocked": {
@@ -107,5 +106,17 @@
         "focus": {
             "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
         }
+    },
+    "DeliveryJobsBackToRegionalConstruction": {
+        "desc": "返回地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "InLocalDepotNode"
+        ],
+        "action": "Click",
+        "next": [
+            "DeliveryJobsLoop"
+        ]
     }
 }
