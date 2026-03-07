@@ -9,7 +9,8 @@
                 "Win32-Front"
             ],
             "option": [
-                "FarmlandFindingScheme"
+                "FarmlandFindingScheme",
+                "AutoEcoFarmClearBagBeforeTasks"
             ]
         }
     ],
@@ -36,23 +37,30 @@
                         }
                     }
                 }
-                //{
-                //    "name": "多次随机找田（没做完）",
-                //   "label": "多次随机找田，bug比较多",
-                //    "pipeline_override": {
-                //        "_AutoEcoFarmFindFarmland": {
-                //            "recognition": {
-                //                "type": "TemplateMatch",
-                //                "param": {
-                //                    "order_by": "Random"
-                //                }
-                //            }
-                //        },
-                //        "_AutoEcoFarmFindValleyIVEcoFarmAny": {
-                //            "enabled": true
-                //        }
-                //    }
-                //}
+            ]
+        },
+        "AutoEcoFarmClearBagBeforeTasks": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label",
+            "description": "",
+            "default_case": "Yes"   ,
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmPrepareClearBagStart": {
+                            "enable":true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmPrepareClearBagStart": {
+                            "enable":false
+                        }
+                    }
+                }
             ]
         }
     }

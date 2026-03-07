@@ -418,7 +418,8 @@
     "preset.EssenceFarming.label": "エッセンス周回",
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
-    "task.AutoEcoFarm.description": "収穫、植栽、散水などの関連操作を自動的に実行します。武陵統合工業コアを生態農場に近い端に配置し、自動経路探索のスタックを回避してください。",
+    "task.AutoEcoFarm.description": "\n## タスク機能:\nタスク開始前にバックパックのアイテムを自動で一括収納し（初期設定でオン）、収穫・植栽・散水などの一連の操作を自動実行します。\n## 注意 - タスク開始前に必ず準備を行ってください:\n1. **武陵統合工業コアをエコロジカルファームの端（マップ東側）に設置**してください。自動経路探索のスタックを回避できます。\n2. **隊員3人をフル編成**してください。収穫作業は隊員主体で行われ、主人公は誘導役のため、隊員が足りないと大量の農地を取りこぼします。\n3. ゲーム言語を簡体字中国語に設定してください。現在OCRは他言語に対応していません。\n## 推奨事項:\n1. 農地は**密集型に配置し、できるだけ農場の中心寄り**に設置してください。正方形が最も安定します。\n2. 農場の**対角線上にスプリンクラーを設置しないでください**。スタックの原因になります。",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"農地探索方式",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label":"タスク開始前にワンクリックでバックパック内の雑品を収納"
 }
