@@ -1,0 +1,95 @@
+{
+    "DeliveryJobsWulingLoop": {
+        "desc": "武陵运送委托主循环",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "DeliveryJobsEnterWulingDepot"
+            ]
+        },
+        "anchor": {
+            "DeliveryJobsGoToDepot": "DeliveryJobsGoToWulingDepot"
+        },
+        "next": [
+            "[JumpBack]DeliveryJobsEnterDeliveryJob",
+            "[JumpBack]DeliveryJobsEnterWulingCityCargo",
+            "DeliveryJobsBackToRegionalConstruction"
+        ]
+    },
+    "DeliveryJobsInWulingLocalDepotNode": {
+        "desc": "在武陵本地仓储节点界面",
+        "recognition": "And",
+        "all_of": [
+            "InLocalDepotNode",
+            "DeliveryJobsCheckLocalDepotNodeWulingCityText"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                66,
+                221,
+                166,
+                124
+            ]
+        }
+    },
+    "DeliveryJobsCheckLocalDepotNodeWulingCityText": {
+        "desc": "检查本地仓储节点中是否有武陵城区",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "武陵城区",
+            "武陵城區",
+            "Wuling City",
+            "武陵城内",
+            "무릉성 도심"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsCheckWulingCityCargo": {
+        "desc": "检查武陵城区的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeWulingCityText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "货物装箱",
+            "貨物裝箱",
+            "Pack Goods",
+            "パッキング",
+            "화물 포장",
+            "查看报价",
+            "查看報價",
+            "Check Bid",
+            "希望価格確認",
+            "입찰 보기"
+        ],
+        "order_by": "Expected"
+    },
+    "DeliveryJobsEnterWulingCityCargo": {
+        "desc": "进入武陵城区货物",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeWulingCityText",
+            "DeliveryJobsCheckWulingCityCargo"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling"
+        },
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    }
+}

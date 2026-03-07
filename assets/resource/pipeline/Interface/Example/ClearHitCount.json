@@ -1,0 +1,75 @@
+{
+    "ClearHitCountExample": {
+        "desc": "ClearHitCount 使用示例：清除节点的命中计数",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "Node1",
+                "Node2",
+                "Node3"
+            ],
+            // 是否严格模式，任一节点清除失败时 action 视为失败。可选字段，默认 true
+            "strict": true
+        },
+        "next": []
+    },
+    "ClearHitCountNonStrictExample": {
+        "desc": "ClearHitCount 非严格模式示例：即使部分节点清除失败也返回成功",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "Node1",
+                "Node2",
+                "Node3"
+            ],
+            "strict": false
+        },
+        "next": []
+    },
+    "ClearHitCountDefaultExample": {
+        "desc": "ClearHitCount 默认模式示例：不设置 strict，默认为严格模式",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "Node1",
+                "Node2"
+            ]
+        },
+        "next": []
+    },
+    // 以下是被 ClearHitCount 清除命中计数的节点示例
+    "Node1": {
+        "max_hit": 3,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "Node1"
+            ]
+        },
+        "timeout": 3,
+        "next": [
+            "Node1"
+        ]
+    },
+    "Node2": {
+        "max_hit": 3,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "Node1"
+            ]
+        },
+        "timeout": 3,
+        "next": [
+            "Node2"
+        ]
+    }
+}
