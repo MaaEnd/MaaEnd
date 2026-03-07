@@ -161,9 +161,24 @@ jobs:
 
           # 安装 MaaFramework
           echo "Install MaaFramework"
-          cp -r deps/bin/* install/maafw/
-          cp -r deps/share/MaaAgentBinary install/maafw/
-          rm -rf install/maafw/MaaNode*
+          if [[ "${{ matrix.os }}" == "linux" && "${{ matrix.arch }}" == "aarch64" ]]; then
+            # Linux ARM64 没有 MXU，MaaFW 直接放到根目录
+            cp -r deps/bin/* install/
+            cp -r deps/share/MaaAgentBinary install/
+            rmdir install/maafw 2>/dev/null || true
+          else
+            cp -r deps/bin/* install/maafw/
+            cp -r deps/share/MaaAgentBinary install/maafw/
+          fi
+
+          # 清理不必要的 MaaFramework 文件
+          echo "Clean unnecessary MaaFramework files"
+          find install/ -name "MaaDbgControlUnit*" -delete
+          find install/ -name "MaaThriftControlUnit*" -delete
+          find install/ -name "MaaRpc*" -delete
+          find install/ -name "MaaHttp*" -delete
+          find install/ \( -name "MaaNode*" -o -name "*.node" \) -delete
+          find install/ -name "MaaWin32ControlUnit*" -delete
 
           # 安装 MXU 并重命名为 MaaEnd
           echo "Install MXU"
@@ -175,6 +190,12 @@ jobs:
               cp downloads/MXU/mxu install/MaaEnd
             fi
           fi
+
+          # 将 MaaPiCli 重命名为 MaaEnd
+          find install/ -name "MaaPiCli" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd"' _ {} \;
+          find install/ -name "MaaPiCli.exe" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd.exe"' _ {} \;
+          # 清理其他 MaaPiCli 相关文件（如 .pdb）
+          find install/ -name "MaaPiCli*" -delete
 
           # 更新 interface.json 中的版本号
           echo "Update interface version to ${{ needs.meta.outputs.tag }}"
@@ -216,8 +237,13 @@ jobs:
           if [[ -f install/agent/cpp-algo ]]; then
             chmod +x install/agent/cpp-algo
           fi
-          # 给 maafw 目录下的可执行文件添加权限
-          find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
+          # 给 MaaFramework 可执行文件添加权限
+          if [[ -d install/maafw ]]; then
+            find install/maafw -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
+          else
+            # Linux ARM64: MaaFW 文件在根目录
+            find install/ -maxdepth 1 -type f -name "Maa*" ! -name "*.so" -exec chmod +x {} \;
+          fi
 
           # 打包为 tar.gz
           cd install
