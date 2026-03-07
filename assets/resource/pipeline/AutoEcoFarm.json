@@ -3,9 +3,7 @@
         "doc": "自动生态农场主入口",
         "next": [
 
-            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
-            "_AutoEcoFarmGotoWulinEcoFarmStart",
-            "AutoEcoFarmExit"
+            "_AutoEcoFarmPrepareStart"
         ]
     },
     "AutoEcoFarmExit": {
