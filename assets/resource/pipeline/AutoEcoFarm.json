@@ -3,13 +3,17 @@
         "doc": "自动生态农场主入口",
         "next": [
             //"_AutoEcoFarmNoTargetLoop",
-            //"_AutoEcoFindFarmFarmlandWulinStart",
-            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
-            "_AutoEcoFarmGotoWulinEcoFarmStart",
+            "_AutoEcoFarmSwipeToTargetValleyIVStart",
+            //"_AutoEcoFarmGotoValleyIVEcoFarmStart",
+            //"_AutoEcoFarmGotoWulinEcoFarmStart",
             "AutoEcoFarmExit"
         ]
     },
     "AutoEcoFarmExit": {
         "doc": "退出任务"
+    },
+    "test":{
+        "action": "TouchMove",
+        "target": [540,730,1,1]
     }
 }
