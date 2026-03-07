@@ -3,8 +3,10 @@
         "desc": "武陵运送委托主循环",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsInWulingLocalDepotNode"
+            "DepotButton",
+            "InWulingRegionalDevelopment"
         ],
+        "action": "Click",
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToWulingDepot"
         },

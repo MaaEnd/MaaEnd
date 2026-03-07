@@ -3,8 +3,10 @@
         "desc": "四号谷地运送委托主循环",
         "recognition": "And",
         "all_of": [
-            "DeliveryJobsInValleyIVLocalDepotNode"
+            "DepotButton",
+            "InValleyIVRegionalDevelopment"
         ],
+        "action": "Click",
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToValleyIVDepot"
         },

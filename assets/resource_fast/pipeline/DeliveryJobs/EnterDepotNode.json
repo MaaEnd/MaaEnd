@@ -79,34 +79,6 @@
         "template": "DeliveryJobs/DepotLocked.png",
         "threshold": 0.8
     },
-    "DeliveryJobsCheckValleyIVDepotLocked": {
-        "desc": "检查四号谷地仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
-        "recognition": "And",
-        "all_of": [
-            "DeliveryJobsDepotLocked",
-            "InValleyIVRegionalDevelopment"
-        ],
-        "next": [
-            "DeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.DeliveryJobs.ValleyIVDepotLocked"
-        }
-    },
-    "DeliveryJobsCheckWulingDepotLocked": {
-        "desc": "检查武陵仓储节点是否解锁，如果未解锁则直接跳出，去下一个区域",
-        "recognition": "And",
-        "all_of": [
-            "DeliveryJobsDepotLocked",
-            "InWulingRegionalDevelopment"
-        ],
-        "next": [
-            "DeliveryJobsLoop"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.DeliveryJobs.WulingDepotLocked"
-        }
-    },
     "DeliveryJobsBackToRegionalConstruction": {
         "desc": "返回地区建设界面",
         "recognition": "And",
