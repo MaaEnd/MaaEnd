@@ -32,7 +32,6 @@
     },
     "GrowthChamber": {
         "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
-        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
