@@ -169,7 +169,7 @@
                     "pipeline_override": {
                         "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
                             "next": [
-                                "[Anchor]DeliveryJobsSelectItemToFill"
+                                "DeliveryJobsSelectItemLoop"
                             ]
                         }
                     },
