@@ -91,7 +91,7 @@ class _RealtimePathLayer(Layer):
             drawer.line(
                 (psx, psy),
                 (sx, sy),
-                color=0x22AAFF,
+                color=0x22BBFF,
                 thickness=max(1, int(self._page.LINE_WIDTH * self.view.zoom**0.5)),
             )
 
@@ -137,8 +137,8 @@ class PathEditPage:
     SIDEBAR_W = 240
     STATUS_BAR_H = 32
     QUICK_BAR_H = 32
-    LINE_WIDTH = 1.75
-    POINT_RADIUS = 4.5
+    LINE_WIDTH = 1.5
+    POINT_RADIUS = 4.25
     POINT_SELECTION_THRESHOLD = 10
 
     class StatusRecord(NamedTuple):
@@ -313,17 +313,24 @@ class PathEditPage:
         return updated
 
     @staticmethod
-    def _angle_close(v1: tuple[float, float], v2: tuple[float, float]) -> bool:
-        x1, y1 = v1
-        x2, y2 = v2
-        n1 = math.hypot(x1, y1)
-        n2 = math.hypot(x2, y2)
-        if n1 == 0.0 or n2 == 0.0:
-            return False
-        dot = x1 * x2 + y1 * y2
-        cos_val = max(-1.0, min(1.0, dot / (n1 * n2)))
-        angle = math.degrees(math.acos(cos_val))
-        return angle < 12.0
+    def _can_simplify(
+        prev_p: tuple[float, float],
+        mid_p: tuple[float, float],
+        next_p: tuple[float, float],
+        k: float = 2.0,
+    ) -> bool:
+        if k < 1:
+            raise ValueError("k must be >= 1")
+        prev_next_dx, prev_next_dy = next_p[0] - prev_p[0], next_p[1] - prev_p[1]
+        d_prev_next = math.hypot(prev_next_dx, prev_next_dy)
+        if d_prev_next < (k - 1) + 1e-6:
+            return True
+        mid_next_dx, mid_next_dy = next_p[0] - mid_p[0], next_p[1] - mid_p[1]
+        sin_prev_next_sub_mid_next = abs(
+            prev_next_dx * mid_next_dy - prev_next_dy * mid_next_dx
+        ) / (d_prev_next * math.hypot(mid_next_dx, mid_next_dy) + 1e-6)
+        # y = arcsin(k / (x + 1)) -> sin(y) = k / (x + 1) -> sin(y) * (x + 1) = k
+        return sin_prev_next_sub_mid_next * (d_prev_next + 1) < k
 
     def _generate_path_from_recorded(self):
         if len(self._recorded_path) < 2:
@@ -345,10 +352,8 @@ class PathEditPage:
                 continue
             p2 = result[-2]
             p1 = result[-1]
-            v1 = (point[0] - p2[0], point[1] - p2[1])
-            v2 = (point[0] - p1[0], point[1] - p1[1])
-            if self._angle_close(v1, v2):
-                result.pop()
+            if self._can_simplify(p2, p1, point):
+                result.pop()  # Remove p1
             result.append([point[0], point[1]])
         self.points = result
         self.selected_idx = len(self.points) - 1 if self.points else -1
