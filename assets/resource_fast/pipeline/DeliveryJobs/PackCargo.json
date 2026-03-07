@@ -123,13 +123,13 @@
     },
     "DeliveryJobsSelectItemScrollUp": {
         "desc": "如果要填充的物品不在第一屏，向上滑动屏幕",
-        "max_hit": 3,
+        "max_hit": 5,
         "action": "Scroll",
         "target": [
             240,
             310
         ],
-        "dy": -180,
+        "dy": -240,
         "post_wait_freezes": 200
     },
     "DeliveryJobsFillCorrespondingGoods": {
