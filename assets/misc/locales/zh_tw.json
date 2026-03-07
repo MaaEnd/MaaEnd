@@ -418,5 +418,9 @@
     "preset.EssenceFarming.label": "基質刷取",
     "preset.EssenceFarming.description": "基質養成及篩選相關",
     "task.GiftOperator.label": "🎁贈送幹員禮物",
-    "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。\n注意：此任務僅在「電腦端-前台」連接配置下可用。執行期間請勿移動滑鼠，否則可能導致任務失敗。"
+    "task.GiftOperator.description": "給一名幸運幹員贈送一個禮物，順便領取 TA 給的禮物（如果有）。\n注意：此任務僅在「電腦端-前台」連接配置下可用。執行期間請勿移動滑鼠，否則可能導致任務失敗。建議優先使用預錄製路線；識別尋路（MapTracker）目前仍可能不穩定。",
+    "option.GiftOperatorMoveMode.label": "前往聯絡台方式",
+    "option.GiftOperatorMoveMode.description": "可選擇使用預先錄製好的按鍵操作，或使用識別尋路前往幹員聯絡台。建議優先使用預錄製；識別尋路（MapTracker）目前仍可能不穩定。",
+    "option.GiftOperatorMoveMode.cases.Recorded.label": "錄製操作",
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）"
 }

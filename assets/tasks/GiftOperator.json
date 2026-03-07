@@ -5,9 +5,44 @@
             "label": "$task.GiftOperator.label",
             "entry": "GiftOperatorMain",
             "description": "$task.GiftOperator.description",
+            "option": [
+                "GiftOperatorMoveMode"
+            ],
             "controller": [
                 "Win32-Front"
             ]
         }
-    ]
+    ],
+    "option": {
+        "GiftOperatorMoveMode": {
+            "type": "select",
+            "label": "$option.GiftOperatorMoveMode.label",
+            "description": "$option.GiftOperatorMoveMode.description",
+            "default_case": "Recorded",
+            "cases": [
+                {
+                    "name": "Recorded",
+                    "label": "$option.GiftOperatorMoveMode.cases.Recorded.label",
+                    "pipeline_override": {
+                        "GiftOperatorInDijiang0": {
+                            "anchor": {
+                                "GiftOperatorMoveModeAnchor": "GiftOperatorMoveRecordedResetAlt"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MapTracker",
+                    "label": "$option.GiftOperatorMoveMode.cases.MapTracker.label",
+                    "pipeline_override": {
+                        "GiftOperatorInDijiang0": {
+                            "anchor": {
+                                "GiftOperatorMoveModeAnchor": "GiftOperatorMoveMapTracker"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

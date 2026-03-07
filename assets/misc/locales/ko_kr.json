@@ -418,5 +418,9 @@
     "preset.EssenceFarming.label": "에센스 파밍",
     "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
-    "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).\n주의: 이 작업은 \"Win32-Front\" 컨트롤러에서만 사용할 수 있습니다. 실행 중 마우스를 움직이지 마세요. 작업이 실패할 수 있습니다."
+    "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).\n주의: 이 작업은 \"Win32-Front\" 컨트롤러에서만 사용할 수 있습니다. 실행 중 마우스를 움직이지 마세요. 작업이 실패할 수 있습니다. 미리 녹화한 이동 사용을 권장하며, 인식 이동(MapTracker)은 아직 불안정할 수 있습니다.",
+    "option.GiftOperatorMoveMode.label": "연락대까지 이동 방식",
+    "option.GiftOperatorMoveMode.description": "미리 녹화한 키 입력 또는 인식 기반 이동으로 오퍼레이터 연락대까지 이동하는 방식을 선택합니다. 녹화된 입력 사용을 권장하며, MapTracker 는 아직 불안정할 수 있습니다.",
+    "option.GiftOperatorMoveMode.cases.Recorded.label": "녹화된 입력",
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "인식 이동 (MapTracker)"
 }

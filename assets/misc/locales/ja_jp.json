@@ -418,5 +418,9 @@
     "preset.EssenceFarming.label": "エッセンス周回",
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
-    "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。\n注意：このタスクは「PC版-フォアグラウンド」接続設定でのみ利用可能です。実行中はマウスを動かさないでください。タスクが失敗する可能性があります。"
+    "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。\n注意：このタスクは「PC版-フォアグラウンド」接続設定でのみ利用可能です。実行中はマウスを動かさないでください。タスクが失敗する可能性があります。事前記録した移動の利用を推奨します。認識移動（MapTracker）はまだ不安定な場合があります。",
+    "option.GiftOperatorMoveMode.label": "連絡台への移動方法",
+    "option.GiftOperatorMoveMode.description": "事前に記録したキー操作、または認識ベースの移動で干員連絡台へ向かう方法を選択します。記録済み操作の利用を推奨します。MapTracker はまだ不安定な場合があります。",
+    "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）"
 }

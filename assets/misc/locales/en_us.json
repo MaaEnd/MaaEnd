@@ -418,5 +418,9 @@
     "preset.EssenceFarming.label": "Essence Farming",
     "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
     "task.GiftOperator.label": "🎁Gift to Operator",
-    "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).\nNote: This task requires the \"Win32-Front\" controller. Do not move the mouse during execution, as it may cause the task to fail."
+    "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).\nNote: This task requires the \"Win32-Front\" controller. Do not move the mouse during execution, as it may cause the task to fail. Prerecorded movement is recommended; recognition-based navigation (MapTracker) may still be unstable.",
+    "option.GiftOperatorMoveMode.label": "Move to Contact Console",
+    "option.GiftOperatorMoveMode.description": "Choose whether to reach the operator contact console using a prerecorded key sequence or recognition-based navigation. Prerecorded movement is recommended; MapTracker may still be unstable.",
+    "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
+    "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)"
 }

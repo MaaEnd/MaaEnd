@@ -9,8 +9,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
-	inputreplay "github.com/MaaXYZ/MaaEnd/agent/go-service/input-replay"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/importtask"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
@@ -36,8 +34,6 @@ func registerAll() {
 	maptracker.Register()
 	batchaddfriends.Register()
 	autofight.Register()
-	inputreplay.Register()
-
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }
