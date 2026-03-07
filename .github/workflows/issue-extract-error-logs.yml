@@ -194,12 +194,15 @@ jobs:
 
                       for block_idx, block in enumerate(blocks, 1):
                           has_error_blocks = True
-                          lines.append(
-                              f"##### {log_name}（第 {file_idx} 个）错误块 {block_idx}"
-                          )
+                          title = f"{log_name}（第 {file_idx} 个）错误块 {block_idx}"
+                          lines.append("<details>")
+                          lines.append(f"<summary>##### {title}</summary>")
+                          lines.append("")
                           lines.append("```log")
                           lines.append(block)
                           lines.append("```")
+                          lines.append("")
+                          lines.append("</details>")
                           lines.append("")
 
               lines.append("")
