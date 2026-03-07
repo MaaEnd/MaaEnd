@@ -49,8 +49,8 @@ type PlayerMovement struct {
 }
 
 var (
-	MovementWalk   = PlayerMovement{2.0, 135.0}
-	MovementRun    = PlayerMovement{8.0, 270.0}
+	MovementWalk   = PlayerMovement{2.0, 180.0}
+	MovementRun    = PlayerMovement{8.0, 360.0}
 	MovementSprint = PlayerMovement{12.0, 720.0}
 )
 
@@ -118,7 +118,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
-	var rotAdjState *PlayerRotationAdjustmentState
+	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
 	for i, target := range param.Path {
@@ -234,7 +234,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			}
 
 			// Update adaptive rotation speed
-			if rotAdjState != nil {
+			if rotAdjState != nil && (rotAdjStateCache == nil || rotAdjState.startTime.After(rotAdjStateCache.startTime)) {
 				// Check if last rotation adjustment is completed
 				if loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
 					// Check if player is moving and rotating sufficiently to trust rotation measurement
@@ -242,10 +242,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if distTravel > rotAdjState.expectedElapsed.Seconds()*MovementWalk.Speed {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
-						if float64(actualDeltaRot)+rotAdjState.deltaRot > param.RotationLowerThreshold {
+						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
 							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
 								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
+								rotAdjStateCache = rotAdjState
 								log.Debug().
 									Float64("idealRotSpeed", idealRotSpeed).
 									Float64("newRotSpeed", rotationSpeed).
@@ -313,7 +314,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						fromRot:         rot,
 						deltaRot:        finalDeltaRot,
 						startTime:       time.Now(),
-						expectedElapsed: time.Duration(math.Abs(finalDeltaRot)/movement.RotationSpeed) * time.Second,
+						expectedElapsed: time.Duration(float64(time.Second) * math.Abs(finalDeltaRot) / movement.RotationSpeed),
 					}
 					aw.ResetCamera(25)
 				}
