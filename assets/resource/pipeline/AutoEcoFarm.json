@@ -2,10 +2,9 @@
     "AutoEcoFarmMain": {
         "doc": "自动生态农场主入口",
         "next": [
-            //"_AutoEcoFarmNoTargetLoop",
-            "_AutoEcoFarmSwipeToTargetValleyIVStart",
-            //"_AutoEcoFarmGotoValleyIVEcoFarmStart",
-            //"_AutoEcoFarmGotoWulinEcoFarmStart",
+
+            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
+            "_AutoEcoFarmGotoWulinEcoFarmStart",
             "AutoEcoFarmExit"
         ]
     },
