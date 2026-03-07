@@ -5,8 +5,8 @@
     "global.region.OriginLodespring": "광맥 구역",
     "global.region.PowerPlateau": "에너지 공급 고지",
     "global.region.WulingCity": "무릉성 도심",
-    "task.EnvironmentMonitoring.description": "환경 모니터링 작업을 자동으로 완료합니다 (현재 베타 버전으로, 동작이 불안정할 수 있습니다)",
-    "task.EnvironmentMonitoring.label": "🌿환경 모니터링 (베타)",
+    "task.EnvironmentMonitoring.description": "환경 모니터링 작업을 자동으로 완료합니다",
+    "task.EnvironmentMonitoring.label": "🌿환경 모니터링",
     "task.DeliveryJobs.PackCargoSelectItem.description": "지정 화물을 채울지 여부입니다. 활성화하면 설정에 따라 지정 화물을 선택해 채웁니다.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "지정 화물 채우기",
     "task.DeliveryJobs.WhatToFillValleyIV": "채울 화물 (제4 계곡)",
@@ -421,7 +421,7 @@
     "preset.EssenceFarming.description": "에센스 육성 및 필터링 관련 임무입니다.",
     "task.AutoEcoFarm.label": "🌾자동 생태 농장",
     "task.AutoEcoFarm.description": "\n## 태스크 기능:\n태스크 시작 전 가방 속 아이템을 자동으로 일괄 수납합니다 (기본 켜짐). 그 후 수확, 재배, 물주기 등 관련 작업을 자동으로 수행합니다.\n## 유의사항 - 태스크 시작 전 아래 준비를 완료해 주세요:\n1. **우릉 통합 산업 코어를 생태 농장 가장자리(지도 동쪽)에 배치**해 주세요. 자동 경로 탐색 시 끼임 현상을 방지할 수 있습니다.\n2. **3명의 팀원을 풀 파티로 구성**해 주세요. 수확은 대부분 팀원이 수행하며, 주 역할은 유도만 하므로 팀원이 부족하면 농지를 많이 놓치게 됩니다.\n3. 게임 언어를 간체 중국어로 설정해 주세요. 현재 OCR은 다른 언어를 지원하지 않습니다.\n## 권장 사항:\n1. 농지를 **촘촘하게 배치하고 가능한 농장 중앙에 가깝게** 배치하세요. 정사각형 형태가 가장 안정적입니다.\n2. 농장 **대각선 방향에 스프링클러를 배치하지 마세요**. 끼임 현상이 발생할 수 있습니다.",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"농지 탐색 방식",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요.",
-    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label":"태스크 시작 전 원클릭으로 가방 속 잡동사니 수납"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "농지 탐색 방식",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요.",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "태스크 시작 전 원클릭으로 가방 속 잡동사니 수납"
 }

@@ -5,8 +5,8 @@
     "global.region.OriginLodespring": "Origin Lodespring",
     "global.region.PowerPlateau": "Power Plateau",
     "global.region.WulingCity": "Wuling City",
-    "task.EnvironmentMonitoring.description": "Automatically complete environment monitoring tasks (currently in beta and may be unstable)",
-    "task.EnvironmentMonitoring.label": "🌿Environment Monitoring (Beta)",
+    "task.EnvironmentMonitoring.description": "Automatically complete environment monitoring tasks",
+    "task.EnvironmentMonitoring.label": "🌿Environment Monitoring",
     "task.DeliveryJobs.PackCargoSelectItem.description": "Whether to fill with specific goods. If enabled, it selects the configured goods to fill.",
     "task.DeliveryJobs.PackCargoSelectItem.label": "Fill Specific Goods",
     "task.DeliveryJobs.WhatToFillValleyIV": "Goods to Fill (Valley IV)",
@@ -421,7 +421,7 @@
     "preset.EssenceFarming.description": "Essence farming and filtering related tasks.",
     "task.AutoEcoFarm.label": "🌾Auto Eco-Farm",
     "task.AutoEcoFarm.description": "\n## Task Function:\nThe task will automatically store all items in the backpack with one click before starting (enabled by default), then automatically complete harvesting, planting, watering, and other related operations.\n## Notice - Please prepare before starting the task:\n1. **Please place the Wuling Integrated Industrial Core near the edge of the Ecological Farm** (east side of the map) to prevent auto-pathfinding from getting stuck.\n2. **Please bring a full team of 3 teammates**; harvesting mostly relies on teammates. The lead character only provides guidance; missing teammates will result in huge losses of farmland.\n3. Please set the game language to Simplified Chinese; OCR does not support other languages yet.\n## Recommendations:\n1. Arrange farmland in a **dense formation as close to the center as possible**, preferably square, to avoid misses.\n2. Try not to place sprinklers on the **diagonal** of the farm, as this may cause jamming.",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"Farmland Search Scheme",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"Run once from bottom-right to top-left. Farmlands should be arranged in a dense formation, preferably square.",
-    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label":"Store all items in the backpack with one click before starting the task"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "Farmland Search Scheme",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "Run once from bottom-right to top-left. Farmlands should be arranged in a dense formation, preferably square.",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "Store all items in the backpack with one click before starting the task"
 }

@@ -5,8 +5,8 @@
     "global.region.OriginLodespring": "矿脉源区",
     "global.region.PowerPlateau": "供能高地",
     "global.region.WulingCity": "武陵城区",
-    "task.EnvironmentMonitoring.description": "自动完成环境监测任务（当前为测试版，功能可能不稳定）",
-    "task.EnvironmentMonitoring.label": "🌿环境监测（测试版）",
+    "task.EnvironmentMonitoring.description": "自动完成环境监测任务",
+    "task.EnvironmentMonitoring.label": "🌿环境监测",
     "task.DeliveryJobs.PackCargoSelectItem.description": "是否填充指定货物。启用后会按设置选择指定货物进行填充。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "填入指定货物",
     "task.DeliveryJobs.WhatToFillValleyIV": "要填入的货物（四号谷地）",
@@ -421,7 +421,7 @@
     "preset.EssenceFarming.description": "基质养成及筛选相关",
     "task.AutoEcoFarm.label": "🌾自动生态农场",
     "task.AutoEcoFarm.description": "\n## 任务功能：\n任务开始前会自动一键存放背包里的东西（默认开启），然后自动完成收菜、种植、浇水等相关的操作。\n## 注意，请务必在任务开始前做好以下准备：\n1、**请将武陵集成工业核心放在靠近生态农场的边缘**（地图东边）避免自动寻路卡住。\n2、**清带满3个队友**，收菜很大部分需要依靠队友来工作，主控角色只起一个引导作用，缺少队友将会漏掉大量农田\n3、请将游戏语言设置调成简体中文，目前OCR还没适配识别其他语言\n## 建议：\n1、将农田摆成**密集阵型，且尽量靠近农场中心**，最好是方形,不容易漏\n2、尽量不要在农场的**对角线**上摆放洒水器，不然容易卡住",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"查找农田的方案",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"从右下到左上跑一次，需要把农田摆成密集阵型，最好是方形",
-    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label":"任务开始前一键存放背包里杂物"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "查找农田的方案",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "从右下到左上跑一次，需要把农田摆成密集阵型，最好是方形",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "任务开始前一键存放背包里杂物"
 }

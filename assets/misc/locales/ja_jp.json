@@ -5,8 +5,8 @@
     "global.region.OriginLodespring": "鉱山エリア",
     "global.region.PowerPlateau": "エネルギー高地",
     "global.region.WulingCity": "武陵城内",
-    "task.EnvironmentMonitoring.description": "環境監視タスクを自動で完了します（現在はテスト版のため、動作が不安定な場合があります）",
-    "task.EnvironmentMonitoring.label": "🌿環境監視（テスト版）",
+    "task.EnvironmentMonitoring.description": "環境監視タスクを自動で完了します",
+    "task.EnvironmentMonitoring.label": "🌿環境監視",
     "task.DeliveryJobs.PackCargoSelectItem.description": "指定貨物を補充するかどうか。有効にすると、設定に従って指定貨物を選んで補充します。",
     "task.DeliveryJobs.PackCargoSelectItem.label": "指定貨物を補充",
     "task.DeliveryJobs.WhatToFillValleyIV": "補充する貨物（第4谷地）",
@@ -421,7 +421,7 @@
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
     "task.AutoEcoFarm.description": "\n## タスク機能:\nタスク開始前にバックパックのアイテムを自動で一括収納し（初期設定でオン）、収穫・植栽・散水などの一連の操作を自動実行します。\n## 注意 - タスク開始前に必ず準備を行ってください:\n1. **武陵統合工業コアをエコロジカルファームの端（マップ東側）に設置**してください。自動経路探索のスタックを回避できます。\n2. **隊員3人をフル編成**してください。収穫作業は隊員主体で行われ、主人公は誘導役のため、隊員が足りないと大量の農地を取りこぼします。\n3. ゲーム言語を簡体字中国語に設定してください。現在OCRは他言語に対応していません。\n## 推奨事項:\n1. 農地は**密集型に配置し、できるだけ農場の中心寄り**に設置してください。正方形が最も安定します。\n2. 農場の**対角線上にスプリンクラーを設置しないでください**。スタックの原因になります。",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"農地探索方式",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。",
-    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label":"タスク開始前にワンクリックでバックパック内の雑品を収納"
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "農地探索方式",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "タスク開始前にワンクリックでバックパック内の雑品を収納"
 }
