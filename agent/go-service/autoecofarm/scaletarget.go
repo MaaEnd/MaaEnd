@@ -42,25 +42,25 @@ func (m *autoEcoFarmCalculateSwipeTarget) Run(ctx *maa.Context, arg *maa.CustomR
 		}
 	}
 
-	oTragetX := float64(arg.Roi.X())      // 传入矩形左上角X
-	oTragetY := float64(arg.Roi.Y())      // 传入矩形左上角Y
-	oTragetW := float64(arg.Roi.Width())  // 传入矩形宽度（X轴方向）
-	oTragetH := float64(arg.Roi.Height()) // 传入矩形高度（Y轴方向）
+	oTargetX := float64(arg.Roi.X())      // 传入矩形左上角X
+	oTargetY := float64(arg.Roi.Y())      // 传入矩形左上角Y
+	oTargetW := float64(arg.Roi.Width())  // 传入矩形宽度（X轴方向）
+	oTargetH := float64(arg.Roi.Height()) // 传入矩形高度（Y轴方向）
 
 	log.Info().Msgf(
 		"Roi矩形参数：左上角X=%.2f, 左上角Y=%.2f, 宽度=%.2f, 高度=%.2f",
-		oTragetX, oTragetY, oTragetW, oTragetH,
+		oTargetX, oTargetY, oTargetW, oTargetH,
 	)
 
 	// 计算传入矩形的中点坐标
-	oTragetCenterX := oTragetX + oTragetW/2 // 中点X = 左上角X + 宽度/2
-	oTragetCenterY := oTragetY + oTragetH/2 // 中点Y = 左上角Y + 高度/2
+	oTargetCenterX := oTargetX + oTargetW/2 // 中点X = 左上角X + 宽度/2
+	oTargetCenterY := oTargetY + oTargetH/2 // 中点Y = 左上角Y + 高度/2
 
 	//  计算屏幕中心坐标
 
 	//计算距离
-	dx := oTragetCenterX - screenCenterX
-	dy := oTragetCenterY - screenCenterY
+	dx := oTargetCenterX - screenCenterX
+	dy := oTargetCenterY - screenCenterY
 
 	//计算传出坐标,将目标向屏幕中心平移一段距离
 
