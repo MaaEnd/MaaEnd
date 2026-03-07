@@ -5,6 +5,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
@@ -23,6 +24,7 @@ func registerAll() {
 
 	// General Custom
 	subtask.Register()
+	clearhitcount.Register()
 
 	// Business Custom
 	blueprintimport.Register()
