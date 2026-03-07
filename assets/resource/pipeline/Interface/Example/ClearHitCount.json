@@ -10,7 +10,7 @@
                 "Node2",
                 "Node3"
             ],
-            // 是否严格模式，任一节点清除失败时 action 视为失败。可选字段，默认 true
+            // 是否严格模式，任一节点清除失败时 action 视为失败。可选字段，默认 false
             "strict": true
         },
         "next": []
@@ -31,7 +31,7 @@
         "next": []
     },
     "ClearHitCountDefaultExample": {
-        "desc": "ClearHitCount 默认模式示例：不设置 strict，默认为严格模式",
+        "desc": "ClearHitCount 默认模式示例：不设置 strict，默认为非严格模式",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "ClearHitCount",

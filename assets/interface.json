@@ -140,6 +140,7 @@
         "tasks/SimpleProductionBatchStart.json",
         "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/AutoUseSpMedication.json",
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
