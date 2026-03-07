@@ -418,7 +418,7 @@
     "preset.EssenceFarming.label": "エッセンス周回",
     "preset.EssenceFarming.description": "エッセンス育成およびフィルタリング関連。",
     "task.AutoEcoFarm.label": "🌾自動生態農場",
-    "task.AutoEcoFarm.description": "自動的に作物の収穫、植え付け、水やりなどの操作を実行します。",
+    "task.AutoEcoFarm.description": "収穫、植栽、散水などの関連操作を自動的に実行します。武陵統合工業コアを生態農場に近い端に配置し、自動経路探索のスタックを回避してください。",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label":"農地探索方式",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label":"右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。"
 }
