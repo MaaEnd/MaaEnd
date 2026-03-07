@@ -14,13 +14,32 @@
         },
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充货物",
-            "hits": ["DeliveryJobsCargoFillToMax"]
+            "hits": [
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
+            ]
+        },
+        {
+            "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱_填充货物",
+            "hits": [
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillWuling"
+            ]
+        },
+        {
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物",
+            "hits": [
+                "DeliveryJobsFillCorrespondingGoods",
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
+            ]
         },
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充至满",
             "hits": [
                 "DeliveryJobsFillToMaxNextStep",
-                "DeliveryJobsCargoFillToMax"
+                "DeliveryJobsCargoFillToMax",
+                "DeliveryJobsSelectItemToFillValleyIV"
             ]
         },
         {

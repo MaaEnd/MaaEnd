@@ -1,0 +1,37 @@
+{
+    "configs": {
+        "name": "一键售卖产品(官服-Win32)，测试地区识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点_难民暂居处",
+            "hits": [
+                "SellProductInOutpost",
+                "SellProductInRefugeeCamp"
+            ]
+        },
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点_基建前站",
+            "hits": [
+                "SellProductInOutpost",
+                "SellProductInInfrastructureOutpost"
+            ]
+        },
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点_重建指挥部",
+            "hits": [
+                "SellProductInOutpost",
+                "SellProductInReconstructionCommand"
+            ]
+        },
+        {
+            "image": "一键售卖产品/武陵_地区建设_据点_天王坪援建点",
+            "hits": [
+                "SellProductInOutpost",
+                "SellProductInSkyKingFlats"
+            ]
+        }
+    ]
+}

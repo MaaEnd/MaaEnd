@@ -16,8 +16,8 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EntryMFGCarbinSuccess"
@@ -37,8 +37,8 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedTake",
@@ -65,12 +65,12 @@
                 "index": -1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedReStockClose"
         ]
@@ -87,10 +87,10 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssist",
             "Exit_MFG_Cabin"
@@ -108,12 +108,12 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedTakeClose"
         ]
@@ -128,10 +128,20 @@
                 ]
             }
         },
-        "post_delay": 0,
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedReStock",
             "MFGCarbinNeedAssist",
@@ -150,9 +160,7 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -164,6 +172,8 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistUseAssist"
         ]
@@ -180,12 +190,12 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistAssistMAX",
             "MFGCarbinNeedAssistConfirm"
@@ -207,12 +217,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistConfirm"
         ]
@@ -229,12 +239,12 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistClose"
         ]
@@ -249,12 +259,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "Exit_MFG_Cabin"
         ]

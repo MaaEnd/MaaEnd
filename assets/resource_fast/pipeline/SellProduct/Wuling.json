@@ -1,67 +1,111 @@
 {
-    "WulingSwitchToSkyKingFlats": {
-        "desc": "OCR 切换至天王坪援建点（模糊匹配）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "expected": [
-                    "天王坪",
-                    "天王坪援助",
-                    "天王坪援建",
-                    "Sky King",
-                    "天王原",
-                    "천왕"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
+    "SellProductWulingSell": {
+        "desc": "在武陵售卖",
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductGoToWulingOutpost"
+            ]
         },
         "next": [
-            "WulingVerifyAtSkyKingFlats"
+            "[JumpBack]SellProductSkyKingFlats",
+            "SellProductBackToRegionalConstruction"
         ]
     },
-    "WulingVerifyAtSkyKingFlats": {
-        "desc": "检测：已切换至天王坪援建点",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
+    "SellProductSkyKingFlats": {
+        "desc": "天王坪援建点售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSkyKingFlatsTabText"
+        ],
+        "next": [
+            "SellProductSkyKingFlatsSell",
+            "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
+        ]
+    },
+    "SellProductSkyKingFlatsSell": {
+        "desc": "天王坪援建点售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
         "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductSkyKingFlatsZeroProductTryChangeGoods": {
+        "desc": "天王坪援建点缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductInSkyKingFlats": {
+        "desc": "在天王坪援建点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSkyKingFlatsText",
+            "SellProductInOutpost"
+        ]
+    },
+    "SellProductGoToSkyKingFlatsOutpost": {
+        "desc": "前往天王坪援建点据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInWulingOutpost",
+            "SellProductCheckSkyKingFlatsTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInSkyKingFlats"
+        ]
+    },
+    "SellProductCheckSkyKingFlatsTabText": {
+        "desc": "检查天王坪援建点文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+            "천왕"
+        ]
+    },
+    "SellProductCheckSkyKingFlatsText": {
+        "desc": "检查天王坪援建点大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "天王坪",
+            "天王坪援助",
+            "天王坪援建",
+            "Sky King",
+            "天王原",
+            "천왕"
         ]
     }
 }

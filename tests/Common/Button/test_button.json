@@ -7,19 +7,28 @@
     "cases": [
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型",
-            "hits": ["YellowConfirmButtonType2"]
+            "hits": [
+                "YellowConfirmButtonType2",
+                "CloseButtonType1"
+            ]
         },
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充至满",
-            "hits": ["YellowConfirmButtonType2"]
+            "hits": [
+                "YellowConfirmButtonType2",
+                "CloseButtonType1"
+            ]
+        },
+        {
+            "image": "基建任务/帝江号_控制中枢_会客室_需要领取",
+            "hits": [
+                "YellowConfirmButtonType2",
+                "CloseButtonType1"
+            ]
         },
         {
             "image": "基建任务/帝江号_控制中枢_会客室_点击开展交流",
             "hits": ["CloseRewardsButton"]
-        },
-        {
-            "image": "基建任务/帝江号_控制中枢_会客室_需要领取",
-            "hits": ["YellowConfirmButtonType2"]
         },
         {
             "image": "基建任务/帝江号_控制中枢_制造舱_确认收货",
@@ -28,6 +37,22 @@
         {
             "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_我转交的委托_获得奖励",
             "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点交易",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "一键售卖产品/武陵_地区建设_据点交易",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "一键售卖产品/四号谷地_地区建设_据点_基建前站",
+            "hits": ["CloseButtonType1"]
+        },
+        {
+            "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱",
+            "hits": ["CloseButtonType1"]
         },
         {
             "image": "升级武器/WrongUpLevelButton",

@@ -1,7 +1,7 @@
 {
     "ItemTransfer": {
-        "recognition": "DirectHit",
         "desc": "由于半透明问题，在 tasks 中提供 AutoTeleport 导航选项，自动将用户传送到帝江号会客室并将视角抬至最高；由于只能使用前台控制器，默认不开启",
+        "recognition": "DirectHit",
         "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]
@@ -208,41 +208,29 @@
         ]
     },
     "ItemTransferScrollDownwardRepo": {
-        "max_hit": 1,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             640,
-            455
+            350
         ],
-        "end": [
-            640,
-            248
-        ],
-        "end_hold": 500,
+        "dy": -180,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
-            "ItemTransferScrollDownwardRepo",
             "ItemTransferScrollUpwardRepo"
         ]
     },
     "ItemTransferScrollUpwardRepo": {
         "desc": "触底后回顶",
-        "max_hit": 1,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             640,
-            248
+            350
         ],
-        "end": [
-            640,
-            455
-        ],
-        "end_hold": 500,
+        "dy": 180,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
-            "ItemTransferScrollUpwardRepo",
             "ItemTransferItemNotFound"
         ]
     },
@@ -377,41 +365,29 @@
         ]
     },
     "ItemTransferScrollDownwardBag": {
-        "max_hit": 2,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             837,
-            472
+            350
         ],
-        "end": [
-            837,
-            228
-        ],
-        "end_hold": 500,
+        "dy": -180,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
-            "ItemTransferScrollDownwardBag",
             "ItemTransferScrollUpwardBag"
         ]
     },
     "ItemTransferScrollUpwardBag": {
         "desc": "触底后回顶",
-        "max_hit": 2,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             837,
-            228
+            350
         ],
-        "end": [
-            837,
-            472
-        ],
-        "end_hold": 500,
+        "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag",
-            "ItemTransferScrollUpwardBag"
+            "ItemTransferFindItemInBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -555,41 +531,29 @@
         ]
     },
     "ItemTransferScrollDownwardBagReturn": {
-        "max_hit": 2,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             837,
-            472
+            350
         ],
-        "end": [
-            837,
-            228
-        ],
-        "end_hold": 500,
+        "dy": -180,
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
-            "ItemTransferScrollDownwardBagReturn",
             "ItemTransferScrollUpwardBagReturn"
         ]
     },
     "ItemTransferScrollUpwardBagReturn": {
         "desc": "触底后回顶",
-        "max_hit": 2,
-        "action": "Swipe",
-        "begin": [
+        "action": "Scroll",
+        "target": [
             837,
-            228
+            350
         ],
-        "end": [
-            837,
-            472
-        ],
-        "end_hold": 500,
+        "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn",
-            "ItemTransferScrollUpwardBagReturn"
+            "ItemTransferFindItemInBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {

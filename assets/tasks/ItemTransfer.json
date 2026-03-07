@@ -458,13 +458,16 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         }
                     }
                 },
@@ -1184,13 +1187,24 @@
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },

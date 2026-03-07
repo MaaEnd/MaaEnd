@@ -42,10 +42,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
+                    -106,
                     -2,
-                    72,
-                    5
+                    75,
+                    3
                 ],
                 "expected": [
                     "全部收取"

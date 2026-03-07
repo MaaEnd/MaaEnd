@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
 )
 
@@ -36,7 +37,11 @@ func main() {
 	log.Info().
 		Str("libDir", libDir).
 		Msg("Initializing MAA framework")
-	if err := maa.Init(maa.WithLibDir(libDir)); err != nil {
+	if err := maa.Init(
+		maa.WithLibDir(libDir),
+		maa.WithJSONEncoder(sonic.Marshal),
+		maa.WithJSONDecoder(sonic.Unmarshal),
+	); err != nil {
 		log.Fatal().
 			Err(err).
 			Msg("Failed to initialize MAA framework")

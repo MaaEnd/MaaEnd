@@ -1,4 +1,35 @@
 {
+    "EntryGrowthChamber": {
+        "desc": "[培养舱·进入] 主流程: 从控制中枢点击培养舱区域进入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    647,
+                    102,
+                    438,
+                    313
+                ],
+                "expected": [
+                    "^培养舱$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "next": [
+            "GrowthChamber"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入培养舱失败,无法识别培养舱界面"
+        }
+    },
     "GrowthChamber": {
         "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
         "max_hit": 1,
@@ -37,9 +68,7 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -47,6 +76,8 @@
             "time": 150,
             "timeout": 2000
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ClaimAllGrowRewardClose"
         ]
@@ -60,16 +91,16 @@
                 ]
             }
         },
-        "post_delay": 0,
-        "pre_delay": 0,
-        "rate_limit": 0,
         "pre_wait_freezes": {
             "time": 80,
             "timeout": 1000
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "Grow",
             "ExitGrowthChamber"
@@ -92,9 +123,7 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -102,6 +131,8 @@
             "time": 150,
             "timeout": 2000
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "InGrow"
         ]
@@ -126,7 +157,7 @@
             "[JumpBack]SortOrder",
             "[JumpBack]SelectGrow",
             "[JumpBack]InSelectGrowSwipe",
-            "InGrowthChamber"
+            "BackToGrowthChamber"
         ]
     },
     "SelectGrowTarget": {
@@ -166,7 +197,7 @@
             "[JumpBack]ConfirmGrow",
             "ExtractSeed",
             "ExitGrow",
-            "InGrowthChamber"
+            "BackToGrowthChamber"
         ]
     },
     "ConfirmGrow": {
@@ -206,7 +237,7 @@
             }
         }
     },
-    "InGrowthChamber": {
+    "BackToGrowthChamber": {
         "desc": "已经回到培养舱界面,任务完成",
         "recognition": {
             "type": "OCR",
@@ -222,8 +253,8 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "ExitGrowthChamber"
@@ -245,8 +276,8 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "GrayCancelButton"
@@ -417,12 +448,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ChooseSortBy",
             "[JumpBack]SwipeChooseSortBy"
@@ -447,12 +478,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
@@ -474,15 +505,15 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Scroll",
             "param": {
                 "dx": 120
             }
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SortOrder": {
         "desc": "排序,选择正序或者倒序",
@@ -504,12 +535,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ExitGrowthChamber": {
         "desc": "[培养舱·离开] 返回控制中枢",

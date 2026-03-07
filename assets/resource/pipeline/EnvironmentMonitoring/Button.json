@@ -1,0 +1,21 @@
+{
+    "TrackMissionButton": {
+        "desc": "开始追踪按钮",
+        "recognition": "OCR",
+        "roi": [
+            1021,
+            598,
+            251,
+            106
+        ],
+        "expected": [
+            "开始追踪",
+            "開始追蹤",
+            "Track",
+            "追跡開始",
+            "추적 시작"
+        ],
+        "order_by": "Expected",
+        "action": "Click"
+    }
+}

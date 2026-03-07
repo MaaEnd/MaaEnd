@@ -1,434 +1,249 @@
 {
     "SellProductAtSell": {
-        "desc": "位于出售页面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    900,
-                    550,
-                    350,
-                    150
-                ],
-                "expected": [
-                    // 交易
-                    "交易",
-                    "交易",
-                    "Trade",
-                    "取引",
-                    "거래",
-                    // 据点上限
-                    "据点上限",
-                    "據點上限",
-                    "current limit",
-                    "上限",
-                    "거점 발전 포인트 현재 거점 최대치 도달",
-                    // 不足
-                    "不足",
-                    "不足",
-                    "Insufficient",
-                    "insufficient",
-                    "不足",
-                    "거점 관리권 보유량 부족"
-                ]
-            }
-        },
-        "next": [
-            "SellProductCanSell"
+        "desc": "开始售卖货品",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
         ],
-        "focus": {
-            "Node.Recognition.Succeeded": "已进入售卖界面"
-        }
-    },
-    "SellProductCanSell": {
-        "desc": "判断当前能不能出售的虚节点",
         "next": [
-            "SellProductZeroProduct",
-            "SellProductZeroMoney",
+            "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
+            "SellProductZeroProductAfterChangeStillEmpty",
+            "[Anchor]SellProductZeroMoneyHandler",
+            "SellProductNeedSelectGoodsTryChangeGoods",
             "SellProductClickBarRight",
             "SellProductDragBar"
         ]
     },
     "SellProductZeroProductColorMatch": {
         "desc": "识别红色文字判断是否有货",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    1083,
-                    327,
-                    109,
-                    24
-                ],
-                "method": 40,
-                "lower": [
-                    0,
-                    30,
-                    80
-                ],
-                "upper": [
-                    5,
-                    150,
-                    200
-                ],
-                "count": 10
-            }
-        }
+        "recognition": "ColorMatch",
+        "roi": [
+            1083,
+            327,
+            109,
+            24
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            30,
+            80
+        ],
+        "upper": [
+            5,
+            150,
+            200
+        ],
+        "count": 10
     },
     "SellProductWhiteTextPosition": {
         "desc": "识别白色文字位置，判断是否有货",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    1083,
-                    327,
-                    109,
-                    24
-                ],
-                "method": 4,
-                "lower": [
-                    190,
-                    190,
-                    190
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ],
-                "count": 10
-            }
-        }
+        "recognition": "ColorMatch",
+        "roi": [
+            1083,
+            327,
+            109,
+            24
+        ],
+        "method": 4,
+        "lower": [
+            190,
+            190,
+            190
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 10
     },
     "SellProductZeroProduct": {
-        "desc": "货物数量不足，先尝试更换货品，失败则换据点",
-        "recognition": {
-            "type": "Or",
-            "param": {
-                "any_of": [
-                    "SellProductZeroProductColorMatch",
+        "desc": "货物数量不足",
+        "recognition": "Or",
+        "any_of": [
+            "SellProductZeroProductColorMatch",
+            {
+                "recognition": "And",
+                "all_of": [
+                    "SellProductWhiteTextPosition",
                     {
-                        "recognition": {
-                            "type": "And",
-                            "param": {
-                                "all_of": [
-                                    "SellProductWhiteTextPosition",
-                                    {
-                                        "recognition": {
-                                            "type": "OCR",
-                                            "param": {
-                                                "roi": "SellProductWhiteTextPosition",
-                                                "expected": [
-                                                    "^[0-9]{1,3}$"
-                                                ],
-                                                "only_rec": true
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
+                        "recognition": "OCR",
+                        "roi": "SellProductWhiteTextPosition",
+                        "expected": [
+                            "^[0-9]{1,3}$"
+                        ],
+                        "only_rec": true
                     }
                 ]
             }
-        },
+        ]
+    },
+    "SellProductZeroProductAfterChangeStillEmpty": {
+        "desc": "更换货品后仍无货，进入换据点流程",
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
+        }
+    },
+    "SellProductNeedSelectGoodsTryChangeGoods": {
+        "desc": "提示需要选择交易货品时，尝试更换一次货品",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            611,
+            350,
+            77
+        ],
+        "expected": [
+            "请选择用于交易的货品",
+            "請選擇用於交易的貨品",
+            "Select Goods to Trade",
+            "取引用の商品を選択してください",
+            "거래할 상품 선택 필요"
+        ],
         "next": [
-            "SellProductChangeProduct",
-            "SellProductOutpostDone"
+            "SellProductChangeGoods"
         ]
     },
     "SellProductZeroMoney": {
         "desc": "调度券余量为0",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    900,
-                    611,
-                    350,
-                    77
-                ],
-                "expected": [
-                    // 不足
-                    "不足",
-                    "不足",
-                    "Insufficient",
-                    "insufficient",
-                    "不足",
-                    "거점 관리권 보유량 부족"
-                ]
-            }
-        },
-        "next": [
-            "SellProductOutpostDone"
+        "recognition": "OCR",
+        "roi": [
+            900,
+            611,
+            350,
+            77
+        ],
+        "expected": [
+            // 不足
+            "不足",
+            "不足",
+            "Insufficient",
+            "insufficient",
+            "不足",
+            "거점 관리권 보유량 부족"
+        ]
+    },
+    "SellProductZeroMoneyWithTip": {
+        "desc": "调度券不足（仅未成交时提示）",
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroMoney"
         ],
         "focus": {
-            "Node.Action.Succeeded": "该据点调度券不足，过一会再来吧"
+            "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
         }
-    },
-    "SellProductChangeProduct": {
-        "desc": "识别更换货品并点击，进入更换UI",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1115,
-                    344,
-                    172,
-                    149
-                ],
-                "expected": [
-                    // 更换货品
-                    "更换货品",
-                    "更換貨品",
-                    "Switch Goods",
-                    "商品変更",
-                    "상품 교체"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SellProductSelectNewProduct"
-        ]
-    },
-    "SellProductSelectNewProduct": {
-        "desc": "在更换UI中识别新货物并点击",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    511,
-                    180,
-                    274,
-                    83
-                ],
-                "expected": [
-                    // 本地仓储
-                    "本地仓储",
-                    "本地區倉儲",
-                    "Local Depot",
-                    "地域在庫",
-                    "지역 저장고"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SellProductSelectNewProductConfirm"
-        ]
-    },
-    "SellProductSelectNewProductConfirm": {
-        "desc": "点击确认",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "WhiteConfirmButtonType2"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SellProductCanSellAfterChange"
-        ]
     },
     "SellProductClickBarRight": {
         "desc": "点击进度条最右侧",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1115,
-                    507,
-                    88,
-                    103
-                ],
-                "template": [
-                    "SellProduct/SellProductBarRight.png"
-                ],
-                "method": 10001
-            }
-        },
-        "pre_wait_freezes": 100,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    40,
-                    21,
-                    -30,
-                    -43
-                ]
-            }
-        },
-        // 单击后如果马上单击交易会出问题，不懂为啥
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                1210,
-                554,
-                45,
-                39
-            ]
-        },
+        "recognition": "TemplateMatch",
+        "roi": [
+            1115,
+            507,
+            88,
+            103
+        ],
+        "template": [
+            "SellProduct/SellProductBarRight.png"
+        ],
+        "method": 10001,
+        "action": "Click",
+        "target_offset": [
+            40,
+            21,
+            -30,
+            -43
+        ],
+        // 单击后需要等待一会儿再交易
+        "post_wait_freezes": 80,
         "next": [
-            "SellProductZeroProduct",
-            "SellProductZeroMoney",
             "SellProductSell"
         ]
     },
     "SellProductDragBar": {
         "desc": "备选方案-滑动滑动条",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1000,
-                    500,
-                    200,
-                    150
-                ],
-                "template": [
-                    "SellProduct/SellProductBar.png"
-                ],
-                "method": 10001
-            }
-        },
-        "pre_wait_freezes": 100,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "end_offset": [
-                    [
-                        0,
-                        0,
-                        400,
-                        0
-                    ]
-                ],
-                "duration": [
-                    500
-                ]
-            }
-        },
+        "recognition": "TemplateMatch",
+        "roi": [
+            1000,
+            500,
+            200,
+            150
+        ],
+        "template": [
+            "SellProduct/SellProductBar.png"
+        ],
+        "method": 10001,
+        "action": "Swipe",
+        "end_offset": [
+            [
+                0,
+                0,
+                400,
+                0
+            ]
+        ],
+        "duration": [
+            500
+        ],
         "next": [
-            "SellProductZeroProduct",
-            "SellProductZeroMoney",
             "SellProductSell"
         ]
     },
     "SellProductSell": {
         "desc": "交易",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1000,
-                    640,
-                    250,
-                    100
-                ],
-                "expected": [
-                    // 交易
-                    "交易",
-                    "交易",
-                    "Trade",
-                    "trade",
-                    "取引",
-                    "거래"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                533,
-                300,
-                213,
-                103
-            ]
-        },
+        "recognition": "OCR",
+        "roi": [
+            1000,
+            640,
+            250,
+            100
+        ],
+        "expected": [
+            // 交易
+            "交易",
+            "交易",
+            "Trade",
+            "trade",
+            "取引",
+            "거래"
+        ],
+        "action": "Click",
         "next": [
             "SellProductSellCheck"
         ]
     },
     "SellProductSellCheck": {
         "desc": "交易后确认",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseRewardsButton",
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    577,
-                                    10,
-                                    138,
-                                    118
-                                ],
-                                "template": [
-                                    "SellProduct/SellProductCheckHeader.png"
-                                ]
-                            }
-                        }
-                    }
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    577,
+                    10,
+                    138,
+                    118
+                ],
+                "template": [
+                    "SellProduct/SellProductCheckHeader.png"
                 ]
             }
+        ],
+        "pre_wait_freezes": 80,
+        "action": "Click",
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "post_wait_freezes": 100,
         "next": [
-            "SellProductSellCheckComplete"
-        ]
-    },
-    "SellProductSellCheckComplete": {
-        "desc": "交易完成，奖励界面已关闭",
-        "next": [
-            "SellProductCanSellAfterChange"
+            "SellProductAtSell"
         ],
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
-    },
-    "SellProductOutpostDone": {
-        "desc": "虚节点：这个据点已经被售卖完毕",
-        "next": [
-            "[Anchor]SellProductNextOutpost"
-        ]
-    },
-    "SellProductNextOutpost": {
-        "desc": "虚节点：通用切换节点，由各据点At节点通过anchor指定目标"
-    },
-    "SellProductBackToRegionalConstruction": {
-        "desc": "返回区域建设界面",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1"
-        ],
-        "action": "Click",
-        "next": [
-            "SellProductAtDevelopment"
-        ]
     }
 }
