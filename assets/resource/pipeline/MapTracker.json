@@ -1,18 +1,19 @@
 {
     "MapTrackerTestLoop": {
+        "desc": "此节点用于持续运行小地图定位，可与路径编辑工具结合使用",
+        "max_hit": 3600,
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
                     "map_name_regex": ".*",
-                    "precision": 0.8,
+                    "precision": 1.0,
                     "print": true
                 }
             }
         },
-        "pre_delay": 1000,
-        "rate_limit": 1000,
+        "rate_limit": 500,
         "next": [
             "MapTrackerTestLoop"
         ]
@@ -24,7 +25,7 @@
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
                     "map_name_regex": ".*",
-                    "precision": 0.8,
+                    "precision": 1.0,
                     "print": true
                 }
             }

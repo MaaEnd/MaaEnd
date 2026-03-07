@@ -6,11 +6,64 @@
             "entry": "SeizeEntrustTaskMain",
             "description": "$task.SeizeEntrustTask.description",
             "option": [
-                "SeizeEntrustTaskisSwipeMiddle"
+                "SeizeEntrustTaskisSwipeMiddle",
+                "SeizeEntrustTaskisGoDepotNodeWorld"
             ]
         }
     ],
     "option": {
+        "SeizeEntrustTaskisGoDepotNodeWorld": {
+            "type": "switch",
+            "label": "是否要传送到仓储节点旁边的锚点",
+            "description": "开启后将抢完单将自动传送到仓储节点上面的锚点",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskGoDepotNode": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "option": [
+                        "SeizeEntrustTaskisWalkingToDepotNode"
+                    ],
+                    "pipeline_override": {
+                        "SeizeEntrustTaskGoDepotNode": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "SeizeEntrustTaskisWalkingToDepotNode": {
+            "type": "switch",
+            "label": "是否要自动走到仓储节点",
+            "description": "传送完成后将走到仓储节点，开启此选项需要使用前台控制器,注意有可能落水！！！",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskWalkingToDepotNode": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeEntrustTaskWalkingToDepotNode": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ],
+            "controller": [
+                "Win32-Front"
+            ]
+        },
         "SeizeEntrustTaskisSwipeMiddle": {
             "type": "switch",
             "label": "$task.SeizeEntrustTaskisSwipeMiddle.label",
@@ -30,6 +83,9 @@
                         },
                         "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": true
+                        },
+                        "SeizeEntrustTaskSwipeDwon": {
+                            "enabled": false
                         }
                     }
                 },
@@ -44,6 +100,9 @@
                         },
                         "SeizeEntrustTaskInDownSwipeMiddle": {
                             "enabled": false
+                        },
+                        "SeizeEntrustTaskSwipeDwon": {
+                            "enabled": true
                         }
                     }
                 }

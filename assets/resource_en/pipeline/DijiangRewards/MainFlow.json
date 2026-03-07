@@ -14,10 +14,5 @@
         "expected": [
             "Growth Chamber"
         ]
-    },
-    "InviteFriend": {
-        "expected": [
-            "Invite Friend"
-        ]
     }
 }

@@ -104,6 +104,9 @@
         ],
         "box_index": 1,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
         "next": [
             "DeliveryJobsPackCargo"
         ]
@@ -117,6 +120,9 @@
         ],
         "box_index": 1,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
         "next": [
             "DeliveryJobsPackCargo"
         ]
@@ -130,6 +136,9 @@
         ],
         "box_index": 1,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
+        },
         "next": [
             "DeliveryJobsPackCargo"
         ]
@@ -143,6 +152,9 @@
         ],
         "box_index": 1,
         "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling"
+        },
         "next": [
             "DeliveryJobsPackCargo"
         ]

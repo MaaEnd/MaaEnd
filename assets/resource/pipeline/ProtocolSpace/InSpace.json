@@ -75,16 +75,15 @@
         "post_wait_freezes": 200,
         "next": [
             "ProtocolSpaceTouchStartTouch",
-            "[JumpBack]ProtocolSpaceTouchStartMiddle",
-            "[JumpBack]ProtocolSpaceTouchStartLeft",
+            "[JumpBack]ProtocolSpaceTouchStartMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchStartNotFound"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入协议空间成功"
         }
     },
-    "ProtocolSpaceTouchStartLeft": {
-        "desc": "光点在左侧，向左旋转",
+    "ProtocolSpaceTouchStartMoveToTarget": {
+        "desc": "向目标移动",
         "recognition": "And",
         "all_of": [
             "ProtocolSpaceIn",
@@ -93,18 +92,21 @@
                 "roi": [
                     0,
                     0,
-                    400,
-                    720
+                    0,
+                    0
                 ],
-                "expected": 1,
+                "expected": 0,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
+        "box_index": 1,
+        "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "CharacterControllerYawDeltaAction",
+        "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "delta": -45
-        }
+            "align_threshold": 120
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchStartNotFound": {
         "desc": "光点未找到，向右旋转",
@@ -112,34 +114,13 @@
         "all_of": [
             "ProtocolSpaceIn"
         ],
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterControllerYawDeltaAction",
         "custom_action_param": {
             "delta": 45
-        }
-    },
-    "ProtocolSpaceTouchStartMiddle": {
-        "desc": "光点在中间，向前移动",
-        "recognition": "And",
-        "all_of": [
-            "ProtocolSpaceIn",
-            {
-                "recognition": "NeuralNetworkDetect",
-                "roi": [
-                    400,
-                    0,
-                    480,
-                    720
-                ],
-                "expected": 0,
-                "model": "ProtocolSpace/best.onnx"
-            }
-        ],
-        "action": "Custom",
-        "custom_action": "CharacterControllerForwardAxisAction",
-        "custom_action_param": {
-            "axis": 3
-        }
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchStartTouch": {
         "desc": "判断出现触碰提示，开始触碰",
@@ -169,16 +150,15 @@
             "ProtocolSpaceTouchExitTouch",
             "ProtocolSpaceOperationFailed",
             "[JumpBack]AutoFight",
-            "[JumpBack]ProtocolSpaceTouchExitLeft",
-            "[JumpBack]ProtocolSpaceTouchExitMiddle",
+            "[JumpBack]ProtocolSpaceTouchExitMoveToTarget",
             "[JumpBack]ProtocolSpaceTouchExitNotFound"
         ],
         "focus": {
             "Node.Action.Succeeded": "开始行动"
         }
     },
-    "ProtocolSpaceTouchExitLeft": {
-        "desc": "退出在左侧，向左转动",
+    "ProtocolSpaceTouchExitMoveToTarget": {
+        "desc": "向目标移动",
         "recognition": "And",
         "all_of": [
             "ProtocolSpaceIn",
@@ -187,41 +167,21 @@
                 "roi": [
                     0,
                     0,
-                    450,
-                    720
-                ],
-                "expected": 1,
-                "model": "ProtocolSpace/best.onnx"
-            }
-        ],
-        "action": "Custom",
-        "custom_action": "CharacterControllerYawDeltaAction",
-        "custom_action_param": {
-            "delta": -45
-        }
-    },
-    "ProtocolSpaceTouchExitMiddle": {
-        "desc": "退出在中间，向前移动",
-        "recognition": "And",
-        "all_of": [
-            "ProtocolSpaceIn",
-            {
-                "recognition": "NeuralNetworkDetect",
-                "roi": [
-                    450,
                     0,
-                    380,
-                    720
+                    0
                 ],
                 "expected": 1,
                 "model": "ProtocolSpace/best.onnx"
             }
         ],
+        "box_index": 1,
+        "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "CharacterControllerForwardAxisAction",
+        "custom_action": "CharacterMoveToTargetAction",
         "custom_action_param": {
-            "axis": 3
-        }
+            "align_threshold": 120
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchExitNotFound": {
         "desc": "退出未找到，向右旋转",
@@ -229,11 +189,13 @@
         "all_of": [
             "ProtocolSpaceIn"
         ],
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterControllerYawDeltaAction",
         "custom_action_param": {
-            "delta": 45
-        }
+            "delta": 90
+        },
+        "post_delay": 0
     },
     "ProtocolSpaceTouchExitTouch": {
         "desc": "判断出现触碰提示，开始触碰",
@@ -275,8 +237,30 @@
         "pre_wait_freezes": 200,
         "next": [
             "ProtocolSpaceRewardUsePermit",
+            "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
         ]
+    },
+    "ProtocolSpaceRewardDontUsePermit": {
+        "desc": "协议空间奖励界面不使用许可",
+        "recognition": "OCR",
+        "roi": [
+            360,
+            250,
+            560,
+            100
+        ],
+        "expected": [
+            "消耗",
+            "Cost"
+        ],
+        "action": "Click",
+        "next": [
+            "ProtocolSpaceRewardClaim"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "不使用理智消耗许可"
+        }
     },
     "ProtocolSpaceRewardUsePermit": {
         "desc": "协议空间奖励界面使用许可",
@@ -303,7 +287,7 @@
         }
     },
     "ProtocolSpaceRewardClaim": {
-        "desc": "协议空间奖励界面直接领取",
+        "desc": "协议空间奖励界面直接领取，比如体力活动时无需选择",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType1"

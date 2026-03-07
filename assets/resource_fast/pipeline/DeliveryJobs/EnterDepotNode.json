@@ -3,17 +3,6 @@
     // 先判断具体在哪个界面
     "DeliveryJobsGoToDepot": {
         "desc": "前往指定仓储节点",
-        // 必须等待页面稳定才进行后续识别判断如何进入仓储节点
-        // 否则会因为在动画中导致前面的识别失败，进入 [jumpback]SceneEnterMenuRegionalDevelopment 流程（DirectHit）
-        "pre_wait_freezes": {
-            "time": 80,
-            "target": [
-                66,
-                221,
-                166,
-                124
-            ]
-        },
         "next": [
             "[Anchor]DeliveryJobsInDepotNode",
             "[Anchor]DeliveryJobsEnterDepot",

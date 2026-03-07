@@ -63,6 +63,64 @@
             "DeliveryJobsCargoFillToMax"
         ]
     },
+    "DeliveryJobsSelectItemToFillValleyIV": {
+        "desc": "选择要填充的物品（四号谷地）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            37,
+            121,
+            503,
+            519
+        ],
+        "template": "DeliveryJobs/SandleafPowder.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "pre_wait_freezes": 80,
+        "action": "Click",
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillWuling": {
+        "desc": "选择要填充的物品（武陵）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            37,
+            121,
+            503,
+            519
+        ],
+        "template": "DeliveryJobs/Yazhen.png",
+        "threshold": 0.8,
+        "order_by": "Score",
+        "pre_wait_freezes": 80,
+        "action": "Click",
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsFillCorrespondingGoods": {
+        "desc": "手动填满对应货物，通过单击进度条最右侧",
+        "recognition": "TemplateMatch",
+        "roi": [
+            308,
+            583,
+            189,
+            122
+        ],
+        "template": "DeliveryJobs/FillCorrespondingGoods.png",
+        "threshold": 0.9,
+        "action": "Click",
+        "target_offset": [
+            -75,
+            0,
+            0,
+            0
+        ],
+        "next": [
+            "DeliveryJobsFillToMaxNextStep"
+        ]
+    },
     "DeliveryJobsCargoFillToMax": {
         "desc": "装满货物",
         "recognition": "TemplateMatch",

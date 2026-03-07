@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        📖 **提交前请阅读 [问题反馈指南](https://github.com/MaaEnd/MaaEnd/blob/main/docs/users/troubleshooting.md)。**  
+        📖 **提交前请阅读 [问题反馈指南](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/troubleshooting.md)。**  
         ⚠️ **请先更新到最新版本的 MaaEnd，确认问题是否仍然存在后再提交 Issue。**
 
   - type: textarea

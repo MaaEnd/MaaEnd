@@ -9,18 +9,18 @@
                 ]
             }
         },
-        "pre_delay": 0,
-        "post_delay": 0,
         "pre_wait_freezes": {
             "target": [
-                70, 
-                80, 
-                70, 
+                70,
+                80,
+                70,
                 60
             ],
             "time": 400,
             "timeout": 2000
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "__ScenePrivateWorldFactoryDisableEnterFactoryActive": {
         "desc": "在大世界工厂模式不可用，例如战斗状态，进入工厂模式",

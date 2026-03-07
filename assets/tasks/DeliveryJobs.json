@@ -7,7 +7,8 @@
             "description": "$task.DeliveryJobs.description",
             "option": [
                 "ValleyIV",
-                "Wuling"
+                "Wuling",
+                "PackCargoSelectItem"
             ]
         }
     ],
@@ -157,6 +158,99 @@
                     }
                 }
             ]
+        },
+        "PackCargoSelectItem": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.PackCargoSelectItem.label",
+            "description": "$task.DeliveryJobs.PackCargoSelectItem.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
+                            "next": [
+                                "[Anchor]DeliveryJobsSelectItemToFill"
+                            ]
+                        }
+                    },
+                    "option": [
+                        "WhatToFillValleyIV",
+                        "WhatToFillWuling"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
+        },
+        "WhatToFillValleyIV": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.WhatToFillValleyIV",
+            "cases": [
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "template": "DeliveryJobs/SandleafPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "template": "DeliveryJobs/BuckflowerPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "template": "DeliveryJobs/CitromePowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "template": "DeliveryJobs/AketinePowder.png"
+                        }
+                    }
+                }
+            ],
+            "default_case": "砂叶粉末"
+        },
+        "WhatToFillWuling": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.WhatToFillWuling",
+            "cases": [
+                {
+                    "name": "芽针",
+                    "label": "$item.Yazhen",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/Yazhen.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$item.Jincao",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/Jincao.png"
+                        }
+                    }
+                }
+            ],
+            "default_case": "芽针"
         }
     }
 }

@@ -1,0 +1,89 @@
+{
+    "SellProductCheckSelectGoodsText": {
+        "desc": "检查选择交易货品的文本",
+        "recognition": "OCR",
+        "roi": [
+            51,
+            53,
+            366,
+            118
+        ],
+        "expected": [
+            "选择交易货品",
+            "選擇交易貨品",
+            "Select Goods to Trade",
+            "取引商品を選択",
+            "거래할 상품 선택"
+        ]
+    },
+    "SellProductCheckNextGoodsText": {
+        "desc": "检查下一个货品的文本",
+        "recognition": "OCR",
+        "roi": [
+            511,
+            180,
+            274,
+            83
+        ],
+        "expected": [
+            // 本地仓储
+            "本地仓储",
+            "本地區倉儲",
+            "Local Depot",
+            "地域在庫",
+            "지역 저장고"
+        ]
+    },
+    "SellProductChangeGoods": {
+        "desc": "识别更换货品并点击，进入更换界面",
+        "recognition": "OCR",
+        "roi": [
+            1115,
+            344,
+            172,
+            149
+        ],
+        "expected": [
+            // 更换货品
+            "更换货品",
+            "更換貨品",
+            "Switch Goods",
+            "商品変更",
+            "상품 교체",
+            // 选择货品
+            "选择货品",
+            "選擇貨品",
+            "Select Goods",
+            "商品選択",
+            "상품 선택"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductSelectNewGood"
+        ]
+    },
+    "SellProductSelectNewGood": {
+        "desc": "在更换界面中识别新货品并点击",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckNextGoodsText",
+            "SellProductCheckSelectGoodsText"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSelectNewGoodConfirm": {
+        "desc": "点击确认",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType2",
+            "SellProductCheckSelectGoodsText"
+        ],
+        "action": "Click",
+        "next": [
+            "SellProductAtSell"
+        ]
+    }
+}

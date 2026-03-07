@@ -6,20 +6,44 @@
             "entry": "ItemTransfer",
             "description": "$task.ItemTransfer.description",
             "option": [
+                "AutoTeleport",
                 "WhatToTransfer",
                 "TransferAll",
                 "OriginRegion",
                 "DestinationRegion"
             ],
             "controller": [
-                "Win32",
                 "Win32-Window",
-                "Win32-Window-Background",
                 "Win32-Front"
             ]
         }
     ],
     "option": {
+        "AutoTeleport": {
+            "type": "switch",
+            "label": "$option.ItemTransferAutoTeleport.label",
+            "description": "$option.ItemTransferAutoTeleport.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "cases": [
+                {
+                    "name": "No"
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ItemTransfer": {
+                            "next": [
+                                "ItemTransferStart",
+                                "[JumpBack]SceneEnterWorldDijiang2"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "default_case": "No"
+        },
         "WhatToTransfer": {
             "type": "select",
             "label": "$option.ItemTransferWhatToTransfer.label",
@@ -434,13 +458,16 @@
                             "template": "ItemTransfer/植物.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 134
+                            "expected": 134,
+                            "threshold": 0.6
                         }
                     }
                 },
@@ -1160,13 +1187,24 @@
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 123
+                            "expected": 123,
+                            "threshold": 0.6
+                        },
+                        "ItemTransferRepoToBag": {
+                            "next": [
+                                "ItemTransferClickSortDescending",
+                                "ItemTransferClickItemCategory",
+                                "ItemTransferFindItemInRepo",
+                                "ItemTransferScrollDownwardRepo"
+                            ]
                         }
                     }
                 },
@@ -1655,7 +1693,7 @@
                 }
             ],
             "pipeline_override": {
-                "ItemTransferStart": {
+                "ItemTransferSwitchRepoToOrigin": {
                     "max_hit": "{Times}"
                 }
             }
@@ -1670,20 +1708,16 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": "四号谷地"
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": "四号谷地"
                         }
                     }
                 },
@@ -1692,16 +1726,16 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": "武陵"
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickOriginReturnClicked": {
+                            "expected": "武陵"
                         }
                     }
                 }
@@ -1718,12 +1752,10 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV",
-                                "Valley"
-                            ]
+                            "expected": "四号谷地"
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": "四号谷地"
                         }
                     }
                 },
@@ -1732,10 +1764,10 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
+                            "expected": "武陵"
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": "武陵"
                         }
                     }
                 }

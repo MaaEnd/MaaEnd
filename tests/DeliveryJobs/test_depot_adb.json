@@ -1,0 +1,90 @@
+{
+    "configs": {
+        "name": "自动转交送货任务(官服-ADB)，测试仓储节点识别",
+        "resource": "官服",
+        "controller": "ADB"
+    },
+    "cases": [
+        {
+            "name": "在四号谷地的仓储节点中（源石研究园未就绪，矿脉源区和供能高地就绪）",
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_一个未就绪",
+            "hits": [
+                {
+                    "node": "DeliveryJobsEnterOriginLodespringCargo",
+                    "box": [
+                        414,
+                        582,
+                        309,
+                        57
+                    ]
+                },
+                {
+                    "node": "DeliveryJobsEnterPowerPlateauCargo",
+                    "box": [
+                        760,
+                        582,
+                        304,
+                        60
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "在四号谷地的仓储节点中（源石研究园有任务，矿脉源区和供能高地就绪）",
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_查看任务",
+            "hits": [
+                {
+                    "node": "DeliveryJobsEnterOriginLodespringCargo",
+                    "box": [
+                        414,
+                        582,
+                        309,
+                        57
+                    ]
+                },
+                {
+                    "node": "DeliveryJobsEnterPowerPlateauCargo",
+                    "box": [
+                        760,
+                        582,
+                        304,
+                        60
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "在四号谷地的仓储节点中（源石研究园查看报价，矿脉源区和供能高地就绪）",
+            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_查看报价",
+            "hits": [
+                {
+                    "node": "DeliveryJobsEnterOriginiumScienceParkCargo",
+                    "box": [
+                        91,
+                        587,
+                        274,
+                        48
+                    ]
+                },
+                {
+                    "node": "DeliveryJobsEnterOriginLodespringCargo",
+                    "box": [
+                        414,
+                        582,
+                        309,
+                        57
+                    ]
+                },
+                {
+                    "node": "DeliveryJobsEnterPowerPlateauCargo",
+                    "box": [
+                        760,
+                        582,
+                        304,
+                        60
+                    ]
+                }
+            ]
+        }
+    ]
+}

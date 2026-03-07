@@ -21,7 +21,13 @@
         },
         "post_wait_freezes": {
             "time": 100,
-            "timeout": 1000
+            "timeout": 1000,
+            "target": [
+                662,
+                543,
+                309,
+                48
+            ]
         },
         "next": [
             "WaitEndExchange",
@@ -85,7 +91,8 @@
             "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
             "ExitClueLibrary",
-            "ExitReceptionRoom"
+            "ExitReceptionRoom",
+            "EndExchange"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
@@ -107,7 +114,7 @@
             "type": "Click"
         },
         "next": [
-            "CloseRewardsButton"
+            "CloseExchangeRewards"
         ]
     },
     "CloseExchangeRewards": {
@@ -144,7 +151,7 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 200,
+            "time": 80,
             "timeout": 1000
         },
         "next": [
@@ -387,11 +394,11 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "ReceptionRoomSetClueTips",
-                    "InReceptionRoom"
+                    "ReceptionRoomSetClueTips"
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -403,10 +410,8 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ReadySetClues",
             "EndExchange",
@@ -433,6 +438,9 @@
                 "order_by": "Vertical"
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AlreadyHaveClues",
             "SetClues"
@@ -457,7 +465,10 @@
                 ],
                 "order_by": "Vertical"
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SetClues": {
         "desc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
@@ -470,6 +481,17 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -480,7 +502,9 @@
             "time": 100,
             "timeout": 1000,
             "target": "ReceptionRoomSetClueTips"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ExitClueLibrary": {
         "desc": "[会客室·线索] 线索库界面点击左上会客室标题返回会客室主界面",
@@ -494,6 +518,16 @@
             }
         },
         "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 2000,
+            "target": [
+                916,
+                44,
+                364,
+                59
+            ]
+        },
         "next": [
             "ExitReceptionRoom"
         ]
@@ -519,6 +553,16 @@
             "param": {
                 "contact": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 2000,
+            "target": [
+                916,
+                44,
+                364,
+                59
+            ]
         }
     }
 }

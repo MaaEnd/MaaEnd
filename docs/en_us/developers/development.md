@@ -87,6 +87,7 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
 - [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
 - [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
+- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
 
 ## Code Specifications
 

@@ -1,6 +1,38 @@
 {
+    "EntryGrowthChamber": {
+        "desc": "[培养舱·进入] 主流程: 从控制中枢点击培养舱区域进入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    647,
+                    102,
+                    438,
+                    313
+                ],
+                "expected": [
+                    "^培养舱$"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "next": [
+            "GrowthChamber"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入培养舱失败,无法识别培养舱界面"
+        }
+    },
     "GrowthChamber": {
         "desc": "[控制中枢·培养舱] 识别培养舱界面，领取奖励和再次培养",
+        "max_hit": 1,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -16,14 +48,117 @@
             }
         },
         "next": [
-            "[JumpBack]Grow",
-            "[JumpBack]YellowConfirmButtonType1",
-            "[JumpBack]CloseRewardsButton",
+            "ClaimAllGrowReward",
+            "Grow",
             "ExitGrowthChamber"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
         }
+    },
+    "ClaimAllGrowReward": {
+        "desc": "领取培养奖励",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "ClaimAllText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ClaimAllGrowRewardClose"
+        ]
+    },
+    "ClaimAllGrowRewardClose": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "Grow",
+            "ExitGrowthChamber"
+        ]
+    },
+    "Grow": {
+        "desc": "点击培养按钮",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "^培养$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InGrow"
+        ]
+    },
+    "InGrow": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    296,
+                    111
+                ],
+                "expected": [
+                    "选择培养对象"
+                ]
+            }
+        },
+        "next": [
+            "[JumpBack]SortBy",
+            "[JumpBack]SortOrder",
+            "[JumpBack]SelectGrow",
+            "[JumpBack]InSelectGrowSwipe",
+            "BackToGrowthChamber"
+        ]
     },
     "SelectGrowTarget": {
         "desc": "选择培养目标",
@@ -37,9 +172,9 @@
                     383
                 ],
                 "expected": [
-                    "菌",
-                    "石",
-                    "叶"
+                    "菌$",
+                    "石$",
+                    "叶$"
                 ]
             }
         }
@@ -59,11 +194,29 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]WhiteConfirmButtonType1",
+            "[JumpBack]ConfirmGrow",
             "ExtractSeed",
             "ExitGrow",
-            "InGrowthChamber"
+            "BackToGrowthChamber"
         ]
+    },
+    "ConfirmGrow": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100
+        }
     },
     "CheckGrowTargetEmpty": {
         "desc": "检查选择的培养对象是否为空",
@@ -84,7 +237,7 @@
             }
         }
     },
-    "InGrowthChamber": {
+    "BackToGrowthChamber": {
         "desc": "已经回到培养舱界面,任务完成",
         "recognition": {
             "type": "OCR",
@@ -99,7 +252,13 @@
                     "生产助力"
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ExitGrowthChamber"
+        ]
     },
     "ExitGrow": {
         "desc": "不需要提取基核,直接退出培养界面",
@@ -117,6 +276,9 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GrayCancelButton"
         ]
@@ -141,35 +303,67 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]WhiteConfirmButtonType2",
-            "GrowCloseRewardsButton",
+            "ConfirmExtractSeed",
             "NoMaterials"
         ]
     },
-    "GrowCloseRewardsButton": {
-        "desc": "培养舱界面特殊关闭，关闭奖励通知后会跟随关闭一个灰色取消按钮",
+    "ConfirmExtractSeed": {
+        "desc": "确认提取基核",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    571,
-                    594,
-                    139,
-                    126
+                "all_of": [
+                    "WhiteConfirmButtonType2",
+                    "ConfirmExtractText"
                 ],
-                "template": [
-                    "Common/Button/CloseRewardButton.png",
-                    "Common/Button/CloseRewardButtonHover.png"
-                ],
-                "threshold": 0.9
+                "box_index": 1
             }
         },
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
         "next": [
-            "GrayCancelButton"
+            "ExtractSeedClose"
         ]
+    },
+    "ExtractSeedClose": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "BackToGrow"
+        ]
+    },
+    "BackToGrow": {
+        "desc": "提取基核后返回培养界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrayCancelButton",
+                    "GrayButtonCancelText"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "NoMaterials": {
         "desc": "缺少原料无法获取",
@@ -226,57 +420,6 @@
             }
         }
     },
-    "Grow": {
-        "desc": "点击培养按钮",
-        "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    484,
-                    213,
-                    726,
-                    283
-                ],
-                "expected": [
-                    "^培养$"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": {
-            "time": 150,
-            "timeout": 2000
-        },
-        "next": [
-            "InGrow"
-        ]
-    },
-    "InGrow": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    296,
-                    111
-                ],
-                "expected": [
-                    "选择培养对象"
-                ]
-            }
-        },
-        "next": [
-            "[JumpBack]SortBy",
-            "[JumpBack]SortOrder",
-            "[JumpBack]SelectGrow",
-            "[JumpBack]InSelectGrowSwipe",
-            "InGrowthChamber"
-        ]
-    },
     "SortBy": {
         "desc": "排序,选择基础排序内容",
         "enabled": false,
@@ -305,9 +448,12 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ChooseSortBy",
             "[JumpBack]SwipeChooseSortBy"
@@ -332,9 +478,12 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
@@ -356,12 +505,15 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Scroll",
             "param": {
                 "dx": 120
             }
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SortOrder": {
         "desc": "排序,选择正序或者倒序",
@@ -383,9 +535,12 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ExitGrowthChamber": {
         "desc": "[培养舱·离开] 返回控制中枢",
@@ -408,6 +563,10 @@
             "param": {
                 "contact": 1
             }
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 2000
         }
     }
 }

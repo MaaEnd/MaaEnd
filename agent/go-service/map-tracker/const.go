@@ -27,7 +27,7 @@ const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
 	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
 	CONVINCED_DISTANCE_THRESHOLD     = 30
-	CONVINCED_VALID_TIME_MS          = 500
+	CONVINCED_VALID_TIME_MS          = 2000
 )
 
 // Resource paths
@@ -38,7 +38,11 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS = 150
+	INFER_INTERVAL_MS               = 100
+	ROTATION_MAX_SPEED              = 5.0
+	ROTATION_DEFAULT_SPEED          = 3.0
+	ROTATION_MIN_SPEED              = 1.0
+	ROTATION_ADJUSTMENT_LOWER_BOUND = 6.0
 )
 
 // MapTrackerInfer parameters default values
@@ -59,11 +63,9 @@ var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
 	ArrivalThreshold:       3.5,
 	ArrivalTimeout:         60000,
-	RotationLowerThreshold: 6.0,
-	RotationUpperThreshold: 30.0,
-	RotationSpeed:          2.0,
-	RotationTimeout:        30000,
-	SprintThreshold:        25.0,
+	RotationLowerThreshold: 7.5,
+	RotationUpperThreshold: 60.0,
+	SprintThreshold:        15.0,
 	StuckThreshold:         2000,
 	StuckTimeout:           10000,
 }

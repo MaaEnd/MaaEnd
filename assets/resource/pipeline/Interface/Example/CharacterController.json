@@ -46,5 +46,8 @@
         "custom_action_param": {
             "axis": -1 // 这个不准，看着用
         }
+    },
+    "CharacterControllerExampleMoveToTarget": {
+        "desc": "向目标前进示例，以协议空间内物体为例，详见ProtocolSpaceEnterSpaceSuccess"
     }
 }

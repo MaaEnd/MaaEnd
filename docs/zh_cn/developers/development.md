@@ -89,6 +89,7 @@ python tools/setup_workspace.py
 - [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
 - [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
+- [CharacterController 参考文档](./character-controller.md)：角色视角旋转、移动及朝向目标自动移动等控制节点。
 
 ## 代码规范
 

@@ -265,9 +265,7 @@
     "AutoEssenceChooseScaling": {
         "post_delay": 1000,
         "next": [
-            "[JumpBack]AutoEssenceChooseScaling1",
-            "[JumpBack]AutoEssenceChooseOverrideOff",
-            "[JumpBack]AutoEssenceChooseOverrideOn",
+            "AutoEssenceChooseScaling1",
             "AutoEssenceConfirmObtain"
         ]
     },
@@ -288,6 +286,12 @@
         "action": {
             "type": "Click"
         },
+        "post_delay": 1000,
+        "next": [
+            "[JumpBack]AutoEssenceChooseOverrideOff",
+            "[JumpBack]AutoEssenceChooseOverrideOn",
+            "AutoEssenceConfirmObtain"
+        ],
         "focus": {
             "Node.Action.Starting": "👆点击单倍领取按钮"
         }

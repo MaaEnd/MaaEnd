@@ -17,7 +17,6 @@
                 "AutoTaskInterval"
             ],
             "controller": [
-                "Win32",
                 "Win32-Window",
                 "Win32-Front"
             ]

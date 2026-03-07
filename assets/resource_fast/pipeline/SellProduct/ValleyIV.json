@@ -1,193 +1,293 @@
 {
-    "ValleyIVSwitchToRefugeeCamp": {
-        "desc": "OCR 切换至难民暂居处",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    123,
-                    64,
-                    189,
-                    52
-                ],
-                "expected": [
-                    "难民暂居处",
-                    "難民暫居處",
-                    "Refugee Camp",
-                    "仮設居住地",
-                    "유랑자 임시 거주지"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
+    "SellProductValleyIVSell": {
+        "desc": "在四号谷地售卖",
+        "max_hit": 1,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductGoToValleyIVOutpost"
+            ]
         },
         "next": [
-            "ValleyIVVerifyAtRefugeeCamp"
+            "[JumpBack]SellProductRefugeeCamp",
+            "[JumpBack]SellProductInfrastructureOutpost",
+            "[JumpBack]SellProductReconstructionCommand",
+            "SellProductBackToRegionalConstruction"
         ]
     },
-    "ValleyIVVerifyAtRefugeeCamp": {
-        "desc": "检测：已切换至难民暂居处",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    146,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
+    "SellProductRefugeeCamp": {
+        "desc": "难民暂居处售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "next": [
+            "SellProductRefugeeCampSell",
+            "[JumpBack]SellProductGoToRefugeeCampOutpost"
+        ]
+    },
+    "SellProductInfrastructureOutpost": {
+        "desc": "基建前站售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostTabText"
+        ],
+        "next": [
+            "SellProductInfrastructureOutpostSell",
+            "[JumpBack]SellProductGoToInfrastructureOutpost"
+        ]
+    },
+    "SellProductReconstructionCommand": {
+        "desc": "重建指挥部售卖",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "next": [
+            "SellProductReconstructionCommandSell",
+            "[JumpBack]SellProductGoToReconstructionCommandOutpost"
+        ]
+    },
+    "SellProductRefugeeCampSell": {
+        "desc": "难民暂居处售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
         "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToInfrastructureOutpost"
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
         ]
     },
-    "ValleyIVSwitchToInfrastructureOutpost": {
-        "desc": "OCR 切换至基建前站",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    447,
-                    64,
-                    166,
-                    50
-                ],
-                "expected": [
-                    "基建前站",
-                    "Infra-Station",
-                    "建設基地",
-                    "기초 건설 주둔지"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ValleyIVVerifyAtInfrastructureOutpost"
-        ]
-    },
-    "ValleyIVVerifyAtInfrastructureOutpost": {
-        "desc": "检测：已切换至基建前站",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    447,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
+    "SellProductInfrastructureOutpostSell": {
+        "desc": "基建前站售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
         "anchor": {
-            "SellProductNextOutpost": "ValleyIVSwitchToReconstructionCommand"
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
         ]
     },
-    "ValleyIVSwitchToReconstructionCommand": {
-        "desc": "OCR 切换至重建指挥部",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    754,
-                    64,
-                    260,
-                    55
-                ],
-                "expected": [
-                    "重建指挥部",
-                    "重建指揮部",
-                    "Reconstruction HQ",
-                    "再建管理本部",
-                    "재건 지휘부"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "ValleyIVVerifyAtReconstructionCommand"
-        ]
-    },
-    "ValleyIVVerifyAtReconstructionCommand": {
-        "desc": "检测：已切换至重建指挥部",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    754,
-                    64,
-                    166,
-                    34
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        22,
-                        80,
-                        180
-                    ]
-                ],
-                "upper": [
-                    [
-                        36,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 30
-            }
-        },
+    "SellProductReconstructionCommandSell": {
+        "desc": "重建指挥部售卖",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
         "anchor": {
-            "SellProductNextOutpost": "SellProductBackToRegionalConstruction"
+            "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "next": [
             "SellProductAtSell"
+        ]
+    },
+    "SellProductRefugeeCampZeroProductTryChangeGoods": {
+        "desc": "难民暂居处缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductInfrastructureOutpostZeroProductTryChangeGoods": {
+        "desc": "基建前站缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductReconstructionCommandZeroProductTryChangeGoods": {
+        "desc": "重建指挥部缺货时尝试更换一次货品",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductZeroProduct"
+        ],
+        "next": [
+            "SellProductChangeGoods"
+        ]
+    },
+    "SellProductInRefugeeCamp": {
+        "desc": "在难民暂居处",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckRefugeeCampText",
+            "SellProductInOutpost"
+        ]
+    },
+    "SellProductInInfrastructureOutpost": {
+        "desc": "在基建前站",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckInfrastructureOutpostText",
+            "SellProductInOutpost"
+        ]
+    },
+    "SellProductInReconstructionCommand": {
+        "desc": "在重建指挥部",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckReconstructionCommandText",
+            "SellProductInOutpost"
+        ]
+    },
+    "SellProductGoToRefugeeCampOutpost": {
+        "desc": "前往难民暂居处据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckRefugeeCampTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInRefugeeCamp"
+        ]
+    },
+    "SellProductGoToInfrastructureOutpost": {
+        "desc": "前往基建前站据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckInfrastructureOutpostTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInInfrastructureOutpost"
+        ]
+    },
+    "SellProductGoToReconstructionCommandOutpost": {
+        "desc": "前往重建指挥部据点",
+        "recognition": "And",
+        "all_of": [
+            "SellProductInValleyIVOutpost",
+            "SellProductCheckReconstructionCommandTabText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "SellProductInReconstructionCommand"
+        ]
+    },
+    "SellProductCheckRefugeeCampTabText": {
+        "desc": "检查难民暂居处文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "Refugee Camp",
+            "仮設居住地",
+            "유랑자 임시 거주지"
+        ]
+    },
+    "SellProductCheckInfrastructureOutpostTabText": {
+        "desc": "检查基建前站文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "基建前站",
+            "Infra-Station",
+            "建設基地",
+            "기초 건설 주둔지"
+        ]
+    },
+    "SellProductCheckReconstructionCommandTabText": {
+        "desc": "检查重建指挥部文本",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            160
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "Reconstruction HQ",
+            "再建管理本部",
+            "재건 지휘부"
+        ]
+    },
+    "SellProductCheckRefugeeCampText": {
+        "desc": "检查难民暂居处大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "难民暂居处",
+            "難民暫居處",
+            "Refugee Camp",
+            "仮設居住地",
+            "유랑자 임시 거주지"
+        ]
+    },
+    "SellProductCheckInfrastructureOutpostText": {
+        "desc": "检查基建前站大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "基建前站",
+            "Infra-Station",
+            "建設基地",
+            "기초 건설 주둔지"
+        ]
+    },
+    "SellProductCheckReconstructionCommandText": {
+        "desc": "检查重建指挥部大字文本",
+        "recognition": "OCR",
+        "roi": [
+            198,
+            167,
+            331,
+            127
+        ],
+        "expected": [
+            "重建指挥部",
+            "重建指揮部",
+            "Reconstruction HQ",
+            "再建管理本部",
+            "재건 지휘부"
         ]
     }
 }
