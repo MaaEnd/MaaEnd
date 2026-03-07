@@ -26,7 +26,7 @@
                     "pipeline_override": {
                         "GiftOperatorInDijiang0": {
                             "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorMoveRecordedResetAlt"
+                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
                             }
                         }
                     }
@@ -37,7 +37,7 @@
                     "pipeline_override": {
                         "GiftOperatorInDijiang0": {
                             "anchor": {
-                                "GiftOperatorMoveModeAnchor": "GiftOperatorMoveMapTracker"
+                                "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunMapTracker"
                             }
                         }
                     }

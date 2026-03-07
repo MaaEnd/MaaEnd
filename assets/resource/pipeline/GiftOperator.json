@@ -440,9 +440,35 @@
             "type": "OCR"
         }
     },
+    "GiftOperatorShiftToRunMapTracker": {
+        "action": {
+            "param": {
+                "key": 16
+            },
+            "type": "ClickKey"
+        },
+        "doc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
+        "next": [
+            "GiftOperatorMoveMapTracker"
+        ],
+        "post_delay": 500
+    },
+    "GiftOperatorShiftToRunRecorded": {
+        "action": {
+            "param": {
+                "key": 16
+            },
+            "type": "ClickKey"
+        },
+        "doc": "按 Shift 恢复跑步模式，等待后再执行预制按键",
+        "next": [
+            "GiftOperatorMoveRecordedResetAlt"
+        ],
+        "post_delay": 500
+    },
     "GiftOperatorInDijiang0": {
         "anchor": {
-            "GiftOperatorMoveModeAnchor": "GiftOperatorMoveRecordedResetAlt"
+            "GiftOperatorMoveModeAnchor": "GiftOperatorShiftToRunRecorded"
         },
         "doc": "确认已在帝江号舰桥大世界",
         "next": [
