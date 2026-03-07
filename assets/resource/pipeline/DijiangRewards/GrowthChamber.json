@@ -323,14 +323,20 @@
             "type": "Click"
         },
         "post_wait_freezes": {
-            "time": 150,
+            "time": 80,
+            "timeout": 2000
+        },
+        "pre_wait_freezes": {
+            "time": 80,
             "timeout": 2000
         },
         "next": [
-            "ExtractSeedClose"
+            "ExtractSeedClose",
+            "ConfirmExtractSeed"
         ]
     },
     "ExtractSeedClose": {
+        "desc": "提取基核后关闭提示",
         "recognition": {
             "type": "And",
             "param": {
