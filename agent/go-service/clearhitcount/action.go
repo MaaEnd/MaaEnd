@@ -9,7 +9,7 @@ import (
 
 type clearHitCountParam struct {
 	Nodes  []string `json:"nodes"`            // 要清除命中计数的节点名称列表
-	Strict *bool    `json:"strict,omitempty"` // 是否严格模式，任一节点清除失败时 action 视为失败。可选字段，默认 true
+	Strict *bool    `json:"strict,omitempty"` // 是否严格模式，任一节点清除失败时 action 视为失败。可选字段，默认 false
 }
 
 type ClearHitCountAction struct{}
@@ -34,8 +34,8 @@ func (a *ClearHitCountAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		return false
 	}
 
-	// 解析 strict 参数，默认为 true（严格模式）
-	strictMode := true
+	// 解析 strict 参数，默认为 false（非严格模式）
+	strictMode := false
 	if params.Strict != nil {
 		strictMode = *params.Strict
 	}
