@@ -61,6 +61,6 @@ It clears the hit counts of the nodes specified in the `nodes` field of `custom_
 - **Notes**
     - Nodes' hit counts are cleared in the order of the `nodes` array; failure to clear one node does not affect the clearing of other nodes.
     - Node names must match exactly with the node names defined in the Pipeline.
-    - Clearing a node will fail if the node does not exist or has never been recognized successfully.
+    - Clearing a node will fail if the node does not exist or has never been executed.
     - When `strict: false`, the action will return success even if some nodes fail to clear, suitable for cleaning up optional nodes that may not exist.
     - When `strict: true`, any failure to clear a node will cause the action to return failure, suitable for clearing hit counts of critical nodes.
