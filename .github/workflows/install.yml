@@ -182,7 +182,6 @@ jobs:
           find "$MAAFW_DIR" -maxdepth 1 -type f \( \
             -name "MaaDbgControlUnit*" \
             -o -name "MaaThriftControlUnit*" \
-            -o -name "MaaWin32ControlUnit*" \
             -o -name "MaaRpc*" \
             -o -name "MaaHttp*" \
             -o -name "MaaNode*" \
@@ -201,10 +200,19 @@ jobs:
             fi
           fi
 
-          # 将 MaaPiCli 重命名为 MaaEnd，清理其他关联文件（如 .pdb）
-          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd"' _ {} \;
-          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli.exe" -exec sh -c 'mv "$1" "$(dirname "$1")/MaaEnd.exe"' _ {} \;
-          find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli*" -exec rm -f {} +
+          # 处理 MaaPiCli
+          if [[ "$MAAFW_DIR" == "install/maafw" ]]; then
+            # 有 maafw 目录说明使用 MXU，直接删除 MaaPiCli
+            find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli*" -exec rm -f {} +
+          else
+            # 没有 MXU（如 Linux ARM64），将 MaaPiCli 重命名为 MaaEnd
+            if [[ -f "$MAAFW_DIR/MaaPiCli" ]]; then
+              mv "$MAAFW_DIR/MaaPiCli" install/MaaEnd
+            elif [[ -f "$MAAFW_DIR/MaaPiCli.exe" ]]; then
+              mv "$MAAFW_DIR/MaaPiCli.exe" install/MaaEnd.exe
+            fi
+            find "$MAAFW_DIR" -maxdepth 1 -type f -name "MaaPiCli*" -exec rm -f {} +
+          fi
 
           # 更新 interface.json 中的版本号
           echo "Update interface version to ${{ needs.meta.outputs.tag }}"
