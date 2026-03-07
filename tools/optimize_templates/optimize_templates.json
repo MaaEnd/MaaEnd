@@ -432,5 +432,9 @@
     "resource/image/AutoEcoFarm/AutoEcoFarmHand": "73165e813efb8180d7db06a0e0c60fdd543b446336cc24c4e679f2331ee15c52",
     "resource/image/AutoEcoFarm/ItemInfo": "6c28ea6aa988ccf68e5110109e4a364deb69a92f5365170493da112f3be9dcb4",
     "resource/image/AutoEcoFarm/AutoEcoFarmFarmland": "216dc35ab9fd5134af2828da822f97ce4e79e2a32726f75b03cf94bbb1ee3640",
-    "resource/image/AutoEcoFarm/pointer": "677520eb05ba681a87df470bfa62d817fd50c7d2ccab7fdf29698dfef206a4c0"
+    "resource/image/AutoEcoFarm/pointer": "677520eb05ba681a87df470bfa62d817fd50c7d2ccab7fdf29698dfef206a4c0",
+    "resource/image/Valuables/ValuablesTabNotChoose": "4c6b72c33d0a4676ac78cb0a41674dc17869f74a385899378cacdb54a1a737e2",
+    "resource/image/Valuables/Close": "9fafba209a8c3e37bf2b9542ac5efd3251ce36bca10d124eb855d532d51955ac",
+    "resource/image/Valuables/ValuablesTabChoosed": "9e035ab54589ab72a950ff57f15d9b95214404c80543b016ddc6757a6b49e055",
+    "resource/image/Valuables/EmergencySanityBooster": "75ae467396f45923532259a5559ae36907e1adfdd1b4c6f6493f06edba564830"
 }

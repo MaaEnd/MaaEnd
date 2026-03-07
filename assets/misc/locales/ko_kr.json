@@ -372,6 +372,8 @@
     "option.DailyTaskAssemble.desc": "활동 점수를 얻기 위해 가장 낮은 레벨의 장비를 자동으로 1회 제작합니다.",
     "option.DailyTaskCreation.label": "간편 제작",
     "option.DailyTaskCreation.desc": "활동 점수를 얻기 위해 간편 제작을 자동으로 1회 진행합니다.",
+    "task.AutoUseSpMedication.description": "응급 이성 강화제 1개 자동 사용(+40 이성)",
+    "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
     "resource.CN.label": "중국 서버 (官服)",
     "resource.Bilibili.label": "Bilibili 서버 (B 服)",
     "resource.Global.label": "글로벌 (Global/EN)",

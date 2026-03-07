@@ -372,6 +372,8 @@
     "option.BatchAddFriends.inputs.UidList.description": "複数の UID はスペースまたは「、」で区切ります。空欄の場合は見知らぬ人を追加します。",
     "option.BatchAddFriends.inputs.MaxCount.label": "最大追加数",
     "option.BatchAddFriends.inputs.MaxCount.description": "指定数に達したら停止",
+    "task.AutoUseSpMedication.description": "緊急理智強化剤を1つ自動で使用する（+40理智）",
+    "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
     "resource.CN.label": "中国サーバー (官服)",
     "resource.Bilibili.label": "Bilibiliサーバー (B 服)",
     "resource.Global.label": "グローバル (Global/EN)",

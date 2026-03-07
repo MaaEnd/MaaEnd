@@ -451,6 +451,52 @@
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
     },
+    "isSeizeEntrustTaskExistOldTask": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1020,
+                    210,
+                    200,
+                    35
+                ],
+                "expected": [
+                    "查看任务",
+                    "查看任務",
+                    "View Mission",
+                    "任務確認",
+                    "임무 확인"
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已存在旧的运送委托"
+        }
+    },
+    "isSeizeEntrustTaskExhausted": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    650,
+                    45,
+                    40
+                ],
+                "expected": "3/3"
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
@@ -515,6 +561,8 @@
         },
         "timeout": 3000,
         "next": [
+            "isSeizeEntrustTaskExistOldTask",
+            "isSeizeEntrustTaskExhausted",
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [

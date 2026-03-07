@@ -1,0 +1,147 @@
+{
+    "AutoUseSpMedicationEntry": {
+        "desc": "自动使用理智药剂任务入口",
+        "pre_delay": 0,
+        "anchor": {
+            "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBooster",
+            "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationUseNoEmergencySanityBooster"
+        },
+        "post_delay": 0,
+        "next": [
+            "ValuableStashValuablesTab"
+        ],
+        "focus": {
+            "Node.Action.Starting": "即将进入珍贵物品标签页"
+        }
+    },
+    "AutoUseSpMedicationChooseEmergencySanityBooster": {
+        "desc": "选择应急理智加强剂",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    940,
+                    560
+                ],
+                "template": "Valuables/EmergencySanityBooster.png",
+                "green_mask": true,
+                "threshold": 0.82,
+                "order_by": "Vertical" //优先时限更短的
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择药剂"
+        }
+    },
+    "AutoUseSpMedicationQuickUse": {
+        "desc": "确认使用理智药",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    {
+                        "param": {
+                            "expected": [
+                                "快捷使用",
+                                "Quick Use"
+                            ],
+                            "roi": [
+                                190,
+                                205,
+                                155,
+                                35
+                            ]
+                        },
+                        "type": "OCR"
+                    },
+                    {
+                        //冗余检测，避免用错
+                        "type": "OCR",
+                        "param": {
+                            "expected": [
+                                "应急理智加强剂",
+                                "Emergency Sanity Booster"
+                            ],
+                            "roi": [
+                                350,
+                                335,
+                                160,
+                                40
+                            ]
+                        }
+                    }
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "timeout": 4000,
+        "next": [
+            "CloseRewardsButton"
+        ]
+    },
+    "AutoUseSpMedicationQuickUseError": {
+        "desc": "提示错误并结束任务",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Failed": "快捷使用出错，结束任务"
+        }
+    },
+    "AutoUseSpMedicationUseEmergencySpBooster": {
+        "desc": "点击详情页的使用按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            "AutoUseSpMedicationQuickUse",
+            "AutoUseSpMedicationQuickUseCancel"
+        ]
+    },
+    "AutoUseSpMedicationQuickUseCancel": {
+        "desc": "退出快捷使用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1084,
+                    203,
+                    33,
+                    31
+                ],
+                "template": "Valuables/Close.png",
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoUseSpMedicationQuickUseError"
+        ],
+        "focus": {
+            "Node.Action.Failed": "无法使用理智药剂！"
+        }
+    },
+    "AutoUseSpMedicationUseNoEmergencySanityBooster": {
+        "desc": "提示没有应急理智加强剂并结束任务",
+        "focus": {
+            "Node.Action.Succeeded": "没有应急理智加强剂，结束任务"
+        }
+    }
+}
