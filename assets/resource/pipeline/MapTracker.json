@@ -8,12 +8,12 @@
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
                     "map_name_regex": ".*",
-                    "precision": 1.0,
+                    "precision": 0.8,
                     "print": true
                 }
             }
         },
-        "rate_limit": 500,
+        "rate_limit": 250,
         "next": [
             "MapTrackerTestLoop"
         ]
@@ -25,7 +25,7 @@
                 "custom_recognition": "MapTrackerInfer",
                 "custom_recognition_param": {
                     "map_name_regex": ".*",
-                    "precision": 1.0,
+                    "precision": 0.8,
                     "print": true
                 }
             }
