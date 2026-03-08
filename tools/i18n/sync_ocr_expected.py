@@ -23,6 +23,7 @@
 默认 dry-run，不修改文件；使用 --write 才会写入。
 若同一节点仅部分命中语言 ID，会保留未命中的原始 expected 文本，
 输出顺序为：四语补全内容在前，未命中内容追加在后。
+可在 expected 内部添加注释标记 @i18n-skip，脚本会跳过该节点。
 """
 
 from __future__ import annotations
@@ -79,6 +80,8 @@ HOTFIX_TYPE_TO_LANG = {
     "JA": "JP",
     "JPN": "JP",
 }
+
+I18N_SKIP_MARKER = "@i18n-skip"
 
 
 def normalize_text(text: str) -> str:
@@ -465,6 +468,19 @@ def append_unresolved_texts(base_expected: List[str], unresolved_texts: Sequence
     return result
 
 
+def has_i18n_skip_marker(text: str, expected_member: Member) -> bool:
+    """
+    检查 expected 数组源码片段中是否包含跳过标记。
+    标记示例：
+      "expected": [
+          // @i18n-skip
+          "xxx"
+      ]
+    """
+    raw_expected = text[expected_member.value_start : expected_member.value_end]
+    return I18N_SKIP_MARKER in raw_expected
+
+
 def safe_print(message: str) -> None:
     """在 Windows GBK 控制台下安全输出，避免因无法编码而崩溃。"""
     try:
@@ -492,7 +508,7 @@ def process_pipeline_file(
     path: Path,
     tables: Dict[str, Dict[str, str]],
     reverse_index: Dict[str, Set[str]],
-) -> Tuple[str, List[NodeChange], List[Tuple[str, str, List[str]]], int]:
+) -> Tuple[str, List[NodeChange], List[Tuple[str, str, List[str]]], int, int]:
     text = path.read_text(encoding="utf-8")
     parser = JsoncParser(text)
     newline = "\r\n" if "\r\n" in text else "\n"
@@ -503,6 +519,7 @@ def process_pipeline_file(
     changes: List[NodeChange] = []
     unresolved_nodes: List[Tuple[str, str, List[str]]] = []
     ocr_nodes_with_expected = 0
+    skipped_by_marker = 0
 
     for node_member in root_members:
         if text[node_member.value_start] != "{":
@@ -549,6 +566,10 @@ def process_pipeline_file(
         if not (is_ocr and expected_member):
             continue
 
+        if has_i18n_skip_marker(text, expected_member):
+            skipped_by_marker += 1
+            continue
+
         ocr_nodes_with_expected += 1
         old_expected, _ = parser.parse_array_string_values(expected_member.value_start)
         lang_ids, unresolved_texts = resolve_lang_ids(old_expected, reverse_index)
@@ -582,7 +603,7 @@ def process_pipeline_file(
         )
 
     if not changes:
-        return text, [], unresolved_nodes, ocr_nodes_with_expected
+        return text, [], unresolved_nodes, ocr_nodes_with_expected, skipped_by_marker
 
     new_text = text
     for change in sorted(changes, key=lambda c: c.value_start, reverse=True):
@@ -591,7 +612,7 @@ def process_pipeline_file(
             + change.replacement
             + new_text[change.value_end :]
         )
-    return new_text, changes, unresolved_nodes, ocr_nodes_with_expected
+    return new_text, changes, unresolved_nodes, ocr_nodes_with_expected, skipped_by_marker
 
 
 def iter_pipeline_files(base_dir: Path) -> List[Path]:
@@ -651,12 +672,13 @@ def main() -> int:
     touched_files = 0
     total_ocr_nodes = 0
     total_changed_nodes = 0
+    total_skipped_nodes = 0
     unresolved_all: List[Tuple[str, str, List[str]]] = []
     failed_files: List[Tuple[str, str]] = []
 
     for file_path in pipeline_files:
         try:
-            new_text, changes, unresolved_nodes, ocr_nodes = process_pipeline_file(
+            new_text, changes, unresolved_nodes, ocr_nodes, skipped_nodes = process_pipeline_file(
                 file_path, tables, reverse_index
             )
         except Exception as exc:
@@ -665,6 +687,7 @@ def main() -> int:
             continue
 
         total_ocr_nodes += ocr_nodes
+        total_skipped_nodes += skipped_nodes
         unresolved_all.extend(unresolved_nodes)
 
         if changes:
@@ -683,7 +706,7 @@ def main() -> int:
     safe_print(
         f"[{mode}] files={total_files}, touched_files={touched_files}, "
         f"ocr_nodes_with_expected={total_ocr_nodes}, changed_nodes={total_changed_nodes}, "
-        f"unresolved_nodes={len(unresolved_all)}"
+        f"unresolved_nodes={len(unresolved_all)}, skipped_by_marker={total_skipped_nodes}"
     )
 
     if unresolved_all:
