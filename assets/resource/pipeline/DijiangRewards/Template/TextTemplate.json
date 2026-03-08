@@ -6,10 +6,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认"
@@ -24,10 +24,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "使用助力"
@@ -60,10 +60,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "收取"
@@ -97,10 +97,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认"
@@ -115,10 +115,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "全部接收"
@@ -187,10 +187,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "开展交流"
@@ -205,10 +205,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认提取"
@@ -223,10 +223,10 @@
             "param": {
                 "roi": "GrayCancelButton",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "取消"
