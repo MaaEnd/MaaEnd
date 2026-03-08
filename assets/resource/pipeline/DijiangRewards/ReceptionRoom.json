@@ -137,6 +137,7 @@
         ]
     },
     "ReceptionRoomNeedReceiveClues": {
+        "desc": "[会客室·线索] 识别是否有可领取的线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -160,6 +161,7 @@
         ]
     },
     "ReceiveAll": {
+        "desc": "[会客室·线索] 领取界面点击「一键领取」按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -178,6 +180,7 @@
         ]
     },
     "ReceptionRoomNeedCollectClues": {
+        "desc": "[会客室·线索] 识别是否有可收集的线索",
         "recognition": {
             "type": "And",
             "param": {
