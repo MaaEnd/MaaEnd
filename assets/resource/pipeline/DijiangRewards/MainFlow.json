@@ -229,8 +229,7 @@
             ]
         },
         "next": [
-            "StopNode",
-            "GrayCancelButtonWithStop"
+            "StopNode"
         ]
     },
     "LasCarbinColor": {
@@ -289,13 +288,8 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "FinishAllDijiangTask",
-            "InLastCarbin"
+            "FinishAllDijiangTask"
         ]
     },
     "FinishAllDijiangTask": {

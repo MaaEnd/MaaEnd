@@ -48,13 +48,8 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "EndExchange",
-            "WaitEndExchange"
+            "EndExchange"
         ]
     },
     "EndExchange": {
@@ -70,13 +65,8 @@
             }
         },
         "action": "Click",
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "ReceptionRoom",
-            "EndExchange"
+            "ReceptionRoom"
         ]
     },
     "ReceptionRoom": {
@@ -124,13 +114,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "CloseExchangeRewards",
-            "StartExchange"
+            "CloseExchangeRewards"
         ]
     },
     "CloseExchangeRewards": {
@@ -172,8 +157,7 @@
             "timeout": 1000
         },
         "next": [
-            "ReceiveAll",
-            "ReceptionRoomNeedReceiveClues"
+            "ReceiveAll"
         ]
     },
     "ReceiveAll": {
@@ -286,13 +270,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "Send",
-            "SendTheMostClues"
+            "Send"
         ]
     },
     "Send": {
@@ -337,13 +316,8 @@
                 "contact": 1
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "ReceptionRoomNeedCollectClues",
-            "ExitSend"
+            "ReceptionRoomNeedCollectClues"
         ]
     },
     "EntrySendClues": {
@@ -387,13 +361,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "ExitCollect",
-            "Collect"
+            "ExitCollect"
         ]
     },
     "ExitCollect": {
@@ -570,8 +539,7 @@
             ]
         },
         "next": [
-            "ExitReceptionRoom",
-            "ExitClueLibrary"
+            "ExitReceptionRoom"
         ]
     },
     "ExitReceptionRoom": {

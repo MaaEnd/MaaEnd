@@ -28,8 +28,7 @@
             "timeout": 1000
         },
         "next": [
-            "RecoveryEmotionAssistUseAssist",
-            "RecoveryEmotion"
+            "RecoveryEmotionAssistUseAssist"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
@@ -50,13 +49,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "StartRecoveryEmotion",
-            "RecoveryEmotionAssistUseAssist"
+            "StartRecoveryEmotion"
         ]
     },
     "EmotionFull": {
@@ -77,13 +71,8 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "BackToControlNexus",
-            "EmotionFull"
+            "BackToControlNexus"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
@@ -230,13 +219,8 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "ConfirmRecoveryEmotion",
-            "CouldNotAssistEmotion"
+            "ConfirmRecoveryEmotion"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
@@ -256,13 +240,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "CloseButtonType1",
-            "ConfirmRecoveryEmotion"
+            "CloseButtonType1"
         ]
     },
     "BackToControlNexus": {
@@ -284,13 +263,8 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "next": [
-            "CloseButtonType1",
-            "BackToControlNexus"
+            "CloseButtonType1"
         ]
     }
 }
