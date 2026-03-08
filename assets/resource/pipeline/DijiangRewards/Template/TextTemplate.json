@@ -269,7 +269,7 @@
         }
     },
     "MFGCarbinNeedTakeCloseText": {
-        "desc": "",
+        "desc": "制造舱领取产出完成界面关闭/确认文本识别",
         "recognition": {
             "type": "OCR",
             "param": {
