@@ -6,28 +6,28 @@
     },
     "cases": [
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_难民暂居处",
+            "image": "四号谷地_地区建设_据点_难民暂居处",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInRefugeeCamp"
             ]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_基建前站",
+            "image": "四号谷地_地区建设_据点_基建前站",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInInfrastructureOutpost"
             ]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_重建指挥部",
+            "image": "四号谷地_地区建设_据点_重建指挥部",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInReconstructionCommand"
             ]
         },
         {
-            "image": "一键售卖产品/武陵_地区建设_据点_天王坪援建点",
+            "image": "武陵_地区建设_据点_天王坪援建点",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInSkyKingFlats"

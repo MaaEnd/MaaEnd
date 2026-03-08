@@ -6,19 +6,19 @@
     },
     "cases": [
         {
-            "image": "环境监测/环境监测终端_城郊监测终端_接取委托",
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_接取委托",
             "hits": ["EternalSunsetJob"]
         },
         {
-            "image": "环境监测/环境监测终端_城郊监测终端_前往任务",
+            "image": "武陵_地区建设_环境监测终端_城郊监测终端_前往任务",
             "hits": ["EternalSunsetJob"]
         },
         {
-            "image": "环境监测/拍照模式_拍摄目标",
+            "image": "武陵_拍照模式_拍摄目标",
             "hits": ["EnvironmentMonitoringShutterButtonHighlighted"]
         },
         {
-            "image": "环境监测/拍照模式_拍摄目标未达成",
+            "image": "武陵_拍照模式_拍摄目标未达成",
             "hits": []
         }
     ]

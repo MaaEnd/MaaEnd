@@ -7,7 +7,7 @@
     "cases": [
         {
             "name": "在四号谷地的仓储节点中（源石研究园未就绪，矿脉源区查看任务，供能高地就绪）",
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱",
+            "image": "四号谷地_地区建设_仓储节点_未就绪_查看任务_货物装箱",
             "hits": [
                 {
                     "node": "DeliveryJobsEnterPowerPlateauCargo",
@@ -22,7 +22,7 @@
         },
         {
             "name": "在武陵的仓储节点中",
-            "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱",
+            "image": "武陵_地区建设_仓储节点_货物装箱",
             "hits": [
                 {
                     "node": "DeliveryJobsEnterWulingCityCargo",
