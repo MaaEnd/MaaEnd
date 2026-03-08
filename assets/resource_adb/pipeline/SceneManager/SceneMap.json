@@ -1,0 +1,15 @@
+{
+    "__ScenePrivateWorldEnterMapAny": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    133,
+                    128,
+                    1,
+                    1
+                ]
+            }
+        }
+    }
+}
