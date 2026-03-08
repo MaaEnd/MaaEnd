@@ -562,14 +562,15 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		}
 		if !matched && opts.KeepSlot3Level3Practical {
 			var slot3Match bool
-			matchResult, slot3Match = MatchSlot3Level3Practical(skills, currentSkillLevels, slot3MinLv)
+			var slot3Lv int
+			matchResult, slot3Lv, slot3Match = MatchSlot3Level3Practical(skills, currentSkillLevels, slot3MinLv)
 			if slot3Match {
 				matched = true
-				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", skills[2], currentSkillLevels[2], slot3MinLv)
+				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", matchResult.SkillsChinese[2], slot3Lv, slot3MinLv)
 				extSlot3PracticalCount++
 				log.Info().
-					Str("slot3_skill", skills[2]).
-					Int("slot3_level", currentSkillLevels[2]).
+					Str("slot3_skill", matchResult.SkillsChinese[2]).
+					Int("slot3_level", slot3Lv).
 					Int("min_level", slot3MinLv).
 					Msg("<EssenceFilter> MatchSlot3Level3Practical: 保留实用基质")
 			}

@@ -99,17 +99,48 @@ func MatchFuturePromising(ocrSkills []string, levels [3]int, minTotal int) bool 
 	return sum >= minTotal
 }
 
-// MatchSlot3Level3Practical - 保留实用基质：词条3等级 >= minLevel（仅看等级，不过滤技能 ID）
+// MatchSlot3Level3Practical - 保留实用基质：任一 OCR 技能命中 slot3 池且该技能等级 >= minLevel
+// 注意：OCR 位置不固定对应 slot，需通过匹配 slot3 池的 ID 判定；slot3 技能可能出现在任意位置
 // 优先度低于 MatchEssenceSkills
-func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) (*SkillCombinationMatch, bool) {
-	if len(ocrSkills) < 3 || minLevel <= 0 || levels[2] < minLevel {
-		return nil, false
+func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) (match *SkillCombinationMatch, slot3Level int, ok bool) {
+	if len(ocrSkills) < 3 || minLevel <= 0 {
+		return nil, 0, false
 	}
-	return &SkillCombinationMatch{
-		SkillIDs:      []int{0, 0, 0},
-		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
-		Weapons:       []WeaponData{},
-	}, true
+	buildSlotIndicesOnce.Do(buildSlotIndices)
+	pool := getPoolBySlot(3)
+	if len(pool) == 0 {
+		return nil, 0, false
+	}
+
+	for i := 0; i < 3; i++ {
+		id, matched := matchSkillIDEnhanced(3, ocrSkills[i])
+		if matched {
+			slot3Chinese := skillNameByID(id, pool)
+			if slot3Chinese == "" {
+				slot3Chinese = ocrSkills[i]
+			}
+			if levels[i] >= minLevel {
+				// 将匹配到的 slot3 放在 SkillsChinese[2]，其余按 OCR 顺序填 0、1
+				skillsChinese := make([]string, 3)
+				idx := 0
+				for j := 0; j < 3; j++ {
+					if j == i {
+						continue
+					}
+					skillsChinese[idx] = ocrSkills[j]
+					idx++
+				}
+				skillsChinese[2] = slot3Chinese
+
+				return &SkillCombinationMatch{
+					SkillIDs:      []int{0, 0, id},
+					SkillsChinese: skillsChinese,
+					Weapons:       []WeaponData{},
+				}, levels[i], true
+			}
+		}
+	}
+	return nil, 0, false
 }
 
 // 预处理后的技能条目
