@@ -60,7 +60,7 @@
             "type": "Click"
         },
         "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceClickEssenceStartButton"
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceReadyToStart"
         },
         "next": [
             "AutoEssenceAltKeyUp"
@@ -84,6 +84,12 @@
         "max_hit": 8,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ]
+    },
+    "AutoEssenceReadyToStart": {
+        "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartButton"
         ]
     },
     "AutoEssenceClickEssenceStartButton": {
@@ -138,6 +144,37 @@
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
+        }
+    },
+    "AutoEssenceMistakeFactoryDevice": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "template": "AutoEssence/FactoryDeviceDialog.png"
+            }
+        },
+        "action": {
+            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
+            "param": {
+                "target_offset": [
+                    -50,
+                    0,
+                    -50,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "AutoEssenceClickTriggerButtonFailed"
+        ],
+        "focus": {
+            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
         }
     },
     "AutoEssenceDismissWarning2": {
