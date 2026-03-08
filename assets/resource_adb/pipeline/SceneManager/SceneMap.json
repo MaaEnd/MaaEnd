@@ -11,7 +11,8 @@
                 ],
                 "template": [
                     "SceneManager/TaskIcon.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "action": {
