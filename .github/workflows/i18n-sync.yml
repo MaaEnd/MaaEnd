@@ -2,41 +2,32 @@ name: i18n-sync
 
 on:
   workflow_dispatch:
-    inputs:
-      update_submodule_remote:
-        description: "更新翻译子模块到远端最新提交（会导致结果非确定）"
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   sync-ocr-expected:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (with submodules)
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Update translation submodule to latest (optional)
-        if: ${{ inputs.update_submodule_remote }}
+      - name: Clone translation repository
         run: |
-          git submodule update --init --recursive --remote tools/i18n/EndFieldTranslationReferrer
+          git clone --depth 1 https://github.com/SusieGlitter/EndFieldTranslationReferrer.git "$RUNNER_TEMP/EndFieldTranslationReferrer"
 
-      - name: Show translation submodule commit
+      - name: Show translation repository commit
         run: |
-          git submodule status tools/i18n/EndFieldTranslationReferrer
-          git -C tools/i18n/EndFieldTranslationReferrer rev-parse HEAD
+          git -C "$RUNNER_TEMP/EndFieldTranslationReferrer" rev-parse HEAD
 
       - name: Run OCR expected sync (write mode)
         run: |
-          python tools/i18n/sync_ocr_expected.py --write
+          python tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
 
       - name: Show changed files
         run: |

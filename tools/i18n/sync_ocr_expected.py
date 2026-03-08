@@ -14,9 +14,9 @@
    - node.expected
    - node.recognition.expected
    - node.recognition.param.expected
-4) 用 i18n 四语表反查语言 ID（默认优先子模块目录）：
-   - tools/i18n/EndFieldTranslationReferrer/i18n
+4) 用 i18n 四语表反查语言 ID（默认目录：tools/i18n）：
    - tools/i18n
+   - 也可通过 --i18n-dir 指向临时克隆仓库的 i18n 目录
    - 若存在 I18nHotFix.json，会先将 hotfix 覆盖到对应语言表
    简中(CN) -> 繁中(TC) -> 英文(EN) -> 日文(JP)
 
@@ -53,7 +53,6 @@ I18N_FILE_NAMES = {
 HOTFIX_FILE_NAME = "I18nHotFix.json"
 
 DEFAULT_I18N_DIR_CANDIDATES = [
-    Path("tools/i18n/EndFieldTranslationReferrer/i18n"),
     Path("tools/i18n"),
 ]
 
@@ -629,7 +628,7 @@ def main() -> int:
         "--i18n-dir",
         type=Path,
         default=None,
-        help="i18n 目录；默认优先 tools/i18n/EndFieldTranslationReferrer/i18n",
+        help="i18n 目录；默认使用 tools/i18n",
     )
     args = argp.parse_args()
 

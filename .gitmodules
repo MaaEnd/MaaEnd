@@ -4,6 +4,3 @@
 [submodule "assets/resource/model"]
 	path = assets/resource/model
 	url = https://github.com/MaaEnd/MaaEnd-AI.git
-[submodule "tools/i18n/EndFieldTranslationReferrer"]
-	path = tools/i18n/EndFieldTranslationReferrer
-	url = https://github.com/SusieGlitter/EndFieldTranslationReferrer.git
