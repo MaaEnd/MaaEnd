@@ -475,5 +475,3 @@ Temporary Items
 # python
 venv/
 .cache/
-
-tests/MaaEndTesting

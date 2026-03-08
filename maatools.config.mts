@@ -56,7 +56,7 @@ const config: FullConfig = {
 
   test: {
     interfacePath: 'assets/interface.json',
-    casesCwd: 'tests/MaaEndTesting',
+    casesCwd: 'tests/MaaEndTestset',
     cases: fetchCases,
   },
 }
