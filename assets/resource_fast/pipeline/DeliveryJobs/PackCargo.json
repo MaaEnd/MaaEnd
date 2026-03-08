@@ -77,7 +77,15 @@
             "地域在庫",
             "지역 저장고"
         ],
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                53,
+                180,
+                463,
+                392
+            ]
+        },
         "next": [
             "[Anchor]DeliveryJobsSelectItemToFill",
             "[JumpBack]DeliveryJobsSelectItemScrollUp"
@@ -122,12 +130,22 @@
     "DeliveryJobsSelectItemScrollUp": {
         "desc": "如果要填充的物品不在第一屏，向上滑动屏幕",
         "max_hit": 5,
-        "action": "Scroll",
-        "target": [
+        "action": "Swipe",
+        "begin": [
             240,
-            310
+            540,
+            10,
+            10
         ],
-        "dy": -240,
+        "end": [
+            240,
+            200,
+            10,
+            10
+        ],
+        "end_hold": 200,
+        // 要慢慢的滑，不然惯性就过头了
+        "duration": 2000,
         "post_wait_freezes": 200
     },
     "DeliveryJobsFillCorrespondingGoods": {
