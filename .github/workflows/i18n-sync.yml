@@ -2,6 +2,17 @@ name: i18n-sync
 
 on:
   workflow_dispatch:
+  schedule:
+    # 每天 UTC 03:00 自动运行（可按需调整）
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  I18N_SYNC_BRANCH: "chore/i18n-auto-sync"
+  PR_TITLE: "chore: auto sync OCR i18n expected"
 
 jobs:
   sync-ocr-expected:
@@ -17,6 +28,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Prepare fixed sync branch
+        env:
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git checkout -B "$I18N_SYNC_BRANCH" "origin/$BASE_BRANCH"
+
       - name: Clone translation repository
         run: |
           git clone --depth 1 https://github.com/SusieGlitter/EndFieldTranslationReferrer.git "$RUNNER_TEMP/EndFieldTranslationReferrer"
@@ -28,6 +45,55 @@ jobs:
       - name: Run OCR expected sync (write mode)
         run: |
           python tools/i18n/sync_ocr_expected.py --write --i18n-dir "$RUNNER_TEMP/EndFieldTranslationReferrer/i18n"
+
+      - name: Check changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit changes to fixed branch
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/resource/pipeline assets/resource_fast/pipeline assets/resource_adb/pipeline
+          git commit -m "chore: auto sync OCR i18n expected"
+
+      - name: Force push fixed branch
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git push --force origin "$I18N_SYNC_BRANCH"
+
+      - name: Create PR when missing
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$I18N_SYNC_BRANCH" --state open --json number --jq '.[0].number')"
+          if [ -n "$pr_number" ]; then
+            echo "PR already exists: #$pr_number"
+            exit 0
+          fi
+          pr_body="$(cat <<'EOF'
+          ## Summary
+          - Auto run i18n OCR expected sync.
+          - Update expected values based on latest translation repository.
+
+          ## Trigger
+          - workflow_dispatch
+          - schedule (daily UTC)
+          EOF
+          )"
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$I18N_SYNC_BRANCH" \
+            --title "$PR_TITLE" \
+            --body "$pr_body"
 
       - name: Show changed files
         run: |
