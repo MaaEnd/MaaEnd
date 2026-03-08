@@ -10,7 +10,8 @@
             ],
             "option": [
                 "FarmlandFindingScheme",
-                "AutoEcoFarmClearBagBeforeTasks"
+                "AutoEcoFarmClearBagBeforeTasks",
+                "AutoEcoFarmClearBagAfterTasks"
             ]
         }
     ],
@@ -57,6 +58,30 @@
                     "name": "No",
                     "pipeline_override": {
                         "_AutoEcoFarmPrepareClearBagStart": {
+                            "enable": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEcoFarmClearBagAfterTasks": {
+            "type": "switch",
+            "label": "$task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label",
+            "description": "",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "_AutoEcoFarmEndClearBagStart": {
+                            "enable": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "_AutoEcoFarmEndClearBagStart": {
                             "enable": false
                         }
                     }

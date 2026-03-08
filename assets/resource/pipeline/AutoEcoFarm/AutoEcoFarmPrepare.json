@@ -1,51 +1,30 @@
 //这块代码用于执行任务开始前的准备工作，比如清空背包，带满4个人之类的
+//这段代码工作完了后会回主任务
 {
     "_AutoEcoFarmPrepareStart": {
         "desc": "开始任务前的准备工作",
+        "max_hit": 1,
         "next": [
-            "_AutoEcoFarmPrepareClearBagStart",
+            "[JumpBack]_AutoEcoFarmPrepareClearBagStart",
             "_AutoEcoFarmPrepareExit"
         ]
     },
     "_AutoEcoFarmPrepareExit": {
+        "desc": "回到主入口",
         "next": [
-            "_AutoEcoFarmGotoValleyIVEcoFarmStart",
-            "_AutoEcoFarmGotoWulinEcoFarmStart",
-            "AutoEcoFarmExit"
+            "AutoEcoFarmMain"
         ]
     },
     //这部分是清空背包的任务
     "_AutoEcoFarmPrepareClearBagStart": {
-        "desc": "准备清理背包任务",
+        "desc": "任务开始前准备清理背包",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmPrepareClearBag",
-            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+            "_AutoEcoFarmClearBagStart",
+            "_AutoEcoFarmJumpBack"
         ]
     },
-    "_AutoEcoFarmPrepareClearBag": {
-        "desc": "前往帝江号，并打开背包，以是否识别到一键存放为标准，识别到了就点击一下",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    896,
-                    497,
-                    57,
-                    41
-                ],
-                "template": [
-                    "AutoEcoFarm/autoecofarmQuickStash.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "_AutoEcoFarmPrepareStart"
-        ]
-    },
+
     //这部分是带满队友的任务
     "_AutoEcoFarmInTeam": {
         "desc": "判断是否在队伍界面",

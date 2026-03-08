@@ -424,6 +424,7 @@
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "Farmland Search Scheme",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "Run once from bottom-right to top-left. Farmlands should be arranged in a dense formation, preferably square.",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "Store all items in the backpack with one click before starting the task",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "Store all items in the backpack with one click after completing the task",
     "task.GiftOperator.label": "🎁Gift to Operator",
     "task.GiftOperator.description": "Give a gift to a lucky operator and collect their gift in return (if any).\nNote: This task requires the \"Win32-Front\" controller. Do not move the mouse during execution, as it may cause the task to fail. Prerecorded movement is recommended; recognition-based navigation (MapTracker) may still be unstable.",
     "option.GiftOperatorMoveMode.label": "Move to Contact Console",

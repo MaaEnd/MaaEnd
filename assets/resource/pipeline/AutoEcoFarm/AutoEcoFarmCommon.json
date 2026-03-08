@@ -164,7 +164,7 @@
                 ],
                 "end": [
                     640,
-                    700,
+                    480,
                     1,
                     1
                 ]
@@ -172,7 +172,8 @@
         },
         "next": [
             "_AutoEcoFarmSwipeToGround2"
-        ]
+        ],
+        "focus": {"Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"}
     },
     "_AutoEcoFarmSwipeToGround2": {
         "desc": "按下alt",
@@ -215,6 +216,37 @@
             }
         },
         "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    //这是一个清空背包的任务，需要jumpback
+    "_AutoEcoFarmClearBagStart": {
+        "desc": "准备清理背包任务",
+        "next": [
+            "_AutoEcoFarmClearBag",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "_AutoEcoFarmClearBag": {
+        "desc": "前往帝江号，并打开背包，以是否识别到一键存放为标准，识别到了就点击一下",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    896,
+                    497,
+                    57,
+                    41
+                ],
+                "template": [
+                    "AutoEcoFarm/autoecofarmQuickStash.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "_AutoEcoFarmJumpBack"
         ]

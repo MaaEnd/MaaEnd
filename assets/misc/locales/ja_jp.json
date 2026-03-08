@@ -424,6 +424,7 @@
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "農地探索方式",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "タスク開始前にワンクリックでバックパック内の雑品を収納",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "タスク終了後にワンクリックでバックパック内の雑品を収納",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
     "task.GiftOperator.description": "ラッキーなオペレーターにプレゼントを贈り、お返しのプレゼントを受け取る（あれば）。\n注意：このタスクは「PC版-フォアグラウンド」接続設定でのみ利用可能です。実行中はマウスを動かさないでください。タスクが失敗する可能性があります。事前記録した移動の利用を推奨します。認識移動（MapTracker）はまだ不安定な場合があります。",
     "option.GiftOperatorMoveMode.label": "連絡台への移動方法",

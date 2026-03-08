@@ -424,6 +424,7 @@
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "농지 탐색 방식",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요.",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "태스크 시작 전 원클릭으로 가방 속 잡동사니 수납",
+    "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "태스크 종료 후 원클릭으로 가방 속 잡동사니 수납",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
     "task.GiftOperator.description": "행운의 오퍼레이터에게 선물을 주고, 답례 선물도 받기 (있는 경우).\n주의: 이 작업은 \"Win32-Front\" 컨트롤러에서만 사용할 수 있습니다. 실행 중 마우스를 움직이지 마세요. 작업이 실패할 수 있습니다. 미리 녹화한 이동 사용을 권장하며, 인식 이동(MapTracker)은 아직 불안정할 수 있습니다.",
     "option.GiftOperatorMoveMode.label": "연락대까지 이동 방식",

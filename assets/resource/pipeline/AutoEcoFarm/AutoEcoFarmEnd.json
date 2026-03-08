@@ -1,0 +1,28 @@
+//这块代码用于执行任务后的收尾工作如再次清空背包
+//这段代码工作完了后会回主任务
+{
+    "_AutoEcoFarmEndStart": {
+        "desc": "任务结束后的收尾工作",
+        "max_hit": 1,
+        "next": [
+            //直接引用prepare里的清背包任务，保证代码一致
+            "[JumpBack]_AutoEcoFarmEndClearBagStart",
+            "_AutoEcoFarmEndExit"
+        ]
+    },
+    "_AutoEcoFarmEndExit": {
+        "desc": "回到主入口",
+        "next": [
+            "AutoEcoFarmMain"
+        ]
+    },
+    //这部分是清空背包的任务
+    "_AutoEcoFarmEndClearBagStart": {
+        "desc": "任务开始前准备清理背包",
+        "max_hit": 1,
+        "next": [
+            "_AutoEcoFarmClearBagStart",
+            "_AutoEcoFarmJumpBack"
+        ]
+    }
+}

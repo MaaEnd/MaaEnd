@@ -152,6 +152,7 @@
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
+            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -206,6 +207,29 @@
         "next": [
             "_AutoEcoFarmAltDown"
         ]
+    },
+    "_AutoEcoFarmSwipeTargetToFrontWithErr": {
+        "desc": "识别不到标记时将标记随便拉一下，尝试解决问题",
+        "max_hit": 3,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    640,
+                    360
+                ],
+                "end": [
+                    1000,
+                    360
+                ],
+                "only_hover": true,
+                "duration": 1000
+            }
+        },
+        "next": [
+            "_AutoEcoFarmAltDown"
+        ],
+        "focus": {"Node.Recognition.Failed": "识别不到标记，随便转转视角尝试解决问题"}
     },
     "_AutoEcoFarmAltDown": {
         "desc": "按下alt",
