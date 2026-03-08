@@ -22,8 +22,6 @@
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion"
         ],
-        "pre_delay": 0,
-        "post_delay": 0,
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         }
@@ -285,7 +283,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceAfterAltKeyUp": "AutoEssenceChooseScaling"
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceReadyToObtain"
         },
         "next": [
             "AutoEssenceAltKeyUp"
@@ -351,10 +349,12 @@
             "Node.Action.Starting": "👆点击放弃奖励按钮"
         }
     },
-    "AutoEssenceChooseScaling": {
+    "AutoEssenceReadyToObtain": {
         "post_delay": 1000,
         "next": [
-            "AutoEssenceChooseScaling1",
+            "[JumpBack]AutoEssenceChooseScaling1",
+            "[JumpBack]AutoEssenceChooseOverrideOff",
+            "[JumpBack]AutoEssenceChooseOverrideOn",
             "AutoEssenceConfirmObtain"
         ]
     },
@@ -376,11 +376,6 @@
             "type": "Click"
         },
         "post_delay": 1000,
-        "next": [
-            "[JumpBack]AutoEssenceChooseOverrideOff",
-            "[JumpBack]AutoEssenceChooseOverrideOn",
-            "AutoEssenceConfirmObtain"
-        ],
         "focus": {
             "Node.Action.Starting": "👆点击单倍领取按钮"
         }
