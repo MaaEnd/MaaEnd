@@ -23,9 +23,6 @@
             "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint1",
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
         "focus": {
             "Node.Action.Starting": "📍附近的重度淤积点：\n**源石研究园重度淤积点**"
         }

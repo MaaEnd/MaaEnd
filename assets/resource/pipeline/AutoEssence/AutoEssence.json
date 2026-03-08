@@ -3,15 +3,27 @@
         "anchor": {
             "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
         },
-        "rate_limit": 1000,
         "next": [
             "AutoEssenceClickEssenceStartButton",
+            "[JumpBack]AutoEssenceLocationSetup",
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Staring": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceLocationSetup": {
+        "rate_limit": 1000,
+        "max_hit": 1,
+        "next": [
             "VFTheHubLocationAssertion",
             "VFOriginiumScienceParkLocationAssertion",
             "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
         }
@@ -115,6 +127,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning1",
+            "[JumpBack]AutoEssenceLocationSetup",
             "[Anchor]AutoEssenceWalkAround"
         ],
         "focus": {
@@ -140,6 +153,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning2",
+            "[JumpBack]AutoEssenceLocationSetup",
             "[Anchor]AutoEssenceWalkAround"
         ],
         "focus": {
@@ -195,6 +209,7 @@
         },
         "post_delay": 1000,
         "next": [
+            "[JumpBack]AutoEssenceLocationSetup",
             "[Anchor]AutoEssenceWalkAround"
         ],
         "focus": {

@@ -23,9 +23,6 @@
             "AutoEssenceMoveToTriggerPoint": "VFOriginLodespringMoveToTriggerPoint",
             "AutoEssenceWalkAround": "VFOriginLodespringWalkAround1"
         },
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
         "focus": {
             "Node.Action.Starting": "📍附近的重度淤积点：\n**矿脉源区重度淤积点**"
         }

@@ -23,9 +23,6 @@
             "AutoEssenceMoveToTriggerPoint": "WLWulingCityMoveToTriggerPoint",
             "AutoEssenceWalkAround": "WLWulingCityWalkAround1"
         },
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
         "focus": {
             "Node.Action.Starting": "📍附近的重度淤积点：\n**武陵城重度淤积点**"
         }

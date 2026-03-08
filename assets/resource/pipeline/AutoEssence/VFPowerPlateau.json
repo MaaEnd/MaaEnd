@@ -23,9 +23,6 @@
             "AutoEssenceMoveToTriggerPoint": "VFPowerPlateauMoveToTriggerPoint",
             "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
         },
-        "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint"
-        ],
         "focus": {
             "Node.Action.Starting": "📍附近的重度淤积点：\n**供能高地重度淤积点**"
         }
