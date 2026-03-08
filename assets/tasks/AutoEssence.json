@@ -9,12 +9,41 @@
                 "Win32-Front"
             ],
             "option": [
+                "AutoEssenceDoObtain",
                 "AutoEssenceDoOverride",
                 "AutoEssenceRepeatCount"
             ]
         }
     ],
     "option": {
+        "AutoEssenceDoObtain": {
+            "type": "switch",
+            "label": "$option.AutoEssenceDoObtain.label",
+            "description": "$option.AutoEssenceDoObtain.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEssenceClickObtainButtonPre": {
+                            "next": [
+                                "AutoEssenceClickObtainButton"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEssenceClickObtainButtonPre": {
+                            "next": [
+                                "AutoEssenceClickDiscardButton"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         "AutoEssenceDoOverride": {
             "type": "switch",
             "label": "$option.AutoEssenceDoOverride.label",

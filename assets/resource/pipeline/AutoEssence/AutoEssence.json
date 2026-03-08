@@ -199,7 +199,7 @@
         },
         "timeout": 1000,
         "next": [
-            "AutoEssenceClickObtainButton"
+            "AutoEssenceClickObtainButton" // 覆写为 AutoEssenceClickDiscardButton 即可实现不领取奖励
         ],
         "on_error": [
             "AutoEssenceClickObtainButtonFailedPre"
@@ -225,9 +225,9 @@
             "type": "Click",
             "param": {
                 "target_offset": [
-                    -7,
+                    -10,
                     15,
-                    -7,
+                    -10,
                     -60
                 ]
             }
@@ -261,6 +261,43 @@
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
+    },
+    "AutoEssenceClickDiscardButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    780,
+                    340,
+                    170,
+                    310
+                ],
+                "template": "AutoEssence/EssenceObtain.png",
+                "green_mask": true,
+                "threshold": 0.45,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -10,
+                    60,
+                    -10,
+                    -60
+                ]
+            }
+        },
+        "anchor": {
+            "AutoEssenceAfterAltKeyUp": "AutoEssenceConfirmDiscard"
+        },
+        "next": [
+            "AutoEssenceAltKeyUp"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆点击放弃奖励按钮"
+        }
     },
     "AutoEssenceChooseScaling": {
         "post_delay": 1000,
@@ -363,6 +400,30 @@
         ],
         "focus": {
             "Node.Action.Starting": "👆点击确认领取按钮"
+        }
+    },
+    "AutoEssenceConfirmDiscard": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    710,
+                    390,
+                    210,
+                    150
+                ],
+                "template": "Common/Button/YellowConfirmButtonType1.png"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1000,
+        "next": [
+            "AutoEssenceOnSuccess"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👆点击确认放弃按钮"
         }
     },
     "AutoEssenceLowSp": {
