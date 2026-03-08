@@ -42,9 +42,12 @@
             104
         ],
         "expected": [
-            "当前材料不足",
+            "肥料数量不足",
+            "肥料數量不足",
             "Insufficient",
-            "Not enough"
+            "肥料が足りません",
+            "Not enough",
+            "当前材料不足"
         ]
     },
     "CheckMaterialEnough": {
@@ -57,9 +60,12 @@
             82
         ],
         "expected": [
+            "已充满",
+            "已充滿",
+            "Full",
+            "FULL",
             "空间已满",
             "可销毁或丢弃部分",
-            "Full",
             "Discard"
         ]
     },
@@ -128,6 +134,9 @@
         ],
         "expected": [
             "制作成功",
+            "製作成功",
+            "Crafting Successful",
+            "製作成功",
             "Success",
             "Crafted"
         ],
@@ -145,6 +154,9 @@
         ],
         "expected": [
             "制作成功",
+            "製作成功",
+            "Crafting Successful",
+            "製作成功",
             "Success",
             "Crafted"
         ],

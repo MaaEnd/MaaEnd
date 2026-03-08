@@ -78,7 +78,10 @@
             95
         ],
         "expected": [
-            "制作"
+            "制作",
+            "製作",
+            "Craft",
+            "確定"
         ],
         "action": "Click",
         "post_wait_freezes": 100,

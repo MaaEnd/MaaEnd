@@ -270,8 +270,11 @@
                     0
                 ],
                 "expected": [
-                    "培养舱",
-                    "Growth"
+                    "生长",
+                    "生長",
+                    "Growth",
+                    "成長",
+                    "培养舱"
                 ],
                 "only_rec": true
             }

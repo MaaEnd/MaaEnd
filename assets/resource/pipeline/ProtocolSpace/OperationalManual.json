@@ -36,7 +36,9 @@
         ],
         "expected": [
             "索引",
-            "Index"
+            "索引",
+            "Index",
+            "協約空間"
         ],
         "action": "Click",
         "post_wait_freezes": 200,

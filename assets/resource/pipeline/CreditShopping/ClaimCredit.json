@@ -10,7 +10,9 @@
         ],
         "expected": [
             "收取信用",
-            "Collect Credits"
+            "收取信用",
+            "Collect Credits",
+            "FP受取"
         ],
         "action": "Click",
         "next": [
@@ -29,7 +31,9 @@
         ],
         "expected": [
             "无待领取信用",
-            "No credits to claim"
+            "無待領取信用",
+            "No credits to claim",
+            "FP未獲得"
         ],
         "action": "DoNothing",
         "next": [

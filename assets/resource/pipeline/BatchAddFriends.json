@@ -314,7 +314,10 @@
                     43
                 ],
                 "expected": [
-                    "搜索的UID不存在"
+                    "搜索的UID不存在",
+                    "搜尋的UID不存在",
+                    "Search has not found UID",
+                    "該当のUIDがありません"
                 ],
                 "threshold": 0.7
             }
@@ -430,7 +433,10 @@
                     40
                 ],
                 "expected": [
-                    "输入名称搜索好友"
+                    "输入名称搜索好友",
+                    "輸入名稱搜尋好友",
+                    "Search friend by name",
+                    "名前を入力して検索"
                 ],
                 "threshold": 0.7
             }
@@ -455,7 +461,10 @@
                     26
                 ],
                 "expected": [
-                    "搜索玩家名称或UID添加好友"
+                    "搜索玩家名称或UID添加好友",
+                    "搜尋玩家名稱或UID新增好友",
+                    "Search player name or UID to find friends",
+                    "プレイヤーの名前またはUIDを入力してください"
                 ],
                 "threshold": 0.7
             }
@@ -523,7 +532,10 @@
                     26
                 ],
                 "expected": [
-                    "换一批"
+                    "换一批",
+                    "換一批",
+                    "Refresh List",
+                    "リスト更新"
                 ],
                 "threshold": 0.7
             }

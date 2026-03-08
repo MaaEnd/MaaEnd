@@ -15,7 +15,9 @@
         ],
         "expected": [
             "终末地百科",
-            "Endfield Database"
+            "終末地百科",
+            "Endfield Database",
+            "エンドフィールドWiki"
         ],
         "next": [
             "WikiClickHomePageUnreadBadge",

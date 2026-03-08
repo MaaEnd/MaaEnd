@@ -179,7 +179,10 @@
             220
         ],
         "expected": [
-            "未读"
+            "未读",
+            "未讀",
+            "Unread",
+            "未読"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -384,8 +387,11 @@
             135
         ],
         "expected": [
-            "话题结束",
-            "暂无新话题"
+            "暂无新话题",
+            "尚無新話題",
+            "No New Topics",
+            "新しいトピックはありません",
+            "话题结束"
         ],
         "next": [
             "BakerTalkWith",

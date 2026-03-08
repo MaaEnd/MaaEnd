@@ -164,6 +164,9 @@
                 ],
                 "expected": [
                     "存至共享蓝图",
+                    "存至共享藍圖",
+                    "Save to Shared Blueprints",
+                    "保存",
                     "Save to Shared",
                     "Save"
                 ]

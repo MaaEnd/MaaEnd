@@ -63,9 +63,12 @@
                     119
                 ],
                 "expected": [
+                    "干员心情已满，无法使用助力",
+                    "幹員心情已滿，無法使用助力",
+                    "Cannot assist as operator mood is maxed",
+                    "オペレーターは体力が十分なため、サポートできません",
                     "干员心情已满",
-                    "无法使用助力",
-                    "Cannot assist as operator mood is maxed"
+                    "无法使用助力"
                 ]
             }
         },
@@ -90,7 +93,9 @@
                 ],
                 "expected": [
                     "选择待恢复心情的干员",
-                    "Select operator awaiting mood recovery"
+                    "選擇待恢復心情的幹員",
+                    "Select operator awaiting mood recovery",
+                    "対象オペレーターを選んでください"
                 ]
             }
         },
@@ -212,8 +217,11 @@
                     92
                 ],
                 "expected": [
-                    "没有更多的心情激励点数",
-                    "Cannot select more operators as all Mood Booster Points have been used up"
+                    "没有更多的心情激励点数，无法选择更多干员",
+                    "沒有更多的心情激勵點數，無法選擇更多幹員",
+                    "Cannot select more operators as all Mood Booster Points have been used up",
+                    "体力激励ポイントが足りないため、これ以上選択できません",
+                    "没有更多的心情激励点数"
                 ]
             }
         },

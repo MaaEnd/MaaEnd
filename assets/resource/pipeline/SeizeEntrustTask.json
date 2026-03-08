@@ -11,7 +11,9 @@
                 ],
                 "expected": [
                     "委托人信息",
+                    "委託人資訊",
                     "Client Info",
+                    "依頼主詳細",
                     "Commission"
                 ]
             }
@@ -107,7 +109,10 @@
                     55
                 ],
                 "expected": [
-                    "运送委托列表"
+                    "运送委托列表",
+                    "運送委託清單",
+                    "List of Delivery Jobs",
+                    "配達依頼一覧"
                 ]
             }
         },
@@ -246,7 +251,9 @@
                 ],
                 "expected": [
                     "刷新",
-                    "Refresh"
+                    "更新",
+                    "Refresh",
+                    "更新"
                 ]
             }
         },
@@ -272,7 +279,9 @@
                 ],
                 "expected": [
                     "刷新",
-                    "Refresh"
+                    "更新",
+                    "Refresh",
+                    "更新"
                 ]
             }
         },
@@ -298,8 +307,14 @@
                 ],
                 "expected": [
                     "接取运送委托",
-                    "Accept",
-                    "Delivery"
+                    "接取運送委託",
+                    "Accept Delivery Job",
+                    "配達依頼を受ける",
+                    "填充至起送",
+                    "填充到起送",
+                    "Delivery",
+                    "最低容量",
+                    "Accept"
                 ]
             }
         },
@@ -325,8 +340,14 @@
                 ],
                 "expected": [
                     "接取运送委托",
-                    "Accept",
-                    "Delivery"
+                    "接取運送委託",
+                    "Accept Delivery Job",
+                    "配達依頼を受ける",
+                    "填充至起送",
+                    "填充到起送",
+                    "Delivery",
+                    "最低容量",
+                    "Accept"
                 ]
             }
         },
@@ -347,8 +368,14 @@
                 ],
                 "expected": [
                     "接取运送委托",
-                    "Accept",
-                    "Delivery"
+                    "接取運送委託",
+                    "Accept Delivery Job",
+                    "配達依頼を受ける",
+                    "填充至起送",
+                    "填充到起送",
+                    "Delivery",
+                    "最低容量",
+                    "Accept"
                 ]
             }
         },
@@ -567,7 +594,10 @@
                     34
                 ],
                 "expected": [
-                    "委托人信息"
+                    "委托人信息",
+                    "委託人資訊",
+                    "Client Info",
+                    "依頼主詳細"
                 ]
             }
         },
@@ -595,9 +625,15 @@
                     143
                 ],
                 "expected": [
-                    "点击屏幕继续",
                     "请尽快送达",
-                    "已接取运送任务"
+                    "請儘快送達",
+                    "Deliver Quickly",
+                    "早めに配達してください",
+                    "已接取运送任务",
+                    "已接取運送任務",
+                    "Delivery job already accepted",
+                    "配達任務を引き受けました",
+                    "点击屏幕继续"
                 ]
             }
         },

@@ -18,7 +18,10 @@
             117
         ],
         "expected": [
-            "套组装备"
+            "套组装备",
+            "套裝裝備",
+            "Set Gear",
+            "セット装備"
         ],
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
@@ -56,7 +59,10 @@
             95
         ],
         "expected": [
-            "制作"
+            "制作",
+            "製作",
+            "Craft",
+            "確定"
         ],
         "action": "Click",
         "post_wait_freezes": 100,

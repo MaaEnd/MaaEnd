@@ -47,6 +47,9 @@
                     100
                 ],
                 "expected": [
+                    "ENDFIELD",
+                    "ENDFIELD",
+                    "ENDFIELD",
                     "ENDFIELD"
                 ]
             }
@@ -457,10 +460,10 @@
                 ],
                 "expected": [
                     "通行证",
+                    "通行證",
                     "Protocol Pass",
                     "通行証",
-                    "프로토콜 패스",
-                    "通行證"
+                    "프로토콜 패스"
                 ]
             }
         },
@@ -723,10 +726,10 @@
                 ],
                 "expected": [
                     "装备加工",
+                    "裝備加工",
                     "Gear Assembly",
                     "装備加工",
-                    "장비 가공",
-                    "裝備加工"
+                    "장비 가공"
                 ]
             }
         },
@@ -1028,6 +1031,9 @@
                     100
                 ],
                 "expected": [
+                    "ENDFIELD",
+                    "ENDFIELD",
+                    "ENDFIELD",
                     "ENDFIELD"
                 ]
             }

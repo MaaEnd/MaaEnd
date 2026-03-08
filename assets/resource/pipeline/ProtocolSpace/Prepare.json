@@ -55,7 +55,9 @@
         ],
         "expected": [
             "自选",
-            "Options"
+            "自選",
+            "Options",
+            "選択"
         ],
         "action": "Click",
         "post_wait_freezes": {

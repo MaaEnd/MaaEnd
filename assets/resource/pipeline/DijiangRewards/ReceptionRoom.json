@@ -468,7 +468,9 @@
                 ],
                 "expected": [
                     "已填入",
-                    "Pegged"
+                    "已填入",
+                    "Pegged",
+                    "配置中"
                 ],
                 "order_by": "Vertical"
             }

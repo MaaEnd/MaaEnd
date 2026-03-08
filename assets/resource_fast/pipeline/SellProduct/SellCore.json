@@ -119,12 +119,12 @@
             77
         ],
         "expected": [
-            // 不足
-            "不足",
-            "不足",
+            "肥料数量不足",
+            "肥料數量不足",
             "Insufficient",
-            "insufficient",
+            "肥料が足りません",
             "不足",
+            "insufficient",
             "거점 관리권 보유량 부족"
         ]
     },
@@ -203,12 +203,11 @@
             100
         ],
         "expected": [
-            // 交易
             "交易",
             "交易",
             "Trade",
-            "trade",
             "取引",
+            "trade",
             "거래"
         ],
         "action": "Click",

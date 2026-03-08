@@ -330,6 +330,9 @@
         ],
         "expected": [
             "清空选中",
+            "清除選取",
+            "Clear All",
+            "一括解除",
             "クリア選択",
             "Clear Selection",
             "선택 해제"

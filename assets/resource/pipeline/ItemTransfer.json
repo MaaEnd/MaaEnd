@@ -183,6 +183,9 @@
         ],
         "expected": [
             "升序",
+            "升序",
+            "ASC",
+            "昇順",
             "Asc"
         ],
         "action": "Click",
@@ -452,8 +455,11 @@
             20
         ],
         "expected": [
-            "已满",
-            "Full"
+            "已充满",
+            "已充滿",
+            "Full",
+            "FULL",
+            "已满"
         ],
         "next": [
             "ItemTransferSwitchRepoToOriginReturn"
