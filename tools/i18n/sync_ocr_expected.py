@@ -14,10 +14,15 @@
    - node.expected
    - node.recognition.expected
    - node.recognition.param.expected
-4) 用 tools/i18n 下四个表反查语言 ID，回填顺序固定：
+4) 用 i18n 四语表反查语言 ID（默认优先子模块目录）：
+   - tools/i18n/EndFieldTranslationReferrer/i18n
+   - tools/i18n
+   - 若存在 I18nHotFix.json，会先将 hotfix 覆盖到对应语言表
    简中(CN) -> 繁中(TC) -> 英文(EN) -> 日文(JP)
 
 默认 dry-run，不修改文件；使用 --write 才会写入。
+若同一节点仅部分命中语言 ID，会保留未命中的原始 expected 文本，
+输出顺序为：四语补全内容在前，未命中内容追加在后。
 """
 
 from __future__ import annotations
@@ -38,15 +43,43 @@ PIPELINE_DIRS = [
     Path("assets/resource_adb/pipeline"),
 ]
 
-I18N_FILES = {
-    "CN": Path("tools/i18n/I18nTextTable_CN.json"),
-    "TC": Path("tools/i18n/I18nTextTable_TC.json"),
-    "EN": Path("tools/i18n/I18nTextTable_EN.json"),
-    "JP": Path("tools/i18n/I18nTextTable_JP.json"),
+I18N_FILE_NAMES = {
+    "CN": "I18nTextTable_CN.json",
+    "TC": "I18nTextTable_TC.json",
+    "EN": "I18nTextTable_EN.json",
+    "JP": "I18nTextTable_JP.json",
 }
+
+HOTFIX_FILE_NAME = "I18nHotFix.json"
+
+DEFAULT_I18N_DIR_CANDIDATES = [
+    Path("tools/i18n/EndFieldTranslationReferrer/i18n"),
+    Path("tools/i18n"),
+]
 
 LANG_ORDER = ("CN", "TC", "EN", "JP")
 INDENT = "    "
+
+HOTFIX_TYPE_TO_LANG = {
+    # 简中
+    "CN": "CN",
+    "SC": "CN",
+    "CHS": "CN",
+    "ZH": "CN",
+    "ZH_CN": "CN",
+    "SIMPLIFIED_CHINESE": "CN",
+    # 繁中
+    "TC": "TC",
+    "CHT": "TC",
+    "ZH_TW": "TC",
+    "TRADITIONAL_CHINESE": "TC",
+    # 英文
+    "EN": "EN",
+    # 日文
+    "JP": "JP",
+    "JA": "JP",
+    "JPN": "JP",
+}
 
 
 def normalize_text(text: str) -> str:
@@ -220,16 +253,102 @@ class JsoncParser:
             raise ValueError(f"Expected ',' or ']' at index {i}")
 
 
-def load_i18n_tables(base_dir: Path) -> Dict[str, Dict[str, str]]:
+def resolve_i18n_dir(base_dir: Path, i18n_dir_override: Optional[Path] = None) -> Path:
+    if i18n_dir_override is not None:
+        candidate = (
+            i18n_dir_override
+            if i18n_dir_override.is_absolute()
+            else base_dir / i18n_dir_override
+        )
+        if not candidate.exists():
+            raise FileNotFoundError(f"指定的 i18n 目录不存在: {candidate}")
+        return candidate
+
+    for rel_dir in DEFAULT_I18N_DIR_CANDIDATES:
+        candidate = base_dir / rel_dir
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(
+        "未找到可用 i18n 目录，已尝试: "
+        + ", ".join(str(base_dir / p) for p in DEFAULT_I18N_DIR_CANDIDATES)
+    )
+
+
+def load_i18n_tables(
+    base_dir: Path, i18n_dir_override: Optional[Path] = None
+) -> Tuple[Dict[str, Dict[str, str]], Path]:
+    i18n_dir = resolve_i18n_dir(base_dir, i18n_dir_override)
     tables: Dict[str, Dict[str, str]] = {}
-    for lang, rel_path in I18N_FILES.items():
-        path = base_dir / rel_path
+    for lang, file_name in I18N_FILE_NAMES.items():
+        path = i18n_dir / file_name
+        if not path.exists():
+            raise FileNotFoundError(f"缺少语言表: {path}")
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
         if not isinstance(data, dict):
             raise ValueError(f"{path} 不是 JSON object")
         tables[lang] = {str(k): str(v) for k, v in data.items()}
-    return tables
+    return tables, i18n_dir
+
+
+def normalize_hotfix_type(type_value: str) -> Optional[str]:
+    normalized = type_value.strip().upper().replace("-", "_")
+    return HOTFIX_TYPE_TO_LANG.get(normalized)
+
+
+def apply_hotfix_to_tables(
+    tables: Dict[str, Dict[str, str]], i18n_dir: Path
+) -> Tuple[int, int, bool]:
+    """
+    将 I18nHotFix.json 的文本覆盖到四语主表中。
+    返回: (applied_count, skipped_count, hotfix_exists)
+    """
+    hotfix_path = i18n_dir / HOTFIX_FILE_NAME
+    if not hotfix_path.exists():
+        return 0, 0, False
+
+    with hotfix_path.open("r", encoding="utf-8") as f:
+        hotfix_data = json.load(f)
+    if not isinstance(hotfix_data, dict):
+        raise ValueError(f"{hotfix_path} 不是 JSON object")
+
+    applied_count = 0
+    skipped_count = 0
+
+    for raw_outer_id, payload in hotfix_data.items():
+        outer_id = str(raw_outer_id)
+        if not isinstance(payload, dict):
+            skipped_count += 1
+            continue
+
+        entries = payload.get("list")
+        if not isinstance(entries, list):
+            skipped_count += 1
+            continue
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                skipped_count += 1
+                continue
+
+            type_value = entry.get("type")
+            text_value = entry.get("text")
+            if not isinstance(type_value, str) or not isinstance(text_value, str):
+                skipped_count += 1
+                continue
+
+            lang = normalize_hotfix_type(type_value)
+            if lang is None:
+                # 非 CN/TC/EN/JP 的 hotfix 忽略
+                continue
+
+            entry_id = entry.get("id")
+            lang_id = str(entry_id) if entry_id is not None else outer_id
+
+            tables[lang][lang_id] = text_value
+            applied_count += 1
+
+    return applied_count, skipped_count, True
 
 
 def build_reverse_index(tables: Dict[str, Dict[str, str]]) -> Dict[str, Set[str]]:
@@ -335,6 +454,19 @@ def expand_expected_from_ids(lang_ids: Sequence[str], tables: Dict[str, Dict[str
     return expanded
 
 
+def append_unresolved_texts(base_expected: List[str], unresolved_texts: Sequence[str]) -> List[str]:
+    """
+    将未命中的原始 expected 追加到结果末尾，并避免重复追加。
+    """
+    result = list(base_expected)
+    existing = set(result)
+    for text in unresolved_texts:
+        if text not in existing:
+            result.append(text)
+            existing.add(text)
+    return result
+
+
 def safe_print(message: str) -> None:
     """在 Windows GBK 控制台下安全输出，避免因无法编码而崩溃。"""
     try:
@@ -431,6 +563,7 @@ def process_pipeline_file(
         if not new_expected:
             unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))
             continue
+        new_expected = append_unresolved_texts(new_expected, unresolved_texts)
 
         if new_expected == old_expected:
             continue
@@ -493,12 +626,28 @@ def main() -> int:
         action="store_true",
         help="打印每个文件与节点的详细信息",
     )
+    argp.add_argument(
+        "--i18n-dir",
+        type=Path,
+        default=None,
+        help="i18n 目录；默认优先 tools/i18n/EndFieldTranslationReferrer/i18n",
+    )
     args = argp.parse_args()
 
     base_dir = args.base_dir.resolve()
-    tables = load_i18n_tables(base_dir)
+    tables, i18n_dir = load_i18n_tables(base_dir, args.i18n_dir)
+    hotfix_applied, hotfix_skipped, has_hotfix = apply_hotfix_to_tables(tables, i18n_dir)
     reverse_index = build_reverse_index(tables)
     pipeline_files = iter_pipeline_files(base_dir)
+
+    safe_print(f"[INFO] using i18n dir: {i18n_dir}")
+    if has_hotfix:
+        safe_print(
+            f"[INFO] applied hotfix: {hotfix_applied} entries"
+            + (f", skipped={hotfix_skipped}" if hotfix_skipped else "")
+        )
+    else:
+        safe_print("[INFO] no I18nHotFix.json found, skip hotfix merge")
 
     total_files = len(pipeline_files)
     touched_files = 0

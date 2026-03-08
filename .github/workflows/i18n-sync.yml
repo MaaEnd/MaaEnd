@@ -1,0 +1,31 @@
+name: i18n-sync
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-ocr-expected:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update translation submodule to latest
+        run: |
+          git submodule update --init --recursive --remote tools/i18n/EndFieldTranslationReferrer
+
+      - name: Run OCR expected sync (write mode)
+        run: |
+          python tools/i18n/sync_ocr_expected.py --write
+
+      - name: Show changed files
+        run: |
+          git status --short
