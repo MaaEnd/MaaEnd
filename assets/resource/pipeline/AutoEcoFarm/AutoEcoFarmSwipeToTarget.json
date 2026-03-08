@@ -87,10 +87,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    27,
-                    494,
-                    1187,
-                    161
+                    22,
+                    406,
+                    1230,
+                    299
                 ],
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "threshold": 0.4
@@ -114,7 +114,7 @@
                     //"node_name": "_AutoEcoFarmTargeRecognition",
                     //将视角拉向目标多少比例
                     "xStepRatio": 0.5,
-                    "yStepRatio": 0.8
+                    "yStepRatio": 1
                 },
                 "roi": "_AutoEcoFarmTargeRecognition"
             }
@@ -147,7 +147,7 @@
     },
     "_AutoEcoFarmSwipeLoopValleyIV": {
         "desc": "[四号谷地版]控制循环次数节点",
-        "max_hit": 10,
+        "max_hit": 20,
         "next": [
             "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
@@ -157,7 +157,7 @@
     },
     "_AutoEcoFarmSwipeLoopWuLin": {
         "desc": "[武陵版]控制循环次数节点",
-        "max_hit": 10,
+        "max_hit": 20,
         "next": [
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
