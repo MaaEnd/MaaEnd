@@ -29,8 +29,7 @@
             "Eternal Sunset",
             "棲霞留影",
             "노을의 그림자"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckEternalSunsetReadyText": {
         "desc": "检查栖霞驻影委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckEternalSunsetJob": {
         "desc": "检查栖霞驻影委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckEternalSunsetGoToMissionText": {
         "desc": "检查栖霞驻影委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InEternalSunsetMission": {
         "desc": "是否在栖霞驻影任务界面",
@@ -102,8 +98,8 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
             "栖霞驻影",
@@ -111,8 +107,7 @@
             "Eternal Sunset",
             "棲霞留影",
             "노을의 그림자"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "AcceptEternalSunset": {
         "desc": "接取栖霞驻影委托",
@@ -199,12 +194,12 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    331,
+                    332,
                     303
                 ],
                 [
-                    342,
-                    297
+                    346,
+                    296
                 ]
             ]
         },

@@ -29,8 +29,7 @@
             "Indoor Crops",
             "室内の作物",
             "실내 작물"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckIndoorCropsReadyText": {
         "desc": "检查室内作物委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckIndoorCropsJob": {
         "desc": "检查室内作物委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckIndoorCropsGoToMissionText": {
         "desc": "检查室内作物委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InIndoorCropsMission": {
         "desc": "是否在室内作物任务界面",
@@ -102,17 +98,16 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
-            "室内作物",
-            "室內作物",
-            "Indoor Crops",
-            "室内の作物",
-            "실내 작물"
-        ],
-        "order_by": "Expected"
+            "室内培育",
+            "室內培育",
+            "Growing Crop",
+            "室内栽培の作物",
+            "실내 재배하고 있는 작물을 촬영하기"
+        ]
     },
     "AcceptIndoorCrops": {
         "desc": "接取室内作物委托",
@@ -199,20 +194,32 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    240,
-                    702
-                ],
-                [
-                    220,
+                    237,
                     703
                 ],
                 [
-                    211,
-                    725
+                    219,
+                    705
                 ],
                 [
-                    190,
-                    726
+                    214,
+                    716
+                ],
+                [
+                    211,
+                    727
+                ],
+                [
+                    198,
+                    729
+                ],
+                [
+                    195,
+                    721
+                ],
+                [
+                    187,
+                    721
                 ],
                 [
                     190,

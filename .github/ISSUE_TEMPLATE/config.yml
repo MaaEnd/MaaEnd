@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📖 问题反馈指南 / Troubleshooting Guide
-    url: https://github.com/MaaEnd/MaaEnd/blob/main/docs/users/troubleshooting.md
+    url: https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/troubleshooting.md
     about: 提交 Issue 前请先阅读此文档 / Please read this guide before submitting an issue
   - name: 🐧 用户 QQ 群 / User QQ Group (755643532)
     url: https://qm.qq.com/q/o4HDYMHUGc

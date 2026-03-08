@@ -42,7 +42,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
 - 💎 **Essence filtering**: Smart recognition of essence stats, automatically locking and keeping optimal ones for easy junk clearing.
 - 🎱 **Auto Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
-- 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks (currently in Beta, optimizations ongoing 🔥)!
+- 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks!
 - ⚔️ **Protocol Space**: Automatically consume sanity to farm Protocol Space rewards until it's fully depleted, your best helper for clearing sanity!
 - 🔫 **Armory upgrade & assembly**: Automate weapon enhancement and gear assembly to free your hands and boost power easily.
 - 💰 **Auto trading/reselling**: Automatically identify and buy the most profitable goods, auto visit friends' ships to sell in one go; or just get purchase recommendations to maximize profit! 💸

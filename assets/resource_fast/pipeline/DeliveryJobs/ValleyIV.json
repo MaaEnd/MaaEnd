@@ -52,8 +52,7 @@
             "Originium Science Park",
             "源石研究パーク",
             "오리지늄 연구 구역"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckLocalDepotNodeOriginLodespringText": {
         "desc": "检查本地仓储节点中是否有矿脉源区",
@@ -70,8 +69,7 @@
             "Origin Lodespring",
             "鉱山エリア",
             "광맥 구역"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
         "desc": "检查本地仓储节点中是否有供能高地",
@@ -88,8 +86,7 @@
             "Power Plateau",
             "エネルギー高地",
             "에너지 공급 고지"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckOriginiumScienceParkCargo": {
         "desc": "检查源石研究园的货物是否准备好",
@@ -112,8 +109,7 @@
             "Check Bid",
             "希望価格確認",
             "입찰 보기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckOriginLodespringCargo": {
         "desc": "检查矿脉源区的货物是否准备好",
@@ -136,8 +132,7 @@
             "Check Bid",
             "希望価格確認",
             "입찰 보기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckPowerPlateauCargo": {
         "desc": "检查供能高地的货物是否准备好",
@@ -160,8 +155,7 @@
             "Check Bid",
             "希望価格確認",
             "입찰 보기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsEnterOriginiumScienceParkCargo": {
         "desc": "进入源石研究园货物",

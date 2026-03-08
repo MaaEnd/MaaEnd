@@ -66,8 +66,8 @@ python tools/setup_workspace.py
 
 ### 关于开发体验
 
-- MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。工作目录可设置为 `install` 文件夹。
-- 每次修改 Pipeline 后只需要在开发工具中重新加载资源即可；但每次修改 go-service 都需要执行 `python tools/build_and_install.py` 重新进行编译。
+- MaaFramework 有丰富的 [开发工具](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) 可以进行低代码编辑、调试等，请善加使用。工作目录可设置为**项目根目录**的文件夹。
+- 每次修改 Pipeline 后只需要在开发工具中重新加载资源即可；但每次修改 go-service 都需要执行 `python tools/build_and_install.py` 重新进行编译（可以在 VS Code 的终端选项运行任务中使用 `build` 任务快捷运行）。
 - 可利用 VS Code 等工具对 go-service 挂断点或单步运行（自行 debug 启动 go-service，或利用 vscode attach）。~~不是哥们，你靠看日志改代码啊？~~
 - MXU 是面向终端用户的 GUI，不建议使用其开发调试，上述的 MaaFramework 开发工具可以极大程度提高开发效率。~~真狠啊就硬试啊~~
 
@@ -76,11 +76,11 @@ python tools/setup_workspace.py
 - MaaEnd 开发中所有图片、坐标均需要以 720p 为基准，MaaFramework 在实际运行时会根据用户设备的分辨率自动进行转换。推荐使用上述开发工具进行截图和坐标换算。
 - **当您被提示 “HDR” 或 “自动管理应用的颜色” 等功能已开启时，请不要进行截图、取色等操作，可能会导致模板效果与用户实际显示不符**
 - 若需要进行颜色匹配，推荐优先使用 HSV 或灰度空间进行匹配。不同厂商显卡（如 NVIDIA、AMD、Intel）渲染方式存在差异，直接使用 RGB 颜色值在各类设备上会有轻微偏差；而在 HSV 空间中固定色相，仅对饱和度和亮度作适当调整，即可在三种显卡下获得更统一、稳定的识别效果。
-- 资源文件夹是链接状态，修改 `install` 等同于修改 `assets` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `assets` 再进行提交。**
+- 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `install` 再进行ui中的测试。（或运行 build_and_install.py ，运行方法同上）**。
 - `resource_fast` 文件夹中清除了默认延迟，操作速度会大幅加快，但也对 pipeline 的鲁棒性提出来更高的要求。我们推荐优先使用 `resource_fast`，但也请开发者根据任务实际情况自行选择。  
   _说人话就是 `resource_fast` 难写的多，每次操作之后下一帧画面可能还是过渡动画，你也要想办法识别。但运行速度也更快，对自己有信心的可以试试。搞不定或者懒得弄就放 `resource` 里，操作慢一点但写起来简单。_
 
-### 关于秦始皇节点
+### 关于秦始皇节点（可复用节点或 Custom ）
 
 某些具有高可复用性的节点已经予以封装，并撰写了详细文档，以避免重复造轮子。参见：
 
@@ -100,7 +100,7 @@ python tools/setup_workspace.py
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
 - 每一步操作都需要基于识别进行，请勿 “整体识别一次 -> 点击 A -> 点击 B -> 点击 C”，而是 “识别 A -> 点击 A -> 识别 B -> 点击 B”。  
   _你没法保证点完 A 之后画面是否还和之前一样，极端情况下此时游戏弹出新池子公告，直接点击 B 有没有可能点到抽卡里去乱操作了？_
-- 应通过pre_wait_freezes、post_wait_freezes等待画面禁止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
+- 应通过 pre_wait_freezes、post_wait_freezes 等待画面禁止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
 
 > [!NOTE]
 >

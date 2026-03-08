@@ -432,5 +432,21 @@
     "resource/image/AutoEcoFarm/AutoEcoFarmHand": "73165e813efb8180d7db06a0e0c60fdd543b446336cc24c4e679f2331ee15c52",
     "resource/image/AutoEcoFarm/ItemInfo": "6c28ea6aa988ccf68e5110109e4a364deb69a92f5365170493da112f3be9dcb4",
     "resource/image/AutoEcoFarm/AutoEcoFarmFarmland": "216dc35ab9fd5134af2828da822f97ce4e79e2a32726f75b03cf94bbb1ee3640",
-    "resource/image/AutoEcoFarm/pointer": "677520eb05ba681a87df470bfa62d817fd50c7d2ccab7fdf29698dfef206a4c0"
+    "resource/image/AutoEcoFarm/pointer": "677520eb05ba681a87df470bfa62d817fd50c7d2ccab7fdf29698dfef206a4c0",
+    "resource/image/Valuables/ValuablesTabNotChoose": "4c6b72c33d0a4676ac78cb0a41674dc17869f74a385899378cacdb54a1a737e2",
+    "resource/image/Valuables/Close": "9fafba209a8c3e37bf2b9542ac5efd3251ce36bca10d124eb855d532d51955ac",
+    "resource/image/Valuables/ValuablesTabChoosed": "9e035ab54589ab72a950ff57f15d9b95214404c80543b016ddc6757a6b49e055",
+    "resource/image/Valuables/EmergencySanityBooster": "75ae467396f45923532259a5559ae36907e1adfdd1b4c6f6493f06edba564830",
+    "resource/image/AutoEcoFarm/autoecofarmTeamIcon": "d62ffc446ae1dff455ce53b635043a9a13f307e0c4140056df4f50717d33c5eb",
+    "resource/image/AutoEcoFarm/autoecofarmQuickStash": "29997d7db35b8bccc30ff44d15f4cc20ee0b181d06cd79c178c0ff1b4e77385f",
+    "resource/image/SeizeEntrustTask/7.31wMoney_en": "d8e620ff6ba40ff4a30737eb8958602b4efef50a3be0ba323ae40811a2bb3490",
+    "resource/image/GiftOperator/OperatorChat": "ae848cdc47610fa9538bddddf2f37e564250962883f54c682dc170d4a5305032",
+    "resource/image/GiftOperator/GiftGiving": "211e2d14aae793bc4e7785ad12b44db0a5e0a789e8440c2fd6ec868a9e1da877",
+    "resource/image/GiftOperator/OperatorContact": "3527578eb622315e1cabebe290c8984f9706cb5496564ec3a8ed9da2a2281045",
+    "resource/image/GiftOperator/Check_Dijiang": "3eb592e27bc357223cac0307933cfe4598d152985cecc6c6a992c585b89f510e",
+    "resource/image/GiftOperator/LikeAbility": "9a7771a8a9ad6899386c664a6b34a4f4326202b770209b7dcde7a75e7cd014c4",
+    "resource/image/GiftOperator/YellowSelect3": "595977aeca5eb7bc93834927c54844cf25c80e9e2400b04226d03b9a7ed4dcba",
+    "resource/image/GiftOperator/YellowSelect1": "c7f0663112d8559ac3e1e4915a0d172508effb9838bb960696933b81d3b8f2ba",
+    "resource/image/GiftOperator/YellowSelect2": "3341d20f4dca40e208cd790ea8320090d309c00911a5301d642d5c89f01b208a",
+    "resource/image/GiftOperator/Leave": "8f9519ffa15a090d9dfec34bbbf65936e1b6cd091ef82e5c5da1f29e870f92ba"
 }

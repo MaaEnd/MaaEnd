@@ -4,14 +4,14 @@
 {
     //节点出入口
     "_AutoEcoFindFarmFarmlandValleyStart": {
-        "doc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
+        "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
         "next": [
             "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmValleyIV",
             "_AutoEcoFindFarmFarmlandValleyIVExit"
         ]
     },
     "_AutoEcoFindFarmFarmlandWulinStart": {
-        "doc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
+        "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
         "next": [
             "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmWulin",
             "_AutoEcoFindFarmFarmlandWulinExit"
@@ -29,7 +29,7 @@
     },
     //内部节点
     "_AutoEcoFarmFindValleyIVEcoFarmValleyIV": {
-        "doc": "[四号谷地版]任务主体",
+        "desc": "[四号谷地版]任务主体",
         "max_hit": 1,
         "next": [
             "_AutoEcoFarmFindValleyIVEcoFarm",
@@ -37,7 +37,7 @@
         ]
     },
     "_AutoEcoFarmFindValleyIVEcoFarmWulin": {
-        "doc": "[武陵版]任务主体",
+        "desc": "[武陵版]任务主体",
         "max_hit": 1,
         "next": [
             "_AutoEcoFarmFindWulinEcoFarm",
@@ -45,16 +45,16 @@
         ]
     },
     "_AutoEcoFarmFindValleyIVEcoFarmAny": {
-        "doc": "[当前地图版]任务主体，用于循环任务,默认关闭",
-        "max_hit": 3,
+        "desc": "[当前地图版]任务主体，用于循环任务,默认关闭",
         "enabled": false,
+        "max_hit": 3,
         "next": [
             "_AutoEcoFarmInMap",
             "[JumpBack]SceneEnterMapAny"
         ]
     },
     "_AutoEcoFarmInMap": {
-        "doc": "查找标记管理按钮来确认是否在地图界面",
+        "desc": "查找标记管理按钮来确认是否在地图界面",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -76,7 +76,7 @@
         ]
     },
     "_AutoEcoFarmFindValleyIVEcoFarm": {
-        "doc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
+        "desc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -109,7 +109,7 @@
         ]
     },
     "_AutoEcoFarmFindWulinEcoFarm": {
-        "doc": "寻找武陵城的“实验作物试点”这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
+        "desc": "寻找武陵城的“实验作物试点”这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -142,7 +142,8 @@
         ]
     },
     "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
-        "doc": "将生态园拉到屏幕中间",
+        "desc": "将生态园拉到屏幕中间",
+        "max_hit": 10,
         "action": {
             "type": "Swipe",
             "param": {
@@ -155,14 +156,14 @@
                 ]
             }
         },
-        "max_hit": 10,
         "post_wait_freezes": 200,
         "next": [
             "_AutoEcoFarmFindValleyIVEcoFarm"
         ]
     },
     "_AutoEcoFarmPullWulinEcoFarmToCenter": {
-        "doc": "将“实验作物试点”拉到屏幕中间",
+        "desc": "将“实验作物试点”拉到屏幕中间",
+        "max_hit": 10,
         "action": {
             "type": "Swipe",
             "param": {
@@ -175,14 +176,13 @@
                 ]
             }
         },
-        "max_hit": 10,
         "post_wait_freezes": 200,
         "next": [
             "_AutoEcoFarmFindWulinEcoFarm"
         ]
     },
     "_AutoEcoFarmFindFarmland": {
-        "doc": "全屏寻找农田,识别到了后点击",
+        "desc": "全屏寻找农田,识别到了后点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -210,7 +210,7 @@
         ]
     },
     "_AutoEcoFarmIsMrarking": {
-        "doc": "找到标记两个字说明点歪了，按一下esc",
+        "desc": "找到标记两个字说明点歪了，按一下esc",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -237,7 +237,7 @@
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
-        "doc": "找到取消两个字则直接下一步，不点击",
+        "desc": "找到取消两个字则直接下一步，不点击",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -258,7 +258,7 @@
         ]
     },
     "_AutoEcoFarmSetTarget": {
-        "doc": "点击追踪按钮，设定追踪",
+        "desc": "点击追踪按钮，设定追踪",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -282,7 +282,8 @@
         ]
     },
     "_AutoEcoFarmMutiSelection": {
-        "doc": "识别是否有多选情况，识别初次点击点附近有无田块字样，有的话点一下含田块两字的选项",
+        "desc": "识别是否有多选情况，识别初次点击点附近有无田块字样，有的话点一下含田块两字的选项",
+        "max_hit": 3, //超过3次没点掉就是出bug了直接跳过
         "recognition": {
             "type": "OCR",
             "param": {
@@ -297,7 +298,6 @@
         },
         "action": {
             "type": "Click"
-        },
-        "max_hit": 3 //超过3次没点掉就是出bug了直接跳过
+        }
     }
 }

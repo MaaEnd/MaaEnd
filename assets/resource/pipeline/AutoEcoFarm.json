@@ -1,12 +1,12 @@
 {
     "AutoEcoFarmMain": {
-        "doc": "自动生态农场主入口",
+        "desc": "自动生态农场主入口",
         "next": [
             "_AutoEcoFarmPrepareStart"
         ]
     },
     "AutoEcoFarmExit": {
-        "doc": "退出任务"
+        "desc": "退出任务"
     },
     "test": {
         "action": "TouchMove",

@@ -17,7 +17,11 @@
                     700,
                     70
                 ],
-                "expected": "共享蓝图"
+                "expected": [
+                    "共享蓝图",
+                    "Shared Blueprint",
+                    "Shared"
+                ]
             }
         },
         "action": "Click",
@@ -65,7 +69,11 @@
                     250,
                     110
                 ],
-                "expected": "导入蓝图"
+                "expected": [
+                    "导入蓝图",
+                    "Import Blueprint",
+                    "Import"
+                ]
             }
         },
         "action": "Click",
@@ -126,7 +134,10 @@
                     350,
                     230
                 ],
-                "expected": "确认"
+                "expected": [
+                    "确认",
+                    "Confirm"
+                ]
             }
         },
         "action": "Click",
@@ -151,7 +162,11 @@
                     375,
                     110
                 ],
-                "expected": "存至共享蓝图"
+                "expected": [
+                    "存至共享蓝图",
+                    "Save to Shared",
+                    "Save"
+                ]
             }
         },
         "action": "Click",
@@ -171,7 +186,11 @@
                     375,
                     110
                 ],
-                "expected": "已保存"
+                "expected": [
+                    "已保存",
+                    "Saved",
+                    "Already"
+                ]
             }
         },
         "action": {

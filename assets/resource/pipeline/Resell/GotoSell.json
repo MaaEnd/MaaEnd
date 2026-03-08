@@ -29,7 +29,6 @@
         ],
         "expected": "[0-9]+",
         "threshold": 0.8,
-        "order_by": "Expected",
         "action": "Click",
         "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "next": [
@@ -88,7 +87,6 @@
         ],
         "expected": ".*飞船.*",
         "threshold": 0.8,
-        "order_by": "Expected",
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 500,

@@ -1,7 +1,8 @@
 //这里写一些通用节点，用来处理各种事件，一般都要带jumpback来引用
 {
     "_AutoEcoFarmMoveMouse": {
-        "doc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
+        "desc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
+        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
         "action": {
             "type": "TouchMove",
             "param": {
@@ -12,30 +13,29 @@
                     0
                 ]
             }
-        },
-        "max_hit": 3 //默认为3，超过就不要再试了免得死循环
+        }
     },
     //强制结束任务前解除占用
     "_AutoEcoFarmMoveToTargetErr": {
-        "doc": "这是个异常处理节点，触发时解除占用并结束任务",
+        "desc": "这是个异常处理节点，触发时解除占用并结束任务",
+        "next": [
+            "_AutoEcoFarmMoveToTargetErr1"
+        ],
         "focus": {
             "Node.Action.Failed": "出现异常情况，脚本提前中止"
-        },
-        "next": [
-            "_AutoEcoFarmMoveToTargetErr1"
-        ]
+        }
     },
     "_AutoEcoFarmMoveToTargetErrFindTarget": {
-        "doc": "这是个异常处理节点，触发时解除占用并结束任务",
-        "focus": {
-            "Node.Recognition.Failed": "在识别标记时出现异常情况，脚本提前中止"
-        },
+        "desc": "这是个异常处理节点，触发时解除占用并结束任务",
         "next": [
             "_AutoEcoFarmMoveToTargetErr1"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "在识别标记时出现异常情况，脚本提前中止"
+        }
     },
     "_AutoEcoFarmMoveToTargetErr1": {
-        "doc": "先解除w键占用",
+        "desc": "先解除w键占用",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -45,7 +45,7 @@
         "next": []
     },
     "_AutoEcoFarmMoveToTargetErr2": {
-        "doc": "恢复跑步模式，方式是按一下shift",
+        "desc": "恢复跑步模式，方式是按一下shift",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -58,7 +58,8 @@
     },
     //下面这段代码是在地图上清除标记，只留工业设备，用来找农田的，要加jumpback
     "_AutoEcoFarmClickTargetManager": {
-        "doc": "点开标记显示管理",
+        "desc": "点开标记显示管理",
+        "max_hit": 3,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -74,13 +75,12 @@
             }
         },
         "action": "Click",
-        "max_hit": 3,
         "next": [
             "_AutoEcoFarmClickClear"
         ]
     },
     "_AutoEcoFarmClickClear": {
-        "doc": "点击清空选中",
+        "desc": "点击清空选中",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -101,17 +101,17 @@
         ]
     },
     "_AutoEcoFarmScrollToIndustrialFacilities": {
-        "doc": "滚动一下",
+        "desc": "滚动一下",
         "action": {
             "type": "Scroll",
             "param": {
-                "dy": -480,
                 "target": [
                     159,
                     347,
                     19,
                     15
-                ]
+                ],
+                "dy": -480
             }
         },
         "post_wait_freezes": 500,
@@ -120,7 +120,7 @@
         ]
     },
     "_AutoEcoFarmClickIndustrialFacilities": {
-        "doc": "点击工业设备",
+        "desc": "点击工业设备",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -142,7 +142,7 @@
         ]
     },
     "_AutoEcoFarmExitTargetManager": {
-        "doc": "按一下esc",
+        "desc": "按一下esc",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -151,7 +151,8 @@
         }
     },
     "_AutoEcoFarmSwipeToGround": {
-        "doc": "移动视角到地面，配合jumpback使用",
+        "desc": "移动视角到地面，配合jumpback使用",
+        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
         "action": {
             "type": "Swipe",
             "param": {
@@ -169,13 +170,12 @@
                 ]
             }
         },
-        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
         "next": [
             "_AutoEcoFarmSwipeToGround2"
         ]
     },
     "_AutoEcoFarmSwipeToGround2": {
-        "doc": "按下alt",
+        "desc": "按下alt",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -187,7 +187,8 @@
         ]
     },
     "_AutoEcoFarmSwipeToGround3": {
-        "doc": "按下鼠标左键",
+        "desc": "按下鼠标左键",
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -199,27 +200,26 @@
                 ]
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmSwipeToGround4"
         ]
     },
     "_AutoEcoFarmSwipeToGround4": {
-        "doc": "松开alt",
+        "desc": "松开alt",
+        "pre_delay": 0,
         "action": {
             "type": "KeyUp",
             "param": {
                 "key": 18 //alt键
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmJumpBack"
         ]
     },
     "_AutoEcoFarmJumpBack": {
-        "doc": "空节点，用来触发jumpback"
+        "desc": "空节点，用来触发jumpback"
     }
 }

@@ -8,7 +8,10 @@
             254,
             137
         ],
-        "expected": "收取信用",
+        "expected": [
+            "收取信用",
+            "Collect Credits"
+        ],
         "action": "Click",
         "next": [
             "CreditShoppingClaimConfirm",
@@ -24,7 +27,10 @@
             254,
             137
         ],
-        "expected": "无待领取信用",
+        "expected": [
+            "无待领取信用",
+            "No credits to claim"
+        ],
         "action": "DoNothing",
         "next": [
             "CreditShoppingShopping"

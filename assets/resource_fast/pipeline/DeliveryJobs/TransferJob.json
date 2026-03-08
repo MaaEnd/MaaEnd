@@ -17,7 +17,6 @@
             "任務確認",
             "임무 확인"
         ],
-        "order_by": "Expected",
         "action": "Click",
         "next": [
             "DeliveryJobsClickTransferJob"
@@ -39,7 +38,6 @@
             "外部委託",
             "운송 의뢰 위탁"
         ],
-        "order_by": "Expected",
         "action": "Click",
         "next": [
             "DeliveryJobsConfirmTaskTransfer"
@@ -61,8 +59,7 @@
             "Transfer delivery job to another courier?",
             "配達任務を他人に委託しますか？",
             "운송 임무를 다른 사람에게 위탁하시겠습니까?"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsConfirmTaskTransfer": {
         "desc": "确认转交任务",

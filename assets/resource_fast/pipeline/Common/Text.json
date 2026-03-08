@@ -14,8 +14,7 @@
             "Regional Development",
             "地域建設",
             "지역 건설"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckRegionalDevelopmentValleyIVText": {
         "desc": "检查四号谷地地区建设左边的文字",
@@ -33,8 +32,7 @@
             "Valley",
             "四号谷地",
             "4번 협곡"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckRegionalDevelopmentWulingText": {
         "desc": "检查武陵地区建设左边的文字",
@@ -51,8 +49,7 @@
             "Wuling",
             "武陵",
             "무릉"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckLocalDepotNodeText": {
         "desc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
@@ -69,8 +66,7 @@
             "Local Depot Node",
             "地域保管ボックス",
             "현재 지역 저장고 노드"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckCourierInfoText": {
         "desc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
@@ -87,8 +83,7 @@
             "Courier Info",
             "配達員詳細",
             "운송인 정보"
-        ],
-        "order_by": "Expected"
+        ]
     },
 
     "CheckChangeRegionConfirmText": {
@@ -107,7 +102,6 @@
             "Switch to view the development status of the selected region?",
             "この地域の建設状況を確認しますか？",
             "선택한 지역의 건설 상황을 확인하시겠습니까?"
-        ],
-        "order_by": "Expected"
+        ]
     }
 }

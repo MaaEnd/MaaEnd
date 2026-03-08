@@ -1,0 +1,60 @@
+{
+    "ValuableStashValuablesTab": {
+        "desc": "进入贵重品库的珍贵物品页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]ValuableStashValuablesTabSwitch",
+            "ValuableStashValuablesTabIn",
+            "[JumpBack]SceneEnterMenuValuables"
+        ]
+    },
+    "ValuableStashValuablesTabIn": {
+        "desc": "当前正在珍贵物品页界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    0,
+                    48,
+                    54
+                ],
+                "template": [
+                    "Valuables/ValuablesTabChoosed.png"
+                ]
+            }
+        },
+        "next": [
+            "[Anchor]ValuableStashValuablesTabInNext",
+            "[Anchor]ValuableStashValuablesTabInNext2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "进入珍贵物品标签页界面"
+        }
+    },
+    "ValuableStashValuablesTabSwitch": {
+        "desc": "切换到珍贵物品标签页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    0,
+                    48,
+                    54
+                ],
+                "template": "Valuables/ValuablesTabNotChoose.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "focus": {
+            "Node.Action.Starting": "切换到珍贵物品页界面"
+        }
+    }
+}

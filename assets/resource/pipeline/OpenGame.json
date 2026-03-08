@@ -1,7 +1,6 @@
 {
     "AndroidOpenGame": {
         "pre_delay": 0,
-        //
         "action": {
             "type": "StartApp",
             "param": {
@@ -106,7 +105,10 @@
                 "expected": [
                     "登录失败",
                     "检查网络",
-                    "状态后重试"
+                    "状态后重试",
+                    "Login Failed",
+                    "Check Network",
+                    "Retry"
                 ]
             }
         },
@@ -125,7 +127,8 @@
                     56
                 ],
                 "expected": [
-                    "确认"
+                    "确认",
+                    "Confirm"
                 ]
             }
         },
@@ -147,7 +150,11 @@
                     "点击",
                     "任意",
                     "位置",
-                    "继续"
+                    "继续",
+                    "Click",
+                    "Tap",
+                    "anywhere",
+                    "continue"
                 ]
             }
         },
@@ -209,7 +216,9 @@
                 ],
                 "expected": [
                     "点击确认今日",
-                    "今日月卡奖励"
+                    "今日月卡奖励",
+                    "Monthly Card",
+                    "today"
                 ]
             }
         },
@@ -228,7 +237,8 @@
                     108
                 ],
                 "expected": [
-                    "领取"
+                    "领取",
+                    "Claim"
                 ]
             }
         },
@@ -251,7 +261,8 @@
                     74
                 ],
                 "expected": [
-                    "获得奖励"
+                    "获得奖励",
+                    "Rewards"
                 ]
             }
         },

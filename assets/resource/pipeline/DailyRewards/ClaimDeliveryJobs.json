@@ -42,8 +42,7 @@
             "My Transferred Jobs",
             "転送した依頼",
             "내가 위탁한 의뢰"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "ClaimDeliveryJobsClickMyTransferredTab": {
         "desc": "在仓储节点内点击「我转交的委托」标签",

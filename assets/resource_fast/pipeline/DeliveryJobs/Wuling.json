@@ -49,8 +49,7 @@
             "Wuling City",
             "武陵城内",
             "무릉성 도심"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsCheckWulingCityCargo": {
         "desc": "检查武陵城区的货物是否准备好",
@@ -73,8 +72,7 @@
             "Check Bid",
             "希望価格確認",
             "입찰 보기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "DeliveryJobsEnterWulingCityCargo": {
         "desc": "进入武陵城区货物",

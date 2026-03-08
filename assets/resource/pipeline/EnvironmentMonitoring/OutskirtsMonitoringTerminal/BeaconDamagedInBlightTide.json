@@ -29,8 +29,7 @@
             "Beacon Damaged in the Blight Tide",
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckBeaconDamagedInBlightTideReadyText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckBeaconDamagedInBlightTideJob": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckBeaconDamagedInBlightTideGoToMissionText": {
         "desc": "检查侵蚀潮中损坏的信标委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InBeaconDamagedInBlightTideMission": {
         "desc": "是否在侵蚀潮中损坏的信标任务界面",
@@ -102,8 +98,8 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
             "侵蚀潮中损坏的信标",
@@ -111,8 +107,7 @@
             "Beacon Damaged in the Blight Tide",
             "侵蝕潮で壊れたビーコン",
             "침식 조류로 인해 훼손된 신호기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "AcceptBeaconDamagedInBlightTide": {
         "desc": "接取侵蚀潮中损坏的信标委托",
@@ -199,32 +194,48 @@
             "map_name": "map02_lv002",
             "path": [
                 [
-                    640,
-                    265
+                    641,
+                    272
                 ],
                 [
-                    640,
-                    295
+                    639,
+                    299
+                ],
+                [
+                    628,
+                    301
                 ],
                 [
                     623,
                     302
                 ],
                 [
-                    640,
-                    315
+                    641,
+                    317
                 ],
                 [
-                    658,
+                    648,
+                    317
+                ],
+                [
+                    685,
                     318
                 ],
                 [
-                    667,
-                    318
+                    686,
+                    329
                 ],
                 [
-                    672,
-                    269
+                    680,
+                    333
+                ],
+                [
+                    691,
+                    344
+                ],
+                [
+                    701,
+                    345
                 ]
             ]
         },

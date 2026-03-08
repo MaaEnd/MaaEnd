@@ -7,9 +7,10 @@
 //节点从Start进入，开始前要保证目标可以被看到
 //节点从Exit离开，这里关联下一个阶段的节点
 //无法中断循环，需要单独将判断距离在范围内做成custom的recognition节点
-{ //节点出入口
+{
+    //节点出入口
     "_AutoEcoFarmSwipeToTargetValleyIVStart": {
-        "doc": "[谷地版]微调视角直到目标到屏幕中间",
+        "desc": "[谷地版]微调视角直到目标到屏幕中间",
         "anchor": {
             "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopValleyIV"
         },
@@ -18,7 +19,7 @@
         ]
     },
     "_AutoEcoFarmSwipeToTargetWulinStart": {
-        "doc": "[武陵版]微调视角直到目标到屏幕中间",
+        "desc": "[武陵版]微调视角直到目标到屏幕中间",
         "anchor": {
             "_AutoEcoFarmSwipeLoop": "_AutoEcoFarmSwipeLoopWuLin"
         },
@@ -27,7 +28,7 @@
         ]
     },
     "_AutoEcoFarmSwipeToTargetStart": {
-        "doc": "微调视角直到目标到屏幕中间",
+        "desc": "微调视角直到目标到屏幕中间",
         "next": [
             "_AutoEcoFarmInWorld",
             "[JumpBack]SceneAnyEnterWorld"
@@ -39,7 +40,7 @@
         ]
     },
     "_AutoEcoFarmTargeRecognition": {
-        "doc": "自定义识别节点，按需选择一个合适的方法识别目标",
+        "desc": "自定义识别节点，按需选择一个合适的方法识别目标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -60,7 +61,7 @@
         ]
     },
     "_AutoEcoFarmTargeInCenter": {
-        "doc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
+        "desc": "判断目标在视野中央的节点,识别方法同上，但是范围更小",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -81,7 +82,7 @@
         ]
     },
     "_AutoEcoFarmTargeInBack": {
-        "doc": "判断目标在视野下方，即背后",
+        "desc": "判断目标在视野下方，即背后",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -103,7 +104,7 @@
     },
     //这里会调用一个Custom节点，计算要将视角拉近目标多少比例所需要的swipe的end坐标
     "_AutoEcoFarmCalculateSwipeTarget": {
-        "doc": "生成拉近目标所需要的坐标",
+        "desc": "生成拉近目标所需要的坐标",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -124,7 +125,7 @@
     },
     //下面是内部节点，不用改
     "_AutoEcoFarmInWorld": {
-        "doc": "判断是否在大世界，避免误识别地图上的标点",
+        "desc": "判断是否在大世界，避免误识别地图上的标点",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -145,7 +146,7 @@
         ]
     },
     "_AutoEcoFarmSwipeLoopValleyIV": {
-        "doc": "[四号谷地版]控制循环次数节点",
+        "desc": "[四号谷地版]控制循环次数节点",
         "max_hit": 10,
         "next": [
             "_AutoEcoFarmTargeInBack",
@@ -155,7 +156,7 @@
         ]
     },
     "_AutoEcoFarmSwipeLoopWuLin": {
-        "doc": "[武陵版]控制循环次数节点",
+        "desc": "[武陵版]控制循环次数节点",
         "max_hit": 10,
         "next": [
             "_AutoEcoFarmTargeRecognition",
@@ -164,7 +165,8 @@
         ]
     },
     "_AutoEcoFarmSwipeToTarget": {
-        "doc": "转向到识别结果",
+        "desc": "转向到识别结果",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -175,18 +177,17 @@
                     1
                 ],
                 "end": "_AutoEcoFarmCalculateSwipeTarget",
-                "duration": 200,
-                "only_hover": true
+                "only_hover": true,
+                "duration": 200
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmAltDown"
         ]
     },
     "_AutoEcoFarmSwipeTargetToFront": {
-        "doc": "将标记拉到前面",
+        "desc": "将标记拉到前面",
         "action": {
             "type": "Swipe",
             "param": {
@@ -198,8 +199,8 @@
                     1000,
                     360
                 ],
-                "duration": 1000,
-                "only_hover": true
+                "only_hover": true,
+                "duration": 1000
             }
         },
         "next": [
@@ -207,7 +208,7 @@
         ]
     },
     "_AutoEcoFarmAltDown": {
-        "doc": "按下alt",
+        "desc": "按下alt",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -219,7 +220,8 @@
         ]
     },
     "_AutoEcoFarmClick": {
-        "doc": "按下鼠标左键",
+        "desc": "按下鼠标左键",
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -231,21 +233,20 @@
                 ]
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "_AutoEcoFarmAltUp"
         ]
     },
     "_AutoEcoFarmAltUp": {
-        "doc": "松开alt",
+        "desc": "松开alt",
+        "pre_delay": 0,
         "action": {
             "type": "KeyUp",
             "param": {
                 "key": 18 //alt键
             }
         },
-        "pre_delay": 0,
         "post_delay": 0,
         "next": [
             //目标在中央则直接结束该子任务，否则继续循环

@@ -15,7 +15,11 @@
             79,
             27
         ],
-        "expected": "拜访好友",
+        "expected": [
+            "拜访好友",
+            "Visit",
+            "Friends"
+        ],
         "next": [
             "ItemTransferStartMoveCamera"
         ]
@@ -57,7 +61,11 @@
             65,
             24
         ],
-        "expected": "仓库切换",
+        "expected": [
+            "仓库切换",
+            "Switch",
+            "Depot"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -102,7 +110,10 @@
             117,
             41
         ],
-        "expected": "确认",
+        "expected": [
+            "确认",
+            "Confirm"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -117,7 +128,10 @@
             117,
             41
         ],
-        "expected": "已连接",
+        "expected": [
+            "已连接",
+            "Connected"
+        ],
         "next": [
             "ItemTransferClickEscOrigin"
         ]
@@ -147,7 +161,10 @@
             48,
             26
         ],
-        "expected": "降序",
+        "expected": [
+            "降序",
+            "Desc"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -164,7 +181,10 @@
             48,
             26
         ],
-        "expected": "升序",
+        "expected": [
+            "升序",
+            "Asc"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -268,7 +288,11 @@
             65,
             24
         ],
-        "expected": "仓库切换",
+        "expected": [
+            "仓库切换",
+            "Switch",
+            "Depot"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -313,7 +337,10 @@
             117,
             41
         ],
-        "expected": "确认",
+        "expected": [
+            "确认",
+            "Confirm"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -328,7 +355,10 @@
             117,
             41
         ],
-        "expected": "已连接",
+        "expected": [
+            "已连接",
+            "Connected"
+        ],
         "next": [
             "ItemTransferClickEscDestination"
         ]
@@ -421,7 +451,10 @@
             291,
             20
         ],
-        "expected": "已满",
+        "expected": [
+            "已满",
+            "Full"
+        ],
         "next": [
             "ItemTransferSwitchRepoToOriginReturn"
         ]
@@ -434,7 +467,11 @@
             65,
             24
         ],
-        "expected": "仓库切换",
+        "expected": [
+            "仓库切换",
+            "Switch",
+            "Depot"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -479,7 +516,10 @@
             117,
             41
         ],
-        "expected": "确认",
+        "expected": [
+            "确认",
+            "Confirm"
+        ],
         "action": "Click",
         "post_wait_freezes": 400,
         "next": [
@@ -494,7 +534,10 @@
             117,
             41
         ],
-        "expected": "已连接",
+        "expected": [
+            "已连接",
+            "Connected"
+        ],
         "next": [
             "ItemTransferClickEscOriginReturn"
         ]

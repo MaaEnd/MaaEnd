@@ -270,7 +270,8 @@
                     0
                 ],
                 "expected": [
-                    "培养舱"
+                    "培养舱",
+                    "Growth"
                 ],
                 "only_rec": true
             }
@@ -314,7 +315,8 @@
                     306
                 ],
                 "expected": [
-                    "取消"
+                    "取消",
+                    "Cancel"
                 ]
             }
         },

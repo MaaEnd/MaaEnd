@@ -5,7 +5,7 @@
 {
     //四号谷地的节点出入口
     "_AutoEcoFarmGotoValleyIVEcoFarmStart": {
-        "doc": "这块代码是用来前往四号谷地农场的",
+        "desc": "这块代码是用来前往四号谷地农场的",
         "max_hit": 1,
         "next": [
             "_AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
@@ -20,7 +20,7 @@
     },
     //武陵的节点出入口
     "_AutoEcoFarmGotoWulinEcoFarmStart": {
-        "doc": "这块代码是用来前往武陵农场的",
+        "desc": "这块代码是用来前往武陵农场的",
         "max_hit": 1,
         "next": [
             "_AutoEcoFarmInWulingCityCore", //检测是否传送成功
@@ -35,7 +35,7 @@
     },
     //内部节点
     "_AutoEcoFarmInOriginiumSciencePark2": {
-        "doc": "确认已经在源石研究园山道缓坡",
+        "desc": "确认已经在源石研究园山道缓坡",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -57,7 +57,7 @@
         ]
     },
     "_AutoEcoFarmGotoValleyIVEcoFarm": {
-        "doc": "前往源石研究园生态农场",
+        "desc": "前往源石研究园生态农场",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
@@ -108,7 +108,7 @@
     },
     //去武陵农场部分
     "_AutoEcoFarmInWulingCityCore": {
-        "doc": "确认已经在武陵集成核心区",
+        "desc": "确认已经在武陵集成核心区",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -130,7 +130,7 @@
         ]
     },
     "_AutoEcoFarmGotoWulinEcoFarm": {
-        "doc": "前往源石研究园生态农场",
+        "desc": "前往源石研究园生态农场",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "MapTrackerMove",

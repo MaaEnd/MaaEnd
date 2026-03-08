@@ -42,7 +42,9 @@
             104
         ],
         "expected": [
-            "当前材料不足"
+            "当前材料不足",
+            "Insufficient",
+            "Not enough"
         ]
     },
     "CheckMaterialEnough": {
@@ -56,7 +58,9 @@
         ],
         "expected": [
             "空间已满",
-            "可销毁或丢弃部分"
+            "可销毁或丢弃部分",
+            "Full",
+            "Discard"
         ]
     },
     "CheckIsSimpleProductionPage": {
@@ -69,7 +73,9 @@
             117
         ],
         "expected": [
-            "应急食药"
+            "应急食药",
+            "Emergency",
+            "Ration"
         ],
         "next": [
             "CheckCantProduceAnyMore", // 进行材料退出判断，在这里直接判断到就直接退出
@@ -121,7 +127,9 @@
             84
         ],
         "expected": [
-            "制作成功"
+            "制作成功",
+            "Success",
+            "Crafted"
         ],
         "next": [
             "ClickSimpleProductionRightDown"
@@ -136,7 +144,9 @@
             102
         ],
         "expected": [
-            "制作成功"
+            "制作成功",
+            "Success",
+            "Crafted"
         ],
         "next": [
             "ClickSimpleProductionRightDown"

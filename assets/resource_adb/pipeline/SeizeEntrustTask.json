@@ -52,7 +52,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": [
-                    "SeizeEntrustTask/7.31wMoney.png"
+                    "SeizeEntrustTask/7.31wMoney.png",
+                    "SeizeEntrustTask/7.31wMoney_en.png"
                 ],
                 "threshold": [
                     0.9
@@ -74,7 +75,8 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "template": [
-                                    "SeizeEntrustTask/7.31wMoney.png"
+                                    "SeizeEntrustTask/7.31wMoney.png",
+                                    "SeizeEntrustTask/7.31wMoney_en.png"
                                 ],
                                 "threshold": [
                                     0.9

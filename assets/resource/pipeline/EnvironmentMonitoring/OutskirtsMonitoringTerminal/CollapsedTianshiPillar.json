@@ -29,8 +29,7 @@
             "Collapsed Tianshi Pillar",
             "倒れた天師杭",
             "무너진 천사장"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckCollapsedTianshiPillarReadyText": {
         "desc": "检查倒塌的天师桩委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckCollapsedTianshiPillarJob": {
         "desc": "检查倒塌的天师桩委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckCollapsedTianshiPillarGoToMissionText": {
         "desc": "检查倒塌的天师桩委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InCollapsedTianshiPillarMission": {
         "desc": "是否在倒塌的天师桩任务界面",
@@ -102,8 +98,8 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
             "倒塌的天师桩",
@@ -111,8 +107,7 @@
             "Collapsed Tianshi Pillar",
             "倒れた天師杭",
             "무너진 천사장"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "AcceptCollapsedTianshiPillar": {
         "desc": "接取倒塌的天师桩委托",
@@ -199,20 +194,24 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    210,
-                    628
+                    209,
+                    630
                 ],
                 [
-                    195,
-                    618
+                    201,
+                    622
                 ],
                 [
-                    186,
-                    619
+                    191,
+                    616
                 ],
                 [
-                    163,
-                    607
+                    184,
+                    620
+                ],
+                [
+                    170,
+                    612
                 ]
             ]
         },

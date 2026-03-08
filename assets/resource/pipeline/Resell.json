@@ -36,9 +36,12 @@
             178,
             48
         ],
-        "expected": "四号谷地",
+        "expected": [
+            "四号谷地",
+            "Valley IV",
+            "Valley"
+        ],
         "threshold": 0.8,
-        "order_by": "Expected",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 500,
@@ -56,9 +59,11 @@
             178,
             48
         ],
-        "expected": "武陵",
+        "expected": [
+            "武陵",
+            "Wuling"
+        ],
         "threshold": 0.8,
-        "order_by": "Expected",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 500,
@@ -76,9 +81,11 @@
             178,
             48
         ],
-        "expected": "武陵",
+        "expected": [
+            "武陵",
+            "Wuling"
+        ],
         "threshold": 0.8,
-        "order_by": "Expected",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 500,
@@ -114,10 +121,10 @@
             160
         ],
         "expected": [
-            "稳定需求"
+            "稳定需求",
+            "Staple"
         ],
         "threshold": 0.6,
-        "order_by": "Expected",
         "action": "DoNothing",
         "next": [
             "ResellClickToUnstableStore",
@@ -134,10 +141,10 @@
             80
         ],
         "expected": [
-            "弹性需求"
+            "弹性需求",
+            "Elastic"
         ],
         "threshold": 0.6,
-        "order_by": "Expected",
         "action": "Click",
         "post_delay": 500,
         "next": [
@@ -179,7 +186,6 @@
             "購入可能\\s*0",
             "남은\\s*구매\\s*가능\\s*수량\\s*0"
         ],
-        "order_by": "Expected",
         "action": "DoNothing",
         "next": [
             "ChangeNextRegionPrepare"
@@ -204,7 +210,6 @@
             "購入可能\\s*[1-9]+",
             "남은\\s*구매\\s*가능\\s*수량\\s*[1-9]+"
         ],
-        "order_by": "Expected",
         "action": "DoNothing",
         "next": [
             "ResellStart"
@@ -236,7 +241,6 @@
             254
         ],
         "expected": "[0-9]+",
-        "order_by": "Expected",
         "action": "Click",
         "repeat": 2, //有时候不知道为什么会在鼠标原本的位置先按下点击再去目标点位置，就重复一下
         "next": [
@@ -253,8 +257,10 @@
             82,
             26
         ],
-        "expected": "无法购买",
-        "order_by": "Expected",
+        "expected": [
+            "无法购买",
+            "Cannot Purchase"
+        ],
         "action": "DoNothing",
         "next": [
             "ChangeNextRegionPrepare"

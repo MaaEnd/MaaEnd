@@ -1,8 +1,0 @@
-{
-    "CreditShoppingClaimCredit": {
-        "expected": "Collect Credits"
-    },
-    "CreditShoppingNoCreditClaim": {
-        "expected": "No credits to claim"
-    }
-}

@@ -66,7 +66,7 @@ This will fully set up the environment required for development.
 
 ### About Development Experience
 
-- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, etc.-please make good use of them. The working directory can be set to the `install` folder.
+- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, etc.-please make good use of them. The working directory can be set to the **project root directory** folder.
 - After modifying the Pipeline each time, you only need to reload the resources in the development tool; however, after modifying go-service each time, you need to execute `python tools/build_and_install.py` to recompile.
 - You can use tools like VS Code to set breakpoints or run go-service step by step (start go-service with debug on your own, or attach via vscode). Dude, are you debugging code just by reading logs?
 - MXU is a GUI for end users-we do not recommend using it for development and debugging. The aforementioned MaaFramework development tools can greatly improve development efficiency. Seriously, are you just trial-and-erroring blindly?
@@ -75,7 +75,8 @@ This will fully set up the environment required for development.
 
 - All images and coordinates in MaaEnd development need to be based on 720p resolution. MaaFramework will automatically convert them according to the user's device resolution during actual operation. It is recommended to use the above development tools for screenshot capture and coordinate conversion.
 - **When prompted that features such as "HDR" or "Automatically manage color for apps" are enabled, do not take screenshots or pick colors-this may cause template effects to be inconsistent with the actual display on the user's device.**
-- The resource folder is in a linked state; modifying `install` is equivalent to modifying the content in `assets` no additional copying is required. **However, `interface.json` is copied-if modified, you need to manually copy it back to `assets` before submission.**
+- For color matching, it is recommended to prioritize using HSV or grayscale space for matching. Different GPU vendors (such as NVIDIA, AMD, Intel) have different rendering methods, and using RGB color values directly will have slight deviations on various devices; by fixing the hue in HSV space and only making appropriate adjustments to saturation and brightness, more unified and stable recognition results can be obtained across the three GPU types.
+- The resource folder is in a linked state; modifying `assets` is equivalent to modifying the content in `install`, no additional copying is required. **However, `interface.json` is copied-if modified, you need to manually copy it back to `install` for UI testing (or run build_and_install.py, method as above).**
 - The `resource_fast` folder has default delays removed, which will greatly speed up operation speed but also place higher requirements on the robustness of the pipeline. We recommend using `resource_fast` first, but developers can also choose according to the actual situation of the task.
   _In plain terms, `resource_fast` is much harder to write-after each operation, the next frame may still show transition animations, and you have to find a way to recognize them. But the running speed is faster-feel free to try it if you are confident. If you can't figure it out or are too lazy to do it, put it in `resource` -the operation is slower but easier to write._
 
@@ -86,6 +87,7 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
 - [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
+- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
 - [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
 - [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
 
@@ -93,10 +95,12 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 
 ### Pipeline Low-Code Specifications
 
+- Use PascalCase for node names, and prefix nodes within the same task with the task name or module name for easier identification and troubleshooting. For example: `ResellMain`, `DailyProtocolPassInMenu`, `RealTimeAutoFightEntry`.
 - Use pre_delay, post_delay, timeout, and on_error fields as little as possible. Add intermediate node recognition processes to avoid blind sleep waiting.
 - Ensure that the first round of next hits (i.e., one screenshot) as much as possible-also achieve this by adding intermediate state recognition nodes. In short, expand the next list as much as possible to ensure any game screen is within expectations.
 - Each operation must be based on recognition. Do not "recognize once overall -> click A -> click B -> click C", but instead "recognize A -> click A -> recognize B -> click B".
   _You cannot guarantee that the screen is the same after clicking A. In extreme cases, a new gacha banner pops up in the game at this time-clicking B directly may lead to accidental clicks into the gacha interface and misoperations._
+- Use pre_wait_freezes and post_wait_freezes to wait for the screen to freeze, or add intermediate nodes to execute clicks only when the button is confirmed to be clickable. Avoid clicking the same button repeatedly—the second click may act on other elements of the next interface, causing logic errors. See [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816).
 
 > [!NOTE]
 >

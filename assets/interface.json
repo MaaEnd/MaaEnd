@@ -85,24 +85,6 @@
                 "./resource_fast",
                 "./resource"
             ]
-        },
-        {
-            "name": "B 服",
-            "label": "$resource.Bilibili.label",
-            "path": [
-                "./resource_fast",
-                "./resource",
-                "./resource_bilibili"
-            ]
-        },
-        {
-            "name": "Global",
-            "label": "$resource.Global.label",
-            "path": [
-                "./resource_fast",
-                "./resource",
-                "./resource_en"
-            ]
         }
     ],
     "agent": [
@@ -137,9 +119,11 @@
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
         "tasks/BakerEntry.json",
+        "tasks/GiftOperator.json",
         "tasks/SimpleProductionBatchStart.json",
         "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
+        "tasks/AutoUseSpMedication.json",
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",

@@ -10,7 +10,9 @@
                     34
                 ],
                 "expected": [
-                    "委托人信息"
+                    "委托人信息",
+                    "Client Info",
+                    "Commission"
                 ]
             }
         },
@@ -28,7 +30,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": [
-                    "SeizeEntrustTask/7.31wMoney.png"
+                    "SeizeEntrustTask/7.31wMoney.png",
+                    "SeizeEntrustTask/7.31wMoney_en.png"
                 ],
                 "threshold": [
                     0.94
@@ -49,7 +52,8 @@
             "type": "TemplateMatch",
             "param": {
                 "template": [
-                    "SeizeEntrustTask/7.31wMoney.png"
+                    "SeizeEntrustTask/7.31wMoney.png",
+                    "SeizeEntrustTask/7.31wMoney_en.png"
                 ],
                 "threshold": [
                     0.94
@@ -241,7 +245,8 @@
                     34
                 ],
                 "expected": [
-                    "刷新"
+                    "刷新",
+                    "Refresh"
                 ]
             }
         },
@@ -266,7 +271,8 @@
                     34
                 ],
                 "expected": [
-                    "刷新"
+                    "刷新",
+                    "Refresh"
                 ]
             }
         },
@@ -291,7 +297,9 @@
                     121
                 ],
                 "expected": [
-                    "接取运送委托"
+                    "接取运送委托",
+                    "Accept",
+                    "Delivery"
                 ]
             }
         },
@@ -316,7 +324,9 @@
                     121
                 ],
                 "expected": [
-                    "接取运送委托"
+                    "接取运送委托",
+                    "Accept",
+                    "Delivery"
                 ]
             }
         },
@@ -336,7 +346,9 @@
                     15
                 ],
                 "expected": [
-                    "接取运送委托"
+                    "接取运送委托",
+                    "Accept",
+                    "Delivery"
                 ]
             }
         },
@@ -451,6 +463,52 @@
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
     },
+    "isSeizeEntrustTaskExistOldTask": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1020,
+                    210,
+                    200,
+                    35
+                ],
+                "expected": [
+                    "查看任务",
+                    "查看任務",
+                    "View Mission",
+                    "任務確認",
+                    "임무 확인"
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已存在旧的运送委托"
+        }
+    },
+    "isSeizeEntrustTaskExhausted": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    650,
+                    45,
+                    40
+                ],
+                "expected": "3/3"
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
             "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
@@ -515,6 +573,8 @@
         },
         "timeout": 3000,
         "next": [
+            "isSeizeEntrustTaskExistOldTask",
+            "isSeizeEntrustTaskExhausted",
             "isSeizeEntrustTaskDestinationWulingCity"
         ],
         "on_error": [

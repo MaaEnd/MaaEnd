@@ -81,7 +81,8 @@
                     64
                 ],
                 "expected": [
-                    "会客室"
+                    "会客室",
+                    "Reception"
                 ]
             }
         },
@@ -208,7 +209,8 @@
                     75
                 ],
                 "expected": [
-                    "已达自有线索库容量上限"
+                    "已达自有线索库容量上限",
+                    "Local clue library is full"
                 ]
             }
         },
@@ -238,7 +240,8 @@
                     597
                 ],
                 "expected": [
-                    "线索"
+                    "线索",
+                    "Clue"
                 ]
             }
         },
@@ -327,7 +330,8 @@
                     102
                 ],
                 "expected": [
-                    "赠予"
+                    "赠予",
+                    "Send"
                 ]
             }
         },
@@ -370,7 +374,8 @@
                     64
                 ],
                 "expected": [
-                    "会客室"
+                    "会客室",
+                    "Reception"
                 ]
             }
         },
@@ -433,7 +438,8 @@
                     130
                 ],
                 "expected": [
-                    "线索"
+                    "线索",
+                    "Clue"
                 ],
                 "order_by": "Vertical"
             }
@@ -461,7 +467,8 @@
                     167
                 ],
                 "expected": [
-                    "已填入"
+                    "已填入",
+                    "Pegged"
                 ],
                 "order_by": "Vertical"
             }
@@ -544,7 +551,8 @@
                     64
                 ],
                 "expected": [
-                    "会客室"
+                    "会客室",
+                    "Reception"
                 ]
             }
         },

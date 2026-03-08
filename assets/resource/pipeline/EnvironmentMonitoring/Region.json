@@ -4,7 +4,16 @@
         "recognition": "And",
         "all_of": [
             "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText"
-        ]
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                63,
+                208,
+                1158,
+                71
+            ]
+        }
     },
     "EnvironmentMonitoringCheckOutskirtsMonitoringTerminalText": {
         "desc": "检查城郊监测终端文本",
@@ -21,8 +30,7 @@
             "Outskirts Monitoring Terminal",
             "郊外観測端末",
             "교외 관측 단말기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "EnvironmentMonitoringEnterOutskirtsMonitoringTerminal": {
         "desc": "进入城郊监测终端",
@@ -31,7 +39,10 @@
             "EnvironmentMonitoringButton",
             "InWulingRegionalDevelopment"
         ],
-        "action": "Click"
+        "action": "Click",
+        "next": [
+            "EnvironmentMonitoringInOutskirtsMonitoringTerminal"
+        ]
     },
     "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal": {
         "desc": "前往城郊监测终端",

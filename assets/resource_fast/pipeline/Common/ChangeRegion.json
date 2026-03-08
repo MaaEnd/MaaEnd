@@ -71,7 +71,6 @@
             "四号谷地",
             "4번 협곡"
         ],
-        "order_by": "Expected",
         "action": "Click",
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"
@@ -93,7 +92,6 @@
             "武陵",
             "무릉"
         ],
-        "order_by": "Expected",
         "action": "Click",
         "next": [
             "RegionalDevelopmentConfirmChangeToRegion"

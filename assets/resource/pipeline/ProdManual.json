@@ -88,7 +88,9 @@
                     98
                 ],
                 "expected": [
-                    "返回"
+                    "返回",
+                    "Back",
+                    "Return"
                 ]
             }
         },
@@ -109,7 +111,8 @@
                     182
                 ],
                 "expected": [
-                    "奖励"
+                    "奖励",
+                    "Reward"
                 ]
             }
         },
@@ -128,7 +131,9 @@
             "type": "OCR",
             "param": {
                 "expected": [
-                    "点击屏幕继续"
+                    "点击屏幕继续",
+                    "Tap to continue",
+                    "Click to continue"
                 ]
             }
         },
@@ -179,7 +184,9 @@
                     136
                 ],
                 "expected": [
-                    "简易制作"
+                    "简易制作",
+                    "Simple Craft",
+                    "Quick Craft"
                 ]
             }
         },
@@ -203,7 +210,9 @@
                 ],
                 "expected": [
                     "每获取对应数量物品",
-                    "可解锁相应内容"
+                    "可解锁相应内容",
+                    "Obtain",
+                    "Unlock"
                 ]
             }
         },
@@ -281,7 +290,9 @@
                     203
                 ],
                 "expected": [
-                    "探索等级"
+                    "探索等级",
+                    "Exploration Level",
+                    "Explore"
                 ]
             }
         },
@@ -303,7 +314,9 @@
                     160
                 ],
                 "expected": [
-                    "背包"
+                    "背包",
+                    "Backpack",
+                    "Inventory"
                 ]
             }
         },
@@ -348,7 +361,9 @@
                     136
                 ],
                 "expected": [
-                    "应急食药"
+                    "应急食药",
+                    "Emergency",
+                    "Ration"
                 ]
             }
         },
@@ -370,7 +385,9 @@
                     77
                 ],
                 "expected": [
-                    "简制手册"
+                    "简制手册",
+                    "Crafting Manual",
+                    "Manual"
                 ]
             }
         },
@@ -436,7 +453,9 @@
                     98
                 ],
                 "expected": [
-                    "返回"
+                    "返回",
+                    "Back",
+                    "Return"
                 ]
             }
         },
@@ -501,7 +520,8 @@
                     150
                 ],
                 "expected": [
-                    "键领取"
+                    "键领取",
+                    "Claim"
                 ]
             }
         },

@@ -13,7 +13,10 @@
             253,
             100
         ],
-        "expected": "终末地百科",
+        "expected": [
+            "终末地百科",
+            "Endfield Database"
+        ],
         "next": [
             "WikiClickHomePageUnreadBadge",
             "WikiClickChapterUnreadBadge",

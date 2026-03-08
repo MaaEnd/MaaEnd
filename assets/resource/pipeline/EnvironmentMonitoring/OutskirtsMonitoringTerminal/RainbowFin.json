@@ -29,8 +29,7 @@
             "Rainbow Fin",
             "七色鱗獣",
             "무지개 린수"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckRainbowFinReadyText": {
         "desc": "检查七彩鳞委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckRainbowFinJob": {
         "desc": "检查七彩鳞委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckRainbowFinGoToMissionText": {
         "desc": "检查七彩鳞委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InRainbowFinMission": {
         "desc": "是否在七彩鳞任务界面",
@@ -102,8 +98,8 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
             "七彩鳞",
@@ -111,8 +107,7 @@
             "Rainbow Fin",
             "七色鱗獣",
             "무지개 린수"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "AcceptRainbowFin": {
         "desc": "接取七彩鳞委托",
@@ -199,28 +194,32 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    130,
+                    131,
                     820
                 ],
                 [
-                    141,
+                    142,
                     818
                 ],
                 [
-                    159,
-                    806
+                    151,
+                    813
                 ],
                 [
-                    177,
-                    798
+                    163,
+                    808
                 ],
                 [
-                    190,
-                    783
+                    172,
+                    799
                 ],
                 [
-                    193,
-                    767
+                    188,
+                    789
+                ],
+                [
+                    194,
+                    765
                 ],
                 [
                     205,

@@ -64,7 +64,8 @@
                 ],
                 "expected": [
                     "干员心情已满",
-                    "无法使用助力"
+                    "无法使用助力",
+                    "Cannot assist as operator mood is maxed"
                 ]
             }
         },
@@ -88,7 +89,8 @@
                     154
                 ],
                 "expected": [
-                    "选择待恢复心情的干员"
+                    "选择待恢复心情的干员",
+                    "Select operator awaiting mood recovery"
                 ]
             }
         },
@@ -210,7 +212,8 @@
                     92
                 ],
                 "expected": [
-                    "没有更多的心情激励点数"
+                    "没有更多的心情激励点数",
+                    "Cannot select more operators as all Mood Booster Points have been used up"
                 ]
             }
         },

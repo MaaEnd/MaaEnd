@@ -29,8 +29,7 @@
             "Ancient Tree",
             "古木",
             "고목"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckAncientTreeReadyText": {
         "desc": "检查古树委托是否准备好",
@@ -55,8 +54,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckAncientTreeJob": {
         "desc": "检查古树委托是否可以接取",
@@ -74,8 +72,7 @@
             "Accept Job",
             "引き受ける",
             "의뢰 수령"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "CheckAncientTreeGoToMissionText": {
         "desc": "检查古树委托是否可以前往",
@@ -93,8 +90,7 @@
             "Go to Mission",
             "任務へ",
             "임무로 이동하기"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "InAncientTreeMission": {
         "desc": "是否在古树任务界面",
@@ -102,8 +98,8 @@
         "roi": [
             415,
             50,
-            314,
-            71
+            855,
+            241
         ],
         "expected": [
             "古树",
@@ -111,8 +107,7 @@
             "Ancient Tree",
             "古木",
             "고목"
-        ],
-        "order_by": "Expected"
+        ]
     },
     "AcceptAncientTree": {
         "desc": "接取古树委托",
@@ -199,31 +194,71 @@
             "map_name": "map02_lv001",
             "path": [
                 [
-                    302,
-                    560
+                    288,
+                    587
                 ],
                 [
-                    304,
+                    296,
+                    577
+                ],
+                [
+                    301,
+                    572
+                ],
+                [
+                    303,
+                    565
+                ],
+                [
+                    303,
+                    552
+                ],
+                [
+                    306,
                     545
                 ],
                 [
+                    315,
+                    542
+                ],
+                [
+                    329,
+                    540
+                ],
+                [
                     339,
-                    539
+                    541
+                ],
+                [
+                    345,
+                    536
+                ],
+                [
+                    356,
+                    534
                 ],
                 [
                     368,
-                    532
+                    531
                 ],
                 [
-                    372,
+                    374,
                     539
                 ],
                 [
-                    364,
-                    561
+                    369,
+                    547
                 ],
                 [
-                    353,
+                    368,
+                    556
+                ],
+                [
+                    363,
+                    564
+                ],
+                [
+                    355,
                     570
                 ]
             ]

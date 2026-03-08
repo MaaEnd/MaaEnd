@@ -38,11 +38,10 @@ const (
 
 // Move action configuration
 const (
-	INFER_INTERVAL_MS               = 100
-	ROTATION_MAX_SPEED              = 5.0
-	ROTATION_DEFAULT_SPEED          = 3.0
-	ROTATION_MIN_SPEED              = 1.0
-	ROTATION_ADJUSTMENT_LOWER_BOUND = 6.0
+	INFER_INTERVAL_MS      = 100
+	ROTATION_MAX_SPEED     = 4.0
+	ROTATION_DEFAULT_SPEED = 2.0
+	ROTATION_MIN_SPEED     = 1.0
 )
 
 // MapTrackerInfer parameters default values
@@ -61,11 +60,11 @@ var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
 
 // MapTrackerMove parameters default values
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
-	ArrivalThreshold:       3.5,
+	ArrivalThreshold:       2.5,
 	ArrivalTimeout:         60000,
 	RotationLowerThreshold: 7.5,
 	RotationUpperThreshold: 60.0,
-	SprintThreshold:        15.0,
+	SprintThreshold:        20.0,
 	StuckThreshold:         2000,
 	StuckTimeout:           10000,
 }

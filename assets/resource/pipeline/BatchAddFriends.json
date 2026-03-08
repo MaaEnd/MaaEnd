@@ -42,8 +42,7 @@
                     24
                 ],
                 "expected": "陌生人",
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -75,8 +74,7 @@
                 "expected": [
                     "搜索"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -101,8 +99,7 @@
                     65
                 ],
                 "expected": "加载中",
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -140,8 +137,7 @@
                 "expected": [
                     "添加好友"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -169,8 +165,7 @@
                     "好友列表已满",
                     "你的好友列表已满"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -214,8 +209,7 @@
                 "expected": [
                     "添加好友"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -241,8 +235,7 @@
                 "expected": [
                     "添加好友"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -323,8 +316,7 @@
                 "expected": [
                     "搜索的UID不存在"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "next": [
@@ -346,8 +338,7 @@
                     17
                 ],
                 "expected": "未搜索到相关玩家",
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -466,8 +457,7 @@
                 "expected": [
                     "搜索玩家名称或UID添加好友"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -535,8 +525,7 @@
                 "expected": [
                     "换一批"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {
@@ -574,8 +563,7 @@
                 "expected": [
                     "添加好友"
                 ],
-                "threshold": 0.7,
-                "order_by": "Expected"
+                "threshold": 0.7
             }
         },
         "action": {

@@ -16,7 +16,10 @@
                 "expected": [
                     "点击任意处继续",
                     "点击任意处",
-                    "任意处继续"
+                    "任意处继续",
+                    "Click anywhere",
+                    "Tap anywhere",
+                    "anywhere to continue"
                 ]
             }
         },
