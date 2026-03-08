@@ -28,7 +28,8 @@
             "timeout": 1000
         },
         "next": [
-            "RecoveryEmotionAssistUseAssist"
+            "RecoveryEmotionAssistUseAssist",
+            "RecoveryEmotion"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
@@ -49,8 +50,13 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "StartRecoveryEmotion"
+            "StartRecoveryEmotion",
+            "RecoveryEmotionAssistUseAssist"
         ]
     },
     "EmotionFull": {
@@ -71,8 +77,13 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "BackToControlNexus"
+            "BackToControlNexus",
+            "EmotionFull"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
@@ -219,8 +230,13 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "ConfirmRecoveryEmotion"
+            "ConfirmRecoveryEmotion",
+            "CouldNotAssistEmotion"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
@@ -240,8 +256,13 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "CloseButtonType1"
+            "CloseButtonType1",
+            "ConfirmRecoveryEmotion"
         ]
     },
     "BackToControlNexus": {
@@ -263,8 +284,13 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "CloseButtonType1"
+            "CloseButtonType1",
+            "BackToControlNexus"
         ]
     }
 }

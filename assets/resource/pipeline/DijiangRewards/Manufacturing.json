@@ -21,8 +21,13 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "EntryMFGCarbinSuccess"
+            "EntryMFGCarbinSuccess",
+            "MFG_ReceiveRewards"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
@@ -73,8 +78,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "MFGCarbinNeedReStockClose"
+            "MFGCarbinNeedReStockClose",
+            "MFGCarbinNeedReStock"
         ]
     },
     "MFGCarbinNeedReStockClose": {
@@ -116,8 +126,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "MFGCarbinNeedTakeClose"
+            "MFGCarbinNeedTakeClose",
+            "MFGCarbinNeedTake"
         ]
     },
     "MFGCarbinNeedTakeClose": {
@@ -176,8 +191,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "MFGCarbinNeedAssistUseAssist"
+            "MFGCarbinNeedAssistUseAssist",
+            "MFGCarbinNeedAssist"
         ]
     },
     "MFGCarbinNeedAssistUseAssist": {
@@ -225,8 +245,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "MFGCarbinNeedAssistConfirm"
+            "MFGCarbinNeedAssistConfirm",
+            "MFGCarbinNeedAssistAssistMAX"
         ]
     },
     "MFGCarbinNeedAssistConfirm": {
@@ -247,8 +272,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "MFGCarbinNeedAssistClose"
+            "MFGCarbinNeedAssistClose",
+            "MFGCarbinNeedAssistConfirm"
         ]
     },
     "MFGCarbinNeedAssistClose": {
@@ -267,8 +297,13 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "Exit_MFG_Cabin"
+            "Exit_MFG_Cabin",
+            "MFGCarbinNeedAssistClose"
         ]
     },
     "Exit_MFG_Cabin": {

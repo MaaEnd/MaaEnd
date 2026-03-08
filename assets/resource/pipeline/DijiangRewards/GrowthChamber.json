@@ -24,7 +24,8 @@
             "timeout": 1000
         },
         "next": [
-            "GrowthChamber"
+            "GrowthChamber",
+            "EntryGrowthChamber"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入培养舱失败,无法识别培养舱界面"
@@ -79,7 +80,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ClaimAllGrowRewardClose"
+            "ClaimAllGrowRewardClose",
+            "ClaimAllGrowReward"
         ]
     },
     "ClaimAllGrowRewardClose": {
@@ -134,7 +136,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "InGrow"
+            "InGrow",
+            "Grow"
         ]
     },
     "InGrow": {
@@ -256,8 +259,13 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "BackToGrowthChamber"
         ]
     },
     "ExitGrow": {
@@ -279,8 +287,13 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "GrayCancelButton"
+            "GrayCancelButton",
+            "ExitGrow"
         ]
     },
     "ExtractSeed": {
@@ -352,8 +365,13 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "BackToGrow"
+            "BackToGrow",
+            "ExtractSeedClose"
         ]
     },
     "BackToGrow": {
@@ -394,8 +412,13 @@
                 "contact": 1
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
         "next": [
-            "FinishAllDijiangTask"
+            "FinishAllDijiangTask",
+            "NoMaterials"
         ]
     },
     "InSelectGrowSwipe": {
