@@ -20,7 +20,7 @@
             }
         },
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint",
+            "AutoEssenceMoveToTriggerPoint": "VFOriginiumScienceParkMoveToTriggerPoint1",
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
         "next": [
@@ -30,7 +30,7 @@
             "Node.Action.Starting": "📍附近的重度淤积点：\n**源石研究园重度淤积点**"
         }
     },
-    "VFOriginiumScienceParkMoveToTriggerPoint": {
+    "VFOriginiumScienceParkMoveToTriggerPoint1": {
         "action": {
             "type": "Custom",
             "param": {
@@ -49,13 +49,36 @@
                         [
                             385,
                             240
+                        ]
+                    ],
+                    "path_trim": true
+                }
+            }
+        },
+        "next": [
+            "VFOriginiumScienceParkMoveToTriggerPoint2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往预备位置"
+        }
+    },
+    "VFOriginiumScienceParkMoveToTriggerPoint2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map01_lv005",
+                    "path": [
+                        [
+                            385,
+                            240
                         ],
                         [
                             377,
                             242
                         ]
-                    ],
-                    "arrival_threshold": 3.5
+                    ]
                 }
             }
         },
