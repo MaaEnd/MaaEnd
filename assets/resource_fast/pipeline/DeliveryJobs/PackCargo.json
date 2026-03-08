@@ -101,7 +101,7 @@
             519
         ],
         "template": "DeliveryJobs/SandleafPowder.png",
-        "threshold": 0.8,
+        "threshold": 0.95,
         "order_by": "Score",
         "pre_wait_freezes": 80,
         "action": "Click",
@@ -119,7 +119,7 @@
             519
         ],
         "template": "DeliveryJobs/Yazhen.png",
-        "threshold": 0.8,
+        "threshold": 0.95,
         "order_by": "Score",
         "pre_wait_freezes": 80,
         "action": "Click",
