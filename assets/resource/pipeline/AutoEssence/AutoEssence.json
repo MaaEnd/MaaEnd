@@ -9,7 +9,7 @@
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
-            "Node.Action.Staring": "▶️**准备开始本次基质刷取**"
+            "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
         }
     },
     "AutoEssenceLocationSetup": {

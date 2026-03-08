@@ -24,7 +24,7 @@
             "AutoEssenceWalkAround": "VFOriginiumScienceParkWalkAround1"
         },
         "focus": {
-            "Node.Action.Starting": "📍附近的重度淤积点：\n**源石研究园重度淤积点**"
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>源石研究园</strong></p>"
         }
     },
     "VFOriginiumScienceParkMoveToTriggerPoint1": {

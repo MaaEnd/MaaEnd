@@ -24,7 +24,7 @@
             "AutoEssenceWalkAround": "VFPowerPlateauWalkAround1"
         },
         "focus": {
-            "Node.Action.Starting": "📍附近的重度淤积点：\n**供能高地重度淤积点**"
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>供能高地</strong></p>"
         }
     },
     "VFPowerPlateauMoveToTriggerPoint": {

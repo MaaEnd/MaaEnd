@@ -24,7 +24,7 @@
             "AutoEssenceWalkAround": "VFTheHubWalkAround1"
         },
         "focus": {
-            "Node.Action.Starting": "📍附近的重度淤积点：\n**枢纽区重度淤积点**"
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>枢纽区</strong></p>"
         }
     },
     "VFTheHubMoveToTriggerPoint": {
