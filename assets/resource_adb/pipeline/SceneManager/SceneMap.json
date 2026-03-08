@@ -1,13 +1,27 @@
 {
     "__ScenePrivateWorldEnterMapAny": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    432,
+                    330
+                ],
+                "template": [
+                    "SceneManager/TaskIcon.png"
+                ]
+            }
+        },
         "action": {
             "type": "Click",
             "param": {
-                "target": [
-                    133,
-                    128,
-                    1,
-                    1
+                "target_offset": [
+                    100,
+                    -50,
+                    0,
+                    0
                 ]
             }
         }
