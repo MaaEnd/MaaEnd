@@ -173,6 +173,9 @@
                 "box_index": 1
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
