@@ -124,7 +124,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton"
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
                 ]
             }
         },

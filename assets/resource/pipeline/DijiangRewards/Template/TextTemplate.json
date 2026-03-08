@@ -233,5 +233,73 @@
                 ]
             }
         }
+    },
+    "ClaimAllGrowRewardCloseText": {
+        "desc": "培养舱界面收取全部奖励后关闭按钮文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "培养获得"
+                ]
+            }
+        }
+    },
+    "ExtractSeedCloseText": {
+        "desc": "识别提取种子完成界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "提取获得"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedTakeCloseText": {
+        "desc": "",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "制造舱收集产出"
+                ]
+            }
+        }
+    },
+    "CloseRewardsButtonText": {
+        "desc": "识别奖励界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "获得奖励"
+                ]
+            }
+        }
     }
 }
