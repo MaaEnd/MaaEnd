@@ -1,6 +1,7 @@
 {
     // 装箱货物的流程如下：
     // 选择装箱货物类型->下一步->装满货物->下一步->货物竞价->调度申请->下一步->提示尽快送达单击屏幕->回到大世界界面
+    // 每次单击下一步前都需要确认页面稳定，否则会因为按钮错位导致单击失败
     "DeliveryJobsPackCargo": {
         "desc": "装箱货物",
         "next": [
@@ -24,6 +25,15 @@
             "パッキング",
             "화물 포장"
         ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                5,
+                140,
+                223,
+                157
+            ]
+        },
         "next": [
             "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
         ]
@@ -44,6 +54,15 @@
             "取引申請",
             "관리 신청"
         ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                5,
+                140,
+                223,
+                157
+            ]
+        },
         "next": [
             "DeliveryJobsOngoingDelivery",
             "DeliveryJobsRedistributionBidNextStep"
@@ -209,8 +228,7 @@
         ],
         "action": "Click",
         "next": [
-            "DeliveryJobsOngoingDelivery",
-            "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsInCargoRedistributionBid",
             "DeliveryJobsCargoBid"
         ]
     },
@@ -227,8 +245,7 @@
         "threshold": 0.8,
         "action": "Click",
         "next": [
-            "DeliveryJobsOngoingDelivery",
-            "DeliveryJobsRedistributionBidNextStep"
+            "DeliveryJobsInCargoRedistributionBid"
         ]
     },
     "DeliveryJobsRedistributionBidNextStep": {

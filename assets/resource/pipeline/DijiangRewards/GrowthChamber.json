@@ -12,7 +12,7 @@
                     313
                 ],
                 "expected": [
-                    "^培养舱$"
+                    "^培养舱"
                 ]
             }
         },
@@ -87,7 +87,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton"
+                    "CloseRewardsButton",
+                    "ClaimAllGrowRewardCloseText"
                 ]
             }
         },
@@ -341,7 +342,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton"
+                    "CloseRewardsButton",
+                    "ExtractSeedCloseText"
                 ]
             }
         },

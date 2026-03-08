@@ -124,7 +124,8 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "CloseRewardsButton"
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
                 ]
             }
         },
@@ -137,6 +138,7 @@
         ]
     },
     "ReceptionRoomNeedReceiveClues": {
+        "desc": "[会客室·线索] 识别是否有可领取的线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -160,6 +162,7 @@
         ]
     },
     "ReceiveAll": {
+        "desc": "[会客室·线索] 领取界面点击「一键领取」按钮",
         "recognition": {
             "type": "And",
             "param": {
@@ -170,6 +173,9 @@
                 "box_index": 1
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "next": [
             "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
@@ -178,6 +184,7 @@
         ]
     },
     "ReceptionRoomNeedCollectClues": {
+        "desc": "[会客室·线索] 识别是否有可收集的线索",
         "recognition": {
             "type": "And",
             "param": {
@@ -203,10 +210,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    793,
+                    727,
                     350,
-                    280,
-                    75
+                    346,
+                    198
                 ],
                 "expected": [
                     "已达自有线索库容量上限",

@@ -122,7 +122,8 @@
                     150
                 ],
                 "template": [
-                    "SceneManager/MapTeleportConfirm.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },
@@ -148,7 +149,8 @@
                     150
                 ],
                 "template": [
-                    "SceneManager/MapTeleportConfirm.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },

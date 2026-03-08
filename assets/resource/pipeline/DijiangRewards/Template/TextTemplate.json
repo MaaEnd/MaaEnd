@@ -6,10 +6,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认"
@@ -24,10 +24,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "使用助力"
@@ -60,10 +60,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "收取"
@@ -97,10 +97,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认"
@@ -115,10 +115,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "全部接收"
@@ -187,10 +187,10 @@
             "param": {
                 "roi": "YellowConfirmButtonType1",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "开展交流"
@@ -205,10 +205,10 @@
             "param": {
                 "roi": "WhiteConfirmButtonType2",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "确认提取"
@@ -223,13 +223,81 @@
             "param": {
                 "roi": "GrayCancelButton",
                 "roi_offset": [
-                    -72,
-                    -2,
-                    72,
-                    5
+                    -125,
+                    -31,
+                    95,
+                    67
                 ],
                 "expected": [
                     "取消"
+                ]
+            }
+        }
+    },
+    "ClaimAllGrowRewardCloseText": {
+        "desc": "培养舱界面收取全部奖励后关闭按钮文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "培养获得"
+                ]
+            }
+        }
+    },
+    "ExtractSeedCloseText": {
+        "desc": "识别提取种子完成界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "提取获得"
+                ]
+            }
+        }
+    },
+    "MFGCarbinNeedTakeCloseText": {
+        "desc": "制造舱领取产出完成界面关闭/确认文本识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "制造舱收集产出"
+                ]
+            }
+        }
+    },
+    "CloseRewardsButtonText": {
+        "desc": "识别奖励界面关闭按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    537,
+                    21,
+                    209,
+                    149
+                ],
+                "expected": [
+                    "获得奖励"
                 ]
             }
         }

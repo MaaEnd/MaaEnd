@@ -30,8 +30,8 @@
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
-            "CreditShoppingReserveCredit",
             "ADBSpecial",
+            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
