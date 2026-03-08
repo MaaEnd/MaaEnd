@@ -434,10 +434,9 @@ def resolve_lang_ids(
         if len(candidates) > 1:
             intersection = [lang_id for lang_id in resolved_in_order if lang_id in candidates]
             if len(intersection) == 1:
-                lang_id = intersection[0]
-                if lang_id not in resolved_set:
-                    resolved_in_order.append(lang_id)
-                    resolved_set.add(lang_id)
+                # 这里表示“该歧义文本可复用一个已解析 ID”，无需重复加入列表
+                # 只把它视为已解析，不进入 unresolved_texts
+                pass
             else:
                 unresolved_texts.append(text)
 
@@ -654,6 +653,7 @@ def main() -> int:
     total_ocr_nodes = 0
     total_changed_nodes = 0
     unresolved_all: List[Tuple[str, str, List[str]]] = []
+    failed_files: List[Tuple[str, str]] = []
 
     for file_path in pipeline_files:
         try:
@@ -662,6 +662,7 @@ def main() -> int:
             )
         except Exception as exc:
             safe_print(f"[ERROR] {file_path}: {exc}")
+            failed_files.append((str(file_path), str(exc)))
             continue
 
         total_ocr_nodes += ocr_nodes
@@ -696,6 +697,12 @@ def main() -> int:
 
     if not args.write:
         safe_print("提示：加 --write 才会写入文件。")
+
+    if failed_files:
+        safe_print(f"[ERROR] 共有 {len(failed_files)} 个文件处理失败，退出码为 1：")
+        for path, reason in failed_files:
+            safe_print(f"  - {path}: {reason}")
+        return 1
 
     return 0
 

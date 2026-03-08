@@ -2,6 +2,12 @@ name: i18n-sync
 
 on:
   workflow_dispatch:
+    inputs:
+      update_submodule_remote:
+        description: "更新翻译子模块到远端最新提交（会导致结果非确定）"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   sync-ocr-expected:
@@ -18,9 +24,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Update translation submodule to latest
+      - name: Update translation submodule to latest (optional)
+        if: ${{ inputs.update_submodule_remote }}
         run: |
           git submodule update --init --recursive --remote tools/i18n/EndFieldTranslationReferrer
+
+      - name: Show translation submodule commit
+        run: |
+          git submodule status tools/i18n/EndFieldTranslationReferrer
+          git -C tools/i18n/EndFieldTranslationReferrer rev-parse HEAD
 
       - name: Run OCR expected sync (write mode)
         run: |
