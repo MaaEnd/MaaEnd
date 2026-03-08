@@ -94,7 +94,8 @@
                 },
                 "AutoEssenceOnSuccess": {
                     "next": [
-                        "AutoEssenceMain"
+                        "AutoEssenceMain",
+                        "AutoEssenceOnComplete"
                     ]
                 }
             }
