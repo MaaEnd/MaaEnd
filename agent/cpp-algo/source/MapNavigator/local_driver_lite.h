@@ -58,11 +58,7 @@ public:
 
 private:
     bool HasCommitment(const std::chrono::steady_clock::time_point& now) const;
-    void StartAction(
-        LocalDriverState state,
-        LocalDriverAction action,
-        int commitment_ms,
-        const std::chrono::steady_clock::time_point& now);
+    void StartAction(LocalDriverState state, LocalDriverAction action, int commitment_ms, const std::chrono::steady_clock::time_point& now);
     void ResolveCommitOutcome(bool still_blocked, bool made_progress);
     LocalDriverAction PickRecoverAction();
 

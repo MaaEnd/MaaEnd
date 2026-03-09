@@ -3,10 +3,10 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
-#include "my_reco_1/my_reco_1.h"
-#include "utils.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
+#include "my_reco_1/my_reco_1.h"
+#include "utils.h"
 
 int main(int argc, char** argv)
 {

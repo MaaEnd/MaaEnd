@@ -102,7 +102,9 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
 
     if (MaaImageBufferIsEmpty(actualImg)) {
         LogError << "MapLocateRecognition: Image buffer is empty";
-        if (tempBuf) MaaImageBufferDestroy(tempBuf);
+        if (tempBuf) {
+            MaaImageBufferDestroy(tempBuf);
+        }
         return MAA_FALSE;
     }
 
@@ -114,7 +116,9 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
 
     if (roi.empty()) {
         LogError << "MapLocateRecognition: ROI empty";
-        if (tempBuf) MaaImageBufferDestroy(tempBuf);
+        if (tempBuf) {
+            MaaImageBufferDestroy(tempBuf);
+        }
         return MAA_FALSE;
     }
 

@@ -1,8 +1,8 @@
 #include <chrono>
 #include <thread>
 
-#include "position_provider.h"
 #include "../utils.h"
+#include "position_provider.h"
 
 namespace mapnavigator
 {
@@ -35,8 +35,7 @@ bool IsBlackScreen(const cv::Mat& image)
 
     cv::Mat dark_mask;
     cv::threshold(gray, dark_mask, 24, 255, cv::THRESH_BINARY_INV);
-    const double dark_ratio =
-        static_cast<double>(cv::countNonZero(dark_mask)) / static_cast<double>(gray.total());
+    const double dark_ratio = static_cast<double>(cv::countNonZero(dark_mask)) / static_cast<double>(gray.total());
 
     return mean_luma[0] <= 12.0 && stddev_luma[0] <= 10.0 && dark_ratio >= 0.98;
 }

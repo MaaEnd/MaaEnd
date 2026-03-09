@@ -18,6 +18,7 @@ struct TurnScaleEstimator
     int DegreesToUnits(double degrees) const { return static_cast<int>(std::round(degrees * units_per_degree)); }
 
     bool NeedsBootstrap() const { return accepted_samples < kTurnBootstrapTargetSamples; }
+
     bool IsWarmedUp() const { return !NeedsBootstrap(); }
 
     double PredictDegreesFromUnits(int units) const
@@ -34,18 +35,14 @@ struct TurnScaleEstimator
         if (std::abs(units) < kTurnLearningMinSampleUnits) {
             return false;
         }
-        if (observed_degrees < kTurnLearningMinObservedDegrees
-            || observed_degrees > kTurnLearningMaxObservedDegrees) {
+        if (observed_degrees < kTurnLearningMinObservedDegrees || observed_degrees > kTurnLearningMaxObservedDegrees) {
             return false;
         }
 
         double sample = std::abs(static_cast<double>(units)) / observed_degrees;
         sample = std::clamp(sample, min_units_per_degree, max_units_per_degree);
 
-        units_per_degree = std::clamp(
-            units_per_degree * (1.0 - alpha) + sample * alpha,
-            min_units_per_degree,
-            max_units_per_degree);
+        units_per_degree = std::clamp(units_per_degree * (1.0 - alpha) + sample * alpha, min_units_per_degree, max_units_per_degree);
         accepted_samples++;
         return true;
     }

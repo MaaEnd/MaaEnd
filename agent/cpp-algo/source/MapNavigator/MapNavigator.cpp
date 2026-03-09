@@ -49,10 +49,10 @@ bool TryParseActionType(const json::value& value, ActionType& out_action)
     }
 
     const std::string action_text = value.as_string();
-#define NAVI_X_(name) \
-    if (action_text == #name) { \
+#define NAVI_X_(name)                  \
+    if (action_text == #name) {        \
         out_action = ActionType::name; \
-        return true; \
+        return true;                   \
     }
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_
@@ -131,10 +131,8 @@ void AppendExpandedWaypoints(
     bool strict_arrival,
     std::vector<Waypoint>& out_waypoints)
 {
-    const bool has_non_run_action = std::any_of(
-        actions.begin(),
-        actions.end(),
-        [](ActionType action) { return action != ActionType::RUN; });
+    const bool has_non_run_action =
+        std::any_of(actions.begin(), actions.end(), [](ActionType action) { return action != ActionType::RUN; });
     if (actions.empty()) {
         Waypoint waypoint(tx, ty, ActionType::RUN);
         waypoint.zone_id = zone_id;
@@ -168,10 +166,7 @@ bool TryReadAngleValue(const json::object& obj, double& angle)
     return false;
 }
 
-bool AppendArrayWaypoint(
-    const json::array& p,
-    std::vector<Waypoint>& out_waypoints,
-    std::string& zone_context)
+bool AppendArrayWaypoint(const json::array& p, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
     if (p.size() < 2) {
         return false;
@@ -205,10 +200,7 @@ bool AppendArrayWaypoint(
     return true;
 }
 
-bool AppendObjectWaypoint(
-    const json::object& obj,
-    std::vector<Waypoint>& out_waypoints,
-    std::string& zone_context)
+bool AppendObjectWaypoint(const json::object& obj, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
     std::vector<ActionType> actions;
     if (obj.contains("action")) {
@@ -277,10 +269,7 @@ bool AppendObjectWaypoint(
     return false;
 }
 
-bool AppendParsedWaypoints(
-    const json::value& point,
-    std::vector<Waypoint>& out_waypoints,
-    std::string& zone_context)
+bool AppendParsedWaypoints(const json::value& point, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
     if (point.is_array()) {
         return AppendArrayWaypoint(point.as_array(), out_waypoints, zone_context);

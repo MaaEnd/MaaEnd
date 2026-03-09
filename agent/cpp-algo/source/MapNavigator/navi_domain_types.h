@@ -87,15 +87,18 @@ struct Waypoint
         if (!has_position) {
             return false;
         }
-        return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT || action == ActionType::FIGHT
-            || action == ActionType::TRANSFER
-            || action == ActionType::PORTAL;
+        return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
+               || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL;
     }
 
     bool HasPosition() const { return has_position; }
+
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
+
     bool IsZoneDeclaration() const { return action == ActionType::ZONE; }
+
     bool WaitsForRelocation() const { return action == ActionType::TRANSFER; }
+
     bool IsControlNode() const { return !has_position; }
 
     Waypoint()

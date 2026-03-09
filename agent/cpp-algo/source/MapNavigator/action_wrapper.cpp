@@ -7,9 +7,7 @@ namespace mapnavigator
 {
 
 ActionWrapper::ActionWrapper(MaaContext* context)
-    : backend_(CreateInputBackend(
-          context,
-          MaaTaskerGetController(MaaContextGetTasker(context))))
+    : backend_(CreateInputBackend(context, MaaTaskerGetController(MaaContextGetTasker(context))))
 {
 }
 
@@ -97,7 +95,7 @@ NativeMouseTurnActuator::NativeMouseTurnActuator(ActionWrapper& action_wrapper)
 
 TurnActuationResult NativeMouseTurnActuator::TurnByUnits(int units, int duration_millis)
 {
-    (void) duration_millis;
+    (void)duration_millis;
     action_wrapper_.SendRelativeMoveNative(units, 0);
     return { units };
 }

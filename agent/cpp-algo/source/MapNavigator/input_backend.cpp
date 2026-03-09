@@ -72,35 +72,17 @@ public:
     {
     }
 
-    MaaController* GetCtrl() const override
-    {
-        return ctrl_;
-    }
+    MaaController* GetCtrl() const override { return ctrl_; }
 
-    const std::string& controller_type() const override
-    {
-        return controller_type_;
-    }
+    const std::string& controller_type() const override { return controller_type_; }
 
-    bool uses_touch_backend() const override
-    {
-        return false;
-    }
+    bool uses_touch_backend() const override { return false; }
 
-    bool is_supported() const override
-    {
-        return true;
-    }
+    bool is_supported() const override { return true; }
 
-    const std::string& unsupported_reason() const override
-    {
-        return unsupported_reason_;
-    }
+    const std::string& unsupported_reason() const override { return unsupported_reason_; }
 
-    double default_turn_units_per_degree() const override
-    {
-        return kDefaultPixelsPerDegree;
-    }
+    double default_turn_units_per_degree() const override { return kDefaultPixelsPerDegree; }
 
     void KeyDownSync(int key_code, int delay_millis) override
     {
@@ -147,12 +129,7 @@ public:
     void MouseRightDownSync(int delay_millis) override
     {
         EnsureHoverAnchorSync();
-        auto id = MaaControllerPostTouchDown(
-            ctrl_,
-            kPrimaryTouchContactId,
-            hover_x_,
-            hover_y_,
-            kDefaultTouchPressure);
+        auto id = MaaControllerPostTouchDown(ctrl_, kPrimaryTouchContactId, hover_x_, hover_y_, kDefaultTouchPressure);
         MaaControllerWait(ctrl_, id);
         SleepIfNeeded(delay_millis);
     }
@@ -186,12 +163,7 @@ private:
         hover_x_ = kWorkCx;
         hover_y_ = kWorkCy;
 
-        auto id = MaaControllerPostTouchMove(
-            ctrl_,
-            kHoverTouchContactId,
-            hover_x_,
-            hover_y_,
-            kDefaultTouchPressure);
+        auto id = MaaControllerPostTouchMove(ctrl_, kHoverTouchContactId, hover_x_, hover_y_, kDefaultTouchPressure);
         MaaControllerWait(ctrl_, id);
     }
 
@@ -209,11 +181,7 @@ private:
 class TouchBackendPlaceholder final : public IInputBackend
 {
 public:
-    TouchBackendPlaceholder(
-        MaaController* ctrl,
-        std::string controller_type,
-        std::string placeholder_reason,
-        bool uses_touch_backend)
+    TouchBackendPlaceholder(MaaController* ctrl, std::string controller_type, std::string placeholder_reason, bool uses_touch_backend)
         : ctrl_(ctrl)
         , controller_type_(std::move(controller_type))
         , placeholder_reason_(std::move(placeholder_reason))
@@ -221,89 +189,41 @@ public:
     {
     }
 
-    MaaController* GetCtrl() const override
-    {
-        return ctrl_;
-    }
+    MaaController* GetCtrl() const override { return ctrl_; }
 
-    const std::string& controller_type() const override
-    {
-        return controller_type_;
-    }
+    const std::string& controller_type() const override { return controller_type_; }
 
-    bool uses_touch_backend() const override
-    {
-        return uses_touch_backend_;
-    }
+    bool uses_touch_backend() const override { return uses_touch_backend_; }
 
-    bool is_supported() const override
-    {
-        return false;
-    }
-    const std::string& unsupported_reason() const override
-    {
-        return placeholder_reason_;
-    }
+    bool is_supported() const override { return false; }
 
-    double default_turn_units_per_degree() const override
-    {
-        return kDefaultPixelsPerDegree;
-    }
+    const std::string& unsupported_reason() const override { return placeholder_reason_; }
 
-    void KeyDownSync(int key_code, int delay_millis) override
-    {
-        ReservedCall("KeyDownSync", key_code, delay_millis);
-    }
+    double default_turn_units_per_degree() const override { return kDefaultPixelsPerDegree; }
 
-    void KeyUpSync(int key_code, int delay_millis) override
-    {
-        ReservedCall("KeyUpSync", key_code, delay_millis);
-    }
+    void KeyDownSync(int key_code, int delay_millis) override { ReservedCall("KeyDownSync", key_code, delay_millis); }
 
-    void ClickKeySync(int key_code, int hold_millis) override
-    {
-        ReservedCall("ClickKeySync", key_code, hold_millis);
-    }
+    void KeyUpSync(int key_code, int delay_millis) override { ReservedCall("KeyUpSync", key_code, delay_millis); }
 
-    void TriggerSprintSync() override
-    {
-        ReservedCall("TriggerSprintSync", 0, 0);
-    }
+    void ClickKeySync(int key_code, int hold_millis) override { ReservedCall("ClickKeySync", key_code, hold_millis); }
 
-    void ResetForwardWalkSync(int release_millis) override
-    {
-        ReservedCall("ResetForwardWalkSync", release_millis, 0);
-    }
+    void TriggerSprintSync() override { ReservedCall("TriggerSprintSync", 0, 0); }
 
-    void ClickMouseLeftSync() override
-    {
-        ReservedCall("ClickMouseLeftSync", 0, 0);
-    }
+    void ResetForwardWalkSync(int release_millis) override { ReservedCall("ResetForwardWalkSync", release_millis, 0); }
 
-    void MouseRightDownSync(int delay_millis) override
-    {
-        ReservedCall("MouseRightDownSync", delay_millis, 0);
-    }
+    void ClickMouseLeftSync() override { ReservedCall("ClickMouseLeftSync", 0, 0); }
 
-    void MouseRightUpSync(int delay_millis) override
-    {
-        ReservedCall("MouseRightUpSync", delay_millis, 0);
-    }
+    void MouseRightDownSync(int delay_millis) override { ReservedCall("MouseRightDownSync", delay_millis, 0); }
 
-    void SendRelativeMoveSync(int dx, int dy) override
-    {
-        ReservedCall("SendRelativeMoveSync", dx, dy);
-    }
+    void MouseRightUpSync(int delay_millis) override { ReservedCall("MouseRightUpSync", delay_millis, 0); }
+
+    void SendRelativeMoveSync(int dx, int dy) override { ReservedCall("SendRelativeMoveSync", dx, dy); }
 
 private:
     void ReservedCall(const char* operation, int value_a, int value_b)
     {
-        LogWarn << "ADB controller is recognized, but touch backend support is not enabled in the current version."
-                << VAR(operation)
-                << VAR(value_a)
-                << VAR(value_b)
-                << VAR(controller_type_)
-                << VAR(placeholder_reason_);
+        LogWarn << "ADB controller is recognized, but touch backend support is not enabled in the current version." << VAR(operation)
+                << VAR(value_a) << VAR(value_b) << VAR(controller_type_) << VAR(placeholder_reason_);
     }
 
     MaaController* ctrl_ = nullptr;
@@ -314,11 +234,9 @@ private:
 
 } // namespace
 
-std::unique_ptr<IInputBackend> CreateInputBackend(
-    MaaContext* context,
-    MaaController* ctrl)
+std::unique_ptr<IInputBackend> CreateInputBackend(MaaContext* context, MaaController* ctrl)
 {
-    (void) context;
+    (void)context;
 
     std::string controller_type = DetectControllerType(ctrl);
     if (controller_type.empty()) {
@@ -331,23 +249,14 @@ std::unique_ptr<IInputBackend> CreateInputBackend(
         // and avoids reshaping the selection flow when touch support is added.
         // Current behavior is an explicit "unsupported" result.
         const std::string placeholder_reason =
-            "ADB navigation requires recognition-backed control mapping for joystick and action buttons; blind touch coordinates are disabled.";
-        LogWarn << "MapNavigator input backend reserved (not enabled)."
-                << VAR(controller_type)
-                << VAR(placeholder_reason);
-        return std::make_unique<TouchBackendPlaceholder>(
-            ctrl,
-            std::move(controller_type),
-            placeholder_reason,
-            true);
+            "ADB navigation requires recognition-backed control mapping for joystick and action buttons; blind touch coordinates are "
+            "disabled.";
+        LogWarn << "MapNavigator input backend reserved (not enabled)." << VAR(controller_type) << VAR(placeholder_reason);
+        return std::make_unique<TouchBackendPlaceholder>(ctrl, std::move(controller_type), placeholder_reason, true);
     }
 
-    LogInfo << "MapNavigator input backend selected."
-            << VAR(controller_type)
-            << " backend=desktop";
-    return std::make_unique<DesktopInputBackend>(
-        ctrl,
-        std::move(controller_type));
+    LogInfo << "MapNavigator input backend selected." << VAR(controller_type) << " backend=desktop";
+    return std::make_unique<DesktopInputBackend>(ctrl, std::move(controller_type));
 }
 
 } // namespace mapnavigator
