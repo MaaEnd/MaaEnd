@@ -24,6 +24,8 @@
         ],
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
+        "action": "Custom",
+        "custom_action": "CreditShoppingParseParams",
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
