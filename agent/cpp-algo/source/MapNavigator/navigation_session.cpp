@@ -4,9 +4,9 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "navigation_session.h"
 #include "local_driver_lite.h"
 #include "navi_config.h"
+#include "navigation_session.h"
 
 namespace mapnavigator
 {
@@ -39,19 +39,12 @@ const char* NaviPhaseName(NaviPhase phase)
     return "Unknown";
 }
 
-void LogPhaseTransition(
-    NaviPhase from_phase,
-    NaviPhase to_phase,
-    const char* reason,
-    size_t current_node_idx,
-    size_t path_origin_index)
+void LogPhaseTransition(NaviPhase from_phase, NaviPhase to_phase, const char* reason, size_t current_node_idx, size_t path_origin_index)
 {
     const char* from_phase_name = NaviPhaseName(from_phase);
     const char* to_phase_name = NaviPhaseName(to_phase);
-    LogInfo << "Phase transition."
-            << VAR(from_phase_name)
-            << VAR(to_phase_name)
-            << VAR(reason) << VAR(current_node_idx) << VAR(path_origin_index);
+    LogInfo << "Phase transition." << VAR(from_phase_name) << VAR(to_phase_name) << VAR(reason) << VAR(current_node_idx)
+            << VAR(path_origin_index);
 }
 
 } // namespace
@@ -154,10 +147,7 @@ void NavigationSession::SetWaitingForZoneSwitch(bool waiting, [[maybe_unused]] c
     is_waiting_for_zone_switch_ = waiting;
 }
 
-void NavigationSession::ConfirmZone(
-    const std::string& zone_id,
-    const NaviPosition& pos,
-    const char* reason)
+void NavigationSession::ConfirmZone(const std::string& zone_id, const NaviPosition& pos, const char* reason)
 {
     UpdateCurrentZone(zone_id, reason);
     SyncVirtualYaw(pos.angle, reason);
@@ -203,7 +193,7 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
 
 void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const char* reason)
 {
-    (void) expected_action;
+    (void)expected_action;
     RequireCurrentWaypoint(reason);
     assert(
         current_path_[current_node_idx_].action == expected_action
@@ -214,9 +204,7 @@ void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const 
 void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason)
 {
     RequireWaypointIndex(waypoint_idx, reason);
-    assert(
-        waypoint_idx >= current_node_idx_
-        && "NavigationSession cannot skip backward in current_path");
+    assert(waypoint_idx >= current_node_idx_ && "NavigationSession cannot skip backward in current_path");
     current_node_idx_ = waypoint_idx + 1;
 }
 
@@ -239,10 +227,7 @@ void NavigationSession::ResetProgress()
     progress_initialized_ = false;
 }
 
-void NavigationSession::ObserveProgress(
-    size_t waypoint_idx,
-    double actual_distance,
-    const std::chrono::steady_clock::time_point& now)
+void NavigationSession::ObserveProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
     if (!progress_initialized_ || progress_waypoint_idx_ != waypoint_idx) {
         progress_waypoint_idx_ = waypoint_idx;
@@ -262,9 +247,7 @@ void NavigationSession::ObserveProgress(
     }
 }
 
-void NavigationSession::MarkRecoveryAttempt(
-    double actual_distance,
-    const std::chrono::steady_clock::time_point& now)
+void NavigationSession::MarkRecoveryAttempt(double actual_distance, const std::chrono::steady_clock::time_point& now)
 {
     if (!progress_initialized_) {
         progress_initialized_ = true;
@@ -288,26 +271,20 @@ int NavigationSession::no_progress_recovery_attempts() const
     return no_progress_recovery_attempts_;
 }
 
-int64_t NavigationSession::StalledMs(
-    const std::chrono::steady_clock::time_point& now) const
+int64_t NavigationSession::StalledMs(const std::chrono::steady_clock::time_point& now) const
 {
     if (!progress_initialized_ || last_progress_time_.time_since_epoch().count() == 0) {
         return 0;
     }
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-               now - last_progress_time_)
-        .count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - last_progress_time_).count();
 }
 
-int64_t NavigationSession::RecoveryCooldownMs(
-    const std::chrono::steady_clock::time_point& now) const
+int64_t NavigationSession::RecoveryCooldownMs(const std::chrono::steady_clock::time_point& now) const
 {
     if (!progress_initialized_ || last_recovery_time_.time_since_epoch().count() == 0) {
         return 0;
     }
-    return std::chrono::duration_cast<std::chrono::milliseconds>(
-               now - last_recovery_time_)
-        .count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(now - last_recovery_time_).count();
 }
 
 size_t NavigationSession::FindNextPositionNode(size_t waypoint_idx) const
@@ -426,14 +403,14 @@ void NavigationSession::UpdatePhase(NaviPhase next_phase, const char* reason)
 
 void NavigationSession::RequireCurrentWaypoint(const char* reason) const
 {
-    (void) reason;
+    (void)reason;
     assert(HasCurrentWaypoint() && "NavigationSession requires a current waypoint");
 }
 
 void NavigationSession::RequireWaypointIndex(size_t index, const char* reason) const
 {
-    (void) index;
-    (void) reason;
+    (void)index;
+    (void)reason;
     assert(index < current_path_.size() && "NavigationSession waypoint index out of range");
 }
 

@@ -113,12 +113,10 @@ LocalDriverDecision LocalDriverLite::Evaluate(const LocalDriverObservation& obse
 {
     LocalDriverDecision decision;
     const double abs_yaw_error = std::abs(observation.yaw_error);
-    const double jump_preferred_yaw_degrees = observation.prefer_jump_recovery
-        ? kZoneTransitionJumpPreferredYawDegrees
-        : kLocalDriverJumpPreferredYawDegrees;
+    const double jump_preferred_yaw_degrees =
+        observation.prefer_jump_recovery ? kZoneTransitionJumpPreferredYawDegrees : kLocalDriverJumpPreferredYawDegrees;
     const bool made_progress =
-        observation.distance_delta > kLocalDriverProgressDistanceDelta
-        || observation.moved_distance > kLocalDriverProgressMoveDelta;
+        observation.distance_delta > kLocalDriverProgressDistanceDelta || observation.moved_distance > kLocalDriverProgressMoveDelta;
 
     if (made_progress || observation.actual_distance <= kNoProgressMinDistance || abs_yaw_error > kLocalDriverTurnInPlaceYawDegrees) {
         has_blocked_since_ = false;
@@ -128,7 +126,8 @@ LocalDriverDecision LocalDriverLite::Evaluate(const LocalDriverObservation& obse
         has_blocked_since_ = true;
     }
 
-    const bool blocked = has_blocked_since_
+    const bool blocked =
+        has_blocked_since_
         && std::chrono::duration_cast<std::chrono::milliseconds>(observation.now - blocked_since_).count() >= kLocalDriverBlockDetectMs;
 
     if (awaiting_commit_result_) {
@@ -180,7 +179,7 @@ LocalDriverDecision LocalDriverLite::Evaluate(const LocalDriverObservation& obse
         abs_yaw_error <= jump_preferred_yaw_degrees
         && (!has_last_jump_time_
             || std::chrono::duration_cast<std::chrono::milliseconds>(observation.now - last_jump_time_).count()
-                >= kLocalDriverJumpCooldownMs)) {
+                   >= kLocalDriverJumpCooldownMs)) {
         StartAction(LocalDriverState::MicroAvoid, LocalDriverAction::JumpForward, kLocalDriverJumpCommitMs, observation.now);
         last_jump_time_ = observation.now;
         has_last_jump_time_ = true;

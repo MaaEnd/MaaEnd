@@ -31,8 +31,6 @@ public:
     virtual void SendRelativeMoveSync(int dx, int dy) = 0;
 };
 
-std::unique_ptr<IInputBackend> CreateInputBackend(
-    MaaContext* context,
-    MaaController* ctrl);
+std::unique_ptr<IInputBackend> CreateInputBackend(MaaContext* context, MaaController* ctrl);
 
 } // namespace mapnavigator

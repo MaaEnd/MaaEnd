@@ -229,8 +229,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         return std::nullopt;
     }
 
-    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta)
-            << VAR(trackResult->secondScore) << VAR(trackScale);
+    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta) << VAR(trackResult->secondScore)
+            << VAR(trackScale);
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);
@@ -312,8 +312,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         hold.scale = trackScale;
         hold.isHeld = true;
         motionTracker->hold(hold, now);
-        LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr)
-                << VAR(trackResult->delta);
+        LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta);
         return hold;
     }
 
@@ -676,8 +675,8 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     if (targetZoneId.empty()) {
         result.status = LocateStatus::YoloFailed;
-        result.debugMessage = expectedZoneId.empty() ? "YOLO inference failed or no result."
-                                                     : "Expected zone is empty and YOLO inference failed.";
+        result.debugMessage =
+            expectedZoneId.empty() ? "YOLO inference failed or no result." : "Expected zone is empty and YOLO inference failed.";
         return result;
     }
     if (targetZoneId == "None") {

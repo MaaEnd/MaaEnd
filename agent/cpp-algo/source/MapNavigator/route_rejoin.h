@@ -34,11 +34,7 @@ class RouteRejoinPlanner
 public:
     RouteRejoinPlanner(double abort_distance, int candidate_limit, int backtrack_window);
 
-    RouteRejoinPlan Plan(
-        const NaviPosition& pos,
-        double heading_degrees,
-        const std::vector<Waypoint>& path,
-        size_t preferred_index) const;
+    RouteRejoinPlan Plan(const NaviPosition& pos, double heading_degrees, const std::vector<Waypoint>& path, size_t preferred_index) const;
 
 private:
     double abort_distance_;

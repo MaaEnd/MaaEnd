@@ -57,13 +57,8 @@ struct NavigationSession
     void SkipPastWaypoint(size_t waypoint_idx, const char* reason);
     void ResetDriverProgressTracking(LocalDriverLite* local_driver);
     void ResetProgress();
-    void ObserveProgress(
-        size_t waypoint_idx,
-        double actual_distance,
-        const std::chrono::steady_clock::time_point& now);
-    void MarkRecoveryAttempt(
-        double actual_distance,
-        const std::chrono::steady_clock::time_point& now);
+    void ObserveProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now);
+    void MarkRecoveryAttempt(double actual_distance, const std::chrono::steady_clock::time_point& now);
     double best_actual_distance() const;
     int no_progress_recovery_attempts() const;
     int64_t StalledMs(const std::chrono::steady_clock::time_point& now) const;

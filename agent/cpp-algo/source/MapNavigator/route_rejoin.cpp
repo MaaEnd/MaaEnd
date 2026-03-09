@@ -3,9 +3,9 @@
 #include <limits>
 #include <unordered_map>
 
-#include "route_rejoin.h"
 #include "navi_config.h"
 #include "navi_math.h"
+#include "route_rejoin.h"
 
 namespace mapnavigator
 {
@@ -44,8 +44,7 @@ double ComputeIndexBias(size_t candidate_index, size_t preferred_index, int back
         return static_cast<double>(preferred_index - candidate_index) * kRejoinBacktrackPenaltyPerNode;
     }
     if (candidate_index > preferred_index) {
-        const size_t forward_offset =
-            std::min(candidate_index - preferred_index, static_cast<size_t>(kRejoinForwardBonusMaxNodes));
+        const size_t forward_offset = std::min(candidate_index - preferred_index, static_cast<size_t>(kRejoinForwardBonusMaxNodes));
         return -static_cast<double>(forward_offset) * kRejoinForwardBonusPerNode;
     }
     return 0.0;
@@ -74,11 +73,9 @@ RouteRejoinPlanner::RouteRejoinPlanner(double abort_distance, int candidate_limi
 {
 }
 
-RouteRejoinPlan RouteRejoinPlanner::Plan(
-    const NaviPosition& pos,
-    double heading_degrees,
-    const std::vector<Waypoint>& path,
-    size_t preferred_index) const
+RouteRejoinPlan
+    RouteRejoinPlanner::Plan(const NaviPosition& pos, double heading_degrees, const std::vector<Waypoint>& path, size_t preferred_index)
+        const
 {
     RouteRejoinPlan plan;
     plan.nearest_route_distance = std::numeric_limits<double>::infinity();
@@ -142,8 +139,7 @@ RouteRejoinPlan RouteRejoinPlanner::Plan(
         }
         else if (
             clamped_projection <= kRejoinSegmentMiddleThreshold
-            && std::hypot(pos.x - from.x, pos.y - from.y) + kRejoinSegmentContinueBiasDistance
-                < std::hypot(pos.x - to.x, pos.y - to.y)
+            && std::hypot(pos.x - from.x, pos.y - from.y) + kRejoinSegmentContinueBiasDistance < std::hypot(pos.x - to.x, pos.y - to.y)
             && i + static_cast<size_t>(backtrack_window_) >= preferred_index) {
             continue_index = i;
         }
@@ -157,9 +153,8 @@ RouteRejoinPlan RouteRejoinPlanner::Plan(
         candidate.decision = RejoinDecisionType::Segment;
         candidate.continue_index = continue_index;
         candidate.route_distance = route_distance;
-        candidate.score =
-            route_distance + approach_penalty + ComputeIndexBias(continue_index, preferred_index, backtrack_window_)
-            - kRejoinSegmentPreferenceBonus;
+        candidate.score = route_distance + approach_penalty + ComputeIndexBias(continue_index, preferred_index, backtrack_window_)
+                          - kRejoinSegmentPreferenceBonus;
         raw_candidates.push_back(candidate);
     }
 

@@ -37,33 +37,17 @@ public:
 
     void ArmForwardCommit(double delta_degrees, const char* reason);
     void ClearForwardCommit();
-    bool IsForwardCommitActive(
-        const std::chrono::steady_clock::time_point& now) const;
+    bool IsForwardCommitActive(const std::chrono::steady_clock::time_point& now) const;
     bool adaptive_mode_enabled() const;
     void EnableAdaptiveMode(const char* reason, double metric);
-    bool InjectMouseAndTrack(
-        double delta_degrees,
-        bool allow_learning,
-        const std::string& expected_zone_id,
-        int settle_wait_ms);
+    bool InjectMouseAndTrack(double delta_degrees, bool allow_learning, const std::string& expected_zone_id, int settle_wait_ms);
 
 private:
     bool ActionMovesForward(LocalDriverAction action) const;
     bool ShouldLearnTurn(double delta_degrees, bool allow_learning) const;
-    bool CaptureSettledTurnFeedback(
-        NaviPosition* out_pos,
-        const std::string& expected_zone_id,
-        bool apply_feedback_pulse);
-    bool IsTurnSampleSuspicious(
-        double commanded_delta_degrees,
-        int units_sent,
-        bool sample_available,
-        double observed_delta_degrees) const;
-    bool RunTurnProbe(
-        double target_yaw,
-        const std::string& expected_zone_id,
-        int pending_units,
-        double pending_yaw_before);
+    bool CaptureSettledTurnFeedback(NaviPosition* out_pos, const std::string& expected_zone_id, bool apply_feedback_pulse);
+    bool IsTurnSampleSuspicious(double commanded_delta_degrees, int units_sent, bool sample_available, double observed_delta_degrees) const;
+    bool RunTurnProbe(double target_yaw, const std::string& expected_zone_id, int pending_units, double pending_yaw_before);
 
     static double NormalizeHeading(double angle);
     void ReleaseFeedbackPulse(bool& feedback_key_down);
