@@ -43,6 +43,8 @@ public:
     LocateResult locate(const cv::Mat& minimap, const LocateOptions& options);
     void resetTrackingState();
     std::optional<MapPosition> getLastKnownPos() const;
+    double getVelocityX() const;
+    double getVelocityY() const;
 
 private:
     std::optional<MapPosition> tryTracking(
@@ -308,6 +310,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         auto hold = *motionTracker->getLastPos();
         hold.score = trackResult->score;
         hold.scale = trackScale;
+        hold.isHeld = true;
         motionTracker->hold(hold, now);
         LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr)
                 << VAR(trackResult->delta);
@@ -325,6 +328,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.y = validation.absY;
         pos.score = trackResult->score;
         pos.scale = trackScale;
+        pos.isHeld = false;
         motionTracker->update(pos, now);
         return pos;
     }
@@ -594,6 +598,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     if (zoneClassifier) {
         zoneClassifier->SetConfThreshold(options.yolo_threshold);
     }
+    const std::string expectedZoneId = options.expected_zone_id;
 
     std::unique_ptr<IMatchStrategy> strategy;
 
@@ -621,7 +626,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
         bool isNativePathHeatmap = (!currentZoneId.empty() && currentZoneId.find("OMVBase") != std::string::npos);
 
-        if (!currentZoneId.empty()) {
+        if (!currentZoneId.empty() && (expectedZoneId.empty() || currentZoneId == expectedZoneId)) {
             strategy = MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
         }
 
@@ -664,11 +669,15 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         }
     }
 
-    std::string targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
+    std::string targetZoneId = expectedZoneId;
+    if (targetZoneId.empty()) {
+        targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
+    }
 
     if (targetZoneId.empty()) {
         result.status = LocateStatus::YoloFailed;
-        result.debugMessage = "YOLO inference failed or no result.";
+        result.debugMessage = expectedZoneId.empty() ? "YOLO inference failed or no result."
+                                                     : "Expected zone is empty and YOLO inference failed.";
         return result;
     }
     if (targetZoneId == "None") {
@@ -745,6 +754,7 @@ void MapLocator::Impl::resetTrackingState()
 {
     if (motionTracker) {
         motionTracker->forceLost();
+        motionTracker->clearVelocity();
     }
     currentZoneId = "";
 }
@@ -755,6 +765,16 @@ std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const
         return motionTracker->getLastPos();
     }
     return std::nullopt;
+}
+
+double MapLocator::Impl::getVelocityX() const
+{
+    return motionTracker ? motionTracker->getVelocityX() : 0.0;
+}
+
+double MapLocator::Impl::getVelocityY() const
+{
+    return motionTracker ? motionTracker->getVelocityY() : 0.0;
 }
 
 // ======================================
@@ -797,6 +817,16 @@ void MapLocator::resetTrackingState()
 std::optional<MapPosition> MapLocator::getLastKnownPos() const
 {
     return pimpl->getLastKnownPos();
+}
+
+double MapLocator::getVelocityX() const
+{
+    return pimpl->getVelocityX();
+}
+
+double MapLocator::getVelocityY() const
+{
+    return pimpl->getVelocityY();
 }
 
 } // namespace maplocator

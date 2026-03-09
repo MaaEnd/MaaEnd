@@ -17,6 +17,7 @@ struct MapPosition
     double scale = 1.0;
     double angle = 0.0;
     long long latencyMs = 0;
+    bool isHeld = false;
 };
 
 struct MapLocatorConfig
@@ -32,8 +33,14 @@ struct LocateOptions
     double yolo_threshold = 0.70;
     bool force_global_search = false; // 是否强制放弃当前追踪，进行全局全图搜
     int max_lost_frames = 3;          // 允许丢失追踪的帧数
+    std::string expected_zone_id;     // 非空时仅接受该区域的定位结果
 
-    MEO_JSONIZATION(MEO_OPT loc_threshold, MEO_OPT yolo_threshold, MEO_OPT force_global_search, MEO_OPT max_lost_frames)
+    MEO_JSONIZATION(
+        MEO_OPT loc_threshold,
+        MEO_OPT yolo_threshold,
+        MEO_OPT force_global_search,
+        MEO_OPT max_lost_frames,
+        MEO_OPT expected_zone_id)
 };
 
 // --- 返回结果枚举与封装 ---
