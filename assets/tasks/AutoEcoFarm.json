@@ -33,7 +33,7 @@
                                 }
                             }
                         },
-                        "_AutoEcoFarmFindValleyIVEcoFarmAny": {
+                        "_AutoEcoFarmFindEcoFarmAny": {
                             "enabled": false
                         }
                     }

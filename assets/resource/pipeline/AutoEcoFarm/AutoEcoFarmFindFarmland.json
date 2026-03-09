@@ -6,14 +6,14 @@
     "_AutoEcoFindFarmFarmlandValleyStart": {
         "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
         "next": [
-            "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmValleyIV",
+            "[JumpBack]_AutoEcoFarmFindEcoFarmValleyIV",
             "_AutoEcoFindFarmFarmlandValleyIVExit"
         ]
     },
     "_AutoEcoFindFarmFarmlandWulinStart": {
         "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
         "next": [
-            "[JumpBack]_AutoEcoFarmFindValleyIVEcoFarmWulin",
+            "[JumpBack]_AutoEcoFarmFindEcoFarmWulin",
             "_AutoEcoFindFarmFarmlandWulinExit"
         ]
     },
@@ -28,7 +28,7 @@
         ]
     },
     //内部节点
-    "_AutoEcoFarmFindValleyIVEcoFarmValleyIV": {
+    "_AutoEcoFarmFindEcoFarmValleyIV": {
         "desc": "[四号谷地版]任务主体",
         "max_hit": 1,
         "next": [
@@ -36,7 +36,7 @@
             "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
         ]
     },
-    "_AutoEcoFarmFindValleyIVEcoFarmWulin": {
+    "_AutoEcoFarmFindEcoFarmWulin": {
         "desc": "[武陵版]任务主体",
         "max_hit": 1,
         "next": [
@@ -44,7 +44,7 @@
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     },
-    "_AutoEcoFarmFindValleyIVEcoFarmAny": {
+    "_AutoEcoFarmFindEcoFarmAny": {
         "desc": "[当前地图版]任务主体，用于循环任务,默认关闭",
         "enabled": false,
         "max_hit": 3,
