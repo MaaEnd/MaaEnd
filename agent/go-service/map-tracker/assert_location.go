@@ -16,7 +16,7 @@ type MapTrackerAssertLocation struct{}
 // LocationCondition represents a single condition to check
 type LocationCondition struct {
 	MapName string `json:"map_name"`
-	Target  [4]int `json:"target"` // [x, y, w, h]
+	Target  [4]float64 `json:"target"` // [x, y, w, h]
 }
 
 // MapTrackerAssertLocationParam represents the parameters for AssertLocation
@@ -139,7 +139,7 @@ func (r *MapTrackerAssertLocation) parseParam(paramStr string) (*MapTrackerAsser
 			return nil, fmt.Errorf("map_name must be provided for expected condition at index %d", i)
 		}
 		if len(condition.Target) != 4 {
-			return nil, fmt.Errorf("target must have 4 integers [x, y, w, h] for expected condition at index %d", i)
+			return nil, fmt.Errorf("target must have 4 numbers [x, y, w, h] for expected condition at index %d", i)
 		}
 		if condition.Target[2] <= 0 || condition.Target[3] <= 0 {
 			return nil, fmt.Errorf("width and height in target must be positive for expected condition at index %d", i)

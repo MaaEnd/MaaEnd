@@ -25,8 +25,8 @@ import (
 // MapTrackerInferResult represents the result of map tracking inference
 type MapTrackerInferResult struct {
 	MapName     string  `json:"mapName"`     // Map name
-	X           int     `json:"x"`           // X coordinate on the map
-	Y           int     `json:"y"`           // Y coordinate on the map
+	X           float64 `json:"x"`           // X coordinate on the map
+	Y           float64 `json:"y"`           // Y coordinate on the map
 	Rot         int     `json:"rot"`         // Rotation angle (0-359 degrees)
 	LocConf     float64 `json:"locConf"`     // Location confidence
 	RotConf     float64 `json:"rotConf"`     // Rotation confidence
@@ -98,8 +98,8 @@ const (
 
 type InferLocationRawResult struct {
 	mapName       string
-	x             int
-	y             int
+	x             float64
+	y             float64
 	conf          float64
 	source        InferLocationHitMode
 	elapsedTimeMs int64
@@ -192,8 +192,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			if globalInferState.convinced.mapName == "" || globalInferState.convinced.mapName != loc.mapName {
 				return false
 			}
-			dx := float64(globalInferState.convinced.x - loc.x)
-			dy := float64(globalInferState.convinced.y - loc.y)
+			dx := globalInferState.convinced.x - loc.x
+			dy := globalInferState.convinced.y - loc.y
 			return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
 		}
 
@@ -201,8 +201,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			if globalInferState.pending.mapName == "" || globalInferState.pending.mapName != loc.mapName {
 				return false
 			}
-			dx := float64(globalInferState.pending.x - loc.x)
-			dy := float64(globalInferState.pending.y - loc.y)
+			dx := globalInferState.pending.x - loc.x
+			dy := globalInferState.pending.y - loc.y
 			return math.Hypot(dx, dy) < CONVINCED_DISTANCE_THRESHOLD
 		}
 
@@ -210,8 +210,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			// This hit is close to the currently convinced location
 			dt := nowMs - globalInferState.convincedLastHitTime
 			if dt > 0 {
-				dx := float64(loc.x - globalInferState.convinced.x)
-				dy := float64(loc.y - globalInferState.convinced.y)
+				dx := loc.x - globalInferState.convinced.x
+				dy := loc.y - globalInferState.convinced.y
 				dist := math.Hypot(dx, dy)
 				globalInferState.convincedMoveSpeed = dist / float64(dt)
 				globalInferState.convincedMoveDirection = math.Atan2(dy, dx)
@@ -264,8 +264,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 			dt := nowMs - globalInferState.convincedLastHitTime
 			sx := globalInferState.convincedMoveSpeed * math.Cos(globalInferState.convincedMoveDirection)
 			sy := globalInferState.convincedMoveSpeed * math.Sin(globalInferState.convincedMoveDirection)
-			vx := globalInferState.convinced.x + int(sx*float64(dt))
-			vy := globalInferState.convinced.y + int(sy*float64(dt))
+			vx := roundTo1Decimal(globalInferState.convinced.x + sx*float64(dt))
+			vy := roundTo1Decimal(globalInferState.convinced.y + sy*float64(dt))
 
 			finalLoc = &InferLocationRawResult{
 				mapName:       globalInferState.convinced.mapName,
@@ -325,7 +325,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	log.Info().Str("InferMode", result.InferMode).
 		Int64("InferTimeMs", result.InferTimeMs).
 		Str("MapName", result.MapName).
-		Int("X", result.X).Int("Y", result.Y).
+		Float64("X", result.X).Float64("Y", result.Y).
 		Int("Rot", result.Rot).
 		Float64("LocConf", result.LocConf).
 		Float64("RotConf", result.RotConf).
@@ -530,6 +530,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	miniMap = minicv.ImageScale(miniMap, scale)
 	miniMapBounds := miniMap.Bounds()
 	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
+	miniMapHalfW, miniMapHalfH := float64(miniMapW)/2.0, float64(miniMapH)/2.0
 
 	// Precompute needle (minimap) statistics for all matches
 	miniStats := minicv.GetImageStats(miniMap)
@@ -555,8 +556,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	if isStable && mapNameRegex.MatchString(stableMapName) {
 		for _, mapData := range scaledMaps {
 			if mapData.Name == stableMapName {
-				expectedCenterX := int(float64(stableLocX-mapData.OffsetX) * scale)
-				expectedCenterY := int(float64(stableLocY-mapData.OffsetY) * scale)
+				expectedCenterX := int((stableLocX - float64(mapData.OffsetX)) * scale)
+				expectedCenterY := int((stableLocY - float64(mapData.OffsetY)) * scale)
 				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
 
 				matchX, matchY, matchVal := minicv.MatchTemplateInArea(
@@ -572,13 +573,13 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 
 				if matchVal > param.Threshold {
 					// Fast search hit
-					bestX := int(float64(matchX+miniMapW/2)/scale) + mapData.OffsetX
-					bestY := int(float64(matchY+miniMapH/2)/scale) + mapData.OffsetY
+					bestX := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
+					bestY := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
 					elapsedTimeMs := time.Since(t0).Milliseconds()
 					log.Debug().Float64("conf", matchVal).
 						Str("map", stableMapName).
-						Int("X", bestX).
-						Int("Y", bestY).
+						Float64("X", bestX).
+						Float64("Y", bestY).
 						Int64("elapsedTimeMs", elapsedTimeMs).
 						Msg("Internal fast search location inference completed")
 
@@ -604,12 +605,12 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	// Match against all maps in parallel
 	type mapResult struct {
 		val     float64
-		x, y    int
+		x, y    float64
 		mapName string
 	}
 
 	bestVal := -1.0
-	bestX, bestY := 0, 0
+	bestX, bestY := 0.0, 0.0
 	bestMapName := ""
 	triedCount := 0
 
@@ -630,8 +631,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	if singleMapToTry != nil {
 		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
 		bestVal = matchVal
-		bestX = int(float64(matchX+miniMapW/2)/scale) + singleMapToTry.OffsetX
-		bestY = int(float64(matchY+miniMapH/2)/scale) + singleMapToTry.OffsetY
+		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
+		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
 		bestMapName = singleMapToTry.Name
 	} else if triedCount > 1 {
 		resChan := make(chan mapResult, triedCount)
@@ -646,8 +647,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			go func(m MapCache) {
 				defer wg.Done()
 				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.Integral, miniMap, miniStats)
-				mx := int(float64(matchX+miniMapW/2)/scale) + m.OffsetX
-				my := int(float64(matchY+miniMapH/2)/scale) + m.OffsetY
+				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
+				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
 				resChan <- mapResult{matchVal, mx, my, m.Name}
 			}(mapData)
 		}
@@ -675,8 +676,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	log.Debug().Int("triedMaps", triedCount).
 		Float64("bestConf", bestVal).
 		Str("bestMap", bestMapName).
-		Int("X", bestX).
-		Int("Y", bestY).
+		Float64("X", bestX).
+		Float64("Y", bestY).
 		Int64("elapsedTimeMs", elapsedTimeMs).
 		Msg("Internal location inference completed")
 
@@ -787,4 +788,8 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 		conf:          maxVal,
 		elapsedTimeMs: time.Since(t0).Milliseconds(),
 	}
+}
+
+func roundTo1Decimal(value float64) float64 {
+	return math.Round(value*10.0) / 10.0
 }
