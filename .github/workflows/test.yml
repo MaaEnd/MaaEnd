@@ -3,7 +3,7 @@ name: test
 on:
   pull_request:
     branches:
-      - "main"
+      - "v2"
   workflow_dispatch:
 
 permissions:
