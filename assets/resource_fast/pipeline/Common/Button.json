@@ -1144,7 +1144,8 @@
                     "__CloseButtonType1",
                     "__CloseButtonType2",
                     "__CloseButtonType3",
-                    "__CloseButtonType4"
+                    "__CloseButtonType4",
+                    "__CloseButtonType5"
                 ]
             }
         },
@@ -1228,6 +1229,24 @@
                 ],
                 "template": [
                     "Common/Button/CloseButtonType4.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "__CloseButtonType5": {
+        "desc": "Baker页面关闭按钮,圆形白底黑色X (背景灰) 后续删除的话记得测试 baker 场景的退出",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1186,
+                    1,
+                    94,
+                    78
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType5.png"
                 ],
                 "threshold": 0.8
             }

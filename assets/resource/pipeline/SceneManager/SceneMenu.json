@@ -1045,21 +1045,17 @@
     },
     "__ScenePrivateWorldEnterMenuBaker": {
         "desc": "从大世界进入Baker界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    -200,
-                    0,
-                    200,
-                    200
-                ],
-                "template": [
-                    "SceneManager/WorldMenu.png"
-                ],
-                "green_mask": true
-            }
-        },
+        "recognition": "TemplateMatch",
+        "roi": [
+            168,
+            113,
+            101,
+            95
+        ],
+        "template": [
+            "Baker/BakerIcon.png",
+            "Baker/BakerIcon2.png"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
