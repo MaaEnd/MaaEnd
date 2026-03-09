@@ -73,11 +73,11 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::HEADING:
-        LogWarn << "[Navi] HEADING action dispatched to ActionExecutor unexpectedly.";
+        LogWarn << "HEADING action dispatched to ActionExecutor unexpectedly.";
         break;
 
     case ActionType::ZONE:
-        LogWarn << "[Navi] ZONE action dispatched to ActionExecutor unexpectedly.";
+        LogWarn << "ZONE action dispatched to ActionExecutor unexpectedly.";
         break;
     }
 
