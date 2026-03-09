@@ -30,3 +30,10 @@ jobs:
 
       - name: Run maa-tools test
         run: pnpm test
+
+      - name: Upload error details
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: errorDetails
+          path: maatoolsErrorDetails.json

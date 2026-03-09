@@ -58,6 +58,7 @@ const config: FullConfig = {
     interfacePath: 'assets/interface.json',
     casesCwd: 'tests/MaaEndTestset',
     cases: fetchCases,
+    errorDetailsPath: 'maatoolsErrorDetails.json',
   },
 }
 

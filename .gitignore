@@ -475,3 +475,6 @@ Temporary Items
 # python
 venv/
 .cache/
+
+# maa-tools
+maatoolsErrorDetails.json
