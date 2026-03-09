@@ -27,11 +27,6 @@ void SleepIfNeeded(int delay_millis)
     }
 }
 
-bool IsMovementKey(int key_code)
-{
-    return key_code == kKeyW || key_code == kKeyA || key_code == kKeyS || key_code == kKeyD;
-}
-
 std::string DetectControllerType(MaaController* ctrl)
 {
     if (ctrl == nullptr) {
