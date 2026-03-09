@@ -6,6 +6,7 @@
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 #include "MapLocator/MapLocateAction.h"
+#include "MapNavigator/MapNavigator.h"
 
 int main(int argc, char** argv)
 {
@@ -27,6 +28,7 @@ int main(int argc, char** argv)
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 

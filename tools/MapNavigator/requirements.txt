@@ -1,0 +1,7 @@
+# Runtime dependencies for standard Python usage:
+#   python -m venv .venv
+#   .venv\Scripts\activate
+#   pip install -r requirements.txt
+
+Pillow>=10.0.0
+maafw
