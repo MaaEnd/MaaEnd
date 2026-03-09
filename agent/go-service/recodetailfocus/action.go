@@ -29,7 +29,7 @@ type recoDetailFocusParam struct {
 
 func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	contentTemplate := defaultContentTemplate
-	targetROI := any([]int{arg.Roi.X(), arg.Roi.Y(), arg.Roi.Width(), arg.Roi.Height()})
+	targetROI := any([]int{0, 0, 1280, 720})
 	var targetROIOffset any
 	var targetExpected any
 	if arg.CustomActionParam != "" {
@@ -112,7 +112,19 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 		Interface("ocr_override", override).
 		Msg("RecoDetailFocusAction run OCR with override")
 
-	detail, err := ctx.RunRecognition(internalOCRNodeName, arg.Img, override)
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().Msg("RecoDetailFocusAction controller is nil")
+		return "", false
+	}
+	controller.PostScreencap().Wait()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().Err(err).Msg("RecoDetailFocusAction get screenshot failed")
+		return "", false
+	}
+
+	detail, err := ctx.RunRecognition(internalOCRNodeName, img, override)
 	if err != nil {
 		log.Error().Err(err).Str("node", internalOCRNodeName).Msg("RecoDetailFocusAction run OCR failed")
 		return "", false
