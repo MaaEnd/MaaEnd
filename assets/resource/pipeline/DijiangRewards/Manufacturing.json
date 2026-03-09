@@ -12,8 +12,10 @@
                     64
                 ],
                 "expected": [
-                    "制造舱",
+                    "制造中",
+                    "製造中",
                     "Manufacturing",
+                    "制造舱",
                     "Production"
                 ]
             }
@@ -284,8 +286,10 @@
                     64
                 ],
                 "expected": [
-                    "制造舱",
+                    "制造中",
+                    "製造中",
                     "Manufacturing",
+                    "制造舱",
                     "Production"
                 ]
             }

@@ -100,12 +100,15 @@
             500
         ],
         "expected": [
-            // 据点管理
             "据点管理",
             "據點管理",
-            "Outpost",
-            "outpost",
+            "Outpost Management",
             "拠点管理",
+            "据点",
+            "據點",
+            "Outpost",
+            "拠点",
+            "outpost",
             "거점 관리"
         ]
     },

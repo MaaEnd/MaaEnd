@@ -82,6 +82,9 @@
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }
@@ -338,7 +341,9 @@
                 ],
                 "expected": [
                     "赠予",
-                    "Send"
+                    "贈予",
+                    "Send",
+                    "譲り渡す"
                 ]
             }
         },
@@ -382,6 +387,9 @@
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }
@@ -475,7 +483,6 @@
                 ],
                 "expected": [
                     "已填入",
-                    "已填入",
                     "Pegged",
                     "配置中"
                 ],
@@ -561,6 +568,9 @@
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }

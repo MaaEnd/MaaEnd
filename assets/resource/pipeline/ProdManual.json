@@ -12,10 +12,10 @@
                 ],
                 "expected": [
                     "简易制作",
+                    "簡易製作",
                     "Crafting",
                     "道具製作",
-                    "간편 제작",
-                    "簡易製作"
+                    "간편 제작"
                 ]
             }
         },
@@ -47,7 +47,10 @@
                     77
                 ],
                 "expected": [
-                    "简制手册"
+                    "简制手册",
+                    "簡製手冊",
+                    "Crafting Manual",
+                    "製作手帳"
                 ]
             }
         },
@@ -89,8 +92,9 @@
                 ],
                 "expected": [
                     "返回",
-                    "Back",
-                    "Return"
+                    "Return",
+                    "戻る",
+                    "Back"
                 ]
             }
         },
@@ -112,6 +116,9 @@
                 ],
                 "expected": [
                     "奖励",
+                    "獎勵",
+                    "Rewards",
+                    "報酬",
                     "Reward"
                 ]
             }
@@ -185,6 +192,9 @@
                 ],
                 "expected": [
                     "简易制作",
+                    "簡易製作",
+                    "Crafting",
+                    "道具製作",
                     "Simple Craft",
                     "Quick Craft"
                 ]
@@ -291,7 +301,9 @@
                 ],
                 "expected": [
                     "探索等级",
+                    "探索等級",
                     "Exploration Level",
+                    "探索レベル",
                     "Explore"
                 ]
             }
@@ -316,7 +328,11 @@
                 "expected": [
                     "背包",
                     "Backpack",
-                    "Inventory"
+                    "道具箱",
+                    "库存",
+                    "庫存",
+                    "Inventory",
+                    "在庫"
                 ]
             }
         },
@@ -386,7 +402,9 @@
                 ],
                 "expected": [
                     "简制手册",
+                    "簡製手冊",
                     "Crafting Manual",
+                    "製作手帳",
                     "Manual"
                 ]
             }
@@ -454,8 +472,9 @@
                 ],
                 "expected": [
                     "返回",
-                    "Back",
-                    "Return"
+                    "Return",
+                    "戻る",
+                    "Back"
                 ]
             }
         },

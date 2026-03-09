@@ -46,12 +46,12 @@
             "接取委託",
             "Accept Job",
             "引き受ける",
-            "의뢰 수령",
-            "임무로 이동하기",
             "前往任务",
             "前往任務",
             "Go to Mission",
-            "任務へ"
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
         ]
     },
     "CheckCollapsedTianshiPillarJob": {

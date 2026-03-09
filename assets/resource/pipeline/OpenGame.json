@@ -147,10 +147,13 @@
                     40
                 ],
                 "expected": [
+                    "继续",
+                    "繼續",
+                    "Continue",
+                    "続ける",
                     "点击",
                     "任意",
                     "位置",
-                    "继续",
                     "Click",
                     "Tap",
                     "anywhere",
@@ -238,7 +241,9 @@
                 ],
                 "expected": [
                     "领取",
-                    "Claim"
+                    "領取",
+                    "Claim",
+                    "受取"
                 ]
             }
         },
@@ -262,6 +267,9 @@
                 ],
                 "expected": [
                     "获得奖励",
+                    "獲得獎勵",
+                    "Rewards Acquired",
+                    "報酬一覧",
                     "Rewards"
                 ]
             }

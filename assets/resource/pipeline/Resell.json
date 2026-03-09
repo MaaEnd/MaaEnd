@@ -38,6 +38,7 @@
         ],
         "expected": [
             "四号谷地",
+            "四號谷地",
             "Valley IV",
             "Valley"
         ],
@@ -259,7 +260,9 @@
         ],
         "expected": [
             "无法购买",
-            "Cannot Purchase"
+            "無法購買",
+            "Cannot Purchase",
+            "購入不可"
         ],
         "action": "DoNothing",
         "next": [
