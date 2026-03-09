@@ -4,7 +4,8 @@
             "name": "ReceiveProdManual",
             "label": "$task.ReceiveProdManual.label",
             "entry": "ProdManualStart",
-            "description": "$task.ReceiveProdManual.description"
+            "description": "$task.ReceiveProdManual.description",
+            "group": ["daily"]
         }
     ],
     "option": {}

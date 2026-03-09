@@ -93,35 +93,61 @@
             "child_args": []
         }
     ],
+    "group": [
+        {
+            "name": "daily",
+            "label": "$group.daily.label",
+            "description": "$group.daily.description",
+            "default_expand": true
+        },
+        {
+            "name": "foreground",
+            "label": "$group.foreground.label",
+            "description": "$group.foreground.description",
+            "default_expand": true
+        },
+        {
+            "name": "realtime",
+            "label": "$group.realtime.label",
+            "description": "$group.realtime.description",
+            "default_expand": true
+        },
+        {
+            "name": "utility",
+            "label": "$group.utility.label",
+            "description": "$group.utility.description",
+            "default_expand": true
+        }
+    ],
     "task": [],
     "import": [
-        "tasks/RealTimeTask.json",
-        "tasks/PuzzleSolver.json",
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
+        "tasks/CreditShopping.json",
         "tasks/SellProduct.json",
         "tasks/AutoResell.json",
-        "tasks/AutoEssence.json",
-        "tasks/EssenceFilter.json",
-        "tasks/CreditShopping.json",
-        "tasks/ImportBluePrints.json",
         "tasks/DeliveryJobs.json",
-        "tasks/EnvironmentMonitoring.json",
         "tasks/SeizeEntrustTask.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
         "tasks/ReceiveProdManual.json",
-        "tasks/ReadAllWiki.json",
         "tasks/Weapon.json",
         "tasks/GearAssembly.json",
-        "tasks/ProtocolSpace.json",
         "tasks/Crafting.json",
+        "tasks/SimpleProductionBatchStart.json",
+        "tasks/GiftOperator.json",
+        "tasks/AutoEcoFarm.json",
+        "tasks/RealTimeTask.json",
+        "tasks/AutoEssence.json",
+        "tasks/EnvironmentMonitoring.json",
+        "tasks/ProtocolSpace.json",
+        "tasks/PuzzleSolver.json",
+        "tasks/EssenceFilter.json",
+        "tasks/ImportBluePrints.json",
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
+        "tasks/ReadAllWiki.json",
         "tasks/BakerEntry.json",
-        "tasks/GiftOperator.json",
-        "tasks/SimpleProductionBatchStart.json",
-        "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
         "tasks/AutoUseSpMedication.json",
         "tasks/preset/DailyFull.json",

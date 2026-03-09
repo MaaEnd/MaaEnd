@@ -9,7 +9,8 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem"
-            ]
+            ],
+            "group": ["daily"]
         }
     ],
     "option": {

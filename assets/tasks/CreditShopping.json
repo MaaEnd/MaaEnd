@@ -11,7 +11,8 @@
                 "CreditShoppingForce",
                 "CreditShoppingReserve",
                 "CreditShoppingOtherItems"
-            ]
+            ],
+            "group": ["daily"]
         }
     ],
     "option": {

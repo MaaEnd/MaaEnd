@@ -12,7 +12,8 @@
                 "FarmlandFindingScheme",
                 "AutoEcoFarmClearBagBeforeTasks",
                 "AutoEcoFarmClearBagAfterTasks"
-            ]
+            ],
+            "group": ["foreground"]
         }
     ],
     "option": {
