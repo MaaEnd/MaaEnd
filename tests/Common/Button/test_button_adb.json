@@ -39,11 +39,11 @@
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "四号谷地_地区建设_据点交易",
+            "image": "四号谷地_地区建设_据点_交易",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "武陵_地区建设_据点交易",
+            "image": "武陵_地区建设_据点_交易",
             "hits": ["CloseRewardsButton"]
         },
         {
@@ -56,7 +56,7 @@
         },
         // 还没有适配这种情况
         // {
-        //     "image": "通用_按钮_帝江号_地区建设按钮_白色背景",
+        //     "image": "帝江号_大世界_地区建设按钮_白色背景",
         //     "hits": [
         //         {
         //             "node": "RegionalDevelopmentButton",
