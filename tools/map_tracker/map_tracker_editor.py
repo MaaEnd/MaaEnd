@@ -14,8 +14,6 @@ import re
 import json
 import time
 from datetime import datetime, timezone
-from typing import NamedTuple
-import numpy as np
 from utils import (
     _R,
     _G,
@@ -23,57 +21,18 @@ from utils import (
     _C,
     _A,
     _0,
-    Color,
     Drawer,
     cv2,
     MapName,
     SelectMapPage,
     ViewportManager,
     Layer,
+    BasePage,
 )
 
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
 SERVICE_LOG_FILE = "install/debug/go-service.log"
-
-
-class _MapLayer(Layer):
-    def __init__(self, view: ViewportManager, img: np.ndarray):
-        super().__init__(view)
-        self._img = img
-        self._scaled_img: np.ndarray | None = None
-        self._scaled_zoom: float | None = None
-
-    def render(self, drawer: Drawer) -> None:
-        zoom = self.view.zoom
-        if self._scaled_img is None or self._scaled_zoom != zoom:
-            scaled_w = max(1, int(self._img.shape[1] * zoom))
-            scaled_h = max(1, int(self._img.shape[0] * zoom))
-            self._scaled_img = cv2.resize(
-                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
-            )
-            self._scaled_zoom = zoom
-
-        scaled_img = self._scaled_img
-        if scaled_img is None:
-            return
-
-        scaled_h, scaled_w = scaled_img.shape[:2]
-        src_x1 = int(round(self.view._vx * zoom))
-        src_y1 = int(round(self.view._vy * zoom))
-        dst_x = max(0, -src_x1)
-        dst_y = max(0, -src_y1)
-        src_x1 = max(0, src_x1)
-        src_y1 = max(0, src_y1)
-        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
-        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
-
-        copy_w = src_x2 - src_x1
-        copy_h = src_y2 - src_y1
-        if copy_w > 0 and copy_h > 0:
-            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
-                scaled_img[src_y1:src_y2, src_x1:src_x2]
-            )
 
 
 class _RealtimePathLayer(Layer):
@@ -131,20 +90,17 @@ class _PathLayer(Layer):
             drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
 
 
-class PathEditPage:
+class PathEditPage(BasePage):
     """Path editing page"""
 
-    SIDEBAR_W = 240
-    STATUS_BAR_H = 32
     QUICK_BAR_H = 32
     LINE_WIDTH = 1.5
     POINT_RADIUS = 4.25
     POINT_SELECTION_THRESHOLD = 10
 
-    class StatusRecord(NamedTuple):
-        timestamp: float
-        color: Color
-        message: str
+    @staticmethod
+    def _coord1(value: float) -> float:
+        return round(float(value), 1)
 
     def __init__(
         self,
@@ -167,29 +123,22 @@ class PathEditPage:
         if not os.path.exists(self.map_path):
             print(f"Error: Map file not found: {self.map_path}")
 
-        self.img = cv2.imread(self.map_path)
-        if self.img is None:
-            raise ValueError(f"Cannot load map: {self.map_path}")
+        super().__init__(
+            self.map_path,
+            "MapTracker Tool - Path Editor",
+            welcome_msg="Welcome to MapTracker Editor!",
+        )
 
         self.points = [list(p) for p in initial_points] if initial_points else []
         self._point_snapshot: list[list] = [list(p) for p in self.points]
 
         self.pipeline_context = pipeline_context  # None → N mode
-        self.window_w, self.window_h = 1280, 720
-        self.window_name = "MapTracker Tool - Path Editor"
-        self.view = ViewportManager(
-            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
-        )
-        self._map_layer = _MapLayer(self.view, self.img)
         self._path_layer = _PathLayer(self.view, self)
         self._realtime_layer = _RealtimePathLayer(self.view, self)
         self.view.fit_to(self.points)
 
         self.drag_idx = -1
         self.selected_idx = -1
-        self.panning = False
-        self.pan_start = (0, 0)
-        self.mouse_pos: tuple[int, int] = (-1, -1)  # For crosshair display
 
         # Action state for point interactions (left button)
         self.action_down_idx = -1
@@ -197,19 +146,14 @@ class PathEditPage:
         self.action_down_pos = (0, 0)
         self.action_moved = False
         self.action_dragging = False
-        self.done = False
 
-        # Status feedback shown in map area status bar
-        self._status: PathEditPage.StatusRecord = self.StatusRecord(
-            0, 0xFFFFFF, "Welcome to MapTracker Editor!"
-        )
         self.location_service = LocationService()
         self._recording_active = False
         self._recording_start_time = 0.0
         self._recording_last_ts = 0.0
         self._recording_last_poll = 0.0
-        self._recorded_path: list[list[int]] = []
-        self._recorded_keys: set[tuple[float, int, int]] = set()
+        self._recorded_path: list[list[float]] = []
+        self._recorded_keys: set[tuple[float, float, float]] = set()
 
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
@@ -218,8 +162,6 @@ class PathEditPage:
         self._btn_quick_generate_rect: tuple | None = None
         self._btn_quick_undo_rect: tuple | None = None
         self._quick_undo_state: dict | None = None
-        self._frame_interval = 1.0 / 120.0
-        self._last_render_ts = 0.0
 
     # ------------------------------------------------------------------
     # Helpers
@@ -229,9 +171,6 @@ class PathEditPage:
     def is_dirty(self) -> bool:
         """True when current points differ from the initial snapshot."""
         return self.points != self._point_snapshot
-
-    def _update_status(self, color: Color, message: str) -> None:
-        self._status = self.StatusRecord(time.time(), color, message)
 
     def _do_save(self):
         """Save the current path to the pipeline file (I mode only)."""
@@ -291,7 +230,7 @@ class PathEditPage:
             y = loc.get("y")
             if x is None or y is None:
                 continue
-            key = (ts, int(x), int(y))
+            key = (ts, x, y)
             if key in self._recorded_keys:
                 self._recording_last_ts = max(self._recording_last_ts, ts)
                 continue
@@ -385,7 +324,8 @@ class PathEditPage:
 
         The usable map area starts at x = SIDEBAR_W.
         """
-        return self.view.get_real_coords(screen_x, screen_y)
+        mx, my = self.view.get_real_coords(screen_x, screen_y)
+        return self._coord1(mx), self._coord1(my)
 
     def _get_screen_coords(self, map_x, map_y):
         """Convert original map coordinates to screen (viewport) coordinates."""
@@ -407,39 +347,16 @@ class PathEditPage:
         return dist < threshold
 
     # ------------------------------------------------------------------
-    # Rendering
+    # Rendering overrides
     # ------------------------------------------------------------------
 
-    def render_page(self, *, force: bool = False):
-        now = time.monotonic()
-        if force or now - self._last_render_ts >= self._frame_interval:
-            self._last_render_ts = now
-            self._render()
-
-    def _render(self):
-        drawer = Drawer.new(self.window_w, self.window_h)
-        self._map_layer.render(drawer)
+    def _render_content(self, drawer: Drawer) -> None:
         self._realtime_layer.render(drawer)
         self._path_layer.render(drawer)
 
-        # Draw crosshair at current mouse position
-        drawer.line(
-            (self.mouse_pos[0], 0),
-            (self.mouse_pos[0], self.window_h),
-            color=0xFFFF00,
-            thickness=1,
-        )
-        drawer.line(
-            (0, self.mouse_pos[1]),
-            (self.window_w, self.mouse_pos[1]),
-            color=0xFFFF00,
-            thickness=1,
-        )
-
+    def _render_ui(self, drawer: Drawer) -> None:
         self._render_quick_bar(drawer)
-        self._render_status_bar(drawer)
-        self._render_sidebar(drawer)
-        cv2.imshow(self.window_name, drawer.get_image())
+        super()._render_ui(drawer)
 
     def _render_quick_bar(self, drawer: "Drawer"):
         x1 = self.SIDEBAR_W
@@ -520,34 +437,12 @@ class PathEditPage:
             thickness=1,
         )
 
-    def _render_status_bar(self, drawer: "Drawer"):
-        x1 = self.SIDEBAR_W
-        x2 = self.window_w
-        y2 = self.window_h
-        y1 = max(0, y2 - self.STATUS_BAR_H)
-        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
-        if not self._status:
-            return
-
-        drawer.text(
-            self._status.message,
-            (x1 + 10, y2 - 10),
-            0.45,
-            color=self._status.color,
-            thickness=1,
-        )
-
     def _render_sidebar(self, drawer: "Drawer"):
         """Draw the left sidebar with a solid black background."""
+        self._render_sidebar_bg(drawer)
         sw = self.SIDEBAR_W
         h = self.window_h
         pad = 15
-
-        # ── Extract and blend sidebar background ──────────────────────────
-        drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
-
-        # ── Right border ─────────────────────────────────────────────────
-        drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
 
         # ── Tips section ─────────────────────────────────────────────────
         cy = pad + 15
@@ -673,7 +568,7 @@ class PathEditPage:
 
         if 0 <= self.selected_idx < len(self.points):
             p = self.points[self.selected_idx]
-            line = f"Point #{self.selected_idx} ({int(p[0])}, {int(p[1])})"
+            line = f"Point #{self.selected_idx} ({p[0]:.1f}, {p[1]:.1f})"
         else:
             line = f"Points: {len(self.points)}"
         drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF, thickness=1)
@@ -683,14 +578,8 @@ class PathEditPage:
         drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF, thickness=1)
 
     # ------------------------------------------------------------------
-    # Mouse / keyboard handling
+    # Mouse / keyboard / idle
     # ------------------------------------------------------------------
-
-    def _hit_button(self, x, y, rect) -> bool:
-        if rect is None:
-            return False
-        x1, y1, x2, y2 = rect
-        return x1 <= x <= x2 and y1 <= y <= y2
 
     def _get_point_at(self, x, y) -> int:
         for i, p in enumerate(self.points):
@@ -700,36 +589,12 @@ class PathEditPage:
                 return i
         return -1
 
-    def _handle_mouse(self, event, x, y, flags, param):
-        # Track mouse position for crosshair
-        self.mouse_pos = (x, y)
-        # ── Map area events ──────────────────────────────────────────────
-        mx, my = self._get_map_coords(x, y)
-        if event == cv2.EVENT_MOUSEWHEEL:
-            if flags > 0:
-                self.view.zoom_in()
-            else:
-                self.view.zoom_out()
-
-            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
-            self.render_page()
-
-        elif event == cv2.EVENT_MOUSEMOVE:
-            # Pan
-            if self.panning:
-                dx = (x - self.pan_start[0]) / self.view.zoom
-                dy = (y - self.pan_start[1]) / self.view.zoom
-                self.view.pan_by(-dx, -dy)
-                self.pan_start = (x, y)
-                self.render_page()
-                return
-
-            # Action (left button) dragging
+    def _on_mouse(self, event, x, y, mx, my, flags) -> None:
+        if event == cv2.EVENT_MOUSEMOVE:
             if self.action_mouse_down:
                 if self.action_dragging and self.drag_idx != -1:
-                    self.points[self.drag_idx] = [mx, my]
+                    self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                     self.action_moved = True
-                    self.render_page()
                     return
 
                 dx = x - self.action_down_pos[0]
@@ -739,23 +604,15 @@ class PathEditPage:
                     if self.action_down_idx != -1:
                         self.action_dragging = True
                         self.drag_idx = self.action_down_idx
-                        self.points[self.drag_idx] = [mx, my]
-                        self.render_page()
+                        self.points[self.drag_idx] = [
+                            self._coord1(mx),
+                            self._coord1(my),
+                        ]
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
-                self.points[self.drag_idx] = [mx, my]
+                self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                 self.action_dragging = True
-            self.render_page()
-
-        elif event == cv2.EVENT_RBUTTONDOWN:
-            if x < self.SIDEBAR_W:
-                return  # Ignore right-clicks on sidebar
-            self.panning = True
-            self.pan_start = (x, y)
-
-        elif event == cv2.EVENT_RBUTTONUP:
-            self.panning = False
 
         elif event == cv2.EVENT_LBUTTONDOWN:
             # ── Sidebar clicks ────────────────────────────────────────
@@ -767,7 +624,7 @@ class PathEditPage:
                     self._toggle_recording()
                 elif self._hit_button(x, y, self._btn_finish_rect):
                     self.done = True
-                return  # Prevent event propagation
+                return
 
             if self._hit_button(x, y, self._btn_quick_generate_rect):
                 self._generate_path_from_recorded()
@@ -779,7 +636,6 @@ class PathEditPage:
                 return
 
             # ── Map area clicks ─────────────────────────────────
-
             self.action_down_idx = self._get_point_at(x, y)
             self.action_mouse_down = True
             self.action_down_pos = (x, y)
@@ -793,9 +649,7 @@ class PathEditPage:
             if self.action_dragging and self.drag_idx != -1:
                 self.drag_idx = -1
             else:
-                if self.action_moved and self.action_down_idx == -1:
-                    pass
-                else:
+                if not (self.action_moved and self.action_down_idx == -1):
                     if self.action_down_idx != -1:
                         del_idx = self.action_down_idx
                         if 0 <= del_idx < len(self.points):
@@ -811,7 +665,7 @@ class PathEditPage:
                                 self.selected_idx -= 1
                             self._update_status(
                                 0x78DCFF,
-                                f"Deleted Point #{del_idx} ({int(deleted_point[0])}, {int(deleted_point[1])})",
+                                f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
                             )
                     elif self.action_down_pos == (x, y):
                         inserted = False
@@ -826,20 +680,22 @@ class PathEditPage:
                                 self.points[i],
                                 threshold=map_threshold,
                             ):
-                                self.points.insert(i, [mx, my])
+                                self.points.insert(
+                                    i, [self._coord1(mx), self._coord1(my)]
+                                )
                                 self.selected_idx = i
                                 self._update_status(
                                     0x78DCFF,
-                                    f"Added Point #{i} ({int(mx)}, {int(my)})",
+                                    f"Added Point #{i} ({mx:.1f}, {my:.1f})",
                                 )
                                 inserted = True
                                 break
                         if not inserted:
-                            self.points.append([mx, my])
+                            self.points.append([self._coord1(mx), self._coord1(my)])
                             self.selected_idx = len(self.points) - 1
                             self._update_status(
                                 0x78DCFF,
-                                f"Added Point #{self.selected_idx} ({int(mx)}, {int(my)})",
+                                f"Added Point #{self.selected_idx} ({mx:.1f}, {my:.1f})",
                             )
 
             self.action_down_idx = -1
@@ -847,35 +703,25 @@ class PathEditPage:
             self.action_down_pos = (0, 0)
             self.action_moved = False
             self.action_dragging = False
-            self.render_page()
+
+    def _on_key(self, key: int) -> None:
+        if key in (ord("f"), ord("F")):
+            self.done = True
+        elif key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
+            self._do_save()
+            self.render_page(force=True)
+        elif key in (ord("r"), ord("R")):
+            self._toggle_recording()
+
+    def _on_idle(self) -> None:
+        self._update_recording()
 
     # ------------------------------------------------------------------
     # Main loop
     # ------------------------------------------------------------------
 
-    def run(self):
-        cv2.namedWindow(self.window_name)
-        cv2.setMouseCallback(self.window_name, self._handle_mouse)
-
-        self.render_page(force=True)
-        while not self.done:
-            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
-                break
-            key = cv2.waitKey(1) & 0xFF
-            if key == 27 or key == ord("f") or key == ord("F"):  # ESC / F → Finish
-                break
-            if (
-                (key == ord("s") or key == ord("S"))
-                and self.pipeline_context
-                and self.is_dirty
-            ):
-                self._do_save()
-                self.render_page(force=True)
-            if key == ord("r") or key == ord("R"):
-                self._toggle_recording()
-            self._update_recording()
-
-        cv2.destroyAllWindows()
+    def run(self) -> list[list]:
+        super().run()
         return [list(p) for p in self.points]
 
 
@@ -955,7 +801,7 @@ class LocationService:
             return None
         if not isinstance(data_obj, dict):
             return None
-        if not self._is_target_message(data_obj.get("message")):
+        if not self._is_target_message(data_obj.get("message") or data_obj.get("msg")):
             return None
 
         log_map_name = data_obj.get("MapName")
@@ -968,6 +814,11 @@ class LocationService:
         y = data_obj.get("Y")
         if x is None or y is None:
             return None
+        try:
+            x = float(x)
+            y = float(y)
+        except (TypeError, ValueError):
+            return None
 
         ts = None
         for key in ("time", "timestamp", "ts"):
@@ -977,8 +828,8 @@ class LocationService:
                     break
 
         return {
-            "x": int(round(x)),
-            "y": int(round(y)),
+            "x": x,
+            "y": y,
             "timestamp": ts,
             "raw": data_obj,
         }
@@ -1030,13 +881,13 @@ class LocationService:
 
         results.sort(key=lambda item: item.get("timestamp") or 0.0)
         deduped: list[dict] = []
-        last_xy: tuple[int, int] | None = None
+        last_xy: tuple[float, float] | None = None
         for item in results:
             x = item.get("x")
             y = item.get("y")
             if x is None or y is None:
                 continue
-            xy = (int(x), int(y))
+            xy = (round(x, 1), round(y, 1))
             if last_xy == xy:
                 continue
             deduped.append(item)
@@ -1202,7 +1053,7 @@ class PipelineHandler:
             formatted_path = "[\n"
             for i, p in enumerate(new_path):
                 comma = "," if i < len(new_path) - 1 else ""
-                formatted_path += f"{indent_lg}[{p[0]}, {p[1]}]{comma}\n"
+                formatted_path += f"{indent_lg}[{p[0]:.1f}, {p[1]:.1f}]{comma}\n"
             formatted_path += f"{indent_sm}]"
 
         new_body = (
@@ -1223,7 +1074,9 @@ class PipelineHandler:
 
         # Keep in-memory state consistent
         if node_name in self.nodes:
-            self.nodes[node_name]["path"] = [[int(p[0]), int(p[1])] for p in new_path]
+            self.nodes[node_name]["path"] = [
+                [round(p[0], 1), round(p[1], 1)] for p in new_path
+            ]
         return True
 
 
@@ -1367,7 +1220,7 @@ def main():
     )
     param_data = {
         "map_name": os.path.splitext(os.path.basename(raw_map_name))[0],
-        "path": [[int(p[0]), int(p[1])] for p in points],
+        "path": [[round(p[0], 1), round(p[1], 1)] for p in points],
     }
 
     if export_mode == "S" and import_context:

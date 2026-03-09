@@ -2,7 +2,8 @@ import sys
 import os
 import re
 import math
-from typing import Literal
+import time
+from typing import Literal, NamedTuple
 
 _R = "\033[31m"
 _G = "\033[32m"
@@ -353,9 +354,9 @@ class ViewportManager:
     def zoom(self, value: float) -> None:
         self._zoom = max(self._min_zoom, min(self._max_zoom, value))
 
-    def get_real_coords(self, view_x: int, view_y: int) -> tuple[int, int]:
-        rx = round(view_x / self._zoom + self._vx)
-        ry = round(view_y / self._zoom + self._vy)
+    def get_real_coords(self, view_x: int, view_y: int) -> tuple[float, float]:
+        rx = view_x / self._zoom + self._vx
+        ry = view_y / self._zoom + self._vy
         return rx, ry
 
     def get_view_coords(self, real_x: int, real_y: int) -> tuple[int, int]:
@@ -422,6 +423,227 @@ class Layer:
 
     def render(self, drawer: "Drawer") -> None:
         return None
+
+
+class MapImageLayer(Layer):
+    """Renders a background map image with viewport zoom/pan support."""
+
+    def __init__(self, view: ViewportManager, img: np.ndarray):
+        super().__init__(view)
+        self._img = img
+        self._scaled_img: np.ndarray | None = None
+        self._scaled_zoom: float | None = None
+
+    def render(self, drawer: Drawer) -> None:
+        zoom = self.view.zoom
+        if self._scaled_img is None or self._scaled_zoom != zoom:
+            scaled_w = max(1, int(self._img.shape[1] * zoom))
+            scaled_h = max(1, int(self._img.shape[0] * zoom))
+            self._scaled_img = cv2.resize(
+                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
+            )
+            self._scaled_zoom = zoom
+
+        scaled_img = self._scaled_img
+        if scaled_img is None:
+            return
+
+        scaled_h, scaled_w = scaled_img.shape[:2]
+        src_x1 = int(round(self.view._vx * zoom))
+        src_y1 = int(round(self.view._vy * zoom))
+        dst_x = max(0, -src_x1)
+        dst_y = max(0, -src_y1)
+        src_x1 = max(0, src_x1)
+        src_y1 = max(0, src_y1)
+        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
+        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
+        copy_w = src_x2 - src_x1
+        copy_h = src_y2 - src_y1
+        if copy_w > 0 and copy_h > 0:
+            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
+                scaled_img[src_y1:src_y2, src_x1:src_x2]
+            )
+
+
+class StatusRecord(NamedTuple):
+    """Generic status bar record."""
+
+    timestamp: float
+    color: Color
+    message: str
+
+
+class BasePage:
+    """Base class for map-based editing pages.
+
+    Provides: viewport/zoom/pan, FPS-limited rendering, status bar, sidebar
+    scaffold, and a cv2 main-loop skeleton.
+
+    Subclasses override:
+      - ``_render_content(drawer)``  – draw layers on top of the map image.
+      - ``_render_ui(drawer)``       – draw UI panels (status bar, sidebar, …).
+      - ``_render_sidebar(drawer)``  – sidebar content (calls ``_render_sidebar_bg``).
+      - ``_on_mouse(event, x, y, mx, my, flags)`` – custom mouse handling.
+      - ``_on_key(key)``             – custom keyboard handling.
+      - ``_on_idle()``               – called each loop iteration for background tasks.
+    """
+
+    SIDEBAR_W: int = 240
+    STATUS_BAR_H: int = 32
+
+    def __init__(
+        self,
+        map_path: str,
+        window_name: str,
+        window_w: int = 1280,
+        window_h: int = 720,
+        welcome_msg: str = "Welcome!",
+    ) -> None:
+        self.img = cv2.imread(map_path)
+        if self.img is None:
+            raise ValueError(f"Cannot load map image: {map_path}")
+        self.window_w = window_w
+        self.window_h = window_h
+        self.window_name = window_name
+        self.view = ViewportManager(
+            window_w, window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
+        )
+        self._map_layer = MapImageLayer(self.view, self.img)
+        self._status = StatusRecord(0.0, 0xFFFFFF, welcome_msg)
+        self.mouse_pos: tuple[int, int] = (-1, -1)
+        self._frame_interval = 1.0 / 120.0
+        self._last_render_ts = 0.0
+        self.panning = False
+        self.pan_start: tuple[int, int] = (0, 0)
+        self.done = False
+
+    def _update_status(self, color: Color, message: str) -> None:
+        self._status = StatusRecord(time.time(), color, message)
+
+    @staticmethod
+    def _hit_button(x: int, y: int, rect) -> bool:
+        if rect is None:
+            return False
+        x1, y1, x2, y2 = rect
+        return x1 <= x <= x2 and y1 <= y <= y2
+
+    def render_page(self, *, force: bool = False) -> None:
+        now = time.monotonic()
+        if force or now - self._last_render_ts >= self._frame_interval:
+            self._last_render_ts = now
+            self._render()
+
+    def _render(self) -> None:
+        drawer = Drawer.new(self.window_w, self.window_h)
+        self._map_layer.render(drawer)
+        self._render_content(drawer)
+        # Crosshair
+        drawer.line(
+            (self.mouse_pos[0], 0),
+            (self.mouse_pos[0], self.window_h),
+            color=0xFFFF00,
+            thickness=1,
+        )
+        drawer.line(
+            (0, self.mouse_pos[1]),
+            (self.window_w, self.mouse_pos[1]),
+            color=0xFFFF00,
+            thickness=1,
+        )
+        self._render_ui(drawer)
+        cv2.imshow(self.window_name, drawer.get_image())
+
+    def _render_content(self, drawer: Drawer) -> None:
+        """Override to draw custom layers/content on top of the map."""
+
+    def _render_ui(self, drawer: Drawer) -> None:
+        """Override to draw UI panels. Default: status bar + sidebar."""
+        self._render_status_bar(drawer)
+        self._render_sidebar(drawer)
+
+    def _render_status_bar(self, drawer: Drawer) -> None:
+        x1 = self.SIDEBAR_W
+        x2 = self.window_w
+        y2 = self.window_h
+        y1 = max(0, y2 - self.STATUS_BAR_H)
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+        if self._status:
+            drawer.text(
+                self._status.message,
+                (x1 + 10, y2 - 10),
+                0.45,
+                color=self._status.color,
+                thickness=1,
+            )
+
+    def _render_sidebar(self, drawer: Drawer) -> None:
+        """Override to draw sidebar content. Default draws background only."""
+        self._render_sidebar_bg(drawer)
+
+    def _render_sidebar_bg(self, drawer: Drawer) -> None:
+        sw = self.SIDEBAR_W
+        h = self.window_h
+        drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
+        drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
+
+    def _handle_mouse(self, event, x: int, y: int, flags, param) -> None:
+        self.mouse_pos = (x, y)
+        mx, my = self.view.get_real_coords(x, y)
+
+        if event == cv2.EVENT_MOUSEWHEEL:
+            if flags > 0:
+                self.view.zoom_in()
+            else:
+                self.view.zoom_out()
+            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
+            self.render_page()
+            return
+
+        if event == cv2.EVENT_RBUTTONDOWN:
+            if x >= self.SIDEBAR_W:
+                self.panning = True
+                self.pan_start = (x, y)
+            return
+
+        if event == cv2.EVENT_RBUTTONUP:
+            self.panning = False
+            return
+
+        if event == cv2.EVENT_MOUSEMOVE and self.panning:
+            dx = (x - self.pan_start[0]) / self.view.zoom
+            dy = (y - self.pan_start[1]) / self.view.zoom
+            self.view.pan_by(-dx, -dy)
+            self.pan_start = (x, y)
+            self.render_page()
+            return
+
+        self._on_mouse(event, x, y, mx, my, flags)
+        self.render_page()
+
+    def _on_mouse(self, event, x: int, y: int, mx: int, my: int, flags) -> None:
+        """Override to handle custom mouse events (excludes scroll and right-drag pan)."""
+
+    def _on_key(self, key: int) -> None:
+        """Override to handle keyboard input."""
+
+    def _on_idle(self) -> None:
+        """Override for background tasks called each loop iteration."""
+
+    def run(self) -> None:
+        cv2.namedWindow(self.window_name)
+        cv2.setMouseCallback(self.window_name, self._handle_mouse)
+        self.render_page(force=True)
+        while not self.done:
+            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
+                break
+            key = cv2.waitKey(1) & 0xFF
+            if key != 0xFF:
+                if key == 27:  # ESC
+                    self.done = True
+                else:
+                    self._on_key(key)
+            self._on_idle()
+        cv2.destroyAllWindows()
 
 
 class SelectMapPage:
