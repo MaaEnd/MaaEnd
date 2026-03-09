@@ -250,6 +250,29 @@
             "type": "Click"
         },
         "next": [
+            "_AutoEcoFarmCloseBag"
+        ]
+    },
+    "_AutoEcoFarmCloseBag": {
+        "desc": "关掉背包",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1097,
+                    124,
+                    37,
+                    34
+                ],
+                "template": [
+                    "AutoEcoFarm/AutoEcoFarmCloseBag.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
             "_AutoEcoFarmJumpBack"
         ]
     },
