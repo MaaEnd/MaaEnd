@@ -198,7 +198,8 @@
                     "option": [
                         "KeepFuturePromising",
                         "KeepSlot3Level3Practical",
-                        "DiscardUnmatched"
+                        "DiscardUnmatched",
+                        "ExportCalculatorScript"
                     ]
                 },
                 {
@@ -334,6 +335,34 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "ExportCalculatorScript": {
+            "type": "switch",
+            "label": "$option.ExportCalculatorScript.label",
+            "description": "$option.ExportCalculatorScript.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "export_calculator_script": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "export_calculator_script": false
                             }
                         }
                     }

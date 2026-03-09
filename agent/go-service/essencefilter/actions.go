@@ -720,6 +720,10 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 				"#064d7c",
 			)
 		}
+		// 生成预刻写方案推荐（须在重置全局变量之前调用）
+		if opts.ExportCalculatorScript {
+			logCalculatorResult(ctx)
+		}
 	}
 
 	targetSkillCombinations = nil

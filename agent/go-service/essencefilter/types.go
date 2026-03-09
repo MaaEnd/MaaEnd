@@ -17,6 +17,13 @@ type SkillPool struct {
 	Chinese string `json:"chinese"`
 }
 
+// Location 刷取地点数据：记录该地点可选的附加属性（slot2）和技能属性（slot3）池
+type Location struct {
+	Name     string `json:"name"`
+	Slot2IDs []int  `json:"slot2_ids"`
+	Slot3IDs []int  `json:"slot3_ids"`
+}
+
 // WeaponDatabase - weapon DB
 type WeaponDatabase struct {
 	WeaponTypes []struct {
@@ -29,7 +36,8 @@ type WeaponDatabase struct {
 		Slot2 []SkillPool `json:"slot2"`
 		Slot3 []SkillPool `json:"slot3"`
 	} `json:"skill_pools"`
-	Weapons []WeaponData `json:"weapons"`
+	Weapons   []WeaponData `json:"weapons"`
+	Locations []Location   `json:"locations"`
 }
 
 // SkillCombination - target skill combination（静态配置，一把武器一条）
@@ -76,6 +84,8 @@ type EssenceFilterOptions struct {
 	Slot3MinLevel            int  `json:"slot3_min_level"`
 	// 未匹配时废弃而非跳过
 	DiscardUnmatched bool `json:"discard_unmatched"`
+	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）
+	ExportCalculatorScript bool `json:"export_calculator_script"`
 }
 
 type ColorRange struct {
