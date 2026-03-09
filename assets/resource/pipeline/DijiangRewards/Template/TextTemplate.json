@@ -258,7 +258,10 @@
                     149
                 ],
                 "expected": [
-                    "培养获得"
+                    "培养获得",
+                    "培養獲得",
+                    "Materials Grown",
+                    "培養報酬"
                 ]
             }
         }
@@ -275,7 +278,10 @@
                     149
                 ],
                 "expected": [
-                    "提取获得"
+                    "提取获得",
+                    "提取獲得",
+                    "Seeds Extracted",
+                    "抽出物一覧"
                 ]
             }
         }
@@ -292,7 +298,10 @@
                     149
                 ],
                 "expected": [
-                    "制造舱收集产出"
+                    "制造舱收集产出",
+                    "製造艙收集產出",
+                    "Manufacturing Cabin Products Collected",
+                    "製造品一覧"
                 ]
             }
         }
