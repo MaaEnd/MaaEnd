@@ -14,8 +14,8 @@
     "option": {
         "SeizeEntrustTaskisGoDepotNodeWorld": {
             "type": "switch",
-            "label": "是否要传送到仓储节点旁边的锚点",
-            "description": "开启后将抢完单将自动传送到仓储节点上面的锚点",
+            "label": "$task.SeizeEntrustTaskisGoDepotNodeWorld.label",
+            "description": "$task.SeizeEntrustTaskisGoDepotNodeWorld.description",
             "cases": [
                 {
                     "name": "No",
@@ -40,8 +40,8 @@
         },
         "SeizeEntrustTaskisWalkingToDepotNode": {
             "type": "switch",
-            "label": "是否要自动走到仓储节点",
-            "description": "传送完成后将走到仓储节点，开启此选项需要使用前台控制器,注意有可能落水！！！",
+            "label": "$task.SeizeEntrustTaskisWalkingToDepotNode.label",
+            "description": "$task.SeizeEntrustTaskisWalkingToDepotNode.description",
             "cases": [
                 {
                     "name": "No",
