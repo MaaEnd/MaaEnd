@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "环境监测(官服-ADB)",
+        "name": "(ADB-官服)环境监测",
         "resource": "官服",
         "controller": "ADB"
     },

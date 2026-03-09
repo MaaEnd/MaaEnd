@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "通用按钮(官服-ADB)",
+        "name": "(ADB-官服)通用按钮",
         "resource": "官服",
         "controller": "ADB"
     },

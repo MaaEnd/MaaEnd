@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "通用按钮(官服-Win32)",
+        "name": "(Win32-官服)通用按钮",
         "resource": "官服",
         "controller": "Win32"
     },

@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "自动转交送货任务(官服-Win32)，测试地区识别",
+        "name": "(Win32-官服)自动转交送货任务，测试地区识别",
         "resource": "官服",
         "controller": "Win32"
     },
