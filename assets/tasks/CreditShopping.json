@@ -237,7 +237,6 @@
         "CreditShoppingBlackOptions": {
             "type": "checkbox",
             "label": "$option.CreditShoppingBlackOptions.label",
-            "description": "$option.CreditShoppingBlackOptions.inputs.blacklist.description",
             "default_case": [],
             "cases": [
                 {
