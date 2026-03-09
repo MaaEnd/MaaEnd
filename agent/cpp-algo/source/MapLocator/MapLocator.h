@@ -21,8 +21,6 @@ public:
     void resetTrackingState();
 
     std::optional<MapPosition> getLastKnownPos() const;
-    double getVelocityX() const;
-    double getVelocityY() const;
 
 private:
     class Impl;

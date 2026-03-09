@@ -43,8 +43,6 @@ public:
     LocateResult locate(const cv::Mat& minimap, const LocateOptions& options);
     void resetTrackingState();
     std::optional<MapPosition> getLastKnownPos() const;
-    double getVelocityX() const;
-    double getVelocityY() const;
 
 private:
     std::optional<MapPosition> tryTracking(
@@ -766,16 +764,6 @@ std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const
     return std::nullopt;
 }
 
-double MapLocator::Impl::getVelocityX() const
-{
-    return motionTracker ? motionTracker->getVelocityX() : 0.0;
-}
-
-double MapLocator::Impl::getVelocityY() const
-{
-    return motionTracker ? motionTracker->getVelocityY() : 0.0;
-}
-
 // ======================================
 // MapLocator Public Interface
 // ======================================
@@ -816,16 +804,6 @@ void MapLocator::resetTrackingState()
 std::optional<MapPosition> MapLocator::getLastKnownPos() const
 {
     return pimpl->getLastKnownPos();
-}
-
-double MapLocator::getVelocityX() const
-{
-    return pimpl->getVelocityX();
-}
-
-double MapLocator::getVelocityY() const
-{
-    return pimpl->getVelocityY();
 }
 
 } // namespace maplocator
