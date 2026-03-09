@@ -57,6 +57,14 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		}
 	}
 
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("template", contentTemplate).
+		Str("roi", stringifyValue(targetROI)).
+		Str("roi_offset", stringifyValue(targetROIOffset)).
+		Str("expected", stringifyValue(targetExpected)).
+		Msg("RecoDetailFocusAction parsed params")
+
 	ocrText, ok := runOCR(ctx, arg, targetROI, targetROIOffset, targetExpected)
 	if !ok {
 		return false
@@ -98,11 +106,23 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 	override := map[string]any{
 		internalOCRNodeName: nodeOverride,
 	}
+
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Interface("ocr_override", override).
+		Msg("RecoDetailFocusAction run OCR with override")
+
 	detail, err := ctx.RunRecognition(internalOCRNodeName, arg.Img, override)
 	if err != nil {
 		log.Error().Err(err).Str("node", internalOCRNodeName).Msg("RecoDetailFocusAction run OCR failed")
 		return "", false
 	}
+
+	log.Info().
+		Str("node", internalOCRNodeName).
+		Bool("hit", detail != nil && detail.Hit).
+		Msg("RecoDetailFocusAction OCR result status")
+
 	if detail == nil || !detail.Hit {
 		log.Warn().Str("node", internalOCRNodeName).Msg("RecoDetailFocusAction OCR no hit")
 		return "N/A", true
@@ -116,11 +136,19 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 				}
 				if ocr, ok := r.AsOCR(); ok && strings.TrimSpace(ocr.Text) != "" {
 					text = strings.TrimSpace(ocr.Text)
+					log.Info().
+						Str("node", internalOCRNodeName).
+						Str("ocr_text", text).
+						Msg("RecoDetailFocusAction OCR extracted text")
 					return text, true
 				}
 			}
 		}
 	}
+	log.Info().
+		Str("node", internalOCRNodeName).
+		Str("ocr_text", text).
+		Msg("RecoDetailFocusAction OCR extracted default text")
 	return text, true
 }
 
