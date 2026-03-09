@@ -964,9 +964,22 @@ bool NavigationStateMachine::HandleWaypointArrival(
             && CanChainSamePointAction(arrived_waypoint, session_->CurrentWaypoint())) {
             const size_t current_node_idx = session_->current_node_idx();
             LogInfo << "TRANSFER chained with same-point follow-up action." << VAR(current_node_idx);
-            SelectPhaseForCurrentWaypoint("transfer_chain_deferred");
+            const Waypoint& chained_waypoint = session_->CurrentWaypoint();
+            const double chained_distance = std::hypot(chained_waypoint.x - real_pos_x, chained_waypoint.y - real_pos_y);
+            const double chained_actual_distance = std::hypot(chained_waypoint.x - position_->x, chained_waypoint.y - position_->y);
+            const double chained_portal_distance =
+                session_->DistanceToAdjacentPortal(session_->current_node_idx(), position_->x, position_->y);
+            const bool chained_portal_commit_ready =
+                chained_waypoint.action == ActionType::PORTAL && chained_actual_distance <= kPortalCommitDistance;
             session_->ResetStraightStableFrames();
-            return true;
+            return HandleWaypointArrival(
+                real_pos_x,
+                real_pos_y,
+                chained_distance,
+                chained_actual_distance,
+                chained_portal_distance,
+                false,
+                chained_portal_commit_ready);
         }
 
         EnterRelocationWait("transfer_wait_started", 0, true, RelocationCompletionPolicy::ResumeRoute);
