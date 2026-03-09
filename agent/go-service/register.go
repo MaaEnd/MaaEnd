@@ -1,6 +1,7 @@
 package main
 
 import (
+	creditshopping "github.com/MaaXYZ/MaaEnd/agent/go-service/CreditShopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
@@ -34,10 +35,12 @@ func registerAll() {
 	puzzle.Register()
 	essencefilter.Register()
 	dailyrewards.Register()
+	creditshopping.Register()
 	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
+
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

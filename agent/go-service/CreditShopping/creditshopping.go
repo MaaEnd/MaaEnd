@@ -158,6 +158,19 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		},
 	}
 
+	overrideNodeNames := make([]string, 0, len(overrideMap))
+	for nodeName := range overrideMap {
+		overrideNodeNames = append(overrideNodeNames, nodeName)
+	}
+	sort.Strings(overrideNodeNames)
+	log.Info().Interface("override_nodes", overrideNodeNames).Msg("CreditShoppingParseParams override nodes")
+	for _, nodeName := range overrideNodeNames {
+		log.Info().
+			Str("node", nodeName).
+			Interface("override_content", overrideMap[nodeName]).
+			Msg("CreditShoppingParseParams override detail")
+	}
+
 	log.Info().Interface("override", overrideMap).Msg("CreditShoppingParseParams override")
 
 	if err := ctx.OverridePipeline(overrideMap); err != nil {
