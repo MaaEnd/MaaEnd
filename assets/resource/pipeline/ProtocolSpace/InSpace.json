@@ -20,11 +20,42 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpacePopupSanityLow",
             "ProtocolSpaceEnterSpaceConfirm"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
         }
+    },
+    "ProtocolSpacePopupSanityLow": {
+        "desc": "弹出理智不足，退出任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    279,
+                    295,
+                    310,
+                    40
+                ],
+                "expected": [
+                    "理智不足",
+                    "Insufficient Sanity"
+                ]
+            }
+        },
+        "next": ["ProtocolSpacePopupSanityLowCancel"],
+        "focus": {
+            "Node.ACtion.Succeeded": "理智不足，结束任务"
+        }
+    },
+    "ProtocolSpacePopupSanityLowCancel": {
+        "desc": "取消理智不足弹窗",
+        "recognition": "Or",
+        "any_of": [
+            "GrayCancelButton"
+        ],
+        "action": "Click"
     },
     "ProtocolSpaceEnterSpaceConfirm": {
         "desc": "确认进入协议空间",
