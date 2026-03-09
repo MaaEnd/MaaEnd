@@ -84,7 +84,14 @@ jobs:
           if [ -n "$pr_number" ]; then
             echo "PR already exists: #$pr_number"
             if [ -n "$PR_REVIEWER" ]; then
-              gh pr edit "$pr_number" --add-reviewer "$PR_REVIEWER" || echo "Skip add reviewer (maybe already requested)"
+              if ! output="$(gh pr edit "$pr_number" --add-reviewer "$PR_REVIEWER" 2>&1)"; then
+                if echo "$output" | grep -qi "already requested"; then
+                  echo "Skip add reviewer (already requested)"
+                else
+                  echo "$output" >&2
+                  exit 1
+                fi
+              fi
             fi
             exit 0
           fi
