@@ -105,6 +105,7 @@ func MatchFuturePromising(ocrSkills []string, levels [3]int, minTotal int) bool 
 //   - match：命中的技能组合，仅包含匹配到的 slot3 技能（固定放在 SkillIDs[2]/SkillsChinese[2]）及占位信息；未命中时为 nil
 //   - slot3Level：命中的那条 slot3 技能在其 OCR 原始位置上的等级；未命中时为 0
 //   - ok：是否命中 slot3 池且该技能等级满足 minLevel 的布尔标记
+//
 // 优先度低于 MatchEssenceSkills
 func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) (match *SkillCombinationMatch, slot3Level int, ok bool) {
 	if len(ocrSkills) < 3 || minLevel <= 0 {

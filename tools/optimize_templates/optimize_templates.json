@@ -449,5 +449,7 @@
     "resource/image/GiftOperator/YellowSelect1": "c7f0663112d8559ac3e1e4915a0d172508effb9838bb960696933b81d3b8f2ba",
     "resource/image/GiftOperator/YellowSelect2": "3341d20f4dca40e208cd790ea8320090d309c00911a5301d642d5c89f01b208a",
     "resource/image/GiftOperator/Leave": "8f9519ffa15a090d9dfec34bbbf65936e1b6cd091ef82e5c5da1f29e870f92ba",
-    "resource/image/AutoEssence/FactoryDeviceDialog": "8d0ba84358c1c2988ac140831f876b296858910dcca003868b19edc519a7aa52"
+    "resource/image/AutoEssence/FactoryDeviceDialog": "8d0ba84358c1c2988ac140831f876b296858910dcca003868b19edc519a7aa52",
+    "resource/image/Baker/BakerIcon2": "6a9ecba80bb204ba4ab9ff8775b9ac18f72e2b83e5a1f03565d4da20f69ee056",
+    "resource/image/Baker/BakerIcon": "5fd0af976a911530bde35ddce6129e6b158941583ff750236b9b8d349f4d44d5"
 }

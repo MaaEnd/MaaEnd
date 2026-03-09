@@ -409,7 +409,7 @@ def build_expected_array_text(values: Sequence[str], key_indent: str, newline: s
 
 
 def resolve_lang_ids(
-    expected_values: Sequence[str], reverse_index: Dict[str, Set[str]]
+    expected_values: Sequence[str], reverse_index: Dict[str, Set[str]], tables: Dict[str, Dict[str, str]],
 ) -> Tuple[List[str], List[str]]:
     candidates_by_text: List[Tuple[str, Set[str]]] = []
     for text in expected_values:
@@ -440,18 +440,33 @@ def resolve_lang_ids(
                 # 只把它视为已解析，不进入 unresolved_texts
                 pass
             else:
-                unresolved_texts.append(text)
+                # Third fallback: if ambigous IDs have identical rows in all languages, pick anyone (smallest ID)
+                rows = [
+                    tuple(tables[lang].get(lid, "") for lang in LANG_ORDER)
+                    for lid in candidates
+                ]
+                if len(set(rows)) == 1:
+                    lang_id = min(candidates)  # Choose smallest ID
+                    if lang_id not in resolved_set:
+                        resolved_in_order.append(lang_id)
+                        resolved_set.add(lang_id)
+                else:
+                    unresolved_texts.append(text)
 
     return resolved_in_order, unresolved_texts
 
 
 def expand_expected_from_ids(lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]) -> List[str]:
     expanded: List[str] = []
+    seen: Set[str] = set()
     for lang_id in lang_ids:
         row = [tables[lang].get(lang_id, "") for lang in LANG_ORDER]
         if any(row):
-            # 若某一语种缺失，保留空字符串会影响 OCR；这里跳过缺失项
-            expanded.extend([txt for txt in row if txt])
+            # 若某一语种缺失，保留空字符串会影响 OCR；这里跳过缺失项，并去重
+            for txt in row:
+                if txt and txt not in seen:
+                    expanded.append(txt)
+                    seen.add(txt)
     return expanded
 
 
@@ -572,7 +587,7 @@ def process_pipeline_file(
 
         ocr_nodes_with_expected += 1
         old_expected, _ = parser.parse_array_string_values(expected_member.value_start)
-        lang_ids, unresolved_texts = resolve_lang_ids(old_expected, reverse_index)
+        lang_ids, unresolved_texts = resolve_lang_ids(old_expected, reverse_index, tables)
 
         if not lang_ids:
             unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))

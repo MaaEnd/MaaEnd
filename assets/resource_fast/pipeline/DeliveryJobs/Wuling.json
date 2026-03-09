@@ -66,12 +66,12 @@
             "查看報價",
             "Check Bid",
             "希望価格確認",
-            "화물 포장",
-            "입찰 보기",
             "货物装箱",
             "貨物裝箱",
             "Pack Goods",
-            "パッキング"
+            "パッキング",
+            "화물 포장",
+            "입찰 보기"
         ]
     },
     "DeliveryJobsEnterWulingCityCargo": {

@@ -10,7 +10,9 @@
         ],
         "expected": [
             "协议空间",
-            "Protocol Space"
+            "協議空間",
+            "Protocol Space",
+            "協約空間"
         ],
         "pre_delay": 0,
         "post_wait_freezes": 200,
@@ -30,7 +32,9 @@
         ],
         "expected": [
             "五级",
-            "Level 5"
+            "五級",
+            "Level 5",
+            "Lv.5"
         ],
         "action": "Click",
         "post_wait_freezes": 200,
@@ -148,7 +152,9 @@
         ],
         "expected": [
             "协议空间",
-            "Protocol Space"
+            "協議空間",
+            "Protocol Space",
+            "協約空間"
         ],
         "pre_delay": 0,
         "post_wait_freezes": 200,
