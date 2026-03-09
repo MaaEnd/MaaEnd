@@ -58,7 +58,7 @@
     },
     //下面这段代码是在地图上清除标记，只留工业设备，用来找农田的，要加jumpback
     "_AutoEcoFarmClickTargetManager": {
-        "desc": "点开标记显示管理",
+        "desc": "点开标记显示管理,需要Jumpback",
         "max_hit": 3,
         "recognition": {
             "type": "OCR",
@@ -224,7 +224,7 @@
     },
     //这是一个清空背包的任务，需要jumpback
     "_AutoEcoFarmClearBagStart": {
-        "desc": "准备清理背包任务",
+        "desc": "准备清理背包任务,需要Jumpback",
         "next": [
             "_AutoEcoFarmClearBag",
             "[JumpBack]SceneEnterMenuBackpackWithDepot"
