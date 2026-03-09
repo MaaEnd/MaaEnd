@@ -31,9 +31,8 @@ jobs:
       - name: Run maa-tools test
         run: pnpm test
 
-      - name: Upload error details
-        if: failure()
+      - name: Upload logs
         uses: actions/upload-artifact@v4
         with:
-          name: errorDetails
-          path: maatoolsErrorDetails.json
+          name: logs
+          path: tests/maatools

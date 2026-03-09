@@ -477,4 +477,4 @@ venv/
 .cache/
 
 # maa-tools
-maatoolsErrorDetails.json
+tests/maatools

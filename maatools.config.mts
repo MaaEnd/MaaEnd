@@ -46,6 +46,7 @@ const config: FullConfig = {
 
   maaVersion: 'latest',
   maaStdoutLevel: 'Error',
+  maaLogDir: 'tests/maatools',
 
   check: {
     interfacePath: 'assets/interface.json',
@@ -58,7 +59,7 @@ const config: FullConfig = {
     interfacePath: 'assets/interface.json',
     casesCwd: 'tests/MaaEndTestset',
     cases: fetchCases,
-    errorDetailsPath: 'maatoolsErrorDetails.json',
+    errorDetailsPath: 'tests/maatools/error_details.json',
   },
 }
 
