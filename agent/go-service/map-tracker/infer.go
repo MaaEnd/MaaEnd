@@ -556,8 +556,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	if isStable && mapNameRegex.MatchString(stableMapName) {
 		for _, mapData := range scaledMaps {
 			if mapData.Name == stableMapName {
-				expectedCenterX := int((stableLocX - float64(mapData.OffsetX)) * scale)
-				expectedCenterY := int((stableLocY - float64(mapData.OffsetY)) * scale)
+				expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
+				expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
 				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
 
 				matchX, matchY, matchVal := minicv.MatchTemplateInArea(

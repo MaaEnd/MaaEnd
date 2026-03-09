@@ -359,7 +359,7 @@ class ViewportManager:
         ry = view_y / self._zoom + self._vy
         return rx, ry
 
-    def get_view_coords(self, real_x: int, real_y: int) -> tuple[int, int]:
+    def get_view_coords(self, real_x: float, real_y: float) -> tuple[int, int]:
         vx = round((real_x - self._vx) * self._zoom)
         vy = round((real_y - self._vy) * self._zoom)
         return vx, vy
@@ -378,7 +378,7 @@ class ViewportManager:
         self._vx += dx
         self._vy += dy
 
-    def maybe_center_to(self, real_x: int, real_y: int, padding: float = 0.3) -> None:
+    def maybe_center_to(self, real_x: float, real_y: float, padding: float = 0.3) -> None:
         padding = max(0.0, min(0.49, padding))
         view_w = self._vw / self._zoom
         view_h = self._vh / self._zoom
@@ -620,8 +620,20 @@ class BasePage:
         self._on_mouse(event, x, y, mx, my, flags)
         self.render_page()
 
-    def _on_mouse(self, event, x: int, y: int, mx: int, my: int, flags) -> None:
-        """Override to handle custom mouse events (excludes scroll and right-drag pan)."""
+    def _on_mouse(
+        self,
+        event,
+        x: int,
+        y: int,
+        map_x: float,
+        map_y: float,
+        flags,
+    ) -> None:
+        """Override to handle custom mouse events.
+
+        `x/y` are integer screen coordinates, while `map_x/map_y` are real-valued
+        map-space coordinates from `view.get_real_coords`.
+        """
 
     def _on_key(self, key: int) -> None:
         """Override to handle keyboard input."""
