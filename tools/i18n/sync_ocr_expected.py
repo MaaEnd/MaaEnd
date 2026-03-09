@@ -381,7 +381,9 @@ def get_object_members(parser: JsoncParser, member: Member) -> Optional[List[Mem
     return members
 
 
-def get_array_member_if_exists(parser: JsoncParser, members: Dict[str, Member], key: str) -> Optional[Member]:
+def get_array_member_if_exists(
+    parser: JsoncParser, members: Dict[str, Member], key: str
+) -> Optional[Member]:
     m = members.get(key)
     if not m:
         return None
@@ -399,7 +401,9 @@ def detect_line_indent(text: str, key_start: int) -> str:
     return text[line_start:i]
 
 
-def build_expected_array_text(values: Sequence[str], key_indent: str, newline: str) -> str:
+def build_expected_array_text(
+    values: Sequence[str], key_indent: str, newline: str
+) -> str:
     if not values:
         return "[]"
     inner = ("," + newline).join(
@@ -409,7 +413,9 @@ def build_expected_array_text(values: Sequence[str], key_indent: str, newline: s
 
 
 def resolve_lang_ids(
-    expected_values: Sequence[str], reverse_index: Dict[str, Set[str]]
+    expected_values: Sequence[str],
+    reverse_index: Dict[str, Set[str]],
+    tables: Dict[str, Dict[str, str]],
 ) -> Tuple[List[str], List[str]]:
     candidates_by_text: List[Tuple[str, Set[str]]] = []
     for text in expected_values:
@@ -434,18 +440,33 @@ def resolve_lang_ids(
     # 第二轮：如果歧义候选与已解析 ID 有交集，用交集兜底
     for text, candidates in candidates_by_text:
         if len(candidates) > 1:
-            intersection = [lang_id for lang_id in resolved_in_order if lang_id in candidates]
+            intersection = [
+                lang_id for lang_id in resolved_in_order if lang_id in candidates
+            ]
             if len(intersection) == 1:
                 # 这里表示“该歧义文本可复用一个已解析 ID”，无需重复加入列表
                 # 只把它视为已解析，不进入 unresolved_texts
                 pass
             else:
-                unresolved_texts.append(text)
+                # 安全兜底：若歧义候选在四语表中的文本完全一致，则稳定选择一个 ID。
+                candidate_rows = {
+                    tuple(tables[lang].get(lang_id, "") for lang in LANG_ORDER)
+                    for lang_id in candidates
+                }
+                if len(candidate_rows) == 1:
+                    chosen_lang_id = min(candidates)
+                    if chosen_lang_id not in resolved_set:
+                        resolved_in_order.append(chosen_lang_id)
+                        resolved_set.add(chosen_lang_id)
+                else:
+                    unresolved_texts.append(text)
 
     return resolved_in_order, unresolved_texts
 
 
-def expand_expected_from_ids(lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]) -> List[str]:
+def expand_expected_from_ids(
+    lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]
+) -> List[str]:
     expanded: List[str] = []
     for lang_id in lang_ids:
         row = [tables[lang].get(lang_id, "") for lang in LANG_ORDER]
@@ -455,7 +476,9 @@ def expand_expected_from_ids(lang_ids: Sequence[str], tables: Dict[str, Dict[str
     return expanded
 
 
-def append_unresolved_texts(base_expected: List[str], unresolved_texts: Sequence[str]) -> List[str]:
+def append_unresolved_texts(
+    base_expected: List[str], unresolved_texts: Sequence[str]
+) -> List[str]:
     """
     将未命中的原始 expected 追加到结果末尾，并避免重复追加。
     """
@@ -490,7 +513,11 @@ def safe_print(message: str) -> None:
         if hasattr(sys.stdout, "buffer"):
             sys.stdout.buffer.write((message + "\n").encode(encoding, errors="replace"))
         else:
-            print(message.encode(encoding, errors="replace").decode(encoding, errors="replace"))
+            print(
+                message.encode(encoding, errors="replace").decode(
+                    encoding, errors="replace"
+                )
+            )
 
 
 @dataclass
@@ -542,7 +569,9 @@ def process_pipeline_file(
                 if rec_members is not None:
                     rec_map = member_map(rec_members)
                     type_member = rec_map.get("type")
-                    rec_type = get_string_value(parser, type_member) if type_member else None
+                    rec_type = (
+                        get_string_value(parser, type_member) if type_member else None
+                    )
                     if rec_type == "OCR":
                         is_ocr = True
 
@@ -572,15 +601,21 @@ def process_pipeline_file(
 
         ocr_nodes_with_expected += 1
         old_expected, _ = parser.parse_array_string_values(expected_member.value_start)
-        lang_ids, unresolved_texts = resolve_lang_ids(old_expected, reverse_index)
+        lang_ids, unresolved_texts = resolve_lang_ids(
+            old_expected, reverse_index, tables
+        )
 
         if not lang_ids:
-            unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))
+            unresolved_nodes.append(
+                (str(path), node_name, unresolved_texts or old_expected)
+            )
             continue
 
         new_expected = expand_expected_from_ids(lang_ids, tables)
         if not new_expected:
-            unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))
+            unresolved_nodes.append(
+                (str(path), node_name, unresolved_texts or old_expected)
+            )
             continue
         new_expected = append_unresolved_texts(new_expected, unresolved_texts)
 
@@ -612,7 +647,13 @@ def process_pipeline_file(
             + change.replacement
             + new_text[change.value_end :]
         )
-    return new_text, changes, unresolved_nodes, ocr_nodes_with_expected, skipped_by_marker
+    return (
+        new_text,
+        changes,
+        unresolved_nodes,
+        ocr_nodes_with_expected,
+        skipped_by_marker,
+    )
 
 
 def iter_pipeline_files(base_dir: Path) -> List[Path]:
@@ -655,7 +696,9 @@ def main() -> int:
 
     base_dir = args.base_dir.resolve()
     tables, i18n_dir = load_i18n_tables(base_dir, args.i18n_dir)
-    hotfix_applied, hotfix_skipped, has_hotfix = apply_hotfix_to_tables(tables, i18n_dir)
+    hotfix_applied, hotfix_skipped, has_hotfix = apply_hotfix_to_tables(
+        tables, i18n_dir
+    )
     reverse_index = build_reverse_index(tables)
     pipeline_files = iter_pipeline_files(base_dir)
 
@@ -678,8 +721,8 @@ def main() -> int:
 
     for file_path in pipeline_files:
         try:
-            new_text, changes, unresolved_nodes, ocr_nodes, skipped_nodes = process_pipeline_file(
-                file_path, tables, reverse_index
+            new_text, changes, unresolved_nodes, ocr_nodes, skipped_nodes = (
+                process_pipeline_file(file_path, tables, reverse_index)
             )
         except Exception as exc:
             safe_print(f"[ERROR] {file_path}: {exc}")
