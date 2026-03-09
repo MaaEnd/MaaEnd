@@ -15,14 +15,13 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    700,
-                    0,
-                    48,
-                    54
+                    713,
+                    16,
+                    23,
+                    23
                 ],
-                "template": [
-                    "Valuables/ValuablesTabChoosed.png"
-                ]
+                "template": "Valuables/ValuablesTabChoosed.png",
+                "threshold": 0.6
             }
         },
         "next": [
@@ -39,14 +38,13 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    700,
-                    0,
-                    48,
-                    54
+                    713,
+                    16,
+                    23,
+                    23
                 ],
                 "template": "Valuables/ValuablesTabNotChoose.png",
-                "threshold": 0.8,
-                "order_by": "Score"
+                "threshold": 0.6
             }
         },
         "action": {
