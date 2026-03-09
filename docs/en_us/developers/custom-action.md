@@ -64,3 +64,52 @@ It clears the hit counts of the nodes specified in the `nodes` field of `custom_
     - Clearing a node will fail if the node does not exist or has never been executed.
     - When `strict: false`, the action will return success even if some nodes fail to clear, suitable for cleaning up optional nodes that may not exist.
     - When `strict: true`, any failure to clear a node will cause the action to return failure, suitable for clearing hit counts of critical nodes.
+
+---
+
+## RecoDetailFocusAction
+
+`RecoDetailFocusAction` is a display action invoked through `Custom`, implemented in `agent/go-service/recodetailfocus`.  
+It actively performs one OCR in the configured `roi` area, then renders a Focus message using a template.
+
+- **Parameters (`custom_action_param`)**
+
+    - You may pass a JSON object, which is serialized to a string by the framework and passed to Go.
+    - Field descriptions:
+        - `text?: string`: Display template (optional). If omitted, the default template is used: `roi={roi}, text={text}`.
+        - `roi?: string | int[4]`: OCR region (optional). It can be a node name (for example, `"SomeNode"`) or `[x,y,w,h]`.
+        - `roi_offset?: int[4]`: OCR region offset (optional), applied together with `roi` to the OCR node override.
+        - `expected?: string | string[]`: OCR expected condition (optional). Supports a string or a string list and is passed to the OCR node override.
+
+- **Supported placeholders**
+
+    - `{roi}`: Hit region, formatted as `[x,y,w,h]`.
+    - `{text}`: OCR text.
+
+- **Usage Example**
+
+```json
+{
+    "action": "Custom",
+    "custom_action": "RecoDetailFocusAction",
+    "custom_action_param": {
+        "text": "Reco: roi={roi}, text={text}",
+        "roi": "SomeNode",
+        "roi_offset": [
+            100,
+            100,
+            300,
+            80
+        ],
+        "expected": [
+            "Credit",
+            "Shop"
+        ]
+    }
+}
+```
+
+- **Notes**
+    - Placeholder names are case-sensitive; use them exactly as documented.
+    - If a field is unavailable, it is replaced with `N/A`.
+    - This action uses internal OCR node `__RecoDetailFocusOCR`.

@@ -64,3 +64,52 @@
     - 节点不存在或从未被执行过时，清除操作会失败。
     - 当 `strict: false` 时，即使部分节点清除失败，action 也会返回成功，适用于清理可能不存在的可选节点。
     - 当 `strict: true` 时，任一节点清除失败都会导致 action 返回失败，适用于关键节点的计数清理。
+
+---
+
+## RecoDetailFocusAction 动作
+
+`RecoDetailFocusAction` 是一个通过 `Custom` 调用的识别结果展示动作，实现位于 `agent/go-service/recodetailfocus`。  
+它会在参数给定的 `roi` 区域内主动执行一次 OCR，并按模板替换后通过 Focus 事件显示文本。
+
+- **参数（`custom_action_param`）**
+
+    - 可传入一个 JSON 对象，由框架序列化为字符串后传给 Go。
+    - 字段说明：
+        - `text?: string`：展示模板（可选）。未传时使用默认模板：`roi={roi}, text={text}`。
+        - `roi?: string | int[4]`：OCR 区域（可选）。可传节点名（如 `"SomeNode"`）或 `[x,y,w,h]`。
+        - `roi_offset?: int[4]`：OCR 区域偏移（可选），会与 `roi` 一并覆盖到 OCR 节点。
+        - `expected?: string | string[]`：OCR 匹配条件（可选），支持字符串或字符串列表，会覆盖到 OCR 节点。
+
+- **支持的替换变量**
+
+    - `{roi}`：命中区域，格式为 `[x,y,w,h]`。
+    - `{text}`：OCR 文本。
+
+- **使用示例**
+
+```json
+{
+    "action": "Custom",
+    "custom_action": "RecoDetailFocusAction",
+    "custom_action_param": {
+        "text": "识别信息: roi={roi}, text={text}",
+        "roi": "SomeNode",
+        "roi_offset": [
+            100,
+            100,
+            300,
+            80
+        ],
+        "expected": [
+            "信用",
+            "商店"
+        ]
+    }
+}
+```
+
+- **注意事项**
+    - 变量名区分大小写，推荐按文档中的写法使用。
+    - 当某项信息不存在时，会替换为 `N/A`。
+    - 本动作内部使用 OCR 节点 `__RecoDetailFocusOCR` 执行识别。
