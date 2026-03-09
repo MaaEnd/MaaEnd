@@ -19,6 +19,7 @@
             "args": [
                 "{AGENT_ID}"
             ],
+            "console": "internalConsole",
             "cwd": "${workspaceFolder}/install",
             "windows": {
                 "env": {
