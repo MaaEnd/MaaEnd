@@ -6,7 +6,6 @@ on:
       reviewer:
         description: "自动请求评审的 GitHub 用户名（可留空）"
         required: false
-        default: "overflow65537"
   schedule:
     # 每天 UTC 03:00 自动运行（可按需调整）
     - cron: "0 3 * * *"
