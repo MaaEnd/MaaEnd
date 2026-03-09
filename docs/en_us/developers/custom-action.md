@@ -80,6 +80,7 @@ It actively performs one OCR in the configured `roi` area, then renders a Focus 
         - `roi?: string | int[4]`: OCR region (optional). It can be a node name (for example, `"SomeNode"`) or `[x,y,w,h]`.
         - `roi_offset?: int[4]`: OCR region offset (optional), applied together with `roi` to the OCR node override.
         - `expected?: string | string[]`: OCR expected condition (optional). Supports a string or a string list and is passed to the OCR node override.
+        - `refresh_image?: bool`: Whether to fetch a fresh image (optional, default `false`). `false` uses cached image directly, `true` captures a new screenshot before OCR.
 
 - **Supported placeholders**
 
@@ -104,7 +105,8 @@ It actively performs one OCR in the configured `roi` area, then renders a Focus 
         "expected": [
             "Credit",
             "Shop"
-        ]
+        ],
+        "refresh_image": true
     }
 }
 ```

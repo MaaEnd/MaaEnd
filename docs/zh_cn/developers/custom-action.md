@@ -80,6 +80,7 @@
         - `roi?: string | int[4]`：OCR 区域（可选）。可传节点名（如 `"SomeNode"`）或 `[x,y,w,h]`。
         - `roi_offset?: int[4]`：OCR 区域偏移（可选），会与 `roi` 一并覆盖到 OCR 节点。
         - `expected?: string | string[]`：OCR 匹配条件（可选），支持字符串或字符串列表，会覆盖到 OCR 节点。
+        - `refresh_image?: bool`：是否主动获取新图像（可选，默认 `false`）。`false` 时直接使用缓存图像，`true` 时先截图再识别。
 
 - **支持的替换变量**
 
@@ -104,7 +105,8 @@
         "expected": [
             "信用",
             "商店"
-        ]
+        ],
+        "refresh_image": true
     }
 }
 ```

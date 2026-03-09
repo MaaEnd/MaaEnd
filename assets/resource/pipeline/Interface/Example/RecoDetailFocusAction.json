@@ -36,7 +36,8 @@
             "expected": [
                 "信用",
                 "商店"
-            ]
+            ],
+            "refresh_image": true
         },
         "next": [
             "RecoDetailFocusActionExample"

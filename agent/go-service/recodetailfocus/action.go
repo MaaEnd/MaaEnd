@@ -25,6 +25,10 @@ type recoDetailFocusParam struct {
 	ROIOffset any    `json:"roi_offset"`
 	Expected  any    `json:"expected"`
 	Expected2 any    `json:"Expected"`
+	RefreshImage  bool `json:"refresh_image"`
+	RefreshImage2 bool `json:"refreshImage"`
+	GetImg    bool   `json:"getimg"`
+	GetImg2   bool   `json:"getImg"`
 }
 
 func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -32,6 +36,7 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	targetROI := any([]int{0, 0, 1280, 720})
 	var targetROIOffset any
 	var targetExpected any
+	refreshImage := false
 	if arg.CustomActionParam != "" {
 		var p recoDetailFocusParam
 		if err := json.Unmarshal([]byte(arg.CustomActionParam), &p); err != nil {
@@ -55,6 +60,7 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		} else if p.Expected2 != nil {
 			targetExpected = p.Expected2
 		}
+		refreshImage = p.RefreshImage || p.RefreshImage2 || p.GetImg || p.GetImg2
 	}
 
 	log.Info().
@@ -63,9 +69,10 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		Str("roi", stringifyValue(targetROI)).
 		Str("roi_offset", stringifyValue(targetROIOffset)).
 		Str("expected", stringifyValue(targetExpected)).
+		Bool("refresh_image", refreshImage).
 		Msg("RecoDetailFocusAction parsed params")
 
-	ocrText, ok := runOCR(ctx, arg, targetROI, targetROIOffset, targetExpected)
+	ocrText, ok := runOCR(ctx, arg, targetROI, targetROIOffset, targetExpected, refreshImage)
 	if !ok {
 		return false
 	}
@@ -93,7 +100,7 @@ func pickROI(p recoDetailFocusParam) (any, bool) {
 	return nil, false
 }
 
-func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, expected any) (string, bool) {
+func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, expected any, refreshImage bool) (string, bool) {
 	nodeOverride := map[string]any{
 		"roi": roi,
 	}
@@ -109,6 +116,7 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 
 	log.Info().
 		Str("node", arg.CurrentTaskName).
+		Bool("refresh_image", refreshImage).
 		Interface("ocr_override", override).
 		Msg("RecoDetailFocusAction run OCR with override")
 
@@ -117,10 +125,14 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 		log.Error().Msg("RecoDetailFocusAction controller is nil")
 		return "", false
 	}
-	controller.PostScreencap().Wait()
+
+	if refreshImage {
+		controller.PostScreencap().Wait()
+	}
+
 	img, err := controller.CacheImage()
 	if err != nil {
-		log.Error().Err(err).Msg("RecoDetailFocusAction get screenshot failed")
+		log.Error().Err(err).Bool("refresh_image", refreshImage).Msg("RecoDetailFocusAction get cached image failed")
 		return "", false
 	}
 
