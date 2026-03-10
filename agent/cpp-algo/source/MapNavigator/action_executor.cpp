@@ -31,16 +31,19 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
     switch (action) {
     case ActionType::SPRINT:
         action_wrapper_->TriggerSprintSync();
+        motion_controller_->NotifySprintTriggered();
         LogInfo << "Action: SPRINT triggered.";
         break;
 
     case ActionType::JUMP:
+        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
         action_wrapper_->ClickKeySync(kKeySpace, kActionJumpHoldMs);
         LogInfo << "Action: JUMP triggered.";
         std::this_thread::sleep_for(std::chrono::milliseconds(kActionJumpSettleMs));
         break;
 
     case ActionType::INTERACT:
+        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
         motion_controller_->Stop();
         for (int i = 0; i < kActionInteractAttempts; ++i) {
             action_wrapper_->ClickKeySync(kKeyF, kActionInteractHoldMs);
@@ -49,6 +52,7 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::FIGHT:
+        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
         action_wrapper_->ClickMouseLeftSync();
         LogInfo << "Action: FIGHT triggered.";
         break;
@@ -58,6 +62,7 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
         break;
 
     case ActionType::PORTAL:
+        motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs);
         local_driver_->Reset();
         if (enable_local_driver_) {
             motion_controller_->SetAction(LocalDriverAction::Forward, true);

@@ -39,6 +39,7 @@ void MotionController::Stop()
     action_wrapper_->KeyUpSync(kKeyD, 0);
     has_applied_action_ = false;
     is_moving_ = false;
+    sprint_active_ = false;
 }
 
 void MotionController::SetAction(LocalDriverAction action, bool force)
@@ -102,6 +103,28 @@ void MotionController::ResetForwardWalk(int release_millis)
     applied_action_ = LocalDriverAction::Forward;
     has_applied_action_ = true;
     is_moving_ = true;
+    sprint_active_ = false;
+}
+
+void MotionController::NotifySprintTriggered()
+{
+    sprint_active_ = true;
+}
+
+bool MotionController::CancelSprintIfActive(int release_millis)
+{
+    if (!sprint_active_) {
+        return false;
+    }
+
+    if (!is_moving_) {
+        sprint_active_ = false;
+        return false;
+    }
+
+    ResetForwardWalk(release_millis);
+    LogInfo << "Cancelled active sprint state before action.";
+    return true;
 }
 
 bool MotionController::IsMoving() const

@@ -488,6 +488,13 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     const double target_y = current_waypoint.y;
     const double distance = std::hypot(target_x - real_pos_x, target_y - real_pos_y);
     const double actual_distance = std::hypot(target_x - position_->x, target_y - position_->y);
+    if (actual_distance <= kStrictArrivalWalkResetDistance
+        && motion_controller_->CancelSprintIfActive(kWalkResetReleaseMs)) {
+        last_auto_sprint_time_ = {};
+        session_->ResetStraightStableFrames();
+        SleepFor(kWalkResetSettleMs);
+        return true;
+    }
     if (current_waypoint.RequiresStrictArrival() && strict_arrival_walk_reset_node_idx_ != session_->current_node_idx()
         && actual_distance <= kStrictArrivalWalkResetDistance && motion_controller_->IsMoving()) {
         motion_controller_->ResetForwardWalk(kWalkResetReleaseMs);
@@ -721,15 +728,12 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
         motion_controller_->EnsureForwardMotion(false);
     }
 
-    const bool auto_sprint_ready = param_.sprint_threshold > 0.0 && actual_distance > param_.sprint_threshold
-                                   && std::abs(sensor_yaw_error) <= kLocalDriverSideAvoidYawDegrees && !held_fix
-                                   && !is_zone_transition_isolated && !post_turn_forward_commit_active
-                                   && !current_waypoint.RequiresStrictArrival() && motion_controller_->IsMoving()
-                                   && (!param_.enable_local_driver
-                                       || (driver_decision.state == LocalDriverState::Cruise
-                                           && driver_decision.action == LocalDriverAction::Forward && !driver_decision.commitment_active));
+    const double sprint_segment_distance = EstimateSprintSegmentDistance();
+    const bool auto_sprint_ready =
+        param_.sprint_threshold > 0.0 && sprint_segment_distance > param_.sprint_threshold && !held_fix
+        && !is_zone_transition_isolated && motion_controller_->IsMoving();
     if (auto_sprint_ready) {
-        MaybeTriggerAutoSprint(actual_distance, sensor_yaw_error, loop_now);
+        MaybeTriggerAutoSprint(sprint_segment_distance, actual_distance, sensor_yaw_error, loop_now);
     }
 
     session_->RecordDriverObservation(actual_distance, *position_);
@@ -742,7 +746,46 @@ bool NavigationStateMachine::TickAdvanceOnRoute()
     return true;
 }
 
+double NavigationStateMachine::EstimateSprintSegmentDistance() const
+{
+    if (!session_->HasCurrentWaypoint()) {
+        return 0.0;
+    }
+
+    const auto& path = session_->current_path();
+    const size_t current_idx = session_->current_node_idx();
+    if (current_idx >= path.size()) {
+        return 0.0;
+    }
+
+    const Waypoint& current_waypoint = path[current_idx];
+    if (!current_waypoint.HasPosition()) {
+        return 0.0;
+    }
+
+    const double current_leg_distance = std::hypot(current_waypoint.x - position_->x, current_waypoint.y - position_->y);
+    for (size_t index = current_idx + 1; index < path.size(); ++index) {
+        const Waypoint& next_waypoint = path[index];
+        if (!next_waypoint.HasPosition()) {
+            break;
+        }
+
+        if (!current_waypoint.zone_id.empty() && !next_waypoint.zone_id.empty() && next_waypoint.zone_id != current_waypoint.zone_id) {
+            break;
+        }
+
+        if (next_waypoint.RequiresStrictArrival() || next_waypoint.action != ActionType::RUN) {
+            break;
+        }
+
+        return current_leg_distance + std::hypot(next_waypoint.x - current_waypoint.x, next_waypoint.y - current_waypoint.y);
+    }
+
+    return current_leg_distance;
+}
+
 void NavigationStateMachine::MaybeTriggerAutoSprint(
+    double sprint_segment_distance,
     double actual_distance,
     double sensor_yaw_error,
     const std::chrono::steady_clock::time_point& now)
@@ -753,10 +796,12 @@ void NavigationStateMachine::MaybeTriggerAutoSprint(
     }
 
     action_wrapper_->TriggerSprintSync();
+    motion_controller_->NotifySprintTriggered();
     last_auto_sprint_time_ = now;
 
     const size_t current_node_idx = session_->current_node_idx();
-    LogInfo << "Auto sprint triggered." << VAR(current_node_idx) << VAR(actual_distance) << VAR(sensor_yaw_error);
+    LogInfo << "Auto sprint triggered." << VAR(current_node_idx) << VAR(sprint_segment_distance) << VAR(actual_distance)
+            << VAR(sensor_yaw_error);
 }
 
 bool NavigationStateMachine::TickExactTargetRefine()

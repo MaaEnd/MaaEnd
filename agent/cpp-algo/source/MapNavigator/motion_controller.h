@@ -31,6 +31,8 @@ public:
     void SetAction(LocalDriverAction action, bool force);
     void EnsureForwardMotion(bool force);
     void ResetForwardWalk(int release_millis);
+    void NotifySprintTriggered();
+    bool CancelSprintIfActive(int release_millis);
 
     bool IsMoving() const;
     bool HasAppliedAction() const;
@@ -62,6 +64,7 @@ private:
     bool has_applied_action_ = false;
     bool is_moving_ = false;
     bool adaptive_mode_enabled_ = false;
+    bool sprint_active_ = false;
     std::chrono::steady_clock::time_point turn_forward_commit_until_ {};
     TurnScaleEstimator turn_scale_ {};
 };

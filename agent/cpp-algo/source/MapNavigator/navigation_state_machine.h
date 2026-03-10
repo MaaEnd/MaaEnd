@@ -66,8 +66,13 @@ private:
     bool HasSevereTurnDrift(double yaw_mismatch, double actual_distance, int64_t stalled_ms) const;
     bool CanArriveSamePointAction(const Waypoint& waypoint) const;
     bool CanChainSamePointAction(const Waypoint& from_waypoint, const Waypoint& to_waypoint) const;
+    double EstimateSprintSegmentDistance() const;
     void EnterRelocationWait(const char* reason, int min_pause_ms, bool require_movement, RelocationCompletionPolicy completion_policy);
-    void MaybeTriggerAutoSprint(double actual_distance, double sensor_yaw_error, const std::chrono::steady_clock::time_point& now);
+    void MaybeTriggerAutoSprint(
+        double sprint_segment_distance,
+        double actual_distance,
+        double sensor_yaw_error,
+        const std::chrono::steady_clock::time_point& now);
     void ResumeMotionTowardsCurrentWaypoint(double origin_x, double origin_y, const char* reason, int settle_wait_ms);
     void SelectPhaseForCurrentWaypoint(const char* reason);
     void SleepFor(int millis) const;
