@@ -1174,6 +1174,9 @@ bool NavigationStateMachine::AttemptRouteRejoin(const char* reason, bool require
 
 bool NavigationStateMachine::HasSevereTurnDrift(double yaw_mismatch, double actual_distance, int64_t stalled_ms) const
 {
+    if (session_->current_node_idx() > 1) {
+        return false;
+    }
     return actual_distance > kAdaptiveActivationMinDistance
            && actual_distance + kAdaptiveActivationDistanceSlack >= session_->best_actual_distance()
            && stalled_ms >= kAdaptiveActivationStallMs && yaw_mismatch >= kAdaptiveActivationSevereYawMismatchDegrees;
