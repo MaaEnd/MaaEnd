@@ -76,6 +76,23 @@
             "DeliveryJobsInCargoPackGoods"
         ],
         "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "DeliveryJobsCargoFillToMax"
+        ],
+        // 如果单击后没能进入到装满货物的界面，重试一次
+        "on_error": [
+            "DeliveryJobsSelectTypeOfGoodsToPackNextStepRetry"
+        ]
+    },
+    "DeliveryJobsSelectTypeOfGoodsToPackNextStepRetry": {
+        "desc": "选择装箱货物类型后下一步，重试一次",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2",
+            "DeliveryJobsInCargoPackGoods"
+        ],
+        "action": "Click",
         "next": [
             "DeliveryJobsCargoFillToMax"
         ]
@@ -227,6 +244,24 @@
             "DeliveryJobsCargoFillToMax"
         ],
         "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "DeliveryJobsInCargoRedistributionBid",
+            "DeliveryJobsCargoBid"
+        ],
+        // 如果单击后没能进入到调度申请/货物竞价的界面，重试一次
+        "on_error": [
+            "DeliveryJobsFillToMaxNextStepRetry"
+        ]
+    },
+    "DeliveryJobsFillToMaxNextStepRetry": {
+        "desc": "装满货物后下一步，重试一次",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2",
+            "DeliveryJobsCargoFillToMax"
+        ],
+        "action": "Click",
         "next": [
             "DeliveryJobsInCargoRedistributionBid",
             "DeliveryJobsCargoBid"
@@ -250,6 +285,24 @@
     },
     "DeliveryJobsRedistributionBidNextStep": {
         "desc": "调度申请后下一步",
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType2",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "action": "Click",
+        "timeout": 5000,
+        "next": [
+            "DeliveryJobsBackToDepot",
+            "DeliveryJobsDeliverQuickly"
+        ],
+        // 如果单击后没能进入到尽快送达/回到大世界的界面，重试一次
+        "on_error": [
+            "DeliveryJobsRedistributionBidNextStepRetry"
+        ]
+    },
+    "DeliveryJobsRedistributionBidNextStepRetry": {
+        "desc": "调度申请后下一步，重试一次",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2",
