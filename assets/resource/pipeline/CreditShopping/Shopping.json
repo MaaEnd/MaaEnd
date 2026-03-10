@@ -162,7 +162,7 @@
         "custom_action": "RecoDetailFocusAction",
         "custom_action_param": {
             "text": "购买 {text}",
-            "roi": "BuyFirstOCR",
+            "roi": "CreditShoppingBuyFirst",
             "roi_offset": [
                 -20,
                 -20,
@@ -224,7 +224,7 @@
         "custom_action": "RecoDetailFocusAction",
         "custom_action_param": {
             "text": "购买 {text}",
-            "roi": "BlacklistOCR",
+            "roi": "CreditShoppingBuyNormalWithDiscount",
             "roi_offset": [
                 -20,
                 -20,
@@ -283,7 +283,7 @@
         "custom_action": "RecoDetailFocusAction",
         "custom_action_param": {
             "text": "购买 {text}",
-            "roi": "NotSoldOut",
+            "roi": "CreditShoppingBuyBlacklist",
             "roi_offset": [
                 -20,
                 -20,
