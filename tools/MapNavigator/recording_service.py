@@ -62,32 +62,51 @@ class RecordingService:
     def _run(self) -> None:
         try:
             agent_id = f"MapLocatorAgent_{int(time.time())}"
+            if not CPP_AGENT_EXE.exists():
+                raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
+
+            print(f"Starting Agent process: {CPP_AGENT_EXE} {agent_id}")
             self._agent_process = subprocess.Popen([str(CPP_AGENT_EXE), agent_id], cwd=str(AGENT_DIR))
+            
+            print(f"Waiting {self.AGENT_BOOT_WAIT_SECONDS}s for Agent to boot...")
             time.sleep(self.AGENT_BOOT_WAIT_SECONDS)
+            if self._agent_process.poll() is not None:
+                ret_code = self._agent_process.returncode
+                raise RuntimeError(f"Agent 启动失败，进程已退出，返回码: {ret_code}")
+
+            print("Opening runtime library...")
             self._open_runtime_library()
 
+            print("Searching for game window...")
             hwnd = self._find_game_window()
             if not hwnd:
                 raise RuntimeError("未找到游戏窗口，请确保游戏已运行且未被最小化。")
+            print(f"Found game window: {hwnd:#x}")
 
+            print("Connecting controller...")
             controller = self._runtime.Win32Controller(hWnd=hwnd)
             controller.post_connection().wait()
+            print("Controller connected.")
 
+            print("Connecting AgentClient...")
             resource = self._runtime.Resource()
             client = self._runtime.AgentClient(identifier=agent_id)
             client.bind(resource)
             client.connect()
             if not client.connected:
                 raise RuntimeError("Agent 连接失败。")
+            print("AgentClient connected.")
 
             resource.override_pipeline(
                 {"MapLocateNode": {"recognition": "Custom", "custom_recognition": "MapLocateRecognition"}}
             )
 
+            print("Initializing Tasker...")
             tasker = self._runtime.Tasker()
             tasker.bind(resource, controller)
             if not tasker.inited:
                 raise RuntimeError("Tasker 初始化失败。")
+            print("Tasker initialized.")
 
             self._on_status("● 正在录制轨迹... (Space:跳跃 F:交互 Shift:分层)", "#ef4444")
 
@@ -99,6 +118,9 @@ class RecordingService:
 
             self._on_finished(self._recorder.recorded_path)
         except Exception as exc:
+            print(f"Error in recording cycle: {exc}")
+            import traceback
+            traceback.print_exc()
             self._on_error(str(exc))
         finally:
             self._running_event.clear()
@@ -107,8 +129,9 @@ class RecordingService:
     def _open_runtime_library(self) -> None:
         try:
             self._runtime.Library.open(MAAFW_BIN_DIR)
-        except Exception:
+        except Exception as exc:
             # 兼容重复初始化场景，不影响后续流程。
+            print(f"Opening runtime library at {MAAFW_BIN_DIR}... Error: {exc}")
             return
 
     @staticmethod

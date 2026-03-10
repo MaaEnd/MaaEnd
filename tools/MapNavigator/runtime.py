@@ -43,7 +43,8 @@ def load_maa_runtime() -> MaaRuntime | None:
         from maa.library import Library
         from maa.resource import Resource
         from maa.tasker import Tasker
-    except ImportError:
+    except ImportError as exc:
+        print(f"Error loading Maa runtime: {exc}")
         return None
 
     return MaaRuntime(

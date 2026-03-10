@@ -251,7 +251,8 @@ def _load_map_candidates() -> list[dict[str, float | str]]:
             raw = json.loads(MAP_TRACKER_BBOX_PATH.read_text(encoding="utf-8"))
             if isinstance(raw, dict):
                 bbox_data = raw
-        except Exception:
+        except Exception as exc:
+            print(f"Failed to load bbox data from {MAP_TRACKER_BBOX_PATH}: {exc}")
             bbox_data = {}
 
     candidates: list[dict[str, float | str]] = []
@@ -324,7 +325,8 @@ def _read_png_size(image_path: Path) -> tuple[int, int] | None:
             return None
         width, height = struct.unpack(">II", header[16:24])
         return width, height
-    except Exception:
+    except Exception as exc:
+        print(f"Failed to read PNG size for {image_path}: {exc}")
         return None
 
 

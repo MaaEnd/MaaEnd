@@ -72,7 +72,8 @@ class MapRenderer:
             image = Image.open(image_path)
             self.full_map_cache[zone_id] = image
             return image
-        except Exception:
+        except Exception as exc:
+            print(f"Failed to load map image for {zone_id} at {image_path}: {exc}")
             return None
 
     def request_render(self, zone_id: str, fast: bool = True) -> None:
