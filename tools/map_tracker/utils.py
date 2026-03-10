@@ -546,7 +546,7 @@ class Button:
         base_color: int,
         text_color: int = 0xFFFFFF,
         hotkey: int | tuple[int, ...] | None = None,
-        on_click: callable = None,
+        on_click: Callable[[], None] | None = None,
         thickness: int = -1,
         font_scale: float = 0.5,
     ):
@@ -627,7 +627,7 @@ class BasePage:
         self.stepper: Any = None
         self.buttons: list[Button] = []
 
-    def render_page(self, *, force: bool = False) -> None:
+    def render_page(self) -> None:
         # Any explicit render request should mark the page dirty.
         self._needs_render = True
 
@@ -662,7 +662,7 @@ class BasePage:
         if hasattr(stepper, "window_name"):
             self.window_name = stepper.window_name
         cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
-        self.render_page(force=True)
+        self.render_page()
 
     def on_exit(self):
         """Lifecycle hook called when page leaves the stack."""
@@ -844,7 +844,7 @@ class PageStepper:
     def request_render(self):
         """Request current step to render on next loop tick."""
         if self.current_step:
-            self.current_step.render_page(force=True)
+            self.current_step.render_page()
 
     def _handle_mouse(self, event, x, y, flags, param):
         if self.current_step:
@@ -1000,7 +1000,6 @@ class ScrollableListWidget:
                 if item.get("data") == prev_selected_data and not item.get("disabled"):
                     self.selected_idx = i
                     return
-            return
 
         # Initial population: optionally auto-select first enabled item.
         if auto_select_first:

@@ -255,12 +255,12 @@ class PathEditPage(BasePage):
         self._recorded_path = []
         self._recorded_keys.clear()
         self._update_status(0x78DCFF, "Realtime path recording started.")
-        self.render_page(force=True)
+        self.render_page()
 
     def _stop_recording(self):
         self._recording_active = False
         self._update_status(0xD2D200, "Realtime path recording stopped.")
-        self.render_page(force=True)
+        self.render_page()
 
     def _toggle_recording(self):
         if self._recording_active:
@@ -271,11 +271,11 @@ class PathEditPage(BasePage):
     def _on_click_save(self):
         if self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_page(force=True)
+            self.render_page()
 
     def _on_click_record(self):
         self._toggle_recording()
-        self.render_page(force=True)
+        self.render_page()
 
     def _on_click_back(self):
         if self.stepper and len(self.stepper.step_history) > 1:
@@ -689,7 +689,7 @@ class PathEditPage(BasePage):
             else:
                 self.view.zoom_out()
             self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
-            self.render_page(force=True)
+            self.render_page()
             return
 
         # Right-drag panning.
@@ -748,11 +748,11 @@ class PathEditPage(BasePage):
 
             if self._hit_button(x, y, self._btn_quick_generate_rect):
                 self._generate_path_from_recorded()
-                self.render_page(force=True)
+                self.render_page()
                 return
             if self._hit_button(x, y, self._btn_quick_undo_rect):
                 self._undo_generate_path()
-                self.render_page(force=True)
+                self.render_page()
                 return
 
             # ── Map area clicks ─────────────────────────────────
@@ -788,7 +788,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
                             )
-                            self.render_page(force=True)
+                            self.render_page()
                     elif self.action_down_pos == (x, y):
                         inserted = False
                         for i in range(1, len(self.points)):
@@ -811,7 +811,7 @@ class PathEditPage(BasePage):
                                     f"Added Point #{i} ({mx:.1f}, {my:.1f})",
                                 )
                                 inserted = True
-                                self.render_page(force=True)
+                                self.render_page()
                                 break
                         if not inserted:
                             self.points.append([self._coord1(mx), self._coord1(my)])
@@ -820,7 +820,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Added Point #{self.selected_idx} ({mx:.1f}, {my:.1f})",
                             )
-                            self.render_page(force=True)
+                            self.render_page()
 
             self.action_down_idx = -1
             self.action_mouse_down = False
@@ -838,7 +838,7 @@ class PathEditPage(BasePage):
             self.done = True
         elif key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_page(force=True)
+            self.render_page()
         elif key in (ord("r"), ord("R")):
             self._toggle_recording()
 
