@@ -49,6 +49,7 @@ constexpr int32_t kMaxLatencyForCorrectionMs = 80;
 constexpr double kMaxYawDeviationForCorrection = 5.0;
 constexpr int32_t kTargetTickMs = 33;
 constexpr int32_t kMinSleepMs = 5;
+constexpr int32_t kPostHeadingForwardPulseMs = 60;
 constexpr int32_t kZoneConfirmRetryIntervalMs = 120;
 constexpr int32_t kZoneConfirmTimeoutMs = 12000;
 constexpr int32_t kZoneConfirmStableFrames = 2;

@@ -831,7 +831,7 @@ bool NavigationStateMachine::ConsumeHeadingNodes(bool sync_with_sensor_yaw)
             motion_controller_->EnsureForwardMotion(true);
         }
         else {
-            action_wrapper_->ClickKeySync(kKeyW, 60); // kExactTargetMoveWaitMs
+            action_wrapper_->ClickKeySync(kKeyW, kPostHeadingForwardPulseMs);
         }
     }
 
