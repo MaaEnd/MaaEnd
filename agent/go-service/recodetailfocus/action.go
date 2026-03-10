@@ -116,6 +116,16 @@ func runOCR(ctx *maa.Context, arg *maa.CustomActionArg, roi any, roiOffset any, 
 
 	log.Info().
 		Str("node", arg.CurrentTaskName).
+		Str("ocr_node", internalOCRNodeName).
+		Str("override_roi", stringifyValue(roi)).
+		Bool("override_has_roi_offset", roiOffset != nil).
+		Str("override_roi_offset", stringifyValue(roiOffset)).
+		Bool("override_has_expected", expected != nil).
+		Str("override_expected", stringifyValue(expected)).
+		Msg("RecoDetailFocusAction override fields")
+
+	log.Info().
+		Str("node", arg.CurrentTaskName).
 		Bool("refresh_image", refreshImage).
 		Interface("ocr_override", override).
 		Msg("RecoDetailFocusAction run OCR with override")
