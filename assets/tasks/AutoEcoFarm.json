@@ -33,9 +33,6 @@
                                     "order_by": "Horizontal"
                                 }
                             }
-                        },
-                        "_AutoEcoFarmFindEcoFarmAny": {
-                            "enabled": false
                         }
                     }
                 }
