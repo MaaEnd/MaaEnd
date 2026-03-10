@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -148,13 +147,6 @@ bool NavigationStateMachine::Run()
         }
     }
 
-    if (!should_stop_() && param_.is_exact_target && !session_->current_path().empty() && session_->phase() != NaviPhase::Failed) {
-        session_->UpdatePhase(NaviPhase::ExactTargetRefine, "exact_target_start");
-        const bool exact_target_completed = TickPhase(session_->phase()) && !should_stop_();
-        stop_motion_before_exit();
-        return exact_target_completed;
-    }
-
     if (!should_stop_() && session_->phase() != NaviPhase::Failed) {
         session_->UpdatePhase(NaviPhase::Finished, "navigation_complete");
     }
@@ -209,9 +201,6 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
     case NaviPhase::RecoverRejoin:
         SelectPhaseForCurrentWaypoint("recover_rejoin_dispatch");
         return true;
-
-    case NaviPhase::ExactTargetRefine:
-        return TickExactTargetRefine();
 
     case NaviPhase::Finished:
     case NaviPhase::Failed:
@@ -804,59 +793,6 @@ void NavigationStateMachine::MaybeTriggerAutoSprint(
             << VAR(sensor_yaw_error);
 }
 
-bool NavigationStateMachine::TickExactTargetRefine()
-{
-    const auto exact_target_it =
-        std::find_if(session_->current_path().rbegin(), session_->current_path().rend(), [](const Waypoint& waypoint) {
-            return waypoint.HasPosition();
-        });
-    if (exact_target_it == session_->current_path().rend()) {
-        session_->UpdatePhase(NaviPhase::Finished, "no_exact_target_waypoint");
-        return true;
-    }
-
-    const double target_x = exact_target_it->x;
-    const double target_y = exact_target_it->y;
-    const std::string target_zone_id = exact_target_it->zone_id;
-    LogInfo << "Starting exact target approach...";
-    const auto exact_start_time = std::chrono::steady_clock::now();
-
-    while (!should_stop_()) {
-        if (!position_provider_->Capture(position_, false, target_zone_id)) {
-            SleepFor(kExactTargetLocatorRetryIntervalMs);
-            continue;
-        }
-
-        const double dist = std::hypot(target_x - position_->x, target_y - position_->y);
-        if (dist < kExactTargetDistanceThreshold) {
-            session_->UpdatePhase(NaviPhase::Finished, "exact_target_reached");
-            LogInfo << "Exact target reached!!!";
-            return true;
-        }
-
-        const auto elapsed =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - exact_start_time).count();
-        if (elapsed > kExactTargetTimeoutMs) {
-            session_->UpdatePhase(NaviPhase::Failed, "exact_target_timeout");
-            LogWarn << "Exact target approach timeout";
-            return true;
-        }
-
-        const double exact_rot = NaviMath::CalcTargetRotation(position_->x, position_->y, target_x, target_y);
-        const double delta_rot = NaviMath::CalcDeltaRotation(position_->angle, exact_rot);
-        if (std::abs(delta_rot) > kExactTargetRotationDeviationThreshold) {
-            motion_controller_->InjectMouseAndTrack(delta_rot, false, target_zone_id, kExactTargetRotationWaitMs);
-        }
-
-        action_wrapper_->KeyDownSync(kKeyW, 0);
-        SleepFor(kExactTargetMoveWaitMs);
-        action_wrapper_->KeyUpSync(kKeyW, 0);
-        SleepFor(kExactTargetStopWaitMs);
-    }
-
-    return false;
-}
-
 bool NavigationStateMachine::ConsumeHeadingNodes(bool sync_with_sensor_yaw)
 {
     if (sync_with_sensor_yaw && session_->HasCurrentWaypoint() && session_->CurrentWaypoint().IsHeadingOnly()) {
@@ -895,7 +831,7 @@ bool NavigationStateMachine::ConsumeHeadingNodes(bool sync_with_sensor_yaw)
             motion_controller_->EnsureForwardMotion(true);
         }
         else {
-            action_wrapper_->ClickKeySync(kKeyW, kExactTargetMoveWaitMs);
+            action_wrapper_->ClickKeySync(kKeyW, 60); // kExactTargetMoveWaitMs
         }
     }
 

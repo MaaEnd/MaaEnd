@@ -309,7 +309,6 @@ MaaBool MAA_CALL MapNavigateActionRun(
         param.path_trim = options.get("path_trim", param.path_trim);
         param.arrival_timeout = options.get("arrival_timeout", param.arrival_timeout);
         param.sprint_threshold = options.get("sprint_threshold", param.sprint_threshold);
-        param.is_exact_target = options.get("is_exact_target", param.is_exact_target);
         param.enable_rejoin = options.get("enable_rejoin", param.enable_rejoin);
         param.rejoin_abort_distance = options.get("rejoin_abort_distance", param.rejoin_abort_distance);
         param.rejoin_candidate_limit = options.get("rejoin_candidate_limit", param.rejoin_candidate_limit);

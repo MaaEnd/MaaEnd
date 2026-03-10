@@ -50,7 +50,6 @@ private:
     bool TickWaitZoneTransition();
     bool TickWaitRelocation();
     bool TickAlignHeading();
-    bool TickExactTargetRefine();
     bool ConsumeHeadingNodes(bool sync_with_sensor_yaw);
     bool HandleImplicitZoneTransition(const std::string& expected_zone_id);
     bool HandleWaypointArrival(

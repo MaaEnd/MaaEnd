@@ -29,8 +29,6 @@ const char* NaviPhaseName(NaviPhase phase)
         return "WaitRelocation";
     case NaviPhase::RecoverRejoin:
         return "RecoverRejoin";
-    case NaviPhase::ExactTargetRefine:
-        return "ExactTargetRefine";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:

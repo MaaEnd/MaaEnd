@@ -18,7 +18,6 @@ struct NaviParam
     bool path_trim = false;
     int64_t arrival_timeout = 60000;
     double sprint_threshold = 25.0;
-    bool is_exact_target = false;
     bool enable_rejoin = true;
     double rejoin_abort_distance = 18.0;
     int32_t rejoin_candidate_limit = 4;

@@ -20,7 +20,6 @@ enum class NaviPhase
     WaitZoneTransition,
     WaitRelocation,
     RecoverRejoin,
-    ExactTargetRefine,
     Finished,
     Failed,
 };
