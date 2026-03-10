@@ -124,6 +124,7 @@
         "tasks/AutoEcoFarm.json",
         "tasks/AndroidOpenGame.json",
         "tasks/AutoUseSpMedication.json",
+        "tasks/AutoCollect.json",
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
