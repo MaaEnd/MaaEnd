@@ -3,7 +3,8 @@ import os
 import re
 import math
 import time
-from typing import Literal, NamedTuple
+from dataclasses import dataclass, field
+from typing import Any, Callable, Literal, NamedTuple
 
 _R = "\033[31m"
 _G = "\033[32m"
@@ -162,16 +163,20 @@ class Drawer:
 
     @property
     def w(self):
+        """Image width in pixels."""
         return self._img.shape[1]
 
     @property
     def h(self):
+        """Image height in pixels."""
         return self._img.shape[0]
 
     def get_image(self):
+        """Return the underlying image buffer."""
         return self._img
 
     def get_text_size(self, text: str, font_scale: float, *, thickness: int):
+        """Measure text size for current font settings."""
         return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
 
     @staticmethod
@@ -318,6 +323,64 @@ class Drawer:
             # Simple paste without alpha blending
             self._img[y0:y1, x0:x1] = target_fg
 
+    def dashed_line(
+        self,
+        pt1: Point,
+        pt2: Point,
+        *,
+        color: Color,
+        thickness: int,
+        dash: int = 8,
+        gap: int = 6,
+    ) -> None:
+        x1, y1 = pt1
+        x2, y2 = pt2
+        dx = x2 - x1
+        dy = y2 - y1
+        dist = math.hypot(dx, dy)
+        if dist < 1:
+            return
+        nx, ny = dx / dist, dy / dist
+        pos = 0.0
+        drawing = True
+        while pos < dist:
+            seg = dash if drawing else gap
+            end_pos = min(pos + seg, dist)
+            if drawing:
+                sx = int(round(x1 + nx * pos))
+                sy = int(round(y1 + ny * pos))
+                ex = int(round(x1 + nx * end_pos))
+                ey = int(round(y1 + ny * end_pos))
+                cv2.line(self._img, (sx, sy), (ex, ey), self._to_bgr(color), thickness)
+            pos = end_pos
+            drawing = not drawing
+
+    def arrow(
+        self,
+        pt1: Point,
+        pt2: Point,
+        *,
+        color: Color,
+        thickness: int,
+        arrow_size: int = 12,
+    ) -> None:
+        """Draw a line with an arrowhead at pt2."""
+        self.line(pt1, pt2, color=color, thickness=thickness)
+        x1, y1 = pt1
+        x2, y2 = pt2
+        dx = x2 - x1
+        dy = y2 - y1
+        dist = math.hypot(dx, dy)
+        if dist < 1:
+            return
+        nx, ny = dx / dist, dy / dist
+        ax1 = int(round(x2 - arrow_size * (nx - ny * 0.5)))
+        ay1 = int(round(y2 - arrow_size * (ny + nx * 0.5)))
+        ax2 = int(round(x2 - arrow_size * (nx + ny * 0.5)))
+        ay2 = int(round(y2 - arrow_size * (ny - nx * 0.5)))
+        cv2.line(self._img, (x2, y2), (ax1, ay1), self._to_bgr(color), thickness)
+        cv2.line(self._img, (x2, y2), (ax2, ay2), self._to_bgr(color), thickness)
+
     @staticmethod
     def new(w: int, h: int, **kwargs) -> "Drawer":
         img = np.zeros((h, w, 3), dtype=np.uint8)
@@ -378,7 +441,9 @@ class ViewportManager:
         self._vx += dx
         self._vy += dy
 
-    def maybe_center_to(self, real_x: float, real_y: float, padding: float = 0.3) -> None:
+    def maybe_center_to(
+        self, real_x: float, real_y: float, padding: float = 0.3
+    ) -> None:
         padding = max(0.0, min(0.49, padding))
         view_w = self._vw / self._zoom
         view_h = self._vh / self._zoom
@@ -473,421 +538,669 @@ class StatusRecord(NamedTuple):
     message: str
 
 
-class BasePage:
-    """Base class for map-based editing pages.
-
-    Provides: viewport/zoom/pan, FPS-limited rendering, status bar, sidebar
-    scaffold, and a cv2 main-loop skeleton.
-
-    Subclasses override:
-      - ``_render_content(drawer)``  – draw layers on top of the map image.
-      - ``_render_ui(drawer)``       – draw UI panels (status bar, sidebar, …).
-      - ``_render_sidebar(drawer)``  – sidebar content (calls ``_render_sidebar_bg``).
-      - ``_on_mouse(event, x, y, mx, my, flags)`` – custom mouse handling.
-      - ``_on_key(key)``             – custom keyboard handling.
-      - ``_on_idle()``               – called each loop iteration for background tasks.
-    """
-
-    SIDEBAR_W: int = 240
-    STATUS_BAR_H: int = 32
-
+class Button:
     def __init__(
         self,
-        map_path: str,
-        window_name: str,
-        window_w: int = 1280,
-        window_h: int = 720,
-        welcome_msg: str = "Welcome!",
-    ) -> None:
-        self.img = cv2.imread(map_path)
-        if self.img is None:
-            raise ValueError(f"Cannot load map image: {map_path}")
+        rect: tuple[int, int, int, int],
+        text: str,
+        base_color: int,
+        text_color: int = 0xFFFFFF,
+        hotkey: int | tuple[int, ...] | None = None,
+        on_click: callable = None,
+        thickness: int = -1,
+        font_scale: float = 0.5,
+    ):
+        self.rect = rect
+        self.text = text
+        self.base_color = base_color
+        self.text_color = text_color
+        self.hotkey = (
+            hotkey if isinstance(hotkey, tuple) else ((hotkey,) if hotkey else ())
+        )
+        self.on_click = on_click
+        self.thickness = thickness
+        self.font_scale = font_scale
+
+        self.hovered = False
+        self.needs_render = True
+
+    def _get_draw_color(self) -> int:
+        if not self.hovered:
+            return self.base_color
+        r = (self.base_color >> 16) & 0xFF
+        g = (self.base_color >> 8) & 0xFF
+        b = self.base_color & 0xFF
+        r = min(255, r + 40)
+        g = min(255, g + 40)
+        b = min(255, b + 40)
+        return (r << 16) | (g << 8) | b
+
+    def render(self, drawer: "Drawer", border_color: int = 0xB4B4B4):
+        x1, y1, x2, y2 = self.rect
+        color = self._get_draw_color()
+        drawer.rect((x1, y1), (x2, y2), color=color, thickness=self.thickness)
+        if border_color != -1:
+            drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
+
+        cx, cy = x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2 + 5
+        drawer.text_centered(
+            self.text, (cx, cy), self.font_scale, color=self.text_color, thickness=1
+        )
+        self.needs_render = False
+
+    def handle_mouse(self, event, x: int, y: int) -> bool:
+        x1, y1, x2, y2 = self.rect
+        in_rect = x1 <= x <= x2 and y1 <= y <= y2
+
+        if self.hovered != in_rect:
+            self.hovered = in_rect
+            self.needs_render = True
+
+        if event == cv2.EVENT_LBUTTONDOWN and in_rect:
+            if self.on_click:
+                self.on_click()
+            self.needs_render = True
+            return True
+        return False
+
+    def handle_key(self, key: int) -> bool:
+        if key in self.hotkey:
+            if self.on_click:
+                self.on_click()
+            self.needs_render = True
+            return True
+        return False
+
+
+class BasePage:
+    def __init__(
+        self, window_name: str = "App", window_w: int = 1280, window_h: int = 720
+    ):
+        self.window_name = window_name
         self.window_w = window_w
         self.window_h = window_h
-        self.window_name = window_name
-        self.view = ViewportManager(
-            window_w, window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
-        )
-        self._map_layer = MapImageLayer(self.view, self.img)
-        self._status = StatusRecord(0.0, 0xFFFFFF, welcome_msg)
         self.mouse_pos: tuple[int, int] = (-1, -1)
         self._frame_interval = 1.0 / 120.0
         self._last_render_ts = 0.0
-        self.panning = False
-        self.pan_start: tuple[int, int] = (0, 0)
+        self._needs_render = True
         self.done = False
-
-    def _update_status(self, color: Color, message: str) -> None:
-        self._status = StatusRecord(time.time(), color, message)
-
-    @staticmethod
-    def _hit_button(x: int, y: int, rect) -> bool:
-        if rect is None:
-            return False
-        x1, y1, x2, y2 = rect
-        return x1 <= x <= x2 and y1 <= y <= y2
+        self.stepper: Any = None
+        self.buttons: list[Button] = []
 
     def render_page(self, *, force: bool = False) -> None:
+        # Any explicit render request should mark the page dirty.
+        self._needs_render = True
+
+    def _render(self, drawer: Drawer) -> None:
+        pass
+
+    def render(self) -> Any:
         now = time.monotonic()
-        if force or now - self._last_render_ts >= self._frame_interval:
+        btn_needs_render = any(b.needs_render for b in self.buttons)
+        if (
+            self._needs_render
+            or btn_needs_render
+            or (now - self._last_render_ts >= self._frame_interval)
+        ):
             self._last_render_ts = now
-            self._render()
+            self._needs_render = False
+            drawer = Drawer.new(self.window_w, self.window_h)
 
-    def _render(self) -> None:
-        drawer = Drawer.new(self.window_w, self.window_h)
-        self._map_layer.render(drawer)
-        self._render_content(drawer)
-        # Crosshair
-        drawer.line(
-            (self.mouse_pos[0], 0),
-            (self.mouse_pos[0], self.window_h),
-            color=0xFFFF00,
-            thickness=1,
-        )
-        drawer.line(
-            (0, self.mouse_pos[1]),
-            (self.window_w, self.mouse_pos[1]),
-            color=0xFFFF00,
-            thickness=1,
-        )
-        self._render_ui(drawer)
-        cv2.imshow(self.window_name, drawer.get_image())
+            self._render(drawer)
 
-    def _render_content(self, drawer: Drawer) -> None:
-        """Override to draw custom layers/content on top of the map."""
+            for btn in self.buttons:
+                btn.render(drawer)
 
-    def _render_ui(self, drawer: Drawer) -> None:
-        """Override to draw UI panels. Default: status bar + sidebar."""
-        self._render_status_bar(drawer)
-        self._render_sidebar(drawer)
+            return drawer.get_image()
+        return None
 
-    def _render_status_bar(self, drawer: Drawer) -> None:
-        x1 = self.SIDEBAR_W
-        x2 = self.window_w
-        y2 = self.window_h
-        y1 = max(0, y2 - self.STATUS_BAR_H)
-        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
-        if self._status:
-            drawer.text(
-                self._status.message,
-                (x1 + 10, y2 - 10),
-                0.45,
-                color=self._status.color,
-                thickness=1,
-            )
+    def on_enter(self, stepper: Any):
+        """Attach to stepper and prepare the page for rendering."""
+        self.stepper = stepper
+        # PageStepper owns the real cv2 window; use its name to avoid resizing
+        # a non-existent page-local window.
+        if hasattr(stepper, "window_name"):
+            self.window_name = stepper.window_name
+        cv2.resizeWindow(self.window_name, self.window_w, self.window_h)
+        self.render_page(force=True)
 
-    def _render_sidebar(self, drawer: Drawer) -> None:
-        """Override to draw sidebar content. Default draws background only."""
-        self._render_sidebar_bg(drawer)
+    def on_exit(self):
+        """Lifecycle hook called when page leaves the stack."""
+        pass
 
-    def _render_sidebar_bg(self, drawer: Drawer) -> None:
-        sw = self.SIDEBAR_W
-        h = self.window_h
-        drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
-        drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
-
-    def _handle_mouse(self, event, x: int, y: int, flags, param) -> None:
+    def handle_mouse(self, event, x: int, y: int, flags, param):
+        """Dispatch mouse input to buttons first, then page handler."""
         self.mouse_pos = (x, y)
-        mx, my = self.view.get_real_coords(x, y)
+        for btn in self.buttons:
+            if btn.handle_mouse(event, x, y):
+                self.render_page()
+                return
+        self._on_mouse(event, x, y, flags, param)
 
-        if event == cv2.EVENT_MOUSEWHEEL:
-            if flags > 0:
-                self.view.zoom_in()
-            else:
-                self.view.zoom_out()
-            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
-            self.render_page()
-            return
+    def _on_mouse(self, event, x: int, y: int, flags, param) -> None:
+        pass
 
-        if event == cv2.EVENT_RBUTTONDOWN:
-            if x >= self.SIDEBAR_W:
-                self.panning = True
-                self.pan_start = (x, y)
-            return
-
-        if event == cv2.EVENT_RBUTTONUP:
-            self.panning = False
-            return
-
-        if event == cv2.EVENT_MOUSEMOVE and self.panning:
-            dx = (x - self.pan_start[0]) / self.view.zoom
-            dy = (y - self.pan_start[1]) / self.view.zoom
-            self.view.pan_by(-dx, -dy)
-            self.pan_start = (x, y)
-            self.render_page()
-            return
-
-        self._on_mouse(event, x, y, mx, my, flags)
-        self.render_page()
-
-    def _on_mouse(
-        self,
-        event,
-        x: int,
-        y: int,
-        map_x: float,
-        map_y: float,
-        flags,
-    ) -> None:
-        """Override to handle custom mouse events.
-
-        `x/y` are integer screen coordinates, while `map_x/map_y` are real-valued
-        map-space coordinates from `view.get_real_coords`.
-        """
+    def handle_key(self, key: int):
+        """Dispatch key input to buttons first, then page handler."""
+        for btn in self.buttons:
+            if btn.handle_key(key):
+                self.render_page()
+                return
+        self._on_key(key)
 
     def _on_key(self, key: int) -> None:
-        """Override to handle keyboard input."""
+        pass
+
+    def handle_idle(self):
+        """Execute idle hook for background updates."""
+        self._on_idle()
 
     def _on_idle(self) -> None:
-        """Override for background tasks called each loop iteration."""
+        pass
 
-    def run(self) -> None:
+
+@dataclass
+class StepData:
+    """Data for a simplified wizard-style step."""
+
+    step_id: str
+    title: str
+    data: dict[str, Any] = field(default_factory=dict)
+    can_go_back: bool = True
+
+
+class StepPage(BasePage):
+    """A generic BasePage that provides standard Wizard UI (header/footer)."""
+
+    WINDOW_W = 1280
+    WINDOW_H = 720
+    HEADER_H = 80
+    FOOTER_H = 50
+
+    @staticmethod
+    def is_up_key(key: int) -> bool:
+        return key in (82, 0x260000, 65362)
+
+    @staticmethod
+    def is_down_key(key: int) -> bool:
+        return key in (84, 0x280000, 65364)
+
+    def __init__(self, step_data: StepData):
+        super().__init__("WizardStep", self.WINDOW_W, self.WINDOW_H)
+        self.step_data = step_data
+
+        if self.step_data.can_go_back:
+            btn_w, btn_h = 120, 36
+            btn_x1 = 20
+            btn_y1 = self.WINDOW_H - self.FOOTER_H + (self.FOOTER_H - btn_h) // 2
+            btn_x2, btn_y2 = btn_x1 + btn_w, btn_y1 + btn_h
+
+            def on_back():
+                if len(self.stepper.step_history) > 1:
+                    self.stepper.pop_step()
+
+            self.buttons.append(
+                Button(
+                    rect=(btn_x1, btn_y1, btn_x2, btn_y2),
+                    text="< Back",
+                    base_color=0x555566,
+                    text_color=0xFFFFFF,
+                    on_click=on_back,
+                )
+            )
+
+    def on_enter(self, stepper: "PageStepper"):
+        super().on_enter(stepper)
+
+    def _render_header(self, drawer: Drawer) -> None:
+        h = self.HEADER_H
+        drawer.rect((0, 0), (self.WINDOW_W, h), color=0x0A0A14, thickness=-1)
+        step_num = len(
+            [p for p in self.stepper.step_history if isinstance(p, StepPage)]
+        )
+        drawer.text(f"Step {step_num}", (30, h - 35), 0.6, color=0x6688AA, thickness=1)
+        drawer.text_centered(
+            self.step_data.title,
+            (self.WINDOW_W // 2, h - 20),
+            0.9,
+            color=0xFFFFFF,
+            thickness=2,
+        )
+        drawer.line((0, h - 1), (self.WINDOW_W, h - 1), color=0x444455, thickness=2)
+
+    def _render_footer(self, drawer: Drawer) -> None:
+        y1 = self.WINDOW_H - self.FOOTER_H
+        y2 = self.WINDOW_H
+        drawer.rect((0, y1), (self.WINDOW_W, y2), color=0x0A0A14, thickness=-1)
+        drawer.line((0, y1), (self.WINDOW_W, y1), color=0x444455, thickness=2)
+
+    def _render(self, drawer: Drawer):
+        drawer.rect(
+            (0, 0),
+            (self.WINDOW_W, self.WINDOW_H),
+            color=0x14141E,
+            thickness=-1,
+        )
+        self._render_header(drawer)
+        self._render_content(drawer)
+        self._render_footer(drawer)
+
+    def _on_mouse(self, event, x, y, flags, param):
+        self._handle_content_mouse(event, x, y, flags, param)
+
+    def _on_key(self, key):
+        self._handle_content_key(key)
+
+    def _render_content(self, drawer: Drawer):
+        pass
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        pass
+
+    def _handle_content_key(self, key):
+        pass
+
+
+class PageStepper:
+    """Main application loop managing a stack of pages."""
+
+    def __init__(self, window_name: str = "App"):
+        self.window_name = window_name
+        self.step_history: list[BasePage] = []
+        self.done = False
+        self.result: Any = None
         cv2.namedWindow(self.window_name)
         cv2.setMouseCallback(self.window_name, self._handle_mouse)
-        self.render_page(force=True)
+
+    @property
+    def current_step(self) -> BasePage | None:
+        """Return the active page on top of the stack."""
+        return self.step_history[-1] if self.step_history else None
+
+    def push_step(self, page: BasePage) -> None:
+        """Push a new page and enter it."""
+        if self.current_step:
+            self.current_step.on_exit()
+        self.step_history.append(page)
+        page.on_enter(self)
+        self.request_render()
+
+    def pop_step(self) -> BasePage | None:
+        """Pop current page when history allows and restore previous page."""
+        if len(self.step_history) > 1:
+            popped = self.step_history.pop()
+            popped.on_exit()
+            if self.current_step:
+                self.current_step.on_enter(self)
+            self.request_render()
+            return popped
+        return None
+
+    def finish(self, result: Any = None) -> None:
+        """Stop the loop and store final result."""
+        self.result = result
+        self.done = True
+
+    def request_render(self):
+        """Request current step to render on next loop tick."""
+        if self.current_step:
+            self.current_step.render_page(force=True)
+
+    def _handle_mouse(self, event, x, y, flags, param):
+        if self.current_step:
+            self.current_step.handle_mouse(event, x, y, flags, param)
+
+    def run(self) -> Any:
+        """Run the main event loop until finished or window closed."""
+        if not self.step_history:
+            raise RuntimeError("No initial step provided.")
+
+        self.request_render()
+
         while not self.done:
             if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
                 break
-            key = cv2.waitKey(1) & 0xFF
-            if key != 0xFF:
-                if key == 27:  # ESC
-                    self.done = True
+
+            page = self.current_step
+            if not page:
+                break
+
+            page.handle_idle()
+
+            rendered_img = page.render()
+            if rendered_img is not None:
+                cv2.imshow(self.window_name, rendered_img)
+
+            key = cv2.waitKeyEx(1)
+            if key == 27:  # ESC
+                if len(self.step_history) > 1:
+                    self.pop_step()
                 else:
-                    self._on_key(key)
-            self._on_idle()
+                    break
+            elif key != -1:
+                page.handle_key(key)
+
         cv2.destroyAllWindows()
+        return self.result
 
 
-class SelectMapPage:
-    """Map selection page."""
+class TextInputWidget:
+    """Single-line text input widget.
 
-    def __init__(self, map_dir: str = "assets/resource/image/MapTracker/map"):
-        self.map_dir = map_dir
-        self.map_files = self._load_and_sort_maps()
-        self.rows, self.cols = 2, 5
-        self.nav_height = 90
-        self.window_w, self.window_h = 1280, 720
-        self.cell_size = min(
-            self.window_w // self.cols, (self.window_h - self.nav_height) // self.rows
+    Holds text state and cursor blink.  Call ``handle_key`` for keyboard
+    events and ``render`` to draw into a Drawer.
+    """
+
+    def __init__(self, placeholder: str = "", max_length: int = 200):
+        self.text = ""
+        self.placeholder = placeholder
+        self.max_length = max_length
+        self._cursor_blink_start = time.time()
+
+    def clear(self) -> None:
+        self.text = ""
+        self._cursor_blink_start = time.time()
+
+    def handle_key(self, key: int) -> bool:
+        """Process a cv2.waitKey result.  Returns True if consumed."""
+        if key == 8 or key == 127:  # Backspace / Del
+            if self.text:
+                self.text = self.text[:-1]
+                self._cursor_blink_start = time.time()
+            return True
+        if 32 <= key <= 126:  # Printable ASCII
+            if len(self.text) < self.max_length:
+                self.text += chr(key)
+                self._cursor_blink_start = time.time()
+            return True
+        return False
+
+    def render(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        *,
+        focused: bool = True,
+        font_scale: float = 0.55,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        h = y2 - y1
+        # Background
+        drawer.rect((x1, y1), (x2, y2), color=0x0D0D1A, thickness=-1)
+        # Border
+        border_color = 0x4488FF if focused else 0x555566
+        drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=2)
+        # Text content
+        pad_x = 10
+        text_y = y1 + h // 2 + 6
+        cursor_visible = (
+            focused and int((time.time() - self._cursor_blink_start) * 1.6) % 2 == 0
         )
-        self.page_size = self.rows * self.cols
-        self.window_name = "MapTracker Tool - Map Selector"
-
-        self.current_page = 0
-        self.cached_page = -1
-        self.cached_img = None
-        self.selected_index = -1
-        self.total_pages = math.ceil(len(self.map_files) / self.page_size)
-
-    def _load_and_sort_maps(self) -> list[str]:
-        map_files = [f for f in os.listdir(self.map_dir) if f.endswith(".png")]
-        if not map_files:
-            return []
-
-        def natural_sort_key(s: str) -> list[str | int]:
-            return [
-                int(text) if text.isdigit() else text.lower()
-                for text in re.split("([0-9]+)", s)
-            ]
-
-        map_files.sort(key=lambda x: (len(x), natural_sort_key(x)))
-        return map_files
-
-    def _render_page(self):
-        if self.cached_page == self.current_page:
-            return self.cached_img
-        drawer: Drawer = Drawer.new(self.window_w, self.window_h)
-        start_idx = self.current_page * self.page_size
-        end_idx = min(start_idx + self.page_size, len(self.map_files))
-
-        # Content area height (excluding bottom navigation)
-        content_h = self.window_h - self.nav_height
-        content_w = self.window_w
-
-        # Calculate horizontal and vertical spacing (space-between)
-        if self.cols > 1:
-            gap_x = int((content_w - self.cols * self.cell_size) / (self.cols - 1))
+        if self.text:
+            display = self.text + ("|" if cursor_visible else "")
+            drawer.text(
+                display, (x1 + pad_x, text_y), font_scale, color=0xFFFFFF, thickness=1
+            )
         else:
-            gap_x = 0
-        if self.rows > 1:
-            gap_y = int((content_h - self.rows * self.cell_size) / (self.rows - 1))
-        else:
-            gap_y = 0
+            display = "|" if cursor_visible else self.placeholder
+            color = 0xFFFFFF if cursor_visible else 0x666677
+            drawer.text(
+                display, (x1 + pad_x, text_y), font_scale, color=color, thickness=1
+            )
 
-        # Draw map previews in space-between layout
-        for i in range(start_idx, end_idx):
-            idx_in_page = i - start_idx
-            r = idx_in_page // self.cols
-            c = idx_in_page % self.cols
 
-            cell_x = int(c * (self.cell_size + gap_x))
-            cell_y = int(r * (self.cell_size + gap_y))
+class ScrollableListWidget:
+    """Scrollable list widget.
 
-            path = os.path.join(self.map_dir, self.map_files[i])
-            img = cv2.imread(path)
-            if img is not None:
-                h, w = img.shape[:2]
-                # Calculate scaling to maintain aspect ratio, fit image completely into cell
-                scale = min(self.cell_size / w, self.cell_size / h)
-                new_w = max(1, int(w * scale))
-                new_h = max(1, int(h * scale))
-                resized = cv2.resize(img, (new_w, new_h))
-                # Center the image within the cell
-                x1 = cell_x
-                y1 = cell_y
-                x2 = x1 + self.cell_size
-                y2 = y1 + self.cell_size
-                # Calculate placement offset
-                dx = (self.cell_size - new_w) // 2
-                dy = (self.cell_size - new_h) // 2
-                dest_x1 = x1 + dx
-                dest_y1 = y1 + dy
-                dest_x2 = dest_x1 + new_w
-                dest_y2 = dest_y1 + new_h
-                # Boundary clipping (to prevent exceeding content area)
-                dest_x2 = min(self.window_w, dest_x2)
-                dest_y2 = min(content_h, dest_y2)
-                src_x2 = dest_x2 - dest_x1
-                src_y2 = dest_y2 - dest_y1
-                if src_x2 > 0 and src_y2 > 0:
-                    drawer._img[
-                        dest_y1 : dest_y1 + src_y2, dest_x1 : dest_x1 + src_x2
-                    ] = resized[0:src_y2, 0:src_x2]
+    Items are dicts with keys:
+      - ``label``     : str  display text
+      - ``sub_label`` : str  (optional) secondary text shown right-aligned
+      - ``disabled``  : bool  grayed-out, not selectable
+      - ``priority``  : bool  pinned to top, shown with highlight tint
+      - ``data``      : any   caller payload
 
-                # Label (bottom)
-                label = self.map_files[i]
-                drawer.rect(
-                    (x1, y1 + self.cell_size - 30),
-                    (x1 + self.cell_size, y1 + self.cell_size),
-                    color=0x000000,
-                    thickness=-1,
+    Usage::
+
+        widget.set_items([...])
+        widget.navigate(-1)          # up
+        widget.handle_click(x, y, rect)
+        widget.render(drawer, rect)
+    """
+
+    def __init__(self, item_height: int = 38):
+        self.items: list[dict] = []
+        self.selected_idx: int = -1
+        self.scroll_offset: int = 0
+        self.item_height = item_height
+        self._preview_generator: Callable[[dict], np.ndarray | None] | None = None
+        self._last_list_x2: int | None = None
+
+    def set_preview_generator(
+        self, generator: Callable[[dict], np.ndarray | None] | None
+    ) -> None:
+        """Set or clear the preview image generator for selected item.
+
+        When the generator returns a non-None image, the list is rendered as
+        left list + right preview panel. Otherwise list keeps full width.
+        """
+        self._preview_generator = generator
+
+    def set_items(self, items: list[dict], *, auto_select_first: bool = True) -> None:
+        prev_selected_data = None
+        if 0 <= self.selected_idx < len(self.items):
+            prev_selected_data = self.items[self.selected_idx].get("data")
+
+        self.items = items
+        self.scroll_offset = 0
+        self.selected_idx = -1
+
+        # Keep selection if the same item still exists after filtering.
+        if prev_selected_data is not None:
+            for i, item in enumerate(items):
+                if item.get("data") == prev_selected_data and not item.get("disabled"):
+                    self.selected_idx = i
+                    return
+            return
+
+        # Initial population: optionally auto-select first enabled item.
+        if auto_select_first:
+            for i, item in enumerate(items):
+                if not item.get("disabled"):
+                    self.selected_idx = i
+                    break
+
+    def _enabled_indices(self) -> list[int]:
+        return [i for i, item in enumerate(self.items) if not item.get("disabled")]
+
+    def navigate(self, direction: int) -> None:
+        """direction: -1 = up, +1 = down."""
+        enabled = self._enabled_indices()
+        if not enabled:
+            return
+        if self.selected_idx not in enabled:
+            self.selected_idx = enabled[0]
+            return
+        curr_pos = enabled.index(self.selected_idx)
+        new_pos = curr_pos + direction
+        if 0 <= new_pos < len(enabled):
+            self.selected_idx = enabled[new_pos]
+
+    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
+        """Two-step click behavior.
+
+        Returns item index (>=0) only when clicking an already-selected item
+        (confirmation click). First click only updates selection and returns -1.
+        """
+        x1, y1, x2, y2 = rect
+        list_x2 = self._last_list_x2 if self._last_list_x2 is not None else x2
+        # Ignore clicks on scrollbar strip and preview area.
+        content_x2 = max(x1, list_x2 - 6)
+        if not (x1 <= x <= content_x2 and y1 <= y <= y2):
+            return -1
+        rel_y = y - y1
+        idx = self.scroll_offset + rel_y // self.item_height
+        if 0 <= idx < len(self.items) and not self.items[idx].get("disabled"):
+            if self.selected_idx == idx:
+                return idx
+            self.selected_idx = idx
+            return -1
+        return -1
+
+    def handle_wheel(
+        self, x: int, y: int, flags: int, rect: tuple[int, int, int, int]
+    ) -> bool:
+        """Handle mouse wheel scrolling. Returns True if the event was consumed."""
+        x1, y1, x2, y2 = rect
+        if not (x1 <= x <= x2 and y1 <= y <= y2):
+            return False
+
+        # Calculate visible count
+        h = y2 - y1
+        visible = max(1, h // self.item_height)
+        max_offset = max(0, len(self.items) - visible)
+
+        # Scroll direction
+        if flags > 0:  # Scroll up
+            self.scroll_offset = max(0, self.scroll_offset - 1)
+        else:  # Scroll down
+            self.scroll_offset = min(max_offset, self.scroll_offset + 1)
+
+        # Keep selection inside current viewport so _ensure_visible won't undo wheel scroll.
+        if self.selected_idx >= 0:
+            if self.selected_idx < self.scroll_offset:
+                self.selected_idx = self.scroll_offset
+            elif self.selected_idx >= self.scroll_offset + visible:
+                self.selected_idx = min(
+                    len(self.items) - 1,
+                    self.scroll_offset + visible - 1,
                 )
-                drawer.text_centered(
-                    label,
-                    (x1 + self.cell_size // 2, y1 + self.cell_size - 10),
-                    0.4,
-                    color=0xFFFFFF,
+
+        return True
+
+    def _ensure_visible(self, visible_count: int) -> None:
+        if self.selected_idx < 0:
+            return
+        if self.selected_idx < self.scroll_offset:
+            self.scroll_offset = self.selected_idx
+        elif self.selected_idx >= self.scroll_offset + visible_count:
+            self.scroll_offset = self.selected_idx - visible_count + 1
+
+    def render(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.45,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        preview_img: np.ndarray | None = None
+        if self._preview_generator is not None and 0 <= self.selected_idx < len(
+            self.items
+        ):
+            try:
+                preview_img = self._preview_generator(self.items[self.selected_idx])
+            except Exception:
+                preview_img = None
+
+        list_x2 = x2
+        if preview_img is not None:
+            list_x2 = x1 + max(1, (x2 - x1) // 2)
+        self._last_list_x2 = list_x2
+
+        h = y2 - y1
+        visible = max(1, h // self.item_height)
+        self._ensure_visible(visible)
+        for i in range(visible):
+            item_idx = self.scroll_offset + i
+            if item_idx >= len(self.items):
+                break
+            item = self.items[item_idx]
+            iy1 = y1 + i * self.item_height
+            iy2 = iy1 + self.item_height
+            disabled = item.get("disabled", False)
+            priority = item.get("priority", False)
+            selected = item_idx == self.selected_idx
+
+            # Background
+            if selected:
+                bg_color = 0x1E4A90
+            elif priority:
+                bg_color = 0x111828
+            else:
+                bg_color = 0x0A0A14
+            drawer.rect((x1, iy1), (list_x2, iy2), color=bg_color, thickness=-1)
+
+            # Label
+            label = item.get("label", "")
+            text_color = (
+                0x666677 if disabled else (0xFFFFFF if not priority else 0xAADDFF)
+            )
+            drawer.text(
+                label, (x1 + 12, iy2 - 10), font_scale, color=text_color, thickness=1
+            )
+
+            # Sub-label (right-aligned)
+            sub = item.get("sub_label", "")
+            if sub:
+                sub_color = 0x445566 if disabled else 0x6688AA
+                sub_size = drawer.get_text_size(sub, font_scale, thickness=1)
+                drawer.text(
+                    sub,
+                    (list_x2 - sub_size[0] - 12, iy2 - 10),
+                    font_scale,
+                    color=sub_color,
                     thickness=1,
                 )
 
-        # Bottom navigation bar
-        drawer.line(
-            (0, content_h),
-            (self.window_w, content_h),
-            color=0x808080,
-            thickness=2,
-        )
+            # Divider
+            drawer.line((x1, iy2 - 1), (list_x2, iy2 - 1), color=0x222233, thickness=1)
 
-        # Top navigation prompt text
-        drawer.text_centered(
-            "Please click a map to continue",
-            (drawer.w // 2, content_h + 30),
-            0.7,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Left arrow
-        drawer.text(
-            "< PREV",
-            (150, self.window_h - 20),
-            0.6,
-            color=0x44DD66 if self.current_page > 0 else 0x808080,
-            thickness=2,
-        )
-
-        # Middle page info
-        page_text = f"Page {self.current_page + 1} / {self.total_pages}"
-        drawer.text_centered(
-            page_text,
-            (drawer.w // 2, self.window_h - 20),
-            0.5,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Right arrow
-        drawer.text(
-            "NEXT >",
-            (self.window_w - 200, self.window_h - 20),
-            0.6,
-            color=0x44DD66 if self.current_page < self.total_pages - 1 else 0x808080,
-            thickness=2,
-        )
-
-        self.cached_img = drawer.get_image()
-        self.cached_page = self.current_page
-        return self.cached_img
-
-    def _handle_mouse(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            # Content area height (excluding bottom navigation)
-            content_h = self.window_h - self.nav_height
-            if y < content_h:
-                # Use layout calculation to determine which cell the click falls into
-                if self.cols > 1:
-                    gap_x = int(
-                        (self.window_w - self.cols * self.cell_size) / (self.cols - 1)
-                    )
-                else:
-                    gap_x = 0
-                if self.rows > 1:
-                    gap_y = int(
-                        (content_h - self.rows * self.cell_size) / (self.rows - 1)
-                    )
-                else:
-                    gap_y = 0
-
-                found = False
-                for r in range(self.rows):
-                    for c in range(self.cols):
-                        cell_x = int(c * (self.cell_size + gap_x))
-                        cell_y = int(r * (self.cell_size + gap_y))
-                        if (
-                            x >= cell_x
-                            and x < cell_x + self.cell_size
-                            and y >= cell_y
-                            and y < cell_y + self.cell_size
-                        ):
-                            idx = self.current_page * self.page_size + r * self.cols + c
-                            if idx < len(self.map_files):
-                                self.selected_index = idx
-                                found = True
-                                break
-                    if found:
-                        break
-            else:
-                # Bottom navigation
-                if x < self.window_w // 3:
-                    if self.current_page > 0:
-                        self.current_page -= 1
-                elif x > 2 * self.window_w // 3:
-                    if self.current_page < self.total_pages - 1:
-                        self.current_page += 1
-
-    def run(self):
-        if not self.map_files:
-            print(f"{_R}Error: No map files found in {self.map_dir}{_0}")
-            print(
-                "  Please ensure the current working directory of this program is correct!"
+        # Scrollbar
+        total = len(self.items)
+        if total > visible and total > 0:
+            bar_x = list_x2 - 6
+            bar_y1 = y1
+            bar_y2 = y2
+            bar_h = bar_y2 - bar_y1
+            thumb_h = max(20, bar_h * visible // total)
+            thumb_y = bar_y1 + (bar_h - thumb_h) * self.scroll_offset // max(
+                1, total - visible
             )
-            return None
+            drawer.rect(
+                (bar_x, bar_y1), (list_x2, bar_y2), color=0x111122, thickness=-1
+            )
+            drawer.rect(
+                (bar_x, thumb_y),
+                (list_x2, thumb_y + thumb_h),
+                color=0x445566,
+                thickness=-1,
+            )
 
-        cv2.namedWindow(self.window_name)
-        cv2.setMouseCallback(self.window_name, self._handle_mouse)
+        if preview_img is not None:
+            px1 = list_x2 + 1
+            px2 = x2
+            py1 = y1
+            py2 = y2
 
-        while True:
-            cv2.imshow(self.window_name, self._render_page())
+            drawer.rect((px1, py1), (px2, py2), color=0x07070D, thickness=-1)
+            drawer.rect((px1, py1), (px2, py2), color=0x223044, thickness=1)
 
-            if self.selected_index != -1:
-                break
-            key = cv2.waitKey(30) & 0xFF
-            if key == 27:  # ESC
-                break
-            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
-                break
+            img = preview_img
+            if img.ndim == 2:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
-        cv2.destroyAllWindows()
-        if self.selected_index != -1:
-            return self.map_files[self.selected_index]
-        return None
+            ph = max(1, py2 - py1 - 16)
+            pw = max(1, px2 - px1 - 16)
+            ih, iw = img.shape[:2]
+            scale = min(pw / max(1, iw), ph / max(1, ih))
+            nw = max(1, int(iw * scale))
+            nh = max(1, int(ih * scale))
+            ox = px1 + (px2 - px1 - nw) // 2
+            oy = py1 + (py2 - py1 - nh) // 2
+            drawer.paste(
+                img,
+                (ox, oy),
+                scale_w=nw,
+                scale_h=nh,
+                with_alpha=(img.ndim == 3 and img.shape[2] == 4),
+            )
