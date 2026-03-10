@@ -5,7 +5,7 @@
             "label": "$task.SimpleProductionBatch.label",
             "entry": "SimpleProductionBatchStart",
             "description": "$task.SimpleProductionBatch.description",
-            "group": ["daily"]
+            "group": ["utility"]
         }
     ],
     "option": {}
