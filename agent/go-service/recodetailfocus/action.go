@@ -47,12 +47,11 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		contentTemplate = params.Text
 	}
 
-	targetROI := any([]int{0, 0, 1280, 720})
-	if params.ROI != nil {
-		targetROI = params.ROI
-	}
+	targetROI := normalizeROI(params.ROI)
+	targetROIOffset := normalizeROIOffset(params.ROIOffset)
+	targetExpected := normalizeExpected(params.Expected)
 
-	ocrText, ok := runOCR(ctx, targetROI, params.ROIOffset, params.Expected, params.RefreshImage)
+	ocrText, ok := runOCR(ctx, targetROI, targetROIOffset, targetExpected, params.RefreshImage)
 	if !ok {
 		return false
 	}
@@ -66,6 +65,44 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		Str("content", content).
 		Msg("RecoDetailFocusAction rendered")
 	return true
+}
+
+func normalizeROI(v any) any {
+	if isEmptyValue(v) {
+		return []int{0, 0, 0, 0}
+	}
+	return v
+}
+
+func normalizeROIOffset(v any) any {
+	if isEmptyValue(v) {
+		return []int{0, 0, 0, 0}
+	}
+	return v
+}
+
+func normalizeExpected(v any) any {
+	if isEmptyValue(v) {
+		return ""
+	}
+	return v
+}
+
+func isEmptyValue(v any) bool {
+	if v == nil {
+		return true
+	}
+	switch x := v.(type) {
+	case string:
+		return strings.TrimSpace(x) == ""
+	case []any:
+		return len(x) == 0
+	case []int:
+		return len(x) == 0
+	case []string:
+		return len(x) == 0
+	}
+	return false
 }
 
 func runOCR(ctx *maa.Context, roi, roiOffset, expected any, refreshImage bool) (string, bool) {
