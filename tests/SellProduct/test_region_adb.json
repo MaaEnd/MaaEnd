@@ -1,33 +1,33 @@
 {
     "configs": {
-        "name": "一键售卖产品(官服-ADB)，测试地区识别",
+        "name": "(ADB-官服)一键售卖产品，测试地区识别",
         "resource": "官服",
         "controller": "ADB"
     },
     "cases": [
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_难民暂居处",
+            "image": "四号谷地_地区建设_据点_难民暂居处.png",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInRefugeeCamp"
             ]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_基建前站",
+            "image": "四号谷地_地区建设_据点_基建前站.png",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInInfrastructureOutpost"
             ]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_重建指挥部",
+            "image": "四号谷地_地区建设_据点_重建指挥部.png",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInReconstructionCommand"
             ]
         },
         {
-            "image": "一键售卖产品/武陵_地区建设_据点_天王坪援建点",
+            "image": "武陵_地区建设_据点_天王坪援建点.png",
             "hits": [
                 "SellProductInOutpost",
                 "SellProductInSkyKingFlats"

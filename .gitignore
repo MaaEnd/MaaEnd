@@ -476,4 +476,5 @@ Temporary Items
 venv/
 .cache/
 
-tests/MaaEndTesting
+# maa-tools
+tests/maatools

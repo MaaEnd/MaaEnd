@@ -54,7 +54,7 @@
                 },
                 "image": {
                     "type": "string",
-                    "description": "对应图片名（不含扩展名）"
+                    "description": "对应图片名（可不写扩展名）"
                 },
                 "hits": {
                     "type": "array",

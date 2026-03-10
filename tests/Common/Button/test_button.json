@@ -1,66 +1,81 @@
 {
     "configs": {
-        "name": "通用按钮(官服-Win32)",
+        "name": "(Win32-官服)通用按钮",
         "resource": "官服",
         "controller": "Win32"
     },
     "cases": [
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型.png",
             "hits": [
                 "YellowConfirmButtonType2",
                 "CloseButtonType1"
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充至满",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充至满.png",
             "hits": [
                 "YellowConfirmButtonType2",
                 "CloseButtonType1"
             ]
         },
         {
-            "image": "基建任务/帝江号_控制中枢_会客室_需要领取",
+            "image": "帝江号_控制中枢_会客室_需要领取.png",
             "hits": [
                 "YellowConfirmButtonType2",
                 "CloseButtonType1"
             ]
         },
         {
-            "image": "基建任务/帝江号_控制中枢_会客室_点击开展交流",
+            "image": "帝江号_控制中枢_会客室_点击开展交流.png",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "基建任务/帝江号_控制中枢_制造舱_确认收货",
+            "image": "帝江号_控制中枢_制造舱_确认收货.png",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_我转交的委托_获得奖励",
+            "image": "四号谷地_地区建设_仓储节点_我转交的委托_获得奖励.png",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点交易",
+            "image": "四号谷地_地区建设_据点_交易.png",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "一键售卖产品/武陵_地区建设_据点交易",
+            "image": "武陵_地区建设_据点_交易.png",
             "hits": ["CloseRewardsButton"]
         },
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_基建前站",
+            "image": "四号谷地_地区建设_据点_基建前站.png",
             "hits": ["CloseButtonType1"]
         },
         {
-            "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱",
+            "image": "武陵_地区建设_仓储节点_货物装箱.png",
             "hits": ["CloseButtonType1"]
         },
+        // 四号谷地/地区建设/据点/基建前站 LevelUpButton should missed but hit
+        // {
+        //     "image": "WrongUpLevelButton.png",
+        //     "hits": []
+        // },
+        // {
+        //     "image": "UpLevelButton.png",
+        //     "hits": ["LevelUpButton"]
+        // },
         {
-            "image": "升级武器/WrongUpLevelButton",
-            "hits": []
-        },
-        {
-            "image": "升级武器/UpLevelButton",
-            "hits": ["LevelUpButton"]
+            "image": "帝江号_大世界.png",
+            "hits": [
+                {
+                    "node": "RegionalDevelopmentButton",
+                    "box": [
+                        223,
+                        32,
+                        32,
+                        19
+                    ]
+                }
+            ]
         }
     ]
 }

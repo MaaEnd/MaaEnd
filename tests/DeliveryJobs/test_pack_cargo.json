@@ -1,33 +1,33 @@
 {
     "configs": {
-        "name": "自动转交送货任务(官服-Win32)，测试打包货物",
+        "name": "(Win32-官服)自动转交送货任务，测试打包货物",
         "resource": "官服",
         "controller": "Win32"
     },
     "cases": [
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择装箱货物类型.png",
             "hits": [
                 "DeliveryJobsInCargoPackGoods",
                 "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充货物",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充货物.png",
             "hits": [
                 "DeliveryJobsCargoFillToMax",
                 "DeliveryJobsSelectItemToFillValleyIV"
             ]
         },
         {
-            "image": "自动转交送货任务/武陵_地区建设_仓储节点_货物装箱_填充货物",
+            "image": "武陵_地区建设_仓储节点_货物装箱_填充货物.png",
             "hits": [
                 "DeliveryJobsCargoFillToMax",
                 "DeliveryJobsSelectItemToFillWuling"
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物.png",
             "hits": [
                 "DeliveryJobsFillCorrespondingGoods",
                 "DeliveryJobsCargoFillToMax",
@@ -35,7 +35,7 @@
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_填充至满",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充至满.png",
             "hits": [
                 "DeliveryJobsFillToMaxNextStep",
                 "DeliveryJobsCargoFillToMax",
@@ -43,32 +43,26 @@
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_竞价中",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_竞价中.png",
             "hits": ["DeliveryJobsCargoBid"]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_调度申请",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
             "hits": ["DeliveryJobsInCargoRedistributionBid"]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_调度申请_有待运送的货物",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请_有待运送的货物.png",
             "hits": [
                 "DeliveryJobsOngoingDelivery",
                 "DeliveryJobsInCargoRedistributionBid"
             ]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_开始运送后动画",
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_开始运送后动画.png",
             "hits": ["DeliveryJobsDeliverQuickly"]
         },
         {
-            "image": "自动转交送货任务/四号谷地_地区建设_仓储节点_货物装箱_点击屏幕继续",
-            "hits": [
-                "DeliveryJobsDeliverQuickly"
-            ]
-        },
-        {
-            "image": "自动转交送货任务/大世界主页_送货任务",
+            "image": "帝江号_大世界.png",
             "hits": ["DeliveryJobsBackToDepot"]
         }
     ]
