@@ -51,6 +51,14 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	targetROIOffset := normalizeROIOffset(params.ROIOffset)
 	targetExpected := normalizeExpected(params.Expected)
 
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("roi", stringify(targetROI)).
+		Str("roi_offset", stringify(targetROIOffset)).
+		Str("expected", stringify(targetExpected)).
+		Bool("refresh_image", params.RefreshImage).
+		Msg("RecoDetailFocusAction normalized params")
+
 	ocrText, ok := runOCR(ctx, targetROI, targetROIOffset, targetExpected, params.RefreshImage)
 	if !ok {
 		return false
@@ -106,6 +114,11 @@ func isEmptyValue(v any) bool {
 }
 
 func runOCR(ctx *maa.Context, roi, roiOffset, expected any, refreshImage bool) (string, bool) {
+	if ctx == nil {
+		log.Error().Msg("RecoDetailFocusAction context is nil")
+		return "N/A", true
+	}
+
 	nodeOverride := map[string]any{
 		"roi": roi,
 	}
@@ -119,11 +132,16 @@ func runOCR(ctx *maa.Context, roi, roiOffset, expected any, refreshImage bool) (
 	override := map[string]any{
 		internalOCRNodeName: nodeOverride,
 	}
+	log.Info().
+		Str("ocr_node", internalOCRNodeName).
+		Str("override", stringify(override)).
+		Bool("refresh_image", refreshImage).
+		Msg("RecoDetailFocusAction OCR attempt")
 
 	controller := ctx.GetTasker().GetController()
 	if controller == nil {
 		log.Error().Msg("RecoDetailFocusAction controller is nil")
-		return "", false
+		return "N/A", true
 	}
 
 	if refreshImage {
@@ -133,13 +151,34 @@ func runOCR(ctx *maa.Context, roi, roiOffset, expected any, refreshImage bool) (
 	img, err := controller.CacheImage()
 	if err != nil {
 		log.Error().Err(err).Msg("RecoDetailFocusAction get cached image failed")
-		return "", false
+		return "N/A", true
 	}
 
 	detail, err := ctx.RunRecognition(internalOCRNodeName, img, override)
 	if err != nil {
-		log.Error().Err(err).Msg("RecoDetailFocusAction run OCR failed")
-		return "", false
+		log.Error().
+			Err(err).
+			Str("override", stringify(override)).
+			Msg("RecoDetailFocusAction run OCR failed")
+
+		fallbackNodeOverride := map[string]any{
+			"roi": roi,
+		}
+		fallbackOverride := map[string]any{
+			internalOCRNodeName: fallbackNodeOverride,
+		}
+		log.Warn().
+			Str("override", stringify(fallbackOverride)).
+			Msg("RecoDetailFocusAction retry OCR with minimal override")
+
+		detail, err = ctx.RunRecognition(internalOCRNodeName, img, fallbackOverride)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("override", stringify(fallbackOverride)).
+				Msg("RecoDetailFocusAction OCR fallback failed")
+			return "N/A", true
+		}
 	}
 
 	if detail == nil || !detail.Hit {
