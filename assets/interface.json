@@ -125,6 +125,7 @@
     ],
     "task": [],
     "import": [
+        // group: daily
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
@@ -138,12 +139,15 @@
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
         "tasks/Weapon.json",
+        // group: foreground
         "tasks/AutoEssence.json",
         "tasks/EnvironmentMonitoring.json",
         "tasks/ProtocolSpace.json",
         "tasks/GiftOperator.json",
         "tasks/AutoEcoFarm.json",
+        // group: realtime
         "tasks/RealTimeTask.json",
+        // group: utility
         "tasks/PuzzleSolver.json",
         "tasks/EssenceFilter.json",
         "tasks/ImportBluePrints.json",
