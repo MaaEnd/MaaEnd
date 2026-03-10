@@ -48,18 +48,25 @@ const config: FullConfig = {
   maaStdoutLevel: 'Error',
   maaLogDir: 'tests/maatools',
 
+  interfacePath: 'assets/interface.json',
+
   check: {
-    interfacePath: 'assets/interface.json',
     override: {
       'mpe-config': 'error',
     },
   },
 
   test: {
-    interfacePath: 'assets/interface.json',
     casesCwd: 'tests/MaaEndTestset',
     cases: fetchCases,
     errorDetailsPath: 'tests/maatools/error_details.json',
+  },
+
+  vscode: {
+    agents: {
+      'agent/go-service': 'launch-go-agent',
+      'agent/cpp-algo': 'launch-cpp-agent',
+    },
   },
 }
 

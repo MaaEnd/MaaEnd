@@ -6,15 +6,15 @@
     },
     "cases": [
         {
-            "image": "四号谷地_地区建设_仓储节点_查看任务",
+            "image": "四号谷地_地区建设_仓储节点_查看任务.png",
             "hits": ["DeliveryJobsEnterDeliveryJob"]
         },
         {
-            "image": "四号谷地_地区建设_仓储节点_送货任务_转交运送委托",
+            "image": "四号谷地_地区建设_仓储节点_送货任务_转交运送委托.png",
             "hits": ["DeliveryJobsClickTransferJob"]
         },
         {
-            "image": "四号谷地_地区建设_仓储节点_送货任务_确认转交",
+            "image": "四号谷地_地区建设_仓储节点_送货任务_确认转交.png",
             "hits": ["DeliveryJobsConfirmTaskTransfer"]
         }
     ]
