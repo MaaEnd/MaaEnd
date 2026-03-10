@@ -4,6 +4,21 @@ import (
 	"image"
 )
 
+func subpixelOffset(neg, pos float64) float64 {
+	wn := max(0.0, neg)
+	wp := max(0.0, pos)
+	wn2 := wn * wn
+	wp2 := wp * wp
+
+	sum := wn2 + wp2
+	if sum < 1e-12 {
+		return 0.0
+	}
+
+	offset := (wp2 - wn2) / sum
+	return min(1.0, max(-1.0, offset))
+}
+
 // ComputeNCC computes the normalized cross-correlation between a rectangle region in the haystack image
 // and a template image, using precomputed integral array for efficiency
 func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplStats StatsResult, ox, oy int) float64 {
@@ -41,27 +56,27 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 }
 
 // MatchTemplate performs template matching on the whole image,
-// returns (x, y, score) of the best match
+// returns (x, y, score) of the best match, where x and y are subpixel-accurate coordinates.
 func MatchTemplate(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
-) (int, int, float64) {
+) (float64, float64, float64) {
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, 0, 0, iw, ih)
 }
 
 // MatchTemplateInArea performs template matching such that the center of the template
 // remains within the specified rectangle (ax, ay, aw, ah).
-// Returns (x, y, score) of the best match, where (x, y) is the top-left corner.
+// Returns (x, y, score) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
 func MatchTemplateInArea(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
 	ax, ay, aw, ah int,
-) (int, int, float64) {
+) (float64, float64, float64) {
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
 
@@ -114,5 +129,25 @@ func MatchTemplateInArea(
 			}
 		}
 	}
-	return fx, fy, fm
+
+	upNCC, downNCC := fm, fm
+	leftNCC, rightNCC := fm, fm
+
+	if fy-1 >= minY {
+		upNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy-1)
+	}
+	if fy+1 <= maxY {
+		downNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy+1)
+	}
+	if fx-1 >= minX {
+		leftNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx-1, fy)
+	}
+	if fx+1 <= maxX {
+		rightNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx+1, fy)
+	}
+
+	subX := float64(fx) + subpixelOffset(leftNCC, rightNCC)
+	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
+
+	return subX, subY, fm
 }

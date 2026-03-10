@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@nekosu/maa-tools':
-        specifier: 1.0.13
-        version: 1.0.13
+        specifier: 1.0.18
+        version: 1.0.18
       '@nekosu/prettier-plugin-maafw-sort':
         specifier: 1.0.4
         version: 1.0.4
@@ -83,8 +83,8 @@ packages:
   '@nekosu/maa-tasker@1.0.0':
     resolution: {integrity: sha512-p5SaBJGvAMr5J2uk6imoiK7eIF7yA67HndWyfxddAHHdoyliai2dkHqBhTmDDuRmmAJ/ly4INg5Hnx8CI7Po3A==}
 
-  '@nekosu/maa-tools@1.0.13':
-    resolution: {integrity: sha512-JOPw5M4MaSx7COro2KSiLdVanrzztseveQIgrWztuvBYkkoDUM99BU5VIED0eqsOL/+AQWyQgTfdP9zf3NUKQA==}
+  '@nekosu/maa-tools@1.0.18':
+    resolution: {integrity: sha512-qadUFpY3E+HCx6k2AtLpRPwynk3QUMSTZPCa8vNU0CAxPSuhTIPwRNldx4BTAgwvZCb7MkUH1QGJuDcKfEz1jg==}
     hasBin: true
 
   '@nekosu/maa-version-manager@1.0.2':
@@ -197,6 +197,10 @@ packages:
   cacache@20.0.3:
     resolution: {integrity: sha512-3pUp4e8hv07k1QlijZu6Kn7c9+ZpWWk4j3F8N3xPuCExULobqJydKYOTj1FTq58srkJsXvO7LbGAH4C0ZU3WGw==}
     engines: {node: ^20.17.0 || >=22.9.0}
+
+  chalk@5.6.2:
+    resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   chokidar@5.0.0:
     resolution: {integrity: sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==}
@@ -652,12 +656,13 @@ snapshots:
     dependencies:
       '@nekosu/simple-parser': 1.0.0
 
-  '@nekosu/maa-tools@1.0.13':
+  '@nekosu/maa-tools@1.0.18':
     dependencies:
       '@actions/core': 3.0.0
       '@nekosu/maa-locale': 1.0.1
       '@nekosu/maa-pipeline-manager': 1.0.6
       '@nekosu/maa-version-manager': 1.0.2
+      chalk: 5.6.2
       jiti: 2.6.1
       jsonc-parser: 3.3.1
       workerpool: 10.0.1
@@ -808,6 +813,8 @@ snapshots:
       p-map: 7.0.4
       ssri: 13.0.1
       unique-filename: 5.0.0
+
+  chalk@5.6.2: {}
 
   chokidar@5.0.0:
     dependencies:

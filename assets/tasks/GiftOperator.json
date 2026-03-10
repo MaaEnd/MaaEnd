@@ -10,7 +10,8 @@
             ],
             "controller": [
                 "Win32-Front"
-            ]
+            ],
+            "group": ["foreground"]
         }
     ],
     "option": {

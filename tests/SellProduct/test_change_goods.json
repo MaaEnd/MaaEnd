@@ -1,25 +1,25 @@
 {
     "configs": {
-        "name": "一键售卖产品(官服-Win32)，测试更换货品",
+        "name": "(Win32-官服)一键售卖产品，测试更换货品",
         "resource": "官服",
         "controller": "Win32"
     },
     "cases": [
         {
-            "image": "一键售卖产品/四号谷地_地区建设_据点_难民暂居处",
+            "image": "四号谷地_地区建设_据点_难民暂居处.png",
             "hits": [
                 "SellProductChangeGoods"
             ]
         },
         {
-            "image": "一键售卖产品/四号谷地_据点_选择交易货品",
+            "image": "四号谷地_地区建设_据点_选择交易货品.png",
             "hits": [
                 "SellProductSelectNewGood",
                 "SellProductSelectNewGoodConfirm"
             ]
         },
         {
-            "image": "一键售卖产品/武陵_据点_选择交易货品",
+            "image": "武陵_地区建设_据点_选择交易货品.png",
             "hits": [
                 "SellProductSelectNewGood",
                 "SellProductSelectNewGoodConfirm"

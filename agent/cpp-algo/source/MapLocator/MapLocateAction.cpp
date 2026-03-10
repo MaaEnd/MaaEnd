@@ -35,33 +35,32 @@ static fs::path getExeDir()
 #endif
 }
 
-static std::shared_ptr<MapLocator> getOrInitLocator()
+std::shared_ptr<MapLocator> getOrInitLocator()
 {
-    static std::shared_ptr<MapLocator> locator = nullptr;
-    if (locator) {
-        return locator;
-    }
+    static std::shared_ptr<MapLocator> locator = []() {
+        fs::path exeDir = getExeDir();
+        fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
+        fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
 
-    fs::path exeDir = getExeDir();
-    fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
-    fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
+        std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
+        std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
 
-    std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
-    std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
+        LogInfo << "Auto-init: mapRoot=" << mapRootStr;
+        LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
 
-    LogInfo << "Auto-init: mapRoot=" << mapRootStr;
-    LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
+        MapLocatorConfig cfg;
+        cfg.mapResourceDir = mapRootStr;
+        cfg.yoloModelPath = yoloModelStr;
+        cfg.yoloThreads = 1;
 
-    MapLocatorConfig cfg;
-    cfg.mapResourceDir = mapRootStr;
-    cfg.yoloModelPath = yoloModelStr;
-    cfg.yoloThreads = 1;
+        auto loc = std::make_shared<MapLocator>();
+        bool ok = loc->initialize(cfg);
+        if (!ok) {
+            LogError << "Initialize failed!";
+        }
 
-    locator = std::make_shared<MapLocator>();
-    bool ok = locator->initialize(cfg);
-    if (!ok) {
-        LogError << "Initialize failed!";
-    }
+        return loc;
+    }();
 
     return locator;
 }
@@ -89,12 +88,27 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
         return MAA_FALSE;
     }
 
-    if (MaaImageBufferIsEmpty(image)) {
+    const MaaImageBuffer* actualImg = image;
+    MaaImageBuffer* tempBuf = nullptr;
+    if (MaaImageBufferIsEmpty(actualImg)) {
+        auto ctrl = MaaTaskerGetController(MaaContextGetTasker(context));
+        MaaCtrlId id = MaaControllerPostScreencap(ctrl);
+        MaaControllerWait(ctrl, id);
+        tempBuf = MaaImageBufferCreate();
+        if (MaaControllerCachedImage(ctrl, tempBuf)) {
+            actualImg = tempBuf;
+        }
+    }
+
+    if (MaaImageBufferIsEmpty(actualImg)) {
         LogError << "MapLocateRecognition: Image buffer is empty";
+        if (tempBuf) {
+            MaaImageBufferDestroy(tempBuf);
+        }
         return MAA_FALSE;
     }
 
-    cv::Mat img = to_mat(image);
+    cv::Mat img = to_mat(actualImg);
 
     cv::Rect roi(MinimapROIOriginX, MinimapROIOriginY, MinimapROIWidth, MinimapROIHeight);
     cv::Rect imgBounds(0, 0, img.cols, img.rows);
@@ -102,6 +116,9 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
 
     if (roi.empty()) {
         LogError << "MapLocateRecognition: ROI empty";
+        if (tempBuf) {
+            MaaImageBufferDestroy(tempBuf);
+        }
         return MAA_FALSE;
     }
 
@@ -139,6 +156,10 @@ MaaBool MAA_CALL MapLocateRecognitionRun(
 
         std::string jsonStr = json::value(out).dumps();
         MaaStringBufferSet(out_detail, jsonStr.c_str());
+    }
+
+    if (tempBuf) {
+        MaaImageBufferDestroy(tempBuf);
     }
 
     if (result.status == LocateStatus::Success) {

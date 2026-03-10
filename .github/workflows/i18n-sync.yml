@@ -2,6 +2,10 @@ name: i18n-sync
 
 on:
   workflow_dispatch:
+    inputs:
+      reviewer:
+        description: "自动请求评审的 GitHub 用户名（可留空）"
+        required: false
   schedule:
     # 每天 UTC 03:00 自动运行（可按需调整）
     - cron: "0 3 * * *"
@@ -13,6 +17,7 @@ permissions:
 env:
   I18N_SYNC_BRANCH: "chore/i18n-auto-sync"
   PR_TITLE: "chore: auto sync OCR i18n expected"
+  DEFAULT_PR_REVIEWER: "overflow65537"
 
 jobs:
   sync-ocr-expected:
@@ -73,10 +78,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_REVIEWER: ${{ github.event.inputs.reviewer || env.DEFAULT_PR_REVIEWER }}
         run: |
           pr_number="$(gh pr list --base "$BASE_BRANCH" --head "$I18N_SYNC_BRANCH" --state open --json number --jq '.[0].number')"
           if [ -n "$pr_number" ]; then
             echo "PR already exists: #$pr_number"
+            if [ -n "$PR_REVIEWER" ]; then
+              if ! output="$(gh pr edit "$pr_number" --add-reviewer "$PR_REVIEWER" 2>&1)"; then
+                if echo "$output" | grep -qi "already requested"; then
+                  echo "Skip add reviewer (already requested)"
+                else
+                  echo "$output" >&2
+                  exit 1
+                fi
+              fi
+            fi
             exit 0
           fi
           pr_body="$(cat <<'EOF'
@@ -89,11 +105,16 @@ jobs:
           - schedule (daily UTC)
           EOF
           )"
+          reviewer_args=()
+          if [ -n "$PR_REVIEWER" ]; then
+            reviewer_args=(--reviewer "$PR_REVIEWER")
+          fi
           gh pr create \
             --base "$BASE_BRANCH" \
             --head "$I18N_SYNC_BRANCH" \
             --title "$PR_TITLE" \
-            --body "$pr_body"
+            --body "$pr_body" \
+            "${reviewer_args[@]}"
 
       - name: Show changed files
         run: |

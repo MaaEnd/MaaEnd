@@ -4,7 +4,8 @@
             "description": "$task.AutoUseSpMedication.description",
             "entry": "AutoUseSpMedicationEntry",
             "label": "$task.AutoUseSpMedication.label",
-            "name": "AutoUseSpMedication"
+            "name": "AutoUseSpMedication",
+            "group": ["utility"]
         }
     ],
     "option": {}

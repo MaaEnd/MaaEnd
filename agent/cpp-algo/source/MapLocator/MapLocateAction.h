@@ -2,8 +2,13 @@
 
 #include "MaaFramework/MaaAPI.h"
 
+#include <memory>
+
 namespace maplocator
 {
+
+class MapLocator;
+std::shared_ptr<MapLocator> getOrInitLocator();
 
 MaaBool MAA_CALL MapLocateRecognitionRun(
     MaaContext* context,

@@ -19,6 +19,9 @@
                 ],
                 "expected": [
                     "共享蓝图",
+                    "共享藍圖",
+                    "Shared Blueprints",
+                    "共有図面",
                     "Shared Blueprint",
                     "Shared"
                 ]
@@ -167,8 +170,9 @@
                     "存至共享藍圖",
                     "Save to Shared Blueprints",
                     "保存",
-                    "Save to Shared",
-                    "Save"
+                    "儲存",
+                    "Save",
+                    "Save to Shared"
                 ]
             }
         },
@@ -191,7 +195,9 @@
                 ],
                 "expected": [
                     "已保存",
+                    "已儲存",
                     "Saved",
+                    "保存済み",
                     "Already"
                 ]
             }

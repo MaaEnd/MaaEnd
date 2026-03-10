@@ -18,10 +18,10 @@
     },
     //这部分是清空背包的任务
     "_AutoEcoFarmEndClearBagStart": {
-        "desc": "任务开始前准备清理背包",
+        "desc": "任务结束后清理背包",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmClearBagStart",
+            "[JumpBack]_AutoEcoFarmClearBagStart",
             "_AutoEcoFarmJumpBack"
         ]
     }

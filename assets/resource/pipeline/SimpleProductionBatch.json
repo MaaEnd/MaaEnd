@@ -46,8 +46,11 @@
             "肥料數量不足",
             "Insufficient",
             "肥料が足りません",
-            "Not enough",
-            "当前材料不足"
+            "当前材料不足",
+            "目前材料不足",
+            "Insufficient materials",
+            "素材が不足しています",
+            "Not enough"
         ]
     },
     "CheckMaterialEnough": {
@@ -136,7 +139,6 @@
             "制作成功",
             "製作成功",
             "Crafting Successful",
-            "製作成功",
             "Success",
             "Crafted"
         ],
@@ -156,7 +158,6 @@
             "制作成功",
             "製作成功",
             "Crafting Successful",
-            "製作成功",
             "Success",
             "Crafted"
         ],

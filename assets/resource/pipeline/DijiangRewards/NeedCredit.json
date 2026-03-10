@@ -41,6 +41,9 @@
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }

@@ -5,11 +5,7 @@
 
 inline cv::Mat to_mat(const MaaImageBuffer* buffer)
 {
-    return cv::Mat(
-        MaaImageBufferHeight(buffer),
-        MaaImageBufferWidth(buffer),
-        MaaImageBufferType(buffer),
-        MaaImageBufferGetRawData(buffer));
+    return cv::Mat(MaaImageBufferHeight(buffer), MaaImageBufferWidth(buffer), MaaImageBufferType(buffer), MaaImageBufferGetRawData(buffer));
 }
 
 #ifdef _WIN32

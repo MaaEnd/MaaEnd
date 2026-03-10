@@ -29,7 +29,7 @@ Required parameters:
 
 - `map_name`: The unique name of the map. E.g., "map001_lv001".
 
-- `path`: A list of waypoints consisting of several coordinates. The player will move to these coordinate points in sequence.
+- `path`: A list of real-number waypoints consisting of several coordinates. The player will move to these coordinate points in sequence.
 
 Optional parameters:
 
@@ -61,16 +61,16 @@ Optional parameters:
             "map_name": "map02_lv002",
             "path": [
                 [
-                    688,
-                    350
+                    688.0,
+                    350.0
                 ],
                 [
-                    679,
-                    358
+                    679.5,
+                    358.2
                 ],
                 [
-                    670,
-                    350
+                    670.0,
+                    350.8
                 ]
             ]
         }
@@ -79,6 +79,7 @@ Optional parameters:
 ```
 
 > [!TIP]
+>
 > Before executing this node, it is recommended to use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node to check whether the player's **initial position** meets the requirements to reach the first waypoint.
 
 > [!WARNING]
@@ -146,7 +147,7 @@ Required parameters:
 
 - `expected`: A list consisting of one or more conditions. Each condition object needs to contain the following fields:
     - `map_name`: The unique name of the expected map.
-    - `target`: A list of 4 integers `[x, y, w, h]`, representing the rectangular area where the expected coordinates are located.
+    - `target`: A list of 4 real-numbers `[x, y, w, h]`, representing the rectangular area where the expected coordinates are located.
 
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>

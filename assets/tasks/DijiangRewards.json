@@ -10,7 +10,8 @@
                 "ProductionAssistanceWithoutTheControlNexus",
                 "ClueSetting",
                 "SelectToGrow"
-            ]
+            ],
+            "group": ["daily"]
         }
     ],
     "option": {
