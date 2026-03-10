@@ -37,11 +37,11 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
     - **Combat assistance**: Auto basic attacks, dodges, skills, ultimates, and chains; supports target locking and focus fire to make battles easier.
     - **Auto loot**: Pick up every shiny drop and gathering point automatically so you never miss any resources.
     - **Convenience actions**: Instant teleport confirmations, auto zipline usage, and faster traversal.
-    - **Puzzle helper**: Encounter a puzzle while exploring? Let the AI solve it in seconds (you can also enable the looped "🧩 Auto Puzzle Solver").
-    - **Auto petting**: Automatically pet mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
+    - **Puzzle helper**: Encounter a puzzle while exploring? Let the AI solve it in seconds (you can also enable the looped "🧩 Solve Puzzle").
+    - **Petting**: Pat mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
 - 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
 - 💎 **Essence filtering**: Smart recognition of essence stats, automatically locking and keeping optimal ones for easy junk clearing.
-- 🎱 **Auto Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
+- 🎱 **Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
 - 🌿 **Environment Monitoring**: Auto-complete environment monitoring tasks!
 - ⚔️ **Protocol Space**: Automatically consume sanity to farm Protocol Space rewards until it's fully depleted, your best helper for clearing sanity!
 - 🔫 **Armory upgrade & assembly**: Automate weapon enhancement and gear assembly to free your hands and boost power easily.
@@ -54,7 +54,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🎁 **Base tasks**: Automatically collect base outputs, restock, and manage clues (collect/place in one go). Clue exchanging can also be automated (though we do not strongly recommend toggling it on).
 - 👥 **Batch friend requests**: Send friend requests in bulk by UID instead of entering them one by one manually.
 - 📅 **Daily automation**: Clear daily rewards in one click (missions/battle pass/mail/storage, simulation space rewards, encyclopedia notifications, simple handbook rewards, Baker dialogues, friend visits, etc.).
-- 🚚 **Commission secretary**: Automatically accept and forward delivery commissions (toggle by region). Supports "snatching" commissions from the list.
+- 🚚 **Commission secretary**: Accept and forward delivery commissions (toggle by region). Supports "snatching" commissions from the list.
 - 💻 **Multi‑platform support**: Works on PC (Win32 API) and Android (ADB), so you can enjoy MaaEnd wherever you play.
 
 ## 🛠️ Developer Guide
