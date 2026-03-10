@@ -38,7 +38,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
     - **Auto loot**: Pick up every shiny drop and gathering point automatically so you never miss any resources.
     - **Convenience actions**: Instant teleport confirmations, auto zipline usage, and faster traversal.
     - **Puzzle helper**: Encounter a puzzle while exploring? Let the AI solve it in seconds (you can also enable the looped "🧩 Solve Puzzle").
-    - **Petting**: Pat mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
+    - **Petting**: Pet mounts/animals; works great together with auto loot (we suggest switching mounts quickly after petting).
 - 🧩 **Puzzle Master**: AI solves puzzles with high accuracy. Supports single run, loop, and demo mode (watch and learn how it solves them).
 - 💎 **Essence filtering**: Smart recognition of essence stats, automatically locking and keeping optimal ones for easy junk clearing.
 - 🎱 **Essence Farm**: Automatically challenge heavily accumulated points with your turrets, farm essence effortlessly!
