@@ -203,7 +203,7 @@ class PathEditPage(BasePage):
         self.pipeline_context = pipeline_context  # None → N mode
         self._path_layer = _PathLayer(self.view, self)
         self._realtime_layer = _RealtimePathLayer(self.view, self)
-        self.view.fit_to(self.points)
+        self._fit_view_to_points_or_map()
 
         self.drag_idx = -1
         self.selected_idx = -1
@@ -282,6 +282,13 @@ class PathEditPage(BasePage):
     def is_dirty(self) -> bool:
         """True when current points differ from the initial snapshot."""
         return self.points != self._point_snapshot
+
+    def _fit_view_to_points_or_map(self) -> None:
+        if self.points:
+            self.view.fit_to(self.points)
+            return
+        img_h, img_w = self.img.shape[:2]
+        self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
 
     def _do_save(self):
         if self.pipeline_context is None:
@@ -887,6 +894,7 @@ class AreaEditPage(BasePage):
         if initial_target and len(initial_target) == 4:
             self.target = [self._coord1(v) for v in initial_target]
         self._target_snapshot = list(self.target) if self.target is not None else None
+        self._fit_view_to_target_or_map()
 
         self._drawing = False
         self._draw_start: tuple[float, float] | None = None
@@ -938,6 +946,14 @@ class AreaEditPage(BasePage):
         w = abs(x2 - x1)
         h = abs(y2 - y1)
         return [self._coord1(left), self._coord1(top), self._coord1(w), self._coord1(h)]
+
+    def _fit_view_to_target_or_map(self) -> None:
+        if self.target is not None:
+            x, y, w, h = self.target
+            self.view.fit_to([(x, y), (x + w, y + h)], padding=0.2)
+            return
+        img_h, img_w = self.img.shape[:2]
+        self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
 
     def _update_status(self, color, message: str) -> None:
         self._status = StatusRecord(time.time(), color, message)
@@ -1109,6 +1125,7 @@ class AreaEditPage(BasePage):
             if self._draw_start is not None:
                 self.target = self._normalized_target(self._draw_start, (mx, my))
                 self._draw_start = None
+                self._fit_view_to_target_or_map()
                 self._update_status(0x78DCFF, "Updated target area.")
                 self.render_page()
 
@@ -1161,19 +1178,21 @@ class ModeSelectStep(StepPage):
             color=0xDDDDDD,
             thickness=2,
         )
-        btn_w, btn_h = 280, 90
-        spacing = 30
-        total_w = btn_w * 3 + spacing * 2
-        start_x = (self.WINDOW_W - total_w) // 2
-        y1 = 280
+        btn_w, btn_h = 420, 82
+        spacing = 24
+        col_x = (self.WINDOW_W - btn_w) // 2
+        row1_y = 220
+        row2_y = row1_y + btn_h + spacing
+        row3_y = row2_y + btn_h + spacing
 
         if not self.buttons:
             self.buttons.append(
                 Button(
-                    (start_x, y1, start_x + btn_w, y1 + btn_h),
-                    "Create New Path (N)",
+                    (col_x, row1_y, col_x + btn_w, row1_y + btn_h),
+                    "Create Move Node (M)",
                     base_color=0x334455,
-                    hotkey=ord("n"),
+                    hotkey=(ord("m"), ord("M")),
+                    icon_name="Move",
                     on_click=lambda: self.stepper.push_step(
                         MapSelectStep(node_type=NODE_TYPE_MOVE)
                     ),
@@ -1182,31 +1201,28 @@ class ModeSelectStep(StepPage):
             self.buttons.append(
                 Button(
                     (
-                        start_x + btn_w + spacing,
-                        y1,
-                        start_x + btn_w * 2 + spacing,
-                        y1 + btn_h,
+                        col_x,
+                        row2_y,
+                        col_x + btn_w,
+                        row2_y + btn_h,
                     ),
-                    "Import from Pipeline (I)",
-                    base_color=0x554433,
-                    hotkey=ord("i"),
-                    on_click=lambda: self.stepper.push_step(FileSelectStep()),
+                    "Create AssertLocation Node (A)",
+                    base_color=0x355536,
+                    hotkey=ord("a"),
+                    icon_name="AssertLocation",
+                    on_click=lambda: self.stepper.push_step(
+                        MapSelectStep(node_type=NODE_TYPE_ASSERT_LOCATION)
+                    ),
                 )
             )
             self.buttons.append(
                 Button(
-                    (
-                        start_x + (btn_w + spacing) * 2,
-                        y1,
-                        start_x + (btn_w + spacing) * 2 + btn_w,
-                        y1 + btn_h,
-                    ),
-                    "Create Assert Area (A)",
-                    base_color=0x355536,
-                    hotkey=ord("a"),
-                    on_click=lambda: self.stepper.push_step(
-                        MapSelectStep(node_type=NODE_TYPE_ASSERT_LOCATION)
-                    ),
+                    (col_x, row3_y, col_x + btn_w, row3_y + btn_h),
+                    "Import from Pipeline JSON (I)",
+                    base_color=0x554433,
+                    hotkey=(ord("i"), ord("I")),
+                    icon_name="Import",
+                    on_click=lambda: self.stepper.push_step(FileSelectStep()),
                 )
             )
 
@@ -1296,9 +1312,12 @@ class FileSelectStep(StepPage):
                         self._all_files.append(
                             {
                                 "label": f,
-                                "sub_label": os.path.relpath(
-                                    path, pipeline_dir
-                                ).replace(os.path.sep, "/"),
+                                "sub_label": (
+                                    os.path.dirname(
+                                        os.path.relpath(path, pipeline_dir)
+                                    ).replace(os.path.sep, "/")
+                                    or "."
+                                ),
                                 "data": path,
                                 "disabled": not enabled,
                             }
@@ -1381,6 +1400,11 @@ class NodeSelectStep(StepPage):
                 {
                     "label": n["node_name"],
                     "sub_label": self._build_node_sub_label(n),
+                    "icon_name": (
+                        "AssertLocation"
+                        if n.get("node_type") == NODE_TYPE_ASSERT_LOCATION
+                        else "Move"
+                    ),
                     "data": n["node_name"],
                 }
                 for n in nodes

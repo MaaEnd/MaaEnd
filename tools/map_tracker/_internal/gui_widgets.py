@@ -4,7 +4,7 @@ from typing import Any, Callable
 
 import numpy as np
 
-from .core_utils import Drawer, cv2
+from .core_utils import Drawer, cv2, get_icon_image
 
 
 class BasePage:
@@ -283,9 +283,10 @@ class Button:
         base_color: int,
         text_color: int = 0xFFFFFF,
         hotkey: int | tuple[int, ...] | None = None,
-        on_click: callable = None,
+        on_click: Callable[[], None] | None = None,
         thickness: int = -1,
         font_scale: float = 0.5,
+        icon_name: str | None = None,
     ):
         self.rect = rect
         self.text = text
@@ -297,9 +298,13 @@ class Button:
         self.on_click = on_click
         self.thickness = thickness
         self.font_scale = font_scale
+        self.icon_name = icon_name
 
         self.hovered = False
         self.needs_render = True
+
+    def _get_icon(self) -> np.ndarray | None:
+        return get_icon_image(self.icon_name)
 
     def _get_draw_color(self) -> int:
         if not self.hovered:
@@ -318,6 +323,20 @@ class Button:
         drawer.rect((x1, y1), (x2, y2), color=color, thickness=self.thickness)
         if border_color != -1:
             drawer.rect((x1, y1), (x2, y2), color=border_color, thickness=1)
+
+        icon = self._get_icon()
+        if icon is not None:
+            bh = y2 - y1
+            icon_size = max(14, min(28, bh - 20))
+            ix = x1 + 16
+            iy = y1 + (bh - icon_size) // 2
+            drawer.paste(
+                icon,
+                (ix, iy),
+                scale_w=icon_size,
+                scale_h=icon_size,
+                with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
+            )
 
         cx, cy = x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2 + 5
         drawer.text_centered(
@@ -446,6 +465,9 @@ class ScrollableListWidget:
     def _enabled_indices(self) -> list[int]:
         return [i for i, item in enumerate(self.items) if not item.get("disabled")]
 
+    def _get_icon(self, icon_name: str | None) -> np.ndarray | None:
+        return get_icon_image(icon_name)
+
     def navigate(self, direction: int) -> None:
         enabled = self._enabled_indices()
         if not enabled:
@@ -556,8 +578,22 @@ class ScrollableListWidget:
             text_color = (
                 0x666677 if disabled else (0xFFFFFF if not priority else 0xAADDFF)
             )
+            label_x = x1 + 12
+            icon = self._get_icon(item.get("icon_name"))
+            if icon is not None:
+                icon_size = max(14, min(20, self.item_height - 10))
+                icon_x = x1 + 8
+                icon_y = iy1 + (self.item_height - icon_size) // 2
+                drawer.paste(
+                    icon,
+                    (icon_x, icon_y),
+                    scale_w=icon_size,
+                    scale_h=icon_size,
+                    with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
+                )
+                label_x = icon_x + icon_size + 8
             drawer.text(
-                label, (x1 + 12, iy2 - 10), font_scale, color=text_color, thickness=1
+                label, (label_x, iy2 - 10), font_scale, color=text_color, thickness=1
             )
 
             sub = item.get("sub_label", "")
