@@ -6,15 +6,14 @@
             "entry": "AutoCollectStart",
             "description": "$task.AutoCollect.description",
             "option": [
-                "CollectThornyYazhen"
+                "AutoCollectThornyYazhen"
             ]
         }
     ],
     "option": {
-        "CollectThornyYazhen": {
+        "AutoCollectThornyYazhen": {
             "type": "switch",
-            "label": "$option.CollectThornyYazhen.label",
-            "default_case": "Yes",
+            "label": "$option.AutoCollectThornyYazhen.label",
             "cases": [
                 {
                     "name": "Yes",

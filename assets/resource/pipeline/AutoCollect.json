@@ -18,6 +18,9 @@
         "post_delay": 0,
         "next": [
             "CollectThornyYazhenStart"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectThornyYazhen.label"
+        }
     }
 }
