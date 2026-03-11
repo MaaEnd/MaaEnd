@@ -70,22 +70,19 @@ It clears the hit counts of the nodes specified in the `nodes` field of `custom_
 ## RecoDetailFocusAction
 
 `RecoDetailFocusAction` is a display action invoked through `Custom`, implemented in `agent/go-service/recodetailfocus`.  
-It actively performs one OCR in the configured `roi` area, then renders a Focus message using a template.
+It reads the current action node's recognition result (`RecognitionDetail`), extracts OCR `best.text`, and renders a Focus message using a template.
 
 - **Parameters (`custom_action_param`)**
 
     - You may pass a JSON object, which is serialized to a string by the framework and passed to Go.
     - Field descriptions:
-        - `text?: string`: Display template (optional). If omitted, the default template is used: `roi={roi}, text={text}`.
-        - `roi?: string | int[4]`: OCR region (optional). It can be a node name (for example, `"SomeNode"`) or `[x,y,w,h]`.
-        - `roi_offset?: int[4]`: OCR region offset (optional), applied together with `roi` to the OCR node override.
-        - `expected?: string | string[]`: OCR expected condition (optional). Supports a string or a string list and is passed to the OCR node override.
-        - `refresh_image?: bool`: Whether to fetch a fresh image (optional, default `false`). `false` uses cached image directly, `true` captures a new screenshot before OCR.
+        - `text?: string`: Display template (optional). If omitted, the default template is used: `text={text}`.
 
 - **Supported placeholders**
 
-    - `{roi}`: Hit region, formatted as `[x,y,w,h]`.
-    - `{text}`: OCR text.
+    - `{text}`: OCR `best.text` from current recognition detail.
+    - `{node}`: Current node name (`CurrentTaskName`).
+    - `{hit}`: Whether current recognition is hit (`true/false`).
 
 - **Usage Example**
 
@@ -94,19 +91,7 @@ It actively performs one OCR in the configured `roi` area, then renders a Focus 
     "action": "Custom",
     "custom_action": "RecoDetailFocusAction",
     "custom_action_param": {
-        "text": "Reco: roi={roi}, text={text}",
-        "roi": "SomeNode",
-        "roi_offset": [
-            100,
-            100,
-            300,
-            80
-        ],
-        "expected": [
-            "Credit",
-            "Shop"
-        ],
-        "refresh_image": true
+        "text": "node={node}, hit={hit}, text={text}"
     }
 }
 ```
@@ -114,4 +99,4 @@ It actively performs one OCR in the configured `roi` area, then renders a Focus 
 - **Notes**
     - Placeholder names are case-sensitive; use them exactly as documented.
     - If a field is unavailable, it is replaced with `N/A`.
-    - This action uses internal OCR node `__RecoDetailFocusOCR`.
+    - This action does not run OCR by itself; it depends on the current node's `RecognitionDetail`.

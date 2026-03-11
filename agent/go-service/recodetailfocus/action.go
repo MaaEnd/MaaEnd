@@ -2,7 +2,7 @@ package recodetailfocus
 
 import (
 	"encoding/json"
-	"fmt"
+	"strconv"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	defaultContentTemplate = "roi={roi}, text={text}"
+	defaultContentTemplate = "text={text}"
 )
 
 type RecoDetailFocusAction struct{}
@@ -25,6 +25,10 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		log.Error().Msg("RecoDetailFocusAction got nil custom action arg")
 		return false
 	}
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("param", arg.CustomActionParam).
+		Msg("RecoDetailFocusAction start")
 
 	var params recoDetailFocusParam
 	if arg.CustomActionParam != "" {
@@ -41,9 +45,13 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	if strings.TrimSpace(params.Text) != "" {
 		contentTemplate = params.Text
 	}
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("template", contentTemplate).
+		Msg("RecoDetailFocusAction template resolved")
 
 	ocrText, detailHit := collectOCRTextFromAction(arg)
-	content := renderContent(contentTemplate, "N/A", ocrText, arg.CurrentTaskName, detailHit)
+	content := renderContent(contentTemplate, ocrText, arg.CurrentTaskName, detailHit)
 	maafocus.NodeActionStarting(ctx, content)
 
 	log.Info().
@@ -62,6 +70,20 @@ func collectOCRTextFromAction(arg *maa.CustomActionArg) (string, bool) {
 	}
 
 	detail := arg.RecognitionDetail
+	filteredCount := 0
+	allCount := 0
+	if detail.Results != nil {
+		filteredCount = len(detail.Results.Filtered)
+		allCount = len(detail.Results.All)
+	}
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Bool("hit", detail.Hit).
+		Bool("has_results", detail.Results != nil).
+		Int("filtered_count", filteredCount).
+		Int("all_count", allCount).
+		Msg("RecoDetailFocusAction recognition detail summary")
+
 	if !detail.Hit || detail.Results == nil {
 		log.Warn().
 			Str("node", arg.CurrentTaskName).
@@ -70,44 +92,41 @@ func collectOCRTextFromAction(arg *maa.CustomActionArg) (string, bool) {
 		return "N/A", detail.Hit
 	}
 
-	seen := make(map[string]struct{})
-	collected := make([]string, 0, 4)
-	for _, group := range [][]*maa.RecognitionResult{{detail.Results.Best}, detail.Results.Filtered, detail.Results.All} {
-		for _, r := range group {
-			if r == nil {
-				continue
-			}
-			ocrResult, ok := r.AsOCR()
-			if !ok {
-				continue
-			}
-			text := strings.TrimSpace(ocrResult.Text)
-			if text == "" {
-				continue
-			}
-			if _, ok := seen[text]; ok {
-				continue
-			}
-			seen[text] = struct{}{}
-			collected = append(collected, text)
-		}
-	}
-
-	if len(collected) == 0 {
+	best := detail.Results.Best
+	if best == nil {
 		log.Warn().
 			Str("node", arg.CurrentTaskName).
-			Msg("RecoDetailFocusAction OCR result exists but text empty")
+			Msg("RecoDetailFocusAction OCR best result missing")
 		return "N/A", true
 	}
 
-	return strings.Join(collected, " | "), true
+	ocrResult, ok := best.AsOCR()
+	if !ok {
+		log.Warn().
+			Str("node", arg.CurrentTaskName).
+			Msg("RecoDetailFocusAction best result is not OCR")
+		return "N/A", true
+	}
+
+	text := strings.TrimSpace(ocrResult.Text)
+	if text == "" {
+		log.Warn().
+			Str("node", arg.CurrentTaskName).
+			Msg("RecoDetailFocusAction OCR best text empty")
+		return "N/A", true
+	}
+	log.Info().
+		Str("node", arg.CurrentTaskName).
+		Str("best_text", text).
+		Msg("RecoDetailFocusAction OCR best text extracted")
+
+	return text, true
 }
 
-func renderContent(tpl, roiText, ocrText, nodeName string, hit bool) string {
+func renderContent(tpl, ocrText, nodeName string, hit bool) string {
 	return strings.NewReplacer(
-		"{roi}", roiText,
 		"{text}", ocrText,
 		"{node}", nodeName,
-		"{hit}", fmt.Sprintf("%t", hit),
+		"{hit}", strconv.FormatBool(hit),
 	).Replace(tpl)
 }

@@ -70,20 +70,19 @@
 ## RecoDetailFocusAction 动作
 
 `RecoDetailFocusAction` 是一个通过 `Custom` 调用的识别结果展示动作，实现位于 `agent/go-service/recodetailfocus`。  
-它会直接读取当前 action 节点的识别结果（`RecognitionDetail`），提取其中 OCR 文本并组合后通过 Focus 事件显示。
+它会直接读取当前 action 节点的识别结果（`RecognitionDetail`），提取其中 OCR 的 `best.text` 并通过 Focus 事件显示。
 
 - **参数（`custom_action_param`）**
 
     - 可传入一个 JSON 对象，由框架序列化为字符串后传给 Go。
     - 字段说明：
-        - `text?: string`：展示模板（可选）。未传时使用默认模板：`roi={roi}, text={text}`。
+        - `text?: string`：展示模板（可选）。未传时使用默认模板：`text={text}`。
 
 - **支持的替换变量**
 
-    - `{text}`：从当前识别结果中提取并去重后拼接的 OCR 文本（使用 ` | ` 连接）。
+    - `{text}`：当前识别结果中的 OCR `best.text`。
     - `{node}`：当前节点名（`CurrentTaskName`）。
     - `{hit}`：当前识别是否命中（`true/false`）。
-    - `{roi}`：当前实现固定为 `N/A`（仅保留模板兼容）。
 
 - **使用示例**
 
