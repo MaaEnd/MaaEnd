@@ -35,6 +35,7 @@ tests/
 - `controller = "ADB"` 时，截图目录为 `tests/MaaEndTestset/ADB/`。
 - `controller = ["Win32", "ADB"]` 时，会分别在两个控制器目录下各执行一轮同样的测试用例。
 - `resource = "官服"` 时，截图目录为 `tests/MaaEndTestset/*/Official_CN/`。
+- `controller` 或 `resource` 只要有一方写成数组，就会按笛卡尔积展开测试矩阵。
 
 如果新增了新的资源服或控制器枚举，除了补测试文件，还要同步更新 `maatools.config.mts` 中的映射关系。
 
@@ -46,7 +47,7 @@ tests/
 {
     "configs": {
         "name": "(Win32/ADB-官服)通用按钮",
-        "resource": "官服",
+        "resource": ["官服"],
         "controller": ["Win32", "ADB"],
     },
     "cases": [
@@ -57,7 +58,10 @@ tests/
                 "InWorld",
                 {
                     "node": "RegionalDevelopmentButton",
-                    "box": [223, 32, 32, 19],
+                    "box": {
+                        "Win32": [223, 32, 32, 19],
+                        "ADB": [220, 30, 34, 20],
+                    },
                 },
             ],
         },
@@ -68,10 +72,19 @@ tests/
 ### `configs`
 
 - `name`：测试组名称，可选，但建议填写，方便查看测试输出。
-- `resource`：资源服名称。当前仓库实际使用的是 `官服`。
+- `resource`：资源服名称，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `官服`。
 - `controller`：控制器类型，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `Win32` 和 `ADB`。
 
-当 `controller` 写成数组时，`maatools.config.mts` 会把同一个测试文件展开为多组测试，分别按每个控制器去各自的截图目录取图。
+当 `controller` 或 `resource` 写成数组时，`maatools.config.mts` 会把同一个测试文件展开为多组测试，并按控制器与资源的笛卡尔积去各自目录取图。
+
+例如：
+
+- `controller = ["ADB", "Win32"]`
+- `resource = ["官服", "B服"]`
+
+会展开为 4 组测试：`ADB-官服`、`ADB-B服`、`Win32-官服`、`Win32-B服`。
+
+前提是这些值都已经在 `maatools.config.mts` 中配置了映射，并且测试集目录下存在对应截图。
 
 ### `cases`
 
@@ -101,7 +114,33 @@ tests/
 ]
 ```
 
-其中 `box` 的格式固定为 `[x, y, width, height]`，四个值都必须是大于等于 0 的整数。
+`box` 也可以写成矩阵对象，让不同控制器或资源使用不同的识别框：
+
+```json
+"hits": [
+    {
+        "node": "SpecialButtonWithOffset",
+        "box": {
+            "ADB": [91, 587, 274, 48],
+            "Win32": [100, 600, 250, 50],
+            "default": [95, 590, 260, 50]
+        }
+    }
+]
+```
+
+当前 `maatools.config.mts` 的匹配优先级如下：
+
+- `controller:resource`
+- `controller/resource`
+- `resource:controller`
+- `resource/controller`
+- `controller`
+- `resource`
+- `default`
+- `*`
+
+最终落到测试执行阶段的 `box` 仍然会被转换成固定的 `[x, y, width, height]` 数组，四个值都必须是大于等于 0 的整数。
 
 如果某张图不应该命中任何节点，写空数组即可：
 
@@ -126,6 +165,8 @@ tests/
 如果同一批截图在多个控制器下预期完全一致，建议直接把 `controller` 写成数组，避免维护两份重复文件。
 
 如果不同控制器下的截图、命中节点或 `box` 断言已经出现差异，则仍然建议拆成独立测试文件。
+
+如果差异只体现在坐标上，而截图和节点集合保持一致，优先考虑保留一个文件，并把 `box` 写成矩阵对象。
 
 ### 2. 截图名直接描述场景
 
@@ -216,8 +257,9 @@ pnpm check
 ```jsonc
 {
     "configs": {
-        "name": "(Win32/ADB-官服)示例节点测试",
-        "resource": "官服",
+        "name": "(多控制器/多资源)示例节点测试",
+        // 只有在 maatools.config.mts 中存在映射、且测试集中有对应截图时才应这样写
+        "resource": ["官服", "B服"],
         "controller": ["Win32", "ADB"],
     },
     "cases": [
@@ -227,12 +269,15 @@ pnpm check
             "hits": ["InWorld"],
         },
         {
-            "name": "验证识别框位置",
-            "image": "帝江号_大世界",
+            "name": "验证不同控制器下的识别框位置",
+            "image": "帝江号_某个复杂界面",
             "hits": [
                 {
-                    "node": "RegionalDevelopmentButton",
-                    "box": [223, 32, 32, 19],
+                    "node": "SpecialButtonWithOffset",
+                    "box": {
+                        "ADB": [91, 587, 274, 48],
+                        "Win32": [100, 600, 250, 50],
+                    },
                 },
             ],
         },
@@ -251,7 +296,8 @@ pnpm check
 
 - 测试文件名是否符合 `test_*.json`。
 - `configs.resource` 和 `configs.controller` 是否能在 `maatools.config.mts` 中找到映射。
-- 如果 `configs.controller` 写成数组，是否确认这些控制器下的预期结果完全一致。
+- 如果 `configs.controller` 或 `configs.resource` 写成数组，是否确认所有组合下都存在对应截图。
+- 如果 `box` 写成矩阵对象，是否确认所有需要的组合键都能命中，或提供了合适的 `default`。
 - `image` 是否能在对应目录找到对应截图；如果没写扩展名，也要确认文件名主体一致。
 - `hits` 是否只保留本图真正应该命中的节点。
 - 若节点位置也重要，是否补了 `box`。

@@ -35,6 +35,7 @@ With the current config:
 - `controller = "ADB"` maps to `tests/MaaEndTestset/ADB/`.
 - `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
+- If either `controller` or `resource` is an array, tests are expanded as a Cartesian product.
 
 If you add a new resource server or controller enum, update the mapping in `maatools.config.mts` as well.
 
@@ -46,7 +47,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 {
     "configs": {
         "name": "(Win32/ADB-官服)Common Buttons",
-        "resource": "官服",
+        "resource": ["官服"],
         "controller": ["Win32", "ADB"],
     },
     "cases": [
@@ -57,7 +58,10 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
                 "InWorld",
                 {
                     "node": "RegionalDevelopmentButton",
-                    "box": [223, 32, 32, 19],
+                    "box": {
+                        "Win32": [223, 32, 32, 19],
+                        "ADB": [220, 30, 34, 20],
+                    },
                 },
             ],
         },
@@ -68,10 +72,19 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 ### `configs`
 
 - `name`: optional test group name; recommended because it makes CLI output easier to read.
-- `resource`: resource server name. The current repo uses `官服`.
+- `resource`: resource server name. It can be either a single string or an array of strings. The current repo uses `官服`.
 - `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32` and `ADB`.
 
-When `controller` is an array, `maatools.config.mts` expands the file into multiple test groups and resolves screenshots under each controller-specific directory.
+When `controller` or `resource` is an array, `maatools.config.mts` expands the file into multiple test groups using the Cartesian product of controller and resource values.
+
+For example:
+
+- `controller = ["ADB", "Win32"]`
+- `resource = ["官服", "B服"]`
+
+expands into four groups: `ADB-官服`, `ADB-B服`, `Win32-官服`, and `Win32-B服`.
+
+Only use values that already have mappings in `maatools.config.mts` and screenshots in the test set.
 
 ### `cases`
 
@@ -101,7 +114,33 @@ When `controller` is an array, `maatools.config.mts` expands the file into multi
 ]
 ```
 
-`box` always uses the format `[x, y, width, height]`, and all four values must be integers greater than or equal to 0.
+`box` can also be a matrix object so different controllers or resources use different rectangles:
+
+```json
+"hits": [
+    {
+        "node": "SpecialButtonWithOffset",
+        "box": {
+            "ADB": [91, 587, 274, 48],
+            "Win32": [100, 600, 250, 50],
+            "default": [95, 590, 260, 50]
+        }
+    }
+]
+```
+
+The current lookup priority in `maatools.config.mts` is:
+
+- `controller:resource`
+- `controller/resource`
+- `resource:controller`
+- `resource/controller`
+- `controller`
+- `resource`
+- `default`
+- `*`
+
+The final value passed to `maa-tools` is still a fixed `[x, y, width, height]` rectangle, and all four values must be integers greater than or equal to 0.
 
 If nothing should hit on a screenshot, use an empty array:
 
@@ -126,6 +165,8 @@ This makes failures easier to diagnose and regression samples easier to expand.
 If the same screenshots and expectations apply to multiple controllers, prefer a controller array to avoid maintaining duplicate files.
 
 If screenshots, expected hits, or `box` assertions already differ by controller, keep separate files instead.
+
+If only the rectangle differs while screenshots and expected nodes stay the same, prefer keeping one file and using a matrix `box` object.
 
 ### 2. Use screenshot names that describe the scene directly
 
@@ -216,8 +257,9 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
 ```jsonc
 {
     "configs": {
-        "name": "(Win32/ADB-官服)Example Node Test",
-        "resource": "官服",
+        "name": "(Multi-controller/multi-resource) Example Node Test",
+        // Only use this form when mappings and screenshots exist for every combination
+        "resource": ["官服", "B服"],
         "controller": ["Win32", "ADB"],
     },
     "cases": [
@@ -227,12 +269,15 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
             "hits": ["InWorld"],
         },
         {
-            "name": "Check bounding box position",
-            "image": "帝江号_大世界",
+            "name": "Check controller-specific box positions",
+            "image": "帝江号_某个复杂界面",
             "hits": [
                 {
-                    "node": "RegionalDevelopmentButton",
-                    "box": [223, 32, 32, 19],
+                    "node": "SpecialButtonWithOffset",
+                    "box": {
+                        "ADB": [91, 587, 274, 48],
+                        "Win32": [100, 600, 250, 50],
+                    },
                 },
             ],
         },
@@ -251,7 +296,8 @@ After adding or editing node tests, check at least these items:
 
 - The file name matches `test_*.json`.
 - `configs.resource` and `configs.controller` are mapped in `maatools.config.mts`.
-- If `configs.controller` is an array, confirm the expected results are truly identical for all listed controllers.
+- If `configs.controller` or `configs.resource` is an array, confirm screenshots exist for every expanded combination.
+- If `box` is a matrix object, confirm every required combination can be resolved, or provide a suitable `default`.
 - `image` points to a real screenshot in the resolved directory; if the extension is omitted, make sure the base file name still matches.
 - `hits` includes only the nodes that truly should hit on that image.
 - A `box` assertion is added when location correctness matters.
