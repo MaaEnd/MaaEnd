@@ -103,6 +103,11 @@ function normalizeHit(
   }
 }
 
+function formatMatrixTestName(matrix: MatrixContext, name: string | undefined): string {
+  const prefix = `(${matrix.controller}-${matrix.resource})`
+  return `${prefix}${name ?? '<unnamed>'}`
+}
+
 async function fetchCases(): Promise<TestCases[]> {
   const { loadAllTestCases } = await import('@nekosu/maa-tools')
 
@@ -202,6 +207,7 @@ async function fetchCases(): Promise<TestCases[]> {
         expandedTestCases.push({
           configs: {
             ...testCases.configs,
+            name: formatMatrixTestName(matrix, testCases.configs.name),
             controller,
             resource,
             imageRoot: path.join(controllerPath, resourcePath),
