@@ -340,7 +340,7 @@ class Button:
 
         cx, cy = x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2 + 5
         drawer.text_centered(
-            self.text, (cx, cy), self.font_scale, color=self.text_color, thickness=1
+            self.text, (cx, cy), self.font_scale, color=self.text_color
         )
         self.needs_render = False
 
@@ -414,15 +414,11 @@ class TextInputWidget:
         )
         if self.text:
             display = self.text + ("|" if cursor_visible else "")
-            drawer.text(
-                display, (x1 + pad_x, text_y), font_scale, color=0xFFFFFF, thickness=1
-            )
+            drawer.text(display, (x1 + pad_x, text_y), font_scale, color=0xFFFFFF)
         else:
             display = "|" if cursor_visible else self.placeholder
             color = 0xFFFFFF if cursor_visible else 0x666677
-            drawer.text(
-                display, (x1 + pad_x, text_y), font_scale, color=color, thickness=1
-            )
+            drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
 
 
 class ScrollableListWidget:
@@ -592,20 +588,17 @@ class ScrollableListWidget:
                     with_alpha=(icon.ndim == 3 and icon.shape[2] == 4),
                 )
                 label_x = icon_x + icon_size + 8
-            drawer.text(
-                label, (label_x, iy2 - 10), font_scale, color=text_color, thickness=1
-            )
+            drawer.text(label, (label_x, iy2 - 10), font_scale, color=text_color)
 
             sub = item.get("sub_label", "")
             if sub:
                 sub_color = 0x445566 if disabled else 0x6688AA
-                sub_size = drawer.get_text_size(sub, font_scale, thickness=1)
+                sub_size = drawer.get_text_size(sub, font_scale)
                 drawer.text(
                     sub,
                     (list_x2 - sub_size[0] - 12, iy2 - 10),
                     font_scale,
                     color=sub_color,
-                    thickness=1,
                 )
 
             drawer.line((x1, iy2 - 1), (list_x2, iy2 - 1), color=0x222233, thickness=1)

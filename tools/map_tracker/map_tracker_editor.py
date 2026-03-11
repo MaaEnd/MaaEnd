@@ -550,7 +550,7 @@ class PathEditPage(BasePage):
             drawer.text(prompt, (x1 + 10, y2 - 10), 0.45, color=0xFFFFFF)
 
             btn_label = "[Undo!]"
-            btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+            btn_size = drawer.get_text_size(btn_label, 0.45)
             btn_pad_x = 12
             btn_pad_y = 6
             btn_w = btn_size[0] + btn_pad_x * 2
@@ -569,7 +569,6 @@ class PathEditPage(BasePage):
                 (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
                 0.45,
                 color=0xFFFFFF,
-                thickness=1,
             )
             return
 
@@ -583,7 +582,7 @@ class PathEditPage(BasePage):
         drawer.text(prompt, (prompt_x, prompt_y), 0.45, color=0x50DC50)
 
         btn_label = "[Sure!]"
-        btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
+        btn_size = drawer.get_text_size(btn_label, 0.45)
         btn_pad_x = 12
         btn_pad_y = 6
         btn_w = btn_size[0] + btn_pad_x * 2
@@ -596,11 +595,7 @@ class PathEditPage(BasePage):
         drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0x1C8A1C, thickness=-1)
         drawer.rect((btn_x1, btn_y1), (btn_x2, btn_y2), color=0xB4B4B4, thickness=1)
         drawer.text_centered(
-            btn_label,
-            (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y),
-            0.45,
-            color=0xFFFFFF,
-            thickness=1,
+            btn_label, (btn_x1 + btn_w // 2, btn_y2 - btn_pad_y), 0.45, color=0xFFFFFF
         )
 
     def _render_sidebar(self, drawer: "Drawer"):
@@ -995,11 +990,7 @@ class AreaEditPage(BasePage):
         drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
         if self._status:
             drawer.text(
-                self._status.message,
-                (x1 + 10, y2 - 10),
-                0.45,
-                color=self._status.color,
-                thickness=1,
+                self._status.message, (x1 + 10, y2 - 10), 0.45, color=self._status.color
             )
 
     def _render_sidebar_bg(self, drawer: Drawer) -> None:
@@ -1016,7 +1007,7 @@ class AreaEditPage(BasePage):
         h = self.window_h
         pad = 15
         cy = pad + 15
-        drawer.text("[ Mouse Tips ]", (pad, cy), 0.5, color=0x40FFFF, thickness=1)
+        drawer.text("[ Mouse Tips ]", (pad, cy), 0.5, color=0x40FFFF)
         cy += 10
         for line in [
             "Left Drag: Draw Rectangle",
@@ -1024,7 +1015,7 @@ class AreaEditPage(BasePage):
             "Scroll: Zoom",
         ]:
             cy += 20
-            drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8, thickness=1)
+            drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8)
         cy += 20
 
         btn_h = 30
@@ -1045,13 +1036,7 @@ class AreaEditPage(BasePage):
         cy += btn_h + 8
         self._finish_button.rect = (btn_x0, cy, btn_x0 + btn_w, cy + btn_h)
 
-        drawer.text(
-            f"Zoom: {self.view.zoom:.2f}x",
-            (pad, h - 70),
-            0.45,
-            color=0xD2D200,
-            thickness=1,
-        )
+        drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 70), 0.45, color=0xD2D200)
 
     def _render(self, drawer: Drawer) -> None:
         self._map_layer.render(drawer)
@@ -1070,19 +1055,19 @@ class AreaEditPage(BasePage):
 
             ox = max(self.SIDEBAR_W + 4, min(x1 + 4, self.window_w - 220))
             oy = max(20, y1 - 8)
-            drawer.text(origin_text, (ox, oy), 0.45, color=0xFFFFFF, thickness=1)
+            drawer.text(origin_text, (ox, oy), 0.45, color=0xFFFFFF)
 
             hx = max(self.SIDEBAR_W + 4, min(x1 + 4, self.window_w - 90))
-            h_size = drawer.get_text_size(h_text, 0.45, thickness=1)
+            h_size = drawer.get_text_size(h_text, 0.45)
             hy = max(
                 h_size[1] + 2,
                 min(y2 + h_size[1] + 2, self.window_h - self.STATUS_BAR_H - 6),
             )
-            drawer.text(h_text, (hx, hy), 0.45, color=0xA8F0FF, thickness=1)
+            drawer.text(h_text, (hx, hy), 0.45, color=0xA8F0FF)
 
             wx = max(self.SIDEBAR_W + 4, min(x2 + 8, self.window_w - 90))
             wy = max(20, min(y2 - 6, self.window_h - self.STATUS_BAR_H - 6))
-            drawer.text(w_text, (wx, wy), 0.45, color=0xA8F0FF, thickness=1)
+            drawer.text(w_text, (wx, wy), 0.45, color=0xA8F0FF)
 
         drawer.line(
             (self.mouse_pos[0], 0),
@@ -1172,11 +1157,7 @@ class ModeSelectStep(StepPage):
 
     def _render_content(self, drawer):
         drawer.text_centered(
-            "Choose an operation mode:",
-            (self.WINDOW_W // 2, 180),
-            0.8,
-            color=0xDDDDDD,
-            thickness=2,
+            "Choose an operation mode:", (self.WINDOW_W // 2, 180), 0.8, color=0xDDDDDD
         )
         btn_w, btn_h = 420, 82
         spacing = 24
@@ -1598,11 +1579,7 @@ class ExportStep(StepPage):
         self.list_widget.render(drawer, (100, 150, self.WINDOW_W - 100, 350))
         if self.saved_text:
             drawer.text_centered(
-                self.saved_text,
-                (self.WINDOW_W // 2, 450),
-                0.8,
-                color=0x50DC50,
-                thickness=2,
+                self.saved_text, (self.WINDOW_W // 2, 450), 0.8, color=0x50DC50
             )
 
     def _handle_content_mouse(self, event, x, y, flags, param):

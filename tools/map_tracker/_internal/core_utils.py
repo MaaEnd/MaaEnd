@@ -203,8 +203,9 @@ class Drawer:
         """Return the underlying image buffer."""
         return self._img
 
-    def get_text_size(self, text: str, font_scale: float, *, thickness: int):
+    def get_text_size(self, text: str, font_scale: float):
         """Measure text size for current font settings."""
+        thickness = max(1, int(round(font_scale * 2)))
         return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
 
     @staticmethod
@@ -221,14 +222,12 @@ class Drawer:
         font_scale: float,
         *,
         color: Color,
-        thickness: int | None = None,
         bg_color: Color | None = None,
         bg_padding: int = 5,
     ):
-        if thickness is None:
-            thickness = max(1, int(round(font_scale * 2)))
+        thickness = max(1, int(round(font_scale * 2)))
         if bg_color is not None:
-            text_size = self.get_text_size(text, font_scale, thickness=thickness)
+            text_size = self.get_text_size(text, font_scale)
             cv2.rectangle(
                 self._img,
                 (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
@@ -253,13 +252,10 @@ class Drawer:
         font_scale: float,
         *,
         color: Color,
-        thickness: int | None = None,
     ):
-        text_size = self.get_text_size(text, font_scale, thickness=thickness)
+        text_size = self.get_text_size(text, font_scale)
         x = pos[0] - text_size[0] // 2
-        self.text(
-            text, (int(x), int(pos[1])), font_scale, color=color, thickness=thickness
-        )
+        self.text(text, (int(x), int(pos[1])), font_scale, color=color)
 
     def rect(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.rectangle(self._img, pt1, pt2, self._to_bgr(color), thickness)
