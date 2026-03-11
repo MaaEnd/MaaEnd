@@ -90,7 +90,7 @@ class _PathLayer(Layer):
         # Draw point index labels
         for i in range(len(points)):
             sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
-            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF, thickness=1)
+            drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF)
 
 
 class PathEditPage(BasePage):
@@ -458,11 +458,7 @@ class PathEditPage(BasePage):
         drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
         if self._status:
             drawer.text(
-                self._status.message,
-                (x1 + 10, y2 - 10),
-                0.45,
-                color=self._status.color,
-                thickness=1,
+                self._status.message, (x1 + 10, y2 - 10), 0.45, color=self._status.color
             )
 
     def _render_sidebar_bg(self, drawer: Drawer) -> None:
@@ -495,13 +491,7 @@ class PathEditPage(BasePage):
         if self._quick_undo_state and len(self._recorded_path) == 0:
             drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
             prompt = "You can undo the previous path generation."
-            drawer.text(
-                prompt,
-                (x1 + 10, y2 - 10),
-                0.45,
-                color=0xFFFFFF,
-                thickness=1,
-            )
+            drawer.text(prompt, (x1 + 10, y2 - 10), 0.45, color=0xFFFFFF)
 
             btn_label = "[Undo!]"
             btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
@@ -534,13 +524,7 @@ class PathEditPage(BasePage):
         prompt = "Do you want to generate a new path from the realtime path record?"
         prompt_x = x1 + 10
         prompt_y = y2 - 10
-        drawer.text(
-            prompt,
-            (prompt_x, prompt_y),
-            0.45,
-            color=0x50DC50,
-            thickness=1,
-        )
+        drawer.text(prompt, (prompt_x, prompt_y), 0.45, color=0x50DC50)
 
         btn_label = "[Sure!]"
         btn_size = drawer.get_text_size(btn_label, 0.45, thickness=1)
@@ -571,13 +555,7 @@ class PathEditPage(BasePage):
 
         # ── Tips section ─────────────────────────────────────────────────
         cy = pad + 15
-        drawer.text(
-            "[ Mouse Tips ]",
-            (pad, cy),
-            0.5,
-            color=0x40FFFF,
-            thickness=1,
-        )
+        drawer.text("[ Mouse Tips ]", (pad, cy), 0.5, color=0x40FFFF)
         cy += 10
         tips = [
             "Left Click: Add/Delete Point",
@@ -587,7 +565,7 @@ class PathEditPage(BasePage):
         ]
         for line in tips:
             cy += 20
-            drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8, thickness=1)
+            drawer.text(line, (pad, cy), 0.4, color=0xC8C8C8)
         cy += 15  # small gap after tips
 
         # ── Buttons ──────────────────────────────────────────────────────
@@ -648,24 +626,18 @@ class PathEditPage(BasePage):
         # Status messages moved to map area status bar
 
         # ── Status section (bottom) ──────────────────────────────────────
-        drawer.text(
-            f"Zoom: {self.view.zoom:.2f}x",
-            (pad, h - 75),
-            0.45,
-            color=0xD2D200,
-            thickness=1,
-        )
+        drawer.text(f"Zoom: {self.view.zoom:.2f}x", (pad, h - 75), 0.45, color=0xD2D200)
 
         if 0 <= self.selected_idx < len(self.points):
             p = self.points[self.selected_idx]
             line = f"Point #{self.selected_idx} ({p[0]:.1f}, {p[1]:.1f})"
         else:
             line = f"Points: {len(self.points)}"
-        drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF, thickness=1)
+        drawer.text(line, (pad, h - 50), 0.45, color=0xFFFFFF)
         record_line = f"History: {len(self._recorded_path)}"
         if self._recording_active:
             record_line += " (Recording)"
-        drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF, thickness=1)
+        drawer.text(record_line, (pad, h - 25), 0.4, color=0x8FC8FF)
 
     # ------------------------------------------------------------------
     # Mouse / keyboard / idle

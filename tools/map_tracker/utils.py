@@ -193,10 +193,12 @@ class Drawer:
         font_scale: float,
         *,
         color: Color,
-        thickness: int,
+        thickness: int | None = None,
         bg_color: Color | None = None,
         bg_padding: int = 5,
     ):
+        if thickness is None:
+            thickness = max(1, int(round(font_scale * 2)))
         if bg_color is not None:
             text_size = self.get_text_size(text, font_scale, thickness=thickness)
             cv2.rectangle(
@@ -217,7 +219,13 @@ class Drawer:
         )
 
     def text_centered(
-        self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
+        self,
+        text: str,
+        pos: Point,
+        font_scale: float,
+        *,
+        color: Color,
+        thickness: int | None = None,
     ):
         text_size = self.get_text_size(text, font_scale, thickness=thickness)
         x = pos[0] - text_size[0] // 2
@@ -584,7 +592,7 @@ class Button:
 
         cx, cy = x1 + (x2 - x1) // 2, y1 + (y2 - y1) // 2 + 5
         drawer.text_centered(
-            self.text, (cx, cy), self.font_scale, color=self.text_color, thickness=1
+            self.text, (cx, cy), self.font_scale, color=self.text_color
         )
         self.needs_render = False
 
@@ -758,13 +766,9 @@ class StepPage(BasePage):
         step_num = len(
             [p for p in self.stepper.step_history if isinstance(p, StepPage)]
         )
-        drawer.text(f"Step {step_num}", (30, h - 35), 0.6, color=0x6688AA, thickness=1)
+        drawer.text(f"Step {step_num}", (30, h - 35), 0.6, color=0x6688AA)
         drawer.text_centered(
-            self.step_data.title,
-            (self.WINDOW_W // 2, h - 20),
-            0.9,
-            color=0xFFFFFF,
-            thickness=2,
+            self.step_data.title, (self.WINDOW_W // 2, h - 20), 0.9, color=0xFFFFFF
         )
         drawer.line((0, h - 1), (self.WINDOW_W, h - 1), color=0x444455, thickness=2)
 
@@ -938,15 +942,11 @@ class TextInputWidget:
         )
         if self.text:
             display = self.text + ("|" if cursor_visible else "")
-            drawer.text(
-                display, (x1 + pad_x, text_y), font_scale, color=0xFFFFFF, thickness=1
-            )
+            drawer.text(display, (x1 + pad_x, text_y), font_scale, color=0xFFFFFF)
         else:
             display = "|" if cursor_visible else self.placeholder
             color = 0xFFFFFF if cursor_visible else 0x666677
-            drawer.text(
-                display, (x1 + pad_x, text_y), font_scale, color=color, thickness=1
-            )
+            drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
 
 
 class ScrollableListWidget:
@@ -1134,9 +1134,7 @@ class ScrollableListWidget:
             text_color = (
                 0x666677 if disabled else (0xFFFFFF if not priority else 0xAADDFF)
             )
-            drawer.text(
-                label, (x1 + 12, iy2 - 10), font_scale, color=text_color, thickness=1
-            )
+            drawer.text(label, (x1 + 12, iy2 - 10), font_scale, color=text_color)
 
             # Sub-label (right-aligned)
             sub = item.get("sub_label", "")
@@ -1148,7 +1146,6 @@ class ScrollableListWidget:
                     (list_x2 - sub_size[0] - 12, iy2 - 10),
                     font_scale,
                     color=sub_color,
-                    thickness=1,
                 )
 
             # Divider
