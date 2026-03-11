@@ -5,24 +5,26 @@ import (
 	"strconv"
 	"strings"
 
-	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
 	defaultContentTemplate = "text={text}"
+	managedOCRNode         = "__RecoDetailFocusOCR"
 )
 
 type RecoDetailFocusAction struct{}
 
 type recoDetailFocusParam struct {
-	Text string `json:"text"`
+	Recognition map[string]any `json:"recognition"`
+	Text        string         `json:"text"`
 }
 
 func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if arg == nil {
-		log.Error().Msg("RecoDetailFocusAction got nil custom action arg")
+	if ctx == nil || arg == nil {
+		log.Error().Msg("RecoDetailFocusAction got nil context or custom action arg")
 		return false
 	}
 	log.Info().
@@ -41,16 +43,63 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		}
 	}
 
+	recognitionConfig := normalizeRecognitionParam(params.Recognition)
+	if len(recognitionConfig) == 0 {
+		log.Error().
+			Str("node", arg.CurrentTaskName).
+			Msg("RecoDetailFocusAction missing custom_action_param.recognition")
+		return false
+	}
+
+	override := map[string]any{
+		managedOCRNode: recognitionConfig,
+	}
+	if err := ctx.OverridePipeline(override); err != nil {
+		log.Error().
+			Err(err).
+			Str("node", arg.CurrentTaskName).
+			Interface("override", override).
+			Msg("RecoDetailFocusAction failed to override OCR node")
+		return false
+	}
+
 	contentTemplate := defaultContentTemplate
 	if strings.TrimSpace(params.Text) != "" {
 		contentTemplate = params.Text
 	}
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("template", contentTemplate).
-		Msg("RecoDetailFocusAction template resolved")
 
-	ocrText, detailHit := collectOCRTextFromAction(arg)
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().
+			Str("node", arg.CurrentTaskName).
+			Msg("RecoDetailFocusAction controller is nil")
+		return false
+	}
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("node", arg.CurrentTaskName).
+			Msg("RecoDetailFocusAction cache image failed")
+		return false
+	}
+
+	detail, err := ctx.RunRecognition(managedOCRNode, img)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("node", arg.CurrentTaskName).
+			Str("ocr_node", managedOCRNode).
+			Msg("RecoDetailFocusAction run OCR node failed")
+		return false
+	}
+
+	detailHit := detail != nil && detail.Hit
+	ocrText, _ := extractBestOCRText(detail)
+	if ocrText == "" {
+		ocrText = "N/A"
+	}
+
 	content := renderContent(contentTemplate, ocrText, arg.CurrentTaskName, detailHit)
 	maafocus.NodeActionStarting(ctx, content)
 
@@ -63,63 +112,33 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 	return true
 }
 
-func collectOCRTextFromAction(arg *maa.CustomActionArg) (string, bool) {
-	if arg == nil || arg.RecognitionDetail == nil {
-		log.Warn().Msg("RecoDetailFocusAction recognition detail missing")
-		return "N/A", false
+func normalizeRecognitionParam(raw map[string]any) map[string]any {
+	if len(raw) == 0 {
+		return nil
 	}
-
-	detail := arg.RecognitionDetail
-	filteredCount := 0
-	allCount := 0
-	if detail.Results != nil {
-		filteredCount = len(detail.Results.Filtered)
-		allCount = len(detail.Results.All)
+	recognition := make(map[string]any, len(raw)+1)
+	for k, v := range raw {
+		recognition[k] = v
 	}
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Bool("hit", detail.Hit).
-		Bool("has_results", detail.Results != nil).
-		Int("filtered_count", filteredCount).
-		Int("all_count", allCount).
-		Msg("RecoDetailFocusAction recognition detail summary")
-
-	if !detail.Hit || detail.Results == nil {
-		log.Warn().
-			Str("node", arg.CurrentTaskName).
-			Bool("hit", detail.Hit).
-			Msg("RecoDetailFocusAction recognition not hit or empty result")
-		return "N/A", detail.Hit
+	// 默认按 OCR 节点处理，允许调用侧显式覆盖 recognition 字段。
+	if _, ok := recognition["recognition"]; !ok {
+		recognition["recognition"] = "OCR"
 	}
+	return recognition
+}
 
-	best := detail.Results.Best
-	if best == nil {
-		log.Warn().
-			Str("node", arg.CurrentTaskName).
-			Msg("RecoDetailFocusAction OCR best result missing")
-		return "N/A", true
+func extractBestOCRText(detail *maa.RecognitionDetail) (string, bool) {
+	if detail == nil || !detail.Hit || detail.Results == nil || detail.Results.Best == nil {
+		return "", false
 	}
-
-	ocrResult, ok := best.AsOCR()
+	ocrResult, ok := detail.Results.Best.AsOCR()
 	if !ok {
-		log.Warn().
-			Str("node", arg.CurrentTaskName).
-			Msg("RecoDetailFocusAction best result is not OCR")
-		return "N/A", true
+		return "", false
 	}
-
 	text := strings.TrimSpace(ocrResult.Text)
 	if text == "" {
-		log.Warn().
-			Str("node", arg.CurrentTaskName).
-			Msg("RecoDetailFocusAction OCR best text empty")
-		return "N/A", true
+		return "", false
 	}
-	log.Info().
-		Str("node", arg.CurrentTaskName).
-		Str("best_text", text).
-		Msg("RecoDetailFocusAction OCR best text extracted")
-
 	return text, true
 }
 

@@ -70,19 +70,20 @@
 ## RecoDetailFocusAction 动作
 
 `RecoDetailFocusAction` 是一个通过 `Custom` 调用的识别结果展示动作，实现位于 `agent/go-service/recodetailfocus`。  
-它会直接读取当前 action 节点的识别结果（`RecognitionDetail`），提取其中 OCR 的 `best.text` 并通过 Focus 事件显示。
+它会读取 `custom_action_param.recognition` 中的识别器配置，覆盖其内部管理的 OCR 节点（`__RecoDetailFocusOCR`），主动执行识别后提取 OCR 的 `best.text`，并通过 Focus 事件显示。
 
 - **参数（`custom_action_param`）**
 
     - 可传入一个 JSON 对象，由框架序列化为字符串后传给 Go。
     - 字段说明：
+        - `recognition: object`：完整的 MaaFramework 识别器配置（必填）。该对象会直接作为节点配置覆盖到 `__RecoDetailFocusOCR` 并用于执行识别。
         - `text?: string`：展示模板（可选）。未传时使用默认模板：`text={text}`。
 
 - **支持的替换变量**
 
-    - `{text}`：当前识别结果中的 OCR `best.text`。
+    - `{text}`：执行识别后 OCR `best.text`。
     - `{node}`：当前节点名（`CurrentTaskName`）。
-    - `{hit}`：当前识别是否命中（`true/false`）。
+    - `{hit}`：本次识别是否命中（`true/false`）。
 
 - **使用示例**
 
@@ -91,7 +92,18 @@
     "action": "Custom",
     "custom_action": "RecoDetailFocusAction",
     "custom_action_param": {
-        "text": "节点={node}, 命中={hit}, 识别={text}"
+        "text": "节点={node}, 命中={hit}, 识别={text}",
+        "recognition": {
+            "recognition": "OCR",
+            "roi": [
+                0,
+                0,
+                1280,
+                720
+            ],
+            "expected": ".*",
+            "only_rec": true
+        }
     }
 }
 ```
@@ -99,4 +111,5 @@
 - **注意事项**
     - 变量名区分大小写，推荐按文档中的写法使用。
     - 当某项信息不存在时，会替换为 `N/A`。
-    - 本动作不会主动执行 OCR；它依赖当前节点已有的 `RecognitionDetail`。
+    - `recognition` 必须是合法的 MaaFramework 识别器字典，否则动作会失败。
+    - 本动作会主动执行一次 OCR，不依赖当前节点已有的 `RecognitionDetail`。
