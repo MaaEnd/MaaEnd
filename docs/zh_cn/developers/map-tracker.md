@@ -196,10 +196,11 @@
 
 我们提供一个 GUI 工具脚本，位于 `/tools/map_tracker/map_tracker_editor.py`。它支持以下基本功能：
 
-1. **创建路径**：选择一张地图，随后用鼠标在地图上创建路径点，最后导出路径点列表或节点 JSON。
-2. **编辑路径**：从现有的 pipeline JSON 文件中加载路径点，进行修改后重新保存或导出。
+- **创建路径（Create Move Node）**：在地图上可视化地绘制 [MapTrackerMove](#action-maptrackermove) 路径点。
+- **创建位置判断节点（Create AssertLocation Node）**：在地图上框选一个用于 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 的矩形区域。
+- **编辑已有节点（Import from Pipeline JSON）**：从现有的 pipeline JSON 文件中加载上述两种节点，修改后可以直接保存到文件！
 
-只需安装 Python 和 `opencv-python` 库，即可使用 Python 来运行上述工具脚本。运行后，在控制台中按照指引操作即可。
+只需安装 Python 和 `opencv-python` 库，即可使用 Python 来运行上述工具脚本。运行后，按照 GUI 指引操作即可。
 
 ### 路径编辑的具体用法
 
@@ -208,11 +209,18 @@
 **常用按钮**：
 
 - 保存（Save）按钮仅在编辑现有路径时可用，点击后会将修改保存回原 pipeline 所在的 JSON 文件。
-- 完成（Finish）按钮会结束编辑，效果等同于关闭窗口。此时，控制台会要求输入一个导出模式。导出模式有多种选择，可以导出 JSON 节点或路径点列表等。
-- 实时定位（Get Realtime Location）按钮会尝试连接定位服务并识别当前游戏内的坐标。定位服务如何开启请参见下方说明。
+- 完成（Finish）按钮会结束编辑。此时，可以选择导出模式（例如导出 JSON 节点或路径点列表等格式）。
+- 实时定位（Record Realtime Path）按钮会尝试连接定位服务并记录当前游戏内的坐标。定位服务如何开启请参见下方说明。
 
 **定位服务**：
 
-要使用实时定位功能，请使用 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) 这个 VS Code 插件来“执行”位于 `/assets/resource/pipeline/MapTracker.json` 中的 `MapTrackerTestLoop` 节点。确保游戏窗口可以被 Maa 正确截图，并且该节点可正常运行。
+要使用实时定位功能，请使用 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) 这个 VS Code 插件来“执行”位于 `/assets/resource/pipeline/MapTracker.json` 中的 `MapTrackerTestLoop` 节点，并确保游戏窗口可以被 Maa 正确截图（无遮挡）。
 
-随后即可使用实时定位按钮来获取游戏内玩家当前的坐标了。
+在上述节点运行期间，您可以：
+
+1. 在侧边栏中点击“Record Realtime Path”按钮；
+2. 随后自行操作角色在游戏内移动，工具会自动记录角色走过的路径；
+3. 完成移动后，返回到工具界面，点击“Stop Path Recoding”按钮停止记录；
+4. 最后，在下方操作栏中将记录的路径转换为可供 MapTracker 使用的路径。
+
+这一工作流可以极大地提升路径点的创建效率和精确程度。

@@ -189,10 +189,11 @@ Required parameters:
 
 We provide a GUI tool script located at `/tools/map_tracker/map_tracker_editor.py`. It supports the following basic functions:
 
-1. **Create Path**: Select a map, then create waypoints on the map with the mouse, and finally export the waypoint list or node JSON.
-2. **Edit Path**: Load waypoints from an existing pipeline JSON file, modify them, and save or export them again.
+1. **Create Move Node**: Visually draw [MapTrackerMove](#action-maptrackermove) path points on a map.
+2. **Create AssertLocation Node**: Draw a rectangle region on a map for [MapTrackerAssertLocation](#recognition-maptrackerassertlocation).
+3. **Import from Pipeline JSON**: Load either of the two node types above from an existing pipeline JSON file, edit them, and save directly back to the file.
 
-Simply install Python and the `opencv-python` library, then run the above tool script with Python. After running, follow the instructions in the console to operate.
+Simply install Python and the `opencv-python` package, then run the script with Python and follow the GUI instructions.
 
 ### Specific Usage of Path Editing
 
@@ -201,11 +202,18 @@ Simply install Python and the `opencv-python` library, then run the above tool s
 **Common Buttons**:
 
 - The Save button is only available when editing an existing path. Clicking it will save the modifications back to the original JSON file where the pipeline is located.
-- The Finish button will end the editing (equivalent to closing the window). At this time, the console will ask you to enter an export mode. There are multiple export modes to choose from, such as exporting JSON nodes or waypoint lists.
-- The Get Realtime Location button will attempt to connect to the positioning service and identify the current coordinates in the game. See the instructions below for how to enable the positioning service.
+- The Finish button ends editing. Then you can choose an export mode (for example, export JSON node text or a raw point list).
+- The Record Realtime Path button tries to connect to the location service and records in-game coordinates over time. See below for how to enable the service.
 
 **Positioning Service**:
 
-To use the real-time positioning function, use the [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) VS Code extension to "execute" the `MapTrackerTestLoop` node located in `/assets/resource/pipeline/MapTracker.json` . Ensure that the game window can be correctly captured by Maa and that the node can run normally.
+To use real-time path recording, use the [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) VS Code extension to run the `MapTrackerTestLoop` node in `/assets/resource/pipeline/MapTracker.json`. Make sure Maa can capture the game window correctly (not blocked by other windows).
 
-Then you can use the Get Realtime Location button to get the player's current coordinates in the game.
+While that node is running, you can:
+
+1. Click the Record Realtime Path button in the sidebar.
+2. Move your character manually in-game; the tool records the traversed route automatically.
+3. Return to the tool and click Stop Path Recording when finished.
+4. Convert the recorded route in the operation area at the bottom into a path usable by MapTracker.
+
+This workflow can significantly improve both efficiency and precision when creating path points.
