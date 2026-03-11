@@ -15,7 +15,7 @@ type MapTrackerAssertLocation struct{}
 
 // LocationCondition represents a single condition to check
 type LocationCondition struct {
-	MapName string `json:"map_name"`
+	MapName string     `json:"map_name"`
 	Target  [4]float64 `json:"target"` // [x, y, w, h]
 }
 
