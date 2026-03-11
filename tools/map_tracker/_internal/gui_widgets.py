@@ -1,3 +1,4 @@
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -190,6 +191,80 @@ class StepPage(BasePage):
 
     def _handle_content_key(self, key):
         pass
+
+
+class MapImageSelectStep(StepPage):
+    """Reusable map image selection step with optional preview support."""
+
+    def __init__(
+        self,
+        *,
+        step_id: str,
+        title: str,
+        map_dir: str,
+        sort_key: Callable[[str], tuple] | None = None,
+        enable_preview: bool = True,
+    ):
+        super().__init__(StepData(step_id, title))
+        self.map_dir = map_dir
+        self.map_list = ScrollableListWidget(item_height=40)
+        self._map_preview_cache: dict[str, object] = {}
+
+        key_fn = sort_key or (lambda name: (len(name), name.lower()))
+        items = []
+        if os.path.isdir(self.map_dir):
+            map_files = [
+                f
+                for f in os.listdir(self.map_dir)
+                if f.lower().endswith((".png", ".jpg"))
+            ]
+            map_files.sort(key=key_fn)
+            items = [{"label": m, "sub_label": "", "data": m} for m in map_files]
+        self.map_list.set_items(items)
+
+        if enable_preview:
+            self.map_list.set_preview_generator(self._generate_map_preview)
+
+    def _generate_map_preview(self, item: dict):
+        map_name = str(item.get("data") or "")
+        if map_name == "":
+            return None
+        if map_name in self._map_preview_cache:
+            return self._map_preview_cache[map_name]
+
+        map_path = os.path.join(self.map_dir, map_name)
+        img = cv2.imread(map_path, cv2.IMREAD_UNCHANGED)
+        self._map_preview_cache[map_name] = img
+        return img
+
+    def _render_content(self, drawer):
+        self.map_list.render(
+            drawer, (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        )
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self.map_list.handle_click(x, y, rect)
+            if idx >= 0:
+                self.on_map_selected(str(self.map_list.items[idx]["data"]))
+        elif event == cv2.EVENT_MOUSEWHEEL:
+            if self.map_list.handle_wheel(x, y, flags, rect):
+                self.stepper.request_render()
+
+    def _handle_content_key(self, key):
+        is_up = self.is_up_key(key)
+        is_down = self.is_down_key(key)
+        if is_up or is_down:
+            self.map_list.navigate(-1 if is_up else 1)
+            self.stepper.request_render()
+        elif key in (10, 13) and self.map_list.selected_idx >= 0:
+            self.on_map_selected(
+                str(self.map_list.items[self.map_list.selected_idx]["data"])
+            )
+
+    def on_map_selected(self, map_name: str) -> None:
+        raise NotImplementedError()
 
 
 class PageStepper:

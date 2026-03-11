@@ -34,6 +34,7 @@ from _internal.gui_widgets import (
     Button,
     ScrollableListWidget,
     TextInputWidget,
+    MapImageSelectStep,
 )
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
@@ -483,18 +484,7 @@ class PathEditPage(BasePage):
         self._render_content(drawer)
 
         # Crosshair
-        drawer.line(
-            (self.mouse_pos[0], 0),
-            (self.mouse_pos[0], self.window_h),
-            color=0xFFFF00,
-            thickness=1,
-        )
-        drawer.line(
-            (0, self.mouse_pos[1]),
-            (self.window_w, self.mouse_pos[1]),
-            color=0xFFFF00,
-            thickness=1,
-        )
+        drawer.crosshair(self.mouse_pos, color=0xFFFF00, thickness=1)
 
         self._render_ui(drawer)
 
@@ -1109,7 +1099,6 @@ class AreaEditPage(BasePage):
             if self._draw_start is not None:
                 self.target = self._normalized_target(self._draw_start, (mx, my))
                 self._draw_start = None
-                self._fit_view_to_target_or_map()
                 self._update_status(0x78DCFF, "Updated target area.")
                 self.render_page()
 
@@ -1207,69 +1196,17 @@ class ModeSelectStep(StepPage):
             )
 
 
-class MapSelectStep(StepPage):
+class MapSelectStep(MapImageSelectStep):
     def __init__(self, *, node_type: str = NODE_TYPE_MOVE):
         title = (
             "Select Map for Path"
             if node_type == NODE_TYPE_MOVE
             else "Select Map for Assert Area"
         )
-        super().__init__(StepData("map_select", title))
+        super().__init__(step_id="map_select", title=title, map_dir=MAP_DIR)
         self.node_type = node_type
-        self.map_list = ScrollableListWidget(item_height=40)
-        self._map_preview_cache: dict[str, object] = {}
-        try:
-            map_files = [
-                f for f in os.listdir(MAP_DIR) if f.lower().endswith((".png", ".jpg"))
-            ]
-            map_files.sort(key=lambda name: (len(name), name.lower()))
-            self.map_list.set_items(
-                [{"label": m, "sub_label": "", "data": m} for m in map_files]
-            )
-        except Exception:
-            pass
 
-        self.map_list.set_preview_generator(self._generate_map_preview)
-
-    def _generate_map_preview(self, item: dict):
-        map_name = str(item.get("data") or "")
-        if map_name == "":
-            return None
-        if map_name in self._map_preview_cache:
-            return self._map_preview_cache[map_name]
-        map_path = os.path.join(MAP_DIR, map_name)
-        img = cv2.imread(map_path, cv2.IMREAD_UNCHANGED)
-        if img is None:
-            self._map_preview_cache[map_name] = None
-            return None
-        self._map_preview_cache[map_name] = img
-        return img
-
-    def _render_content(self, drawer):
-        self.map_list.render(
-            drawer, (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        )
-
-    def _handle_content_mouse(self, event, x, y, flags, param):
-        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
-        if event == cv2.EVENT_LBUTTONDOWN:
-            idx = self.map_list.handle_click(x, y, rect)
-            if idx >= 0:
-                self._submit(self.map_list.items[idx]["data"])
-        elif event == cv2.EVENT_MOUSEWHEEL:
-            if self.map_list.handle_wheel(x, y, flags, rect):
-                self.stepper.request_render()
-
-    def _handle_content_key(self, key):
-        is_up = self.is_up_key(key)
-        is_down = self.is_down_key(key)
-        if is_up or is_down:
-            self.map_list.navigate(-1 if is_up else 1)
-            self.stepper.request_render()
-        elif key in (10, 13) and self.map_list.selected_idx >= 0:
-            self._submit(self.map_list.items[self.map_list.selected_idx]["data"])
-
-    def _submit(self, map_name):
+    def on_map_selected(self, map_name: str) -> None:
         if self.node_type == NODE_TYPE_ASSERT_LOCATION:
             self.stepper.push_step(RegionEditorAdapterStep(map_name, mode="create"))
         else:

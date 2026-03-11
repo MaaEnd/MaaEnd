@@ -266,6 +266,25 @@ class Drawer:
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
 
+    def crosshair(
+        self,
+        center: Point,
+        *,
+        color: Color,
+        thickness: int = 1,
+        full_screen: bool = True,
+        size: int = 8,
+    ) -> None:
+        cx, cy = center
+        if full_screen:
+            self.line((cx, 0), (cx, self.h), color=color, thickness=thickness)
+            self.line((0, cy), (self.w, cy), color=color, thickness=thickness)
+            return
+
+        arm = max(1, int(size))
+        self.line((cx - arm, cy), (cx + arm, cy), color=color, thickness=thickness)
+        self.line((cx, cy - arm), (cx, cy + arm), color=color, thickness=thickness)
+
     def mask(self, pt1: Point, pt2: Point, *, color: Color, alpha: float) -> None:
         x1, y1 = pt1
         x2, y2 = pt2
