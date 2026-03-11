@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "(Win32/ADB-官服)一键售卖产品，测试更换货品",
+        "name": "一键售卖产品，测试更换货品",
         "resource": "官服",
         "controller": [
             "Win32",
