@@ -1,38 +1,34 @@
 {
     "task": [
         {
-            "description": "$task.AutoCollect.description",
-            "entry": "AutoCollectEntry",
-            "label": "$task.AutoCollect.label",
             "name": "AutoCollect",
+            "label": "$task.AutoCollect.label",
+            "entry": "AutoCollectStart",
+            "description": "$task.AutoCollect.description",
             "option": [
-                "AutoCollectThornyYazhen"
+                "CollectThornyYazhen"
             ]
         }
     ],
     "option": {
-        "AutoCollectThornyYazhen": {
+        "CollectThornyYazhen": {
             "type": "switch",
-            "label": "$option.AutoCollectThornyYazhen.label",
+            "label": "$option.CollectThornyYazhen.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoCollectEntry": {
-                            "next": [
-                                "AutoCollectHoldAlt"
-                            ]
+                        "CollectThornyYazhenSub": {
+                            "enabled": true
                         }
                     }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoCollectEntry": {
-                            "next": [
-                                "AutoCollectEnd"
-                            ]
+                        "CollectThornyYazhenSub": {
+                            "enabled": false
                         }
                     }
                 }

@@ -384,6 +384,8 @@
     "task.AutoUseSpMedication.label": "💊 Emergency Sanity Booster",
     "task.AutoCollect.description": "Automatically collect wild resources",
     "task.AutoCollect.label": "🧺 Auto Collect Resources",
+    "task.CollectThornyYazhen.description": "Automatically collect Thorny Yazhen",
+    "task.CollectThornyYazhen.label": "🧺 Collect Thorny Yazhen",
     "option.AutoCollectThornyYazhen.label": "Collect Thorny Yazhen",
     "group.daily.label": "Daily Routine",
     "group.daily.description": "Common reward, base, trading, and progression tasks for regular logins.",

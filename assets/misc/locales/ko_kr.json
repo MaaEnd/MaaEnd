@@ -384,6 +384,8 @@
     "task.AutoUseSpMedication.label": "💊응급 이성 강화제",
     "task.AutoCollect.description": "야외 자원을 자동 수집합니다",
     "task.AutoCollect.label": "🧺자원 자동 수집",
+    "task.CollectThornyYazhen.description": "가시 싹바늘을 자동으로 수집합니다",
+    "task.CollectThornyYazhen.label": "🧺가시 싹바늘 수집",
     "option.AutoCollectThornyYazhen.label": "가시 싹바늘 수집",
     "group.daily.label": "일상 작업",
     "group.daily.description": "접속 후 자주 사용하는 보상 수령, 기지, 경영, 육성 작업입니다.",

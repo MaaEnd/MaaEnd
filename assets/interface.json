@@ -159,6 +159,7 @@
         "tasks/ReadAllWiki.json",
         "tasks/AndroidOpenGame.json",
         "tasks/AutoCollect.json",
+        "tasks/CollectThornyYazhen.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",

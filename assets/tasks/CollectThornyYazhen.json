@@ -1,0 +1,11 @@
+{
+    "task": [
+        {
+            "name": "CollectThornyYazhen",
+            "label": "$task.CollectThornyYazhen.label",
+            "entry": "CollectThornyYazhenStart",
+            "description": "$task.CollectThornyYazhen.description"
+        }
+    ],
+    "option": {}
+}
