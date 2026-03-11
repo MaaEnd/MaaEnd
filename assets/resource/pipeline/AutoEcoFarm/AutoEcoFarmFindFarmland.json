@@ -3,33 +3,33 @@
 //节点从Exit离开，这里关联下一个阶段的节点
 {
     //节点出入口
-    "_AEFFindFarmFarmlandValleyStart": {
+    "_AutoEcoFarmFindFarmFarmlandValleyStart": {
         "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
         "anchor": {"_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindValleyIVEcoFarm"},
         "next": [
-            "_AEFFindFarmFarmlandOpenMap"
+            "_AutoEcoFarmFindFarmFarmlandOpenMap"
         ]
     },
-    "_AEFFindFarmFarmlandWulinStart": {
+    "_AutoEcoFarmFindFarmFarmlandWulinStart": {
         "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
         "anchor": {"_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindWulinEcoFarm"},
         "next": [
-            "_AEFFindFarmFarmlandOpenMap"
+            "_AutoEcoFarmFindFarmFarmlandOpenMap"
         ]
     },
 
-    "_AEFFindFarmFarmlandValleyIVExit": {
+    "_AutoEcoFarmFindFarmFarmlandValleyIVExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetValleyIVStart"
         ]
     },
-    "_AEFFindFarmFarmlandWulinExit": {
+    "_AutoEcoFarmFindFarmFarmlandWulinExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetWulinStart"
         ]
     },
     //内部节点
-    "_AEFFindFarmFarmlandOpenMap": {
+    "_AutoEcoFarmFindFarmFarmlandOpenMap": {
         "desc": "先打开大地图",
         "next": [
             "_AutoEcoFarmInMap",
