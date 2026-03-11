@@ -106,7 +106,8 @@
         "rate_limit": 0,
         "next": [
             "Grow",
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "ClaimAllGrowRewardClose"
         ]
     },
     "Grow": {
