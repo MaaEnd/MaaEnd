@@ -92,7 +92,6 @@
         "next": [
             "ReceptionRoomNeedCollectClues",
             "ReceptionRoomNeedReceiveClues",
-            "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
             "ExitClueLibrary",
             "ExitReceptionRoom",
@@ -136,6 +135,7 @@
             "type": "Click"
         },
         "next": [
+            "[JumpBack]ReceptionRoomSetClues",
             "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
