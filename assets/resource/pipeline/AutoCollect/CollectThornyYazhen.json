@@ -1,7 +1,8 @@
 {
     "CollectThornyYazhenStart": {
         "next": [
-            "CollectThornyYazhenFind"
+            "aaaaa",
+            "[JumpBack]SceneEnterWorldWulingWulingCity4"
         ]
     },
     "CollectThornyYazhenHoldAlt": {
@@ -87,6 +88,56 @@
         },
         "next": [
             "CollectThornyYazhenHoldAlt"
+        ]
+    },
+    "aaaaa": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv002",
+                            "target": [
+                                246,
+                                699,
+                                30,
+                                30
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "desc": "传送到收集地",
+        "next": [
+            "_AutoEcoFarmGotoValleyIVEcoFarm_副本6"
+        ]
+    },
+    "_AutoEcoFarmGotoValleyIVEcoFarm_副本6": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        [
+                            247.3,
+                            700.6
+                        ],
+                        [
+                            266.1,
+                            706.6
+                        ]
+                    ]
+                }
+            }
+        },
+        "desc": "前往收集地",
+        "next": [
+            "CollectThornyYazhenFind"
         ]
     }
 }
