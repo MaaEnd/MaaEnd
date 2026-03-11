@@ -51,18 +51,6 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 
-	override := map[string]any{
-		managedOCRNode: recognitionConfig,
-	}
-	if err := ctx.OverridePipeline(override); err != nil {
-		log.Error().
-			Err(err).
-			Str("node", arg.CurrentTaskName).
-			Interface("override", override).
-			Msg("RecoDetailFocusAction failed to override OCR node")
-		return false
-	}
-
 	contentTemplate := defaultContentTemplate
 	if strings.TrimSpace(params.Text) != "" {
 		contentTemplate = params.Text
@@ -83,8 +71,12 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 			Msg("RecoDetailFocusAction cache image failed")
 		return false
 	}
-
-	detail, err := ctx.RunRecognition(managedOCRNode, img)
+	override := map[string]any{
+		managedOCRNode: map[string]any{
+			"recognition": recognitionConfig,
+		},
+	}
+	detail, err := ctx.RunRecognition(managedOCRNode, img, override)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -116,13 +108,9 @@ func normalizeRecognitionParam(raw map[string]any) map[string]any {
 	if len(raw) == 0 {
 		return nil
 	}
-	recognition := make(map[string]any, len(raw)+1)
+	recognition := make(map[string]any, len(raw))
 	for k, v := range raw {
 		recognition[k] = v
-	}
-	// 默认按 OCR 节点处理，允许调用侧显式覆盖 recognition 字段。
-	if _, ok := recognition["recognition"]; !ok {
-		recognition["recognition"] = "OCR"
 	}
 	return recognition
 }
