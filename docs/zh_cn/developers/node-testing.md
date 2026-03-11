@@ -33,6 +33,7 @@ tests/
 
 - `controller = "Win32"` 时，截图目录为 `tests/MaaEndTestset/Win32/`。
 - `controller = "ADB"` 时，截图目录为 `tests/MaaEndTestset/ADB/`。
+- `controller = ["Win32", "ADB"]` 时，会分别在两个控制器目录下各执行一轮同样的测试用例。
 - `resource = "官服"` 时，截图目录为 `tests/MaaEndTestset/*/Official_CN/`。
 
 如果新增了新的资源服或控制器枚举，除了补测试文件，还要同步更新 `maatools.config.mts` 中的映射关系。
@@ -44,9 +45,9 @@ tests/
 ```jsonc
 {
     "configs": {
-        "name": "(Win32-官服)通用按钮",
+        "name": "(Win32/ADB-官服)通用按钮",
         "resource": "官服",
-        "controller": "Win32",
+        "controller": ["Win32", "ADB"],
     },
     "cases": [
         {
@@ -68,7 +69,9 @@ tests/
 
 - `name`：测试组名称，可选，但建议填写，方便查看测试输出。
 - `resource`：资源服名称。当前仓库实际使用的是 `官服`。
-- `controller`：控制器类型。当前仓库实际使用的是 `Win32` 和 `ADB`。
+- `controller`：控制器类型，可以写单个字符串，也可以写字符串数组。当前仓库实际使用的是 `Win32` 和 `ADB`。
+
+当 `controller` 写成数组时，`maatools.config.mts` 会把同一个测试文件展开为多组测试，分别按每个控制器去各自的截图目录取图。
 
 ### `cases`
 
@@ -119,6 +122,10 @@ tests/
 - `tests/EnvironmentMonitoring/test_job.json`
 
 这样更容易定位失败原因，也更适合后续补回归样本。
+
+如果同一批截图在多个控制器下预期完全一致，建议直接把 `controller` 写成数组，避免维护两份重复文件。
+
+如果不同控制器下的截图、命中节点或 `box` 断言已经出现差异，则仍然建议拆成独立测试文件。
 
 ### 2. 截图名直接描述场景
 
@@ -209,9 +216,9 @@ pnpm check
 ```jsonc
 {
     "configs": {
-        "name": "(Win32-官服)示例节点测试",
+        "name": "(Win32/ADB-官服)示例节点测试",
         "resource": "官服",
-        "controller": "Win32",
+        "controller": ["Win32", "ADB"],
     },
     "cases": [
         {
@@ -244,6 +251,7 @@ pnpm check
 
 - 测试文件名是否符合 `test_*.json`。
 - `configs.resource` 和 `configs.controller` 是否能在 `maatools.config.mts` 中找到映射。
+- 如果 `configs.controller` 写成数组，是否确认这些控制器下的预期结果完全一致。
 - `image` 是否能在对应目录找到对应截图；如果没写扩展名，也要确认文件名主体一致。
 - `hits` 是否只保留本图真正应该命中的节点。
 - 若节点位置也重要，是否补了 `box`。

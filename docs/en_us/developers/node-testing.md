@@ -33,6 +33,7 @@ With the current config:
 
 - `controller = "Win32"` maps to `tests/MaaEndTestset/Win32/`.
 - `controller = "ADB"` maps to `tests/MaaEndTestset/ADB/`.
+- `controller = ["Win32", "ADB"]` runs the same cases once under each controller directory.
 - `resource = "官服"` maps to `tests/MaaEndTestset/*/Official_CN/`.
 
 If you add a new resource server or controller enum, update the mapping in `maatools.config.mts` as well.
@@ -44,9 +45,9 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 ```jsonc
 {
     "configs": {
-        "name": "(Win32-官服)Common Buttons",
+        "name": "(Win32/ADB-官服)Common Buttons",
         "resource": "官服",
-        "controller": "Win32",
+        "controller": ["Win32", "ADB"],
     },
     "cases": [
         {
@@ -68,7 +69,9 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
 
 - `name`: optional test group name; recommended because it makes CLI output easier to read.
 - `resource`: resource server name. The current repo uses `官服`.
-- `controller`: controller type. The current repo uses `Win32` and `ADB`.
+- `controller`: controller type. It can be either a single string or an array of strings. The current repo uses `Win32` and `ADB`.
+
+When `controller` is an array, `maatools.config.mts` expands the file into multiple test groups and resolves screenshots under each controller-specific directory.
 
 ### `cases`
 
@@ -119,6 +122,10 @@ Follow the existing pattern and group tests by module or node family, for exampl
 - `tests/EnvironmentMonitoring/test_job.json`
 
 This makes failures easier to diagnose and regression samples easier to expand.
+
+If the same screenshots and expectations apply to multiple controllers, prefer a controller array to avoid maintaining duplicate files.
+
+If screenshots, expected hits, or `box` assertions already differ by controller, keep separate files instead.
 
 ### 2. Use screenshot names that describe the scene directly
 
@@ -209,9 +216,9 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
 ```jsonc
 {
     "configs": {
-        "name": "(Win32-官服)Example Node Test",
+        "name": "(Win32/ADB-官服)Example Node Test",
         "resource": "官服",
-        "controller": "Win32",
+        "controller": ["Win32", "ADB"],
     },
     "cases": [
         {
@@ -244,6 +251,7 @@ After adding or editing node tests, check at least these items:
 
 - The file name matches `test_*.json`.
 - `configs.resource` and `configs.controller` are mapped in `maatools.config.mts`.
+- If `configs.controller` is an array, confirm the expected results are truly identical for all listed controllers.
 - `image` points to a real screenshot in the resolved directory; if the extension is omitted, make sure the base file name still matches.
 - `hits` includes only the nodes that truly should hit on that image.
 - A `box` assertion is added when location correctness matters.

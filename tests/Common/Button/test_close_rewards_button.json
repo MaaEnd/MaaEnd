@@ -1,0 +1,32 @@
+{
+    "configs": {
+        "name": "通用按钮，测试关闭奖励界面按钮",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "帝江号_控制中枢_会客室_点击开展交流.png",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "帝江号_控制中枢_制造舱_确认收货.png",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_我转交的委托_获得奖励.png",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_交易.png",
+            "hits": ["CloseRewardsButton"]
+        },
+        {
+            "image": "武陵_地区建设_据点_交易.png",
+            "hits": ["CloseRewardsButton"]
+        }
+    ]
+}

@@ -26,8 +26,21 @@
                     "description": "资源服别，如 官服"
                 },
                 "controller": {
-                    "type": "string",
-                    "description": "控制器类型，如 ADB / Win32 / PlayCover"
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "控制器类型，如 ADB / Win32 / PlayCover"
+                        },
+                        {
+                            "type": "array",
+                            "description": "控制器类型列表，如 [\"ADB\", \"Win32\"]",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
                 }
             }
         },
