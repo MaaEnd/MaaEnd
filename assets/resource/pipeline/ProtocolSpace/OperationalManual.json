@@ -7,7 +7,7 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    215,
                     60
                 ],
                 "expected": [
@@ -15,6 +15,7 @@
                     "行動手冊",
                     "Operational Manual",
                     "案内所",
+                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
