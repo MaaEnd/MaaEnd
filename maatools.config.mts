@@ -1,7 +1,9 @@
-import { loadAllTestCases, type FullConfig, type TestCases } from '@nekosu/maa-tools'
+import type { FullConfig, TestCases } from '@nekosu/maa-tools'
 import path from 'node:path'
 
 async function fetchCases(): Promise<TestCases[]> {
+  const { loadAllTestCases } = await import('@nekosu/maa-tools')
+
   const resourceMap: Record<string, string> = {
     官服: 'Official_CN',
     // 'B 服': '',

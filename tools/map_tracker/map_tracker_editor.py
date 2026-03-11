@@ -24,12 +24,15 @@ from utils import (
     Drawer,
     cv2,
     MapName,
-    SelectMapPage,
     ViewportManager,
     Layer,
     BasePage,
+    MapImageLayer,
+    StatusRecord,
 )
 
+from utils import Button
+from utils import ScrollableListWidget, TextInputWidget, PageStepper, StepPage, StepData
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
 SERVICE_LOG_FILE = "install/debug/go-service.log"
@@ -93,6 +96,8 @@ class _PathLayer(Layer):
 class PathEditPage(BasePage):
     """Path editing page"""
 
+    SIDEBAR_W: int = 240
+    STATUS_BAR_H: int = 32
     QUICK_BAR_H = 32
     LINE_WIDTH = 1.5
     POINT_RADIUS = 4.25
@@ -109,29 +114,43 @@ class PathEditPage(BasePage):
         map_dir=MAP_DIR,
         *,
         pipeline_context: dict | None = None,
+        window_name: str = "MapTracker Tool - Path Editor",
     ):
-        """
-        Args:
-            pipeline_context: Optional dict with keys:
-                ``handler``    – PipelineHandler instance
-                ``node_name``  – str, node to save back
-                ``file_path``  – str, for display
-            If None the editor runs in "N mode" (no save button).
-        """
-        self.map_name = map_name
-        self.map_path = os.path.join(map_dir, map_name)
-        if not os.path.exists(self.map_path):
-            print(f"Error: Map file not found: {self.map_path}")
+        super().__init__(window_name, 1280, 720)
+        self.map_name = str(map_name)
 
-        super().__init__(
-            self.map_path,
-            "MapTracker Tool - Path Editor",
-            welcome_msg="Welcome to MapTracker Editor!",
+        # Resolve to an actual file path before reading image, so extension-less
+        # map names from pipeline won't trigger noisy imread warnings.
+        basename = os.path.basename(self.map_name.replace("\\", "/"))
+        has_ext = os.path.splitext(basename)[1] != ""
+        if has_ext:
+            resolved_map_name = self.map_name
+            if not os.path.exists(os.path.join(map_dir, resolved_map_name)):
+                resolved_map_name = (
+                    find_map_file(self.map_name, map_dir) or self.map_name
+                )
+        else:
+            resolved_map_name = find_map_file(self.map_name, map_dir) or self.map_name
+
+        self.map_name = resolved_map_name
+        self.map_path = os.path.join(map_dir, self.map_name)
+        self.img = cv2.imread(self.map_path)
+
+        if self.img is None:
+            raise ValueError(f"Cannot load map: {self.map_name}")
+
+        self.view = ViewportManager(
+            self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
+        )
+        self._map_layer = MapImageLayer(self.view, self.img)
+        self.panning = False
+        self.pan_start = (0, 0)
+        self._status = StatusRecord(
+            time.time(), 0xFFFFFF, "Welcome to MapTracker Editor!"
         )
 
         self.points = [list(p) for p in initial_points] if initial_points else []
         self._point_snapshot: list[list] = [list(p) for p in self.points]
-
         self.pipeline_context = pipeline_context  # None → N mode
         self._path_layer = _PathLayer(self.view, self)
         self._realtime_layer = _RealtimePathLayer(self.view, self)
@@ -158,10 +177,53 @@ class PathEditPage(BasePage):
         # Button hit-rects: (x1, y1, x2, y2) – populated by _render_sidebar
         self._btn_save_rect: tuple | None = None
         self._btn_record_rect: tuple | None = None
+        self._btn_back_rect: tuple | None = None
         self._btn_finish_rect: tuple | None = None
         self._btn_quick_generate_rect: tuple | None = None
         self._btn_quick_undo_rect: tuple | None = None
         self._quick_undo_state: dict | None = None
+
+        # Sidebar action buttons rendered by BasePage.
+        self._save_button = Button(
+            (-100, -100, -90, -90),
+            "[S] Save",
+            base_color=0x3C643C,
+            hotkey=(ord("s"), ord("S")),
+            on_click=self._on_click_save,
+            font_scale=0.45,
+        )
+        self._record_button = Button(
+            (-100, -100, -90, -90),
+            "[R] Record Realtime Path",
+            base_color=0x1A40B8,
+            hotkey=(ord("r"), ord("R")),
+            on_click=self._on_click_record,
+            font_scale=0.42,
+        )
+        self._back_button = Button(
+            (-100, -100, -90, -90),
+            "[Esc] Back",
+            base_color=0x4C4C64,
+            hotkey=27,
+            on_click=self._on_click_back,
+            font_scale=0.45,
+        )
+        self._finish_button = Button(
+            (-100, -100, -90, -90),
+            "[Enter] Finish",
+            base_color=0xB44022,
+            hotkey=(10, 13),
+            on_click=self._on_click_finish,
+            font_scale=0.45,
+        )
+        self.buttons.extend(
+            [
+                self._save_button,
+                self._record_button,
+                self._back_button,
+                self._finish_button,
+            ]
+        )
 
     # ------------------------------------------------------------------
     # Helpers
@@ -173,7 +235,6 @@ class PathEditPage(BasePage):
         return self.points != self._point_snapshot
 
     def _do_save(self):
-        """Save the current path to the pipeline file (I mode only)."""
         if self.pipeline_context is None:
             return
         handler: PipelineHandler = self.pipeline_context["handler"]
@@ -194,18 +255,36 @@ class PathEditPage(BasePage):
         self._recorded_path = []
         self._recorded_keys.clear()
         self._update_status(0x78DCFF, "Realtime path recording started.")
-        self.render_page(force=True)
+        self.render_page()
 
     def _stop_recording(self):
         self._recording_active = False
         self._update_status(0xD2D200, "Realtime path recording stopped.")
-        self.render_page(force=True)
+        self.render_page()
 
     def _toggle_recording(self):
         if self._recording_active:
             self._stop_recording()
         else:
             self._start_recording()
+
+    def _on_click_save(self):
+        if self.pipeline_context and self.is_dirty:
+            self._do_save()
+            self.render_page()
+
+    def _on_click_record(self):
+        self._toggle_recording()
+        self.render_page()
+
+    def _on_click_back(self):
+        if self.stepper and len(self.stepper.step_history) > 1:
+            self.stepper.pop_step()
+        else:
+            self.done = True
+
+    def _on_click_finish(self):
+        self.done = True
 
     def _update_recording(self):
         if not self._recording_active:
@@ -320,22 +399,16 @@ class PathEditPage(BasePage):
         self._update_status(0xD2D200, "Reverted the generated path.")
 
     def _get_map_coords(self, screen_x, screen_y):
-        """Convert screen (viewport) coordinates to original map coordinates.
-
-        The usable map area starts at x = SIDEBAR_W.
-        """
         mx, my = self.view.get_real_coords(screen_x, screen_y)
         return self._coord1(mx), self._coord1(my)
 
     def _get_screen_coords(self, map_x, map_y):
-        """Convert original map coordinates to screen (viewport) coordinates."""
         return self.view.get_view_coords(map_x, map_y)
 
-    def _is_on_line(self, mx, my, p1, p2, threshold=10):
-        """Check if a point is on the line between two points"""
+    def _is_on_line(self, cmx, cmy, p1, p2, threshold=10):
         x1, y1 = p1
         x2, y2 = p2
-        px, py = mx, my
+        px, py = cmx, cmy
         dx = x2 - x1
         dy = y2 - y1
         if dx == 0 and dy == 0:
@@ -350,13 +423,66 @@ class PathEditPage(BasePage):
     # Rendering overrides
     # ------------------------------------------------------------------
 
+    def _render(self, drawer: Drawer) -> None:
+        self._map_layer.render(drawer)
+        self._render_content(drawer)
+
+        # Crosshair
+        drawer.line(
+            (self.mouse_pos[0], 0),
+            (self.mouse_pos[0], self.window_h),
+            color=0xFFFF00,
+            thickness=1,
+        )
+        drawer.line(
+            (0, self.mouse_pos[1]),
+            (self.window_w, self.mouse_pos[1]),
+            color=0xFFFF00,
+            thickness=1,
+        )
+
+        self._render_ui(drawer)
+
     def _render_content(self, drawer: Drawer) -> None:
         self._realtime_layer.render(drawer)
         self._path_layer.render(drawer)
 
+    def _update_status(self, color, message: str) -> None:
+        self._status = StatusRecord(time.time(), color, message)
+
+    def _render_status_bar(self, drawer: Drawer) -> None:
+        x1 = self.SIDEBAR_W
+        x2 = self.window_w
+        y2 = self.window_h
+        y1 = max(0, y2 - self.STATUS_BAR_H)
+        drawer.rect((x1, y1), (x2, y2), color=0x000000, thickness=-1)
+        if self._status:
+            drawer.text(
+                self._status.message,
+                (x1 + 10, y2 - 10),
+                0.45,
+                color=self._status.color,
+                thickness=1,
+            )
+
+    def _render_sidebar_bg(self, drawer: Drawer) -> None:
+        sw = self.SIDEBAR_W
+        h = self.window_h
+        drawer.rect((0, 0), (sw, h), color=0x000000, thickness=-1)
+        drawer.line((sw - 1, 0), (sw - 1, h), color=0xFFFFFF, thickness=1)
+
     def _render_ui(self, drawer: Drawer) -> None:
+        self._render_status_bar(drawer)
+        self._render_sidebar_bg(drawer)
         self._render_quick_bar(drawer)
-        super()._render_ui(drawer)
+        self._render_sidebar(drawer)
+
+    @staticmethod
+    def _hit_button(x: int, y: int, rect: tuple[int, int, int, int] | None) -> bool:
+        if rect is None:
+            return False
+        x1, y1, x2, y2 = rect
+        return x1 <= x <= x2 and y1 <= y <= y2
 
     def _render_quick_bar(self, drawer: "Drawer"):
         x1 = self.SIDEBAR_W
@@ -438,7 +564,6 @@ class PathEditPage(BasePage):
         )
 
     def _render_sidebar(self, drawer: "Drawer"):
-        """Draw the left sidebar with a solid black background."""
         self._render_sidebar_bg(drawer)
         sw = self.SIDEBAR_W
         h = self.window_h
@@ -472,88 +597,53 @@ class PathEditPage(BasePage):
         has_pipeline = self.pipeline_context is not None
         dirty = self.is_dirty
 
+        hidden_rect = (-100, -100, -90, -90)
+        self._save_button.rect = hidden_rect
+        self._record_button.rect = hidden_rect
+        self._back_button.rect = hidden_rect
+        self._finish_button.rect = hidden_rect
+
         if has_pipeline:
-            # Save button
             save_y0 = cy
             save_y1 = cy + btn_h
             self._btn_save_rect = (btn_x0, save_y0, btn_x0 + btn_w, save_y1)
-
-            save_color = 0x64C800 if dirty else 0x3C643C
-            save_text_color = 0xFFFFFF if dirty else 0x648264
-            drawer.rect(
-                (btn_x0, save_y0),
-                (btn_x0 + btn_w, save_y1),
-                color=save_color,
-                thickness=-1,
-            )
-            drawer.rect(
-                (btn_x0, save_y0),
-                (btn_x0 + btn_w, save_y1),
-                color=0xB4B4B4,
-                thickness=1,
-            )
-            drawer.text_centered(
-                "[S] Save",
-                (btn_x0 + btn_w // 2, save_y0 + btn_h - 8),
-                0.45,
-                color=save_text_color,
-                thickness=1,
-            )
+            self._save_button.rect = self._btn_save_rect
+            self._save_button.text = "[S] Save"
+            self._save_button.base_color = 0x64C800 if dirty else 0x3C643C
+            self._save_button.text_color = 0xFFFFFF if dirty else 0x648264
             cy = save_y1 + 8
+        else:
+            self._btn_save_rect = None
 
-        # Realtime path recording button
         record_y0 = cy
         record_y1 = cy + btn_h
         self._btn_record_rect = (btn_x0, record_y0, btn_x0 + btn_w, record_y1)
-        drawer.rect(
-            (btn_x0, record_y0),
-            (btn_x0 + btn_w, record_y1),
-            color=0x1A40B8,
-            thickness=-1,
-        )
-        drawer.rect(
-            (btn_x0, record_y0),
-            (btn_x0 + btn_w, record_y1),
-            color=0xB4B4B4,
-            thickness=1,
-        )
-        record_label = (
+        self._record_button.rect = self._btn_record_rect
+        self._record_button.base_color = 0x1A40B8
+        self._record_button.text_color = 0xFFFFFF
+        self._record_button.text = (
             "[R] Stop Path Recording"
             if self._recording_active
             else "[R] Record Realtime Path"
         )
-        drawer.text_centered(
-            record_label,
-            (btn_x0 + btn_w // 2, record_y0 + btn_h - 8),
-            0.42,
-            color=0xFFFFFF,
-            thickness=1,
-        )
         cy = record_y1 + 8
 
-        # Finish button – always present
+        back_y0 = cy
+        back_y1 = cy + btn_h
+        self._btn_back_rect = (btn_x0, back_y0, btn_x0 + btn_w, back_y1)
+        self._back_button.rect = self._btn_back_rect
+        self._back_button.text = "[Esc] Back"
+        self._back_button.base_color = 0x4C4C64
+        self._back_button.text_color = 0xFFFFFF
+        cy = back_y1 + 8
+
         finish_y0 = cy
         finish_y1 = cy + btn_h
         self._btn_finish_rect = (btn_x0, finish_y0, btn_x0 + btn_w, finish_y1)
-        drawer.rect(
-            (btn_x0, finish_y0),
-            (btn_x0 + btn_w, finish_y1),
-            color=0xB44022,
-            thickness=-1,
-        )
-        drawer.rect(
-            (btn_x0, finish_y0),
-            (btn_x0 + btn_w, finish_y1),
-            color=0xB4B4B4,
-            thickness=1,
-        )
-        drawer.text_centered(
-            "[F] Finish",
-            (btn_x0 + btn_w // 2, finish_y0 + btn_h - 8),
-            0.45,
-            color=0xFFFFFF,
-            thickness=1,
-        )
+        self._finish_button.rect = self._btn_finish_rect
+        self._finish_button.text = "[Enter] Finish"
+        self._finish_button.base_color = 0xB44022
+        self._finish_button.text_color = 0xFFFFFF
 
         # Status messages moved to map area status bar
 
@@ -589,12 +679,43 @@ class PathEditPage(BasePage):
                 return i
         return -1
 
-    def _on_mouse(self, event, x, y, mx, my, flags) -> None:
+    def _on_mouse(self, event, x, y, flags, param) -> None:
+        mx, my = self._get_map_coords(x, y)
+
+        # Mouse wheel: zoom around cursor focus point.
+        if event == cv2.EVENT_MOUSEWHEEL:
+            if flags > 0:
+                self.view.zoom_in()
+            else:
+                self.view.zoom_out()
+            self.view.set_view_origin(mx - x / self.view.zoom, my - y / self.view.zoom)
+            self.render_page()
+            return
+
+        # Right-drag panning.
+        if event == cv2.EVENT_RBUTTONDOWN:
+            self.panning = True
+            self.pan_start = (x, y)
+            return
+
+        if event == cv2.EVENT_RBUTTONUP:
+            self.panning = False
+            return
+
+        if event == cv2.EVENT_MOUSEMOVE and self.panning:
+            dx = (x - self.pan_start[0]) / self.view.zoom
+            dy = (y - self.pan_start[1]) / self.view.zoom
+            self.view.pan_by(-dx, -dy)
+            self.pan_start = (x, y)
+            self.render_page()
+            return
+
         if event == cv2.EVENT_MOUSEMOVE:
             if self.action_mouse_down:
                 if self.action_dragging and self.drag_idx != -1:
                     self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                     self.action_moved = True
+                    self.render_page()
                     return
 
                 dx = x - self.action_down_pos[0]
@@ -608,31 +729,30 @@ class PathEditPage(BasePage):
                             self._coord1(mx),
                             self._coord1(my),
                         ]
+                        self.render_page()
                         return
 
             if (flags & cv2.EVENT_FLAG_LBUTTON) and self.drag_idx != -1:
                 self.points[self.drag_idx] = [self._coord1(mx), self._coord1(my)]
                 self.action_dragging = True
+                self.render_page()
+                return
+
+            # Keep crosshair and hover feedback responsive.
+            self.render_page()
 
         elif event == cv2.EVENT_LBUTTONDOWN:
-            # ── Sidebar clicks ────────────────────────────────────────
+            # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
-                if self._hit_button(x, y, self._btn_save_rect) and self.is_dirty:
-                    self._do_save()
-                    self.render_page(force=True)
-                elif self._hit_button(x, y, self._btn_record_rect):
-                    self._toggle_recording()
-                elif self._hit_button(x, y, self._btn_finish_rect):
-                    self.done = True
                 return
 
             if self._hit_button(x, y, self._btn_quick_generate_rect):
                 self._generate_path_from_recorded()
-                self.render_page(force=True)
+                self.render_page()
                 return
             if self._hit_button(x, y, self._btn_quick_undo_rect):
                 self._undo_generate_path()
-                self.render_page(force=True)
+                self.render_page()
                 return
 
             # ── Map area clicks ─────────────────────────────────
@@ -644,6 +764,7 @@ class PathEditPage(BasePage):
             if self.action_down_idx != -1:
                 self.drag_idx = self.action_down_idx
                 self.selected_idx = self.action_down_idx
+                self.render_page()
 
         elif event == cv2.EVENT_LBUTTONUP:
             if self.action_dragging and self.drag_idx != -1:
@@ -667,6 +788,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Deleted Point #{del_idx} ({deleted_point[0]:.1f}, {deleted_point[1]:.1f})",
                             )
+                            self.render_page()
                     elif self.action_down_pos == (x, y):
                         inserted = False
                         for i in range(1, len(self.points)):
@@ -689,6 +811,7 @@ class PathEditPage(BasePage):
                                     f"Added Point #{i} ({mx:.1f}, {my:.1f})",
                                 )
                                 inserted = True
+                                self.render_page()
                                 break
                         if not inserted:
                             self.points.append([self._coord1(mx), self._coord1(my)])
@@ -697,6 +820,7 @@ class PathEditPage(BasePage):
                                 0x78DCFF,
                                 f"Added Point #{self.selected_idx} ({mx:.1f}, {my:.1f})",
                             )
+                            self.render_page()
 
             self.action_down_idx = -1
             self.action_mouse_down = False
@@ -705,11 +829,16 @@ class PathEditPage(BasePage):
             self.action_dragging = False
 
     def _on_key(self, key: int) -> None:
-        if key in (ord("f"), ord("F")):
+        if key == 27:  # Esc
+            if self.stepper and len(self.stepper.step_history) > 1:
+                self.stepper.pop_step()
+            else:
+                self.done = True
+        elif key in (10, 13):  # Enter
             self.done = True
         elif key in (ord("s"), ord("S")) and self.pipeline_context and self.is_dirty:
             self._do_save()
-            self.render_page(force=True)
+            self.render_page()
         elif key in (ord("r"), ord("R")):
             self._toggle_recording()
 
@@ -914,7 +1043,6 @@ class PipelineHandler:
     # ------------------------------------------------------------------
 
     def _load(self):
-        """Load file content into ``self._content``.  Returns True on success."""
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 self._content = f.read()
@@ -925,7 +1053,6 @@ class PipelineHandler:
 
     @staticmethod
     def _parse_tracker_fields(node_content: str) -> dict | None:
-        """Extract MapTrackerMove fields from a node body.  Returns None if not a tracker node."""
         if '"custom_action": "MapTrackerMove"' not in node_content:
             return None
 
@@ -1080,193 +1207,460 @@ class PipelineHandler:
         return True
 
 
-def main():
-    print(f"{_G}Welcome to MapTracker tool.{_0}")
-    print(f"\n{_Y}Select a mode:{_0}")
-    print(f"  {_C}[N]{_0} Create a new path")
-    print(f"  {_C}[I]{_0} Import an existing path from pipeline file")
+class ModeSelectStep(StepPage):
+    def __init__(self):
+        super().__init__(StepData("mode", "Select Mode", can_go_back=False))
 
-    mode = input("> ").strip().upper()
-
-    map_name = None
-    points = []
-
-    # Store context for "Replace" functionality
-    import_context = None
-
-    if mode == "N":
-        print("\n----------\n")
-        print(f"{_Y}Please choose a map in the window.{_0}")
-        # Step 1: Select Map
-        map_selector = SelectMapPage()
-        map_name = map_selector.run()
-        if not map_name:
-            print(f"\n{_Y}No map selected. Exiting.{_0}")
-            return
-
-        # Step 2: Edit Path (Empty initially)
-        print(f"  Selected map: {map_name}")
-        print(f"\n{_Y}Please edit the path in the window.{_0}")
-        print("  Close the window when done.")
-        try:
-            editor = PathEditPage(map_name, [])
-            points = editor.run()
-        except ValueError as e:
-            print(f"{_R}Error initializing editor:{_0} {e}")
-            return
-
-    elif mode == "I":
-        print("\n----------\n")
-        print(f"{_Y}Where's your pipeline JSON file path?{_0}")
-        file_path = input("> ").strip()
-        file_path = file_path.strip('"').strip("'")
-
-        handler = PipelineHandler(file_path)
-        candidates = handler.read_nodes()
-
-        if not candidates:
-            print(f"{_R}No 'MapTrackerMove' nodes found in the file.{_0}")
-            print(
-                "Please make sure your JSON file contains nodes with 'custom_action' set to 'MapTrackerMove'."
-            )
-            return
-
-        print(f"\n{_Y}Which node do you want to import?{_0}")
-        for i, c in enumerate(candidates):
-            print(
-                f"  {_C}[{i+1}]{_0} {c['node_name']} {_A}(Map: {c['map_name']}, Points: {len(c['path'])}){_0}"
-            )
-
-        try:
-            sel = int(input("> ")) - 1
-            if not (0 <= sel < len(candidates)):
-                print(f"{_R}Invalid selection.{_0}")
-                return
-            selected_node = candidates[sel]
-
-            original_map_name = selected_node["map_name"]
-            initial_points = selected_node["path"]
-
-            # Try to resolve the actual map filename on disk (keeping suffix) for editing
-            resolved = find_map_file(original_map_name)
-            editor_map_name = resolved if resolved is not None else original_map_name
-
-            print(
-                f"  Editing node: {selected_node['node_name']} on map {original_map_name}"
-            )
-            print(f"\n{_Y}Please edit the path in the window.{_0}")
-            print("  Close the window when done.")
-
-            try:
-                editor = PathEditPage(
-                    editor_map_name,
-                    initial_points,
-                    pipeline_context={
-                        "handler": handler,
-                        "node_name": selected_node["node_name"],
-                        "file_path": file_path,
-                    },
-                )
-                points = editor.run()
-
-                if not editor.is_dirty:
-                    print("\n----------\n")
-                    print(f"{_G}Finished editing.{_0}")
-                    print("  All done! No unsaved changes.")
-                    return
-
-                # Setup context for Replace; keep original name from node for export normalization
-                import_context = {
-                    "file_path": file_path,
-                    "handler": handler,
-                    "node_name": selected_node["node_name"],
-                    "original_map_name": original_map_name,
-                    "is_new_structure": selected_node.get("is_new_structure", False),
-                }
-
-            except ValueError as e:
-                print(f"{_R}Error initializing editor{_0}: {e}")
-                return
-
-        except ValueError:
-            print(f"{_R}Invalid input.{_0}")
-            return
-
-    else:
-        print(f"{_R}Invalid mode.{_0}")
-        return
-
-    # Export Logic
-    print("\n----------\n")
-    print(f"{_G}Finished editing.{_0}")
-    print(f"  Total {len(points)} points")
-    print(f"\n{_Y}Select an export mode:{_0}")
-    if import_context:
-        print(f"  {_C}[S]{_0} Save the changes back to file")
-        print(f"      {_A}which will replace the path in the pipeline node.{_0}")
-    print(f"  {_C}[J]{_0} Print the node JSON string")
-    print(f"      {_A}which represents a new pipeline node.{_0}")
-    print(f"  {_C}[D]{_0} Print the parameters dict")
-    print(f"      {_A}which can be used as 'custom_action_param' field.{_0}")
-    print(f"  {_C}[L]{_0} Print the point list")
-    print(f"      {_A}which can be used as 'path'{_A} field.{_0}")
-
-    export_mode = input("> ").strip().upper()
-
-    raw_map_name = (
-        import_context.get("original_map_name", map_name)
-        if import_context
-        else map_name
-    )
-    param_data = {
-        "map_name": os.path.splitext(os.path.basename(raw_map_name))[0],
-        "path": [[round(p[0], 1), round(p[1], 1)] for p in points],
-    }
-
-    if export_mode == "S" and import_context:
-        handler = import_context["handler"]
-        node_name = import_context["node_name"]
-        if handler.replace_path(node_name, points):
-            print(f"\n{_G}Successfully updated node {_0}'{node_name}'")
-        else:
-            print(f"\n{_R}Failed to update node.{_0}")
-
-    elif export_mode == "J":
-        is_new = (
-            import_context.get("is_new_structure", False) if import_context else False
+    def _render_content(self, drawer):
+        drawer.text_centered(
+            "Choose an operation mode:",
+            (self.WINDOW_W // 2, 180),
+            0.8,
+            color=0xDDDDDD,
+            thickness=2,
         )
-        if is_new:
-            node_data = {
-                "action": {
+        btn_w, btn_h = 300, 100
+        spacing = 50
+        start_x = (self.WINDOW_W - (btn_w * 2 + spacing)) // 2
+        y1 = 280
+
+        if not self.buttons:
+            self.buttons.append(
+                Button(
+                    (start_x, y1, start_x + btn_w, y1 + btn_h),
+                    "Create New Path (N)",
+                    base_color=0x334455,
+                    hotkey=ord("n"),
+                    on_click=lambda: self.stepper.push_step(MapSelectStep()),
+                )
+            )
+            self.buttons.append(
+                Button(
+                    (
+                        start_x + btn_w + spacing,
+                        y1,
+                        start_x + btn_w * 2 + spacing,
+                        y1 + btn_h,
+                    ),
+                    "Import from Pipeline (I)",
+                    base_color=0x554433,
+                    hotkey=ord("i"),
+                    on_click=lambda: self.stepper.push_step(FileSelectStep()),
+                )
+            )
+
+
+class MapSelectStep(StepPage):
+    def __init__(self):
+        super().__init__(StepData("map_select", "Select Map"))
+        self.map_list = ScrollableListWidget(item_height=40)
+        self._map_preview_cache: dict[str, object] = {}
+        try:
+            map_files = [
+                f for f in os.listdir(MAP_DIR) if f.lower().endswith((".png", ".jpg"))
+            ]
+            map_files.sort(key=lambda name: (len(name), name.lower()))
+            self.map_list.set_items(
+                [{"label": m, "sub_label": "", "data": m} for m in map_files]
+            )
+        except Exception:
+            pass
+
+        self.map_list.set_preview_generator(self._generate_map_preview)
+
+    def _generate_map_preview(self, item: dict):
+        map_name = str(item.get("data") or "")
+        if map_name == "":
+            return None
+        if map_name in self._map_preview_cache:
+            return self._map_preview_cache[map_name]
+        map_path = os.path.join(MAP_DIR, map_name)
+        img = cv2.imread(map_path, cv2.IMREAD_UNCHANGED)
+        if img is None:
+            self._map_preview_cache[map_name] = None
+            return None
+        self._map_preview_cache[map_name] = img
+        return img
+
+    def _render_content(self, drawer):
+        self.map_list.render(
+            drawer, (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        )
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self.map_list.handle_click(x, y, rect)
+            if idx >= 0:
+                self._submit(self.map_list.items[idx]["data"])
+        elif event == cv2.EVENT_MOUSEWHEEL:
+            if self.map_list.handle_wheel(x, y, flags, rect):
+                self.stepper.request_render()
+
+    def _handle_content_key(self, key):
+        is_up = self.is_up_key(key)
+        is_down = self.is_down_key(key)
+        if is_up or is_down:
+            self.map_list.navigate(-1 if is_up else 1)
+            self.stepper.request_render()
+        elif key in (10, 13) and self.map_list.selected_idx >= 0:
+            self._submit(self.map_list.items[self.map_list.selected_idx]["data"])
+
+    def _submit(self, map_name):
+        self.stepper.push_step(EditorAdapterStep(map_name, mode="create"))
+
+
+class FileSelectStep(StepPage):
+    def __init__(self):
+        super().__init__(StepData("file_select", "Select Pipeline JSON"))
+        self.file_list = ScrollableListWidget(item_height=40)
+        self.search_input = TextInputWidget("Search JSON files...")
+        self._all_files = []
+        pipeline_dir = "assets/resource/pipeline"
+        if os.path.exists(pipeline_dir):
+            for root, _, files in os.walk(pipeline_dir):
+                for f in files:
+                    if f.endswith(".json"):
+                        path = os.path.join(root, f)
+                        enabled = self._is_eligible_pipeline_file(path)
+                        self._all_files.append(
+                            {
+                                "label": f,
+                                "sub_label": os.path.relpath(
+                                    path, pipeline_dir
+                                ).replace(os.path.sep, "/"),
+                                "data": path,
+                                "disabled": not enabled,
+                            }
+                        )
+        self._all_files.sort(
+            key=lambda x: (
+                bool(x.get("disabled", False)),
+                str(x.get("sub_label", "")).lower(),
+                str(x.get("label", "")).lower(),
+            )
+        )
+        self.file_list.set_items(self._all_files)
+
+    @staticmethod
+    def _is_eligible_pipeline_file(file_path: str) -> bool:
+        try:
+            size = os.path.getsize(file_path)
+            if size >= 1024 * 1024:
+                return False
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            return "MapTrackerMove" in content
+        except Exception:
+            return False
+
+    def _render_content(self, drawer):
+        self.search_input.render(drawer, (50, 100, self.WINDOW_W - 50, 140))
+        self.file_list.render(
+            drawer, (50, 160, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        )
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        rect = (50, 160, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self.file_list.handle_click(x, y, rect)
+            if idx >= 0:
+                self.stepper.push_step(
+                    NodeSelectStep(self.file_list.items[idx]["data"])
+                )
+        elif event == cv2.EVENT_MOUSEWHEEL:
+            if self.file_list.handle_wheel(x, y, flags, rect):
+                self.stepper.request_render()
+
+    def _handle_content_key(self, key):
+        if self.search_input.handle_key(key):
+            q = self.search_input.text.lower()
+            filtered = [
+                f
+                for f in self._all_files
+                if q in f["label"].lower() or q in f["sub_label"].lower()
+            ]
+            self.file_list.set_items(filtered)
+            self.stepper.request_render()
+            return
+        is_up = self.is_up_key(key)
+        is_down = self.is_down_key(key)
+        if is_up or is_down:
+            self.file_list.navigate(-1 if is_up else 1)
+            self.stepper.request_render()
+        elif key in (10, 13) and self.file_list.selected_idx >= 0:
+            self.stepper.push_step(
+                NodeSelectStep(
+                    self.file_list.items[self.file_list.selected_idx]["data"]
+                )
+            )
+
+
+class NodeSelectStep(StepPage):
+    def __init__(self, file_path):
+        super().__init__(
+            StepData("node_select", f"Select Node from {os.path.basename(file_path)}")
+        )
+        self.file_path = file_path
+        self.node_list = ScrollableListWidget(item_height=40)
+        self.handler = PipelineHandler(file_path)
+        nodes = self.handler.read_nodes()
+        self.candidates = nodes
+        self.node_list.set_items(
+            [
+                {
+                    "label": n["node_name"],
+                    "sub_label": f"Map: {n['map_name']} | Pts: {len(n['path'])}",
+                    "data": n["node_name"],
+                }
+                for n in nodes
+            ]
+        )
+
+    def _render_content(self, drawer):
+        self.node_list.render(
+            drawer, (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        )
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        rect = (50, 100, self.WINDOW_W - 50, self.WINDOW_H - self.FOOTER_H - 20)
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self.node_list.handle_click(x, y, rect)
+            if idx >= 0:
+                self._submit(idx)
+        elif event == cv2.EVENT_MOUSEWHEEL:
+            if self.node_list.handle_wheel(x, y, flags, rect):
+                self.stepper.request_render()
+
+    def _handle_content_key(self, key):
+        is_up = self.is_up_key(key)
+        is_down = self.is_down_key(key)
+        if is_up or is_down:
+            self.node_list.navigate(-1 if is_up else 1)
+            self.stepper.request_render()
+        elif key in (10, 13) and self.node_list.selected_idx >= 0:
+            self._submit(self.node_list.selected_idx)
+
+    def _submit(self, idx):
+        selected = self.candidates[idx]
+        import_context = {
+            "file_path": self.file_path,
+            "handler": self.handler,
+            "node_name": selected["node_name"],
+            "original_map_name": selected["map_name"],
+            "is_new_structure": selected.get("is_new_structure", False),
+        }
+        self.stepper.push_step(
+            EditorAdapterStep(
+                selected["map_name"],
+                mode="import",
+                import_context=import_context,
+                initial_points=selected["path"],
+            )
+        )
+
+
+class EditorAdapterStep(BasePage):
+    """Adapts PathEditPage directly into Stepper loop!"""
+
+    def __init__(
+        self, map_name, mode="create", import_context=None, initial_points=None
+    ):
+        super().__init__("MapTracker App", 1280, 720)
+        self.map_name = map_name
+        self.mode = mode
+        self.import_context = import_context
+        self.initial_points = initial_points or []
+        self.editor = None
+        self._finished_once = False
+
+    def on_enter(self, stepper: PageStepper):
+        """Create (if needed) and enter the embedded path editor."""
+        if not self.editor:
+            self.editor = PathEditPage(
+                self.map_name,
+                self.initial_points,
+                window_name=stepper.window_name,
+                pipeline_context=self.import_context if self.import_context else None,
+            )
+        # Returning from ExportStep should allow finishing again.
+        self._finished_once = False
+        self.editor.done = False
+        self.editor.on_enter(stepper)
+
+    def on_exit(self):
+        """Forward exit lifecycle to the embedded editor."""
+        if self.editor:
+            self.editor.on_exit()
+
+    def render(self):
+        """Render editor frame and handle transition to export step."""
+        if self.editor is None:
+            return None
+        if self.editor.done and not self._finished_once:
+            self._finished_once = True
+            self.editor.stepper.push_step(
+                ExportStep(self.editor.points, self.import_context, self.map_name)
+            )
+            return None
+        return self.editor.render()
+
+    def handle_mouse(self, event, x, y, flags, param):
+        """Forward mouse events to the embedded editor."""
+        if self.editor is None:
+            return
+        self.editor.handle_mouse(event, x, y, flags, param)
+
+    def handle_key(self, key):
+        """Handle adapter-level shortcuts and forward remaining keys."""
+        if self.editor is None:
+            return
+        if key == 27:
+            # We want ESC to mean "BACK to wizard"!
+            self.editor.stepper.pop_step()
+            return
+        elif key == 13:  # Enter = Next (Export)
+            # Advance to Export step if we want to save
+            self.editor.stepper.push_step(
+                ExportStep(self.editor.points, self.import_context, self.map_name)
+            )
+            return
+        self.editor.handle_key(key)
+
+    def handle_idle(self):
+        """Forward idle ticks to the embedded editor."""
+        if self.editor is None:
+            return
+        self.editor.handle_idle()
+
+
+class ExportStep(StepPage):
+    def __init__(self, points, import_context, map_name):
+        super().__init__(StepData("export", "Export / Save Result"))
+        self.points = points
+        self.import_context = import_context
+        self.map_name = map_name
+
+        self.options = [
+            {
+                "label": "Just Save to File (Replace path)",
+                "data": "S",
+                "disabled": import_context is None,
+            },
+            {"label": "Print Context Dict", "data": "D"},
+            {"label": "Print Node JSON", "data": "J"},
+            {"label": "Print Point List", "data": "L"},
+        ]
+        self.list_widget = ScrollableListWidget(45)
+        self.list_widget.set_items(self.options)
+        self.saved_text = ""
+
+    def _render_content(self, drawer):
+        self.list_widget.render(drawer, (100, 150, self.WINDOW_W - 100, 350))
+        if self.saved_text:
+            drawer.text_centered(
+                self.saved_text,
+                (self.WINDOW_W // 2, 450),
+                0.8,
+                color=0x50DC50,
+                thickness=2,
+            )
+
+    def _handle_content_mouse(self, event, x, y, flags, param):
+        rect = (100, 150, self.WINDOW_W - 100, 350)
+        if event == cv2.EVENT_LBUTTONDOWN:
+            idx = self.list_widget.handle_click(x, y, rect)
+            if idx >= 0:
+                self._submit(self.list_widget.items[idx]["data"])
+
+    def _handle_content_key(self, key):
+        if key in (10, 13) and self.list_widget.selected_idx >= 0:
+            self._submit(self.list_widget.items[self.list_widget.selected_idx]["data"])
+        elif key in (82, 0x260000, 65362):
+            self.list_widget.navigate(-1)
+            self.stepper.request_render()
+        elif key in (84, 0x280000, 65364):
+            self.list_widget.navigate(1)
+            self.stepper.request_render()
+
+    def _submit(self, mode):
+        if mode == "S":
+            handler = self.import_context["handler"]
+            node_name = self.import_context["node_name"]
+            if handler.replace_path(node_name, self.points):
+                self.saved_text = f"Successfully updated node '{node_name}'!"
+                print(f"\n{_G}Successfully updated node {_0}'{node_name}'")
+            else:
+                self.saved_text = f"Failed to update node!"
+            self.stepper.request_render()
+
+        elif mode == "J":
+            raw_map_name = (
+                self.import_context.get("original_map_name", self.map_name)
+                if self.import_context
+                else self.map_name
+            )
+            param_data = {
+                "map_name": os.path.splitext(os.path.basename(raw_map_name))[0],
+                "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
+            }
+            is_new = (
+                self.import_context.get("is_new_structure", False)
+                if self.import_context
+                else False
+            )
+            if is_new:
+                node_data = {
+                    "action": {
+                        "custom_action": "MapTrackerMove",
+                        "custom_action_param": param_data,
+                    }
+                }
+            else:
+                node_data = {
+                    "action": "Custom",
                     "custom_action": "MapTrackerMove",
                     "custom_action_param": param_data,
                 }
+            print(f"\n{_C}--- JSON Snippet ---{_0}\n")
+            print(json.dumps({"NodeName": node_data}, indent=4, ensure_ascii=False))
+            self.saved_text = "JSON output printed to terminal!"
+            self.stepper.request_render()
+
+        elif mode == "D":
+            raw_map_name = (
+                self.import_context.get("original_map_name", self.map_name)
+                if self.import_context
+                else self.map_name
+            )
+            param_data = {
+                "map_name": os.path.splitext(os.path.basename(raw_map_name))[0],
+                "path": [[round(p[0], 1), round(p[1], 1)] for p in self.points],
             }
-        else:
-            node_data = {
-                "action": "Custom",
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": param_data,
-            }
+            print(f"\n{_C}--- Parameters Dict ---{_0}\n")
+            print(json.dumps(param_data, indent=4, ensure_ascii=False))
+            self.saved_text = "Dict output printed to terminal!"
+            self.stepper.request_render()
 
-        snippet = {"NodeName": node_data}
-        print(f"\n{_C}--- JSON Snippet ---{_0}\n")
-        print(json.dumps(snippet, indent=4, ensure_ascii=False))
-
-    elif export_mode == "D":
-        print(f"\n{_C}--- Parameters Dict ---{_0}\n")
-        print(json.dumps(param_data, indent=None, ensure_ascii=False))
-
-    else:
-        SIMPact_str = "[" + ", ".join([str(p) for p in points]) + "]"
-        if export_mode == "L":
+        elif mode == "L":
+            point_list = [[round(p[0], 1), round(p[1], 1)] for p in self.points]
             print(f"\n{_C}--- Point List ---{_0}\n")
-            print(SIMPact_str)
-        else:
-            print(f"{_Y}Invalid export mode.{_0}")
-            print(f"  To prevent data loss, the point list is printed below.{_0}")
-            print(f"\n{_C}--- Point List ---{_0}\n")
-            print(SIMPact_str)
+            print(point_list)
+            self.saved_text = "Point list printed to terminal!"
+            self.stepper.request_render()
+
+
+class App(PageStepper):
+    def __init__(self):
+        super().__init__("MapTracker App")
+        self.points = []
+        self.import_context = None
+
+
+def main():
+    app = App()
+    app.push_step(ModeSelectStep())
+    app.run()
 
 
 if __name__ == "__main__":
