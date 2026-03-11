@@ -49,6 +49,7 @@
             }
         },
         "next": [
+            "[JumpBack]ReceptionRoomSetClues",
             "InControlNexus_NeedCredit",
             "WhiteConfirmButtonType1",
             "[JumpBack]StartExchange"

@@ -210,6 +210,7 @@
                     "活动中心",
                     "活動中心",
                     "Event Center",
+                    "EVENT CENTER",
                     "イベント",
                     "이벤트 센터"
                 ]
@@ -304,6 +305,8 @@
                 "expected": [
                     "贵重品库",
                     "Valuables",
+                    "VALUABLES",
+                    "STASH",
                     "貴重品倉庫",
                     "귀중품 창고",
                     "貴重品庫"
@@ -365,6 +368,7 @@
                     "行動手冊",
                     "Operational Manual",
                     "案内所",
+                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -393,7 +397,7 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    215,
                     60
                 ],
                 "expected": [
@@ -401,6 +405,7 @@
                     "行動手冊",
                     "Operational Manual",
                     "案内所",
+                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -677,8 +682,9 @@
                 "expected": [
                     "终末地百科",
                     "終末地百科",
-                    "Endfield Database (EFDB)",
+                    "Endfield Database",
                     "エンドフィールドWiki",
+                    "Endfield Database (EFDB)",
                     "엔드필드 백과"
                 ]
             }
@@ -1104,6 +1110,7 @@
                     "行動手冊",
                     "Operational Manual",
                     "案内所",
+                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -1267,6 +1274,8 @@
                     "採購中心",
                     "Acquisition Center",
                     "購買部",
+                    "Acquisition",
+                    "Center",
                     "구매 센터"
                 ]
             }

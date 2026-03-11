@@ -106,7 +106,8 @@
         "rate_limit": 0,
         "next": [
             "Grow",
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "ClaimAllGrowRewardClose"
         ]
     },
     "Grow": {
@@ -260,7 +261,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "InDijiangControlNexus"
         ]
     },
     "ExitGrow": {
