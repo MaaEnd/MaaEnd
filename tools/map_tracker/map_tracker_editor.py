@@ -36,14 +36,13 @@ from _internal.gui_widgets import (
     TextInputWidget,
 )
 from _internal.location_service import LocationService, unique_map_key
-from _internal.pipline_handler import (
+from _internal.pipeline_handler import (
     PipelineHandler,
     NODE_TYPE_MOVE,
     NODE_TYPE_ASSERT_LOCATION,
 )
 
 MAP_DIR = "assets/resource/image/MapTracker/map"
-SERVICE_LOG_FILE = "install/debug/go-service.log"
 
 
 def _resolve_editor_map_name(map_name: str, map_dir: str) -> str:

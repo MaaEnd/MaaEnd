@@ -1,7 +1,7 @@
 import json
 import re
 
-from .core_utils import _R
+from .core_utils import _R, _0
 
 NODE_TYPE_MOVE = "MapTrackerMove"
 NODE_TYPE_ASSERT_LOCATION = "MapTrackerAssertLocation"
@@ -21,7 +21,7 @@ class PipelineHandler:
                 self._content = f.read()
             return True
         except Exception as e:
-            print(f"{_R}Error reading file:{e}")
+            print(f"{_R}Error reading file: {e}{_0}")
             return False
 
     @staticmethod
@@ -259,6 +259,7 @@ class PipelineHandler:
 
     def read_all_nodes(self) -> bool:
         if not self._load():
+            self.nodes.clear()
             return False
 
         self.nodes.clear()
@@ -276,7 +277,8 @@ class PipelineHandler:
         return True
 
     def read_nodes(self) -> list[dict]:
-        self.read_all_nodes()
+        if not self.read_all_nodes():
+            return []
         results = []
         for node_name, entry in self.nodes.items():
             if entry.get("is_tracker"):
@@ -309,7 +311,7 @@ class PipelineHandler:
     def _replace_node_body(self, node_name: str, new_body: str) -> bool:
         bounds = self._find_top_level_node_bounds(self._content, node_name)
         if bounds is None:
-            print(f"{_R}Error: Node {node_name} not found in file when saving.")
+            print(f"{_R}Error: Node {node_name} not found in file when saving.{_0}")
             return False
         node_start, node_end, _ = bounds
         self._content = self._content[:node_start] + new_body + self._content[node_end:]
@@ -321,7 +323,7 @@ class PipelineHandler:
 
         bounds = self._find_top_level_node_bounds(self._content, node_name)
         if bounds is None:
-            print(f"{_R}Error: Node {node_name} not found in file when saving.")
+            print(f"{_R}Error: Node {node_name} not found in file when saving.{_0}")
             return False
         _, _, body = bounds
 
@@ -331,7 +333,9 @@ class PipelineHandler:
         )
         path_match = path_pattern.search(body)
         if not path_match:
-            print(f"{_R}Error: 'path' field not found in node {node_name} when saving.")
+            print(
+                f"{_R}Error: 'path' field not found in node {node_name} when saving.{_0}"
+            )
             return False
 
         if self.nodes.get(node_name, {}).get("is_new_structure", False):
@@ -360,7 +364,7 @@ class PipelineHandler:
             with open(self.file_path, "w", encoding="utf-8") as f:
                 f.write(self._content)
         except Exception as e:
-            print(f"{_R}Error writing file:{e}")
+            print(f"{_R}Error writing file: {e}{_0}")
             return False
 
         if node_name in self.nodes:
@@ -377,28 +381,30 @@ class PipelineHandler:
 
         bounds = self._find_top_level_node_bounds(self._content, node_name)
         if bounds is None:
-            print(f"{_R}Error: Node {node_name} not found in file when saving.")
+            print(f"{_R}Error: Node {node_name} not found in file when saving.{_0}")
             return False
         _, _, body = bounds
 
         expected_range = self._extract_json_array(body, "expected")
         if expected_range is None:
             print(
-                f"{_R}Error: 'expected' field not found in node {node_name} when saving."
+                f"{_R}Error: 'expected' field not found in node {node_name} when saving.{_0}"
             )
             return False
 
         try:
             expected = json.loads(expected_range[2])
         except Exception:
-            print(f"{_R}Error: failed to parse 'expected' field in node {node_name}.")
+            print(
+                f"{_R}Error: failed to parse 'expected' field in node {node_name}.{_0}"
+            )
             return False
         if (
             not isinstance(expected, list)
             or len(expected) == 0
             or not isinstance(expected[0], dict)
         ):
-            print(f"{_R}Error: invalid 'expected' structure in node {node_name}.")
+            print(f"{_R}Error: invalid 'expected' structure in node {node_name}.{_0}")
             return False
 
         expected[0]["map_name"] = map_name
@@ -420,7 +426,7 @@ class PipelineHandler:
             with open(self.file_path, "w", encoding="utf-8") as f:
                 f.write(self._content)
         except Exception as e:
-            print(f"{_R}Error writing file:{e}")
+            print(f"{_R}Error writing file: {e}{_0}")
             return False
 
         if node_name in self.nodes:
