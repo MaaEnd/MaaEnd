@@ -384,8 +384,6 @@
     "task.AutoUseSpMedication.label": "💊应急理智加强剂",
     "task.AutoCollect.description": "自动采集野外资源",
     "task.AutoCollect.label": "🧺自动收集资源",
-    "task.CollectThornyYazhen.description": "自动采集荆刺芽针",
-    "task.CollectThornyYazhen.label": "🧺采集荆刺芽针",
     "option.AutoCollectThornyYazhen.label": "采集荆刺芽针",
     "group.daily.label": "日常事务",
     "group.daily.description": "上线后常用的领奖、基建、经营与养成任务",

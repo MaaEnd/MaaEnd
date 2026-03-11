@@ -1,7 +1,7 @@
 {
     "CollectThornyYazhenStart": {
         "next": [
-            "aaaaa",
+            "CollectThornyYazhenAssertLocation",
             "[JumpBack]SceneEnterWorldWulingWulingCity4"
         ]
     },
@@ -90,7 +90,7 @@
             "CollectThornyYazhenHoldAlt"
         ]
     },
-    "aaaaa": {
+    "CollectThornyYazhenAssertLocation": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -112,10 +112,10 @@
         },
         "desc": "传送到收集地",
         "next": [
-            "_AutoEcoFarmGotoValleyIVEcoFarm_副本6"
+            "GotoThornyYazhenFind"
         ]
     },
-    "_AutoEcoFarmGotoValleyIVEcoFarm_副本6": {
+    "GotoThornyYazhenFind": {
         "action": {
             "type": "Custom",
             "param": {
