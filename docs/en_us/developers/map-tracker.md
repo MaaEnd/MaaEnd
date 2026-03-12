@@ -86,6 +86,45 @@ Optional parameters:
 >
 > During the execution of this node, ensure that the player is **always in** the specified map, and adjacent waypoints **can be reached in a straight line**.
 
+### Action: MapTrackerBigMapPick
+
+🫳 Drags the big-map viewport until the target point appears, then can optionally click that point.
+
+#### Node Parameters
+
+Required parameters:
+
+- `map_name`: The unique map name. For example, "map001_lv001".
+- `target`: A list with 2 real numbers `[x, y]`, representing the target map coordinate.
+
+Optional parameters:
+
+- `on_find`: Action after the target point enters the viewport. Can be `"Click"` or `"DoNothing"`. Default is `"Click"`.
+
+#### Example Usage
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map002_lv002",
+            "target": [
+                585.8,
+                825.5
+            ],
+            "on_find": "Click"
+        }
+    }
+}
+```
+
+> [!WARNING]
+>
+> Before executing this node, **make sure the big map for the target area is already open**.
+
 ### Recognition: MapTrackerAssertLocation
 
 ✅Judges whether the player's current map name and position coordinates meet any of the expected conditions.
@@ -174,7 +213,7 @@ Optional parameters:
 
 ### Recognition: MapTrackerBigMapInfer
 
-🗺️ Infers the top-left map coordinate of the current viewport region on the big map and the current map scale.
+🗺️ Infers the map coordinate of the current viewport region on the big map and the current map scale.
 
 > [!WARNING]
 >
