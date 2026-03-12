@@ -72,8 +72,7 @@
         "recognition": {
             "param": {
                 "template": [
-                    "SeizeEntrustTask/7.98wMoney.png",
-                    "SeizeEntrustTask/7.31wMoney_en.png"
+                    "SeizeEntrustTask/7.98wMoney.png"
                 ],
                 "threshold": [
                     0.94
