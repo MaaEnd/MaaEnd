@@ -21,8 +21,11 @@
             "套组装备",
             "套裝裝備",
             "Set Gear",
+            "セット装備",
+            "装备",
+            "裝備",
             "Gear",
-            "セット装備"
+            "装備"
         ],
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
