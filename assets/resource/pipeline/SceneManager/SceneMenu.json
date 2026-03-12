@@ -1019,8 +1019,7 @@
             ]
         },
         "next": [
-            "__ScenePrivateAnyEnterMenuBackpackSuccess",
-            "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot"
+            "__ScenePrivateAnyEnterMenuBackpackSuccess"
         ]
     },
     "__ScenePrivateMenuListEnterMenuBackpack": {
