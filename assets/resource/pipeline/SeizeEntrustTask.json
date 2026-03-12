@@ -1,15 +1,14 @@
 {
     "SeizeEntrustTaskErrorTaskStop": {
-        "action": {
-            "param": {},
-            "type": "StopTask"
-        },
-        "focus": {
-            "Node.Action.Starting": "用户退出委托列表"
-        },
-        "inverse": true,
         "recognition": {
+            "type": "OCR",
             "param": {
+                "roi": [
+                    136,
+                    130,
+                    87,
+                    34
+                ],
                 "expected": [
                     "委托人信息",
                     "委託人資訊",
@@ -19,76 +18,72 @@
                     "委派任務",
                     "Commission",
                     "協力任務"
-                ],
-                "roi": [
-                    136,
-                    130,
-                    87,
-                    34
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "StopTask",
+            "param": {}
+        },
+        "focus": {
+            "Node.Action.Starting": "用户退出委托列表"
         }
     },
     "SeizeEntrustTaskFoundDepotNodeButton": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "desc": "进入仓储节点",
-        "focus": {
-            "Node.Recognition.Succeeded": "进入仓储节点"
-        },
-        "next": [
-            "SeizeEntrustTaskFoundListOfDeliveryJobsButton"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "仓储节点",
-                    "倉儲節點",
-                    "Depot Node",
-                    "保管ボックス"
-                ],
                 "roi": [
                     1002,
                     329,
                     236,
                     89
+                ],
+                "expected": [
+                    "仓储节点",
+                    "倉儲節點",
+                    "Depot Node",
+                    "保管ボックス"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskFoundListOfDeliveryJobsButton"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入仓储节点"
         }
     },
     "SeizeEntrustTaskFoundGoodMoney": {
-        "focus": {
-            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
-            "Node.Recognition.Starting": "再看一眼~",
-            "Node.Recognition.Succeeded": "确定就是你啦~"
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.98wMoney.png"
+                ],
+                "threshold": [
+                    0.94
+                ]
+            }
         },
         "next": [
             "SeizeEntrustTaskPostEntrust3"
         ],
-        "recognition": {
-            "param": {
-                "template": [
-                    "SeizeEntrustTask/7.98wMoney.png"
-                ],
-                "threshold": [
-                    0.94
-                ]
-            },
-            "type": "TemplateMatch"
+        "focus": {
+            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
+            "Node.Recognition.Starting": "再看一眼~",
+            "Node.Recognition.Succeeded": "确定就是你啦~"
         }
     },
     "SeizeEntrustTaskFoundGoodMoneyF1": {
-        "focus": {
-            "Node.Recognition.Succeeded": "找到7.98万武陵城订单！"
-        },
-        "next": [
-            "SeizeEntrustTaskFoundGoodMoney"
-        ],
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "template": [
                     "SeizeEntrustTask/7.98wMoney.png"
@@ -96,68 +91,61 @@
                 "threshold": [
                     0.94
                 ]
-            },
-            "type": "TemplateMatch"
+            }
         },
-        "timeout": 3000
+        "timeout": 3000,
+        "next": [
+            "SeizeEntrustTaskFoundGoodMoney"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "找到7.98万武陵城订单！"
+        }
     },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "desc": "进入运送委托列表",
-        "focus": {
-            "Node.Recognition.Succeeded": "进入运送委托列表"
-        },
-        "next": [
-            "isSeizeEntrustTaskReady"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "运送委托列表",
-                    "運送委託清單",
-                    "List of Delivery Jobs",
-                    "配達依頼一覧"
-                ],
                 "roi": [
                     252,
                     65,
                     170,
                     55
+                ],
+                "expected": [
+                    "运送委托列表",
+                    "運送委託清單",
+                    "List of Delivery Jobs",
+                    "配達依頼一覧"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "isSeizeEntrustTaskReady"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入运送委托列表"
         }
     },
     "SeizeEntrustTaskGoDepotNode": {
         "desc": "传送到到仓储节点旁边锚点",
-        "focus": {
-            "Node.Recognition.Succeeded": "现在准备传送到仓储节点"
-        },
         "next": [
             "isSeizeEntrustTaskInMap",
             "[JumpBack]SceneEnterMapAny"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "现在准备传送到仓储节点"
+        }
     },
     "SeizeEntrustTaskInDownSwipeMiddle": {
-        "action": {
-            "param": {
-                "dy": 240,
-                "target": [
-                    763,
-                    424,
-                    5,
-                    5
-                ]
-            },
-            "type": "Scroll"
-        },
         "desc": "顶部为列表中部，不滑动到顶部",
         "enabled": false,
-        "inverse": true,
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1245,
@@ -168,26 +156,26 @@
                 "template": [
                     "SeizeEntrustTask/InMiddle.png"
                 ]
-            },
-            "type": "TemplateMatch"
-        }
-    },
-    "SeizeEntrustTaskInDownSwipeUp": {
+            }
+        },
+        "inverse": true,
         "action": {
+            "type": "Scroll",
             "param": {
-                "dy": -240,
                 "target": [
                     763,
                     424,
                     5,
                     5
-                ]
-            },
-            "type": "Scroll"
-        },
+                ],
+                "dy": 240
+            }
+        }
+    },
+    "SeizeEntrustTaskInDownSwipeUp": {
         "desc": "没找到武陵城就往下翻一页",
-        "inverse": true,
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1250,
@@ -198,26 +186,26 @@
                 "template": [
                     "SeizeEntrustTask/InDown.png"
                 ]
-            },
-            "type": "TemplateMatch"
-        }
-    },
-    "SeizeEntrustTaskInUpSwipeDown": {
+            }
+        },
+        "inverse": true,
         "action": {
+            "type": "Scroll",
             "param": {
-                "dy": 240,
                 "target": [
                     763,
                     424,
                     5,
                     5
-                ]
-            },
-            "type": "Scroll"
-        },
+                ],
+                "dy": -240
+            }
+        }
+    },
+    "SeizeEntrustTaskInUpSwipeDown": {
         "desc": "没找到武陵城就往上翻一页",
-        "inverse": true,
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1246,
@@ -228,77 +216,111 @@
                 "template": [
                     "SeizeEntrustTask/InMiddle.png"
                 ]
-            },
-            "type": "TemplateMatch"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ],
+                "dy": 240
+            }
         }
     },
     "SeizeEntrustTaskMain": {
+        "recognition": {
+            "type": "OCR",
+            "param": {}
+        },
         "next": [
             "SeizeEntrustTaskFoundDepotNodeButton",
             "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
-        ],
-        "recognition": {
-            "param": {},
-            "type": "OCR"
-        }
+        ]
     },
     "SeizeEntrustTaskNews": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "desc": "刷新动作",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1075,
+                    652,
+                    98,
+                    34
+                ],
+                "expected": [
+                    "刷新",
+                    "更新",
+                    "Refresh"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "rate_limit": 1000,
         "next": [
             "SeizeEntrustTaskNewsStatus1"
-        ],
-        "rate_limit": 1000,
-        "recognition": {
-            "param": {
-                "expected": [
-                    "刷新",
-                    "更新",
-                    "Refresh"
-                ],
-                "roi": [
-                    1075,
-                    652,
-                    98,
-                    34
-                ]
-            },
-            "type": "OCR"
-        }
+        ]
     },
     "SeizeEntrustTaskNews2": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
         "desc": "依旧刷新动作",
-        "next": [
-            "SeizeEntrustTaskNewsStatus2"
-        ],
-        "rate_limit": 100,
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "刷新",
-                    "更新",
-                    "Refresh"
-                ],
                 "roi": [
                     1075,
                     652,
                     98,
                     34
+                ],
+                "expected": [
+                    "刷新",
+                    "更新",
+                    "Refresh"
                 ]
-            },
-            "type": "OCR"
-        }
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "rate_limit": 100,
+        "next": [
+            "SeizeEntrustTaskNewsStatus2"
+        ]
     },
     "SeizeEntrustTaskNewsStatus1": {
         "desc": "等待刷新完成",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1006,
+                    525,
+                    244,
+                    121
+                ],
+                "expected": [
+                    "接取运送委托",
+                    "接取運送委託",
+                    "Accept Delivery Job",
+                    "配達依頼を受ける",
+                    "填充至起送",
+                    "填充到起送",
+                    "Delivery",
+                    "最低容量",
+                    "Accept"
+                ]
+            }
+        },
         "next": [
             "[JumpBack]SeizeEntrustTaskFoundGoodMoneyF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
@@ -306,73 +328,19 @@
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeMiddle",
             "[JumpBack]SeizeEntrustTaskNews2"
-        ],
-        "recognition": {
-            "param": {
-                "expected": [
-                    "接取运送委托",
-                    "接取運送委託",
-                    "Accept Delivery Job",
-                    "配達依頼を受ける",
-                    "填充至起送",
-                    "填充到起送",
-                    "Delivery",
-                    "最低容量",
-                    "Accept"
-                ],
-                "roi": [
-                    1006,
-                    525,
-                    244,
-                    121
-                ]
-            },
-            "type": "OCR"
-        }
+        ]
     },
     "SeizeEntrustTaskNewsStatus2": {
         "desc": "等待刷新完成",
-        "next": [
-            "isSeizeEntrustTaskDestinationWulingCity"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": [
-                    "接取运送委托",
-                    "接取運送委託",
-                    "Accept Delivery Job",
-                    "配達依頼を受ける",
-                    "填充至起送",
-                    "填充到起送",
-                    "Delivery",
-                    "最低容量",
-                    "Accept"
-                ],
                 "roi": [
                     1006,
                     525,
                     244,
                     121
-                ]
-            },
-            "type": "OCR"
-        }
-    },
-    "SeizeEntrustTaskPostEntrust3": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Action.Succeeded": "点击抢单~"
-        },
-        "next": [
-            "isSeizeEntrustTaskSuccessful",
-            "SeizeEntrustTaskNews"
-        ],
-        "post_wait_freezes": 200,
-        "recognition": {
-            "param": {
+                ],
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
@@ -383,22 +351,54 @@
                     "Delivery",
                     "最低容量",
                     "Accept"
-                ],
+                ]
+            }
+        },
+        "next": [
+            "isSeizeEntrustTaskDestinationWulingCity"
+        ]
+    },
+    "SeizeEntrustTaskPostEntrust3": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
                 "roi": "SeizeEntrustTaskFoundGoodMoney",
                 "roi_offset": [
                     168,
                     -1,
                     187,
                     15
+                ],
+                "expected": [
+                    "接取运送委托",
+                    "接取運送委託",
+                    "Accept Delivery Job",
+                    "配達依頼を受ける",
+                    "填充至起送",
+                    "填充到起送",
+                    "Delivery",
+                    "最低容量",
+                    "Accept"
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "isSeizeEntrustTaskSuccessful",
+            "SeizeEntrustTaskNews"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击抢单~"
         }
     },
     "SeizeEntrustTaskStopTask": {
         "action": {
-            "param": {},
-            "type": "StopTask"
+            "type": "StopTask",
+            "param": {}
         },
         "focus": {
             "Node.Action.Starting": "记得及时送货哟~"
@@ -406,29 +406,17 @@
     },
     "SeizeEntrustTaskStopTask2": {
         "action": {
-            "param": {},
-            "type": "StopTask"
+            "type": "StopTask",
+            "param": {}
         },
         "focus": {
             "Node.Recognition.Succeeded": "没有在运送委托列表界面哦"
         }
     },
     "SeizeEntrustTaskSwipeDwon": {
-        "action": {
-            "param": {
-                "dy": -240,
-                "target": [
-                    763,
-                    424,
-                    5,
-                    5
-                ]
-            },
-            "type": "Scroll"
-        },
         "desc": "直接滑倒最底下",
-        "inverse": true,
         "recognition": {
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     1250,
@@ -439,12 +427,27 @@
                 "template": [
                     "SeizeEntrustTask/InDown.png"
                 ]
-            },
-            "type": "TemplateMatch"
+            }
+        },
+        "inverse": true,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    763,
+                    424,
+                    5,
+                    5
+                ],
+                "dy": -240
+            }
         }
     },
     "SeizeEntrustTaskWalkingToDepotNode": {
+        "enabled": false,
+        "pre_delay": 0,
         "action": {
+            "type": "Custom",
             "param": {
                 "custom_action": "MapTrackerMove",
                 "custom_action_param": {
@@ -480,18 +483,15 @@
                         ]
                     ]
                 }
-            },
-            "type": "Custom"
+            }
         },
-        "enabled": false,
-        "focus": {
-            "Node.Recognition.Succeeded": "现在准备走到仓储节点"
-        },
+        "post_delay": 0,
         "next": [
             "SeizeEntrustTaskStopTask"
         ],
-        "post_delay": 0,
-        "pre_delay": 0
+        "focus": {
+            "Node.Recognition.Succeeded": "现在准备走到仓储节点"
+        }
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
@@ -503,93 +503,108 @@
         ]
     },
     "isSeizeEntrustTaskExhausted": {
-        "focus": {
-            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
-        },
-        "next": [
-            "SeizeEntrustTaskStopTask"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
-                "expected": "3/3",
                 "roi": [
                     1030,
                     650,
                     45,
                     40
-                ]
-            },
-            "type": "OCR"
-        }
-    },
-    "isSeizeEntrustTaskExistOldTask": {
-        "focus": {
-            "Node.Recognition.Succeeded": "已存在旧的运送委托"
+                ],
+                "expected": "3/3"
+            }
         },
         "next": [
             "SeizeEntrustTaskStopTask"
         ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
+    "isSeizeEntrustTaskExistOldTask": {
         "recognition": {
+            "type": "OCR",
             "param": {
+                "roi": [
+                    1020,
+                    210,
+                    200,
+                    35
+                ],
                 "expected": [
                     "查看任务",
                     "查看任務",
                     "View Mission",
                     "任務確認",
                     "임무 확인"
-                ],
-                "roi": [
-                    1020,
-                    210,
-                    200,
-                    35
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已存在旧的运送委托"
         }
     },
     "isSeizeEntrustTaskInMap": {
         "desc": "是否在任意地图界面",
-        "next": [
-            "isSeizeEntrustTaskInWolrld",
-            "[JumpBack]SceneEnterWorldWulingWulingCity5"
-        ],
-        "post_delay": 0,
-        "pre_delay": 0,
         "recognition": {
+            "type": "And",
             "param": {
                 "all_of": [
                     "InMapAny"
                 ]
-            },
-            "type": "And"
-        }
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "isSeizeEntrustTaskInWolrld",
+            "[JumpBack]SceneEnterWorldWulingWulingCity5"
+        ]
     },
     "isSeizeEntrustTaskInWolrld": {
         "desc": "是否在大世界",
-        "focus": {
-            "Node.Recognition.Succeeded": "已传送到锚点"
-        },
-        "next": [
-            "SeizeEntrustTaskWalkingToDepotNode",
-            "SeizeEntrustTaskStopTask"
-        ],
-        "post_delay": 0,
-        "pre_delay": 0,
         "recognition": {
+            "type": "And",
             "param": {
                 "all_of": [
                     "InWorld"
                 ]
-            },
-            "type": "And"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "SeizeEntrustTaskWalkingToDepotNode",
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已传送到锚点"
         }
     },
     "isSeizeEntrustTaskReady": {
         "desc": "判断有没有成功进入",
-        "focus": {
-            "Node.Recognition.Succeeded": "进入抢武陵城委托任务"
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    136,
+                    130,
+                    87,
+                    34
+                ],
+                "expected": [
+                    "委托人信息",
+                    "委託人資訊",
+                    "Client Info",
+                    "依頼主詳細"
+                ]
+            }
         },
+        "timeout": 3000,
         "next": [
             "isSeizeEntrustTaskExistOldTask",
             "isSeizeEntrustTaskExhausted",
@@ -598,40 +613,20 @@
         "on_error": [
             "SeizeEntrustTaskStopTask2"
         ],
-        "recognition": {
-            "param": {
-                "expected": [
-                    "委托人信息",
-                    "委託人資訊",
-                    "Client Info",
-                    "依頼主詳細"
-                ],
-                "roi": [
-                    136,
-                    130,
-                    87,
-                    34
-                ]
-            },
-            "type": "OCR"
-        },
-        "timeout": 3000
+        "focus": {
+            "Node.Recognition.Succeeded": "进入抢武陵城委托任务"
+        }
     },
     "isSeizeEntrustTaskSuccessful": {
-        "action": {
-            "param": {},
-            "type": "Click"
-        },
-        "focus": {
-            "Node.Recognition.Failed": "诶，好像失败了(｡•́︿•̀｡)",
-            "Node.Recognition.Succeeded": "抢到啦！！！"
-        },
-        "next": [
-            "SeizeEntrustTaskGoDepotNode",
-            "SeizeEntrustTaskStopTask"
-        ],
         "recognition": {
+            "type": "OCR",
             "param": {
+                "roi": [
+                    540,
+                    573,
+                    576,
+                    143
+                ],
                 "expected": [
                     "请尽快送达",
                     "請儘快送達",
@@ -642,15 +637,20 @@
                     "Delivery job already accepted",
                     "配達任務を引き受けました",
                     "点击屏幕继续"
-                ],
-                "roi": [
-                    540,
-                    573,
-                    576,
-                    143
                 ]
-            },
-            "type": "OCR"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskGoDepotNode",
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "诶，好像失败了(｡•́︿•̀｡)",
+            "Node.Recognition.Succeeded": "抢到啦！！！"
         }
     }
 }
