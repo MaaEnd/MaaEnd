@@ -10,15 +10,18 @@ import (
 
 /* ******** Big Map Viewport ******** */
 
-// bigMapViewBounds represents the current big map viewport bounds in screen coordinate
+// BigMapViewport represents a big-map viewport mapping between map coordinates and screen coordinates.
+// Left/Top/Right/Bottom are viewport bounds in screen space.
+// OriginMapX/OriginMapY are the map coordinates corresponding to the viewport's top-left corner.
+// Scale is the screen-pixel-per-map-pixel ratio at current zoom.
 type BigMapViewport struct {
-	Left       float64
-	Top        float64
-	Right      float64
-	Bottom     float64
-	OriginMapX float64
-	OriginMapY float64
-	Scale      float64
+	Left       float64 `json:"left"`
+	Top        float64 `json:"top"`
+	Right      float64 `json:"right"`
+	Bottom     float64 `json:"bottom"`
+	OriginMapX float64 `json:"originMapX"`
+	OriginMapY float64 `json:"originMapY"`
+	Scale      float64 `json:"scale"`
 }
 
 // NewBigMapViewport creates a viewport using the fixed big-map screen bounds and current inferred map origin/scale.
@@ -42,17 +45,20 @@ func (bmv *BigMapViewport) GetScreenCoordOf(mapX, mapY float64) (float64, float6
 	return viewX, viewY
 }
 
+// GetMapCoordOf converts screen coordinates to map coordinates based on the current viewport.
 func (bmv *BigMapViewport) GetMapCoordOf(viewX, viewY float64) (float64, float64) {
 	mapX := bmv.OriginMapX + (viewX-bmv.Left)/bmv.Scale
 	mapY := bmv.OriginMapY + (viewY-bmv.Top)/bmv.Scale
 	return mapX, mapY
 }
 
-func (bmv *BigMapViewport) IsScreenCoordInView(mapX, mapY float64) bool {
+// IsMapCoordInView reports whether a map coordinate is currently inside the viewport.
+func (bmv *BigMapViewport) IsMapCoordInView(mapX, mapY float64) bool {
 	viewX, viewY := bmv.GetScreenCoordOf(mapX, mapY)
 	return bmv.IsViewCoordInView(viewX, viewY)
 }
 
+// IsViewCoordInView reports whether a screen coordinate is inside the viewport bounds.
 func (bmv *BigMapViewport) IsViewCoordInView(viewX, viewY float64) bool {
 	return viewX >= bmv.Left && viewX <= bmv.Right && viewY >= bmv.Top && viewY <= bmv.Bottom
 }
@@ -88,7 +94,7 @@ func (aw *ActionWrapper) SwipeSync(x, y, dx, dy int, durationMillis, delayMillis
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-// SwipeSync performs an only-hover swipe from (x, y) to (x+dx, y+dy)
+// SwipeHoverSync performs an only-hover swipe from (x, y) to (x+dx, y+dy)
 func (aw *ActionWrapper) SwipeHoverSync(x, y, dx, dy int, durationMillis, delayMillis int) {
 	aw.ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
 	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
