@@ -83,7 +83,7 @@
     },
     "SeizeEntrustTaskFoundGoodMoneyF1": {
         "focus": {
-            "Node.Recognition.Succeeded": "找到7.31万武陵城订单！"
+            "Node.Recognition.Succeeded": "找到7.98万武陵城订单！"
         },
         "next": [
             "SeizeEntrustTaskFoundGoodMoney"
@@ -91,8 +91,7 @@
         "recognition": {
             "param": {
                 "template": [
-                    "SeizeEntrustTask/7.98wMoney.png",
-                    "SeizeEntrustTask/7.31wMoney_en.png"
+                    "SeizeEntrustTask/7.98wMoney.png"
                 ],
                 "threshold": [
                     0.94
