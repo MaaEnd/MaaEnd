@@ -158,6 +158,13 @@
             "BuyFirstOCR"
         ],
         "box_index": 3,
+        "action": "Click",
+        "target_offset": [
+            25,
+            -102,
+            -61,
+            -8
+        ],
         "next": [
             "CreditShoppingBuyFirstItem"
         ]
@@ -174,6 +181,7 @@
             "IsDiscount"
         ],
         "box_index": 4,
+        "action": "Click",
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]
@@ -187,6 +195,7 @@
             "NotSoldOut"
         ],
         "box_index": 2,
+        "action": "Click",
         "next": [
             "CreditShoppingBuyBlacklistItem"
         ]

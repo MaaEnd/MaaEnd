@@ -1,42 +1,72 @@
 {
     // 在商店中购买物品的节点
     "CreditShoppingBuyFirstItem": {
-        "desc": "点击购买商品",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": "CreditShoppingBuyFirst",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
+        "desc": "识别购买商品(优先购买)",
+        "recognition": "OCR",
+        "roi": [
+            146,
+            69,
+            241,
+            150
+        ],
+        "expected": [
+            "购买商品"
         ],
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm",
-            "CreditShoppingBuyFirstItem"
+            "CreditShoppingBuyFirstItemOCR_Oroberyl",
+            "CreditShoppingBuyFirstItemOCR_ArsenalTicket",
+            "CreditShoppingBuyFirstItemOCR_TCreds",
+            "CreditShoppingBuyFirstItemOCR_ElementaryCognitiveCarrier",
+            "CreditShoppingBuyFirstItemOCR_ArmsInspector",
+            "CreditShoppingBuyFirstItemOCR_ArmsINSPKit",
+            "CreditShoppingBuyFirstItemOCR_Protoprism",
+            "CreditShoppingBuyFirstItemOCR_Protohedron"
         ]
     },
     "CreditShoppingBuyNormalItemWithDiscount": {
-        "desc": "点击购买商品(有折扣)",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": "CreditShoppingBuyNormalWithDiscount",
+        "desc": "识别购买商品(有折扣)",
+        "recognition": "OCR",
+        "roi": [
+            146,
+            69,
+            241,
+            150
+        ],
+        "expected": [
+            "购买商品"
+        ],
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm",
-            "CreditShoppingBuyNormalItemWithDiscount"
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_ArsenalTicket",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_TCreds",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCognitiveCarrier",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsInspector",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsINSPKit",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron"
         ]
     },
     "CreditShoppingBuyBlacklistItem": {
-        "desc": "点击购买商品",
-        "recognition": "DirectHit",
-        "action": "Click",
-        "target": "CreditShoppingBuyBlacklist",
+        "desc": "识别购买商品(黑名单)",
+        "recognition": "OCR",
+        "roi": [
+            146,
+            69,
+            241,
+            150
+        ],
+        "expected": [
+            "购买商品"
+        ],
         "next": [
-            "CreditShoppingBuyFailed",
-            "CreditShoppingBuyConfirm",
-            "CreditShoppingBuyBlacklistItem"
+            "CreditShoppingBuyBlacklistItemOCR_Oroberyl",
+            "CreditShoppingBuyBlacklistItemOCR_ArsenalTicket",
+            "CreditShoppingBuyBlacklistItemOCR_TCreds",
+            "CreditShoppingBuyBlacklistItemOCR_ElementaryCognitiveCarrier",
+            "CreditShoppingBuyBlacklistItemOCR_ArmsInspector",
+            "CreditShoppingBuyBlacklistItemOCR_ArmsINSPKit",
+            "CreditShoppingBuyBlacklistItemOCR_Protoprism",
+            "CreditShoppingBuyBlacklistItemOCR_Protohedron"
         ]
     },
     "CreditShoppingBuyFailed": {
