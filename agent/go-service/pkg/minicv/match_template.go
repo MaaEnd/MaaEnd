@@ -172,6 +172,7 @@ func MatchTemplateAnyScaleInArea(
 	if minScale <= 0 {
 		minScale = 1e-6
 	}
+	minScale0, maxScale0 := minScale, maxScale
 	if len(steps) == 0 {
 		steps = []int{1}
 	}
@@ -236,16 +237,21 @@ func MatchTemplateAnyScaleInArea(
 		if iterBestIdx == 0 {
 			minScale = iterBestScale
 			maxScale = iterBestScale + stepSize
-			continue
-		}
-		if iterBestIdx == stepCount-1 {
+		} else if iterBestIdx == stepCount-1 {
 			minScale = iterBestScale - stepSize
 			maxScale = iterBestScale
-			continue
+		} else {
+			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale + stepSize
 		}
 
-		minScale = iterBestScale - stepSize
-		maxScale = iterBestScale + stepSize
+		minScale = max(minScale0, minScale)
+		maxScale = min(maxScale0, maxScale)
+		if minScale > maxScale {
+			clamped := min(max(iterBestScale, minScale0), maxScale0)
+			minScale = clamped
+			maxScale = clamped
+		}
 	}
 
 	if bestScore < 0 {

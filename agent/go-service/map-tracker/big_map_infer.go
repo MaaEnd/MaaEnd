@@ -63,7 +63,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}
 
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
-	template, cropLeft, cropTop, ok := cropBigMapTemplate(screenImg)
+	template, _, _, ok := cropBigMapTemplate(screenImg)
 	if !ok {
 		log.Warn().Msg("Big-map crop area is invalid")
 		return nil, false
@@ -81,6 +81,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	coarseBestMap := MapCache{}
 	hasCoarseBestMap := false
 	triedMaps := 0
+	coarseMatchingSteps := []int{8, 4}
 	coarseTplScaleMin := 1.0 / GAME_MAP_SCALE_MAX
 	coarseTplScaleMax := 1.0 / GAME_MAP_SCALE_MIN
 
@@ -106,7 +107,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 			fastTpl,
 			coarseTplScaleMin,
 			coarseTplScaleMax,
-			[]int{8, 8},
+			coarseMatchingSteps,
 		)
 		coarseBestScore = score
 		coarseBestTplScale = tplScale
@@ -126,7 +127,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 					fastTpl,
 					coarseTplScaleMin,
 					coarseTplScaleMax,
-					[]int{8, 8},
+					coarseMatchingSteps,
 				)
 				resChan <- coarseResult{score: score, tplScale: tplScale, m: m}
 			}(mapData)
@@ -157,8 +158,10 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	fineMinScale := max(coarseTplScaleMin, coarseBestTplScale-0.1)
-	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale+0.1)
+	fineMatchingSteps := []int{8, 4}
+	fineMatchingScaleOffset := (coarseTplScaleMax - coarseTplScaleMin) / 32.0
+	fineMinScale := max(coarseTplScaleMin, coarseBestTplScale-fineMatchingScaleOffset)
+	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale-fineMatchingScaleOffset)
 
 	matchX, matchY, fineScore, fineTplScale := minicv.MatchTemplateAnyScaleInArea(
 		coarseBestMap.Img,
@@ -166,7 +169,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		fastTpl,
 		fineMinScale,
 		fineMaxScale,
-		[]int{4, 4},
+		fineMatchingSteps,
 	)
 
 	if fineScore < param.Threshold {
@@ -182,8 +185,8 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	result := MapTrackerBigMapInferResult{
 		MapName:     coarseBestMap.Name,
-		X:           roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX) + float64(cropLeft)),
-		Y:           roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY) + float64(cropTop)),
+		X:           roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX)),
+		Y:           roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY)),
 		Scale:       1.0 / fineTplScale,
 		InferTimeMs: time.Since(t0).Milliseconds(),
 	}

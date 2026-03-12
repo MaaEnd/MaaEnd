@@ -170,7 +170,7 @@ Optional parameters:
 
 > [!WARNING]
 >
-> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. If you need to judge whether the player's current position meets conditions, please use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node.
+> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. If you need to judge whether the player's current position meets the conditions, please use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node.
 
 ### Recognition: MapTrackerBigMapInfer
 
@@ -178,7 +178,7 @@ Optional parameters:
 
 > [!WARNING]
 >
-> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. For the exact crop rule of the "current viewport region", refer to the implementation details in code.
+> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. For the exact cropping rule of the "current viewport region", refer to the implementation details in code.
 
 #### Node Parameters
 
