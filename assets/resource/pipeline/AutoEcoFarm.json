@@ -2,6 +2,7 @@
     "AutoEcoFarmMain": {
         "desc": "自动生态农场主入口",
         "next": [
+            //"test"
             "_AutoEcoFarmPrepareStart",
             "_AutoEcoFarmGotoValleyIVEcoFarmStart",
             "_AutoEcoFarmGotoWulinEcoFarmStart",
@@ -13,12 +14,33 @@
         "desc": "退出任务"
     },
     "test": {
-        "action": "TouchMove",
-        "target": [
-            540,
-            730,
-            1,
-            1
-        ]
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "order_by": "Horizontal"
+            }
+        },
+        "next": ["test2"]
+    },
+    "test2": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "autoEcoFarmFindNearestMaaResult",
+                "custom_recognition_param": {
+                    "RecognitionNodeName": "test",
+                    "XRatio": 0.5,
+                    "YRatio": 0.5
+                }
+            }
+        },
+        "next": ["AutoEcoFarmExit"]
     }
 }
