@@ -14,8 +14,20 @@ import (
 type CreditShoppingParseParams struct{}
 
 func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil || arg == nil {
+		log.Error().
+			Str("component", "CreditShoppingParseParams").
+			Bool("ctx_nil", ctx == nil).
+			Bool("arg_nil", arg == nil).
+			Msg("context or arg is nil")
+		return false
+	}
+
 	if arg.CustomActionParam != "" {
-		log.Info().Str("custom_action_param", arg.CustomActionParam).Msg("CreditShoppingParseParams input")
+		log.Info().
+			Str("component", "CreditShoppingParseParams").
+			Str("custom_action_param", arg.CustomActionParam).
+			Msg("CreditShoppingParseParams input")
 	}
 
 	nodeAttachCache := make(map[string]map[string]interface{})
