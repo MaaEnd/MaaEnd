@@ -5,90 +5,9 @@
             "[JumpBack]SceneEnterWorldWulingWulingCity4"
         ]
     },
-    "CollectThornyYazhenHoldAlt": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 164
-            }
-        },
-        "next": [
-            "CollectThornyYazhenClickThornyYazhen"
-        ],
-        "on_error": [
-            "CollectThornyYazhenReleaseAltOnError"
-        ]
-    },
-    "CollectThornyYazhenClickThornyYazhen": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "荆刺芽针"
-                ],
-                "roi": [
-                    803,
-                    350,
-                    263,
-                    219
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "CollectThornyYazhenReleaseAlt"
-        ],
-        "on_error": [
-            "CollectThornyYazhenReleaseAltOnError"
-        ]
-    },
-    "CollectThornyYazhenReleaseAlt": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 164
-            }
-        },
-        "next": [
-            "CollectThornyYazhenEnd"
-        ]
-    },
-    "CollectThornyYazhenReleaseAltOnError": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 164
-            }
-        },
-        "next": [
-            "CollectThornyYazhenEnd"
-        ]
-    },
     "CollectThornyYazhenEnd": {
         "pre_delay": 0,
         "post_delay": 0
-    },
-    "CollectThornyYazhenFind": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "expected": [
-                    "荆刺芽针"
-                ],
-                "roi": [
-                    803,
-                    350,
-                    263,
-                    219
-                ]
-            }
-        },
-        "next": [
-            "CollectThornyYazhenHoldAlt"
-        ]
     },
     "CollectThornyYazhenAssertLocation": {
         "recognition": {
@@ -112,10 +31,10 @@
         },
         "desc": "传送到收集地",
         "next": [
-            "GotoThornyYazhenFind"
+            "GotoThornyYazhenFind1"
         ]
     },
-    "GotoThornyYazhenFind": {
+    "GotoThornyYazhenFind1": {
         "action": {
             "type": "Custom",
             "param": {
@@ -135,9 +54,10 @@
                 }
             }
         },
-        "desc": "前往收集地",
+        "desc": "前往收集地1",
         "next": [
-            "CollectThornyYazhenFind"
+            "[JumpBack]ClickThornyYazhenStart",
+            "CollectThornyYazhenEnd"
         ]
     }
 }
