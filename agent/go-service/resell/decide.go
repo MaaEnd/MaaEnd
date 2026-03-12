@@ -68,3 +68,11 @@ func (a *ResellDecideAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "ChangeNextRegionPrepare"}})
 	return true
 }
+
+func processMaxRecord(record ProfitRecord) ProfitRecord {
+	result := record
+	if result.Row >= 2 {
+		result.Row = result.Row - 1
+	}
+	return result
+}

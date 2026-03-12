@@ -3,6 +3,7 @@ package resell
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -136,4 +137,13 @@ func computeNextScanPos(row, col int, breakRow bool) (nextRow, nextCol int, done
 		return row + 1, 1, false
 	}
 	return 0, 0, true
+}
+
+// MoveMouseSafe moves the mouse to a safe location (10, 10) to avoid blocking OCR
+func MoveMouseSafe(controller *maa.Controller) {
+	// Use PostClick to move mouse to a safe corner
+	// We use (10, 10) to avoid title bar buttons or window borders
+	controller.PostTouchMove(0, 10, 10, 0)
+	// Small delay to ensure mouse move completes
+	time.Sleep(50 * time.Millisecond)
 }
