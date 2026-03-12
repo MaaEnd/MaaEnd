@@ -47,7 +47,7 @@ type ResellScanCostAction struct{}
 func (a *ResellScanCostAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	text := extractOCRText(arg.RecognitionDetail)
 	if text != "" {
-		if num, ok := extractNumbersFromText(text); ok {
+		if num, ok := extractIntegerFromText(text); ok {
 			setScanCostPrice(num)
 			log.Info().Int("costPrice", num).Msg("[Resell]详情页成本价已更新")
 		}
@@ -71,7 +71,7 @@ func (a *ResellScanFriendPriceAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 		return true
 	}
-	salePrice, ok := extractNumbersFromText(text)
+	salePrice, ok := extractIntegerFromText(text)
 	if !ok {
 		log.Info().Str("text", text).Msg("[Resell]好友出售价区域无有效数字")
 		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)

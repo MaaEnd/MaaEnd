@@ -28,10 +28,10 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 		log.Info().Msgf("Quota region 1 OCR: %s", text)
 		parts := strings.Split(text, "/")
 		if len(parts) >= 2 {
-			if val, ok := extractNumbersFromText(parts[0]); ok {
+			if val, ok := extractIntegerFromText(parts[0]); ok {
 				x = val
 			}
-			if val, ok := extractNumbersFromText(parts[1]); ok {
+			if val, ok := extractIntegerFromText(parts[1]); ok {
 				y = val
 			}
 			log.Info().Msgf("Parsed quota region 1: x=%d, y=%d", x, y)
@@ -46,10 +46,10 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 		log.Info().Msgf("Quota region 2 OCR (hours): %s", text)
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
-			if val, ok := extractNumbersFromText(parts[0]); ok {
+			if val, ok := extractIntegerFromText(parts[0]); ok {
 				hoursLater = val
 			}
-			if val, ok := extractNumbersFromText(parts[1]); ok {
+			if val, ok := extractIntegerFromText(parts[1]); ok {
 				b = val
 			}
 			log.Info().Msgf("Parsed quota region 2 (hours): hoursLater=%d, b=%d", hoursLater, b)
@@ -64,7 +64,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 		log.Info().Msgf("Quota region 2 OCR (minutes): %s", text)
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
-			if val, ok := extractNumbersFromText(parts[1]); ok {
+			if val, ok := extractIntegerFromText(parts[1]); ok {
 				b = val
 			}
 			hoursLater = 0
@@ -80,7 +80,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 		log.Info().Msgf("Quota region 2 OCR (fallback): %s", text)
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
-			if val, ok := extractNumbersFromText(parts[len(parts)-1]); ok {
+			if val, ok := extractIntegerFromText(parts[len(parts)-1]); ok {
 				b = val
 			}
 			hoursLater = 0
