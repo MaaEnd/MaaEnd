@@ -100,6 +100,7 @@ Required parameters:
 Optional parameters:
 
 - `on_find`: Action after the target point enters the viewport. Can be `"Click"` or `"DoNothing"`. Default is `"Click"`.
+- `disable_auto_open_map`: Boolean, default `false`. Whether to disable auto-opening the corresponding map screen.
 
 #### Example Usage
 
@@ -120,10 +121,6 @@ Optional parameters:
     }
 }
 ```
-
-> [!WARNING]
->
-> Before executing this node, **make sure the big map for the target area is already open**.
 
 ### Recognition: MapTrackerAssertLocation
 

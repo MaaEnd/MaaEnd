@@ -107,6 +107,7 @@
 可选参数：
 
 - `on_find`: 找到目标点后执行的操作。可以是 `"Click"` 或 `"DoNothing"`，默认 `"Click"`。
+- `disable_auto_open_map`: 真假值，默认 `false`。是否禁用自动打开对应场景的地图界面的功能。
 
 #### 示例用法
 
@@ -127,10 +128,6 @@
     }
 }
 ```
-
-> [!WARNING]
->
-> 执行此节点前，请确保**已经打开了对应区域的大地图**。
 
 ### Recognition: MapTrackerAssertLocation
 

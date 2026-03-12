@@ -5,14 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"regexp"
+	"sync"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 // MapTrackerBigMapPick picks a target map coordinate by panning the big map view.
-type MapTrackerBigMapPick struct{}
+type MapTrackerBigMapPick struct {
+	externalOnce sync.Once
+	externalData map[string]mapExternalDataItem
+	externalErr  error
+}
+
+type mapExternalDataItem struct {
+	SceneManagerNode string `json:"scene_manager_node,omitempty"`
+}
 
 // MapTrackerBigMapPickParam represents the custom_action_param for MapTrackerBigMapPick.
 type MapTrackerBigMapPickParam struct {
@@ -22,6 +32,8 @@ type MapTrackerBigMapPickParam struct {
 	Target [2]float64 `json:"target"`
 	// OnFind controls behavior when target enters viewport. Valid values: "Click", "DoNothing".
 	OnFind string `json:"on_find,omitempty"`
+	// DisableAutoOpenMap controls whether to skip auto-running scene_manager_node before picking.
+	DisableAutoOpenMap bool `json:"disable_auto_open_map,omitempty"`
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -32,6 +44,21 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse parameters for MapTrackerBigMapPick")
 		return false
+	}
+
+	sceneManagerNode, hasSceneMapping, err := a.getSceneManagerNode(param.MapName)
+	if err != nil {
+		log.Error().Err(err).Str("map", param.MapName).Msg("Failed to resolve scene manager mapping")
+		return false
+	}
+	if hasSceneMapping && !param.DisableAutoOpenMap {
+		if _, err := ctx.RunTask(sceneManagerNode); err != nil {
+			log.Error().Err(err).Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Failed to run scene manager node")
+			return false
+		}
+		log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Scene manager node completed before big-map pick")
+	} else if hasSceneMapping {
+		log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Auto-open map is disabled; skipping scene manager node")
 	}
 
 	ctrl := ctx.GetTasker().GetController()
@@ -114,6 +141,39 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 	}
 
 	return &param, nil
+}
+
+func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool, error) {
+	a.externalOnce.Do(func() {
+		a.externalData = map[string]mapExternalDataItem{}
+
+		path := findResource(MAP_EXTERNAL_DATA_PATH)
+		if path == "" {
+			return
+		}
+
+		data, err := os.ReadFile(path)
+		if err != nil {
+			a.externalErr = fmt.Errorf("failed to read map external data: %w", err)
+			return
+		}
+
+		if err := json.Unmarshal(data, &a.externalData); err != nil {
+			a.externalErr = fmt.Errorf("failed to unmarshal map external data: %w", err)
+			return
+		}
+	})
+
+	if a.externalErr != nil {
+		return "", false, a.externalErr
+	}
+
+	item, ok := a.externalData[mapName]
+	if !ok || item.SceneManagerNode == "" {
+		return "", false, nil
+	}
+
+	return item.SceneManagerNode, true, nil
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {
