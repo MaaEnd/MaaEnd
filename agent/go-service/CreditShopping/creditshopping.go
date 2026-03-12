@@ -6,28 +6,37 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-type CreditShoppingParseParams struct{}
+// CreditShoppingParseParams reads shopping configuration from node attach data and applies
+// pipeline overrides for OCR matching. It caches the computed override per pipeline context
+// to avoid redundant re-initialization when triggered multiple times within the same loop.
+type CreditShoppingParseParams struct {
+	mu      sync.Mutex
+	lastCtx *maa.Context
+}
+
+var _ maa.CustomActionRunner = &CreditShoppingParseParams{}
 
 func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if ctx == nil || arg == nil {
-		log.Error().
-			Str("component", "CreditShoppingParseParams").
-			Bool("ctx_nil", ctx == nil).
-			Bool("arg_nil", arg == nil).
-			Msg("context or arg is nil")
-		return false
+	// Hold the lock for the entire Run to prevent duplicate initialization
+	// when the action is triggered concurrently. Within a single pipeline run,
+	// MaaFramework passes the same ctx pointer across loop iterations, so
+	// pointer equality reliably identifies "already initialized for this run".
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	if a.lastCtx == ctx {
+		log.Debug().Str("component", "CreditShopping").Msg("pipeline override already applied, skipping")
+		return true
 	}
 
 	if arg.CustomActionParam != "" {
-		log.Info().
-			Str("component", "CreditShoppingParseParams").
-			Str("custom_action_param", arg.CustomActionParam).
-			Msg("CreditShoppingParseParams input")
+		log.Info().Str("component", "CreditShopping").Str("custom_action_param", arg.CustomActionParam).Msg("input received")
 	}
 
 	nodeAttachCache := make(map[string]map[string]interface{})
@@ -38,17 +47,17 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 		raw, err := ctx.GetNodeJSON(nodeName)
 		if err != nil {
-			log.Error().Err(err).Str("node", nodeName).Msg("Failed to get node json for attach")
+			log.Error().Err(err).Str("component", "CreditShopping").Str("node", nodeName).Msg("failed to get node json for attach")
 			return nil
 		}
 		if raw == "" {
-			log.Error().Str("node", nodeName).Msg("Node json is empty for attach")
+			log.Error().Str("component", "CreditShopping").Str("node", nodeName).Msg("node json is empty for attach")
 			return nil
 		}
 
 		var nodeData map[string]interface{}
 		if err := json.Unmarshal([]byte(raw), &nodeData); err != nil {
-			log.Error().Err(err).Str("node", nodeName).Msg("Failed to unmarshal node json for attach")
+			log.Error().Err(err).Str("component", "CreditShopping").Str("node", nodeName).Msg("failed to unmarshal node json for attach")
 			return nil
 		}
 
@@ -95,7 +104,7 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 					}
 				}
 			default:
-				log.Warn().Str("key", key).Interface("value", value).Msg("unsupported attach keyword value type, expect string or string list")
+				log.Warn().Str("component", "CreditShopping").Str("key", key).Interface("value", value).Msg("unsupported attach keyword value type, expect string or string list")
 			}
 		}
 		return result
@@ -151,12 +160,13 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 	buyFirstExpected := buildWhitelistRegex(buyFirstKeywords)
 	blacklistExpected := buildBlacklistRegex(blacklistKeywords)
 
-	log.Info().
+	log.Debug().
+		Str("component", "CreditShopping").
 		Interface("buy_first_keywords", buyFirstKeywords).
 		Interface("blacklist_keywords", blacklistKeywords).
 		Str("buy_first_expected", buyFirstExpected).
 		Str("blacklist_expected", blacklistExpected).
-		Msg("CreditShoppingParseParams merged from attach")
+		Msg("merged keywords from attach")
 
 	overrideMap := map[string]interface{}{
 		"BuyFirstOCR": map[string]interface{}{
@@ -170,25 +180,16 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		},
 	}
 
-	overrideNodeNames := make([]string, 0, len(overrideMap))
-	for nodeName := range overrideMap {
-		overrideNodeNames = append(overrideNodeNames, nodeName)
-	}
-	sort.Strings(overrideNodeNames)
-	log.Info().Interface("override_nodes", overrideNodeNames).Msg("CreditShoppingParseParams override nodes")
-	for _, nodeName := range overrideNodeNames {
-		log.Info().
-			Str("node", nodeName).
-			Interface("override_content", overrideMap[nodeName]).
-			Msg("CreditShoppingParseParams override detail")
-	}
-
-	log.Info().Interface("override", overrideMap).Msg("CreditShoppingParseParams override")
+	log.Debug().
+		Str("component", "CreditShopping").
+		Interface("override", overrideMap).
+		Msg("applying pipeline override")
 
 	if err := ctx.OverridePipeline(overrideMap); err != nil {
-		log.Error().Err(err).Interface("override", overrideMap).Msg("Failed to OverridePipeline")
+		log.Error().Err(err).Str("component", "CreditShopping").Interface("override", overrideMap).Msg("OverridePipeline failed")
 		return false
 	}
 
+	a.lastCtx = ctx
 	return true
 }
