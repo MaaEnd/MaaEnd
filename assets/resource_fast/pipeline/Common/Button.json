@@ -1352,10 +1352,10 @@
         "desc": "快门按钮",
         "recognition": "TemplateMatch",
         "roi": [
-            1029,
-            509,
-            145,
-            139
+            961,
+            465,
+            213,
+            183
         ],
         "template": "Common/Button/ShutterButton.png",
         "threshold": 0.9,
