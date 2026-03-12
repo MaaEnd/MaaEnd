@@ -22,6 +22,15 @@ const (
 	ROT_RADIUS   = 12
 )
 
+// Big map scanning configuration
+const (
+	PADDING_LR           = 0.1328 * WORK_W
+	PADDING_TB           = 0.2083 * WORK_H
+	WIRE_MATCH_PRECISION = 0.25
+	GAME_MAP_SCALE_MIN   = 1.0
+	GAME_MAP_SCALE_MAX   = 7.0
+)
+
 // Time-series empirical optimization configuration
 const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
@@ -56,6 +65,12 @@ var DEFAULT_INFERENCE_PARAM = MapTrackerInferParam{
 var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
 	Precision: 0.7,
 	Threshold: 0.3,
+}
+
+// MapTrackerBigMapInfer parameters default values
+var DEFAULT_BIG_MAP_INFERENCE_PARAM = MapTrackerBigMapInferParam{
+	MapNameRegex: "^map\\d+_lv\\d+$",
+	Threshold:    0.5,
 }
 
 // MapTrackerMove parameters default values
