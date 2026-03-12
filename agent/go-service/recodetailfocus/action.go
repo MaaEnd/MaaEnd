@@ -72,9 +72,7 @@ func (a *RecoDetailFocusAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return false
 	}
 	override := map[string]any{
-		managedOCRNode: map[string]any{
-			"recognition": recognitionConfig,
-		},
+		managedOCRNode: recognitionConfig,
 	}
 	detail, err := ctx.RunRecognition(managedOCRNode, img, override)
 	if err != nil {
@@ -108,6 +106,20 @@ func normalizeRecognitionParam(raw map[string]any) map[string]any {
 	if len(raw) == 0 {
 		return nil
 	}
+
+	// 兼容误传格式：
+	// {
+	//   "recognition": { ...完整识别器配置... }
+	// }
+	// 框架最终需要的是节点配置本身，而不是 recognition 下再包一层对象。
+	if nested, ok := raw["recognition"].(map[string]any); ok {
+		recognition := make(map[string]any, len(nested))
+		for k, v := range nested {
+			recognition[k] = v
+		}
+		return recognition
+	}
+
 	recognition := make(map[string]any, len(raw))
 	for k, v := range raw {
 		recognition[k] = v
