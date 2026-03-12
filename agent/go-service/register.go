@@ -13,7 +13,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/ocrfocus"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/subtask"
@@ -28,7 +27,6 @@ func registerAll() {
 	// General Custom
 	subtask.Register()
 	clearhitcount.Register()
-	ocrfocus.Register()
 
 	// Business Custom
 	blueprintimport.Register()
