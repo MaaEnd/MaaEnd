@@ -334,7 +334,7 @@
     "task.AndroidOpenGame.label": "🎮打开游戏",
     "task.AndroidOpenGame.description": "安卓端打开游戏，需先手动打开模拟器",
     "task.SeizeEntrustTask.label": "🌆抢委托",
-    "task.SeizeEntrustTask.description": "庄天师的地盘才接单～🌆只接7.31万的武陵订单~",
+    "task.SeizeEntrustTask.description": "庄天师的地盘才接单～🌆只接7.98万的武陵订单~",
     "task.SeizeEntrustTaskisSwipeMiddle.label": "滑动中下位置查找武陵订单",
     "task.SeizeEntrustTaskisSwipeMiddle.description": "开启此选项后，只会滑动到中间，不会滑动到最顶部\n不开启需要手动滑动到武陵订单可能出现的位置，一般在5万的谷地订单上面，或者在列表最底部",
     "task.SeizeEntrustTaskisSwipeALL.label": "滑动遍历全部订单(不建议开启)",
