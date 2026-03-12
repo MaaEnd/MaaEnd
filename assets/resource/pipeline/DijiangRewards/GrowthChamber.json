@@ -12,7 +12,9 @@
                     313
                 ],
                 "expected": [
-                    "^培养舱"
+                    "^培养舱",
+                    "Growth",
+                    "Chamber"
                 ]
             }
         },
@@ -38,13 +40,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
+                    "GROWTH CHAMBER",
                     "培養室"
                 ]
             }
@@ -123,7 +126,8 @@
                     283
                 ],
                 "expected": [
-                    "^培养$"
+                    "^培养$",
+                    "Grow"
                 ]
             }
         },
@@ -152,7 +156,9 @@
                     111
                 ],
                 "expected": [
-                    "选择培养对象"
+                    "选择培养对象",
+                    "Select",
+                    "materials"
                 ]
             }
         },
@@ -178,7 +184,8 @@
                 "expected": [
                     "菌$",
                     "石$",
-                    "叶$"
+                    "叶$",
+                    "Bloodcap$"
                 ]
             }
         }
@@ -253,7 +260,9 @@
                     113
                 ],
                 "expected": [
-                    "生产助力"
+                    "生产助力",
+                    "Production",
+                    "Assist"
                 ]
             }
         },
@@ -421,7 +430,9 @@
                     111
                 ],
                 "expected": [
-                    "选择培养对象"
+                    "选择培养对象",
+                    "Select",
+                    "materials"
                 ]
             }
         },
@@ -577,13 +588,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
+                    "GROWTH CHAMBER",
                     "培養室"
                 ]
             }

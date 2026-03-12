@@ -151,3 +151,112 @@ func MatchTemplateInArea(
 
 	return subX, subY, fm
 }
+
+// MatchTemplateAnyScaleInArea performs iterative template matching over a scale range.
+// The number of iterations is defined by len(steps), and each element controls the
+// sampling count for that iteration.
+// Returns (x, y, score, scale) for the best match found across all iterations.
+func MatchTemplateAnyScaleInArea(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	minScale, maxScale float64,
+	steps []int,
+) (float64, float64, float64, float64) {
+	if minScale > maxScale {
+		minScale, maxScale = maxScale, minScale
+	}
+	if maxScale <= 0 {
+		return 0, 0, 0, 0
+	}
+	if minScale <= 0 {
+		minScale = 1e-6
+	}
+	minScale0, maxScale0 := minScale, maxScale
+	if len(steps) == 0 {
+		steps = []int{1}
+	}
+
+	bestX, bestY, bestScore, bestScale := 0.0, 0.0, -1.0, minScale
+
+	for _, stepCount := range steps {
+		if minScale > maxScale {
+			break
+		}
+		if stepCount < 1 {
+			stepCount = 1
+		}
+
+		stepSize := 0.0
+		if stepCount > 1 {
+			stepSize = (maxScale - minScale) / float64(stepCount-1)
+		}
+
+		iterBestIdx := 0
+		iterBestScale := minScale
+		iterBestX, iterBestY, iterBestScore := 0.0, 0.0, -1.0
+
+		for idx := range stepCount {
+			scale := minScale
+			if stepCount == 1 {
+				scale = (minScale + maxScale) * 0.5
+			} else {
+				scale = minScale + float64(idx)*stepSize
+			}
+			if scale <= 0 {
+				continue
+			}
+
+			scaledTpl := ImageScale(tpl, scale)
+			scaledStats := GetImageStats(scaledTpl)
+			if scaledStats.Std < 1e-12 {
+				continue
+			}
+
+			x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+			if score > iterBestScore {
+				iterBestScore = score
+				iterBestX = x
+				iterBestY = y
+				iterBestScale = scale
+				iterBestIdx = idx
+			}
+		}
+
+		if iterBestScore > bestScore {
+			bestScore = iterBestScore
+			bestX = iterBestX
+			bestY = iterBestY
+			bestScale = iterBestScale
+		}
+
+		if stepSize <= 0 {
+			break
+		}
+
+		if iterBestIdx == 0 {
+			minScale = iterBestScale
+			maxScale = iterBestScale + stepSize
+		} else if iterBestIdx == stepCount-1 {
+			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale
+		} else {
+			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale + stepSize
+		}
+
+		minScale = max(minScale0, minScale)
+		maxScale = min(maxScale0, maxScale)
+		if minScale > maxScale {
+			clamped := min(max(iterBestScale, minScale0), maxScale0)
+			minScale = clamped
+			maxScale = clamped
+		}
+	}
+
+	if bestScore < 0 {
+		return 0, 0, 0, 0
+	}
+
+	return bestX, bestY, bestScore, bestScale
+}
