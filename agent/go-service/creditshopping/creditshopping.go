@@ -6,35 +6,18 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"sync"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 // CreditShoppingParseParams reads shopping configuration from node attach data and applies
-// pipeline overrides for OCR matching. It caches the computed override per pipeline context
-// to avoid redundant re-initialization when triggered multiple times within the same loop.
-type CreditShoppingParseParams struct {
-	mu      sync.Mutex
-	lastCtx *maa.Context
-}
+// pipeline overrides for OCR matching.
+type CreditShoppingParseParams struct{}
 
 var _ maa.CustomActionRunner = &CreditShoppingParseParams{}
 
 func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	// Hold the lock for the entire Run to prevent duplicate initialization
-	// when the action is triggered concurrently. Within a single pipeline run,
-	// MaaFramework passes the same ctx pointer across loop iterations, so
-	// pointer equality reliably identifies "already initialized for this run".
-	a.mu.Lock()
-	defer a.mu.Unlock()
-
-	if a.lastCtx == ctx {
-		log.Debug().Str("component", "CreditShopping").Msg("pipeline override already applied, skipping")
-		return true
-	}
-
 	if arg.CustomActionParam != "" {
 		log.Info().Str("component", "CreditShopping").Str("custom_action_param", arg.CustomActionParam).Msg("input received")
 	}
@@ -190,6 +173,5 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 		return false
 	}
 
-	a.lastCtx = ctx
 	return true
 }
