@@ -21,8 +21,8 @@
                             "target": [
                                 246,
                                 699,
-                                30,
-                                30
+                                15,
+                                15
                             ]
                         }
                     ]
@@ -38,17 +38,32 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv002",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
                         [
-                            247.3,
-                            700.6
+                            243,
+                            690,
+                            true
                         ],
                         [
-                            266.1,
-                            706.6
+                            243,
+                            694,
+                            true
+                        ],
+                        [
+                            261,
+                            694,
+                            true
+                        ],
+                        [
+                            261,
+                            701,
+                            true
                         ]
                     ]
                 }
