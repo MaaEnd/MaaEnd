@@ -26,7 +26,7 @@ tests/
 
 - 测试定义文件放在 `tests/` 下任意子目录，文件名必须匹配 `test_*.json`。
 - 测试截图放在 `tests/MaaEndTestset/`。
-- `image` 字段填写对应图片名，也可以直接写带扩展名的文件名。
+- `image` 字段必须填写完整的截图文件名，并显式包含扩展名，例如 `xxx.png`。
 - 实际截图路径由 `maatools.config.mts` 拼出；通常会落到 `tests/MaaEndTestset/<controller>/<resource>/` 下，并按 `image` 字段匹配具体图片文件。
 
 以当前配置为例：
@@ -53,7 +53,7 @@ tests/
     "cases": [
         {
             "name": "可选的用例名",
-            "image": "帝江号_大世界",
+            "image": "帝江号_大世界.png",
             "hits": [
                 "InWorld",
                 {
@@ -91,7 +91,7 @@ tests/
 - `cases` 是数组，至少要有 1 个用例。
 - 每个用例必须包含 `image` 和 `hits`。
 - `name` 可选，建议在同一组里截图含义不够直观时补充。
-- `image` 对应截图文件名；根据当前 schema，可不写扩展名。
+- `image` 对应截图文件名，必须显式包含扩展名。
 
 ### `hits`
 
@@ -172,9 +172,9 @@ tests/
 
 推荐沿用现有风格：把地点、页面层级、关键状态串起来，例如：
 
-- `帝江号_大世界`
-- `四号谷地_地区建设_仓储节点_货物装箱_填充至满`
-- `武陵_拍照模式_拍摄目标未达成`
+- `帝江号_大世界.png`
+- `四号谷地_地区建设_仓储节点_货物装箱_填充至满.png`
+- `武陵_拍照模式_拍摄目标未达成.png`
 
 截图名越具体，后续维护测试越轻松。
 
@@ -265,12 +265,12 @@ pnpm check
     "cases": [
         {
             "name": "大世界主页",
-            "image": "帝江号_大世界",
+            "image": "帝江号_大世界.png",
             "hits": ["InWorld"],
         },
         {
             "name": "验证不同控制器下的识别框位置",
-            "image": "帝江号_某个复杂界面",
+            "image": "帝江号_某个复杂界面.png",
             "hits": [
                 {
                     "node": "SpecialButtonWithOffset",
@@ -283,7 +283,7 @@ pnpm check
         },
         {
             "name": "负例：不应命中",
-            "image": "武陵_拍照模式_拍摄目标未达成",
+            "image": "武陵_拍照模式_拍摄目标未达成.png",
             "hits": [],
         },
     ],
@@ -298,7 +298,7 @@ pnpm check
 - `configs.resource` 和 `configs.controller` 是否能在 `maatools.config.mts` 中找到映射。
 - 如果 `configs.controller` 或 `configs.resource` 写成数组，是否确认所有组合下都存在对应截图。
 - 如果 `box` 写成矩阵对象，是否确认所有需要的组合键都能命中，或提供了合适的 `default`。
-- `image` 是否能在对应目录找到对应截图；如果没写扩展名，也要确认文件名主体一致。
+- `image` 是否写了完整文件名和扩展名，并且能在对应目录找到该截图。
 - `hits` 是否只保留本图真正应该命中的节点。
 - 若节点位置也重要，是否补了 `box`。
 - 是否包含了足够的负例，能拦住常见误识别。

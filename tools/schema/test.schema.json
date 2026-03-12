@@ -80,7 +80,8 @@
                 },
                 "image": {
                     "type": "string",
-                    "description": "对应图片名（可不写扩展名）"
+                    "pattern": "^[^\\\\/]+\\.[^\\\\/.]+$",
+                    "description": "对应图片文件名（必须包含扩展名，如 xxx.png）"
                 },
                 "hits": {
                     "type": "array",

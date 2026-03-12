@@ -26,7 +26,7 @@ tests/
 
 - Test definition files can be placed anywhere under `tests/`, but the filename must match `test_*.json`.
 - Test screenshots live under `tests/MaaEndTestset/`.
-- The `image` field contains the screenshot name, and it may also include the file extension.
+- The `image` field must contain the full screenshot file name, including its extension, for example `xxx.png`.
 - The real screenshot path is resolved by `maatools.config.mts`; in practice it points under `tests/MaaEndTestset/<controller>/<resource>/` and matches the concrete screenshot file from `image`.
 
 With the current config:
@@ -53,7 +53,7 @@ The file structure is validated by `tools/schema/test.schema.json`. The top leve
     "cases": [
         {
             "name": "Optional case name",
-            "image": "帝江号_大世界",
+            "image": "帝江号_大世界.png",
             "hits": [
                 "InWorld",
                 {
@@ -91,7 +91,7 @@ Only use values that already have mappings in `maatools.config.mts` and screensh
 - `cases` must be an array with at least one case.
 - Each case must contain `image` and `hits`.
 - `name` is optional, but useful when the screenshot name alone is not descriptive enough.
-- `image` points to the screenshot file name; under the current schema, the extension may be omitted.
+- `image` points to the screenshot file name and must explicitly include the extension.
 
 ### `hits`
 
@@ -172,9 +172,9 @@ If only the rectangle differs while screenshots and expected nodes stay the same
 
 The current naming style works well: location + page hierarchy + key state, for example:
 
-- `帝江号_大世界`
-- `四号谷地_地区建设_仓储节点_货物装箱_填充至满`
-- `武陵_拍照模式_拍摄目标未达成`
+- `帝江号_大世界.png`
+- `四号谷地_地区建设_仓储节点_货物装箱_填充至满.png`
+- `武陵_拍照模式_拍摄目标未达成.png`
 
 The more specific the screenshot name is, the easier the test set is to maintain later.
 
@@ -265,12 +265,12 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
     "cases": [
         {
             "name": "World home page",
-            "image": "帝江号_大世界",
+            "image": "帝江号_大世界.png",
             "hits": ["InWorld"],
         },
         {
             "name": "Check controller-specific box positions",
-            "image": "帝江号_某个复杂界面",
+            "image": "帝江号_某个复杂界面.png",
             "hits": [
                 {
                     "node": "SpecialButtonWithOffset",
@@ -283,7 +283,7 @@ Even so, keep committed files clean and readable; avoid leaving large blocks of 
         },
         {
             "name": "Negative case: should not hit",
-            "image": "武陵_拍照模式_拍摄目标未达成",
+            "image": "武陵_拍照模式_拍摄目标未达成.png",
             "hits": [],
         },
     ],
@@ -298,7 +298,7 @@ After adding or editing node tests, check at least these items:
 - `configs.resource` and `configs.controller` are mapped in `maatools.config.mts`.
 - If `configs.controller` or `configs.resource` is an array, confirm screenshots exist for every expanded combination.
 - If `box` is a matrix object, confirm every required combination can be resolved, or provide a suitable `default`.
-- `image` points to a real screenshot in the resolved directory; if the extension is omitted, make sure the base file name still matches.
+- `image` includes the full file name with extension, and points to a real screenshot in the resolved directory.
 - `hits` includes only the nodes that truly should hit on that image.
 - A `box` assertion is added when location correctness matters.
 - There are enough negative samples to catch common false positives.
