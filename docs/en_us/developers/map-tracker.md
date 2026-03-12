@@ -86,57 +86,6 @@ Optional parameters:
 >
 > During the execution of this node, ensure that the player is **always in** the specified map, and adjacent waypoints **can be reached in a straight line**.
 
-### Recognition: MapTrackerInfer
-
-📍Gets the player's current map name, position coordinates, and orientation.
-
-#### Node Parameters
-
-Required parameters: None
-
-Optional parameters:
-
-- `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
-
-    - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
-    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map001_lv001$`: Only matches "map001_lv001" (Fourth Valley - Hub Area).
-    - `^map001_lv\\d+$`: Matches all sub-regions of "map001" (Fourth Valley).
-
-- `print`: Boolean value, default `false` . Whether to enable UI message printing of recognition results.
-
-<details>
-<summary>Advanced Optional Parameters (Expand)</summary>
-
-- `precision`: Real number between $(0, 1]$, default `0.5`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
-
-- `threshold`: Real number between $(0, 1]$, default `0.4` Controls the confidence threshold for matching. Matching results below this value will not hit the recognition.
-
-</details>
-
-#### Example Usage
-
-```json
-{
-    "MyNodeName": {
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerInfer",
-        "custom_recognition_param": {
-            "map_name_regex": "^map\\d+_lv\\d+$"
-        },
-        "action": "DoNothing"
-    }
-}
-```
-
-> [!TIP]
->
-> MapTracker uses an integer between $[0, 360)$ to represent the player's **orientation**, in degrees. 0° indicates facing due north, with clockwise rotation as the increasing direction.
-
-> [!WARNING]
->
-> This node is not suitable for low-code development in the pipeline. If you need to judge whether the player's current position meets the conditions, please use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node.
-
 ### Recognition: MapTrackerAssertLocation
 
 ✅Judges whether the player's current map name and position coordinates meet any of the expected conditions.
@@ -184,6 +133,56 @@ Required parameters:
     }
 }
 ```
+
+### Recognition: MapTrackerInfer
+
+📍Gets the player's current map name, position coordinates, and orientation.
+
+#### Node Parameters
+
+Required parameters: None
+
+Optional parameters:
+
+- `map_name_regex`: A [regular expression](https://regexr.com/) used to filter map names. Only maps matching this regular expression will participate in recognition. For example:
+
+    - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
+    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
+    - `^map001_lv001$`: Only matches "map001_lv001" (Fourth Valley - Hub Area).
+    - `^map001_lv\\d+$`: Matches all sub-regions of "map001" (Fourth Valley).
+
+- `print`: Boolean value, default `false`. Whether to enable UI message printing of recognition results.
+
+<details>
+<summary>Advanced Optional Parameters (Expand)</summary>
+
+- `precision`: Real number between $(0, 1]$, default `0.5`. Controls the accuracy of matching. A larger value will match map features more strictly but may result in slow matching speed; a smaller value will greatly improve matching speed but may lead to incorrect results. When the number of maps to be matched is small (e.g., only one map), it is recommended to use a larger value to obtain more accurate results.
+
+- `threshold`: Real number between $(0, 1]$, default `0.4`. Controls the confidence threshold for matching. Matching results below this value will not hit the recognition.
+
+</details>
+
+<br>
+
+> [!TIP]
+>
+> MapTracker uses an integer between $[0, 360)$ to represent the player's **orientation**, in degrees. 0° indicates facing due north, with clockwise rotation as the increasing direction.
+
+> [!WARNING]
+>
+> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. If you need to judge whether the player's current position meets conditions, please use the [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) node.
+
+### Recognition: MapTrackerBigMapInfer
+
+🗺️ Infers the top-left map coordinate of the current viewport region on the big map and the current map scale.
+
+> [!WARNING]
+>
+> This node is designed for advanced programming, so it is not suitable for low-code development in the pipeline. For the exact crop rule of the "current viewport region", refer to the implementation details in code.
+
+#### Node Parameters
+
+Please refer to the `MapTrackerBigMapInferParam` type definition in code.
 
 ## Tool Instructions
 

@@ -93,57 +93,6 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
-### Recognition: MapTrackerInfer
-
-📍获取玩家当前所处的地图名称、位置坐标和朝向。
-
-#### 节点参数
-
-必填参数：无
-
-可选参数：
-
-- `map_name_regex`: 用于筛选地图名称的[正则表达式](https://regexr.com/)。仅匹配该正则表达式的地图会参与识别。例如：
-
-    - `^map\\d+_lv\\d+$`: 默认值。匹配所有常规地图。
-    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: 匹配所有常规地图和分层地图（Tier）。
-    - `^map001_lv001$`: 仅匹配 "map001_lv001"（四号谷地-枢纽区）。
-    - `^map001_lv\\d+$`: 匹配 "map001"（四号谷地）的所有子区域。
-
-- `print`: 真假值，默认 `false`。是否开启识别结果的 UI 消息打印。
-
-<details>
-<summary>高级可选参数（展开）</summary>
-
-- `precision`: 介于 $(0, 1]$ 的实数，默认 `0.5`。控制匹配的精确度。较大的值会更严格地匹配地图特征，但可能导致匹配速度缓慢；较小的值会极大提升匹配速度，但可能导致结果错误。在需要匹配的地图数量较少时（例如只匹配一张地图），推荐使用较大的值以获得更准确的结果。
-
-- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
-
-</details>
-
-#### 示例用法
-
-```json
-{
-    "MyNodeName": {
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerInfer",
-        "custom_recognition_param": {
-            "map_name_regex": "^map\\d+_lv\\d+$"
-        },
-        "action": "DoNothing"
-    }
-}
-```
-
-> [!TIP]
->
-> MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
-
-> [!WARNING]
->
-> 该节点不适合放在 pipeline 中进行低代码开发。如需判断玩家所处的位置是否符合条件，请使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点。
-
 ### Recognition: MapTrackerAssertLocation
 
 ✅判断玩家当前所处的地图名称和位置坐标是否满足任一预期条件。
@@ -191,6 +140,56 @@
     }
 }
 ```
+
+### Recognition: MapTrackerInfer
+
+📍获取玩家当前所处的地图名称、位置坐标和朝向。
+
+#### 节点参数
+
+必填参数：无
+
+可选参数：
+
+- `map_name_regex`: 用于筛选地图名称的[正则表达式](https://regexr.com/)。仅匹配该正则表达式的地图会参与识别。例如：
+
+    - `^map\\d+_lv\\d+$`: 默认值。匹配所有常规地图。
+    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: 匹配所有常规地图和分层地图（Tier）。
+    - `^map001_lv001$`: 仅匹配 "map001_lv001"（四号谷地-枢纽区）。
+    - `^map001_lv\\d+$`: 匹配 "map001"（四号谷地）的所有子区域。
+
+- `print`: 真假值，默认 `false`。是否开启识别结果的 UI 消息打印。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `precision`: 介于 $(0, 1]$ 的实数，默认 `0.5`。控制匹配的精确度。较大的值会更严格地匹配地图特征，但可能导致匹配速度缓慢；较小的值会极大提升匹配速度，但可能导致结果错误。在需要匹配的地图数量较少时（例如只匹配一张地图），推荐使用较大的值以获得更准确的结果。
+
+- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
+
+</details>
+
+<br>
+
+> [!TIP]
+>
+> MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
+
+> [!WARNING]
+>
+> 该节点是为高级编程而设计的，因此不适合放在 pipeline 中进行低代码开发。如需判断玩家所处的位置是否符合条件，请使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点。
+
+### Recognition: MapTrackerBigMapInfer
+
+🗺️ 在大地图界面中推断当前视野区域在地图中的左上角坐标与地图缩放。
+
+> [!WARNING]
+>
+> 该节点是为高级编程而设计的，因此不适合放在 pipeline 中进行低代码开发。“当前视野区域”的裁切规则请参见具体代码中的定义。
+
+#### 节点参数
+
+请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义。
 
 ## 工具说明
 
