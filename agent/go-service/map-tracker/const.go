@@ -49,8 +49,10 @@ const (
 
 // Resource paths
 const (
-	MAP_DIR      = "image/MapTracker/map"
-	POINTER_PATH = "image/MapTracker/pointer.png"
+	MAP_BBOX_DATA_PATH     = "data/MapTracker/map_bbox_data.json"
+	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
+	MAP_DIR                = "resource/image/MapTracker/map"
+	POINTER_PATH           = "resource/image/MapTracker/pointer.png"
 )
 
 // Move action configuration
