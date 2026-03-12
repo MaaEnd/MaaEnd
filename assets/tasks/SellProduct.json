@@ -4,7 +4,8 @@
             "name": "SellProduct",
             "label": "$task.SellProduct.label",
             "entry": "SellProductMain",
-            "description": "$task.SellProduct.description"
+            "description": "$task.SellProduct.description",
+            "group": ["daily"]
         }
     ]
 }

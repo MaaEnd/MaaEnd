@@ -11,7 +11,7 @@
     "_AutoEcoFarmMoveAndWorkExit": {
         "next": [
             //在开启随机查找后会循环3次该任务增加全收集的概率
-            "_AutoEcoFarmFindValleyIVEcoFarmAny",
+            //"_AutoEcoFarmFindValleyIVEcoFarmAny",
             "AutoEcoFarmMain"
         ]
     },

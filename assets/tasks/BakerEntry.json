@@ -4,7 +4,8 @@
             "name": "BakerEntry",
             "label": "$task.BakerEntry.label",
             "entry": "BakerEntry",
-            "description": "$task.BakerEntry.description"
+            "description": "$task.BakerEntry.description",
+            "group": ["utility"]
         }
     ],
     "option": {}

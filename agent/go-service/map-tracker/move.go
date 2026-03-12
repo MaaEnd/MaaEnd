@@ -21,7 +21,7 @@ type MapTrackerMoveParam struct {
 	// MapName is the name of the map to navigate (required).
 	MapName string `json:"map_name"`
 	// Path is a sequence of [x, y] coordinate points to follow (required).
-	Path [][2]int `json:"path"`
+	Path [][2]float64 `json:"path"`
 	// PathTrim trims the path to start from the nearest point to the current location when enabled.
 	PathTrim bool `json:"path_trim,omitempty"`
 	// NoPrint controls whether to suppress printing navigation status to the GUI.
@@ -56,7 +56,7 @@ var (
 
 // PlayerRotationAdjustmentState keeps track of one rotation adjustment
 type PlayerRotationAdjustmentState struct {
-	fromPos         [2]int        // Last position where rotation adjustment started to apply
+	fromPos         [2]float64    // Last position where rotation adjustment started to apply
 	fromRot         int           // Last rotation when rotation adjustment started to apply
 	deltaRot        float64       // Last rotation difference to apply
 	startTime       time.Time     // Last time when rotation adjustment started to apply
@@ -92,7 +92,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			closestIdx := 0
 			minDist := math.MaxFloat64
 			for i, p := range param.Path {
-				dist := math.Hypot(float64(initRes.X-p[0]), float64(initRes.Y-p[1]))
+				dist := math.Hypot(initRes.X-p[0], initRes.Y-p[1])
 				if dist < minDist {
 					minDist = dist
 					closestIdx = i
@@ -123,18 +123,18 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// For each target point
 	for i, target := range param.Path {
 		targetX, targetY := target[0], target[1]
-		log.Info().Int("index", i).Int("targetX", targetX).Int("targetY", targetY).Msg("Navigating to next target point")
+		log.Info().Int("index", i).Float64("targetX", targetX).Float64("targetY", targetY).Msg("Navigating to next target point")
 
 		// Show navigation UI
 		var initDist float64
 		var initRot int
 		if initResult, err := doInfer(ctx, ctrl, param); err == nil && initResult != nil {
-			initDist = math.Hypot(float64(initResult.X-targetX), float64(initResult.Y-targetY))
+			initDist = math.Hypot(initResult.X-targetX, initResult.Y-targetY)
 			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
 			if !param.NoPrint {
 				maafocus.NodeActionStarting(
 					aw.ctx,
-					fmt.Sprintf(navigationMovingHTML, targetX, targetY, int(initDist)),
+					fmt.Sprintf(navigationMovingHTML, targetX, targetY, initDist),
 				)
 			}
 		} else if err != nil {
@@ -145,7 +145,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			lastLoopTime     = time.Time{}
 			lastArrivalTime  = time.Now()
 			prevLocationTime = time.Time{}
-			prevLocation     *[2]int
+			prevLocation     *[2]float64
 		)
 
 		for {
@@ -185,12 +185,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Calculate rotation difference
 			targetRot := calcTargetRotation(curX, curY, targetX, targetY)
 			rawDeltaRot := calcDeltaRotation(rot, targetRot)
+			absRawDeltaRot := math.Abs(float64(rawDeltaRot))
 
 			// Check arrival
-			dist := math.Hypot(float64(curX-targetX), float64(curY-targetY))
+			dist := math.Hypot(curX-targetX, curY-targetY)
 			isArrived := func() bool {
 				if dist < param.ArrivalThreshold {
-					log.Info().Int("x", curX).Int("y", curY).Int("index", i).Msg("Target point reached")
+					log.Info().Float64("x", curX).Float64("y", curY).Int("index", i).Msg("Target point reached")
 					return true
 				}
 				if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
@@ -214,10 +215,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				break
 			}
 
-			log.Debug().Int("curX", curX).Int("curY", curY).Int("curRot", rot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
+			log.Debug().Float64("curX", curX).Float64("curY", curY).Int("curRot", rot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
 
 			// Check Stuck
-			if prevLocation != nil && prevLocation[0] == curX && prevLocation[1] == curY {
+			if prevLocation != nil && math.Hypot(prevLocation[0]-curX, prevLocation[1]-curY) < 1.0 {
 				deltaLocationMs := loopStartTime.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
@@ -229,7 +230,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					aw.KeyTypeSync(KEY_SPACE, 100)
 				}
 			} else {
-				prevLocation = &[2]int{curX, curY}
+				prevLocation = &[2]float64{curX, curY}
 				prevLocationTime = loopStartTime
 			}
 
@@ -238,7 +239,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// Check if last rotation adjustment is completed
 				if loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
 					// Check if player is moving and rotating sufficiently to trust rotation measurement
-					distTravel := math.Hypot(float64(curX-rotAdjState.fromPos[0]), float64(curY-rotAdjState.fromPos[1]))
+					distTravel := math.Hypot(curX-rotAdjState.fromPos[0], curY-rotAdjState.fromPos[1])
 					if distTravel > rotAdjState.expectedElapsed.Seconds()*MovementWalk.Speed {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
@@ -262,7 +263,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check if no active rotation adjustment
 			if rotAdjState == nil || loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
 				// Check if rotation is not good enough to sprint
-				if math.Abs(float64(rawDeltaRot)) > param.RotationLowerThreshold {
+				if absRawDeltaRot > param.RotationLowerThreshold {
 					// Ensure no sprinting: forcibly set to 'walk'
 					if movement.Speed > MovementRun.Speed {
 						aw.KeyTypeSync(KEY_CTRL, 25)
@@ -286,11 +287,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 
 				// Start a new rotation adjustment
-				if math.Abs(float64(rawDeltaRot)) > 1.0 {
+				if absRawDeltaRot > 1.0 {
 					finalDeltaRot := float64(rawDeltaRot)
 
 					// Select appropriate rotation method based on how bad the rotation is
-					if math.Abs(float64(rawDeltaRot)) > param.RotationUpperThreshold {
+					if absRawDeltaRot > param.RotationUpperThreshold {
 						// Rotation is very bad: forcibly set to 'walk' for better control
 						if movement.Speed > MovementWalk.Speed {
 							aw.KeyTypeSync(KEY_CTRL, 25)
@@ -310,7 +311,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 					// Update adaptive rotation state
 					rotAdjState = &PlayerRotationAdjustmentState{
-						fromPos:         [2]int{curX, curY},
+						fromPos:         [2]float64{curX, curY},
 						fromRot:         rot,
 						deltaRot:        finalDeltaRot,
 						startTime:       time.Now(),
@@ -350,6 +351,11 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	}
 	if len(param.Path) == 0 {
 		return nil, fmt.Errorf("path is required in parameters, got empty")
+	}
+	for i, point := range param.Path {
+		if math.IsNaN(point[0]) || math.IsInf(point[0], 0) || math.IsNaN(point[1]) || math.IsInf(point[1], 0) {
+			return nil, fmt.Errorf("path[%d] contains invalid coordinate", i)
+		}
 	}
 
 	// Validate parameters and set defaults
@@ -477,9 +483,9 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 
 // calcTargetRotation calculates the angle from (fromX, fromY) to (toX, toY).
 // 0 degrees is North (negative Y), increasing clockwise.
-func calcTargetRotation(fromX, fromY, toX, toY int) int {
-	dx := float64(toX - fromX)
-	dy := float64(toY - fromY)
+func calcTargetRotation(fromX, fromY, toX, toY float64) int {
+	dx := toX - fromX
+	dy := toY - fromY
 	angleRad := math.Atan2(dx, -dy)
 	angleDeg := angleRad * 180.0 / math.Pi
 

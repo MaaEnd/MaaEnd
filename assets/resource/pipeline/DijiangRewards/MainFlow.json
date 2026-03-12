@@ -274,7 +274,10 @@
                     "生長",
                     "Growth",
                     "成長",
-                    "培养舱"
+                    "培养舱",
+                    "培養艙",
+                    "Growth Chamber",
+                    "培養室"
                 ],
                 "only_rec": true
             }
@@ -319,7 +322,8 @@
                 ],
                 "expected": [
                     "取消",
-                    "Cancel"
+                    "Cancel",
+                    "キャンセル"
                 ]
             }
         },

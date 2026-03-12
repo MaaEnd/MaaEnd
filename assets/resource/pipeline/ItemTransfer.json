@@ -16,9 +16,11 @@
             27
         ],
         "expected": [
-            "拜访好友",
+            "好友",
+            "Friends",
+            "フレンド",
             "Visit",
-            "Friends"
+            "拜访好友"
         ],
         "next": [
             "ItemTransferStartMoveCamera"
@@ -63,6 +65,9 @@
         ],
         "expected": [
             "仓库切换",
+            "倉庫切換",
+            "Switch Depot",
+            "倉庫切替",
             "Switch",
             "Depot"
         ],
@@ -130,7 +135,9 @@
         ],
         "expected": [
             "已连接",
-            "Connected"
+            "已連接",
+            "Connected",
+            "接続済み"
         ],
         "next": [
             "ItemTransferClickEscOrigin"
@@ -163,6 +170,8 @@
         ],
         "expected": [
             "降序",
+            "DESC",
+            "降順",
             "Desc"
         ],
         "action": "Click",
@@ -182,7 +191,6 @@
             26
         ],
         "expected": [
-            "升序",
             "升序",
             "ASC",
             "昇順",
@@ -293,6 +301,9 @@
         ],
         "expected": [
             "仓库切换",
+            "倉庫切換",
+            "Switch Depot",
+            "倉庫切替",
             "Switch",
             "Depot"
         ],
@@ -360,7 +371,9 @@
         ],
         "expected": [
             "已连接",
-            "Connected"
+            "已連接",
+            "Connected",
+            "接続済み"
         ],
         "next": [
             "ItemTransferClickEscDestination"
@@ -475,6 +488,9 @@
         ],
         "expected": [
             "仓库切换",
+            "倉庫切換",
+            "Switch Depot",
+            "倉庫切替",
             "Switch",
             "Depot"
         ],
@@ -542,7 +558,9 @@
         ],
         "expected": [
             "已连接",
-            "Connected"
+            "已連接",
+            "Connected",
+            "接続済み"
         ],
         "next": [
             "ItemTransferClickEscOriginReturn"

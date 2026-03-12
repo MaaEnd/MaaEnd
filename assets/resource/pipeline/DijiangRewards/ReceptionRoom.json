@@ -12,7 +12,8 @@
                     260
                 ],
                 "expected": [
-                    "^会客室$"
+                    "^会客室$",
+                    "Reception"
                 ]
             }
         },
@@ -77,11 +78,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }
@@ -133,6 +137,7 @@
             "type": "Click"
         },
         "next": [
+            "[JumpBack]ReceptionRoomSetClues",
             "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
@@ -338,7 +343,9 @@
                 ],
                 "expected": [
                     "赠予",
-                    "Send"
+                    "贈予",
+                    "Send",
+                    "譲り渡す"
                 ]
             }
         },
@@ -377,11 +384,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }
@@ -475,7 +485,6 @@
                 ],
                 "expected": [
                     "已填入",
-                    "已填入",
                     "Pegged",
                     "配置中"
                 ],
@@ -556,11 +565,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }

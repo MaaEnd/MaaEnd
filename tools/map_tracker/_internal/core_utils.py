@@ -2,7 +2,8 @@ import sys
 import os
 import re
 import math
-from typing import Literal
+import base64
+from typing import Literal, NamedTuple
 
 _R = "\033[31m"
 _G = "\033[32m"
@@ -28,9 +29,38 @@ except ImportError:
 
 Point = tuple[int, int]
 Color = int  # 0xRRGGBB
-
-
 MapType = Literal["normal", "tier", "base", "dung"]
+
+
+ICON_DATA = {
+    "AssertLocation": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAC7UlEQVR4AdSWIXMUQRCFJ6jEgQOXuMjEgQsOFIXEgUQBClAQBwokuDh+AjjiiEscuETiiEvc8b256a7O3M7cLimK4qp7e6b7Tfeb3tnbvZL+8e//JjCbzdall2nipA5QbBM9Q7NQ+FiaJ/OLYlv4RssoAuReRWdk/Y6uoi1R7BDsWQtQ+5cSINkmi+qE5/heoLeLvsaeoiaZMGvXzdGyXQIkuMpC7RqT5WRl/lvDvEX3i+5ir4FYQ09Qk+OSw+YLtksA9C/U5A1FNmwyZImfo8KoIwaJOczntkkA5q8cldIBiV+GeSKu3WGy6PB5u8Hugt1Hs4CIubLPLk0CAHwXJLzF3IWEOpBekIAOnwjpvDBNiTU6H6n8PFeZu+kRMNCeDWQprkdPQ6mKSDWWHuoS9IONWafzZFO3gwQAP3dESo/DWEPb+Qa7zIcQ531Uok7Imj6zAfYhuiCDBEDtoFkookcuj3VhbhJP+xPFagUY196r45q3CFxXcIzSrXfgjPBdxi0ZfwvI8ANdKhR/CkiKSXvs+Etq/wZztjoQHyE/2QO5tXu5jyj+SIOoEIyd9JwRM0iAZB8D6FMYt4YPGoHP5q9ymjsNEvDofNB7u20D2Sb5YHuJ9dYSTl0C/udDK+vnOy+msFp/lCfVhTXxHeK5KlibAMkPANtjtEXChbOALwu4C4JTO3d8yXUBY5Nlt0BvOMPGHeldUP/pGE42dizmUOyCdgnAXB3w/3F25t8FJabX8krMCEbvCXO9Bxe/E8zvtktAKBLozfZTY1QfGt4JYiKIey4U9xieU+LxrxjXoiwloCUkuiFbVN+FX8vYDcXV9njfu623haMICAyJ2OodCvozzvgbGB08TNKrOGJT7zeaQEmiT64yTHcorA9Q7fymOSui5m7aSQRIrnseSWjX0lyA+Oid5wVcJhEAr/bWJOSWf3JxLZxMQIvYqT4+rWAcKzxJ/4iAVYCIJN4SC422lyIwukoH+NcJdGrn0G8AAAD//yDmQk4AAAAGSURBVAMAn0P5QeU4gvcAAAAASUVORK5CYII=",
+    "Import": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABtklEQVR4AdSXLVbDQBSFE1SR3QW44rA4JJIdYLEoQCGRsAMkOJDsACTLwFEXvjun6Zkmb35pgXLem8nM3HfvzZBM253mj/+200DXdbPcTG1w8Q4gfAvpW26CV3yBN6PIAEwSPzeZ4pMTai8tSLYBCIbiRxAeZCQQFyeuHTRZBgzx/bZtX8n3VA70RsOkgYD4x4ipciJqYNPi8hw08BviQQOI37DoP+36n69t2+FeRmgHjpeIptmYuDRCBrTmkqfcvHN2SachnYuZA1c0SQMVnEUl22eADT8L3SJr5mkXwmu+aAcQ0HF8T/+sYj+Ze2D8SG+e+ayZkW0A4gkM/aupt0SCTLm4oz0lFVcLrK6TmW2At2EO25TsY6+/oD8k+5gusP042mcbEAvEn/S+CYYrIXFhViZjgyIDIoqYKBYXX7EBFRkmqsTFVWVAhZ6JanHxVBtQsUwodV2bPzJQK+rX/X8DHCr61KtO/26t69AOPHng7N8A1FhYpl28uHbQmAZ4sK7B6eSjW0vM4bywmEwDAlKwS6/M+e4fxMCjEA904wgaEJRKOU9+9wcXxIgnllEDscLctRTuGwAA//+VtDp6AAAABklEQVQDADmP90GLDoaEAAAAAElFTkSuQmCC",
+    "Move": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACCElEQVR4AeyVoVIDMRCGKYo66pDlDXiE4sAhi8O1DguKoqBPAChwgAJXUCBx4MC1EkcduPJt22W2171e0rsZhhmY/ye7m2T3Ty5JFxd++e/vCxgMBkdQcRC7obl2gKobFNyDihaxmjohbS4BFPBW7MUY6iOvgFsn7ZUTSw3lElAqldpk/oKKPrEzdULaXAKkAAXLUFGRWAznEsBBq8IuVER9dyswSgDVGnBAgi6sQoWcfrkR6ge3QQIoegml8OmMzJ0ZfaldmQLGheupGUwHYx+MG2RmCkhkqctpS8SsW0NE1KeIEfBC8WsKLNuKjt1hzIkTd0MxAjRBQ41E2zJ+ExECEbOFsWT6Jsx5BDQnMoycN3bnEHMTWsjnuCGwAl3MI8BeP006fP0QcQdLBO0PFG46QgSsMl2YXB3hH0xcT0S04RCMkJeyR+siUwBZemO+uxlGwddRM/2fufa3YmpApgA7g8O0Y31jD59m4webUQLIugsVcsDUllZEfIoRwykBrFKeXXnzvfu+psnZ2nsoB85ucep103nJdkoAA+TZlUP1gRjFM4a7/YgoM6cP54InwEskKz83HckDWZwAViTbKtfumIJpiS/oKwTuDiBCrt4+bQUOQTUrSl49QvnhCvDSosKKsgfPGx4cCxYQnDFy4L+AonbgiZ1/HJMmHIUI4IBuw3VhsnSW/w0AAP//0JOdfAAAAAZJREFUAwAJJaxB9oUiDAAAAABJRU5ErkJggg==",
+}
+
+_GLOBAL_ICON_CACHE: dict[str, np.ndarray | None] = {}
+
+
+def get_icon_image(icon_name: str | None) -> np.ndarray | None:
+    if not icon_name:
+        return None
+    if icon_name in _GLOBAL_ICON_CACHE:
+        return _GLOBAL_ICON_CACHE[icon_name]
+
+    raw = ICON_DATA.get(icon_name)
+    if not raw:
+        _GLOBAL_ICON_CACHE[icon_name] = None
+        return None
+
+    try:
+        decoded = base64.b64decode(raw)
+        arr = np.frombuffer(decoded, dtype=np.uint8)
+        img = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+        _GLOBAL_ICON_CACHE[icon_name] = img
+        return img
+    except Exception:
+        _GLOBAL_ICON_CACHE[icon_name] = None
+        return None
 
 
 class MapName:
@@ -161,16 +191,21 @@ class Drawer:
 
     @property
     def w(self):
+        """Image width in pixels."""
         return self._img.shape[1]
 
     @property
     def h(self):
+        """Image height in pixels."""
         return self._img.shape[0]
 
     def get_image(self):
+        """Return the underlying image buffer."""
         return self._img
 
-    def get_text_size(self, text: str, font_scale: float, *, thickness: int):
+    def get_text_size(self, text: str, font_scale: float):
+        """Measure text size for current font settings."""
+        thickness = max(1, int(round(font_scale * 2)))
         return cv2.getTextSize(text, self._font_face, font_scale, thickness)[0]
 
     @staticmethod
@@ -187,12 +222,12 @@ class Drawer:
         font_scale: float,
         *,
         color: Color,
-        thickness: int,
         bg_color: Color | None = None,
         bg_padding: int = 5,
     ):
+        thickness = max(1, int(round(font_scale * 2)))
         if bg_color is not None:
-            text_size = self.get_text_size(text, font_scale, thickness=thickness)
+            text_size = self.get_text_size(text, font_scale)
             cv2.rectangle(
                 self._img,
                 (pos[0] - bg_padding, pos[1] - text_size[1] - bg_padding),
@@ -211,13 +246,16 @@ class Drawer:
         )
 
     def text_centered(
-        self, text: str, pos: Point, font_scale: float, *, color: Color, thickness: int
+        self,
+        text: str,
+        pos: Point,
+        font_scale: float,
+        *,
+        color: Color,
     ):
-        text_size = self.get_text_size(text, font_scale, thickness=thickness)
+        text_size = self.get_text_size(text, font_scale)
         x = pos[0] - text_size[0] // 2
-        self.text(
-            text, (int(x), int(pos[1])), font_scale, color=color, thickness=thickness
-        )
+        self.text(text, (int(x), int(pos[1])), font_scale, color=color)
 
     def rect(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.rectangle(self._img, pt1, pt2, self._to_bgr(color), thickness)
@@ -227,6 +265,25 @@ class Drawer:
 
     def line(self, pt1: Point, pt2: Point, *, color: Color, thickness: int):
         cv2.line(self._img, pt1, pt2, self._to_bgr(color), thickness)
+
+    def crosshair(
+        self,
+        center: Point,
+        *,
+        color: Color,
+        thickness: int = 1,
+        full_screen: bool = True,
+        size: int = 8,
+    ) -> None:
+        cx, cy = center
+        if full_screen:
+            self.line((cx, 0), (cx, self.h), color=color, thickness=thickness)
+            self.line((0, cy), (self.w, cy), color=color, thickness=thickness)
+            return
+
+        arm = max(1, int(size))
+        self.line((cx - arm, cy), (cx + arm, cy), color=color, thickness=thickness)
+        self.line((cx, cy - arm), (cx, cy + arm), color=color, thickness=thickness)
 
     def mask(self, pt1: Point, pt2: Point, *, color: Color, alpha: float) -> None:
         x1, y1 = pt1
@@ -317,6 +374,64 @@ class Drawer:
             # Simple paste without alpha blending
             self._img[y0:y1, x0:x1] = target_fg
 
+    def dashed_line(
+        self,
+        pt1: Point,
+        pt2: Point,
+        *,
+        color: Color,
+        thickness: int,
+        dash: int = 8,
+        gap: int = 6,
+    ) -> None:
+        x1, y1 = pt1
+        x2, y2 = pt2
+        dx = x2 - x1
+        dy = y2 - y1
+        dist = math.hypot(dx, dy)
+        if dist < 1:
+            return
+        nx, ny = dx / dist, dy / dist
+        pos = 0.0
+        drawing = True
+        while pos < dist:
+            seg = dash if drawing else gap
+            end_pos = min(pos + seg, dist)
+            if drawing:
+                sx = int(round(x1 + nx * pos))
+                sy = int(round(y1 + ny * pos))
+                ex = int(round(x1 + nx * end_pos))
+                ey = int(round(y1 + ny * end_pos))
+                cv2.line(self._img, (sx, sy), (ex, ey), self._to_bgr(color), thickness)
+            pos = end_pos
+            drawing = not drawing
+
+    def arrow(
+        self,
+        pt1: Point,
+        pt2: Point,
+        *,
+        color: Color,
+        thickness: int,
+        arrow_size: int = 12,
+    ) -> None:
+        """Draw a line with an arrowhead at pt2."""
+        self.line(pt1, pt2, color=color, thickness=thickness)
+        x1, y1 = pt1
+        x2, y2 = pt2
+        dx = x2 - x1
+        dy = y2 - y1
+        dist = math.hypot(dx, dy)
+        if dist < 1:
+            return
+        nx, ny = dx / dist, dy / dist
+        ax1 = int(round(x2 - arrow_size * (nx - ny * 0.5)))
+        ay1 = int(round(y2 - arrow_size * (ny + nx * 0.5)))
+        ax2 = int(round(x2 - arrow_size * (nx + ny * 0.5)))
+        ay2 = int(round(y2 - arrow_size * (ny - nx * 0.5)))
+        cv2.line(self._img, (x2, y2), (ax1, ay1), self._to_bgr(color), thickness)
+        cv2.line(self._img, (x2, y2), (ax2, ay2), self._to_bgr(color), thickness)
+
     @staticmethod
     def new(w: int, h: int, **kwargs) -> "Drawer":
         img = np.zeros((h, w, 3), dtype=np.uint8)
@@ -353,12 +468,12 @@ class ViewportManager:
     def zoom(self, value: float) -> None:
         self._zoom = max(self._min_zoom, min(self._max_zoom, value))
 
-    def get_real_coords(self, view_x: int, view_y: int) -> tuple[int, int]:
-        rx = round(view_x / self._zoom + self._vx)
-        ry = round(view_y / self._zoom + self._vy)
+    def get_real_coords(self, view_x: int, view_y: int) -> tuple[float, float]:
+        rx = view_x / self._zoom + self._vx
+        ry = view_y / self._zoom + self._vy
         return rx, ry
 
-    def get_view_coords(self, real_x: int, real_y: int) -> tuple[int, int]:
+    def get_view_coords(self, real_x: float, real_y: float) -> tuple[int, int]:
         vx = round((real_x - self._vx) * self._zoom)
         vy = round((real_y - self._vy) * self._zoom)
         return vx, vy
@@ -377,7 +492,9 @@ class ViewportManager:
         self._vx += dx
         self._vy += dy
 
-    def maybe_center_to(self, real_x: int, real_y: int, padding: float = 0.3) -> None:
+    def maybe_center_to(
+        self, real_x: float, real_y: float, padding: float = 0.3
+    ) -> None:
         padding = max(0.0, min(0.49, padding))
         view_w = self._vw / self._zoom
         view_h = self._vh / self._zoom
@@ -424,236 +541,41 @@ class Layer:
         return None
 
 
-class SelectMapPage:
-    """Map selection page."""
+class MapImageLayer(Layer):
+    """Renders a background map image with viewport zoom/pan support."""
 
-    def __init__(self, map_dir: str = "assets/resource/image/MapTracker/map"):
-        self.map_dir = map_dir
-        self.map_files = self._load_and_sort_maps()
-        self.rows, self.cols = 2, 5
-        self.nav_height = 90
-        self.window_w, self.window_h = 1280, 720
-        self.cell_size = min(
-            self.window_w // self.cols, (self.window_h - self.nav_height) // self.rows
-        )
-        self.page_size = self.rows * self.cols
-        self.window_name = "MapTracker Tool - Map Selector"
+    def __init__(self, view: ViewportManager, img: np.ndarray):
+        super().__init__(view)
+        self._img = img
+        self._scaled_img: np.ndarray | None = None
+        self._scaled_zoom: float | None = None
 
-        self.current_page = 0
-        self.cached_page = -1
-        self.cached_img = None
-        self.selected_index = -1
-        self.total_pages = math.ceil(len(self.map_files) / self.page_size)
-
-    def _load_and_sort_maps(self) -> list[str]:
-        map_files = [f for f in os.listdir(self.map_dir) if f.endswith(".png")]
-        if not map_files:
-            return []
-
-        def natural_sort_key(s: str) -> list[str | int]:
-            return [
-                int(text) if text.isdigit() else text.lower()
-                for text in re.split("([0-9]+)", s)
-            ]
-
-        map_files.sort(key=lambda x: (len(x), natural_sort_key(x)))
-        return map_files
-
-    def _render_page(self):
-        if self.cached_page == self.current_page:
-            return self.cached_img
-        drawer: Drawer = Drawer.new(self.window_w, self.window_h)
-        start_idx = self.current_page * self.page_size
-        end_idx = min(start_idx + self.page_size, len(self.map_files))
-
-        # Content area height (excluding bottom navigation)
-        content_h = self.window_h - self.nav_height
-        content_w = self.window_w
-
-        # Calculate horizontal and vertical spacing (space-between)
-        if self.cols > 1:
-            gap_x = int((content_w - self.cols * self.cell_size) / (self.cols - 1))
-        else:
-            gap_x = 0
-        if self.rows > 1:
-            gap_y = int((content_h - self.rows * self.cell_size) / (self.rows - 1))
-        else:
-            gap_y = 0
-
-        # Draw map previews in space-between layout
-        for i in range(start_idx, end_idx):
-            idx_in_page = i - start_idx
-            r = idx_in_page // self.cols
-            c = idx_in_page % self.cols
-
-            cell_x = int(c * (self.cell_size + gap_x))
-            cell_y = int(r * (self.cell_size + gap_y))
-
-            path = os.path.join(self.map_dir, self.map_files[i])
-            img = cv2.imread(path)
-            if img is not None:
-                h, w = img.shape[:2]
-                # Calculate scaling to maintain aspect ratio, fit image completely into cell
-                scale = min(self.cell_size / w, self.cell_size / h)
-                new_w = max(1, int(w * scale))
-                new_h = max(1, int(h * scale))
-                resized = cv2.resize(img, (new_w, new_h))
-                # Center the image within the cell
-                x1 = cell_x
-                y1 = cell_y
-                x2 = x1 + self.cell_size
-                y2 = y1 + self.cell_size
-                # Calculate placement offset
-                dx = (self.cell_size - new_w) // 2
-                dy = (self.cell_size - new_h) // 2
-                dest_x1 = x1 + dx
-                dest_y1 = y1 + dy
-                dest_x2 = dest_x1 + new_w
-                dest_y2 = dest_y1 + new_h
-                # Boundary clipping (to prevent exceeding content area)
-                dest_x2 = min(self.window_w, dest_x2)
-                dest_y2 = min(content_h, dest_y2)
-                src_x2 = dest_x2 - dest_x1
-                src_y2 = dest_y2 - dest_y1
-                if src_x2 > 0 and src_y2 > 0:
-                    drawer._img[
-                        dest_y1 : dest_y1 + src_y2, dest_x1 : dest_x1 + src_x2
-                    ] = resized[0:src_y2, 0:src_x2]
-
-                # Label (bottom)
-                label = self.map_files[i]
-                drawer.rect(
-                    (x1, y1 + self.cell_size - 30),
-                    (x1 + self.cell_size, y1 + self.cell_size),
-                    color=0x000000,
-                    thickness=-1,
-                )
-                drawer.text_centered(
-                    label,
-                    (x1 + self.cell_size // 2, y1 + self.cell_size - 10),
-                    0.4,
-                    color=0xFFFFFF,
-                    thickness=1,
-                )
-
-        # Bottom navigation bar
-        drawer.line(
-            (0, content_h),
-            (self.window_w, content_h),
-            color=0x808080,
-            thickness=2,
-        )
-
-        # Top navigation prompt text
-        drawer.text_centered(
-            "Please click a map to continue",
-            (drawer.w // 2, content_h + 30),
-            0.7,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Left arrow
-        drawer.text(
-            "< PREV",
-            (150, self.window_h - 20),
-            0.6,
-            color=0x44DD66 if self.current_page > 0 else 0x808080,
-            thickness=2,
-        )
-
-        # Middle page info
-        page_text = f"Page {self.current_page + 1} / {self.total_pages}"
-        drawer.text_centered(
-            page_text,
-            (drawer.w // 2, self.window_h - 20),
-            0.5,
-            color=0xFFFFFF,
-            thickness=1,
-        )
-
-        # Right arrow
-        drawer.text(
-            "NEXT >",
-            (self.window_w - 200, self.window_h - 20),
-            0.6,
-            color=0x44DD66 if self.current_page < self.total_pages - 1 else 0x808080,
-            thickness=2,
-        )
-
-        self.cached_img = drawer.get_image()
-        self.cached_page = self.current_page
-        return self.cached_img
-
-    def _handle_mouse(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
-            # Content area height (excluding bottom navigation)
-            content_h = self.window_h - self.nav_height
-            if y < content_h:
-                # Use layout calculation to determine which cell the click falls into
-                if self.cols > 1:
-                    gap_x = int(
-                        (self.window_w - self.cols * self.cell_size) / (self.cols - 1)
-                    )
-                else:
-                    gap_x = 0
-                if self.rows > 1:
-                    gap_y = int(
-                        (content_h - self.rows * self.cell_size) / (self.rows - 1)
-                    )
-                else:
-                    gap_y = 0
-
-                found = False
-                for r in range(self.rows):
-                    for c in range(self.cols):
-                        cell_x = int(c * (self.cell_size + gap_x))
-                        cell_y = int(r * (self.cell_size + gap_y))
-                        if (
-                            x >= cell_x
-                            and x < cell_x + self.cell_size
-                            and y >= cell_y
-                            and y < cell_y + self.cell_size
-                        ):
-                            idx = self.current_page * self.page_size + r * self.cols + c
-                            if idx < len(self.map_files):
-                                self.selected_index = idx
-                                found = True
-                                break
-                    if found:
-                        break
-            else:
-                # Bottom navigation
-                if x < self.window_w // 3:
-                    if self.current_page > 0:
-                        self.current_page -= 1
-                elif x > 2 * self.window_w // 3:
-                    if self.current_page < self.total_pages - 1:
-                        self.current_page += 1
-
-    def run(self):
-        if not self.map_files:
-            print(f"{_R}Error: No map files found in {self.map_dir}{_0}")
-            print(
-                "  Please ensure the current working directory of this program is correct!"
+    def render(self, drawer: Drawer) -> None:
+        zoom = self.view.zoom
+        if self._scaled_img is None or self._scaled_zoom != zoom:
+            scaled_w = max(1, int(self._img.shape[1] * zoom))
+            scaled_h = max(1, int(self._img.shape[0] * zoom))
+            self._scaled_img = cv2.resize(
+                self._img, (scaled_w, scaled_h), interpolation=cv2.INTER_AREA
             )
-            return None
+            self._scaled_zoom = zoom
 
-        cv2.namedWindow(self.window_name)
-        cv2.setMouseCallback(self.window_name, self._handle_mouse)
+        scaled_img = self._scaled_img
+        if scaled_img is None:
+            return
 
-        while True:
-            cv2.imshow(self.window_name, self._render_page())
-
-            if self.selected_index != -1:
-                break
-            key = cv2.waitKey(30) & 0xFF
-            if key == 27:  # ESC
-                break
-            if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 1:
-                break
-
-        cv2.destroyAllWindows()
-        if self.selected_index != -1:
-            return self.map_files[self.selected_index]
-        return None
+        scaled_h, scaled_w = scaled_img.shape[:2]
+        src_x1 = int(round(self.view._vx * zoom))
+        src_y1 = int(round(self.view._vy * zoom))
+        dst_x = max(0, -src_x1)
+        dst_y = max(0, -src_y1)
+        src_x1 = max(0, src_x1)
+        src_y1 = max(0, src_y1)
+        src_x2 = min(scaled_w, src_x1 + drawer.w - dst_x)
+        src_y2 = min(scaled_h, src_y1 + drawer.h - dst_y)
+        copy_w = src_x2 - src_x1
+        copy_h = src_y2 - src_y1
+        if copy_w > 0 and copy_h > 0:
+            drawer.get_image()[dst_y : dst_y + copy_h, dst_x : dst_x + copy_w] = (
+                scaled_img[src_y1:src_y2, src_x1:src_x2]
+            )

@@ -4,6 +4,21 @@ import (
 	"image"
 )
 
+func subpixelOffset(neg, pos float64) float64 {
+	wn := max(0.0, neg)
+	wp := max(0.0, pos)
+	wn2 := wn * wn
+	wp2 := wp * wp
+
+	sum := wn2 + wp2
+	if sum < 1e-12 {
+		return 0.0
+	}
+
+	offset := (wp2 - wn2) / sum
+	return min(1.0, max(-1.0, offset))
+}
+
 // ComputeNCC computes the normalized cross-correlation between a rectangle region in the haystack image
 // and a template image, using precomputed integral array for efficiency
 func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplStats StatsResult, ox, oy int) float64 {
@@ -41,27 +56,27 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 }
 
 // MatchTemplate performs template matching on the whole image,
-// returns (x, y, score) of the best match
+// returns (x, y, score) of the best match, where x and y are subpixel-accurate coordinates.
 func MatchTemplate(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
-) (int, int, float64) {
+) (float64, float64, float64) {
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, 0, 0, iw, ih)
 }
 
 // MatchTemplateInArea performs template matching such that the center of the template
 // remains within the specified rectangle (ax, ay, aw, ah).
-// Returns (x, y, score) of the best match, where (x, y) is the top-left corner.
+// Returns (x, y, score) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
 func MatchTemplateInArea(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
 	ax, ay, aw, ah int,
-) (int, int, float64) {
+) (float64, float64, float64) {
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
 
@@ -114,5 +129,134 @@ func MatchTemplateInArea(
 			}
 		}
 	}
-	return fx, fy, fm
+
+	upNCC, downNCC := fm, fm
+	leftNCC, rightNCC := fm, fm
+
+	if fy-1 >= minY {
+		upNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy-1)
+	}
+	if fy+1 <= maxY {
+		downNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx, fy+1)
+	}
+	if fx-1 >= minX {
+		leftNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx-1, fy)
+	}
+	if fx+1 <= maxX {
+		rightNCC = ComputeNCC(img, imgIntArr, tpl, tplStats, fx+1, fy)
+	}
+
+	subX := float64(fx) + subpixelOffset(leftNCC, rightNCC)
+	subY := float64(fy) + subpixelOffset(upNCC, downNCC)
+
+	return subX, subY, fm
+}
+
+// MatchTemplateAnyScaleInArea performs iterative template matching over a scale range.
+// The number of iterations is defined by len(steps), and each element controls the
+// sampling count for that iteration.
+// Returns (x, y, score, scale) for the best match found across all iterations.
+func MatchTemplateAnyScaleInArea(
+	img *image.RGBA,
+	imgIntArr IntegralArray,
+	tpl *image.RGBA,
+	minScale, maxScale float64,
+	steps []int,
+) (float64, float64, float64, float64) {
+	if minScale > maxScale {
+		minScale, maxScale = maxScale, minScale
+	}
+	if maxScale <= 0 {
+		return 0, 0, 0, 0
+	}
+	if minScale <= 0 {
+		minScale = 1e-6
+	}
+	minScale0, maxScale0 := minScale, maxScale
+	if len(steps) == 0 {
+		steps = []int{1}
+	}
+
+	bestX, bestY, bestScore, bestScale := 0.0, 0.0, -1.0, minScale
+
+	for _, stepCount := range steps {
+		if minScale > maxScale {
+			break
+		}
+		if stepCount < 1 {
+			stepCount = 1
+		}
+
+		stepSize := 0.0
+		if stepCount > 1 {
+			stepSize = (maxScale - minScale) / float64(stepCount-1)
+		}
+
+		iterBestIdx := 0
+		iterBestScale := minScale
+		iterBestX, iterBestY, iterBestScore := 0.0, 0.0, -1.0
+
+		for idx := range stepCount {
+			scale := minScale
+			if stepCount == 1 {
+				scale = (minScale + maxScale) * 0.5
+			} else {
+				scale = minScale + float64(idx)*stepSize
+			}
+			if scale <= 0 {
+				continue
+			}
+
+			scaledTpl := ImageScale(tpl, scale)
+			scaledStats := GetImageStats(scaledTpl)
+			if scaledStats.Std < 1e-12 {
+				continue
+			}
+
+			x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+			if score > iterBestScore {
+				iterBestScore = score
+				iterBestX = x
+				iterBestY = y
+				iterBestScale = scale
+				iterBestIdx = idx
+			}
+		}
+
+		if iterBestScore > bestScore {
+			bestScore = iterBestScore
+			bestX = iterBestX
+			bestY = iterBestY
+			bestScale = iterBestScale
+		}
+
+		if stepSize <= 0 {
+			break
+		}
+
+		if iterBestIdx == 0 {
+			minScale = iterBestScale
+			maxScale = iterBestScale + stepSize
+		} else if iterBestIdx == stepCount-1 {
+			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale
+		} else {
+			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale + stepSize
+		}
+
+		minScale = max(minScale0, minScale)
+		maxScale = min(maxScale0, maxScale)
+		if minScale > maxScale {
+			clamped := min(max(iterBestScale, minScale0), maxScale0)
+			minScale = clamped
+			maxScale = clamped
+		}
+	}
+
+	if bestScore < 0 {
+		return 0, 0, 0, 0
+	}
+
+	return bestX, bestY, bestScore, bestScale
 }

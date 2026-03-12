@@ -1,11 +1,4 @@
 {
-    "BakerEntry": {
-        "next": [
-            "[JumpBack]BakerSwitchMsg", //BakerSwitchMsg提到外面，可以保证不重复触发
-            "BakerCheckHome",
-            "ClickH"
-        ]
-    },
     "ClickH": {
         "max_hit": 5, // 一直点不上就算了，可能哪里出问题了
         "recognition": "TemplateMatch",

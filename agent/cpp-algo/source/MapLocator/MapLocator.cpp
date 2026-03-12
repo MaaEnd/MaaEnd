@@ -227,8 +227,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         return std::nullopt;
     }
 
-    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta)
-            << VAR(trackResult->secondScore) << VAR(trackScale);
+    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta) << VAR(trackResult->secondScore)
+            << VAR(trackScale);
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);
@@ -308,9 +308,9 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         auto hold = *motionTracker->getLastPos();
         hold.score = trackResult->score;
         hold.scale = trackScale;
+        hold.isHeld = true;
         motionTracker->hold(hold, now);
-        LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr)
-                << VAR(trackResult->delta);
+        LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta);
         return hold;
     }
 
@@ -325,6 +325,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.y = validation.absY;
         pos.score = trackResult->score;
         pos.scale = trackScale;
+        pos.isHeld = false;
         motionTracker->update(pos, now);
         return pos;
     }
@@ -594,6 +595,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
     if (zoneClassifier) {
         zoneClassifier->SetConfThreshold(options.yolo_threshold);
     }
+    const std::string expectedZoneId = options.expected_zone_id;
 
     std::unique_ptr<IMatchStrategy> strategy;
 
@@ -621,7 +623,7 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
         bool isNativePathHeatmap = (!currentZoneId.empty() && currentZoneId.find("OMVBase") != std::string::npos);
 
-        if (!currentZoneId.empty()) {
+        if (!currentZoneId.empty() && (expectedZoneId.empty() || currentZoneId == expectedZoneId)) {
             strategy = MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg);
         }
 
@@ -664,11 +666,15 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         }
     }
 
-    std::string targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
+    std::string targetZoneId = expectedZoneId;
+    if (targetZoneId.empty()) {
+        targetZoneId = zoneClassifier ? zoneClassifier->predictZoneByYOLO(minimap) : "";
+    }
 
     if (targetZoneId.empty()) {
         result.status = LocateStatus::YoloFailed;
-        result.debugMessage = "YOLO inference failed or no result.";
+        result.debugMessage =
+            expectedZoneId.empty() ? "YOLO inference failed or no result." : "Expected zone is empty and YOLO inference failed.";
         return result;
     }
     if (targetZoneId == "None") {
@@ -745,6 +751,7 @@ void MapLocator::Impl::resetTrackingState()
 {
     if (motionTracker) {
         motionTracker->forceLost();
+        motionTracker->clearVelocity();
     }
     currentZoneId = "";
 }

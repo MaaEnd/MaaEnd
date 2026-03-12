@@ -1,20 +1,20 @@
 {
     "MFG_ReceiveRewards": {
         "desc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
-        "max_hit": 2,
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
+                    "制造中",
+                    "製造中",
                     "制造舱",
-                    "Manufacturing",
-                    "Production"
+                    "MFG ?CABIN"
                 ]
             }
         },
@@ -280,13 +280,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
-                    "制造舱",
-                    "Manufacturing",
-                    "Production"
+                    "制造中",
+                    "製造中",
+                    "MFG ?CABIN",
+                    "制造舱"
                 ]
             }
         },

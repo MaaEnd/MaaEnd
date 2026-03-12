@@ -12,7 +12,8 @@
                 "AutoEssenceDoObtain",
                 "AutoEssenceDoOverride",
                 "AutoEssenceRepeatCount"
-            ]
+            ],
+            "group": ["foreground"]
         }
     ],
     "option": {

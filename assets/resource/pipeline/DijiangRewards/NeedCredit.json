@@ -12,7 +12,8 @@
                     260
                 ],
                 "expected": [
-                    "^会客室$"
+                    "^会客室$",
+                    "Reception"
                 ]
             }
         },
@@ -36,16 +37,20 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "会客室",
+                    "會客室",
+                    "Reception Room",
+                    "応接室",
                     "Reception"
                 ]
             }
         },
         "next": [
+            "[JumpBack]ReceptionRoomSetClues",
             "InControlNexus_NeedCredit",
             "WhiteConfirmButtonType1",
             "[JumpBack]StartExchange"

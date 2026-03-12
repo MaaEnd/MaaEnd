@@ -91,39 +91,74 @@
         {
             "child_exec": "agent/go-service",
             "child_args": []
+        },
+        {
+            "child_exec": "agent/cpp-algo",
+            "child_args": []
+        }
+    ],
+    "group": [
+        {
+            "name": "daily",
+            "label": "$group.daily.label",
+            "description": "$group.daily.description",
+            "default_expand": true
+        },
+        {
+            "name": "foreground",
+            "label": "$group.foreground.label",
+            "description": "$group.foreground.description",
+            "default_expand": true
+        },
+        {
+            "name": "realtime",
+            "label": "$group.realtime.label",
+            "description": "$group.realtime.description",
+            "default_expand": true
+        },
+        {
+            "name": "utility",
+            "label": "$group.utility.label",
+            "description": "$group.utility.description",
+            "default_expand": true
         }
     ],
     "task": [],
     "import": [
-        "tasks/RealTimeTask.json",
-        "tasks/PuzzleSolver.json",
+        // group: daily
         "tasks/DijiangRewards.json",
         "tasks/DailyRewards.json",
-        "tasks/SellProduct.json",
-        "tasks/AutoResell.json",
-        "tasks/AutoEssence.json",
-        "tasks/EssenceFilter.json",
-        "tasks/CreditShopping.json",
-        "tasks/ImportBluePrints.json",
-        "tasks/DeliveryJobs.json",
-        "tasks/EnvironmentMonitoring.json",
-        "tasks/SeizeEntrustTask.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/VisitFriends.json",
-        "tasks/ReceiveProdManual.json",
-        "tasks/ReadAllWiki.json",
-        "tasks/Weapon.json",
-        "tasks/GearAssembly.json",
-        "tasks/ProtocolSpace.json",
+        "tasks/CreditShopping.json",
+        "tasks/SeizeEntrustTask.json",
+        "tasks/DeliveryJobs.json",
+        "tasks/SellProduct.json",
+        "tasks/AutoResell.json",
         "tasks/Crafting.json",
+        "tasks/GearAssembly.json",
+        "tasks/Weapon.json",
+        // group: foreground
+        "tasks/AutoEssence.json",
+        "tasks/EnvironmentMonitoring.json",
+        "tasks/ProtocolSpace.json",
+        "tasks/GiftOperator.json",
+        "tasks/AutoEcoFarm.json",
+        // group: realtime
+        "tasks/RealTimeTask.json",
+        // group: utility
+        "tasks/PuzzleSolver.json",
+        "tasks/EssenceFilter.json",
+        "tasks/ImportBluePrints.json",
+        "tasks/AutoUseSpMedication.json",
         "tasks/ItemTransfer.json",
         "tasks/BatchAddFriends.json",
-        "tasks/BakerEntry.json",
-        "tasks/GiftOperator.json",
         "tasks/SimpleProductionBatchStart.json",
-        "tasks/AutoEcoFarm.json",
+        "tasks/ReceiveProdManual.json",
+        "tasks/BakerEntry.json",
+        "tasks/ReadAllWiki.json",
         "tasks/AndroidOpenGame.json",
-        "tasks/AutoUseSpMedication.json",
+        // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",

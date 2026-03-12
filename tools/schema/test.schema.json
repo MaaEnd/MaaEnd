@@ -22,12 +22,38 @@
                     "description": "测试配置名称（可选）"
                 },
                 "resource": {
-                    "type": "string",
-                    "description": "资源服别，如 官服"
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "资源服别，如 官服"
+                        },
+                        {
+                            "type": "array",
+                            "description": "资源服别列表，如 [\"官服\", \"B服\"]",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
                 },
                 "controller": {
-                    "type": "string",
-                    "description": "控制器类型，如 ADB / Win32 / PlayCover"
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "description": "控制器类型，如 ADB / Win32 / PlayCover"
+                        },
+                        {
+                            "type": "array",
+                            "description": "控制器类型列表，如 [\"ADB\", \"Win32\"]",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    ]
                 }
             }
         },
@@ -54,7 +80,8 @@
                 },
                 "image": {
                     "type": "string",
-                    "description": "对应图片名（不含扩展名）"
+                    "pattern": "^[^\\\\/]+\\.[^\\\\/.]+$",
+                    "description": "对应图片文件名（必须包含扩展名，如 xxx.png）"
                 },
                 "hits": {
                     "type": "array",
@@ -81,33 +108,55 @@
                             "description": "节点名"
                         },
                         "box": {
-                            "type": "array",
-                            "description": "期望识别框 [x, y, width, height]",
-                            "prefixItems": [
+                            "oneOf": [
                                 {
-                                    "type": "integer",
-                                    "minimum": 0
+                                    "$ref": "#/$defs/rect"
                                 },
                                 {
-                                    "type": "integer",
-                                    "minimum": 0
-                                },
-                                {
-                                    "type": "integer",
-                                    "minimum": 0
-                                },
-                                {
-                                    "type": "integer",
-                                    "minimum": 0
+                                    "$ref": "#/$defs/rectMatrix"
                                 }
                             ],
-                            "minItems": 4,
-                            "maxItems": 4,
-                            "items": false
+                            "description": "期望识别框，可写固定值 [x, y, width, height]，也可按 controller/resource 等矩阵环境配置不同值"
                         }
                     }
                 }
             ]
+        },
+        "rect": {
+            "type": "array",
+            "description": "识别框 [x, y, width, height]",
+            "prefixItems": [
+                {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            ],
+            "minItems": 4,
+            "maxItems": 4,
+            "items": false
+        },
+        "rectMatrix": {
+            "type": "object",
+            "description": "按矩阵环境配置不同识别框，key 可对应 controller、resource，或 controller:resource / controller/resource 等组合键",
+            "minProperties": 1,
+            "propertyNames": {
+                "type": "string"
+            },
+            "additionalProperties": {
+                "$ref": "#/$defs/rect"
+            }
         }
     }
 }

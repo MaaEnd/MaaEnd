@@ -11,7 +11,8 @@
                 "DailyClaimDeliveryJobsRewards",
                 "DailyEventRewards",
                 "DailyProtocolPassRewards"
-            ]
+            ],
+            "group": ["daily"]
         }
     ],
     "option": {

@@ -11,7 +11,8 @@
             ],
             "option": [
                 "ClaimSimulationArea"
-            ]
+            ],
+            "group": ["daily"]
         }
     ],
     "option": {

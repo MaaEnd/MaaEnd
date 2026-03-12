@@ -3,9 +3,10 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "MapLocator/MapLocateAction.h"
+#include "MapNavigator/MapNavigator.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
-#include "MapLocator/MapLocateAction.h"
 
 int main(int argc, char** argv)
 {
@@ -21,12 +22,13 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    std::cout << "Hello, cpp-algo!" << std::endl;
+    // std::cout << "Hello, cpp-algo!" << std::endl;
 
     MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 

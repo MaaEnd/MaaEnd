@@ -85,11 +85,13 @@ This will fully set up the environment required for development.
 Some highly reusable nodes have been encapsulated with detailed documentation to avoid reinventing the wheel. See:
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
+- [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
 - [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
 - [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
 - [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
 - [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
 - [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
+- [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
 
 ## Code Specifications
 

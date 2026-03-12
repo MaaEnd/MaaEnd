@@ -21,7 +21,11 @@
             "套组装备",
             "套裝裝備",
             "Set Gear",
-            "セット装備"
+            "セット装備",
+            "装备",
+            "裝備",
+            "Gear",
+            "装備"
         ],
         "next": [
             "[JumpBack]GearAssemblySwitchAscending",
@@ -40,7 +44,9 @@
                     35
                 ],
                 "expected": [
-                    "降序"
+                    "降序",
+                    "DESC",
+                    "降順"
                 ]
             }
         },
@@ -91,15 +97,16 @@
         ]
     },
     "GearAssemblyCloseProductPopup": {
+        "desc": "装备制造完成确认",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    622,
-                    645,
-                    37,
-                    38
-                ],
+                    590,
+                    590,
+                    100,
+                    100
+                ], //扩大识图区域，避免界面微调导致识别失败
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9
             }
