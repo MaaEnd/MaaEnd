@@ -30,7 +30,7 @@ type MapTrackerBigMapPickParam struct {
 	MapName string `json:"map_name"`
 	// Target is the target coordinate in the specified map file's original coordinate space.
 	Target [2]float64 `json:"target"`
-	// OnFind controls behavior when target enters viewport. Valid values: "Click", "DoNothing".
+	// OnFind controls behavior when target enters viewport. Valid values: "Click", "Teleport", "DoNothing".
 	OnFind string `json:"on_find,omitempty"`
 	// DisableAutoOpenMap controls whether to skip auto-running scene_manager_node before picking.
 	DisableAutoOpenMap bool `json:"disable_auto_open_map,omitempty"`
@@ -61,6 +61,13 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Auto-open map is disabled; skipping scene manager node")
 	}
 
+	if param.OnFind == "Teleport" {
+		if _, err := ctx.RunTask("__ScenePrivateMapFilterClear"); err != nil {
+			log.Error().Err(err).Str("map", param.MapName).Msg("Failed to clear map filters before pick")
+			return false
+		}
+	}
+
 	ctrl := ctx.GetTasker().GetController()
 	aw := NewActionWrapper(ctx, ctrl)
 
@@ -75,6 +82,11 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
 			if param.OnFind == "Click" {
 				aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 50)
+			} else if param.OnFind == "Teleport" {
+				if err := runBigMapTeleportNode(ctx, aw, targetInViewX, targetInViewY); err != nil {
+					log.Error().Err(err).Str("map", param.MapName).Msg("Failed to run teleport sequence on find")
+					return false
+				}
 			}
 
 			log.Info().
@@ -133,8 +145,8 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 	if param.OnFind == "" {
 		param.OnFind = "Click"
 	}
-	if param.OnFind != "Click" && param.OnFind != "DoNothing" {
-		return nil, fmt.Errorf("on_find must be \"Click\" or \"DoNothing\"")
+	if param.OnFind != "Click" && param.OnFind != "Teleport" && param.OnFind != "DoNothing" {
+		return nil, fmt.Errorf("on_find must be \"Click\", \"Teleport\", or \"DoNothing\"")
 	}
 	if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
 		return nil, fmt.Errorf("target must contain finite numbers")
@@ -174,6 +186,27 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 	}
 
 	return item.SceneManagerNode, true, nil
+}
+
+func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, targetInViewY float64) error {
+	aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 50)
+
+	teleportNodeName := "__MapTrackerBigMapPickTeleport"
+	teleportNodeOverride := map[string]any{
+		teleportNodeName: map[string]any{
+			"recognition": "DirectHit",
+			"next": []string{
+				"[JumpBack]__ScenePrivateMapTeleportChoose",
+				"__ScenePrivateMapTeleportConfirm",
+			},
+		},
+	}
+
+	if _, err := ctx.RunTask(teleportNodeName, teleportNodeOverride); err != nil {
+		return fmt.Errorf("failed to run teleport temporary node: %w", err)
+	}
+
+	return nil
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {
