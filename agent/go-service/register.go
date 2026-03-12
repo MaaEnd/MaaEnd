@@ -9,7 +9,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/clearhitcount"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/recodetailfocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
@@ -28,7 +27,6 @@ func registerAll() {
 	// General Custom
 	subtask.Register()
 	clearhitcount.Register()
-	recodetailfocus.Register()
 
 	// Business Custom
 	blueprintimport.Register()

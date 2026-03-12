@@ -158,50 +158,6 @@
             "BuyFirstOCR"
         ],
         "box_index": 3,
-        "action": "Custom",
-        "custom_action": "RecoDetailFocusAction",
-        "custom_action_param": {
-            "text": "购买 {text}",
-            "recognition": {
-                "recognition": "OCR",
-                "roi": "CreditShoppingBuyFirst",
-                "expected": [
-                    "嵌晶玉",
-                    "嵌晶玉",
-                    "Oroberyl",
-                    "赤晶玉",
-                    "武库配额",
-                    "武庫配額",
-                    "Arsenal Ticket",
-                    "武庫配給",
-                    "折金票",
-                    "折金票",
-                    "T-Creds",
-                    "折金券",
-                    "初级认知载体",
-                    "初級認知載體",
-                    "Elementary Cognitive Carrier",
-                    "初級認識媒体",
-                    "武器检查单元",
-                    "武器檢查單元",
-                    "Arms Inspector",
-                    "武器検査ユニット",
-                    "武器检查装置",
-                    "武器檢查裝置",
-                    "Arms INSP Kit",
-                    "武器検査セット",
-                    "协议棱柱",
-                    "協議稜柱",
-                    "Protoprism",
-                    "協約角柱",
-                    "协议棱柱组",
-                    "協議稜柱組",
-                    "Protohedron",
-                    "協約角柱セット"
-                ],
-                "only_rec": true
-            }
-        },
         "next": [
             "CreditShoppingBuyFirstItem"
         ]
@@ -218,50 +174,6 @@
             "IsDiscount"
         ],
         "box_index": 4,
-        "action": "Custom",
-        "custom_action": "RecoDetailFocusAction",
-        "custom_action_param": {
-            "text": "购买 {text}",
-            "recognition": {
-                "recognition": "OCR",
-                "roi": "CreditShoppingBuyFirst",
-                "expected": [
-                    "嵌晶玉",
-                    "嵌晶玉",
-                    "Oroberyl",
-                    "赤晶玉",
-                    "武库配额",
-                    "武庫配額",
-                    "Arsenal Ticket",
-                    "武庫配給",
-                    "折金票",
-                    "折金票",
-                    "T-Creds",
-                    "折金券",
-                    "初级认知载体",
-                    "初級認知載體",
-                    "Elementary Cognitive Carrier",
-                    "初級認識媒体",
-                    "武器检查单元",
-                    "武器檢查單元",
-                    "Arms Inspector",
-                    "武器検査ユニット",
-                    "武器检查装置",
-                    "武器檢查裝置",
-                    "Arms INSP Kit",
-                    "武器検査セット",
-                    "协议棱柱",
-                    "協議稜柱",
-                    "Protoprism",
-                    "協約角柱",
-                    "协议棱柱组",
-                    "協議稜柱組",
-                    "Protohedron",
-                    "協約角柱セット"
-                ],
-                "only_rec": true
-            }
-        },
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]
@@ -275,50 +187,6 @@
             "NotSoldOut"
         ],
         "box_index": 2,
-        "action": "Custom",
-        "custom_action": "RecoDetailFocusAction",
-        "custom_action_param": {
-            "text": "购买 {text}",
-            "recognition": {
-                "recognition": "OCR",
-                "roi": "CreditShoppingBuyFirst",
-                "expected": [
-                    "嵌晶玉",
-                    "嵌晶玉",
-                    "Oroberyl",
-                    "赤晶玉",
-                    "武库配额",
-                    "武庫配額",
-                    "Arsenal Ticket",
-                    "武庫配給",
-                    "折金票",
-                    "折金票",
-                    "T-Creds",
-                    "折金券",
-                    "初级认知载体",
-                    "初級認知載體",
-                    "Elementary Cognitive Carrier",
-                    "初級認識媒体",
-                    "武器检查单元",
-                    "武器檢查單元",
-                    "Arms Inspector",
-                    "武器検査ユニット",
-                    "武器检查装置",
-                    "武器檢查裝置",
-                    "Arms INSP Kit",
-                    "武器検査セット",
-                    "协议棱柱",
-                    "協議稜柱",
-                    "Protoprism",
-                    "協約角柱",
-                    "协议棱柱组",
-                    "協議稜柱組",
-                    "Protohedron",
-                    "協約角柱セット"
-                ],
-                "only_rec": true
-            }
-        },
         "next": [
             "CreditShoppingBuyBlacklistItem"
         ]
