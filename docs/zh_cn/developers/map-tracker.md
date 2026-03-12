@@ -106,7 +106,7 @@
 
 可选参数：
 
-- `on_find`: 找到目标点后执行的操作。可以是 `"Click"` 或 `"DoNothing"`，默认 `"Click"`。
+- `on_find`: 找到目标点后执行的操作。可以是 `"Click"`、`"Teleport"` 或 `"DoNothing"`，默认 `"Click"`。
 - `disable_auto_open_map`: 真假值，默认 `false`。是否禁用自动打开对应场景的地图界面的功能。
 
 #### 示例用法
@@ -123,7 +123,7 @@
                 585.8,
                 825.5
             ],
-            "on_find": "Click"
+            "on_find": "Teleport"
         }
     }
 }

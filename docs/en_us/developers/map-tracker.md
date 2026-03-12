@@ -99,7 +99,7 @@ Required parameters:
 
 Optional parameters:
 
-- `on_find`: Action after the target point enters the viewport. Can be `"Click"` or `"DoNothing"`. Default is `"Click"`.
+- `on_find`: Action after the target point enters the viewport. Can be `"Click"`, `"Teleport"`, or `"DoNothing"`. Default is `"Click"`.
 - `disable_auto_open_map`: Boolean, default `false`. Whether to disable auto-opening the corresponding map screen.
 
 #### Example Usage
@@ -116,7 +116,7 @@ Optional parameters:
                 585.8,
                 825.5
             ],
-            "on_find": "Click"
+            "on_find": "Teleport"
         }
     }
 }
