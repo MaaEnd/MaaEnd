@@ -1,8 +1,11 @@
 {
     "configs": {
-        "name": "(Win32-官服)自动转交送货任务，测试转交任务",
+        "name": "自动转交送货任务，测试转交任务",
         "resource": "官服",
-        "controller": "Win32"
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
     },
     "cases": [
         {

@@ -379,7 +379,7 @@
     "resource/image/MapLocator/Wuling/Lv001Tier277": "16a23e35f215435bd5a0b4589e1d7645d33fb0b722e9c532ceb964597dcfd48e",
     "resource/image/MapLocator/Wuling/Lv002Tier259": "7393b8c0ff243e724bd382c97610f91273eb9935dafb6eb0843c693ad2dfcbda",
     "resource/image/MapLocator/Wuling/Lv002Tier275": "9732e38bffcf6ca9616591763a7b4815a5c809ba5dde0ee856a46c5d607dcf33",
-    "resource/image/MapLocator/Wuling/Base": "f3a9fb24deb8b04354080c40e7f73b5a7c0f35305d47983a984800a64c43b52d",
+    "resource/image/MapLocator/Wuling/Base": "3f8052e936e446d59d697f6ff7037c0898a8be4816b786c4808127fe0c8e1da0",
     "resource/image/MapLocator/Wuling/Lv002Tier257": "70b0b103edcf33bc9ad72ea7bb6266b1ffb14b133aa592950aac47c3d25da19e",
     "resource/image/MapLocator/Wuling/Lv002Tier258": "ee8ac5a969c9d526322813301712b0e0f5dddf36ca64498aa20993b75bd78434",
     "resource/image/MapLocator/Wuling/Lv002Tier276": "9350a04fb572a599ede207194b1cd569b0e7197645646ef1c7075e5b25ff890c",
@@ -452,5 +452,11 @@
     "resource/image/AutoEssence/FactoryDeviceDialog": "8d0ba84358c1c2988ac140831f876b296858910dcca003868b19edc519a7aa52",
     "resource/image/Baker/BakerIcon2": "6a9ecba80bb204ba4ab9ff8775b9ac18f72e2b83e5a1f03565d4da20f69ee056",
     "resource/image/Baker/BakerIcon": "5fd0af976a911530bde35ddce6129e6b158941583ff750236b9b8d349f4d44d5",
-    "resource/image/AutoEcoFarm/AutoEcoFarmCloseBag": "36df158b476c53071720cba9d61f608c9dd8ea18ba8f915749561dcf8c834765"
+    "resource/image/AutoEcoFarm/AutoEcoFarmCloseBag": "36df158b476c53071720cba9d61f608c9dd8ea18ba8f915749561dcf8c834765",
+    "resource/image/MapLocator/Wuling/Lv003Tier296": "246376f2e178313977823a205348375fdf96daadc33168774d172c3dc4fe7d13",
+    "resource/image/MapLocator/Wuling/Lv003Tier297": "29e7e9efdb4486dc6fe7e3834344d092e6e446c40c1484dce81fa2c9d64b21ab",
+    "resource/image/MapLocator/Wuling/Lv003Tier294": "e995d6f9351c6b38e5436a513f244962e94045da7d0d1385ecb7adb58c5bdc73",
+    "resource/image/MapLocator/Wuling/Lv003Tier295": "3ae9bd45089a7fdbe5625da6d90df3e0dd1cd346f19612d53f81366d117a99f3",
+    "resource/image/MapLocator/Wuling/Lv003Tier298": "229b85449f0c127b56687e2b22acdf4fb80c26a32aceca60266e16368ef1e62d",
+    "resource/image/MapLocator/Wuling/Lv003Tier299": "570c08abe5c13592ad77407f553d4911b32aed17e7f4533f0e1ddde6dc59b54d"
 }
