@@ -11,6 +11,17 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
         "next": [
+            "CreditShoppingInit",
+            "CreditShoppingScanItem"
+        ]
+    },
+    "CreditShoppingInit": {
+        "desc": "初始化信用购物参数（仅执行一次）",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "CreditShoppingParseParams",
+        "next": [
             "CreditShoppingScanItem"
         ]
     },
@@ -24,8 +35,6 @@
         ],
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
-        "action": "Custom",
-        "custom_action": "CreditShoppingParseParams",
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
