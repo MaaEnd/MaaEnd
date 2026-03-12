@@ -1080,10 +1080,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    571,
-                    594,
-                    139,
-                    126
+                    540,
+                    538,
+                    209,
+                    182
                 ],
                 "template": [
                     "Common/Button/CloseRewardButton.png"
@@ -1098,10 +1098,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    571,
-                    594,
-                    139,
-                    126
+                    540,
+                    538,
+                    209,
+                    182
                 ],
                 "template": [
                     "Common/Button/CloseRewardButtonHover.png"
