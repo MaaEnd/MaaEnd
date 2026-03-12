@@ -122,8 +122,8 @@
                     150
                 ],
                 "template": [
-                    "Common/Button/TeleportButton.png",
-                    "Common/Button/TeleportButtonHover.png"
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ]
             }
         },
@@ -149,8 +149,8 @@
                     150
                 ],
                 "template": [
-                    "Common/Button/TeleportButton.png",
-                    "Common/Button/TeleportButtonHover.png"
+                    "Common/Button/WhiteConfirmButtonType1.png",
+                    "Common/Button/WhiteConfirmButtonType1Hover.png"
                 ]
             }
         },
