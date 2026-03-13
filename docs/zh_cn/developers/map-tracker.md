@@ -93,6 +93,42 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
+### Action: MapTrackerBigMapPick
+
+🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
+
+#### 节点参数
+
+必填参数：
+
+- `map_name`: 地图的唯一名称。例如 "map001_lv001"。
+- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
+
+可选参数：
+
+- `on_find`: 找到目标点后执行的操作。可以是 `"Click"`、`"Teleport"` 或 `"DoNothing"`，默认 `"Click"`。
+- `disable_auto_open_map`: 真假值，默认 `false`。是否禁用自动打开对应场景的地图界面的功能。
+
+#### 示例用法
+
+```json
+{
+    "MyNodeName": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map002_lv002",
+            "target": [
+                585.8,
+                825.5
+            ],
+            "on_find": "Teleport"
+        }
+    }
+}
+```
+
 ### Recognition: MapTrackerAssertLocation
 
 ✅判断玩家当前所处的地图名称和位置坐标是否满足任一预期条件。
@@ -181,7 +217,7 @@
 
 ### Recognition: MapTrackerBigMapInfer
 
-🗺️ 在大地图界面中推断当前视野区域在地图中的左上角坐标与地图缩放。
+🗺️ 在大地图界面中推断当前视野区域在地图中的坐标与地图缩放。
 
 > [!WARNING]
 >

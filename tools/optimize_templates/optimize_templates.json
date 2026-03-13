@@ -139,7 +139,6 @@
     "resource/image/SellProduct/SellProductBarRight": "ad19ebd86cae847a91e846166db58eb837c3d60fa6405889fc692500ce515f71",
     "resource/image/SellProduct/SellProductBar": "ea18a53635012aea465a2fa06c412db1bb56195d09521dcc77c68581f17b9935",
     "resource/image/SellProduct/SellProductCheck": "02978420cb3b54bd9c2702078f4f34e03e66d9a6181011bd8e48c15ee460be5e",
-    "resource/image/SeizeEntrustTask/7.31wMoney": "4b404d8ef44da1dfa64a18c1718f2411b3250e3c3bb25e6b1d212a5265ec36ac",
     "resource/image/SeizeEntrustTask/InMiddle": "667b356c6c174fced80d1f4b4f280b1c884522c3e815689852c89f800d16c321",
     "resource/image/SeizeEntrustTask/InDown": "ca2a26a871cbb88ebc8fb3784b389745fb0e4c336effab6556d09a94aa4f1a1d",
     "resource/image/SeizeEntrustTask/InUp": "4df33cca4c0a68249d6e99a43c314a2d7e0b5cb3771254dee3be80672b9949f0",
@@ -439,7 +438,6 @@
     "resource/image/Valuables/EmergencySanityBooster": "75ae467396f45923532259a5559ae36907e1adfdd1b4c6f6493f06edba564830",
     "resource/image/AutoEcoFarm/autoecofarmTeamIcon": "d62ffc446ae1dff455ce53b635043a9a13f307e0c4140056df4f50717d33c5eb",
     "resource/image/AutoEcoFarm/autoecofarmQuickStash": "29997d7db35b8bccc30ff44d15f4cc20ee0b181d06cd79c178c0ff1b4e77385f",
-    "resource/image/SeizeEntrustTask/7.31wMoney_en": "d8e620ff6ba40ff4a30737eb8958602b4efef50a3be0ba323ae40811a2bb3490",
     "resource/image/GiftOperator/OperatorChat": "ae848cdc47610fa9538bddddf2f37e564250962883f54c682dc170d4a5305032",
     "resource/image/GiftOperator/GiftGiving": "211e2d14aae793bc4e7785ad12b44db0a5e0a789e8440c2fd6ec868a9e1da877",
     "resource/image/GiftOperator/OperatorContact": "3527578eb622315e1cabebe290c8984f9706cb5496564ec3a8ed9da2a2281045",
@@ -458,5 +456,11 @@
     "resource/image/MapLocator/Wuling/Lv003Tier294": "e995d6f9351c6b38e5436a513f244962e94045da7d0d1385ecb7adb58c5bdc73",
     "resource/image/MapLocator/Wuling/Lv003Tier295": "3ae9bd45089a7fdbe5625da6d90df3e0dd1cd346f19612d53f81366d117a99f3",
     "resource/image/MapLocator/Wuling/Lv003Tier298": "229b85449f0c127b56687e2b22acdf4fb80c26a32aceca60266e16368ef1e62d",
-    "resource/image/MapLocator/Wuling/Lv003Tier299": "570c08abe5c13592ad77407f553d4911b32aed17e7f4533f0e1ddde6dc59b54d"
+    "resource/image/MapLocator/Wuling/Lv003Tier299": "570c08abe5c13592ad77407f553d4911b32aed17e7f4533f0e1ddde6dc59b54d",
+    "resource/image/SeizeEntrustTask/7.98wMoney": "2ba7b3168e256b246face9d3e48033abe99bcf45a8e067d909ddce3b4b09c343",
+    "resource/image/Valuables/EmergencySpBoosterExpireSoon": "8f45e8bc39572ae399a1b16d20e564d005e611a01ebbb4bc4f1f33a37e7f9988",
+    "resource/image/Valuables/DisabledAddButton": "5efaa82a3fd827977f017efef5dd2dba8ddd346f112bc8d2c01147fc5a78385e",
+    "resource/image/Valuables/AddButton": "fc7a19f0ae3073b8aac745ebf2e3c7d6d2ed4e12353e991eb509edc6d38727f1",
+    "resource/image/Valuables/EmergencySpBooster": "b217195968afc25c06f10b65f9357ed59f3fc746a91cda12478892efe6a2dd20",
+    "resource/image/Valuables/ExpireSoon": "4dd4d93dfa5cd8518f3f25143814c8f144c32b6bc817dccaf12d0fd11aa23083"
 }

@@ -30,49 +30,6 @@
             "Node.Action.Starting": "用户退出委托列表"
         }
     },
-    "SeizeEntrustTaskFound7.31wMoney": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": [
-                    "SeizeEntrustTask/7.31wMoney.png",
-                    "SeizeEntrustTask/7.31wMoney_en.png"
-                ],
-                "threshold": [
-                    0.94
-                ]
-            }
-        },
-        "next": [
-            "SeizeEntrustTaskPostEntrust3"
-        ],
-        "focus": {
-            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
-            "Node.Recognition.Starting": "再看一眼~",
-            "Node.Recognition.Succeeded": "确定就是你啦~"
-        }
-    },
-    "SeizeEntrustTaskFound7.31wMoneyF1": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "template": [
-                    "SeizeEntrustTask/7.31wMoney.png",
-                    "SeizeEntrustTask/7.31wMoney_en.png"
-                ],
-                "threshold": [
-                    0.94
-                ]
-            }
-        },
-        "timeout": 3000,
-        "next": [
-            "SeizeEntrustTaskFound7.31wMoney"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "找到7.31万武陵城订单！"
-        }
-    },
     "SeizeEntrustTaskFoundDepotNodeButton": {
         "desc": "进入仓储节点",
         "recognition": {
@@ -101,6 +58,47 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入仓储节点"
+        }
+    },
+    "SeizeEntrustTaskFoundGoodMoney": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.98wMoney.png"
+                ],
+                "threshold": [
+                    0.94
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskPostEntrust3"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "不对不对，不是武陵订单！",
+            "Node.Recognition.Starting": "再看一眼~",
+            "Node.Recognition.Succeeded": "确定就是你啦~"
+        }
+    },
+    "SeizeEntrustTaskFoundGoodMoneyF1": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.98wMoney.png"
+                ],
+                "threshold": [
+                    0.94
+                ]
+            }
+        },
+        "timeout": 3000,
+        "next": [
+            "SeizeEntrustTaskFoundGoodMoney"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "找到7.98万武陵城订单！"
         }
     },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
@@ -241,6 +239,7 @@
         },
         "next": [
             "SeizeEntrustTaskFoundDepotNodeButton",
+            "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
@@ -323,7 +322,7 @@
             }
         },
         "next": [
-            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
+            "[JumpBack]SeizeEntrustTaskFoundGoodMoneyF1",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
             "[JumpBack]SeizeEntrustTaskSwipeDwon",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
@@ -363,7 +362,7 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "SeizeEntrustTaskFound7.31wMoney",
+                "roi": "SeizeEntrustTaskFoundGoodMoney",
                 "roi_offset": [
                     168,
                     -1,
@@ -494,6 +493,35 @@
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
     },
+    "isSeizeEntrustTaskDestinationWulingCity": {
+        "next": [
+            "[JumpBack]SeizeEntrustTaskFoundGoodMoneyF1",
+            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
+            "[JumpBack]SeizeEntrustTaskSwipeDwon",
+            "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
+            "[JumpBack]SeizeEntrustTaskNews"
+        ]
+    },
+    "isSeizeEntrustTaskExhausted": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1030,
+                    650,
+                    45,
+                    40
+                ],
+                "expected": "3/3"
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
+        }
+    },
     "isSeizeEntrustTaskExistOldTask": {
         "recognition": {
             "type": "OCR",
@@ -519,35 +547,6 @@
         "focus": {
             "Node.Recognition.Succeeded": "已存在旧的运送委托"
         }
-    },
-    "isSeizeEntrustTaskExhausted": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1030,
-                    650,
-                    45,
-                    40
-                ],
-                "expected": "3/3"
-            }
-        },
-        "next": [
-            "SeizeEntrustTaskStopTask"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "今天的运送委托已满3单"
-        }
-    },
-    "isSeizeEntrustTaskDestinationWulingCity": {
-        "next": [
-            "[JumpBack]SeizeEntrustTaskFound7.31wMoneyF1",
-            "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDwon",
-            "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
-            "[JumpBack]SeizeEntrustTaskNews"
-        ]
     },
     "isSeizeEntrustTaskInMap": {
         "desc": "是否在任意地图界面",

@@ -18,11 +18,9 @@ import (
 
 // MapTrackerBigMapInferResult represents the output of big map inference.
 type MapTrackerBigMapInferResult struct {
-	MapName     string  `json:"mapName"`
-	X           float64 `json:"x"`
-	Y           float64 `json:"y"`
-	Scale       float64 `json:"scale"`
-	InferTimeMs int64   `json:"inferTimeMs"`
+	MapName     string         `json:"mapName"`
+	ViewPort    BigMapViewport `json:"viewPort"`
+	InferTimeMs int64          `json:"inferTimeMs"`
 }
 
 // MapTrackerBigMapInferParam represents the custom_recognition_param for MapTrackerBigMapInfer.
@@ -39,6 +37,7 @@ type MapTrackerBigMapInfer struct {
 }
 
 var _ maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
+var mapTrackerBigMapInferRunner maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
 
 // Run implements maa.CustomRecognitionRunner.
 func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -63,13 +62,19 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}
 
 	screenImg := minicv.ImageConvertRGBA(arg.Img)
-	template, _, _, ok := cropBigMapTemplate(screenImg)
+	template, fullLeft, fullTop, ok := cropBigMapTemplate(screenImg)
 	if !ok {
 		log.Warn().Msg("Big-map crop area is invalid")
 		return nil, false
 	}
 
-	fastTpl := minicv.ImageScale(template, WIRE_MATCH_PRECISION)
+	sampleTemplate, sampleOffsetX, sampleOffsetY, ok := cropBigMapSample(template, fullLeft, fullTop, screenImg.Rect.Dx(), screenImg.Rect.Dy())
+	if !ok {
+		log.Warn().Msg("Big-map sample crop area is invalid")
+		return nil, false
+	}
+
+	fastTpl := minicv.ImageScale(sampleTemplate, WIRE_MATCH_PRECISION)
 	fastTplStats := minicv.GetImageStats(fastTpl)
 	if fastTplStats.Std < 1e-6 {
 		log.Warn().Msg("Big-map template standard deviation is too small")
@@ -161,7 +166,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	fineMatchingSteps := []int{8, 4}
 	fineMatchingScaleOffset := (coarseTplScaleMax - coarseTplScaleMin) / 32.0
 	fineMinScale := max(coarseTplScaleMin, coarseBestTplScale-fineMatchingScaleOffset)
-	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale-fineMatchingScaleOffset)
+	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale+fineMatchingScaleOffset)
 
 	matchX, matchY, fineScore, fineTplScale := minicv.MatchTemplateAnyScaleInArea(
 		coarseBestMap.Img,
@@ -183,11 +188,20 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
+	viewScale := 1.0 / fineTplScale
+	viewScale = min(GAME_MAP_SCALE_MAX, max(GAME_MAP_SCALE_MIN, viewScale))
+	sampleOriginMapX := roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX))
+	sampleOriginMapY := roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY))
+	viewOriginMapX := roundTo1Decimal(sampleOriginMapX - float64(sampleOffsetX)/viewScale)
+	viewOriginMapY := roundTo1Decimal(sampleOriginMapY - float64(sampleOffsetY)/viewScale)
+
 	result := MapTrackerBigMapInferResult{
-		MapName:     coarseBestMap.Name,
-		X:           roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX)),
-		Y:           roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY)),
-		Scale:       1.0 / fineTplScale,
+		MapName: coarseBestMap.Name,
+		ViewPort: *NewBigMapViewport(
+			viewOriginMapX,
+			viewOriginMapY,
+			viewScale,
+		),
 		InferTimeMs: time.Since(t0).Milliseconds(),
 	}
 
@@ -202,9 +216,9 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Str("map", result.MapName).
 		Float64("coarseScore", coarseBestScore).
 		Float64("fineScore", fineScore).
-		Float64("x", result.X).
-		Float64("y", result.Y).
-		Float64("scale", result.Scale).
+		Float64("x", result.ViewPort.OriginMapX).
+		Float64("y", result.ViewPort.OriginMapY).
+		Float64("scale", result.ViewPort.Scale).
 		Int64("inferTimeMs", result.InferTimeMs).
 		Msg("Big-map inference completed")
 
@@ -282,4 +296,34 @@ func cropBigMapTemplate(screen *image.RGBA) (*image.RGBA, int, int, bool) {
 	draw.Draw(dst, dst.Bounds(), screen, region.Min, draw.Src)
 
 	return dst, left, top, true
+}
+
+func cropBigMapSample(fullTemplate *image.RGBA, fullLeft, fullTop, screenW, screenH int) (*image.RGBA, int, int, bool) {
+	sampleLeftAbs := int(math.Round(SAMPLE_PADDING_LR))
+	sampleTopAbs := int(math.Round(SAMPLE_PADDING_TB))
+	sampleRightAbs := screenW - sampleLeftAbs
+	sampleBottomAbs := screenH - sampleTopAbs
+
+	fullRight := fullLeft + fullTemplate.Rect.Dx()
+	fullBottom := fullTop + fullTemplate.Rect.Dy()
+
+	leftAbs := max(fullLeft, min(fullRight, sampleLeftAbs))
+	rightAbs := max(fullLeft, min(fullRight, sampleRightAbs))
+	topAbs := max(fullTop, min(fullBottom, sampleTopAbs))
+	bottomAbs := max(fullTop, min(fullBottom, sampleBottomAbs))
+
+	if rightAbs <= leftAbs || bottomAbs <= topAbs {
+		return nil, 0, 0, false
+	}
+
+	leftRel := leftAbs - fullLeft
+	topRel := topAbs - fullTop
+	rightRel := rightAbs - fullLeft
+	bottomRel := bottomAbs - fullTop
+
+	region := image.Rect(leftRel, topRel, rightRel, bottomRel)
+	dst := image.NewRGBA(image.Rect(0, 0, region.Dx(), region.Dy()))
+	draw.Draw(dst, dst.Bounds(), fullTemplate, region.Min, draw.Src)
+
+	return dst, leftRel, topRel, true
 }

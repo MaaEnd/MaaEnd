@@ -249,6 +249,42 @@
                             "template": "DeliveryJobs/Jincao.png"
                         }
                     }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/SandleafPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/BuckflowerPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/CitromePowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/AketinePowder.png"
+                        }
+                    }
                 }
             ],
             "default_case": "芽针"
