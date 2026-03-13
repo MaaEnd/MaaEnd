@@ -13,8 +13,9 @@
                 "expected": [
                     "制造中",
                     "製造中",
-                    "制造舱",
-                    "MFG ?CABIN"
+                    "Manufacturing",
+                    "MFG ?CABIN",
+                    "制造舱"
                 ]
             }
         },
@@ -286,6 +287,7 @@
                 "expected": [
                     "制造中",
                     "製造中",
+                    "Manufacturing",
                     "MFG ?CABIN",
                     "制造舱"
                 ]

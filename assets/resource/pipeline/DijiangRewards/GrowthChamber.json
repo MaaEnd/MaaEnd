@@ -12,8 +12,11 @@
                     313
                 ],
                 "expected": [
-                    "^培养舱",
+                    "生长",
+                    "生長",
                     "Growth",
+                    "成長",
+                    "^培养舱",
                     "Chamber"
                 ]
             }
@@ -47,8 +50,8 @@
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
-                    "GROWTH CHAMBER",
-                    "培養室"
+                    "培養室",
+                    "GROWTH CHAMBER"
                 ]
             }
         },
@@ -126,8 +129,10 @@
                     283
                 ],
                 "expected": [
-                    "^培养$",
-                    "Grow"
+                    "培养",
+                    "培養",
+                    "Grow",
+                    "^培养$"
                 ]
             }
         },
@@ -269,8 +274,10 @@
                 ],
                 "expected": [
                     "生产助力",
-                    "Production",
-                    "Assist"
+                    "生產助力",
+                    "Assist",
+                    "生産サポート",
+                    "Production"
                 ]
             }
         },
@@ -603,8 +610,8 @@
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
-                    "GROWTH CHAMBER",
-                    "培養室"
+                    "培養室",
+                    "GROWTH CHAMBER"
                 ]
             }
         },

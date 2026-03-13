@@ -71,7 +71,8 @@
                 ],
                 "expected": [
                     "收取",
-                    "Take"
+                    "Take",
+                    "受取"
                 ]
             }
         }
@@ -91,8 +92,9 @@
                 "expected": [
                     "领取",
                     "領取",
-                    "[Cc]laim",
-                    "受取"
+                    "Claim",
+                    "受取",
+                    "[Cc]laim"
                 ],
                 "only_rec": true
             }
