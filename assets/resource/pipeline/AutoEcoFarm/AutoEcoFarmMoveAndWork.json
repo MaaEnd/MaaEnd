@@ -5,6 +5,7 @@
     "_AutoEcoFarmMoveAndWorkStart": {
         "desc": "这块代码的目的是按下移动键，一边移动一边识别收菜菜单，识别到了就停下，点击收菜/播种/浇水",
         "next": [
+            "_AutoEcoFarmGotoTarget",
             "_AutoEcoFarmJump"
         ]
     },
@@ -334,5 +335,81 @@
         "focus": {
             "Node.Recognition.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
         }
+    },
+    //下面是单纯靠近标记的节点
+    "_AutoEcoFarmGotoTarget": {
+        "desc": "不工作，直接走到标记消失为止",
+        "enabled": false,
+        "next": ["_AutoEcoFarmJumpNotWork"]
+    },
+    "_AutoEcoFarmJumpNotWork": {
+        "desc": "不工作版往前跳，防止被卡住，先按下w",
+        //加点限制免得bug导致无限循环
+        "max_hit": 20,
+        "pre_delay": 0,
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpNotWork2"
+        ]
+    },
+    "_AutoEcoFarmJumpNotWork2": {
+        "desc": "按一下空格",
+        "pre_delay": 0,
+        "action": {
+            "type": "LongPressKey",
+            "param": {
+                "duration": 500,
+                "key": 32 //空格键
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJumpNotWork3"
+        ]
+    },
+    "_AutoEcoFarmJumpNotWork3": {
+        "desc": "松开w",
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 87 //w键
+            }
+        },
+        //稍微加点延迟保证停稳
+        "post_delay": 200,
+        "next": [
+            "_AutoEcoFarmTargetNotExists",
+            "_AutoEcoFarmJumpNotWork",
+            //要是尝试次数过多则回到普通循环
+            "_AutoEcoFarmJump"
+        ]
+    },
+    "_AutoEcoFarmTargetNotExists": {
+        "desc": "判断标记不在视野内则回到普通循环，从往前跳一下开始，这样尽量靠近标记目标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    420,
+                    100,
+                    440,
+                    300
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "threshold": 0.4
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "_AutoEcoFarmJump"
+        ]
     }
 }

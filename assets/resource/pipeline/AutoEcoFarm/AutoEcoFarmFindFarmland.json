@@ -89,7 +89,7 @@
         "post_wait_freezes": 200,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
             //不行的话尝试筛选标记
@@ -123,7 +123,7 @@
         "post_wait_freezes": 200,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullWulinEcoFarmToCenter",
             //不行的话尝试筛选标记
@@ -200,6 +200,32 @@
             "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
+    "_AutoEcoFarmFindFarmlandCustom": {
+        "desc": "全屏寻找农田,并点击离特定点最近的农田",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                "custom_recognition_param": {
+                    "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                    "xRatio": 0.5,
+                    "yRatio": 0.5
+                }
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "_AutoEcoFarmIsMrarking",
+            "[JumpBack]_AutoEcoFarmMutiSelection",
+            "_AutoEcoFarmAlreadySetTarget",
+            "_AutoEcoFarmSetTarget",
+            "[JumpBack]_AutoEcoFarmMoveMouse",
+            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
+        ]
+    },
     "_AutoEcoFarmIsMrarking": {
         "desc": "找到标记两个字说明点歪了，按一下esc",
         "recognition": {
@@ -224,7 +250,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmland"
+            "_AutoEcoFarmFindFarmlandCustom"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
