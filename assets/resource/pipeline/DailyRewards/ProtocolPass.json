@@ -4,6 +4,7 @@
         "post_delay": 0,
         "next": [
             "DailyProtocolPassInMenu",
+            "[JumpBack]DailyProtocolPassNew",
             "[JumpBack]SceneEnterMenuProtocolPass"
         ]
     },
@@ -32,6 +33,27 @@
             "[JumpBack]DailyProtocolRewardsEnter",
             "DailyProtocolFinish"
         ]
+    },
+    "DailyProtocolPassNew": {
+        "desc": "确认新一期的通行证界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    600,
+                    650,
+                    40,
+                    40
+                ],
+                "template": [
+                    "Common/Button/PassConfirmButton.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
     },
     "DailyProtocolFinish": {
         "desc": "结束任务",

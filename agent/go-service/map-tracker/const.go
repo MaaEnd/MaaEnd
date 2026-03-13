@@ -22,6 +22,23 @@ const (
 	ROT_RADIUS   = 12
 )
 
+// Big map infer configuration
+const (
+	PADDING_LR           = 0.133 * WORK_W
+	PADDING_TB           = 0.208 * WORK_H
+	SAMPLE_PADDING_LR    = 0.425 * WORK_W
+	SAMPLE_PADDING_TB    = 0.425 * WORK_H
+	WIRE_MATCH_PRECISION = 0.5
+	GAME_MAP_SCALE_MIN   = 1.0
+	GAME_MAP_SCALE_MAX   = 7.0
+)
+
+// Big map pick configuration
+const (
+	BIG_MAP_PAN_FACTOR = 1.5
+	BIG_MAP_PICK_RETRY = 10
+)
+
 // Time-series empirical optimization configuration
 const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
@@ -32,8 +49,10 @@ const (
 
 // Resource paths
 const (
-	MAP_DIR      = "image/MapTracker/map"
-	POINTER_PATH = "image/MapTracker/pointer.png"
+	MAP_BBOX_DATA_PATH     = "data/MapTracker/map_bbox_data.json"
+	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
+	MAP_DIR                = "resource/image/MapTracker/map"
+	POINTER_PATH           = "resource/image/MapTracker/pointer.png"
 )
 
 // Move action configuration
@@ -56,6 +75,12 @@ var DEFAULT_INFERENCE_PARAM = MapTrackerInferParam{
 var DEFAULT_INFERENCE_PARAM_FOR_MOVE = MapTrackerInferParam{
 	Precision: 0.7,
 	Threshold: 0.3,
+}
+
+// MapTrackerBigMapInfer parameters default values
+var DEFAULT_BIG_MAP_INFERENCE_PARAM = MapTrackerBigMapInferParam{
+	MapNameRegex: "^map\\d+_lv\\d+$",
+	Threshold:    0.5,
 }
 
 // MapTrackerMove parameters default values

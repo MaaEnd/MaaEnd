@@ -1,0 +1,329 @@
+// Copyright (c) 2026 Harry Huang
+package maptracker
+
+import (
+	"encoding/json"
+	"fmt"
+	"image"
+	"image/draw"
+	"math"
+	"regexp"
+	"sync"
+	"time"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
+// MapTrackerBigMapInferResult represents the output of big map inference.
+type MapTrackerBigMapInferResult struct {
+	MapName     string         `json:"mapName"`
+	ViewPort    BigMapViewport `json:"viewPort"`
+	InferTimeMs int64          `json:"inferTimeMs"`
+}
+
+// MapTrackerBigMapInferParam represents the custom_recognition_param for MapTrackerBigMapInfer.
+type MapTrackerBigMapInferParam struct {
+	MapNameRegex string  `json:"map_name_regex,omitempty"`
+	Threshold    float64 `json:"threshold,omitempty"`
+}
+
+// MapTrackerBigMapInfer is the custom recognition component for big-map location inference.
+type MapTrackerBigMapInfer struct {
+	mapsOnce sync.Once
+	maps     []MapCache
+	mapsErr  error
+}
+
+var _ maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
+var mapTrackerBigMapInferRunner maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
+
+// Run implements maa.CustomRecognitionRunner.
+func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	t0 := time.Now()
+
+	param, err := r.parseParam(arg.CustomRecognitionParam)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to parse parameters for MapTrackerBigMapInfer")
+		return nil, false
+	}
+
+	mapNameRegex, err := regexp.Compile(param.MapNameRegex)
+	if err != nil {
+		log.Error().Err(err).Str("regex", param.MapNameRegex).Msg("Invalid map_name_regex")
+		return nil, false
+	}
+
+	r.initMaps(ctx)
+	if r.mapsErr != nil {
+		log.Error().Err(r.mapsErr).Msg("Failed to initialize maps for MapTrackerBigMapInfer")
+		return nil, false
+	}
+
+	screenImg := minicv.ImageConvertRGBA(arg.Img)
+	template, fullLeft, fullTop, ok := cropBigMapTemplate(screenImg)
+	if !ok {
+		log.Warn().Msg("Big-map crop area is invalid")
+		return nil, false
+	}
+
+	sampleTemplate, sampleOffsetX, sampleOffsetY, ok := cropBigMapSample(template, fullLeft, fullTop, screenImg.Rect.Dx(), screenImg.Rect.Dy())
+	if !ok {
+		log.Warn().Msg("Big-map sample crop area is invalid")
+		return nil, false
+	}
+
+	fastTpl := minicv.ImageScale(sampleTemplate, WIRE_MATCH_PRECISION)
+	fastTplStats := minicv.GetImageStats(fastTpl)
+	if fastTplStats.Std < 1e-6 {
+		log.Warn().Msg("Big-map template standard deviation is too small")
+		return nil, false
+	}
+
+	coarseBestScore := -1.0
+	coarseBestTplScale := 0.0
+	coarseBestMap := MapCache{}
+	hasCoarseBestMap := false
+	triedMaps := 0
+	coarseMatchingSteps := []int{8, 4}
+	coarseTplScaleMin := 1.0 / GAME_MAP_SCALE_MAX
+	coarseTplScaleMax := 1.0 / GAME_MAP_SCALE_MIN
+
+	candidateMaps := make([]MapCache, 0, len(r.maps))
+	for _, m := range r.maps {
+		if mapNameRegex.MatchString(m.Name) {
+			candidateMaps = append(candidateMaps, m)
+		}
+	}
+	triedMaps = len(candidateMaps)
+
+	type coarseResult struct {
+		score    float64
+		tplScale float64
+		m        MapCache
+	}
+
+	if triedMaps == 1 {
+		single := candidateMaps[0]
+		_, _, score, tplScale := minicv.MatchTemplateAnyScaleInArea(
+			single.Img,
+			single.Integral,
+			fastTpl,
+			coarseTplScaleMin,
+			coarseTplScaleMax,
+			coarseMatchingSteps,
+		)
+		coarseBestScore = score
+		coarseBestTplScale = tplScale
+		coarseBestMap = single
+		hasCoarseBestMap = true
+	} else if triedMaps > 1 {
+		resChan := make(chan coarseResult, triedMaps)
+		var wg sync.WaitGroup
+
+		for _, mapData := range candidateMaps {
+			wg.Add(1)
+			go func(m MapCache) {
+				defer wg.Done()
+				_, _, score, tplScale := minicv.MatchTemplateAnyScaleInArea(
+					m.Img,
+					m.Integral,
+					fastTpl,
+					coarseTplScaleMin,
+					coarseTplScaleMax,
+					coarseMatchingSteps,
+				)
+				resChan <- coarseResult{score: score, tplScale: tplScale, m: m}
+			}(mapData)
+		}
+
+		go func() {
+			wg.Wait()
+			close(resChan)
+		}()
+
+		for res := range resChan {
+			if res.score > coarseBestScore {
+				coarseBestScore = res.score
+				coarseBestTplScale = res.tplScale
+				coarseBestMap = res.m
+				hasCoarseBestMap = true
+			}
+		}
+	}
+
+	if triedMaps == 0 {
+		log.Warn().Str("regex", mapNameRegex.String()).Msg("No maps matched regex for big-map inference")
+		return nil, false
+	}
+
+	if !hasCoarseBestMap {
+		log.Warn().Msg("Big-map coarse matching did not produce a candidate")
+		return nil, false
+	}
+
+	fineMatchingSteps := []int{8, 4}
+	fineMatchingScaleOffset := (coarseTplScaleMax - coarseTplScaleMin) / 32.0
+	fineMinScale := max(coarseTplScaleMin, coarseBestTplScale-fineMatchingScaleOffset)
+	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale+fineMatchingScaleOffset)
+
+	matchX, matchY, fineScore, fineTplScale := minicv.MatchTemplateAnyScaleInArea(
+		coarseBestMap.Img,
+		coarseBestMap.Integral,
+		fastTpl,
+		fineMinScale,
+		fineMaxScale,
+		fineMatchingSteps,
+	)
+
+	if fineScore < param.Threshold {
+		log.Info().
+			Int("triedMaps", triedMaps).
+			Str("map", coarseBestMap.Name).
+			Float64("coarseScore", coarseBestScore).
+			Float64("fineScore", fineScore).
+			Float64("threshold", param.Threshold).
+			Msg("Big-map inference confidence below threshold")
+		return nil, false
+	}
+
+	viewScale := 1.0 / fineTplScale
+	viewScale = min(GAME_MAP_SCALE_MAX, max(GAME_MAP_SCALE_MIN, viewScale))
+	sampleOriginMapX := roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX))
+	sampleOriginMapY := roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY))
+	viewOriginMapX := roundTo1Decimal(sampleOriginMapX - float64(sampleOffsetX)/viewScale)
+	viewOriginMapY := roundTo1Decimal(sampleOriginMapY - float64(sampleOffsetY)/viewScale)
+
+	result := MapTrackerBigMapInferResult{
+		MapName: coarseBestMap.Name,
+		ViewPort: *NewBigMapViewport(
+			viewOriginMapX,
+			viewOriginMapY,
+			viewScale,
+		),
+		InferTimeMs: time.Since(t0).Milliseconds(),
+	}
+
+	detailJSON, err := json.Marshal(result)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to marshal MapTrackerBigMapInfer result")
+		return nil, false
+	}
+
+	log.Info().
+		Int("triedMaps", triedMaps).
+		Str("map", result.MapName).
+		Float64("coarseScore", coarseBestScore).
+		Float64("fineScore", fineScore).
+		Float64("x", result.ViewPort.OriginMapX).
+		Float64("y", result.ViewPort.OriginMapY).
+		Float64("scale", result.ViewPort.Scale).
+		Int64("inferTimeMs", result.InferTimeMs).
+		Msg("Big-map inference completed")
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: string(detailJSON),
+	}, true
+}
+
+func (r *MapTrackerBigMapInfer) parseParam(paramStr string) (*MapTrackerBigMapInferParam, error) {
+	if paramStr == "" {
+		return &DEFAULT_BIG_MAP_INFERENCE_PARAM, nil
+	}
+
+	var param MapTrackerBigMapInferParam
+	if err := json.Unmarshal([]byte(paramStr), &param); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal parameters: %w", err)
+	}
+
+	if param.MapNameRegex == "" {
+		param.MapNameRegex = DEFAULT_BIG_MAP_INFERENCE_PARAM.MapNameRegex
+	}
+	if param.Threshold == 0.0 {
+		param.Threshold = DEFAULT_BIG_MAP_INFERENCE_PARAM.Threshold
+	} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
+		return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
+	}
+
+	return &param, nil
+}
+
+// initMaps initializes map cache for big-map inference only.
+func (r *MapTrackerBigMapInfer) initMaps(ctx *maa.Context) {
+	r.mapsOnce.Do(func() {
+		loader := &MapTrackerInfer{}
+		maps, err := loader.loadMaps(ctx)
+		if err != nil {
+			r.mapsErr = err
+			return
+		}
+
+		fastMaps := make([]MapCache, 0, len(maps))
+		for _, m := range maps {
+			fastImg := minicv.ImageScale(m.Img, WIRE_MATCH_PRECISION)
+			fastMaps = append(fastMaps, MapCache{
+				Name:     m.Name,
+				Img:      fastImg,
+				Integral: minicv.GetIntegralArray(fastImg),
+				OffsetX:  m.OffsetX,
+				OffsetY:  m.OffsetY,
+			})
+		}
+
+		r.maps = fastMaps
+		log.Info().Int("mapsCount", len(r.maps)).Msg("Big-map maps cache initialized")
+	})
+}
+
+func cropBigMapTemplate(screen *image.RGBA) (*image.RGBA, int, int, bool) {
+	w, h := screen.Rect.Dx(), screen.Rect.Dy()
+	padLR := int(math.Round(PADDING_LR))
+	padTB := int(math.Round(PADDING_TB))
+
+	left := max(0, min(w, padLR))
+	right := max(0, min(w, w-padLR))
+	top := max(0, min(h, padTB))
+	bottom := max(0, min(h, h-padTB))
+
+	if right <= left || bottom <= top {
+		return nil, 0, 0, false
+	}
+
+	region := image.Rect(left, top, right, bottom)
+	dst := image.NewRGBA(image.Rect(0, 0, region.Dx(), region.Dy()))
+	draw.Draw(dst, dst.Bounds(), screen, region.Min, draw.Src)
+
+	return dst, left, top, true
+}
+
+func cropBigMapSample(fullTemplate *image.RGBA, fullLeft, fullTop, screenW, screenH int) (*image.RGBA, int, int, bool) {
+	sampleLeftAbs := int(math.Round(SAMPLE_PADDING_LR))
+	sampleTopAbs := int(math.Round(SAMPLE_PADDING_TB))
+	sampleRightAbs := screenW - sampleLeftAbs
+	sampleBottomAbs := screenH - sampleTopAbs
+
+	fullRight := fullLeft + fullTemplate.Rect.Dx()
+	fullBottom := fullTop + fullTemplate.Rect.Dy()
+
+	leftAbs := max(fullLeft, min(fullRight, sampleLeftAbs))
+	rightAbs := max(fullLeft, min(fullRight, sampleRightAbs))
+	topAbs := max(fullTop, min(fullBottom, sampleTopAbs))
+	bottomAbs := max(fullTop, min(fullBottom, sampleBottomAbs))
+
+	if rightAbs <= leftAbs || bottomAbs <= topAbs {
+		return nil, 0, 0, false
+	}
+
+	leftRel := leftAbs - fullLeft
+	topRel := topAbs - fullTop
+	rightRel := rightAbs - fullLeft
+	bottomRel := bottomAbs - fullTop
+
+	region := image.Rect(leftRel, topRel, rightRel, bottomRel)
+	dst := image.NewRGBA(image.Rect(0, 0, region.Dx(), region.Dy()))
+	draw.Draw(dst, dst.Bounds(), fullTemplate, region.Min, draw.Src)
+
+	return dst, leftRel, topRel, true
+}

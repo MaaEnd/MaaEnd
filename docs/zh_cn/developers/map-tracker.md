@@ -93,56 +93,41 @@
 >
 > 执行此节点期间，请确保玩家**始终处于**指定的地图中，并且相邻的路径点之间**可以直线抵达**。
 
-### Recognition: MapTrackerInfer
+### Action: MapTrackerBigMapPick
 
-📍获取玩家当前所处的地图名称、位置坐标和朝向。
+🫳 在大地图界面中拖动视野直到指定的点出现，随后可以进行点击操作。
 
 #### 节点参数
 
-必填参数：无
+必填参数：
+
+- `map_name`: 地图的唯一名称。例如 "map001_lv001"。
+- `target`: 由 2 个实数组成的列表 `[x, y]`，表示目标坐标点。
 
 可选参数：
 
-- `map_name_regex`: 用于筛选地图名称的[正则表达式](https://regexr.com/)。仅匹配该正则表达式的地图会参与识别。例如：
-
-    - `^map\\d+_lv\\d+$`: 默认值。匹配所有常规地图。
-    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: 匹配所有常规地图和分层地图（Tier）。
-    - `^map001_lv001$`: 仅匹配 "map001_lv001"（四号谷地-枢纽区）。
-    - `^map001_lv\\d+$`: 匹配 "map001"（四号谷地）的所有子区域。
-
-- `print`: 真假值，默认 `false`。是否开启识别结果的 UI 消息打印。
-
-<details>
-<summary>高级可选参数（展开）</summary>
-
-- `precision`: 介于 $(0, 1]$ 的实数，默认 `0.5`。控制匹配的精确度。较大的值会更严格地匹配地图特征，但可能导致匹配速度缓慢；较小的值会极大提升匹配速度，但可能导致结果错误。在需要匹配的地图数量较少时（例如只匹配一张地图），推荐使用较大的值以获得更准确的结果。
-
-- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
-
-</details>
+- `on_find`: 找到目标点后执行的操作。可以是 `"Click"`、`"Teleport"` 或 `"DoNothing"`，默认 `"Click"`。
+- `disable_auto_open_map`: 真假值，默认 `false`。是否禁用自动打开对应场景的地图界面的功能。
 
 #### 示例用法
 
 ```json
 {
     "MyNodeName": {
-        "recognition": "Custom",
-        "custom_recognition": "MapTrackerInfer",
-        "custom_recognition_param": {
-            "map_name_regex": "^map\\d+_lv\\d+$"
-        },
-        "action": "DoNothing"
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map002_lv002",
+            "target": [
+                585.8,
+                825.5
+            ],
+            "on_find": "Teleport"
+        }
     }
 }
 ```
-
-> [!TIP]
->
-> MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
-
-> [!WARNING]
->
-> 该节点不适合放在 pipeline 中进行低代码开发。如需判断玩家所处的位置是否符合条件，请使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点。
 
 ### Recognition: MapTrackerAssertLocation
 
@@ -192,14 +177,65 @@
 }
 ```
 
+### Recognition: MapTrackerInfer
+
+📍获取玩家当前所处的地图名称、位置坐标和朝向。
+
+#### 节点参数
+
+必填参数：无
+
+可选参数：
+
+- `map_name_regex`: 用于筛选地图名称的[正则表达式](https://regexr.com/)。仅匹配该正则表达式的地图会参与识别。例如：
+
+    - `^map\\d+_lv\\d+$`: 默认值。匹配所有常规地图。
+    - `^map\\d+_lv\\d+(_tier_\\d+)?$`: 匹配所有常规地图和分层地图（Tier）。
+    - `^map001_lv001$`: 仅匹配 "map001_lv001"（四号谷地-枢纽区）。
+    - `^map001_lv\\d+$`: 匹配 "map001"（四号谷地）的所有子区域。
+
+- `print`: 真假值，默认 `false`。是否开启识别结果的 UI 消息打印。
+
+<details>
+<summary>高级可选参数（展开）</summary>
+
+- `precision`: 介于 $(0, 1]$ 的实数，默认 `0.5`。控制匹配的精确度。较大的值会更严格地匹配地图特征，但可能导致匹配速度缓慢；较小的值会极大提升匹配速度，但可能导致结果错误。在需要匹配的地图数量较少时（例如只匹配一张地图），推荐使用较大的值以获得更准确的结果。
+
+- `threshold`: 介于 $(0, 1]$ 的实数，默认 `0.4`。控制匹配的置信度阈值。低于此值的匹配结果将不命中识别。
+
+</details>
+
+<br>
+
+> [!TIP]
+>
+> MapTracker 使用一个介于 $[0, 360)$ 的整数来表示玩家的**朝向**，单位是度。0° 表示朝向正北方向，以顺时针旋转为递增方向。
+
+> [!WARNING]
+>
+> 该节点是为高级编程而设计的，因此不适合放在 pipeline 中进行低代码开发。如需判断玩家所处的位置是否符合条件，请使用 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 节点。
+
+### Recognition: MapTrackerBigMapInfer
+
+🗺️ 在大地图界面中推断当前视野区域在地图中的坐标与地图缩放。
+
+> [!WARNING]
+>
+> 该节点是为高级编程而设计的，因此不适合放在 pipeline 中进行低代码开发。“当前视野区域”的裁切规则请参见具体代码中的定义。
+
+#### 节点参数
+
+请参见具体代码中 `MapTrackerBigMapInferParam` 的类型定义。
+
 ## 工具说明
 
 我们提供一个 GUI 工具脚本，位于 `/tools/map_tracker/map_tracker_editor.py`。它支持以下基本功能：
 
-1. **创建路径**：选择一张地图，随后用鼠标在地图上创建路径点，最后导出路径点列表或节点 JSON。
-2. **编辑路径**：从现有的 pipeline JSON 文件中加载路径点，进行修改后重新保存或导出。
+- **创建路径（Create Move Node）**：在地图上可视化地绘制 [MapTrackerMove](#action-maptrackermove) 路径点。
+- **创建位置判断节点（Create AssertLocation Node）**：在地图上框选一个用于 [MapTrackerAssertLocation](#recognition-maptrackerassertlocation) 的矩形区域。
+- **编辑已有节点（Import from Pipeline JSON）**：从现有的 pipeline JSON 文件中加载上述两种节点，修改后可以直接保存到文件！
 
-只需安装 Python 和 `opencv-python` 库，即可使用 Python 来运行上述工具脚本。运行后，在控制台中按照指引操作即可。
+只需安装 Python 和 `opencv-python` 库，即可使用 Python 来运行上述工具脚本。运行后，按照 GUI 指引操作即可。
 
 ### 路径编辑的具体用法
 
@@ -208,11 +244,18 @@
 **常用按钮**：
 
 - 保存（Save）按钮仅在编辑现有路径时可用，点击后会将修改保存回原 pipeline 所在的 JSON 文件。
-- 完成（Finish）按钮会结束编辑，效果等同于关闭窗口。此时，控制台会要求输入一个导出模式。导出模式有多种选择，可以导出 JSON 节点或路径点列表等。
-- 实时定位（Get Realtime Location）按钮会尝试连接定位服务并识别当前游戏内的坐标。定位服务如何开启请参见下方说明。
+- 完成（Finish）按钮会结束编辑。此时，可以选择导出模式（例如导出 JSON 节点或路径点列表等格式）。
+- 实时定位（Record Realtime Path）按钮会尝试连接定位服务并记录当前游戏内的坐标。定位服务如何开启请参见下方说明。
 
 **定位服务**：
 
-要使用实时定位功能，请使用 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) 这个 VS Code 插件来“执行”位于 `/assets/resource/pipeline/MapTracker.json` 中的 `MapTrackerTestLoop` 节点。确保游戏窗口可以被 Maa 正确截图，并且该节点可正常运行。
+要使用实时定位功能，请使用 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support) 这个 VS Code 插件来“执行”位于 `/assets/resource/pipeline/MapTracker.json` 中的 `MapTrackerTestLoop` 节点，并确保游戏窗口可以被 Maa 正确截图（无遮挡）。
 
-随后即可使用实时定位按钮来获取游戏内玩家当前的坐标了。
+在上述节点运行期间，您可以：
+
+1. 在侧边栏中点击“Record Realtime Path”按钮；
+2. 随后自行操作角色在游戏内移动，工具会自动记录角色走过的路径；
+3. 完成移动后，返回到工具界面，点击“Stop Path Recoding”按钮停止记录；
+4. 最后，在下方操作栏中将记录的路径转换为可供 MapTracker 使用的路径。
+
+这一工作流可以极大地提升路径点的创建效率和精确程度。

@@ -5,8 +5,41 @@
             "entry": "AutoUseSpMedicationEntry",
             "label": "$task.AutoUseSpMedication.label",
             "name": "AutoUseSpMedication",
-            "group": ["utility"]
+            "group": ["utility"],
+            "option": [
+                "UseAllExpireSoonSpMedication"
+            ]
         }
     ],
-    "option": {}
+    "option": {
+        "UseAllExpireSoonSpMedication": {
+            "type": "switch",
+            "description": "$option.UseAllExpireSoonMedication.description",
+            "label": "$option.UseAllExpireSoonMedication.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
+                            "next": [
+                                "AutoUseSpMedicationUseEmergencySpBooster"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
+                            "next": [
+                                "AutoUseSpMedicationIfExpireSoon",
+                                "AutoUseSpMedicationUseEmergencySpBooster"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

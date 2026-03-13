@@ -402,14 +402,18 @@ func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
 		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
 	}
 
-	// Read map_bbox.json if it exists
+	// Read bbox data from configured resource path first
 	rectList := make(map[string][]int)
-	rectPath := filepath.Join(mapDir, "map_bbox.json")
-	if data, err := os.ReadFile(rectPath); err == nil {
-		if err := json.Unmarshal(data, &rectList); err != nil {
-			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map_bbox.json")
+	rectPath := findResource(MAP_BBOX_DATA_PATH)
+	if rectPath != "" {
+		if data, err := os.ReadFile(rectPath); err == nil {
+			if err := json.Unmarshal(data, &rectList); err != nil {
+				log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map bbox data")
+			} else {
+				log.Info().Str("path", rectPath).Msg("Map bbox data loaded")
+			}
 		} else {
-			log.Info().Msg("Map bbox JSON loaded")
+			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to read map bbox data")
 		}
 	}
 

@@ -12,7 +12,12 @@
                     313
                 ],
                 "expected": [
-                    "^培养舱"
+                    "生长",
+                    "生長",
+                    "Growth",
+                    "成長",
+                    "^培养舱",
+                    "Chamber"
                 ]
             }
         },
@@ -38,14 +43,15 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
-                    "培養室"
+                    "培養室",
+                    "GROWTH CHAMBER"
                 ]
             }
         },
@@ -106,7 +112,8 @@
         "rate_limit": 0,
         "next": [
             "Grow",
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "ClaimAllGrowRewardClose"
         ]
     },
     "Grow": {
@@ -122,6 +129,9 @@
                     283
                 ],
                 "expected": [
+                    "培养",
+                    "培養",
+                    "Grow",
                     "^培养$"
                 ]
             }
@@ -147,11 +157,13 @@
                 "roi": [
                     0,
                     0,
-                    296,
+                    850,
                     111
                 ],
                 "expected": [
-                    "选择培养对象"
+                    "选择培养对象",
+                    "SELECT MATERIALS",
+                    "TO GROW"
                 ]
             }
         },
@@ -177,7 +189,16 @@
                 "expected": [
                     "菌$",
                     "石$",
-                    "叶$"
+                    "叶$",
+                    "stone$",
+                    "site$",
+                    "gela$",
+                    "leaf$",
+                    "garic$",
+                    "cap$",
+                    "nyx$",
+                    "endra$",
+                    "lete$"
                 ]
             }
         }
@@ -252,7 +273,11 @@
                     113
                 ],
                 "expected": [
-                    "生产助力"
+                    "生产助力",
+                    "生產助力",
+                    "Assist",
+                    "生産サポート",
+                    "Production"
                 ]
             }
         },
@@ -260,7 +285,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ExitGrowthChamber"
+            "ExitGrowthChamber",
+            "InDijiangControlNexus"
         ]
     },
     "ExitGrow": {
@@ -419,7 +445,9 @@
                     111
                 ],
                 "expected": [
-                    "选择培养对象"
+                    "选择培养对象",
+                    "Select",
+                    "materials"
                 ]
             }
         },
@@ -575,14 +603,15 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "培养舱",
                     "培養艙",
                     "Growth Chamber",
-                    "培養室"
+                    "培養室",
+                    "GROWTH CHAMBER"
                 ]
             }
         },

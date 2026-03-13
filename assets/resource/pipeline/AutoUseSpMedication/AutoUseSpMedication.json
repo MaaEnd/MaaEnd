@@ -3,8 +3,9 @@
         "desc": "自动使用理智药剂任务入口",
         "pre_delay": 0,
         "anchor": {
-            "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBooster",
-            "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationUseNoEmergencySanityBooster"
+            "ValuableStashValuablesTabInNext": "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon",
+            "ValuableStashValuablesTabInNext2": "AutoUseSpMedicationChooseEmergencySanityBooster",
+            "ValuableStashValuablesTabInNext3": "AutoUseSpMedicationUseNoEmergencySanityBooster"
         },
         "post_delay": 0,
         "next": [
@@ -25,10 +26,9 @@
                     940,
                     560
                 ],
-                "template": "Valuables/EmergencySanityBooster.png",
+                "template": "Valuables/EmergencySpBooster.png",
                 "green_mask": true,
-                "threshold": 0.82,
-                "order_by": "Vertical" //优先时限更短的
+                "threshold": 0.92
             }
         },
         "action": "Click",
@@ -39,6 +39,54 @@
         "focus": {
             "Node.Action.Starting": "开始选择药剂"
         }
+    },
+    "AutoUseSpMedicationChooseEmergencySanityBoosterExpSoon": {
+        "desc": "选择红时限应急理智加强剂",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    30,
+                    80,
+                    940,
+                    560
+                ],
+                "template": "Valuables/EmergencySpBoosterExpireSoon.png",
+                "green_mask": true,
+                "threshold": 0.92
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": 300,
+        "next": [
+            //"AutoUseSpMedicationIfExpireSoon" if option yes
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始选择即将过期的药剂"
+        }
+    },
+    "AutoUseSpMedicationIfExpireSoon": {
+        "desc": "详情页检测到红色限时",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    989,
+                    203,
+                    28,
+                    26
+                ],
+                "template": "Valuables/ExpireSoon.png",
+                "threshold": 0.8
+            }
+        },
+        "anchor": {
+            "AutoUseSpMedicationUseEmergencySpBoosterNext": "AutoUseSpMedicationAdd"
+        },
+        "next": [
+            "AutoUseSpMedicationUseEmergencySpBooster"
+        ]
     },
     "AutoUseSpMedicationQuickUse": {
         "desc": "确认使用理智药",
@@ -111,6 +159,7 @@
         "action": "Click",
         "post_wait_freezes": 300,
         "next": [
+            "[Anchor]AutoUseSpMedicationUseEmergencySpBoosterNext", // AutoUseSpMedicationAdd
             "AutoUseSpMedicationQuickUse",
             "AutoUseSpMedicationQuickUseCancel"
         ]
@@ -143,5 +192,45 @@
         "focus": {
             "Node.Action.Succeeded": "没有应急理智加强剂，结束任务"
         }
+    },
+    "AutoUseSpMedicationAdd": {
+        "desc": "",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1072,
+                    415,
+                    37,
+                    37
+                ],
+                "template": "Valuables/AddButton.png",
+                "threshold": 0.8
+            }
+        },
+        "action": "Click",
+        "next": [
+            "AutoUseSpMedicationAdd", //loop until add button unavailable
+            "AutoUseSpMedicationCantAdd"
+        ]
+    },
+    "AutoUseSpMedicationCantAdd": {
+        "desc": "",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1072,
+                    415,
+                    37,
+                    37
+                ],
+                "template": "Valuables/DisabledAddButton.png",
+                "threshold": 0.8
+            }
+        },
+        "next": [
+            "AutoUseSpMedicationQuickUse"
+        ]
     }
 }
