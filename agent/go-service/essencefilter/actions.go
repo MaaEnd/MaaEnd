@@ -766,7 +766,10 @@ type EssenceFilterSwipeCalibrateAction struct{}
 func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if swipeCalibrateRetry >= 5 {
 		swipeCalibrateRetry = 0
-		log.Info().Msg("<EssenceFilter> SwipeCalibrate: max retries, skip calibration")
+		log.Info().
+			Str("component", "EssenceFilter").
+			Str("step", "SwipeCalibrate").
+			Msg("max retries, skip calibration")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
 			{Name: "EssenceRowDetect"},
 			{Name: "EssenceDetectFinal"},
