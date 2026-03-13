@@ -620,7 +620,7 @@
         ]
     },
     "EssenceFilterSwipeCalibrateCorrect": {
-        "desc": "校准微滑（由 SwipeCalibrateAction 通过 RunTask override begin/end 调用）",
+        "desc": "校准微滑（由 EssenceFilterSwipeCalibrateAction 通过 RunTask override begin/end 调用）",
         "action": {
             "type": "Swipe",
             "param": {
