@@ -5,11 +5,19 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	_ "image/png"
 	"math"
+	"os"
+	"path/filepath"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -74,6 +82,12 @@ var navigationFinishedHTML string
 
 var _ maa.CustomActionRunner = &MapTrackerMove{}
 
+var previewMapCache = struct {
+	mu  sync.RWMutex
+	key string
+	img *image.RGBA
+}{}
+
 // Run implements maa.CustomActionRunner
 func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// Prepare variables
@@ -126,15 +140,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Int("index", i).Float64("targetX", targetX).Float64("targetY", targetY).Msg("Navigating to next target point")
 
 		// Show navigation UI
-		var initDist float64
 		var initRot int
 		if initResult, err := doInfer(ctx, ctrl, param); err == nil && initResult != nil {
-			initDist = math.Hypot(initResult.X-targetX, initResult.Y-targetY)
 			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
 			if !param.NoPrint {
 				maafocus.NodeActionStarting(
 					aw.ctx,
-					fmt.Sprintf(navigationMovingHTML, targetX, targetY, initDist),
+					a.buildNavigationMovingHTML(param, i, initResult.X, initResult.Y, targetX, targetY),
 				)
 			}
 		} else if err != nil {
@@ -506,4 +518,214 @@ func calcDeltaRotation(current, target int) int {
 		diff += 360
 	}
 	return diff
+}
+
+func (a *MapTrackerMove) buildNavigationMovingHTML(
+	param *MapTrackerMoveParam,
+	targetIndex int,
+	currentX float64,
+	currentY float64,
+	targetX float64,
+	targetY float64,
+) string {
+	startBuildingTime := time.Now()
+	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
+
+	html := fmt.Sprintf(navigationMovingHTML,
+		targetIndex+1,
+		len(param.Path),
+		currentX,
+		currentY,
+		targetX,
+		targetY,
+		previewImageURL,
+	)
+	log.Debug().Dur("htmlBuildTime", time.Since(startBuildingTime)).Int("htmlLength", len(html)).Msg("Built navigation moving HTML")
+	return html
+}
+
+func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName string, currentX, currentY, targetX, targetY float64) string {
+	// Prepare map image
+	mapRGBA, err := getCachedPreviewMapRGBA(mapName)
+	if err != nil {
+		log.Debug().Err(err).Str("map", mapName).Msg("Failed to load map image for moving preview")
+		return ""
+	}
+
+	// Prepare points to focus on
+	focusPoints := make([][2]float64, 0, 9)
+	if len(path) > 0 {
+		start := max(0, targetIndex-4)
+		end := min(len(path)-1, targetIndex+4)
+		focusPoints = append(focusPoints, path[start:end+1]...)
+	}
+	if len(focusPoints) == 0 {
+		focusPoints = append(focusPoints, [2]float64{targetX, targetY})
+	}
+
+	drawPath := path
+	if len(drawPath) == 0 {
+		drawPath = focusPoints
+	}
+
+	// Calculate geometry and crop map image
+	const canvasSize = 192
+
+	scale, offsetX, offsetY,
+		currentViewX, currentViewY := calcNavigationPreviewGeometry(focusPoints, currentX, currentY, canvasSize, 96, 192)
+	if scale <= 0 {
+		scale = 1.0
+	}
+
+	canvas := image.NewRGBA(image.Rect(0, 0, canvasSize, canvasSize))
+	draw.Draw(canvas, canvas.Bounds(), &image.Uniform{C: color.RGBA{0xf7, 0xfb, 0xff, 0xff}}, image.Point{}, draw.Src)
+
+	b := mapRGBA.Bounds()
+	srcMinX := int(math.Floor((-offsetX) / scale))
+	srcMinY := int(math.Floor((-offsetY) / scale))
+	srcMaxX := int(math.Ceil((float64(canvasSize) - offsetX) / scale))
+	srcMaxY := int(math.Ceil((float64(canvasSize) - offsetY) / scale))
+	srcMinX = max(b.Min.X, srcMinX)
+	srcMinY = max(b.Min.Y, srcMinY)
+	srcMaxX = min(b.Max.X, srcMaxX)
+	srcMaxY = min(b.Max.Y, srcMaxY)
+
+	if srcMaxX <= srcMinX || srcMaxY <= srcMinY {
+		srcMinX, srcMinY, srcMaxX, srcMaxY = b.Min.X, b.Min.Y, b.Max.X, b.Max.Y
+	}
+
+	srcRect := image.Rect(srcMinX, srcMinY, srcMaxX, srcMaxY)
+	cropped := minicv.ImageCropRect(mapRGBA, srcRect)
+	scaledCrop := minicv.ImageScale(cropped, scale)
+	dstMinX := int(math.Round(offsetX + float64(srcRect.Min.X)*scale))
+	dstMinY := int(math.Round(offsetY + float64(srcRect.Min.Y)*scale))
+	dstRect := image.Rect(dstMinX, dstMinY, dstMinX+scaledCrop.Bounds().Dx(), dstMinY+scaledCrop.Bounds().Dy())
+	draw.Draw(canvas, dstRect, scaledCrop, image.Point{}, draw.Over)
+
+	// Draw path and points
+	var (
+		colorRed   = color.RGBA{0xdb, 0x39, 0x2b, 0xff} // 0xdb392b
+		colorGreen = color.RGBA{0x27, 0xce, 0x60, 0xff} // 0x27ce60
+		colorBlue  = color.RGBA{0x2b, 0x62, 0xc0, 0xff} // 0x2b62c0
+	)
+
+	for i := 0; i+1 < len(drawPath); i++ {
+		x1 := int(math.Round(drawPath[i][0]*scale + offsetX))
+		y1 := int(math.Round(drawPath[i][1]*scale + offsetY))
+		x2 := int(math.Round(drawPath[i+1][0]*scale + offsetX))
+		y2 := int(math.Round(drawPath[i+1][1]*scale + offsetY))
+		minicv.ImageDrawLine(canvas, x1, y1, x2, y2, colorBlue, 3)
+	}
+
+	for _, p := range drawPath {
+		x := int(math.Round(p[0]*scale + offsetX))
+		y := int(math.Round(p[1]*scale + offsetY))
+		minicv.ImageDrawFilledCircle(canvas, x, y, 4, colorBlue)
+	}
+
+	curX := int(math.Round(currentViewX))
+	curY := int(math.Round(currentViewY))
+	tgtX := int(math.Round(targetX*scale + offsetX))
+	tgtY := int(math.Round(targetY*scale + offsetY))
+	minicv.ImageDrawLine(canvas, curX, curY, tgtX, tgtY, colorRed, 3)
+	minicv.ImageDrawFilledCircle(canvas, tgtX, tgtY, 5, colorRed)
+	minicv.ImageDrawFilledCircle(canvas, curX, curY, 5, colorGreen)
+
+	// Return as base64 data URL
+	base64JPEG, err := minicv.ImageToBase64JPEG(canvas, 90)
+	if err != nil {
+		log.Debug().Err(err).Msg("Failed to encode moving preview image")
+		return ""
+	}
+
+	return "data:image/jpeg;base64," + base64JPEG
+}
+
+func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
+	mapPath := findResource(filepath.ToSlash(filepath.Join(MAP_DIR, mapName+".png")))
+	if mapPath == "" {
+		return nil, fmt.Errorf("map image not found")
+	}
+
+	previewMapCache.mu.RLock()
+	if previewMapCache.key == mapPath && previewMapCache.img != nil {
+		cached := previewMapCache.img
+		previewMapCache.mu.RUnlock()
+		return cached, nil
+	}
+	previewMapCache.mu.RUnlock()
+
+	f, err := os.Open(mapPath)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = f.Close() }()
+
+	decoded, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	previewMapCache.mu.Lock()
+	previewMapCache.key = mapPath
+	previewMapCache.img = minicv.ImageConvertRGBA(decoded)
+	previewMapCache.mu.Unlock()
+	return previewMapCache.img, nil
+}
+
+func calcNavigationPreviewGeometry(focusPoints [][2]float64, currentX, currentY float64, canvasSize int, minSize int, maxSize int) (
+	scale, offsetX, offsetY,
+	currentViewX, currentViewY float64,
+) {
+	if canvasSize < 1 {
+		canvasSize = 1
+	}
+	if minSize < 1 {
+		minSize = 1
+	}
+	if maxSize < minSize {
+		maxSize = minSize
+	}
+
+	previewSize := float64(canvasSize)
+	minSpan := float64(minSize)
+	maxSpan := float64(maxSize)
+
+	minX, minY := math.Inf(1), math.Inf(1)
+	maxX, maxY := math.Inf(-1), math.Inf(-1)
+	update := func(x, y float64) {
+		if math.IsNaN(x) || math.IsInf(x, 0) || math.IsNaN(y) || math.IsInf(y, 0) {
+			return
+		}
+		minX = math.Min(minX, x)
+		minY = math.Min(minY, y)
+		maxX = math.Max(maxX, x)
+		maxY = math.Max(maxY, y)
+	}
+	for _, p := range focusPoints {
+		update(p[0], p[1])
+	}
+	update(currentX, currentY)
+
+	if math.IsNaN(minX) || math.IsInf(minX, 0) ||
+		math.IsNaN(minY) || math.IsInf(minY, 0) ||
+		math.IsNaN(maxX) || math.IsInf(maxX, 0) ||
+		math.IsNaN(maxY) || math.IsInf(maxY, 0) {
+		minX, minY = 0, 0
+		maxX, maxY = previewSize, previewSize
+	}
+
+	spanX := min(max(maxX-minX, minSpan), maxSpan)
+	spanY := min(max(maxY-minY, minSpan), maxSpan)
+	scale = math.Min(previewSize/spanX, previewSize/spanY)
+
+	centerX := (minX + maxX) * 0.5
+	centerY := (minY + maxY) * 0.5
+	offsetX = previewSize*0.5 - centerX*scale
+	offsetY = previewSize*0.5 - centerY*scale
+
+	currentViewX = currentX*scale + offsetX
+	currentViewY = currentY*scale + offsetY
+
+	return
 }
