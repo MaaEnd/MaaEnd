@@ -62,13 +62,13 @@
     },
     "SeizeEntrustTaskFoundGoodMoney": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
-                "template": [
-                    "SeizeEntrustTask/7.98wMoney.png"
-                ],
-                "threshold": [
-                    0.94
+                "roi": "SeizeEntrustTaskFoundGoodMoneyF2",
+                "expected": [
+                    "7.98",
+                    "798",
+                    "98"
                 ]
             }
         },
@@ -93,13 +93,33 @@
                 ]
             }
         },
+        "pre_wait_freezes": 100,
+        "post_wait_freezes": 100,
         "timeout": 3000,
         "next": [
-            "SeizeEntrustTaskFoundGoodMoney"
+            "SeizeEntrustTaskFoundGoodMoneyF2"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "找到7.98万武陵城订单！"
         }
+    },
+    "SeizeEntrustTaskFoundGoodMoneyF2": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": [
+                    "SeizeEntrustTask/7.98wMoney.png"
+                ],
+                "threshold": [
+                    0.94
+                ]
+            }
+        },
+        "timeout": 3000,
+        "next": [
+            "SeizeEntrustTaskFoundGoodMoney",
+            "SeizeEntrustTaskNews"
+        ]
     },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
         "desc": "进入运送委托列表",
