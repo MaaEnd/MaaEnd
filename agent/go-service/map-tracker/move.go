@@ -693,9 +693,10 @@ func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
 
 	previewMapCache.mu.Lock()
 	previewMapCache.key = mapPath
-	previewMapCache.img = minicv.ImageConvertRGBA(decoded)
+	img := minicv.ImageConvertRGBA(decoded)
+	previewMapCache.img = img
 	previewMapCache.mu.Unlock()
-	return previewMapCache.img, nil
+	return img, nil
 }
 
 func calcNavigationPreviewGeometry(focusPoints [][2]float64, currentX, currentY float64, canvasSize int, minSize int, maxSize int) (
