@@ -236,6 +236,8 @@
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "傳送完成後將走到倉儲節點，開啟此選項需要使用前台控制器，注意有可能落水！！！",
     "task.AutoUseSpMedication.description": "自動使用一次應急理智加強劑(+40理智)",
     "task.AutoUseSpMedication.label": "💊應急理智加強劑",
+    "option.UseAllExpireSoonMedication.label": "使用所有即將過期的應急理智強化劑",
+    "option.UseAllExpireSoonMedication.description": "使用所有時限小於三天的應急理智強化劑，即時限變紅的應急理智藥",
     "group.daily.label": "日常事務",
     "group.daily.description": "上線後常用的領獎、基建、經營與養成任務",
     "group.realtime.label": "實時輔助",

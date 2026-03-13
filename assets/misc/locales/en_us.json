@@ -382,6 +382,8 @@
     "task.SeizeEntrustTaskisWalkingToDepotNode.description": "After teleporting, will walk to the depot node. Requires Foreground Controller. Warning: may fall into water!!!",
     "task.AutoUseSpMedication.description": "Automatically use one emergency sanity booster (+40 sanity)",
     "task.AutoUseSpMedication.label": "💊 Emergency Sanity Booster",
+    "option.UseAllExpireSoonMedication.label": "Use all soon-to-expire emergency sanity boosters",
+    "option.UseAllExpireSoonMedication.description": "Use all emergency sanity boosters with less than three days remaining (timer turns red).",
     "group.daily.label": "Daily Routine",
     "group.daily.description": "Common reward, base, trading, and progression tasks for regular logins.",
     "group.realtime.label": "Real-time Assist",

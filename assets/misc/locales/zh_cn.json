@@ -382,6 +382,8 @@
     "option.DailyTaskCreation.desc": "自动一次制作来刷活跃度",
     "task.AutoUseSpMedication.description": "自动使用一次应急理智加强剂(+40理智)",
     "task.AutoUseSpMedication.label": "💊应急理智加强剂",
+    "option.UseAllExpireSoonMedication.label": "使用所有要过期的应急理智加强剂",
+    "option.UseAllExpireSoonMedication.description": "使用所有时限小于三天的应急理智加强剂，即时限变红的应急理智药",
     "group.daily.label": "日常事务",
     "group.daily.description": "上线后常用的领奖、基建、经营与养成任务",
     "group.realtime.label": "实时辅助",

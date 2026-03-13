@@ -382,6 +382,8 @@
     "option.BatchAddFriends.inputs.MaxCount.description": "指定数に達したら停止",
     "task.AutoUseSpMedication.description": "緊急理智強化剤を1つ自動で使用する（+40理智）",
     "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
+    "option.UseAllExpireSoonMedication.label": "期限切れ間近の緊急理智強化剤をすべて使用",
+    "option.UseAllExpireSoonMedication.description": "残り3日未満（タイマーが赤くなる）の緊急理智強化剤をすべて使用します。",
     "group.daily.label": "日常タスク",
     "group.daily.description": "ログイン後によく使う報酬受取・基地・経営・育成タスク。",
     "group.realtime.label": "リアルタイム補助",

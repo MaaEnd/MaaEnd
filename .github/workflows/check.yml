@@ -8,6 +8,8 @@ on:
       - ".github/workflows/check.yml"
       - "assets/**"
       - "tools/schema/**"
+      - "package.json"
+      - "maatools.config.mts"
   pull_request:
     branches:
       - "**"
@@ -15,6 +17,8 @@ on:
       - ".github/workflows/check.yml"
       - "assets/**"
       - "tools/schema/**"
+      - "package.json"
+      - "maatools.config.mts"
   workflow_dispatch:
 
 jobs:
