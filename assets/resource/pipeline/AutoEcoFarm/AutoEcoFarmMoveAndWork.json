@@ -110,7 +110,11 @@
         //最大连跑60秒，超过就直接结束任务
         "max_hit": 120,
         "next": [
-            //识别失败的情况下判断是否还在农场内，如果不在则证明跑出农场了，结束该子任务
+            //识别设备界面，有的话关了
+            "[JumpBack]_AutoEcoFarmCloseEquipment",
+            //识别肥料界面，有的话关了
+            "[JumpBack]_AutoEcoFarmCloseFertilizer",
+            //识别工作按钮并点击
             "_AutoEcoFarmFindMenuIcon",
             //第二次保障，判断标记还在不在
             "_AutoEcoFarmTargetExists",
@@ -142,6 +146,42 @@
         "next": [
             "_AutoEcoFarmJump"
         ]
+    },
+    "_AutoEcoFarmCloseEquipment": {
+        "desc": "识别到设备界面则关掉,带Jumpback",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1081,
+                    107,
+                    68,
+                    63
+                ],
+                "template": "AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund.png",
+                "threshold": 0.7
+            }
+        },
+        "action": "Click",
+        "next": ["_AutoEcoFarmJumpBack"]
+    },
+    "_AutoEcoFarmCloseFertilizer": {
+        "desc": "识别到肥料界面则关掉,带Jumpback",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1074,
+                    147,
+                    37,
+                    31
+                ],
+                "template": "AutoEcoFarm/AutoecofarmWhitecloseblackgrouund.png",
+                "threshold": 0.7
+            }
+        },
+        "action": "Click",
+        "next": ["_AutoEcoFarmJumpBack"]
     },
     "_AutoEcoFarmInAnyFarm": {
         "desc": "确认是否在任意农场内,还在的话继续循环",
@@ -252,25 +292,10 @@
                 "key": 18 //alt键
             }
         },
-        "post_delay": 0,
-        "next": [
-            "_AutoEcoFarmStopToWork"
-        ]
-    },
-    "_AutoEcoFarmStopToWork": {
-        "desc": "松开w防止有bug导致在移动状态",
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 87 //w键
-            }
-        },
         //每次操作后休息30秒等队友完成工作
         "post_delay": 30000,
         "next": [
-            //第二个循环，这个循环有标记就点标记回循环，没有标记就继续移动
-            "_AutoEcoFarmFindMenuIcon",
-            "_AutoEcoFarmJump"
+            "_AutoEcoFarmFindMenuLoop"
         ],
         "focus": {
             "Node.Action.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
