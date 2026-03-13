@@ -341,9 +341,16 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Show finished UI summary
 	if !param.NoPrint {
+		finishedX, finishedY := 0.0, 0.0
+		if len(param.Path) > 0 {
+			finishedX, finishedY = param.Path[len(param.Path)-1][0], param.Path[len(param.Path)-1][1]
+		}
+		if finalInfer, err := doInfer(ctx, ctrl, param); err == nil && finalInfer != nil {
+			finishedX, finishedY = finalInfer.X, finalInfer.Y
+		}
 		maafocus.NodeActionStarting(
 			aw.ctx,
-			fmt.Sprintf(navigationFinishedHTML, len(param.Path)),
+			a.buildNavigationFinishedHTML(param, finishedX, finishedY),
 		)
 	}
 
@@ -528,10 +535,9 @@ func (a *MapTrackerMove) buildNavigationMovingHTML(
 	targetX float64,
 	targetY float64,
 ) string {
-	startBuildingTime := time.Now()
 	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
 
-	html := fmt.Sprintf(navigationMovingHTML,
+	return fmt.Sprintf(navigationMovingHTML,
 		targetIndex+1,
 		len(param.Path),
 		currentX,
@@ -540,8 +546,27 @@ func (a *MapTrackerMove) buildNavigationMovingHTML(
 		targetY,
 		previewImageURL,
 	)
-	log.Debug().Dur("htmlBuildTime", time.Since(startBuildingTime)).Int("htmlLength", len(html)).Msg("Built navigation moving HTML")
-	return html
+}
+
+func (a *MapTrackerMove) buildNavigationFinishedHTML(param *MapTrackerMoveParam, currentX, currentY float64) string {
+	targetX, targetY := currentX, currentY
+	targetIndex := 0
+	if len(param.Path) > 0 {
+		targetIndex = len(param.Path) - 1
+		targetX = param.Path[targetIndex][0]
+		targetY = param.Path[targetIndex][1]
+	}
+
+	previewImageURL := buildNavigationPreviewDataURL(param.Path, targetIndex, param.MapName, currentX, currentY, targetX, targetY)
+
+	return fmt.Sprintf(
+		navigationFinishedHTML,
+		len(param.Path),
+		len(param.Path),
+		currentX,
+		currentY,
+		previewImageURL,
+	)
 }
 
 func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName string, currentX, currentY, targetX, targetY float64) string {

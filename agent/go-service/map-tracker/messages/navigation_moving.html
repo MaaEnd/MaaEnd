@@ -3,6 +3,9 @@
     div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-moving) {
       display: none !important;
     }
+    div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-finished) {
+      display: none !important;
+    }
   </style>
   <div style="font-size:1.0em; font-weight:700; color:#2b62c0;">下一个路径点（%d/%d）</div>
   <div style="font-size:0.88em; margin-top:6px; color:#333333;">当前：%.1f, %.1f</div>
