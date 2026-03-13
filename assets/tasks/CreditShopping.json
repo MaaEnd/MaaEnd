@@ -1,7 +1,7 @@
 {
     "task": [
         {
-            "name": "CreditShoppingNew",
+            "name": "CreditShoppingN2",
             "label": "$task.CreditShopping.label",
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
@@ -12,7 +12,9 @@
                 "CreditShoppingReserve",
                 "CreditShoppingOtherItems"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {

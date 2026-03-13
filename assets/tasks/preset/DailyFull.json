@@ -14,13 +14,13 @@
                 {
                     "name": "DijiangRewards",
                     "option": {
-                        "AutoStartExchange": "Yes",
+                        "AutoStartExchange": "No",
                         "ProductionAssistanceWithoutTheControlNexus": "No",
                         "ClueStockLimit": "3"
                     }
                 },
                 {
-                    "name": "CreditShoppingNew",
+                    "name": "CreditShoppingN2",
                     "option": {
                         "AutoGetCredits": "Yes",
                         "CreditShoppingForce": "IgnoreBlackList",
