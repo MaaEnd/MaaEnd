@@ -459,5 +459,10 @@
     "resource/image/MapLocator/Wuling/Lv003Tier295": "3ae9bd45089a7fdbe5625da6d90df3e0dd1cd346f19612d53f81366d117a99f3",
     "resource/image/MapLocator/Wuling/Lv003Tier298": "229b85449f0c127b56687e2b22acdf4fb80c26a32aceca60266e16368ef1e62d",
     "resource/image/MapLocator/Wuling/Lv003Tier299": "570c08abe5c13592ad77407f553d4911b32aed17e7f4533f0e1ddde6dc59b54d",
-    "resource/image/SeizeEntrustTask/7.98wMoney": "2ba7b3168e256b246face9d3e48033abe99bcf45a8e067d909ddce3b4b09c343"
+    "resource/image/SeizeEntrustTask/7.98wMoney": "2ba7b3168e256b246face9d3e48033abe99bcf45a8e067d909ddce3b4b09c343",
+    "resource/image/Valuables/EmergencySpBoosterExpireSoon": "8f45e8bc39572ae399a1b16d20e564d005e611a01ebbb4bc4f1f33a37e7f9988",
+    "resource/image/Valuables/DisabledAddButton": "5efaa82a3fd827977f017efef5dd2dba8ddd346f112bc8d2c01147fc5a78385e",
+    "resource/image/Valuables/AddButton": "fc7a19f0ae3073b8aac745ebf2e3c7d6d2ed4e12353e991eb509edc6d38727f1",
+    "resource/image/Valuables/EmergencySpBooster": "b217195968afc25c06f10b65f9357ed59f3fc746a91cda12478892efe6a2dd20",
+    "resource/image/Valuables/ExpireSoon": "4dd4d93dfa5cd8518f3f25143814c8f144c32b6bc817dccaf12d0fd11aa23083"
 }
