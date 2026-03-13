@@ -384,7 +384,7 @@
     "task.AutoUseSpMedication.label": "💊緊急理智強化剤",
     "task.AutoCollect.description": "フィールド資源を自動採集します",
     "task.AutoCollect.label": "🧺資源自動収集",
-    "option.AutoCollectThornyYazhen.label": "荊刺芽針を採集",
+    "option.AutoCollectRoute1.label": "採集ルート1",
     "group.daily.label": "日常タスク",
     "group.daily.description": "ログイン後によく使う報酬受取・基地・経営・育成タスク。",
     "group.realtime.label": "リアルタイム補助",

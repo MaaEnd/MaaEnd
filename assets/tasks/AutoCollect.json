@@ -3,17 +3,17 @@
         {
             "name": "AutoCollect",
             "label": "$task.AutoCollect.label",
-            "entry": "AutoCollectStart",
+            "entry": "AutoCollectRoute1Start",
             "description": "$task.AutoCollect.description",
             "option": [
-                "AutoCollectThornyYazhen"
+                "AutoCollectRoute1"
             ]
         }
     ],
     "option": {
-        "AutoCollectThornyYazhen": {
+        "AutoCollectRoute1": {
             "type": "switch",
-            "label": "$option.AutoCollectThornyYazhen.label",
+            "label": "$option.AutoCollectRoute1.label",
             "cases": [
                 {
                     "name": "Yes",

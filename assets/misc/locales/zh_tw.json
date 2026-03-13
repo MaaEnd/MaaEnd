@@ -238,7 +238,7 @@
     "task.AutoUseSpMedication.label": "💊應急理智加強劑",
     "task.AutoCollect.description": "自動採集野外資源",
     "task.AutoCollect.label": "🧺自動收集資源",
-    "option.AutoCollectThornyYazhen.label": "採集荊刺芽針",
+    "option.AutoCollectRoute1.label": "採集路線1",
     "group.daily.label": "日常事務",
     "group.daily.description": "上線後常用的領獎、基建、經營與養成任務",
     "group.realtime.label": "實時輔助",

@@ -1,15 +1,15 @@
 {
-    "CollectThornyYazhenStart": {
+    "AutoCollectRoute1Start": {
         "next": [
-            "CollectThornyYazhenAssertLocation",
+            "AutoCollectRoute1AssertLocation",
             "[JumpBack]SceneEnterWorldWulingWulingCity4"
         ]
     },
-    "CollectThornyYazhenEnd": {
+    "AutoCollectRoute1End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "CollectThornyYazhenAssertLocation": {
+    "AutoCollectRoute1AssertLocation": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -21,8 +21,8 @@
                             "target": [
                                 246,
                                 699,
-                                15,
-                                15
+                                30,
+                                30
                             ]
                         }
                     ]
@@ -31,39 +31,29 @@
         },
         "desc": "传送到收集地",
         "next": [
-            "GotoThornyYazhenFind1"
+            "AutoCollectRoute1GotoFind1"
         ]
     },
-    "GotoThornyYazhenFind1": {
+    "AutoCollectRoute1GotoFind1": {
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapNavigateAction",
+                "custom_action": "MapTrackerMove",
                 "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "arrival_threshold": 0.3,
                     "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
                         [
-                            243,
-                            690,
-                            true
+                            247.3,
+                            703.9
                         ],
                         [
-                            243,
-                            694,
-                            true
+                            272.0,
+                            703.2
                         ],
                         [
-                            261,
-                            694,
-                            true
-                        ],
-                        [
-                            261,
-                            701,
-                            true
+                            273.9,
+                            710.6
                         ]
                     ]
                 }
@@ -71,8 +61,8 @@
         },
         "desc": "前往收集地1",
         "next": [
-            "[JumpBack]ClickThornyYazhenStart",
-            "CollectThornyYazhenEnd"
+            "[JumpBack]AutoCollectClickStart",
+            "AutoCollectRoute1End"
         ]
     }
 }

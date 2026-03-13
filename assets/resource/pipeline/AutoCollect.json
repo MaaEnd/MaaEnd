@@ -17,10 +17,10 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "CollectThornyYazhenStart"
+            "AutoCollectRoute1Start"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "$option.AutoCollectThornyYazhen.label"
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
         }
     }
 }
