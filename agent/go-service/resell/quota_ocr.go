@@ -19,13 +19,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 	b = -1
 
 	// Region 1: 配额当前值 "x/y" 格式，由 Pipeline expected 过滤
-	detail1, err := ctx.RunRecognition("ResellROIQuotaCurrent", img, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for region 1")
-		return x, y, hoursLater, b
-	}
-	if text := extractOCRText(detail1); text != "" {
-		log.Info().Msgf("Quota region 1 OCR: %s", text)
+	if text := recognizeText(ctx, img, "ResellROIQuotaCurrent"); text != "" {
 		parts := strings.Split(text, "/")
 		if len(parts) >= 2 {
 			if val, ok := extractIntegerFromText(parts[0]); ok {
@@ -40,10 +34,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 
 	// Region 2: 配额下次增加，依次尝试三个 Pipeline 节点（小时 / 分钟 / 兜底）
 	// 尝试 "a小时后+b" 格式
-	if detail2h, err := ctx.RunRecognition("ResellROIQuotaNextAddHours", img, nil); err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for region 2 (hours)")
-	} else if text := extractOCRText(detail2h); text != "" {
-		log.Info().Msgf("Quota region 2 OCR (hours): %s", text)
+	if text := recognizeText(ctx, img, "ResellROIQuotaNextAddHours"); text != "" {
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
 			if val, ok := extractIntegerFromText(parts[0]); ok {
@@ -58,10 +49,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 	}
 
 	// 尝试 "a分钟后+b" 格式
-	if detail2m, err := ctx.RunRecognition("ResellROIQuotaNextAddMinutes", img, nil); err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for region 2 (minutes)")
-	} else if text := extractOCRText(detail2m); text != "" {
-		log.Info().Msgf("Quota region 2 OCR (minutes): %s", text)
+	if text := recognizeText(ctx, img, "ResellROIQuotaNextAddMinutes"); text != "" {
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
 			if val, ok := extractIntegerFromText(parts[1]); ok {
@@ -74,10 +62,7 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 	}
 
 	// 兜底：仅匹配 "+b"
-	if detail2f, err := ctx.RunRecognition("ResellROIQuotaNextAddFallback", img, nil); err != nil {
-		log.Error().Err(err).Msg("Failed to run recognition for region 2 (fallback)")
-	} else if text := extractOCRText(detail2f); text != "" {
-		log.Info().Msgf("Quota region 2 OCR (fallback): %s", text)
+	if text := recognizeText(ctx, img, "ResellROIQuotaNextAddFallback"); text != "" {
 		parts := strings.Split(text, "+")
 		if len(parts) >= 2 {
 			if val, ok := extractIntegerFromText(parts[len(parts)-1]); ok {
@@ -89,4 +74,43 @@ func ocrAndParseQuota(ctx *maa.Context, img image.Image) (x int, y int, hoursLat
 	}
 
 	return x, y, hoursLater, b
+}
+
+// recognizeText 运行一个 OCR 识别节点，并返回首个非空 OCR 文本。
+func recognizeText(ctx *maa.Context, img image.Image, nodeName string) string {
+	if ctx == nil {
+		log.Error().
+			Str("node", nodeName).
+			Msg("recognition context is nil")
+		return ""
+	}
+	if img == nil {
+		log.Error().
+			Str("node", nodeName).
+			Msg("recognition image is nil")
+		return ""
+	}
+
+	detail, err := ctx.RunRecognition(nodeName, img, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("node", nodeName).
+			Msg("failed to run recognition")
+		return ""
+	}
+
+	text := extractOCRText(detail)
+	if text == "" {
+		log.Debug().
+			Str("node", nodeName).
+			Msg("recognition returned empty OCR text")
+		return ""
+	}
+
+	log.Info().
+		Str("node", nodeName).
+		Str("text", text).
+		Msg("recognition OCR text")
+	return text
 }
