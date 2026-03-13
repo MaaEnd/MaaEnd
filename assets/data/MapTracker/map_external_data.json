@@ -1,0 +1,29 @@
+{
+    "base01_lv003": {
+        "scene_manager_node": "SceneEnterMapDijiang"
+    },
+    "map01_lv001": {
+        "scene_manager_node": "SceneEnterMapValleyIVTheHub"
+    },
+    "map01_lv002": {
+        "scene_manager_node": "SceneEnterMapValleyIVValleyPass"
+    },
+    "map01_lv003": {
+        "scene_manager_node": "SceneEnterMapValleyIVAburreyQuarry"
+    },
+    "map01_lv005": {
+        "scene_manager_node": "SceneEnterMapValleyIVOriginiumSciencePark"
+    },
+    "map01_lv006": {
+        "scene_manager_node": "SceneEnterMapValleyIVOriginLodespring"
+    },
+    "map01_lv007": {
+        "scene_manager_node": "SceneEnterMapValleyIVPowerPlateau"
+    },
+    "map02_lv001": {
+        "scene_manager_node": "SceneEnterMapWulingJingyuValley"
+    },
+    "map02_lv002": {
+        "scene_manager_node": "SceneEnterMapWulingWulingCity"
+    }
+}

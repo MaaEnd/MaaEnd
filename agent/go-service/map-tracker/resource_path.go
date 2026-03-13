@@ -4,6 +4,7 @@ package maptracker
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -51,25 +52,62 @@ func getResourceBase() string {
 
 // findResource tries to find a file in the cached resource path or standard fallbacks
 func findResource(relativePath string) string {
-	// 1. Try cached path from sink
-	if base := getResourceBase(); base != "" {
-		path := filepath.Join(base, relativePath)
+	rel := filepath.FromSlash(strings.TrimSpace(relativePath))
+	rel = strings.TrimPrefix(rel, string(filepath.Separator))
+	relNoResourcePrefix := strings.TrimPrefix(rel, "resource"+string(filepath.Separator))
+
+	tryPath := func(path string) string {
+		if path == "" {
+			return ""
+		}
 		if _, err := os.Stat(path); err == nil {
 			return path
 		}
+		return ""
+	}
+
+	candidates := make([]string, 0, 18)
+
+	// 1. Try cached path from sink
+	if base := getResourceBase(); base != "" {
+		base = filepath.Clean(base)
+		baseParent := filepath.Dir(base)
+
+		candidates = append(candidates,
+			filepath.Join(base, rel),
+			filepath.Join(base, relNoResourcePrefix),
+			filepath.Join(baseParent, rel),
+		)
 	}
 
 	// 2. Try standard resource directories relative to CWD
 	cwd, _ := os.Getwd()
+	wd := filepath.Clean(cwd)
+	wdParent := filepath.Dir(wd)
+	wdGrandParent := filepath.Dir(wdParent)
+
 	fallbacks := []string{
-		filepath.Join(cwd, "resource"),
-		"resource",
+		wd,
+		wdParent,
+		wdGrandParent,
+		filepath.Join(wd, "resource"),
+		filepath.Join(wdParent, "resource"),
+		filepath.Join(wdGrandParent, "resource"),
+		filepath.Join(wd, "assets"),
+		filepath.Join(wdParent, "assets"),
+		filepath.Join(wdGrandParent, "assets"),
 	}
 
 	for _, base := range fallbacks {
-		path := filepath.Join(base, relativePath)
-		if _, err := os.Stat(path); err == nil {
-			return path
+		candidates = append(candidates,
+			filepath.Join(base, rel),
+			filepath.Join(base, relNoResourcePrefix),
+		)
+	}
+
+	for _, p := range candidates {
+		if found := tryPath(filepath.Clean(p)); found != "" {
+			return found
 		}
 	}
 
