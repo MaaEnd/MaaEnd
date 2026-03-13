@@ -16,11 +16,9 @@
         ]
     },
     "CreditShoppingInit": {
-        "desc": "初始化信用购物参数（仅执行一次）",
+        "desc": "初始化信用购物参数（兼容节点）",
         "max_hit": 1,
         "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "CreditShoppingParseParams",
         "next": [
             "CreditShoppingScanItem"
         ]

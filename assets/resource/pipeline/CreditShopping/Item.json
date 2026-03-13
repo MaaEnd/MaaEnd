@@ -79,45 +79,45 @@
     },
     "BuyFirstOCR": {
         "desc": "按用户指定顺序购买",
-        "recognition": "OCR",
-        "roi": "CanAfford",
-        "roi_offset": [
-            -89,
-            36,
-            66,
-            4
-        ],
-        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
-        "only_rec": true,
-        "order_by": "Vertical"
+        "recognition": "Or",
+        "any_of": [
+            "BuyFirstOCR_Oroberyl",
+            "BuyFirstOCR_ArsenalTicket",
+            "BuyFirstOCR_TCreds",
+            "BuyFirstOCR_ElementaryCognitiveCarrier",
+            "BuyFirstOCR_ArmsInspector",
+            "BuyFirstOCR_ArmsINSPKit",
+            "BuyFirstOCR_Protoprism",
+            "BuyFirstOCR_Protohedron"
+        ]
     },
     "BuyFirstOCR_CanNotAfford": {
         "desc": "有商品,但是买不起",
-        "recognition": "OCR",
-        "roi": "CanNotAfford",
-        "roi_offset": [
-            -89,
-            36,
-            66,
-            4
-        ],
-        "expected": "^(嵌晶玉|武库配额|折金票)$", //这里是具体执行参数
-        "only_rec": true,
-        "order_by": "Vertical"
+        "recognition": "Or",
+        "any_of": [
+            "BuyFirstOCR_CanNotAfford_Oroberyl",
+            "BuyFirstOCR_CanNotAfford_ArsenalTicket",
+            "BuyFirstOCR_CanNotAfford_TCreds",
+            "BuyFirstOCR_CanNotAfford_ElementaryCognitiveCarrier",
+            "BuyFirstOCR_CanNotAfford_ArmsInspector",
+            "BuyFirstOCR_CanNotAfford_ArmsINSPKit",
+            "BuyFirstOCR_CanNotAfford_Protoprism",
+            "BuyFirstOCR_CanNotAfford_Protohedron"
+        ]
     },
     "BlacklistOCR": {
         "desc": "不是黑名单物品",
-        "recognition": "OCR",
-        "roi": "CanAfford",
-        "roi_offset": [
-            -89,
-            36,
-            66,
-            4
-        ],
-        "expected": "^(?!(协议棱柱组)$).*$", //这里是具体执行参数，匹配价格位置非空的商品
-        "only_rec": true,
-        "order_by": "Vertical"
+        "recognition": "Or",
+        "any_of": [
+            "BlacklistOCR_Oroberyl",
+            "BlacklistOCR_ArsenalTicket",
+            "BlacklistOCR_TCreds",
+            "BlacklistOCR_ElementaryCognitiveCarrier",
+            "BlacklistOCR_ArmsInspector",
+            "BlacklistOCR_ArmsINSPKit",
+            "BlacklistOCR_Protoprism",
+            "BlacklistOCR_Protohedron"
+        ]
     },
     "IsDiscount": {
         "desc": "有折扣",

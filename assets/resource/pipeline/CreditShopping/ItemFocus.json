@@ -1,0 +1,349 @@
+{
+    "BuyFirstOCR_Oroberyl": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_TCreds": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_Protoprism": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_Protohedron": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_Oroberyl": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_TCreds": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_Protoprism": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BuyFirstOCR_CanNotAfford_Protohedron": {
+        "recognition": "OCR",
+        "roi": "CanNotAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_Oroberyl": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "嵌晶玉",
+            "嵌晶玉",
+            "Oroberyl",
+            "赤晶玉"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "武库配额",
+            "武庫配額",
+            "Arsenal Ticket",
+            "武庫配給"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_TCreds": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "折金票",
+            "折金票",
+            "T-Creds",
+            "折金券"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "初级认知载体",
+            "初級認知載體",
+            "Elementary Cognitive Carrier",
+            "初級認識媒体"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "武器检查单元",
+            "武器檢查單元",
+            "Arms Inspector",
+            "武器検査ユニット"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "武器检查装置",
+            "武器檢查裝置",
+            "Arms INSP Kit",
+            "武器検査セット"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_Protoprism": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": [
+            "协议棱柱",
+            "協議稜柱",
+            "Protoprism",
+            "協約角柱"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
+    "BlacklistOCR_Protohedron": {
+        "recognition": "OCR",
+        "roi": "CanAfford",
+        "roi_offset": [
+            -89,
+            36,
+            66,
+            4
+        ],
+        "expected": "a^",
+        "only_rec": true,
+        "order_by": "Vertical"
+    }
+}

@@ -29,25 +29,21 @@
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "BuyFirstOCR_Oroberyl": {
+                            "expected": [
+                                "嵌晶玉",
+                                "嵌晶玉",
+                                "Oroberyl",
+                                "赤晶玉"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_Oroberyl": {
+                            "expected": [
+                                "嵌晶玉",
+                                "嵌晶玉",
+                                "Oroberyl",
+                                "赤晶玉"
+                            ]
                         }
                     }
                 },
@@ -55,25 +51,21 @@
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "BuyFirstOCR_ArsenalTicket": {
+                            "expected": [
+                                "武库配额",
+                                "武庫配額",
+                                "Arsenal Ticket",
+                                "武庫配給"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_ArsenalTicket": {
+                            "expected": [
+                                "武库配额",
+                                "武庫配額",
+                                "Arsenal Ticket",
+                                "武庫配給"
+                            ]
                         }
                     }
                 },
@@ -81,25 +73,21 @@
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "BuyFirstOCR_TCreds": {
+                            "expected": [
+                                "折金票",
+                                "折金票",
+                                "T-Creds",
+                                "折金券"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_TCreds": {
+                            "expected": [
+                                "折金票",
+                                "折金票",
+                                "T-Creds",
+                                "折金券"
+                            ]
                         }
                     }
                 },
@@ -107,25 +95,21 @@
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "BuyFirstOCR_ElementaryCognitiveCarrier": {
+                            "expected": [
+                                "初级认知载体",
+                                "初級認知載體",
+                                "Elementary Cognitive Carrier",
+                                "初級認識媒体"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_ElementaryCognitiveCarrier": {
+                            "expected": [
+                                "初级认知载体",
+                                "初級認知載體",
+                                "Elementary Cognitive Carrier",
+                                "初級認識媒体"
+                            ]
                         }
                     }
                 },
@@ -133,25 +117,21 @@
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "BuyFirstOCR_ArmsInspector": {
+                            "expected": [
+                                "武器检查单元",
+                                "武器檢查單元",
+                                "Arms Inspector",
+                                "武器検査ユニット"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_ArmsInspector": {
+                            "expected": [
+                                "武器检查单元",
+                                "武器檢查單元",
+                                "Arms Inspector",
+                                "武器検査ユニット"
+                            ]
                         }
                     }
                 },
@@ -159,25 +139,21 @@
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "BuyFirstOCR_ArmsINSPKit": {
+                            "expected": [
+                                "武器检查装置",
+                                "武器檢查裝置",
+                                "Arms INSP Kit",
+                                "武器検査セット"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_ArmsINSPKit": {
+                            "expected": [
+                                "武器检查装置",
+                                "武器檢查裝置",
+                                "Arms INSP Kit",
+                                "武器検査セット"
+                            ]
                         }
                     }
                 },
@@ -185,25 +161,21 @@
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "BuyFirstOCR_Protoprism": {
+                            "expected": [
+                                "协议棱柱",
+                                "協議稜柱",
+                                "Protoprism",
+                                "協約角柱"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_Protoprism": {
+                            "expected": [
+                                "协议棱柱",
+                                "協議稜柱",
+                                "Protoprism",
+                                "協約角柱"
+                            ]
                         }
                     }
                 },
@@ -211,25 +183,21 @@
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "BuyFirstOCR_Protohedron": {
+                            "expected": [
+                                "协议棱柱组",
+                                "協議稜柱組",
+                                "Protohedron",
+                                "協約角柱セット"
+                            ]
                         },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "BuyFirstOCR_CanNotAfford_Protohedron": {
+                            "expected": [
+                                "协议棱柱组",
+                                "協議稜柱組",
+                                "Protohedron",
+                                "協約角柱セット"
+                            ]
                         }
                     }
                 }
@@ -244,15 +212,8 @@
                     "name": "Oroberyl",
                     "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
+                        "BlacklistOCR_Oroberyl": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -260,15 +221,8 @@
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "arsenal_ticket": [
-                                    "武库配额",
-                                    "武庫配額",
-                                    "Arsenal Ticket",
-                                    "武庫配給"
-                                ]
-                            }
+                        "BlacklistOCR_ArsenalTicket": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -276,15 +230,8 @@
                     "name": "TCreds",
                     "label": "$option.CreditShoppingItems.cases.TCreds.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "t_creds": [
-                                    "折金票",
-                                    "折金票",
-                                    "T-Creds",
-                                    "折金券"
-                                ]
-                            }
+                        "BlacklistOCR_TCreds": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -292,15 +239,8 @@
                     "name": "ElementaryCognitiveCarrier",
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "elementary_cognitive_carrier": [
-                                    "初级认知载体",
-                                    "初級認知載體",
-                                    "Elementary Cognitive Carrier",
-                                    "初級認識媒体"
-                                ]
-                            }
+                        "BlacklistOCR_ElementaryCognitiveCarrier": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -308,15 +248,8 @@
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "arms_inspector": [
-                                    "武器检查单元",
-                                    "武器檢查單元",
-                                    "Arms Inspector",
-                                    "武器検査ユニット"
-                                ]
-                            }
+                        "BlacklistOCR_ArmsInspector": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -324,15 +257,8 @@
                     "name": "ArmsINSPKit",
                     "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
+                        "BlacklistOCR_ArmsINSPKit": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -340,15 +266,8 @@
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
+                        "BlacklistOCR_Protoprism": {
+                            "expected": "a^"
                         }
                     }
                 },
@@ -356,15 +275,8 @@
                     "name": "Protohedron",
                     "label": "$option.CreditShoppingItems.cases.Protohedron.label",
                     "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "protohedron": [
-                                    "协议棱柱组",
-                                    "協議稜柱組",
-                                    "Protohedron",
-                                    "協約角柱セット"
-                                ]
-                            }
+                        "BlacklistOCR_Protohedron": {
+                            "expected": "a^"
                         }
                     }
                 }
