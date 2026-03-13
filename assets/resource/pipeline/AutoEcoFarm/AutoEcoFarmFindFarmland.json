@@ -3,33 +3,39 @@
 //节点从Exit离开，这里关联下一个阶段的节点
 {
     //节点出入口
-    "_AutoEcoFarmFindFarmFarmlandValleyStart": {
+    "_AutoEcoFarmFindFarmlandValleyStart": {
         "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
-        "anchor": {"_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindValleyIVEcoFarm"},
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindValleyIVEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandValleyIVExit"
+        },
         "next": [
-            "_AutoEcoFarmFindFarmFarmlandOpenMap"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-    "_AutoEcoFarmFindFarmFarmlandWulinStart": {
+    "_AutoEcoFarmFindFarmlandWulinStart": {
         "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
-        "anchor": {"_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindWulinEcoFarm"},
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindWulinEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandWulinExit"
+        },
         "next": [
-            "_AutoEcoFarmFindFarmFarmlandOpenMap"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
 
-    "_AutoEcoFarmFindFarmFarmlandValleyIVExit": {
+    "_AutoEcoFarmFindFarmlandValleyIVExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetValleyIVStart"
         ]
     },
-    "_AutoEcoFarmFindFarmFarmlandWulinExit": {
+    "_AutoEcoFarmFindFarmlandWulinExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetWulinStart"
         ]
     },
     //内部节点
-    "_AutoEcoFarmFindFarmFarmlandOpenMap": {
+    "_AutoEcoFarmFindFarmlandOpenMap": {
         "desc": "先打开大地图",
         "next": [
             "_AutoEcoFarmInMap",
@@ -189,9 +195,9 @@
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse"
+            "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmIsMrarking": {
@@ -241,7 +247,7 @@
             }
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmSetTarget": {
@@ -268,7 +274,7 @@
             "type": "Click"
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmMutiSelection": {
