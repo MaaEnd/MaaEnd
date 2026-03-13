@@ -7,15 +7,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
                     "制造舱",
-                    "Production"
+                    "MFG ?CABIN"
                 ]
             }
         },
@@ -281,15 +280,14 @@
                 "roi": [
                     43,
                     0,
-                    96,
+                    165,
                     64
                 ],
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
-                    "制造舱",
-                    "Production"
+                    "MFG ?CABIN",
+                    "制造舱"
                 ]
             }
         },

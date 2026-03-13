@@ -66,6 +66,8 @@
                     "干员心情已满，无法使用助力",
                     "幹員心情已滿，無法使用助力",
                     "Cannot assist as operator mood is maxed",
+                    "Selected operator is at max mood",
+                    "No recovery required",
                     "オペレーターは体力が十分なため、サポートできません",
                     "干员心情已满",
                     "无法使用助力"
@@ -88,7 +90,7 @@
                 "roi": [
                     464,
                     138,
-                    278,
+                    370,
                     154
                 ],
                 "expected": [
