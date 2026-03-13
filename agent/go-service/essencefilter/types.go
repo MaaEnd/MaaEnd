@@ -118,6 +118,7 @@ var (
 	maxItemsPerRow     int
 	firstRowSwipeDone  bool // true after first row swipe is used
 	finalLargeScanUsed bool // true if final large scan has been used
+	swipeCalibrateRetry int  // 校准重试次数，防止死循环
 
 	// Current item's three skills cache
 	currentSkills      [3]string
