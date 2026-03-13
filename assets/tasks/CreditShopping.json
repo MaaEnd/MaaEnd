@@ -114,6 +114,102 @@
                     }
                 },
                 {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ElementaryCombatRecord": {
+                            "expected": [
+                                "初级作战记录",
+                                "初級作戰紀錄",
+                                "Elementary Combat Record",
+                                "初級作戦記録",
+                                "초급 작전 기록"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ElementaryCombatRecord": {
+                            "expected": [
+                                "初级作战记录",
+                                "初級作戰紀錄",
+                                "Elementary Combat Record",
+                                "初級作戦記録",
+                                "초급 작전 기록"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_IntermediateCombatRecord": {
+                            "expected": [
+                                "中级作战记录",
+                                "中級作戰紀錄",
+                                "Intermediate Combat Record",
+                                "中級作戦記録",
+                                "중급 작전 기록"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_IntermediateCombatRecord": {
+                            "expected": [
+                                "中级作战记录",
+                                "中級作戰紀錄",
+                                "Intermediate Combat Record",
+                                "中級作戦記録",
+                                "중급 작전 기록"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_CastDie": {
+                            "expected": [
+                                "强固模具",
+                                "強固模具",
+                                "Cast Die",
+                                "硬質金型",
+                                "모형 틀"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_CastDie": {
+                            "expected": [
+                                "强固模具",
+                                "強固模具",
+                                "Cast Die",
+                                "硬質金型",
+                                "모형 틀"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_HeavyCastDie": {
+                            "expected": [
+                                "重型强固模具",
+                                "重型強固模具",
+                                "Heavy Cast Die",
+                                "重硬質金型",
+                                "중형 모형 틀"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_HeavyCastDie": {
+                            "expected": [
+                                "重型强固模具",
+                                "重型強固模具",
+                                "Heavy Cast Die",
+                                "重硬質金型",
+                                "중형 모형 틀"
+                            ]
+                        }
+                    }
+                },
+                {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
@@ -240,6 +336,42 @@
                     "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
                     "pipeline_override": {
                         "BlacklistOCR_ElementaryCognitiveCarrier": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ElementaryCombatRecord": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_IntermediateCombatRecord": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_CastDie": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_HeavyCastDie": {
                             "expected": "a^"
                         }
                     }

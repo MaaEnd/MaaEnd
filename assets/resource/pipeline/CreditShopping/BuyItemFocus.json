@@ -91,6 +91,98 @@
             "CreditShoppingBuyFirstItem"
         ]
     },
+    "CreditShoppingBuyFirstItemOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ]
+    },
+    "CreditShoppingBuyFirstItemOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ]
+    },
+    "CreditShoppingBuyFirstItemOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ]
+    },
+    "CreditShoppingBuyFirstItemOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ]
+    },
     "CreditShoppingBuyFirstItemOCR_ArmsInspector": {
         "recognition": "OCR",
         "roi": [
@@ -102,8 +194,7 @@
         "expected": [
             "武器检查单元",
             "武器檢查單元",
-            "Arms Inspector",
-            "武器検査ユニット"
+            "Arms Inspector"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsInspector"
@@ -268,6 +359,99 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCognitiveCarrier"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ]
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ]
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ]
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ]
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型",
+            "중형 모형 틀"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
         },
         "next": [
             "CreditShoppingBuyFailed",
@@ -452,6 +636,98 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCognitiveCarrier"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ]
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ]
+    },
+    "CreditShoppingBuyBlacklistItemOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ]
+    },
+    "CreditShoppingBuyBlacklistItemOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        },
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ]
+    },
+    "CreditShoppingBuyBlacklistItemOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
         },
         "next": [
             "CreditShoppingBuyFailed",
