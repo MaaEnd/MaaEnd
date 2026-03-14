@@ -18,52 +18,30 @@ jobs:
     env:
       CURSOR_API_KEY: ${{ secrets.CURSOR_KEY }}
     steps:
+      - name: Determine issue number
+        id: number
+        run: |
+          if [[ "${{ github.event_name }}" == "issues" ]]; then
+            echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "ISSUE_NUMBER=${{ github.event.inputs.issue_number }}" >> $GITHUB_ENV
+          else
+            echo "Unknown trigger" && exit 1
+          fi
+
       - name: Request AI Analysis
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let issueNumber;
-            if (context.payload.issue) {
-              // Triggered by issue opened
-              issueNumber = context.payload.issue.number;
-            } else if (context.payload.inputs) {
-              // Triggered by workflow_dispatch
-              issueNumber = parseInt(context.payload.inputs.issue_number, 10);
-            } else {
-              core.setFailed('Unable to determine issue number from context.');
-              return;
+        shell: bash
+        run: |
+          curl --request POST \
+            --url https://api.cursor.com/v0/agents \
+            -u YOUR_API_KEY:${{ secrets.CURSOR_KEY }} \
+            --header 'Content-Type: application/json' \
+            --data '{
+            "prompt": {
+              "text": "请仔细阅读 ISSUE（#${{ steps.number.outputs.ISSUE_NUMBER }}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 \`git blame\` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请评论回复该 ISSUE，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。"
+            },
+            "model": "default",
+            "source": {
+              "repository": "https://github.com/MaaEnd/MaaEnd"
             }
-
-            const replyMessage = `@cursoragent 请仔细阅读当前 ISSUE（#${issueNumber}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 \`git blame\` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请基于你的分析，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。注意：你的最终输出将直接作为该 ISSUE 的评论，因此请确保内容专业、清晰，并包含必要的分析细节。`;
-
-            // 创建评论
-            const createCommentResponse = await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              body: replyMessage
-            });
-
-            console.log(`已向 Issue #${issueNumber} 发送 AI 分析请求`);
-
-            // 获取刚创建评论的全局节点 ID（用于 GraphQL）
-            const commentNodeId = createCommentResponse.data.node_id;
-
-            // 使用 GraphQL 将评论最小化（隐藏）并标记为 outdated
-            try {
-              await github.graphql(`
-                mutation MinimizeComment($commentId: ID!) {
-                  minimizeComment(input: {subjectId: $commentId, classifier: OUTDATED}) {
-                    minimizedComment {
-                      minimizedReason
-                    }
-                  }
-                }
-              `, {
-                commentId: commentNodeId
-              });
-              console.log('已将该指令评论隐藏并标记为 outdated');
-            } catch (graphQLError) {
-              core.warning(`无法隐藏评论：${graphQLError.message}，但这不影响 AI 分析功能`);
-            }
+          }'
