@@ -3,6 +3,7 @@ package resell
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -46,7 +47,7 @@ type ResellScanCostAction struct{}
 func (a *ResellScanCostAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	text := extractOCRText(arg.RecognitionDetail)
 	if text != "" {
-		if num, ok := extractNumbersFromText(text); ok {
+		if num, ok := extractIntegerFromText(text); ok {
 			setScanCostPrice(num)
 			log.Info().Int("costPrice", num).Msg("[Resell]详情页成本价已更新")
 		}
@@ -70,7 +71,7 @@ func (a *ResellScanFriendPriceAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
 		return true
 	}
-	salePrice, ok := extractNumbersFromText(text)
+	salePrice, ok := extractIntegerFromText(text)
 	if !ok {
 		log.Info().Str("text", text).Msg("[Resell]好友出售价区域无有效数字")
 		resellScanOverrideNext(ctx, arg.CurrentTaskName, rowIdx, col, false)
@@ -136,4 +137,13 @@ func computeNextScanPos(row, col int, breakRow bool) (nextRow, nextCol int, done
 		return row + 1, 1, false
 	}
 	return 0, 0, true
+}
+
+// MoveMouseSafe moves the mouse to a safe location (10, 10) to avoid blocking OCR
+func MoveMouseSafe(controller *maa.Controller) {
+	// Use PostClick to move mouse to a safe corner
+	// We use (10, 10) to avoid title bar buttons or window borders
+	controller.PostTouchMove(0, 10, 10, 0)
+	// Small delay to ensure mouse move completes
+	time.Sleep(50 * time.Millisecond)
 }
