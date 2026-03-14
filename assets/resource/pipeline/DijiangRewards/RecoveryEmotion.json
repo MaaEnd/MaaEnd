@@ -146,8 +146,11 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/LowEmotion.png",
-                    "ClaimDijiangRewards/NormalEmotion.png",
-                    "ClaimDijiangRewards/HighEmotion.png"
+                    "ClaimDijiangRewards/NormalEmotion.png"
+                ],
+                "threshold": [
+                    0.8,
+                    0.8
                 ],
                 "order_by": "Vertical"
             }
