@@ -582,13 +582,13 @@
             "param": {
                 "begin": [
                     135,
-                    290
+                    191
                 ],
                 "end": [
                     135,
                     75
                 ],
-                "end_hold": 150,
+                "end_hold": 700,
                 "duration": 100
             }
         },
@@ -604,14 +604,14 @@
             "param": {
                 "begin": [
                     135,
-                    290
+                    191
                 ],
                 "end": [
                     135,
                     76
                 ],
-                "end_hold": 150,
-                "duration": 100
+                "end_hold": 700,
+                "duration": 500
             }
         },
         "post_delay": 200,
@@ -631,8 +631,7 @@
                 "end": [
                     135,
                     150
-                ],
-                "duration": 80
+                ]
             }
         },
         "post_delay": 150
