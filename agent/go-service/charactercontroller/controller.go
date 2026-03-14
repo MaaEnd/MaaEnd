@@ -162,7 +162,6 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 	if targetNotFoundCounter > 15 {
 		log.Warn().Int("counter", targetNotFoundCounter).Msg("target not found for too many times, stopping task")
 		targetNotFoundCounter = 0
-		ctx.GetTasker().PostStop()
 		return false
 	}
 
