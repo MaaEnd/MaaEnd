@@ -38,7 +38,6 @@ func registerAll() {
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
-
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }
