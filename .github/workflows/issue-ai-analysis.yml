@@ -38,7 +38,7 @@ jobs:
             --header 'Content-Type: application/json' \
             --data '{
             "prompt": {
-              "text": "请仔细阅读 ISSUE（#${{ steps.number.outputs.ISSUE_NUMBER }}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 `git blame` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请评论回复该 ISSUE，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。"
+              "text": "请仔细阅读 ISSUE（#${{ env.ISSUE_NUMBER }}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 `git blame` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请评论回复该 ISSUE，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。"
             },
             "model": "default",
             "source": {
