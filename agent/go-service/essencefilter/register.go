@@ -20,4 +20,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceFilterSwipeCalibrateAction", &EssenceFilterSwipeCalibrateAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterTraceAction", &EssenceFilterTraceAction{})
 	maa.AgentServerRegisterCustomAction("OCREssenceInventoryNumberAction", &OCREssenceInventoryNumberAction{})
+	maa.AgentServerRegisterCustomAction("AutoEssenceInstantFilterAction", &AutoEssenceInstantFilterAction{})
 }

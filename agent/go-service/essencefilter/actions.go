@@ -879,3 +879,245 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 	log.Info().Str("component", "EssenceFilter").Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("trace")
 	return true
 }
+
+// AutoEssenceInstantFilterAction - 即时识别并处理领取的基质
+// 在领取基质时立即识别并锁定/废弃，避免后续扫描整个背包
+type AutoEssenceInstantFilterAction struct{}
+
+func (a *AutoEssenceInstantFilterAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	log.Info().Str("component", "AutoEssenceInstantFilter").Msg("start instant filter")
+
+	// 1. 检查 EssenceFilter 是否已初始化
+	// 如果未初始化，尝试从 EssenceFilter 任务获取配置
+	opts, err := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	if err != nil || opts == nil {
+		// 如果无法获取配置，说明 EssenceFilter 未初始化，跳过即时识别
+		log.Info().Str("component", "AutoEssenceInstantFilter").Msg("EssenceFilter not initialized, skip instant filter")
+		return true // 返回 true 继续流程，不阻塞
+	}
+
+	// 2. 确保数据库已加载
+	if len(weaponDB.Weapons) == 0 {
+		log.Warn().Str("component", "AutoEssenceInstantFilter").Msg("weapon database not loaded, skip instant filter")
+		return true
+	}
+
+	// 3. 确保技能组合已构建
+	if len(targetSkillCombinations) == 0 {
+		// 尝试构建技能组合
+		var WeaponRarity []int
+		if opts.Rarity6Weapon {
+			WeaponRarity = append(WeaponRarity, 6)
+		}
+		if opts.Rarity5Weapon {
+			WeaponRarity = append(WeaponRarity, 5)
+		}
+		if opts.Rarity4Weapon {
+			WeaponRarity = append(WeaponRarity, 4)
+		}
+		if len(WeaponRarity) == 0 {
+			log.Info().Str("component", "AutoEssenceInstantFilter").Msg("no weapon rarity selected, skip instant filter")
+			return true
+		}
+
+		EssenceTypes = EssenceTypes[:0]
+		if opts.FlawlessEssence {
+			EssenceTypes = append(EssenceTypes, FlawlessEssenceMeta)
+		}
+		if opts.PureEssence {
+			EssenceTypes = append(EssenceTypes, PureEssenceMeta)
+		}
+		if len(EssenceTypes) == 0 {
+			log.Info().Str("component", "AutoEssenceInstantFilter").Msg("no essence type selected, skip instant filter")
+			return true
+		}
+
+		filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
+		targetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
+		if len(targetSkillCombinations) == 0 {
+			log.Info().Str("component", "AutoEssenceInstantFilter").Msg("no target skill combinations, skip instant filter")
+			return true
+		}
+	}
+
+	// 4. 获取当前截图
+	controller := ctx.GetTasker().GetController()
+	if controller == nil {
+		log.Error().Str("component", "AutoEssenceInstantFilter").Msg("controller nil")
+		return true
+	}
+	controller.PostScreencap().Wait()
+	img, err := controller.CacheImage()
+	if err != nil {
+		log.Error().Err(err).Str("component", "AutoEssenceInstantFilter").Msg("get screenshot failed")
+		return true
+	}
+
+	// 5. 尝试识别对话框中的基质（使用与背包界面相同的 ROI，假设对话框中的显示位置类似）
+	// 注意：这些 ROI 是基于背包界面的，如果对话框中的位置不同，需要调整
+	// 技能槽 ROI（基于 720p 分辨率）
+	skillROIs := [3][4]int{
+		{1000, 235, 115, 27}, // slot 1
+		{1000, 272, 115, 27}, // slot 2
+		{1000, 309, 115, 27}, // slot 3
+	}
+	levelROIs := [3][4]int{
+		{1216, 254, 27, 22}, // slot 1 level
+		{1216, 292, 27, 22}, // slot 2 level
+		{1216, 329, 27, 22}, // slot 3 level
+	}
+
+	// 6. OCR 识别技能和等级
+	var skills [3]string
+	var levels [3]int
+	allRecognized := true
+
+	for i := 0; i < 3; i++ {
+		// 识别技能
+		skillOCRParam := map[string]any{
+			"roi":       skillROIs[i][:],
+			"expected":  []string{".*"},
+			"only_rec":  true,
+			"threshold": 0.3,
+		}
+		skillDetail, err := ctx.RunRecognition("OCR", img, skillOCRParam)
+		if err != nil || skillDetail == nil || !skillDetail.Hit {
+			log.Debug().Int("slot", i+1).Msg("skill OCR failed or empty")
+			allRecognized = false
+			break
+		}
+
+		var skillText string
+		for _, results := range [][]*maa.RecognitionResult{{skillDetail.Results.Best}, skillDetail.Results.Filtered, skillDetail.Results.All} {
+			if len(results) > 0 {
+				if ocrResult, ok := results[0].AsOCR(); ok && ocrResult.Text != "" {
+					skillText = cleanChinese(ocrResult.Text)
+					break
+				}
+			}
+		}
+		if skillText == "" {
+			log.Debug().Int("slot", i+1).Msg("skill text empty")
+			allRecognized = false
+			break
+		}
+		skills[i] = skillText
+
+		// 识别等级
+		levelOCRParam := map[string]any{
+			"roi":       levelROIs[i][:],
+			"expected":  []string{"\\+?\\d+"},
+			"only_rec":  true,
+			"threshold": 0.3,
+		}
+		levelDetail, err := ctx.RunRecognition("OCR", img, levelOCRParam)
+		if err != nil || levelDetail == nil || !levelDetail.Hit {
+			log.Debug().Int("slot", i+1).Msg("level OCR failed or empty")
+			levels[i] = 0
+		} else {
+			var levelText string
+			for _, results := range [][]*maa.RecognitionResult{{levelDetail.Results.Best}, levelDetail.Results.Filtered, levelDetail.Results.All} {
+				if len(results) > 0 {
+					if ocrResult, ok := results[0].AsOCR(); ok && strings.TrimSpace(ocrResult.Text) != "" {
+						levelText = strings.TrimSpace(ocrResult.Text)
+						break
+					}
+				}
+			}
+			if m := levelParseRe.FindStringSubmatch(levelText); len(m) >= 2 {
+				if lv, err := strconv.Atoi(m[1]); err == nil && lv >= 1 && lv <= 6 {
+					levels[i] = lv
+				}
+			}
+		}
+	}
+
+	if !allRecognized {
+		log.Info().Str("component", "AutoEssenceInstantFilter").Msg("failed to recognize all skills, skip instant filter")
+		return true // 识别失败不影响主流程
+	}
+
+	// 7. 匹配技能并决定操作
+	skillList := []string{skills[0], skills[1], skills[2]}
+	matchResult, matched := MatchEssenceSkills(ctx, skillList)
+
+	// 检查扩展规则
+	extendedReason := ""
+	if !matched && opts != nil {
+		if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
+			if MatchFuturePromising(skillList, levels, opts.FuturePromisingMinTotal) {
+				matched = true
+				sum := levels[0] + levels[1] + levels[2]
+				matchResult = &SkillCombinationMatch{
+					SkillIDs:      []int{0, 0, 0},
+					SkillsChinese: []string{skillList[0], skillList[1], skillList[2]},
+					Weapons:       []WeaponData{},
+				}
+				extendedReason = fmt.Sprintf("未来可期：总等级 %d ≥ %d", sum, opts.FuturePromisingMinTotal)
+			}
+		}
+		slot3MinLv := opts.Slot3MinLevel
+		if slot3MinLv <= 0 {
+			slot3MinLv = 3
+		}
+		if !matched && opts.KeepSlot3Level3Practical {
+			var slot3Match bool
+			var slot3Lv int
+			matchResult, slot3Lv, slot3Match = MatchSlot3Level3Practical(skillList, levels, slot3MinLv)
+			if slot3Match {
+				matched = true
+				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", matchResult.SkillsChinese[2], slot3Lv, slot3MinLv)
+			}
+		}
+	}
+
+	// 8. 记录识别结果
+	LogMXUSimpleHTMLWithColor(
+		ctx,
+		fmt.Sprintf("即时识别：%s(+%d) | %s(+%d) | %s(+%d)",
+			skills[0], levels[0],
+			skills[1], levels[1],
+			skills[2], levels[2]),
+		"#00bfff",
+	)
+
+	// 9. 根据匹配结果决定操作
+	if matched {
+		if extendedReason != "" {
+			LogMXUHTML(ctx, fmt.Sprintf(
+				`<div style="color: #064d7c; font-weight: 900;">🔒 即时识别-扩展规则命中：%s</div>`,
+				escapeHTML(extendedReason),
+			))
+		} else {
+			weaponNames := make([]string, 0, len(matchResult.Weapons))
+			for _, w := range matchResult.Weapons {
+				weaponNames = append(weaponNames, w.ChineseName)
+			}
+			var weaponsHTML strings.Builder
+			for i, w := range matchResult.Weapons {
+				if i > 0 {
+					weaponsHTML.WriteString("、")
+				}
+				weaponColor := getColorForRarity(w.Rarity)
+				weaponsHTML.WriteString(fmt.Sprintf(
+					`<span style="color: %s;">%s</span>`,
+					weaponColor, escapeHTML(w.ChineseName),
+				))
+			}
+			LogMXUHTML(ctx, fmt.Sprintf(
+				`<div style="color: #064d7c; font-weight: 900;">🔒 即时识别-匹配到武器：%s</div>`,
+				weaponsHTML.String(),
+			))
+		}
+		LogMXUSimpleHTMLWithColor(ctx, "即时识别：需要锁定，请在背包中手动锁定或运行基质筛选任务", "#064d7c")
+	} else {
+		if opts.DiscardUnmatched {
+			LogMXUHTML(ctx, `<div style="color: #ff6b6b; font-weight: 900;">🗑️ 即时识别-未匹配到目标技能组合，建议废弃</div>`)
+		} else {
+			LogMXUSimpleHTML(ctx, "即时识别：未匹配到目标技能组合，跳过")
+		}
+	}
+
+	log.Info().Str("component", "AutoEssenceInstantFilter").Strs("skills", skillList).Ints("levels", levels[:]).Bool("matched", matched).Msg("instant filter done")
+	return true
+}

@@ -450,10 +450,26 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
-            "AutoEssenceCloseObtainDialog"
+            "AutoEssenceInstantFilter"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击确认领取按钮"
+        }
+    },
+    "AutoEssenceInstantFilter": {
+        "desc": "即时识别并处理领取的基质",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoEssenceInstantFilterAction"
+            }
+        },
+        "next": [
+            "AutoEssenceCloseObtainDialog"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🔍即时识别基质"
         }
     },
     "AutoEssenceConfirmDiscard": {
