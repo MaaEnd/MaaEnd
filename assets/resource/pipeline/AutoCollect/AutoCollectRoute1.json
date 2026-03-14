@@ -2,7 +2,7 @@
     "AutoCollectRoute1Start": {
         "next": [
             "AutoCollectRoute1AssertLocation",
-            "[JumpBack]SceneEnterWorldWulingWulingCity4"
+            "[JumpBack]SceneEnterWorldWulingWulingCity5"
         ]
     },
     "AutoCollectRoute1End": {
@@ -19,10 +19,10 @@
                         {
                             "map_name": "map02_lv002",
                             "target": [
-                                246,
-                                699,
-                                30,
-                                30
+                                663,
+                                733,
+                                20,
+                                20
                             ]
                         }
                     ]
@@ -38,31 +38,140 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
                     "map_name": "map02_lv002",
-                    "arrival_threshold": 0.3,
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
                         [
-                            247.3,
-                            703.9
+                            654,
+                            722
                         ],
                         [
-                            272.0,
-                            703.2
+                            657,
+                            720
                         ],
                         [
-                            273.9,
-                            710.6
+                            659,
+                            720
+                        ],
+                        [
+                            660,
+                            719
+                        ],
+                        [
+                            661,
+                            719
+                        ],
+                        [
+                            662,
+                            718
+                        ],
+                        [
+                            662,
+                            701
+                        ],
+                        [
+                            661,
+                            699
+                        ],
+                        [
+                            661,
+                            697
+                        ],
+                        [
+                            659,
+                            694
+                        ],
+                        [
+                            659,
+                            690
+                        ],
+                        [
+                            658,
+                            689
+                        ],
+                        [
+                            658,
+                            685
+                        ],
+                        [
+                            657,
+                            683
+                        ],
+                        [
+                            657,
+                            680
+                        ],
+                        [
+                            656,
+                            678
+                        ],
+                        [
+                            656,
+                            676
+                        ],
+                        [
+                            655,
+                            674
+                        ],
+                        [
+                            655,
+                            673
+                        ],
+                        [
+                            653,
+                            669
+                        ],
+                        [
+                            653,
+                            668
+                        ],
+                        [
+                            651,
+                            665
+                        ],
+                        [
+                            651,
+                            663
+                        ],
+                        [
+                            648,
+                            658
+                        ],
+                        [
+                            648,
+                            657
+                        ],
+                        [
+                            646,
+                            653
+                        ],
+                        [
+                            646,
+                            652
+                        ],
+                        [
+                            645,
+                            651
+                        ],
+                        [
+                            645,
+                            650
                         ]
                     ]
                 }
             }
         },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute1End"
+        },
         "desc": "前往收集地1",
         "next": [
-            "[JumpBack]AutoCollectClickStart",
-            "AutoCollectRoute1End"
+            "AutoCollectClickStart"
         ]
     }
 }
