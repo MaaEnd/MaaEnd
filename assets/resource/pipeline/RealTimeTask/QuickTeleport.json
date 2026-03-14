@@ -32,18 +32,27 @@
     },
     "RealTimeQuickTeleportDirect": {
         "desc": "直接点击传送按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1210,
-            648,
-            26,
-            26
+        "recognition": "And",
+        "all_of": [
+            {
+                "sub_name": "识别传送按钮",
+                "recognition": "And",
+                "all_of": [
+                    "TeleportButton"
+                ]
+            },
+            {
+                "sub_name": "识别是否为传送按钮",
+                "recognition": "OCR",
+                "roi": [
+                    1120,
+                    612,
+                    146,
+                    100
+                ],
+                "expected": "传送"
+            }
         ],
-        "template": [
-            "Common/Button/WhiteConfirmButtonType1.png",
-            "Common/Button/WhiteConfirmButtonType1Hover.png" //这里直接使用common的确认按钮模板，因为与通用common的roi不同
-        ],
-        "threshold": 0.8,
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
