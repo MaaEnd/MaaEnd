@@ -56,7 +56,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
-            "time": 40,
+            "time": 5,
             "threshold": 0.98
         },
         "post_delay": 0,
