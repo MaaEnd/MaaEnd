@@ -33,6 +33,7 @@ jobs:
         shell: bash
         run: |
           curl --request POST \
+            --fail-with-body \
             --url https://api.cursor.com/v0/agents \
             -u ${{ secrets.CURSOR_KEY }}: \
             --header 'Content-Type: application/json' \
