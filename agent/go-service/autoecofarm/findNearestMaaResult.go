@@ -135,7 +135,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	realutcXn := realutX + realutW/2
 	realutcYn := realutY + realutH/2
 
-	mindistance2 := (float64(realutcXn)-targetX)*(float64(realutcXn)-targetX) + (float64(realutcYn)-targetX)*(float64(realutcYn)-targetX)
+	mindistance2 := (float64(realutcXn)-targetX)*(float64(realutcXn)-targetX) + (float64(realutcYn)-targetY)*(float64(realutcYn)-targetY)
 
 	//遍历所有结果，返回中心里目标欧几里得距离平方最小的结果
 	for idx, res := range results {
