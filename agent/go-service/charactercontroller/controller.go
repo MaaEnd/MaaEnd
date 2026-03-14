@@ -145,7 +145,11 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		AlignThreshold *int `json:"align_threshold"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().Err(err).Msg("Failed to parse CustomActionParam")
+		log.Error().
+			Err(err).
+			Str("component", "CharacterController").
+			Str("action", "CharacterMoveToTarget").
+			Msg("failed to parse CustomActionParam")
 		return false
 	}
 	alignThreshold := 120 // pixels; within this range the target is considered centered horizontally
@@ -160,18 +164,30 @@ type CharacterMoveToTargetNotFoundAction struct{}
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	targetNotFoundCounter++
 	if targetNotFoundCounter > 15 {
-		log.Warn().Int("counter", targetNotFoundCounter).Msg("target not found for too many times, stopping task")
+		log.Warn().
+			Int("counter", targetNotFoundCounter).
+			Str("component", "CharacterController").
+			Str("action", "CharacterMoveToTargetNotFound").
+			Msg("target not found for too many times, stopping task")
 		targetNotFoundCounter = 0
 		return false
 	}
 
-	log.Debug().Int("counter", targetNotFoundCounter).Msg("target not found, attempting to adjust view to find target")
+	log.Debug().
+		Int("counter", targetNotFoundCounter).
+		Str("component", "CharacterController").
+		Str("action", "CharacterMoveToTargetNotFound").
+		Msg("target not found, attempting to adjust view to find target")
 
 	var params struct {
 		Delta int `json:"delta"`
 	}
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		log.Error().Err(err).Msg("Failed to parse CustomActionParam")
+		log.Error().
+			Err(err).
+			Str("component", "CharacterController").
+			Str("action", "CharacterMoveToTargetNotFound").
+			Msg("failed to parse CustomActionParam")
 		return false
 	}
 	delta := params.Delta % 360
