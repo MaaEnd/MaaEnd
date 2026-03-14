@@ -611,7 +611,7 @@
                     76
                 ],
                 "end_hold": 700,
-                "duration": 100
+                "duration": 500
             }
         },
         "post_delay": 200,
