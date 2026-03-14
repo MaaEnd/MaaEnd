@@ -479,3 +479,6 @@ venv/
 
 # maa-tools
 tests/maatools
+
+# oh-my-opencode
+.sisyphus/
