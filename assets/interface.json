@@ -133,6 +133,7 @@
         "tasks/SeizeEntrustTask.json",
         "tasks/DeliveryJobs.json",
         "tasks/SellProduct.json",
+        "tasks/AutoStockpile.json",
         "tasks/AutoResell.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",

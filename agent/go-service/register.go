@@ -4,6 +4,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/batchaddfriends"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/blueprintimport"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/charactercontroller"
@@ -38,6 +39,7 @@ func registerAll() {
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
+	autostockpile.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

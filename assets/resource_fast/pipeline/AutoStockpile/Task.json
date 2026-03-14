@@ -1,0 +1,180 @@
+{
+    "AutoStockpileBuy": {
+        "recognition": {"type": "And", "param": {"all_of": ["YellowConfirmButtonType2"]}},
+        "action": {"type": "Click", "param": {}},
+        "post_wait_freezes": 80,
+        "next": ["AutoStockpileCheckBuyResult"]
+    },
+    "AutoStockpileSkipSkipReigon": {
+        "desc": "在这里处理没有解锁物资调度",
+        "focus": {"Node.Recognition.Starting": "该地区未解锁弹性物资调度，跳过该地区"}
+    },
+    "AutoStockpileDecision": {
+        "desc": "统一识别与决策：CustomRecognition识别商品，CustomAction选择购买",
+        "recognition": {
+            "type": "Custom",
+            "param": {"custom_recognition": "AutoStockpile.Recognition", "custom_recognition_param": {}}
+        },
+        "action": {"type": "Custom", "param": {"custom_action": "AutoStockpile.SelectItem", "custom_action_param": {}}},
+        "next": [
+            "AutoStockpileSelectedGoodsClick",
+            "AutoStockpileNoCandidate"
+        ]
+    },
+    "AutoStockpileNoCandidate": {
+        "desc": "决策未找到合格商品时的兜底节点",
+        "focus": {"Node.Recognition.Succeeded": "无合格商品，跳过本次购买"}
+    },
+    "AutoStockpilerEnterStore": {"desc": "进入物资调度界面", "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    885,
+                    300,
+                    135,
+                    143
+                ], "template": [
+                    "AutoStockpile/StockRedistributionButton.png"
+                ], "threshold": [0.8]}}, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 80, "next": [
+            "AutoStockpileGotoElasticGoods",
+            "AutoStockpileCheckInStore"
+        ]},
+    "AutoStockpileGotoElasticGoods": {
+        "desc": "选择弹性物资调度",
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    338,
+                    57,
+                    69,
+                    62
+                ], "template": [
+                    "AutoStockpile/ElasticGoodsButton.png",
+                    "AutoStockpile/ElasticGoodsButtonSelected.png"
+                ], "threshold": [0.8]}},
+        "action": {"type": "Click", "param": {"target_offset": [
+                    20,
+                    0,
+                    -10,
+                    0
+                ]}},
+        "post_wait_freezes": 80,
+        "next": [
+            "AutoStockpileSwipeToBottom",
+            "AutoStockpileGotoBottom"
+        ]
+    },
+    "AutoStockpileCheckInStore": {"recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    54,
+                    58,
+                    60,
+                    54
+                ], "template": [
+                    "AutoStockpile/StapleGoodsButtonSelected.png"
+                ]}}, "focus": {"Node.Recognition.Succeeded": "该地区未解锁弹性物资调度，跳过该地区"}},
+    "AutoStockpileGotoBottom": {
+        "desc": "将所有可购买物品展示在窗口中",
+        "enabled": false,
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    8,
+                    152,
+                    52,
+                    541
+                ], "template": ["AutoStockpile/ElasticGoodsButtonSide.png"], "threshold": [0.8]}},
+        "action": {"type": "Click", "param": {"target_offset": [
+                    10,
+                    10,
+                    -10,
+                    -10
+                ]}},
+        "post_wait_freezes": 80,
+        "next": ["AutoStockpileMoveMouse"]
+    },
+    "AutoStockpileTask": {"desc": "开始自动囤货任务", "next": [
+            "EnsureInRegionalDevelopment",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]},
+    "EnsureInRegionalDevelopment": {
+        "recognition": {"type": "And", "param": {"all_of": ["InRegionalDevelopment"]}},
+        "action": {
+            "type": "Custom",
+            "param": {"custom_action": "SubTask", "custom_action_param": {"sub": ["AutoStockpileChangeReigonTask"]}}
+        },
+        "next": [
+            "AutoStockpilerEnterStore",
+            "AutoStockpileSkipSkipReigon"
+        ]
+    },
+    "AutoStockpileChangeReigonTask": {"next": ["[Anchor]AutoStockpileGotoTargetReigon"]},
+    "AutoStockpileMoveMouse": {"desc": "避免鼠标遮挡", "action": {"type": "TouchMove", "param": {"target": [
+                    891,
+                    71,
+                    24,
+                    16
+                ]}}, "next": ["AutoStockpileDecision"]},
+    "AutoStockpileSwipeMax": {"desc": "选择最大购买数量", "action": {"type": "Swipe", "param": {"begin": [
+                    646,
+                    498,
+                    13,
+                    12
+                ], "end": [[
+                        696,
+                        499,
+                        15,
+                        11
+                    ]]}}, "post_wait_freezes": 80, "next": ["AutoStockpileBuy"]},
+    "AutoStockpileRelayNode": {"next": [
+            "AutoStockpileDevSkipSwipe",
+            "AutoStockpileSwipeSpecificQuantity",
+            "AutoStockpileSwipeMax"
+        ]},
+    "AutoStockpileSwipeSpecificQuantity": {"enabled": false},
+    "AutoStockpileDevSkipSwipe": {"desc": "开发时启用，跳过选择数量", "enabled": false, "next": ["AutoStockpileBuy"]},
+    "AutoStockpileCheckBuyResult": {
+        "recognition": {"type": "And", "param": {"all_of": ["CloseRewardsButton"]}},
+        "action": {"type": "Click", "param": {}},
+        "post_wait_freezes": 80,
+        "focus": {"Node.Action.Succeeded": "购买成功"}
+    },
+    "AutoStockpileSwipeToBottom": {
+        "desc": "将所有可购买物品展示在窗口中（更稳定）",
+        "action": {"type": "Swipe", "param": {"begin": [
+                    1200,
+                    660,
+                    20,
+                    20
+                ], "end": [[
+                        1200,
+                        60,
+                        20,
+                        20
+                    ]], "duration": [100]}},
+        "repeat": 2,
+        "post_wait_freezes": 80,
+        "next": ["AutoStockpileMoveMouse"]
+    },
+    "AutoStockpileSelectedGoodsClick": {
+        "desc": "点击决策选中的商品",
+        "enabled": false,
+        "recognition": {"type": "Or", "param": {"any_of": [
+                    "AutoStockpileSelectedGoodsOwned",
+                    "AutoStockpileSelectedGoodsMissing"
+                ]}},
+        "action": {"type": "Click", "param": {}},
+        "post_wait_freezes": 80,
+        "next": ["AutoStockpileRelayNode"]
+    },
+    "AutoStockpileSelectedGoodsOwned": {
+        "desc": "定位商品（已拥有）",
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    50,
+                    180,
+                    1200,
+                    500
+                ], "template": "", "threshold": [0.8], "order_by": "Vertical", "index": 1}}
+    },
+    "AutoStockpileSelectedGoodsMissing": {
+        "desc": "定位商品（未拥有）",
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    50,
+                    180,
+                    1200,
+                    500
+                ], "template": ""}}
+    }
+}
