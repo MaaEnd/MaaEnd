@@ -35,16 +35,23 @@ Optional parameters:
 
 - `no_print`: Boolean value, default `false`. Whether to turn off UI message printing of pathfinding status. For better user experience, it is not recommended to turn off message printing for this node.
 
+- `path_trim`: Boolean value, default `false`. When enabled, the nearest waypoint in the path will be selected as the actual starting point based on the current position when this action begins (the waypoints before that selected point will be automatically skipped); when disabled, movement will always start from the first waypoint.
+
+- `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
+
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 
-- `path_trim`: Boolean value, default `false`. When enabled, before moving, it first calculates the closest distance from the current position to each point in the path, takes the closest waypoint as the new starting point, and the previous waypoints will be skipped automatically; when disabled, it always starts from the first waypoint.
-- `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
 - `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately.
+
 - `rotation_lower_threshold`: Real number between $(0, 180]$, default `7.5`. The direction angle deviation threshold for judging the need for fine-tuning the orientation, in degrees.
+
 - `rotation_upper_threshold`: Real number between $(0, 180]$, default `60.0`. The direction angle deviation threshold for judging the need for large-scale orientation adjustment. At this time, the player will slow down to adjust orientation.
+
 - `sprint_threshold`: Positive real number, default `20.0`. The distance threshold for performing the sprint action, in pixel distance. When the distance between the player and the next target point exceeds this value and the orientation is correct, the player will perform a sprint.
+
 - `stuck_threshold`: Positive integer, default `2000`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, automatic jumping will be triggered.
+  
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
 </details>
@@ -95,11 +102,13 @@ Optional parameters:
 Required parameters:
 
 - `map_name`: The unique map name. For example, "map001_lv001".
+
 - `target`: A list with 2 real numbers `[x, y]`, representing the target map coordinate.
 
 Optional parameters:
 
 - `on_find`: Action after the target point enters the viewport. Can be `"Click"`, `"Teleport"`, or `"DoNothing"`. Default is `"Click"`.
+
 - `disable_auto_open_map`: Boolean, default `false`. Whether to disable auto-opening the corresponding map screen.
 
 #### Example Usage

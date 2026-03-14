@@ -1,23 +1,26 @@
 {
     "RealTimeQuickTeleportList": {
         "desc": "从传送点列表中点击传送点图标（当多个地图标点重叠时）",
-        "recognition": "And",
-        "all_of": [
-            "InMapAny",
-            {
-                "recognition": "OCR",
-                "roi": [
-                    931,
-                    378,
-                    176,
-                    198
-                ],
-                "expected": "协议传送点"
-            }
+        "recognition": "OCR",
+        "roi": [
+            931,
+            378,
+            176,
+            198
         ],
+        "expected": "协议传送点",
         "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 80,
+        "post_wait_freezes": {
+            "time": 5,
+            "target": [
+                1034,
+                619,
+                220,
+                76
+            ],
+            "threshold": 0.98
+        },
         "post_delay": 0,
         "next": [
             "RealTimeQuickTeleportDirect",
@@ -29,18 +32,28 @@
     },
     "RealTimeQuickTeleportDirect": {
         "desc": "直接点击传送按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1210,
-            648,
-            26,
-            26
+        "recognition": "And",
+        "all_of": [
+            "TeleportButton",
+            {
+                "sub_name": "识别是否为传送按钮",
+                "recognition": "OCR",
+                "roi": [
+                    1120,
+                    612,
+                    146,
+                    100
+                ],
+                "expected": "传送"
+            }
         ],
-        "template": "RealTimeTask/Teleport.png",
-        "threshold": 0.8,
-        "pre_delay": 100,
+        "pre_delay": 0,
         "action": "Click",
-        "post_wait_freezes": 80,
+        "post_wait_freezes": {
+            "time": 5,
+            "threshold": 0.98
+        },
+        "post_delay": 0,
         "next": [
             "RealTimeFakeTrue"
         ],

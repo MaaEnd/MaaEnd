@@ -742,7 +742,126 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	firstRowSwipeDone = false
 	rowBoxes = nil
 	rowIndex = 0
+	swipeCalibrateRetry = 0
 
+	return true
+}
+
+// 首行基准 Y（720p），用于滑动后校准
+const firstRowTargetY = 86
+
+// 校准容差：first_box_y 在 [firstRowTargetY-tolerance, firstRowTargetY+tolerance] 内视为已对齐
+const calibrateTolerance = 4
+
+// 内容偏移 1px 对应的手指滑动距离（scrollRatio >= 1 表示手指需滑动更多才能带动内容）
+const calibrateScrollRatio = 1.1
+
+// 校准滑动距离限制（px）
+const calibrateSwipeMin = 4
+const calibrateSwipeMax = 40
+
+// EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY，按误差量计算滑动距离
+type EssenceFilterSwipeCalibrateAction struct{}
+
+func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if swipeCalibrateRetry >= 5 {
+		swipeCalibrateRetry = 0
+		log.Info().
+			Str("component", "EssenceFilter").
+			Str("step", "SwipeCalibrate").
+			Msg("max retries, skip calibration")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "EssenceRowDetect"},
+			{Name: "EssenceDetectFinal"},
+		})
+		return true
+	}
+
+	if arg.RecognitionDetail == nil || arg.RecognitionDetail.Results == nil || !arg.RecognitionDetail.Hit {
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "EssenceRowDetect"},
+			{Name: "EssenceDetectFinal"},
+		})
+		return true
+	}
+
+	results := arg.RecognitionDetail.Results.Filtered
+	if len(results) == 0 {
+		results = arg.RecognitionDetail.Results.All
+	}
+	if len(results) == 0 {
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "EssenceRowDetect"},
+			{Name: "EssenceDetectFinal"},
+		})
+		return true
+	}
+
+	boxes := make([][4]int, 0, len(results))
+	for _, res := range results {
+		tm, ok := res.AsTemplateMatch()
+		if !ok {
+			continue
+		}
+		b := tm.Box
+		boxes = append(boxes, [4]int{b.X(), b.Y(), b.Width(), b.Height()})
+	}
+	sort.Slice(boxes, func(i, j int) bool {
+		return boxes[i][0] < boxes[j][0]
+	})
+	firstBoxY := boxes[0][1]
+
+	low := firstRowTargetY - calibrateTolerance
+	high := firstRowTargetY + calibrateTolerance
+	if firstBoxY >= low && firstBoxY <= high {
+		swipeCalibrateRetry = 0
+		log.Info().Int("first_box_y", firstBoxY).Msg("<EssenceFilter> SwipeCalibrate: aligned")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+			{Name: "EssenceRowDetect"},
+			{Name: "EssenceDetectFinal"},
+		})
+		return true
+	}
+
+	delta := firstBoxY - firstRowTargetY
+	swipeDist := int(float64(abs(delta)) * calibrateScrollRatio)
+	if swipeDist < calibrateSwipeMin {
+		swipeDist = calibrateSwipeMin
+	}
+	if swipeDist > calibrateSwipeMax {
+		swipeDist = calibrateSwipeMax
+	}
+
+	centerX := 135
+	beginY := 191
+	var endY int
+	// 如果 delta 为正，则向上滑动；如果 delta 为负，则向下滑动	
+	if delta > 0 {
+		endY = beginY - swipeDist
+		log.Info().Int("first_box_y", firstBoxY).Int("delta", delta).Int("swipe_dist", swipeDist).Msg("<EssenceFilter> SwipeCalibrate: too low, swipe up")
+	} else {
+		endY = beginY + swipeDist
+		log.Info().Int("first_box_y", firstBoxY).Int("delta", delta).Int("swipe_dist", swipeDist).Msg("<EssenceFilter> SwipeCalibrate: too high, swipe down")
+	}
+
+	override := map[string]any{
+		"EssenceFilterSwipeCalibrateCorrect": map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"begin": []int{centerX, beginY},
+					"end":   []int{centerX, endY},
+				},
+			},
+		},
+	}
+	if _, err := ctx.RunTask("EssenceFilterSwipeCalibrateCorrect", override); err != nil {
+		log.Error().Err(err).Msg("<EssenceFilter> SwipeCalibrate: RunTask failed")
+	}
+
+	swipeCalibrateRetry++
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+		{Name: "EssenceFilterSwipeCalibrate"},
+	})
 	return true
 }
 

@@ -26,16 +26,46 @@
                     "name": "BRtoTL",
                     "label": "$task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label",
                     "pipeline_override": {
-                        "_AutoEcoFarmFindFarmland": {
+                        "_AutoEcoFarmFindFarmlandCustom": {
                             "recognition": {
-                                "type": "TemplateMatch",
+                                "type": "Custom",
                                 "param": {
-                                    "order_by": "Horizontal"
+                                    "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                                    "custom_recognition_param": {
+                                        "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                                        "xRatio": 0.5,
+                                        "yRatio": 0.5
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Center",
+                    "label": "Goto Center",
+                    "pipeline_override": {
+                        "_AutoEcoFarmFindFarmlandCustom": {
+                            "recognition": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                                    "custom_recognition_param": {
+                                        "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                                        "xRatio": 0.5,
+                                        "yRatio": 0.5
+                                    }
                                 }
                             }
                         },
-                        "_AutoEcoFarmFindEcoFarmAny": {
-                            "enabled": false
+                        "_AutoEcoFarmGotoTarget": {
+                            "enabled": true
+                        },
+                        "_AutoEcoFarmIsWorking": {
+                            "pre_delay": 60000,
+                            "focus": {
+                                "Node.Recognition.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
+                            }
                         }
                     }
                 }

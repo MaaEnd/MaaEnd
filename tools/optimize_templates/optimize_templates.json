@@ -462,5 +462,9 @@
     "resource/image/Valuables/DisabledAddButton": "5efaa82a3fd827977f017efef5dd2dba8ddd346f112bc8d2c01147fc5a78385e",
     "resource/image/Valuables/AddButton": "fc7a19f0ae3073b8aac745ebf2e3c7d6d2ed4e12353e991eb509edc6d38727f1",
     "resource/image/Valuables/EmergencySpBooster": "b217195968afc25c06f10b65f9357ed59f3fc746a91cda12478892efe6a2dd20",
-    "resource/image/Valuables/ExpireSoon": "4dd4d93dfa5cd8518f3f25143814c8f144c32b6bc817dccaf12d0fd11aa23083"
+    "resource/image/Valuables/ExpireSoon": "4dd4d93dfa5cd8518f3f25143814c8f144c32b6bc817dccaf12d0fd11aa23083",
+    "resource/image/SeizeEntrustTask/7.98wMoney_en": "815e9cb4681c50a4764986d41a7907f4a91fda0c685d777ee92768558b93a886",
+    "resource/image/AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund": "36df158b476c53071720cba9d61f608c9dd8ea18ba8f915749561dcf8c834765",
+    "resource/image/AutoEcoFarm/AutoecofarmWhitecloseblackgrouund": "14b9459451f4b4410a1f75aed750c15e4f51e924862a61d15e7e67c65495e419",
+    "resource/image/ClaimDijiangRewards/BackButton": "a3411fb118901e1914727abcbf3cf71d8d17f89eb253a5dfe3e5d604a5cbe0a8"
 }

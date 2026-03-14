@@ -588,14 +588,13 @@
                     135,
                     75
                 ],
-                "end_hold": 1500,
+                "end_hold": 700,
                 "duration": 100
             }
         },
         "post_delay": 200,
         "next": [
-            "EssenceRowDetect",
-            "EssenceDetectFinal"
+            "EssenceFilterSwipeCalibrate"
         ]
     },
     "EssenceFilterSwipeNext": {
@@ -611,11 +610,54 @@
                     135,
                     76
                 ],
-                "end_hold": 1500,
-                "duration": 100
+                "end_hold": 700,
+                "duration": 500
             }
         },
         "post_delay": 200,
+        "next": [
+            "EssenceFilterSwipeCalibrate"
+        ]
+    },
+    "EssenceFilterSwipeCalibrateCorrect": {
+        "desc": "校准微滑（由 SwipeCalibrateAction 通过 RunTask override begin/end 调用）",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    135,
+                    191
+                ],
+                "end": [
+                    135,
+                    150
+                ]
+            }
+        },
+        "post_delay": 150
+    },
+    "EssenceFilterSwipeCalibrate": {
+        "desc": "滑动后校准：按首格 Y 误差计算滑动距离，校准到基准 86",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    18,
+                    72,
+                    956,
+                    119
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterSwipeCalibrateAction"
+            }
+        },
         "next": [
             "EssenceRowDetect",
             "EssenceDetectFinal"

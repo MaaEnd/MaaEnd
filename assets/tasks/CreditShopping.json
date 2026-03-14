@@ -1,12 +1,13 @@
 {
     "task": [
         {
-            "name": "CreditShoppingNew",
+            "name": "CreditShoppingN2",
             "label": "$task.CreditShopping.label",
             "entry": "CreditShoppingMain",
             "description": "$task.CreditShopping.description",
             "option": [
                 "CreditShoppingOptions",
+                "CreditShoppingBlackOptions",
                 "AutoGetCredits",
                 "CreditShoppingForce",
                 "CreditShoppingReserve",
@@ -17,35 +18,401 @@
     ],
     "option": {
         "CreditShoppingOptions": {
-            "type": "input",
+            "type": "checkbox",
             "label": "$option.CreditShoppingOptions.label",
-            "inputs": [
-                {
-                    "name": "buy_first",
-                    "label": "$option.CreditShoppingOptions.inputs.buy_first.label",
-                    "description": "$option.CreditShoppingOptions.inputs.buy_first.description",
-                    "pipeline_type": "string",
-                    "default": "嵌晶玉|武库配额"
-                },
-                {
-                    "name": "blacklist",
-                    "label": "$option.CreditShoppingBlackOptions.inputs.blacklist.label",
-                    "description": "$option.CreditShoppingBlackOptions.inputs.blacklist.description",
-                    "pipeline_type": "string",
-                    "default": ""
-                }
+            "default_case": [
+                "Oroberyl",
+                "ArsenalTicket"
             ],
-            "pipeline_override": {
-                "BuyFirstOCR": {
-                    "expected": "^({buy_first})$"
+            "cases": [
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_Oroberyl": {
+                            "expected": [
+                                "嵌晶玉",
+                                "嵌晶玉",
+                                "Oroberyl",
+                                "赤晶玉"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_Oroberyl": {
+                            "expected": [
+                                "嵌晶玉",
+                                "嵌晶玉",
+                                "Oroberyl",
+                                "赤晶玉"
+                            ]
+                        }
+                    }
                 },
-                "BuyFirstOCR_CanNotAfford": {
-                    "expected": "^({buy_first})$"
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ArsenalTicket": {
+                            "expected": [
+                                "武库配额",
+                                "武庫配額",
+                                "Arsenal Ticket",
+                                "武庫配給"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ArsenalTicket": {
+                            "expected": [
+                                "武库配额",
+                                "武庫配額",
+                                "Arsenal Ticket",
+                                "武庫配給"
+                            ]
+                        }
+                    }
                 },
-                "BlacklistOCR": {
-                    "expected": "^(?!({blacklist})$).*$"
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_TCreds": {
+                            "expected": [
+                                "折金票",
+                                "折金票",
+                                "T-Creds",
+                                "折金券"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_TCreds": {
+                            "expected": [
+                                "折金票",
+                                "折金票",
+                                "T-Creds",
+                                "折金券"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ElementaryCognitiveCarrier": {
+                            "expected": [
+                                "初级认知载体",
+                                "初級認知載體",
+                                "Elementary Cognitive Carrier",
+                                "初級認識媒体"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ElementaryCognitiveCarrier": {
+                            "expected": [
+                                "初级认知载体",
+                                "初級認知載體",
+                                "Elementary Cognitive Carrier",
+                                "初級認識媒体"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ElementaryCombatRecord": {
+                            "expected": [
+                                "初级作战记录",
+                                "初級作戰紀錄",
+                                "Elementary Combat Record",
+                                "初級作戦記録",
+                                "초급 작전 기록"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ElementaryCombatRecord": {
+                            "expected": [
+                                "初级作战记录",
+                                "初級作戰紀錄",
+                                "Elementary Combat Record",
+                                "初級作戦記録",
+                                "초급 작전 기록"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_IntermediateCombatRecord": {
+                            "expected": [
+                                "中级作战记录",
+                                "中級作戰紀錄",
+                                "Intermediate Combat Record",
+                                "中級作戦記録",
+                                "중급 작전 기록"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_IntermediateCombatRecord": {
+                            "expected": [
+                                "中级作战记录",
+                                "中級作戰紀錄",
+                                "Intermediate Combat Record",
+                                "中級作戦記録",
+                                "중급 작전 기록"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_CastDie": {
+                            "expected": [
+                                "强固模具",
+                                "強固模具",
+                                "Cast Die",
+                                "硬質金型",
+                                "모형 틀"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_CastDie": {
+                            "expected": [
+                                "强固模具",
+                                "強固模具",
+                                "Cast Die",
+                                "硬質金型",
+                                "모형 틀"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_HeavyCastDie": {
+                            "expected": [
+                                "重型强固模具",
+                                "重型強固模具",
+                                "Heavy Cast Die",
+                                "重硬質金型",
+                                "중형 모형 틀"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_HeavyCastDie": {
+                            "expected": [
+                                "重型强固模具",
+                                "重型強固模具",
+                                "Heavy Cast Die",
+                                "重硬質金型",
+                                "중형 모형 틀"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ArmsInspector": {
+                            "expected": [
+                                "武器检查单元",
+                                "武器檢查單元",
+                                "Arms Inspector",
+                                "武器検査ユニット"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ArmsInspector": {
+                            "expected": [
+                                "武器检查单元",
+                                "武器檢查單元",
+                                "Arms Inspector",
+                                "武器検査ユニット"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_ArmsINSPKit": {
+                            "expected": [
+                                "武器检查装置",
+                                "武器檢查裝置",
+                                "Arms INSP Kit",
+                                "武器検査セット"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_ArmsINSPKit": {
+                            "expected": [
+                                "武器检查装置",
+                                "武器檢查裝置",
+                                "Arms INSP Kit",
+                                "武器検査セット"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_Protoprism": {
+                            "expected": [
+                                "协议棱柱",
+                                "協議稜柱",
+                                "Protoprism",
+                                "協約角柱"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_Protoprism": {
+                            "expected": [
+                                "协议棱柱",
+                                "協議稜柱",
+                                "Protoprism",
+                                "協約角柱"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR_Protohedron": {
+                            "expected": [
+                                "协议棱柱组",
+                                "協議稜柱組",
+                                "Protohedron",
+                                "協約角柱セット"
+                            ]
+                        },
+                        "BuyFirstOCR_CanNotAfford_Protohedron": {
+                            "expected": [
+                                "协议棱柱组",
+                                "協議稜柱組",
+                                "Protohedron",
+                                "協約角柱セット"
+                            ]
+                        }
+                    }
                 }
-            }
+            ]
+        },
+        "CreditShoppingBlackOptions": {
+            "type": "checkbox",
+            "label": "$option.CreditShoppingBlackOptions.label",
+            "default_case": [],
+            "cases": [
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_Oroberyl": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ArsenalTicket",
+                    "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ArsenalTicket": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "TCreds",
+                    "label": "$option.CreditShoppingItems.cases.TCreds.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_TCreds": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCognitiveCarrier",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCognitiveCarrier.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ElementaryCognitiveCarrier": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ElementaryCombatRecord": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_IntermediateCombatRecord": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_CastDie": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_HeavyCastDie": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsInspector",
+                    "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ArmsInspector": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_ArmsINSPKit": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_Protoprism": {
+                            "expected": "a^"
+                        }
+                    }
+                },
+                {
+                    "name": "Protohedron",
+                    "label": "$option.CreditShoppingItems.cases.Protohedron.label",
+                    "pipeline_override": {
+                        "BlacklistOCR_Protohedron": {
+                            "expected": "a^"
+                        }
+                    }
+                }
+            ]
         },
         "CreditShoppingForce": {
             "type": "select",
