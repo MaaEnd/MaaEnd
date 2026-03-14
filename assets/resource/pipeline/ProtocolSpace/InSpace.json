@@ -45,18 +45,9 @@
                 ]
             }
         },
-        "next": ["ProtocolSpacePopupSanityLowCancel"],
         "focus": {
-            "Node.ACtion.Succeeded": "理智不足，结束任务"
+            "Node.Recognition.Succeeded": "理智不足，结束任务"
         }
-    },
-    "ProtocolSpacePopupSanityLowCancel": {
-        "desc": "取消理智不足弹窗",
-        "recognition": "Or",
-        "any_of": [
-            "GrayCancelButton"
-        ],
-        "action": "Click"
     },
     "ProtocolSpaceEnterSpaceConfirm": {
         "desc": "确认进入协议空间",
@@ -138,7 +129,10 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "向开始点移动"
+        }
     },
     "ProtocolSpaceTouchStartNotFound": {
         "desc": "光点未找到，向右旋转",
@@ -148,11 +142,14 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "CharacterControllerYawDeltaAction",
+        "custom_action": "CharacterMoveToTargetNotFoundAction",
         "custom_action_param": {
             "delta": 45
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Failed": "找不到开始点"
+        }
     },
     "ProtocolSpaceTouchStartTouch": {
         "desc": "判断出现触碰提示，开始触碰",
@@ -213,7 +210,10 @@
         "custom_action_param": {
             "align_threshold": 120
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "向退出点移动"
+        }
     },
     "ProtocolSpaceTouchExitNotFound": {
         "desc": "退出未找到，向右旋转",
@@ -223,11 +223,14 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "CharacterControllerYawDeltaAction",
+        "custom_action": "CharacterMoveToTargetNotFoundAction",
         "custom_action_param": {
             "delta": 90
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Failed": "找不到退出点"
+        }
     },
     "ProtocolSpaceTouchExitTouch": {
         "desc": "判断出现触碰提示，开始触碰",
@@ -268,10 +271,42 @@
         ],
         "pre_wait_freezes": 200,
         "next": [
+            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardUsePermit",
             "ProtocolSpaceRewardDontUsePermit",
             "ProtocolSpaceRewardClaim"
         ]
+    },
+    "ProtocolSpaceRewardSanityLowFilter": {
+        "recognition": "ColorMatch",
+        "method": 4,
+        "lower": [
+            100,
+            50,
+            50
+        ],
+        "upper": [
+            255,
+            130,
+            130
+        ]
+    },
+    "ProtocolSpaceRewardSanityLow": {
+        "desc": "理智不足",
+        "recognition": "OCR",
+        "roi": [
+            680,
+            530,
+            90,
+            35
+        ],
+        "expected": [
+            "\\d"
+        ],
+        "color_filter": "ProtocolSpaceRewardSanityLowFilter",
+        "focus": {
+            "Node.Recognition.Succeeded": "理智不足，结束任务"
+        }
     },
     "ProtocolSpaceRewardDontUsePermit": {
         "desc": "协议空间奖励界面不使用许可",
@@ -367,7 +402,7 @@
         "action": "Click",
         "next": [
             "ProtocolSpaceOperationSuccessExitToWorld",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub"
+            "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
             "Node.Action.Succeeded": "退出协议空间"
@@ -428,7 +463,7 @@
         "action": "Click",
         "next": [
             "ProtocolSpaceOperationFailedExitToWorld",
-            "[JumpBack]SceneEnterWorldValleyIVTheHub"
+            "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
             "Node.Action.Succeeded": "行动失败"

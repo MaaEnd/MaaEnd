@@ -133,9 +133,14 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	return true
 }
 
+var (
+	targetNotFoundCounter = 0
+)
+
 type CharacterMoveToTargetAction struct{}
 
 func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	targetNotFoundCounter = 0
 	var params struct {
 		AlignThreshold *int `json:"align_threshold"`
 	}
@@ -148,4 +153,31 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		alignThreshold = *params.AlignThreshold
 	}
 	return moveToTarget(ctx, arg, alignThreshold)
+}
+
+type CharacterMoveToTargetNotFoundAction struct{}
+
+func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	targetNotFoundCounter++
+	if targetNotFoundCounter > 15 {
+		log.Warn().Int("counter", targetNotFoundCounter).Msg("target not found for too many times, stopping task")
+		targetNotFoundCounter = 0
+		ctx.GetTasker().PostStop()
+		return false
+	}
+
+	log.Debug().Int("counter", targetNotFoundCounter).Msg("target not found, attempting to adjust view to find target")
+
+	var params struct {
+		Delta int `json:"delta"`
+	}
+	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
+		log.Error().Err(err).Msg("Failed to parse CustomActionParam")
+		return false
+	}
+	delta := params.Delta % 360
+	dx := delta * 2 // mapTracker RotationSpeed默认2
+	rotateView(ctx, dx, 0)
+
+	return false
 }
