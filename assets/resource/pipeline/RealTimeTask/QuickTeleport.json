@@ -34,13 +34,7 @@
         "desc": "直接点击传送按钮",
         "recognition": "And",
         "all_of": [
-            {
-                "sub_name": "识别传送按钮",
-                "recognition": "And",
-                "all_of": [
-                    "TeleportButton"
-                ]
-            },
+            "TeleportButton",
             {
                 "sub_name": "识别是否为传送按钮",
                 "recognition": "OCR",
