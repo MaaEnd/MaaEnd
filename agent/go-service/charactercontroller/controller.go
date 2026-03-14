@@ -179,5 +179,5 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 	dx := delta * 2 // mapTracker RotationSpeed默认2
 	rotateView(ctx, dx, 0)
 
-	return false
+	return true
 }
