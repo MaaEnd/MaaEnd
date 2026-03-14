@@ -444,6 +444,7 @@ enc_temp_folder/*
 
 # MaaDebugger
 .nicegui/*
+.maa
 
 # Build
 install/
