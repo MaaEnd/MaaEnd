@@ -111,54 +111,62 @@
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingWulingCity": {
         "desc": "在武陵总览界面，进入武陵-武陵城地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    450,
-                    0,
-                    500,
-                    250
-                ],
-                "expected": [
-                    "武",
-                    "陵",
-                    "城",
-                    "WULING",
-                    "CITY"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        // "recognition": {
+        //     "type": "OCR",
+        //     "param": {
+        //         "roi": [
+        //             450,
+        //             0,
+        //             500,
+        //             250
+        //         ],
+        //         "expected": [
+        //             "武",
+        //             "陵",
+        //             "城",
+        //             "WULING",
+        //             "CITY"
+        //         ]
+        //     }
+        // },
+        "action": "Click",
+        "target": [
+            510, 
+            140, 
+            130, 
+            80
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingWulingCitySuccess"
         ]
     },
     "__ScenePrivateMapOverviewWulingEnterMapWulingJingyuValley": {
         "desc": "在武陵总览界面，进入武陵-景玉谷地图",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    450,
-                    -400,
-                    500,
-                    400
-                ],
-                "expected": [
-                    "景",
-                    "玉",
-                    "谷",
-                    "JINGYU",
-                    "VALLEY"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
+        // "recognition": {
+        //     "type": "OCR",
+        //     "param": {
+        //         "roi": [
+        //             450,
+        //             -400,
+        //             500,
+        //             400
+        //         ],
+        //         "expected": [
+        //             "景",
+        //             "玉",
+        //             "谷",
+        //             "JINGYU",
+        //             "VALLEY"
+        //         ]
+        //     }
+        // },
+        "action": "Click",
+        "target": [
+            480, 
+            450, 
+            125, 
+            80
+        ],
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingJingyuValleySuccess"
         ]
