@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const debugmode = true
+const debugmode = false
 
 type autoEcoFarmFindNearestRecognitionResultParams struct {
 	RecognitionNodeName string  `json:"recognitionNodeName"`
