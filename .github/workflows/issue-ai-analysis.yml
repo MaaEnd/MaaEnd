@@ -33,7 +33,7 @@ jobs:
               return;
             }
 
-            const replyMessage = `@cursoragent 请仔细阅读当前 ISSUE（#${issue.number}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 \`git blame\` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请基于你的分析，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。注意：你的最终输出将直接作为该 ISSUE 的评论，因此请确保内容专业、清晰，并包含必要的分析细节。`;
+            const replyMessage = `@cursoragent 请仔细阅读当前 ISSUE（#${issueNumber}）的讨论内容，理解其中涉及的功能或问题。随后，在项目代码中定位与该功能相关的文件或代码段，并使用 \`git blame\` 查找最近修改过该部分代码的三位贡献者（按提交时间倒序排列）。最后，请基于你的分析，输出一个简洁的分析结论，并 @ 这三位贡献者，礼貌地请求他们协助排查问题。注意：你的最终输出将直接作为该 ISSUE 的评论，因此请确保内容专业、清晰，并包含必要的分析细节。`;
 
             // 创建评论
             const createCommentResponse = await github.rest.issues.createComment({
