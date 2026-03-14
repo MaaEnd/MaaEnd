@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+    env:
+      CURSOR_API_KEY: ${{ secrets.CURSOR_KEY }}
     steps:
       - name: Request AI Analysis
         uses: actions/github-script@v7
