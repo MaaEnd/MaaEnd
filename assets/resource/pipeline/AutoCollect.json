@@ -1,0 +1,26 @@
+{
+    "AutoCollectStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]CollectThornyYazhenSub",
+            "AutoCollectEnd"
+        ]
+    },
+    "AutoCollectEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "CollectThornyYazhenSub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute1Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+        }
+    }
+}

@@ -1,0 +1,180 @@
+{
+    "AutoCollectClickStart": {
+        "next": [
+            "AutoCollectFind",
+            "AutoCollectClickEnd"
+        ]
+    },
+    "AutoCollectHoldAlt": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 164
+            }
+        },
+        "next": [
+            "AutoCollectClick"
+        ]
+    },
+    "AutoCollectClick": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "萤壳虫",
+                    "灼壳虫",
+                    "柑实",
+                    "灰芦麦",
+                    "锦草",
+                    "苦叶椒",
+                    "映火荞花",
+                    "砂叶",
+                    "黯银柑实",
+                    "芽针",
+                    "荞花",
+                    "蓬茸锦草",
+                    "酮化灌木",
+                    "荆刺芽针",
+                    "原木",
+                    "重红柱状菌",
+                    "受蚀玉化叶",
+                    "至晶多齿叶",
+                    "岩天使叶",
+                    "轻红柱状菌",
+                    "晶化多齿叶",
+                    "血菌",
+                    "中红柱状菌",
+                    "纯晶多齿叶",
+                    "星门菌"
+                ],
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ]
+            }
+        },
+        // "action": {
+        //     "type": "Click",
+        //     "param": {}
+        // },
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到采集物"
+        },
+        "next": [
+            "AutoCollectClickAgain",
+            "AutoCollectReleaseAlt"
+        ]
+    },
+    "AutoCollectReleaseAlt": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 164
+            }
+        },
+        "next": [
+            "AutoCollectClickEnd"
+        ]
+    },
+    "AutoCollectClickEnd": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]AutoCollectClickAfter"
+        ]
+    },
+    "AutoCollectFind": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "萤壳虫",
+                    "灼壳虫",
+                    "柑实",
+                    "灰芦麦",
+                    "锦草",
+                    "苦叶椒",
+                    "映火荞花",
+                    "砂叶",
+                    "黯银柑实",
+                    "芽针",
+                    "荞花",
+                    "蓬茸锦草",
+                    "酮化灌木",
+                    "荆刺芽针",
+                    "原木",
+                    "重红柱状菌",
+                    "受蚀玉化叶",
+                    "至晶多齿叶",
+                    "岩天使叶",
+                    "轻红柱状菌",
+                    "晶化多齿叶",
+                    "血菌",
+                    "中红柱状菌",
+                    "纯晶多齿叶",
+                    "星门菌"
+                ],
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ]
+            }
+        },
+        "timeout": 1500,
+        "next": [
+            "AutoCollectHoldAlt"
+        ]
+    },
+    "AutoCollectClickAgain": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "expected": [
+                    "萤壳虫",
+                    "灼壳虫",
+                    "柑实",
+                    "灰芦麦",
+                    "锦草",
+                    "苦叶椒",
+                    "映火荞花",
+                    "砂叶",
+                    "黯银柑实",
+                    "芽针",
+                    "荞花",
+                    "蓬茸锦草",
+                    "酮化灌木",
+                    "荆刺芽针",
+                    "原木",
+                    "重红柱状菌",
+                    "受蚀玉化叶",
+                    "至晶多齿叶",
+                    "岩天使叶",
+                    "轻红柱状菌",
+                    "晶化多齿叶",
+                    "血菌",
+                    "中红柱状菌",
+                    "纯晶多齿叶",
+                    "星门菌"
+                ],
+                "roi": [
+                    803,
+                    350,
+                    263,
+                    219
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "repeat": 2,
+        "next": [
+            "AutoCollectReleaseAlt"
+        ]
+    }
+}

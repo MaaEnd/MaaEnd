@@ -1,0 +1,37 @@
+{
+    "task": [
+        {
+            "name": "AutoCollect",
+            "label": "$task.AutoCollect.label",
+            "entry": "AutoCollectRoute1Start",
+            "description": "$task.AutoCollect.description",
+            "option": [
+                "AutoCollectRoute1"
+            ]
+        }
+    ],
+    "option": {
+        "AutoCollectRoute1": {
+            "type": "switch",
+            "label": "$option.AutoCollectRoute1.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CollectThornyYazhenSub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CollectThornyYazhenSub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
