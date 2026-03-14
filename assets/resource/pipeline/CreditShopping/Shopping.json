@@ -90,6 +90,9 @@
     },
     "RefreshItem": {
         "desc": "刷新商品",
+        "focus": {
+            "Node.Action.Succeeded": "刷新商品"
+        },
         "enabled": false,
         "recognition": "And",
         "all_of": [
