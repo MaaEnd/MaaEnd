@@ -148,7 +148,7 @@
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Failed": "找不到开始点"
+            "Node.Action.Succeeded": "找不到开始点"
         }
     },
     "ProtocolSpaceTouchStartTouch": {
@@ -229,7 +229,7 @@
         },
         "post_delay": 0,
         "focus": {
-            "Node.Action.Failed": "找不到退出点"
+            "Node.Action.Succeeded": "找不到退出点"
         }
     },
     "ProtocolSpaceTouchExitTouch": {
