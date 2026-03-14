@@ -956,6 +956,64 @@
             }
         }
     },
+    "TeleportButton": {
+        "desc": "传送按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__TeleportButton",
+                    "__TeleportButtonHover"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__TeleportButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/TeleportButton.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__TeleportButtonHover": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1181,
+                    611,
+                    94,
+                    102
+                ],
+                "template": [
+                    "Common/Button/TeleportButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
 
     "CloseRewardsButton": {
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
