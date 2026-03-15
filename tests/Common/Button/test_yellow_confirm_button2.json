@@ -25,24 +25,6 @@
             "hits": [
                 "YellowConfirmButtonType2"
             ]
-        },
-        {
-            "image": "帝江号_控制中枢_会客室_开展交流.png",
-            "hits": [
-                "YellowConfirmButtonType1"
-            ]
-        },
-        {
-            "image": "帝江号_控制中枢_制造舱_确认补货.png",
-            "hits": [
-                "WhiteConfirmButtonType1"
-            ]
-        },
-        {
-            "image": "帝江号_控制中枢_会客室_需要接收.png",
-            "hits": [
-                "WhiteConfirmButtonType2"
-            ]
         }
     ]
 }
