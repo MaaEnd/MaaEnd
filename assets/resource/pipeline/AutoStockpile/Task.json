@@ -1,5 +1,6 @@
 {
     "AutoStockpileBuy": {
+        "desc": "进行购买操作",
         "recognition": {"type": "And", "param": {"all_of": ["YellowConfirmButtonType2"]}},
         "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
@@ -159,10 +160,7 @@
         "rate_limit": 0,
         "next": ["AutoStockpileRelayNode"]
     },
-    "AutoStockpileRelayNode": {"pre_delay": 0, "post_delay": 0, "rate_limit": 0, "next": [
-            "AutoStockpileBuy",
-            "AutoStockpileCheckQuota"
-        ]},
+    "AutoStockpileRelayNode": {"pre_delay": 0, "post_delay": 0, "rate_limit": 0, "next": ["AutoStockpileBuy"]},
     "AutoStockpileSwipeSpecificQuantity": {"enabled": false, "pre_delay": 0, "post_delay": 0, "rate_limit": 0},
     "AutoStockpileDevSkipSwipe": {
         "desc": "开发时启用，跳过选择数量",
@@ -173,6 +171,7 @@
         "next": ["AutoStockpileRelayNode"]
     },
     "AutoStockpileCheckBuyResult": {
+        "desc": "确认购买是否成功",
         "recognition": {"type": "And", "param": {"all_of": ["CloseRewardsButton"]}},
         "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
@@ -216,6 +215,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockpileCheckQuota",
             "AutoStockpileDevSkipSwipe",
             "AutoStockpileSwipeSpecificQuantity",
             "AutoStockpileSwipeMax"
@@ -234,5 +234,5 @@
                         179,
                         160,
                         230
-                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "购买数量不足，取消购买"}}
+                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "可购买数量不足，取消购买"}}
 }
