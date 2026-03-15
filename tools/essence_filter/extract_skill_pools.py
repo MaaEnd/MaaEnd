@@ -46,13 +46,13 @@ def load_suffix_stopwords(config_path: Path) -> Dict[str, List[str]]:
 
 
 def strip_suffix_stopwords(text: str, stopwords: List[str]) -> str:
-    """从末尾反复去掉停用词，如 '力量提升' -> '力量'。"""
+    """从末尾反复去掉停用词，如 '力量提升' -> '力量'。若整词就是停用词（如 '効率'）则不剥掉，避免 slot3 等基名被清空。"""
     s = text
     changed = True
     while changed and s:
         changed = False
         for w in stopwords:
-            if s.endswith(w):
+            if s.endswith(w) and len(s) > len(w):
                 s = s[: -len(w)]
                 changed = True
                 break
