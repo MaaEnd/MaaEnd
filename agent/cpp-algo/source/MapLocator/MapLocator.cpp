@@ -40,7 +40,8 @@ bool MatchesExpectedZoneSelector(const std::string& expected_zone_selector, cons
     if (expected_zone_selector.empty()) {
         return true;
     }
-    if (coarse.zone_id == expected_zone_selector || coarse.base_class == expected_zone_selector || coarse.raw_class == expected_zone_selector) {
+    if (coarse.zone_id == expected_zone_selector || coarse.base_class == expected_zone_selector
+        || coarse.raw_class == expected_zone_selector) {
         return true;
     }
     return coarse.raw_class.starts_with(expected_zone_selector);
@@ -66,6 +67,18 @@ struct GlobalSearchAttempt
 {
     std::optional<MapPosition> result;
     MapPosition rawPos {};
+};
+
+using TimePoint = std::chrono::steady_clock::time_point;
+
+struct SearchExecutionContext
+{
+    const MatchFeature& tmplFeat;
+    IMatchStrategy* strategy = nullptr;
+    const cv::Mat& bigMap;
+    cv::Rect constrainedRect {};
+    const std::string& targetZoneId;
+    MapPosition* outRawPos = nullptr;
 };
 
 } // namespace
@@ -95,7 +108,7 @@ private:
     std::optional<MapPosition> tryTracking(
         const MatchFeature& tmplFeat,
         IMatchStrategy* strategy,
-        std::chrono::steady_clock::time_point now,
+        TimePoint now,
         const LocateOptions& options,
         MapPosition* outRawPos = nullptr);
 
@@ -112,36 +125,19 @@ private:
         const cv::Mat& templ,
         IMatchStrategy* strategy,
         const std::string& targetZoneId);
-    std::optional<MapPosition> tryConstrainedFineSearch(
-        const MatchFeature& tmplFeat,
-        IMatchStrategy* strategy,
-        const cv::Mat& bigMap,
-        const cv::Rect& constrainedRect,
-        const std::string& targetZoneId,
-        MapPosition* outRawPos);
-    std::optional<MapPosition> tryLegacyCoarseSearch(
-        const MatchFeature& tmplFeat,
-        IMatchStrategy* strategy,
-        const cv::Mat& bigMap,
-        const cv::Rect& constrainedRect,
-        const std::string& targetZoneId,
-        MapPosition* outRawPos);
+    std::optional<MapPosition> tryConstrainedFineSearch(const SearchExecutionContext& ctx);
+    std::optional<MapPosition> tryLegacyCoarseSearch(const SearchExecutionContext& ctx);
 
     YoloCoarseResult predictCoarse(const cv::Mat& minimap) const;
-    void refreshAsyncYoloState(const cv::Mat& minimap, std::chrono::steady_clock::time_point now);
-    std::optional<LocateResult> tryTrackingLocate(
-        const cv::Mat& minimap,
-        const LocateOptions& options,
-        const std::string& expectedZoneId,
-        std::chrono::steady_clock::time_point now);
+    void refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now);
+    std::optional<LocateResult>
+        tryTrackingLocate(const cv::Mat& minimap, const LocateOptions& options, const std::string& expectedZoneId, TimePoint now);
     SearchConstraint buildSearchConstraint(
         const std::string& expectedZoneSelector,
         const std::string& targetZoneId,
         const YoloCoarseResult& coarse) const;
-    std::optional<MapPosition> tryGlobalSearchWithFallback(
-        const cv::Mat& minimap,
-        const std::string& targetZoneId,
-        const SearchConstraint& constraint);
+    std::optional<MapPosition>
+        tryGlobalSearchWithFallback(const cv::Mat& minimap, const std::string& targetZoneId, const SearchConstraint& constraint);
     void drainBackgroundGlobalSearchTasks();
 
     void loadAvailableZones(const std::string& root);
@@ -266,7 +262,7 @@ void MapLocator::Impl::drainBackgroundGlobalSearchTasks()
 std::optional<MapPosition> MapLocator::Impl::tryTracking(
     const MatchFeature& tmplFeat,
     IMatchStrategy* strategy,
-    std::chrono::steady_clock::time_point now,
+    TimePoint now,
     const LocateOptions& options,
     MapPosition* outRawPos)
 {
@@ -306,15 +302,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         const int bottom = searchRect.y + searchRect.height - (validRoi.y + validRoi.height);
         const int left = validRoi.x - searchRect.x;
         const int right = searchRect.x + searchRect.width - (validRoi.x + validRoi.width);
-        cv::copyMakeBorder(
-            zoneMap(validRoi),
-            searchRoiWithPad,
-            top,
-            bottom,
-            left,
-            right,
-            cv::BORDER_CONSTANT,
-            cv::Scalar(0, 0, 0, 0));
+        cv::copyMakeBorder(zoneMap(validRoi), searchRoiWithPad, top, bottom, left, right, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0, 0));
     }
 
     auto searchFeature = strategy->extractSearchFeature(searchRoiWithPad);
@@ -465,16 +453,10 @@ std::optional<MapPosition> MapLocator::Impl::evaluateAndAcceptResult(
     return pos;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
-    const MatchFeature& tmplFeat,
-    IMatchStrategy* strategy,
-    const cv::Mat& bigMap,
-    const cv::Rect& constrainedRect,
-    const std::string& targetZoneId,
-    MapPosition* outRawPos)
+std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(const SearchExecutionContext& ctx)
 {
-    cv::Mat fineMap = bigMap(constrainedRect);
-    auto fineSearchFeat = strategy->extractSearchFeature(fineMap);
+    cv::Mat fineMap = ctx.bigMap(ctx.constrainedRect);
+    auto fineSearchFeat = ctx.strategy->extractSearchFeature(fineMap);
     std::vector<double> scales;
     for (double s = 0.90; s <= 1.101; s += 0.02) {
         scales.push_back(s);
@@ -492,12 +474,12 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
 
             cv::Mat scaledTempl, scaledWeightMask;
             if (std::abs(s - 1.0) > 0.001) {
-                cv::resize(tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
-                cv::resize(tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
+                cv::resize(ctx.tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
+                cv::resize(ctx.tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
             }
             else {
-                scaledTempl = tmplFeat.image;
-                scaledWeightMask = tmplFeat.mask;
+                scaledTempl = ctx.tmplFeat.image;
+                scaledWeightMask = ctx.tmplFeat.mask;
             }
 
             if (scaledTempl.cols > fineSearchFeat.image.cols || scaledTempl.rows > fineSearchFeat.image.rows
@@ -563,7 +545,7 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
         }
 
         auto directResult =
-            evaluateAndAcceptResult(scaleResult.fineRes, constrainedRect, scaleResult.scaledTempl, strategy, targetZoneId);
+            evaluateAndAcceptResult(scaleResult.fineRes, ctx.constrainedRect, scaleResult.scaledTempl, ctx.strategy, ctx.targetZoneId);
         if (!directResult) {
             continue;
         }
@@ -576,12 +558,12 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
         }
     }
 
-    if (outRawPos && bestRawScore >= 0.0) {
-        outRawPos->zoneId = targetZoneId;
-        outRawPos->x = constrainedRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
-        outRawPos->y = constrainedRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
-        outRawPos->score = bestRawScore;
-        outRawPos->scale = bestScale;
+    if (ctx.outRawPos && bestRawScore >= 0.0) {
+        ctx.outRawPos->zoneId = ctx.targetZoneId;
+        ctx.outRawPos->x = ctx.constrainedRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
+        ctx.outRawPos->y = ctx.constrainedRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
+        ctx.outRawPos->score = bestRawScore;
+        ctx.outRawPos->scale = bestScale;
     }
 
     if (bestValidScore < 0.0) {
@@ -589,7 +571,7 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
         return std::nullopt;
     }
 
-    auto directResult = evaluateAndAcceptResult(bestFineRes, constrainedRect, bestScaledTempl, strategy, targetZoneId);
+    auto directResult = evaluateAndAcceptResult(bestFineRes, ctx.constrainedRect, bestScaledTempl, ctx.strategy, ctx.targetZoneId);
     if (!directResult) {
         LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used." << VAR(bestRawScore);
         return std::nullopt;
@@ -600,24 +582,18 @@ std::optional<MapPosition> MapLocator::Impl::tryConstrainedFineSearch(
     return directResult;
 }
 
-std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
-    const MatchFeature& tmplFeat,
-    IMatchStrategy* strategy,
-    const cv::Mat& bigMap,
-    const cv::Rect& constrainedRect,
-    const std::string& targetZoneId,
-    MapPosition* outRawPos)
+std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(const SearchExecutionContext& ctx)
 {
-    const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
+    const cv::Rect mapBounds(0, 0, ctx.bigMap.cols, ctx.bigMap.rows);
 
     // 图像金字塔：全图匹配耗时极高，因此粗搜先固定在 coarseScale (约 0.2~0.3) 的降采样级别寻找可能的高分岛
     double coarseScale = matchCfg.coarseScale;
 
-    cv::Mat constrainedMap = bigMap(constrainedRect);
+    cv::Mat constrainedMap = ctx.bigMap(ctx.constrainedRect);
     cv::Mat smallMap;
     cv::resize(constrainedMap, smallMap, cv::Size(), coarseScale, coarseScale, cv::INTER_AREA);
 
-    auto coarseSearchFeat = strategy->extractSearchFeature(smallMap);
+    auto coarseSearchFeat = ctx.strategy->extractSearchFeature(smallMap);
     cv::Mat mapToUse;
     if (coarseSearchFeat.image.channels() == 3) {
         cv::cvtColor(coarseSearchFeat.image, mapToUse, cv::COLOR_BGR2GRAY);
@@ -629,19 +605,19 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
         mapToUse = coarseSearchFeat.image.clone();
     }
 
-    if (matchCfg.blurSize > 0 && !strategy->needsChamferCompensation()) {
+    if (matchCfg.blurSize > 0 && !ctx.strategy->needsChamferCompensation()) {
         cv::GaussianBlur(mapToUse, mapToUse, cv::Size(matchCfg.blurSize, matchCfg.blurSize), 0);
     }
 
     cv::Mat tmplGrayToUse;
-    if (tmplFeat.image.channels() == 3) {
-        cv::cvtColor(tmplFeat.image, tmplGrayToUse, cv::COLOR_BGR2GRAY);
+    if (ctx.tmplFeat.image.channels() == 3) {
+        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGR2GRAY);
     }
-    else if (tmplFeat.image.channels() == 4) {
-        cv::cvtColor(tmplFeat.image, tmplGrayToUse, cv::COLOR_BGRA2GRAY);
+    else if (ctx.tmplFeat.image.channels() == 4) {
+        cv::cvtColor(ctx.tmplFeat.image, tmplGrayToUse, cv::COLOR_BGRA2GRAY);
     }
     else {
-        tmplGrayToUse = tmplFeat.image.clone();
+        tmplGrayToUse = ctx.tmplFeat.image.clone();
     }
 
     struct CoarseCand
@@ -660,7 +636,7 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
         double currentScale = coarseScale * s;
         cv::Mat smallTempl, smallWeightMask;
         cv::resize(tmplGrayToUse, smallTempl, cv::Size(), currentScale, currentScale, cv::INTER_LINEAR);
-        cv::resize(tmplFeat.mask, smallWeightMask, cv::Size(), currentScale, currentScale, cv::INTER_NEAREST);
+        cv::resize(ctx.tmplFeat.mask, smallWeightMask, cv::Size(), currentScale, currentScale, cv::INTER_NEAREST);
 
         if (cv::countNonZero(smallWeightMask) < 5) {
             continue;
@@ -717,17 +693,17 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
 
     for (auto& cand : cands) {
         double s = cand.s;
-        int coarseX = static_cast<int>(cand.loc.x / coarseScale) + constrainedRect.x;
-        int coarseY = static_cast<int>(cand.loc.y / coarseScale) + constrainedRect.y;
+        int coarseX = static_cast<int>(cand.loc.x / coarseScale) + ctx.constrainedRect.x;
+        int coarseY = static_cast<int>(cand.loc.y / coarseScale) + ctx.constrainedRect.y;
 
         cv::Mat scaledTempl, scaledWeightMask;
         if (std::abs(s - 1.0) > 0.001) {
-            cv::resize(tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
-            cv::resize(tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
+            cv::resize(ctx.tmplFeat.image, scaledTempl, cv::Size(), s, s, cv::INTER_LINEAR);
+            cv::resize(ctx.tmplFeat.mask, scaledWeightMask, cv::Size(), s, s, cv::INTER_NEAREST);
         }
         else {
-            scaledTempl = tmplFeat.image;
-            scaledWeightMask = tmplFeat.mask;
+            scaledTempl = ctx.tmplFeat.image;
+            scaledWeightMask = ctx.tmplFeat.mask;
         }
 
         cv::Rect fineRect(
@@ -741,9 +717,9 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
             continue;
         }
 
-        cv::Mat fineMap = bigMap(validFineRect);
+        cv::Mat fineMap = ctx.bigMap(validFineRect);
 
-        auto fineSearchFeat = strategy->extractSearchFeature(fineMap);
+        auto fineSearchFeat = ctx.strategy->extractSearchFeature(fineMap);
         auto fineRes = CoreMatch(fineSearchFeat.image, scaledTempl, scaledWeightMask, matchCfg.blurSize);
 
         if (!fineRes) {
@@ -760,14 +736,14 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
         }
 
         bool ambiguous = false;
-        if (strategy->needsChamferCompensation()) { // i.e. PathHeatmap
+        if (ctx.strategy->needsChamferCompensation()) { // i.e. PathHeatmap
             ambiguous = (fineRes->psr < 6.0) || (fineRes->delta < 0.04);
             if (fineRes->score < 0.45 && ambiguous) {
                 continue;
             }
         }
         else {
-            double lowScoreCut = (targetZoneId.find("Base") != std::string::npos) ? 0.85 : 0.75;
+            double lowScoreCut = (ctx.targetZoneId.find("Base") != std::string::npos) ? 0.85 : 0.75;
             ambiguous = (fineRes->score < lowScoreCut) && (fineRes->psr < 6.0 || fineRes->delta < 0.02);
             if (ambiguous) {
                 continue;
@@ -797,15 +773,15 @@ std::optional<MapPosition> MapLocator::Impl::tryLegacyCoarseSearch(
         LogInfo << "Global Search: All candidates ambiguous, using fallback (score " << fallbackScore << ")";
     }
 
-    if (outRawPos && bestFine >= 0.0) {
-        outRawPos->zoneId = targetZoneId;
-        outRawPos->x = bestValidFineRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
-        outRawPos->y = bestValidFineRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
-        outRawPos->score = bestFine;
-        outRawPos->scale = bestScale;
+    if (ctx.outRawPos && bestFine >= 0.0) {
+        ctx.outRawPos->zoneId = ctx.targetZoneId;
+        ctx.outRawPos->x = bestValidFineRect.x + bestFineRes.loc.x + bestScaledTempl.cols / 2.0;
+        ctx.outRawPos->y = bestValidFineRect.y + bestFineRes.loc.y + bestScaledTempl.rows / 2.0;
+        ctx.outRawPos->score = bestFine;
+        ctx.outRawPos->scale = bestScale;
     }
 
-    auto res = evaluateAndAcceptResult(bestFineRes, bestValidFineRect, bestScaledTempl, strategy, targetZoneId);
+    auto res = evaluateAndAcceptResult(bestFineRes, bestValidFineRect, bestScaledTempl, ctx.strategy, ctx.targetZoneId);
     if (res) {
         res->scale = bestScale;
     }
@@ -838,14 +814,14 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearch(
             LogInfo << "Global Search Aborted: coarse ROI is outside of map bounds.";
             return std::nullopt;
         }
-        return tryConstrainedFineSearch(tmplFeat, strategy, bigMap, constrainedRect, targetZoneId, outRawPos);
+        return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, constrainedRect, targetZoneId, outRawPos });
     }
 
     if (constraint.mode == GlobalSearchMode::FullMapFine) {
-        return tryConstrainedFineSearch(tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos);
+        return tryConstrainedFineSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
     }
 
-    return tryLegacyCoarseSearch(tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos);
+    return tryLegacyCoarseSearch({ tmplFeat, strategy, bigMap, mapBounds, targetZoneId, outRawPos });
 }
 
 YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
@@ -856,7 +832,7 @@ YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
     return zoneClassifier->predictCoarseByYOLO(minimap);
 }
 
-void MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, std::chrono::steady_clock::time_point now)
+void MapLocator::Impl::refreshAsyncYoloState(const cv::Mat& minimap, TimePoint now)
 {
     if (!zoneClassifier || !zoneClassifier->isLoaded()) {
         return;
@@ -895,7 +871,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     const cv::Mat& minimap,
     const LocateOptions& options,
     const std::string& expectedZoneId,
-    std::chrono::steady_clock::time_point now)
+    TimePoint now)
 {
     if (options.force_global_search) {
         return std::nullopt;
@@ -1016,8 +992,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
 {
     const bool isNativePathHeatmap = targetZoneId.find("OMVBase") != std::string::npos;
     const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
-    const bool canSpeculateDualMode =
-        !isNativePathHeatmap && constraint.mode != GlobalSearchMode::LegacyCoarse && hardwareThreads >= 8;
+    const bool canSpeculateDualMode = !isNativePathHeatmap && constraint.mode != GlobalSearchMode::LegacyCoarse && hardwareThreads >= 8;
 
     auto runSearch = [this, &constraint, &targetZoneId](const cv::Mat& searchMinimap, MatchMode mode) -> GlobalSearchAttempt {
         GlobalSearchAttempt attempt;
@@ -1038,8 +1013,8 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
         std::string fallbackZoneId = targetZoneId;
         fallbackTask = std::async(std::launch::async, [this, fallbackMinimap, fallbackConstraint, fallbackZoneId]() {
             GlobalSearchAttempt attempt;
-            auto fallbackStrategy = MatchStrategyFactory::create(
-                fallbackZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
+            auto fallbackStrategy =
+                MatchStrategyFactory::create(fallbackZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
             if (!fallbackStrategy) {
                 return attempt;
             }
@@ -1163,16 +1138,12 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
-        return LocateResult {
-            .status = LocateStatus::YoloFailed,
-            .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search."
-        };
+        return LocateResult { .status = LocateStatus::YoloFailed,
+                              .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search." };
     }
     if (coarse.valid && !coarse.is_none && coarse.has_roi && constraint.mode != GlobalSearchMode::RoiFine) {
-        return LocateResult {
-            .status = LocateStatus::YoloFailed,
-            .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search."
-        };
+        return LocateResult { .status = LocateStatus::YoloFailed,
+                              .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search." };
     }
 
     int maxAllowedLost = (targetZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;
