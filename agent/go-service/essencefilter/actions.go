@@ -27,7 +27,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 
 	gameDataDir := filepath.Join(base, "EssenceFilter")
-	weaponDataPath = filepath.Join(gameDataDir, "weapons_data.json")
 	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
 
 	// 2. load matcher config
@@ -37,8 +36,8 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	}
 	log.Info().Str("component", "EssenceFilter").Str("step", "LoadMatcherConfig").Msg("matcher config loaded")
 
-	// 3. load DB
-	if err := LoadWeaponDatabase(weaponDataPath); err != nil {
+	// 3. load DB from new format only (weapons_output.json + skill_pools.json + locations.json)
+	if err := LoadNewFormat(gameDataDir); err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadDatabase").Msg("load DB failed")
 		return false
 	}
