@@ -1,0 +1,169 @@
+{
+    // 白色确认按钮类型2。
+    // 该节点有特殊优先级：先在常见区域做一次模板直搜，命中后立即结束；只有未命中时，才回退到“背景色 + 图标”的短路组合识别。
+    "WhiteConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2：优先常见区域直搜，未命中再回退到白底加对号图标组合识别",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType2commonSearchAreas1",
+                    "__WhiteConfirmButtonType2"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    // 回退用组合识别。
+    // 当常见区域直搜未命中时，要求背景与图标同时命中，并以背景框作为点击目标。
+    "__WhiteConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2回退组合识别：白底加对号图标，以背景框作为点击目标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteButtonBackground",
+                    "__WhiteConfirmButtonType2Icon"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    // 常见区域直搜聚合节点。
+    // 这里先尝试更高命中率的固定区域，从而减少一次背景色识别和图标组合识别。
+    "__WhiteConfirmButtonType2commonSearchAreas1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2常见区域直搜聚合节点，按稳定态优先短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType2commonSearchAreas1Stable",
+                    "__WhiteConfirmButtonType2commonSearchAreas1Hover"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2commonSearchAreas1Stable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2常见区域常态模板，命中后直接结束整个按钮识别",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    672,
+                    416,
+                    608,
+                    304
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2commonSearchAreas1Hover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2常见区域悬停态模板，在常态未命中时回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    672,
+                    416,
+                    608,
+                    304
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    // 回退组合识别中的图标聚合节点。
+    // 当进入这一层时，仍按常态 -> 悬停态顺序短路匹配。
+    "__WhiteConfirmButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2回退图标聚合节点，按稳定态优先短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__WhiteConfirmButtonType2IconStable",
+                    "__WhiteConfirmButtonType2IconHover"
+                ]
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2回退常态图标，在白色背景框附近优先匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__WhiteConfirmButtonType2IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色确认按钮类型2回退悬停态图标，在常态未命中时作为回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/WhiteConfirmButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

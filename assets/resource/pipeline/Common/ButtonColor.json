@@ -1,0 +1,112 @@
+{
+    // 按钮颜色基础节点。
+    // 这些节点只负责提供背景候选框，供确认/取消类按钮做后续组合识别。
+    "YellowButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "黄色按钮背景色，用作黄色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    28,
+                    100,
+                    100
+                ],
+                "upper": [
+                    30,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 3000
+            }
+        }
+    },
+    "WhiteButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色按钮背景色，用作白色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        238,
+                        236,
+                        236
+                    ],
+                    [
+                        153,
+                        152,
+                        152
+                    ]
+                ],
+                "upper": [
+                    [
+                        255,
+                        253,
+                        253
+                    ],
+                    [
+                        239,
+                        237,
+                        237
+                    ],
+                    [
+                        167,
+                        165,
+                        165
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    },
+    "GrayButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "灰色按钮背景色，用作灰色按钮组合识别的背景框",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "lower": [
+                    [
+                        69,
+                        68,
+                        68
+                    ],
+                    [
+                        83,
+                        82,
+                        82
+                    ]
+                ],
+                "upper": [
+                    [
+                        70,
+                        69,
+                        69
+                    ],
+                    [
+                        84,
+                        83,
+                        83
+                    ]
+                ],
+                "connected": true,
+                "count": 100
+            }
+        }
+    }
+}

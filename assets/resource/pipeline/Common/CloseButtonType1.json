@@ -1,0 +1,171 @@
+{
+    // 通用关闭按钮。
+    // CloseButtonType1 只负责右上角关闭按钮模板的短路识别；CloseButtonType2 在此基础上再兼容 ESC 菜单关闭入口。
+    "CloseButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮类型1：右上角 X，仅覆盖普通关闭按钮，不兼容 ESC 菜单",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__CloseButtonType1",
+                    "__CloseButtonType2",
+                    "__CloseButtonType3",
+                    "__CloseButtonType4",
+                    "__CloseButtonType5"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__CloseButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮常用变体1：圆形白底黑色 X，优先匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1186,
+                    1,
+                    94,
+                    78
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType1.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "__CloseButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮常用变体2：无边框白底黑色 X，常见于据点交易选择商品界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1056,
+                    92,
+                    105,
+                    71
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType2.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "__CloseButtonType3": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮常用变体3：百科界面的圆形灰底白色 X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1186,
+                    1,
+                    94,
+                    78
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType3.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "__CloseButtonType4": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮常用变体4：帝江号界面的黑底白色 X",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1057,
+                    101,
+                    70,
+                    62
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType4.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    "__CloseButtonType5": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮常用变体5：Baker 页面圆形白底黑色 X，背景偏灰",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1186,
+                    1,
+                    94,
+                    78
+                ],
+                "template": [
+                    "Common/Button/CloseButtonType5.png"
+                ],
+                "threshold": 0.8
+            }
+        }
+    },
+    // 兼容 ESC 菜单的关闭入口。
+    // 先复用普通关闭按钮识别，未命中时再尝试 ESCMenu 节点。
+    "CloseButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "通用关闭按钮类型2：在右上角关闭按钮基础上兼容 ESC 菜单",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "CloseButtonType1",
+                    "ESCMenu"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}

@@ -1,0 +1,120 @@
+{
+    // 奖励关闭按钮。
+    // 当前主节点只依赖按钮模板本身；奖励界面标题图标保留为辅助校验节点，但因部分场景图标不一致，暂未接入主识别链。
+    "CloseRewardsButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "奖励关闭按钮：位于界面中下部，当前仅依赖按钮模板识别",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    // FIXME: 一件售卖产品场景中的奖励图标样式不同，标题图标校验暂不接入主链。
+                    // "DectedCloseRewardsImage",
+                    "__CloseRewardsButton"
+                ]
+                // box_index 暂不指定，保持现有行为不变。
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 50,
+            "timeout": 1000
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    // 奖励关闭按钮图标聚合节点，按常态 -> 悬停态顺序短路匹配。
+    "__CloseRewardsButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "奖励关闭按钮模板聚合节点，按稳定态优先短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__CloseRewardsButtonStable",
+                    "__CloseRewardsButtonHover"
+                ]
+            }
+        }
+    },
+    // 保留的奖励界面标题图标检测节点，供后续恢复更严格校验时直接复用。
+    "DectedCloseRewardsImage": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "奖励界面标题图标检测节点，当前未接入主识别链",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    437,
+                    0,
+                    419,
+                    224
+                ],
+                "template": [
+                    "Common/Button/CloseRewardImage.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseRewardsButtonStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "奖励关闭按钮常态模板，在界面中下部固定区域优先匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    540,
+                    538,
+                    209,
+                    182
+                ],
+                "template": [
+                    "Common/Button/CloseRewardButton.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CloseRewardsButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "奖励关闭按钮悬停态模板，在常态未命中时作为回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    540,
+                    538,
+                    209,
+                    182
+                ],
+                "template": [
+                    "Common/Button/CloseRewardButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    }
+}
