@@ -55,11 +55,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	if opts.Rarity4Weapon {
 		WeaponRarity = append(WeaponRarity, 4)
 	}
-	if len(WeaponRarity) == 0 {
-		log.Error().Str("component", "EssenceFilter").Str("step", "ValidatePresets").Msg("no preset selected")
-		LogMXUSimpleHTMLWithColor(ctx, "未选择任何武器稀有度，请至少选择一个武器稀有度作为筛选条件", "#ff0000")
-		return false
-	}
 	var essenceTypes []EssenceMeta
 	if opts.FlawlessEssence {
 		essenceTypes = append(essenceTypes, FlawlessEssenceMeta)
@@ -73,7 +68,11 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+	if len(WeaponRarity) == 0 {
+		LogMXUSimpleHTML(ctx, "未选择武器稀有度，仅使用扩展规则")
+	} else {
+		LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+	}
 	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(essenceTypes)))
 	filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
 	names := make([]string, 0, len(filteredWeapons))
@@ -90,64 +89,77 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	buildFilteredSkillStats(filteredWeapons)
 	setRunState(st)
 
-	LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
-	sort.Slice(filteredWeapons, func(i, j int) bool { return filteredWeapons[i].Rarity > filteredWeapons[j].Rarity })
-	var builder strings.Builder
-	const columns = 3
-	builder.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
-	for i, w := range filteredWeapons {
-		if i%columns == 0 {
-			builder.WriteString("<tr>")
-		}
-		builder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; color: %s; font-size: 11px;">%s</td>`, getColorForRarity(w.Rarity), w.ChineseName))
-		if i%columns == columns-1 || i == len(filteredWeapons)-1 {
-			builder.WriteString("</tr>")
-		}
+	if len(filteredWeapons) == 0 {
+		LogMXUSimpleHTML(ctx, "符合条件的武器数量：0（仅扩展规则）")
+	} else {
+		LogMXUSimpleHTML(ctx, fmt.Sprintf("符合条件的武器数量：%d", len(filteredWeapons)))
 	}
-	builder.WriteString("</table>")
-	LogMXUHTML(ctx, builder.String())
+	sort.Slice(filteredWeapons, func(i, j int) bool { return filteredWeapons[i].Rarity > filteredWeapons[j].Rarity })
+	if len(filteredWeapons) > 0 {
+		var builder strings.Builder
+		const columns = 3
+		builder.WriteString(`<table style="width: 100%; border-collapse: collapse;">`)
+		for i, w := range filteredWeapons {
+			if i%columns == 0 {
+				builder.WriteString("<tr>")
+			}
+			builder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; color: %s; font-size: 11px;">%s</td>`, getColorForRarity(w.Rarity), w.ChineseName))
+			if i%columns == columns-1 || i == len(filteredWeapons)-1 {
+				builder.WriteString("</tr>")
+			}
+		}
+		builder.WriteString("</table>")
+		LogMXUHTML(ctx, builder.String())
+	} else {
+		LogMXUSimpleHTML(ctx, "未选择武器，无目标武器列表")
+	}
 
 	log.Info().Str("component", "EssenceFilter").Str("step", "BuildSkillCombinations").Int("combinations", len(st.TargetSkillCombinations)).Msg("skill combinations built")
 	log.Info().Str("component", "EssenceFilter").Msg("init done")
 
-	var skillIdSlots [3][]int
-	for _, c := range st.TargetSkillCombinations {
-		for i, skillID := range c.SkillIDs {
-			skillIdSlots[i] = append(skillIdSlots[i], skillID)
-		}
-	}
-	var skillBuilder strings.Builder
-	skillBuilder.WriteString(`<div style="color: #00bfff; font-weight: 900;">目标技能列表：</div>`)
-	slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"}
-	for i, idSlot := range skillIdSlots {
-		uniqueIds := make(map[int]struct{})
-		for _, id := range idSlot {
-			uniqueIds[id] = struct{}{}
-		}
-		pool := GetPoolBySlot(i + 1)
-		skillNames := make([]string, 0, len(uniqueIds))
-		for id := range uniqueIds {
-			skillNames = append(skillNames, SkillNameByID(id, pool))
-		}
-		sort.Strings(skillNames)
-		if len(skillNames) == 0 {
-			continue
-		}
-		slotColor := slotColors[i]
-		skillBuilder.WriteString(fmt.Sprintf(`<div style="color: %s; font-weight: 700;">词条 %d:</div>`, slotColor, i+1))
-		skillBuilder.WriteString(fmt.Sprintf(`<table style="width: 100%%; color: %s; border-collapse: collapse;">`, slotColor))
-		for j, name := range skillNames {
-			if j%columns == 0 {
-				skillBuilder.WriteString("<tr>")
-			}
-			skillBuilder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; font-size: 12px;">%s</td>`, name))
-			if j%columns == columns-1 || j == len(skillNames)-1 {
-				skillBuilder.WriteString("</tr>")
+	if len(st.TargetSkillCombinations) > 0 {
+		const columns = 3
+		var skillIdSlots [3][]int
+		for _, c := range st.TargetSkillCombinations {
+			for i, skillID := range c.SkillIDs {
+				skillIdSlots[i] = append(skillIdSlots[i], skillID)
 			}
 		}
-		skillBuilder.WriteString("</table>")
+		var skillBuilder strings.Builder
+		skillBuilder.WriteString(`<div style="color: #00bfff; font-weight: 900;">目标技能列表：</div>`)
+		slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"}
+		for i, idSlot := range skillIdSlots {
+			uniqueIds := make(map[int]struct{})
+			for _, id := range idSlot {
+				uniqueIds[id] = struct{}{}
+			}
+			pool := GetPoolBySlot(i + 1)
+			skillNames := make([]string, 0, len(uniqueIds))
+			for id := range uniqueIds {
+				skillNames = append(skillNames, SkillNameByID(id, pool))
+			}
+			sort.Strings(skillNames)
+			if len(skillNames) == 0 {
+				continue
+			}
+			slotColor := slotColors[i]
+			skillBuilder.WriteString(fmt.Sprintf(`<div style="color: %s; font-weight: 700;">词条 %d:</div>`, slotColor, i+1))
+			skillBuilder.WriteString(fmt.Sprintf(`<table style="width: 100%%; color: %s; border-collapse: collapse;">`, slotColor))
+			for j, name := range skillNames {
+				if j%columns == 0 {
+					skillBuilder.WriteString("<tr>")
+				}
+				skillBuilder.WriteString(fmt.Sprintf(`<td style="padding: 2px 8px; font-size: 12px;">%s</td>`, name))
+				if j%columns == columns-1 || j == len(skillNames)-1 {
+					skillBuilder.WriteString("</tr>")
+				}
+			}
+			skillBuilder.WriteString("</table>")
+		}
+		LogMXUHTML(ctx, skillBuilder.String())
+	} else {
+		LogMXUSimpleHTML(ctx, "未选择武器，无目标技能列表")
 	}
-	LogMXUHTML(ctx, skillBuilder.String())
 	return true
 }
 

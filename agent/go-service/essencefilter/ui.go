@@ -222,6 +222,10 @@ func logCalculatorResult(ctx *maa.Context) {
 	if st == nil {
 		return
 	}
+	if len(st.TargetSkillCombinations) == 0 {
+		LogMXUSimpleHTML(ctx, "未选择武器目标，不生成预刻写方案。")
+		return
+	}
 	graduated := make(map[string]bool)
 	for _, s := range st.MatchedCombinationSummary {
 		for _, w := range s.Weapons {
