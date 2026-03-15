@@ -128,7 +128,13 @@
                     15
                 ],
                 "expected": [
-                    "接取运送委托"
+                    "接取运送委托",
+                    "接取運送委託",
+                    "Accept Delivery Commission",
+                    "Accept Delivery Request",
+                    "Accept Transport Commission",
+                    "輸送依頼を受注",
+                    "輸送依頼を受ける"
                 ]
             }
         },
