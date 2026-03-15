@@ -57,6 +57,7 @@
         ],
         "expected": [
             "员养成",
+            "員養成",
             "Operator Progression"
         ],
         "action": "Click",

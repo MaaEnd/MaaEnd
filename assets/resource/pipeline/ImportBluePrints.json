@@ -74,6 +74,7 @@
                 ],
                 "expected": [
                     "导入蓝图",
+                    "匯入藍圖",
                     "Import Blueprint",
                     "Import"
                 ]
@@ -139,6 +140,7 @@
                 ],
                 "expected": [
                     "确认",
+                    "確定",
                     "Confirm"
                 ]
             }

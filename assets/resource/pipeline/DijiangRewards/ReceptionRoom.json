@@ -13,6 +13,7 @@
                 ],
                 "expected": [
                     "^会客室$",
+                    "^會客室$",
                     "Reception"
                 ]
             }
@@ -222,6 +223,7 @@
                 ],
                 "expected": [
                     "已达自有线索库容量上限",
+                    "已達自有線索庫容量上限",
                     "Local clue library is full"
                 ]
             }
@@ -253,6 +255,7 @@
                 ],
                 "expected": [
                     "线索",
+                    "線索",
                     "Clue"
                 ]
             }
@@ -456,6 +459,7 @@
                 ],
                 "expected": [
                     "线索",
+                    "線索",
                     "Clue"
                 ],
                 "order_by": "Vertical"

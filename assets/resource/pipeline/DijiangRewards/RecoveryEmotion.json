@@ -70,7 +70,9 @@
                     "Selected operator is at max mood",
                     "No recovery required",
                     "干员心情已满",
-                    "无法使用助力"
+                    "幹員心情已滿",
+                    "无法使用助力",
+                    "無法使用助力"
                 ]
             }
         },
@@ -226,7 +228,8 @@
                     "沒有更多的心情激勵點數，無法選擇更多幹員",
                     "Cannot select more operators as all Mood Booster Points have been used up",
                     "体力激励ポイントが足りないため、これ以上選択できません",
-                    "没有更多的心情激励点数"
+                    "没有更多的心情激励点数",
+                    "沒有更多的心情激勵點數"
                 ]
             }
         },
