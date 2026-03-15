@@ -32,40 +32,13 @@
         "post_delay": 0,
         "timeout": 2000,
         "next": [
-            "FirstSwipeToTop"
+            "EssenceFilterInit"
         ],
         "on_error": [
             "EssenceFilterNavigateToInventory"
         ],
         "focus": {
             "Node.Action.Succeeded": "确认在基质界面"
-        }
-    },
-    "FirstSwipeToTop": {
-        "desc": "初始化位置，滑动到顶端",
-        "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    500,
-                    100
-                ],
-                "end": [
-                    500,
-                    500
-                ],
-                "end_hold": 5,
-                "duration": 100
-            }
-        },
-        "repeat": 3,
-        "post_delay": 500,
-        "next": [
-            "EssenceFilterInit"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "滑动到顶端"
         }
     },
     "EssenceFilterNavigateToInventory": {
