@@ -67,6 +67,8 @@
     "option.FlawlessEssence.label": "🟨Flawless Essence",
     "option.PureEssence.label": "🟪Pure Essence",
     "option.SelectExtraRules.label": "Extra Rules",
+    "option.SkipMarkedEssence.label": "Skip Marked Essences",
+    "option.SkipMarkedEssence.description": "Directly skip essences identified as already locked or discarded to speed up the filtering process.",
     "option.KeepFuturePromising.label": "Keep Future-Promising Matrices",
     "option.KeepFuturePromising.description": "Keep matrices with all 3 skill slots filled and total level meeting the threshold. Lower priority than weapon matching.",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "Min Total Level",

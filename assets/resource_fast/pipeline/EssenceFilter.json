@@ -192,7 +192,7 @@
             "EssenceFilterRowNextItem"
         ]
     },
-"EssenceFilterPreCheckMark": {
+    "EssenceFilterPreCheckMark": {
         "desc": "路由分支：等待面板打开，优先匹配已标记状态",
         "recognition": "DirectHit",
         "action": "DoNothing",

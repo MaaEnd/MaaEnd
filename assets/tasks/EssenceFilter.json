@@ -354,7 +354,7 @@
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "skipmarked_essence": true
+                                "skip_marked_essence": true
                             }
                         }
                     }
@@ -364,7 +364,7 @@
                     "pipeline_override": {
                         "EssenceFilterInit": {
                             "attach": {
-                                "skipmarked_essence": false
+                                "skip_marked_essence": false
                             }
                         }
                     }

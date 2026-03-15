@@ -516,31 +516,35 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	visitedCount++
 	rowIndex++
 
-opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
-    nextTask := "EssenceFilterCheckItemSlot1"
+	opts, err := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	if err != nil {
+		log.Warn().Err(err).Str("component", "EssenceFilter").Msg("failed to get options, using default")
+	}
 
-    if opts != nil && opts.SkipMarkedEssence {
-       nextTask = "EssenceFilterPreCheckMark"
-    }
+	nextTask := "EssenceFilterCheckItemSlot1"
 
-    ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-       {Name: nextTask},
-    })
-    return true
+	if opts != nil && opts.SkipMarkedEssence {
+		nextTask = "EssenceFilterPreCheckMark"
+	}
+
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+		{Name: nextTask},
+	})
+	return true
 }
 
 // EssenceFilterSkipMarkedAction - 日志输出：跳过已标记基质
 type EssenceFilterSkipMarkedAction struct{}
 
 func (a *EssenceFilterSkipMarkedAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-    log.Info().Str("component", "EssenceFilter").Msg("skipped already marked essence")
-    LogMXUSimpleHTML(ctx, "该基质已被锁定/废弃，跳过")
+	log.Info().Str("component", "EssenceFilter").Msg("skipped already marked essence")
+	LogMXUSimpleHTML(ctx, "该基质已被锁定/废弃，跳过")
 
-    // 跳过完毕后，直接去找下一个基质
-    ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
-       {Name: "EssenceFilterRowNextItem"},
-    })
-    return true
+	// 跳过完毕后，直接去找下一个基质
+	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
+		{Name: "EssenceFilterRowNextItem"},
+	})
+	return true
 }
 
 // EssenceFilterSkillDecisionAction - match skills then decide lock or skip
