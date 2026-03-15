@@ -401,7 +401,7 @@ func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
 }
 
 func listGoodsTemplates(region string) ([]goodsTemplate, string, error) {
-	baseParts := []string{"assets", "resource_fast", "image", "AutoStockpile", "Goods", region}
+	baseParts := []string{"assets", "resource", "image", "AutoStockpile", "Goods", region}
 	pathCandidates := []string{
 		filepath.Join(baseParts...),
 		filepath.Join("..", "..", filepath.Join(baseParts...)),
