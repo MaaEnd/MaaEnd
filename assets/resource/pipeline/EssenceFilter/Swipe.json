@@ -1,6 +1,7 @@
 {
     "EssenceFilterSwipeFirst": {
         "desc": "首行滑动",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -23,6 +24,7 @@
     },
     "EssenceFilterSwipeNext": {
         "desc": "后续滑动",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -45,6 +47,7 @@
     },
     "EssenceFilterSwipeCalibrateCorrect": {
         "desc": "校准微滑（由 SwipeCalibrateAction 通过 RunTask override begin/end 调用）",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {
@@ -76,12 +79,14 @@
                 "threshold": 0.35
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterSwipeCalibrateAction"
             }
         },
+        "post_delay": 0,
         "next": [
             "EssenceRowDetect",
             "EssenceDetectFinal"

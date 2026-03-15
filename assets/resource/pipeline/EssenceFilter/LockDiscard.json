@@ -1,6 +1,7 @@
 {
     "EssenceFilterLockItemLog": {
         "desc": "日志：即将锁定Essence",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -10,6 +11,7 @@
                 }
             }
         },
+        "post_delay": 0,
         "next": [
             "EssenceFilterCheckLocked",
             "EssenceFilterLockItem"
@@ -30,6 +32,7 @@
                 "threshold": 0.9
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
@@ -57,6 +60,8 @@
                 "threshold": 0.9
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "EssenceFilterRowNextItem"
         ],
@@ -81,10 +86,13 @@
                 "template": "EssenceFilter/LockButtonLocked.png",
                 "threshold": 0.9
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     },
     "EssenceFilterDiscardItemLog": {
         "desc": "日志：即将废弃 Essence",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -94,6 +102,7 @@
                 }
             }
         },
+        "post_delay": 0,
         "next": [
             "EssenceFilterCheckDiscarded",
             "EssenceFilterDiscardItem"
@@ -114,6 +123,7 @@
                 "threshold": 0.9
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
@@ -141,6 +151,8 @@
                 "threshold": 0.9
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "EssenceFilterRowNextItem"
         ],
@@ -153,12 +165,14 @@
     },
     "EssenceFilterRowNextItem": {
         "desc": "处理下一个命中的格子，或滑动/结束",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterRowNextItemAction"
             }
         },
+        "post_delay": 0,
         "next": [
             "EssenceFilterFinish"
         ]
