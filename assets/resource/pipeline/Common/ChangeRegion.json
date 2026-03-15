@@ -1,0 +1,133 @@
+{
+    // 地区建设页面切换地区
+    // 单击更换按钮 -> 选择地区（通过锚点指定） -> 单击确认按钮 -> 确认进入地区（通过锚点指定）
+    "GoToValleyIV": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "前往四号谷地地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "next": [
+            "InValleyIVRegionalDevelopment",
+            "RegionalDevelopmentChangeToValleyIV"
+        ]
+    },
+    "GoToWuling": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "前往武陵地区建设界面",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "next": [
+            "InWulingRegionalDevelopment",
+            "RegionalDevelopmentChangeToWuling"
+        ]
+    },
+    "RegionalDevelopmentChangeToValleyIV": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "更改至四号谷地",
+        "anchor": {
+            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectValleyIV",
+            "RegionalDevelopmentInDestinationRegion": "InValleyIVRegionalDevelopment"
+        },
+        "next": [
+            "RegionalDevelopmentEnterChangeRegionMenu"
+        ]
+    },
+    "RegionalDevelopmentChangeToWuling": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "更改至武陵",
+        "anchor": {
+            "RegionalDevelopmentSelectRegion": "RegionalDevelopmentSelectWuling",
+            "RegionalDevelopmentInDestinationRegion": "InWulingRegionalDevelopment"
+        },
+        "next": [
+            "RegionalDevelopmentEnterChangeRegionMenu"
+        ]
+    },
+    "RegionalDevelopmentEnterChangeRegionMenu": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "进入更改地区界面",
+        "recognition": "And",
+        "all_of": [
+            "ChangeRegionButton"
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]RegionalDevelopmentSelectRegion"
+        ]
+    },
+    "RegionalDevelopmentSelectValleyIV": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "选择四号谷地",
+        "recognition": "OCR",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "四号谷地",
+            "四號谷地",
+            "Valley IV",
+            "4번 협곡",
+            "Valley"
+        ],
+        "action": "Click",
+        "next": [
+            "RegionalDevelopmentConfirmChangeToRegion"
+        ]
+    },
+    "RegionalDevelopmentSelectWuling": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "选择武陵",
+        "recognition": "OCR",
+        "roi": [
+            429,
+            145,
+            431,
+            165
+        ],
+        "expected": [
+            "武陵",
+            "Wuling",
+            "무릉"
+        ],
+        "action": "Click",
+        "next": [
+            "RegionalDevelopmentConfirmChangeToRegion"
+        ]
+    },
+    "RegionalDevelopmentConfirmChangeToRegion": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "确认更改至选定地区",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1",
+            "CheckChangeRegionConfirmText"
+        ],
+        "action": "Click",
+        "next": [
+            "[Anchor]RegionalDevelopmentInDestinationRegion"
+        ]
+    }
+}
