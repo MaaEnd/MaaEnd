@@ -106,6 +106,25 @@ func cleanDisplayToCanonical(display string, slot int, locale string) (canonical
 			}
 		}
 	}
+	// 池内无完整匹配时，尝试「候选以池内基名开头」的最长匹配（如「灼热伤害」→「灼热」id7，「物理伤害」→「物理」id8）
+	var best struct {
+		chinese string
+		id      int
+		length  int
+	}
+	for _, c := range candidates {
+		for i := range pool {
+			e := &pool[i]
+			if e.Chinese != "" && strings.HasPrefix(c, e.Chinese) && len(e.Chinese) > best.length {
+				best.chinese = e.Chinese
+				best.id = e.ID
+				best.length = len(e.Chinese)
+			}
+		}
+	}
+	if best.length > 0 {
+		return best.chinese, best.id, true
+	}
 	return "", 0, false
 }
 

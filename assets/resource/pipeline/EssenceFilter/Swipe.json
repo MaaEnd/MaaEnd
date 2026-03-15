@@ -58,7 +58,9 @@
                 "end": [
                     135,
                     150
-                ]
+                ],
+                "end_hold": 300,
+                "duration": 300
             }
         },
         "post_delay": 150
