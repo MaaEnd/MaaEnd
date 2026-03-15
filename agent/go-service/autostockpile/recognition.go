@@ -29,13 +29,13 @@ const (
 	locateGoodsNodeName        = "AutoStockpileLocateGoods"
 	goodsPriceNodeName         = "AutoStockpileGetGoodsPrice"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
-	MAX_DISTANCE = 200
+	MAX_DISTANCE = 120
 )
 
 var (
 	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)\s*/\s*(\d+)`)
 	overflowPlusRe       = regexp.MustCompile(`\+(\d+)`)
-	priceRe              = regexp.MustCompile(`\d{3,4}`)
+	priceRe              = regexp.MustCompile(`^[^\d]?(\d{3,4})$`)
 )
 
 type goodsCandidate struct {
@@ -259,9 +259,11 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Str("goods_id", g.item.ID).
 				Str("goods_name", g.item.Name).
 				Str("tier", g.item.Tier).
+				Int("price", item.Price).
 				Int("goods_x", g.box.X()).
 				Int("goods_y", g.box.Y()).
-				Msg("failed to bind price for goods")
+				Msg("failed to bind price for goods, skipping")
+			continue
 		}
 		resultGoods = append(resultGoods, item)
 	}
@@ -670,14 +672,14 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCand
 			continue
 		}
 
-		match := priceRe.FindString(text)
-		if match != "" {
-			price, parseErr := strconv.Atoi(match)
+		if match := priceRe.FindStringSubmatch(text); len(match) == 2 {
+			priceText := match[1]
+			price, parseErr := strconv.Atoi(priceText)
 			if parseErr != nil {
 				continue
 			}
 
-			key := fmt.Sprintf("%d:%d:%d:%d:%s", ocrResult.Box.X(), ocrResult.Box.Y(), ocrResult.Box.Width(), ocrResult.Box.Height(), match)
+			key := fmt.Sprintf("%d:%d:%d:%d:%s", ocrResult.Box.X(), ocrResult.Box.Y(), ocrResult.Box.Width(), ocrResult.Box.Height(), priceText)
 			if _, exists := seenPrice[key]; exists {
 				continue
 			}
@@ -685,7 +687,7 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCand
 
 			prices = append(prices, priceCandidate{
 				value: price,
-				text:  match,
+				text:  priceText,
 				box:   ocrResult.Box,
 			})
 			continue
