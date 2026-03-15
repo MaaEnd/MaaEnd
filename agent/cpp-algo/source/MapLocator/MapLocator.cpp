@@ -1163,17 +1163,16 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
 
     const SearchConstraint constraint = buildSearchConstraint(expectedZoneSelector, targetZoneId, coarse);
     if (coarse.valid && !coarse.is_none && !constraint.yolo_validated) {
-        const std::string debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search.";
-        LogWarn << debugMessage << VAR(expectedZoneSelector) << VAR(targetZoneId) << VAR(coarse.raw_class) << VAR(coarse.base_class)
-                << VAR(coarse.zone_id) << VAR(coarse.has_roi);
-        return LocateResult { .status = LocateStatus::YoloFailed, .debugMessage = debugMessage };
+        return LocateResult {
+            .status = LocateStatus::YoloFailed,
+            .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search."
+        };
     }
     if (coarse.valid && !coarse.is_none && coarse.has_roi && constraint.mode != GlobalSearchMode::RoiFine) {
-        const std::string debugMessage =
-            "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search.";
-        LogWarn << debugMessage << VAR(expectedZoneSelector) << VAR(targetZoneId) << VAR(coarse.raw_class) << VAR(coarse.base_class)
-                << VAR(coarse.zone_id) << VAR(coarse.has_roi);
-        return LocateResult { .status = LocateStatus::YoloFailed, .debugMessage = debugMessage };
+        return LocateResult {
+            .status = LocateStatus::YoloFailed,
+            .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search."
+        };
     }
 
     int maxAllowedLost = (targetZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;

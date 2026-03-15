@@ -261,13 +261,15 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
             result.infer_margin = tileIt->second.infer_margin;
         }
 
-        std::string succMsg = "YOLO Success: " + predictedName + " -> ZoneId: " + result.zone_id + " (Conf: "
-            + std::to_string(maxConf * 100.0) + "%)";
+        LogInfo << "YOLO Success" << VAR(predictedName) << VAR(result.zone_id) << VAR(maxConf) << VAR(result.has_roi);
         if (result.has_roi) {
-            succMsg += " ROI=(" + std::to_string(result.roi_x) + "," + std::to_string(result.roi_y) + "," + std::to_string(result.roi_w)
-                + "," + std::to_string(result.roi_h) + ") margin=" + std::to_string(result.infer_margin);
+            LogInfo << "YOLO ROI"
+                    << VAR(result.roi_x)
+                    << VAR(result.roi_y)
+                    << VAR(result.roi_w)
+                    << VAR(result.roi_h)
+                    << VAR(result.infer_margin);
         }
-        LogInfo << succMsg;
         return result;
     }
     if (maxConf <= yoloConfThreshold) {
