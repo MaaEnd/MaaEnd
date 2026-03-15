@@ -34,6 +34,8 @@ type MapTrackerMoveParam struct {
 	PathTrim bool `json:"path_trim,omitempty"`
 	// NoPrint controls whether to suppress printing navigation status to the GUI.
 	NoPrint bool `json:"no_print,omitempty"`
+	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
+	FineApproach string `json:"fine_approach,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -57,9 +59,9 @@ type PlayerMovement struct {
 }
 
 var (
-	MovementWalk   = PlayerMovement{2.0, 180.0}
-	MovementRun    = PlayerMovement{8.0, 360.0}
-	MovementSprint = PlayerMovement{12.0, 720.0}
+	MovementWalk   = PlayerMovement{2.0, 270.0}
+	MovementRun    = PlayerMovement{8.0, 540.0}
+	MovementSprint = PlayerMovement{12.0, 1080.0}
 )
 
 // PlayerRotationAdjustmentState keeps track of one rotation adjustment
@@ -137,6 +139,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// For each target point
 	for i, target := range param.Path {
 		targetX, targetY := target[0], target[1]
+		enableFineApproach := (param.FineApproach == FINE_APPROACH_ALL_TARGETS) ||
+			(param.FineApproach == FINE_APPROACH_FINAL_TARGET && i == len(param.Path)-1)
+		inFineApproach := false
 		log.Info().Int("index", i).Float64("targetX", targetX).Float64("targetY", targetY).Msg("Navigating to next target point")
 
 		// Show navigation UI
@@ -179,9 +184,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check arrival timeout
 			deltaArrivalMs := loopStartTime.Sub(lastArrivalTime).Milliseconds()
 			if deltaArrivalMs > param.ArrivalTimeout {
-				log.Error().Msg("Arrival timeout, stopping task")
-				doEmergencyStop(aw, param.NoPrint)
-				return false
+				if inFineApproach {
+					log.Warn().Msg("Fine approach timeout, ending fine approach")
+					break
+				} else {
+					log.Error().Msg("Arrival timeout, stopping task")
+					doEmergencyStop(aw, param.NoPrint)
+					return false
+				}
 			}
 
 			// Run inference to get current location and rotation
@@ -200,20 +210,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			absRawDeltaRot := math.Abs(float64(rawDeltaRot))
 
 			// Check arrival
-			dist := math.Hypot(curX-targetX, curY-targetY)
-			isArrived := func() bool {
-				if dist < param.ArrivalThreshold {
-					log.Info().Float64("x", curX).Float64("y", curY).Int("index", i).Msg("Target point reached")
-					return true
-				}
-				if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
-					log.Info().Int("targetRot", targetRot).Int("initRot", initRot).Int("index", i).Msg("Target point reached (guessed by rotation)")
-					return true
-				}
-				return false
-			}
-			if isArrived() {
-				// Peek next target's direction
+			finishCurrentTarget := func(curX, curY float64, rot int) {
 				if i < len(param.Path)-1 {
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
@@ -223,8 +220,34 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						aw.KeyUpSync(KEY_W, 25)
 					}
 				}
-				// Finish current target
-				break
+			}
+			dist := math.Hypot(curX-targetX, curY-targetY)
+			if inFineApproach {
+				if dist < FINE_APPROACH_COMPLETE_THRESHOLD {
+					log.Info().Int("index", i).Float64("dist", dist).Msg("Fine approach reached target point")
+					finishCurrentTarget(curX, curY, rot)
+					break
+				}
+			} else {
+				if dist < param.ArrivalThreshold {
+					if enableFineApproach {
+						inFineApproach = true
+						if movement.Speed > MovementWalk.Speed {
+							aw.KeyTypeSync(KEY_CTRL, 25)
+							movement = &MovementWalk
+						}
+						aw.KeyDownSync(KEY_W, 25)
+						log.Info().Int("index", i).Float64("dist", dist).Msg("Entering fine approach")
+					} else {
+						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached")
+						finishCurrentTarget(curX, curY, rot)
+						break
+					}
+				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+					log.Info().Int("targetRot", targetRot).Int("initRot", initRot).Int("index", i).Msg("Target point reached (guessed by rotation)")
+					finishCurrentTarget(curX, curY, rot)
+					break
+				}
 			}
 
 			log.Debug().Float64("curX", curX).Float64("curY", curY).Int("curRot", rot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
@@ -281,7 +304,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						aw.KeyTypeSync(KEY_CTRL, 25)
 						movement = &MovementWalk
 					}
-				} else {
+				} else if !inFineApproach {
 					// Rotation is good: at least set to 'run'
 					if movement.Speed < MovementRun.Speed {
 						aw.KeyTypeSync(KEY_CTRL, 25)
@@ -311,7 +334,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						}
 						aw.RotateCamera(int(finalDeltaRot*rotationSpeed), 75, 25)
 						aw.KeyDownSync(KEY_W, 25)
-					} else {
+					} else if !inFineApproach {
 						// Rotation is acceptable but can be improved: at least ensure 'run'
 						if movement.Speed < MovementRun.Speed {
 							aw.KeyTypeSync(KEY_CTRL, 25)
@@ -336,8 +359,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		// End of loop, one target reached
 	}
 
-	// End of all targets reached, stop movement
+	// End of all targets reached, stop movement and reset to running mode
 	aw.KeyUpSync(KEY_W, 25)
+	if movement.Speed < MovementRun.Speed {
+		aw.KeyTypeSync(KEY_CTRL, 25)
+	}
 
 	// Show finished UI summary
 	if !param.NoPrint {
@@ -388,6 +414,16 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("arrival_timeout must be non-negative")
 	} else if param.ArrivalTimeout == 0 {
 		param.ArrivalTimeout = DEFAULT_MOVING_PARAM.ArrivalTimeout
+	}
+
+	if len(param.FineApproach) == 0 {
+		param.FineApproach = DEFAULT_MOVING_PARAM.FineApproach
+	}
+	switch param.FineApproach {
+	case FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER:
+		// valid
+	default:
+		return nil, fmt.Errorf("fine_approach must be one of %q, %q, %q", FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER)
 	}
 
 	if param.RotationLowerThreshold < 0 {

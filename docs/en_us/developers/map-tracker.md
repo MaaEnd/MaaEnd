@@ -37,12 +37,17 @@ Optional parameters:
 
 - `path_trim`: Boolean value, default `false`. When enabled, the nearest waypoint in the path will be selected as the actual starting point based on the current position when this action begins (the waypoints before that selected point will be automatically skipped); when disabled, movement will always start from the first waypoint.
 
-- `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
+- `fine_approach`: String, default `"FinalTarget"`. It controls when fine-approach will be enabled to ensure a super precise arrival. Valid values are:
+    - `"FinalTarget"`: Enable fine-approach only for the final target point (default).
+    - `"AllTargets"`: Enable fine-approach for every target point.
+    - `"Never"`: Never enable fine-approach.
 
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>
 
-- `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately.
+- `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
+
+- `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately. However, timeout during fine-approach will not fail the action but just terminates fine-approach.
 
 - `rotation_lower_threshold`: Real number between $(0, 180]$, default `7.5`. The direction angle deviation threshold for judging the need for fine-tuning the orientation, in degrees.
 
@@ -51,7 +56,6 @@ Optional parameters:
 - `sprint_threshold`: Positive real number, default `20.0`. The distance threshold for performing the sprint action, in pixel distance. When the distance between the player and the next target point exceeds this value and the orientation is correct, the player will perform a sprint.
 
 - `stuck_threshold`: Positive integer, default `2000`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, automatic jumping will be triggered.
-  
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
 </details>

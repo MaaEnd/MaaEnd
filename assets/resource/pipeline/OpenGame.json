@@ -103,12 +103,15 @@
                     59
                 ],
                 "expected": [
+                    "重新挑战",
+                    "重新挑戰",
+                    "Retry",
+                    "もう一度",
                     "登录失败",
                     "检查网络",
                     "状态后重试",
                     "Login Failed",
-                    "Check Network",
-                    "Retry"
+                    "Check Network"
                 ]
             }
         },

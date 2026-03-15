@@ -90,9 +90,6 @@
     },
     "RefreshItem": {
         "desc": "刷新商品",
-        "focus": {
-            "Node.Action.Succeeded": "刷新商品"
-        },
         "enabled": false,
         "recognition": "And",
         "all_of": [
@@ -112,7 +109,10 @@
         "next": [
             "CreditShoppingShopping",
             "[JumpBack]YellowConfirmButtonType1"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "刷新商品"
+        }
     },
     "CreditShoppingReserveCredit": {
         "desc": "信用点 < 300",

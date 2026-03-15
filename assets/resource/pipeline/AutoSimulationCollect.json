@@ -344,10 +344,13 @@
             300
         ],
         "expected": [
+            "直接完成模拟",
+            "直接完成模擬",
+            "Complete Simulation",
+            "模擬完了",
             "掌握",
             "Fully Grasped",
-            "已掌握",
-            "直接完成模拟"
+            "已掌握"
         ],
         "action": {
             "type": "Click"
