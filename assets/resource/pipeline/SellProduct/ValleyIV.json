@@ -2,6 +2,7 @@
     "SellProductValleyIVSell": {
         "desc": "在四号谷地售卖",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -9,6 +10,8 @@
                 "SellProductGoToValleyIVOutpost"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfrastructureOutpost",
@@ -23,6 +26,9 @@
         "all_of": [
             "SellProductCheckRefugeeCampTabText"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductRefugeeCampSell",
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
@@ -35,6 +41,9 @@
         "all_of": [
             "SellProductCheckInfrastructureOutpostTabText"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInfrastructureOutpostSell",
             "[JumpBack]SellProductGoToInfrastructureOutpost"
@@ -47,6 +56,9 @@
         "all_of": [
             "SellProductCheckReconstructionCommandTabText"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductReconstructionCommandSell",
             "[JumpBack]SellProductGoToReconstructionCommandOutpost"
@@ -58,10 +70,13 @@
         "all_of": [
             "SellProductInRefugeeCamp"
         ],
+        "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -72,10 +87,13 @@
         "all_of": [
             "SellProductInInfrastructureOutpost"
         ],
+        "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -86,10 +104,13 @@
         "all_of": [
             "SellProductInReconstructionCommand"
         ],
+        "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -101,6 +122,9 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -112,6 +136,9 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -123,6 +150,9 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -133,7 +163,10 @@
         "all_of": [
             "SellProductCheckRefugeeCampText",
             "SellProductInOutpost"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductInInfrastructureOutpost": {
         "desc": "在基建前站",
@@ -141,7 +174,10 @@
         "all_of": [
             "SellProductCheckInfrastructureOutpostText",
             "SellProductInOutpost"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductInReconstructionCommand": {
         "desc": "在重建指挥部",
@@ -149,7 +185,10 @@
         "all_of": [
             "SellProductCheckReconstructionCommandText",
             "SellProductInOutpost"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductGoToRefugeeCampOutpost": {
         "desc": "前往难民暂居处据点",
@@ -159,7 +198,10 @@
             "SellProductCheckRefugeeCampTabText"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInRefugeeCamp"
         ]
@@ -172,7 +214,10 @@
             "SellProductCheckInfrastructureOutpostTabText"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInInfrastructureOutpost"
         ]
@@ -185,7 +230,10 @@
             "SellProductCheckReconstructionCommandTabText"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInReconstructionCommand"
         ]
@@ -205,7 +253,10 @@
             "Refugee Camp",
             "仮設居住地",
             "유랑자 임시 거주지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckInfrastructureOutpostTabText": {
         "desc": "检查基建前站文本",
@@ -221,7 +272,10 @@
             "Infra-Station",
             "建設基地",
             "기초 건설 주둔지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckReconstructionCommandTabText": {
         "desc": "检查重建指挥部文本",
@@ -239,7 +293,10 @@
             "再建管理本部",
             "Reconstruction Hc",
             "재건 지휘부"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckRefugeeCampText": {
         "desc": "检查难民暂居处大字文本",
@@ -256,7 +313,10 @@
             "Refugee Camp",
             "仮設居住地",
             "유랑자 임시 거주지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckInfrastructureOutpostText": {
         "desc": "检查基建前站大字文本",
@@ -272,7 +332,10 @@
             "Infra-Station",
             "建設基地",
             "기초 건설 주둔지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckReconstructionCommandText": {
         "desc": "检查重建指挥部大字文本",
@@ -290,6 +353,9 @@
             "再建管理本部",
             "Reconstruction Hc",
             "재건 지휘부"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

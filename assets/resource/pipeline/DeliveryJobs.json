@@ -1,9 +1,112 @@
 {
-    // SceneEnterMenuRegionalDevelopment 可以通过覆盖入口节点来使用
+    // 自动转交运送委托
     "DeliveryJobsMain": {
+        "desc": "开始自动转交运送委托",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsLoop",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
+    },
+    "DeliveryJobsLoop": {
+        "desc": "主循环，仅支持从地区建设界面开始",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAuto",
+            "DeliveryJobsValleyIV",
+            "DeliveryJobsWuling",
+            "DeliveryJobsFinished"
+        ]
+    },
+    "DeliveryJobsAuto": {
+        "desc": "自动选择起始地区运送委托",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoValleyIV",
+            "DeliveryJobsAutoWuling"
+        ]
+    },
+    "DeliveryJobsAutoValleyIV": {
+        "desc": "自动选择四号谷地运送委托",
+        "recognition": "Or",
+        "any_of": [
+            "InValleyIVRegionalDevelopment",
+            "DeliveryJobsInValleyIVLocalDepotNode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsValleyIV",
+            "DeliveryJobsLoop"
+        ]
+    },
+    "DeliveryJobsAutoWuling": {
+        "desc": "自动选择武陵运送委托",
+        "recognition": "Or",
+        "any_of": [
+            "InWulingRegionalDevelopment",
+            "DeliveryJobsInWulingLocalDepotNode"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsWuling",
+            "DeliveryJobsLoop"
+        ]
+    },
+    "DeliveryJobsValleyIV": {
+        "desc": "四号谷地运送委托",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToValleyIV"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsDepotLocked",
+            "DeliveryJobsValleyIVLoop"
+        ]
+    },
+    "DeliveryJobsWuling": {
+        "desc": "武陵运送委托",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GoToWuling"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsDepotLocked",
+            "DeliveryJobsWulingLoop"
+        ]
+    },
+    "DeliveryJobsFinished": {
+        "desc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

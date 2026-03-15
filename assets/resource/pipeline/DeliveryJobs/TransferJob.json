@@ -17,7 +17,10 @@
             "任務確認",
             "임무 확인"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob"
         ]
@@ -39,7 +42,10 @@
             "Transfer Job",
             "운송 의뢰 위탁"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsConfirmTaskTransfer"
         ]
@@ -60,7 +66,10 @@
             "配達任務を他人に委託しますか？",
             "给他人派送",
             "운송 임무를 다른 사람에게 위탁하시겠습니까?"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsConfirmTaskTransfer": {
         "desc": "确认转交任务",
@@ -69,7 +78,10 @@
             "YellowConfirmButtonType1",
             "DeliveryJobsCheckTaskTransferText"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             // 转交完任务之后会直接回到本地仓储节点界面
             // 需要等待本地仓储界面完全加载完成，才继续后面的流程

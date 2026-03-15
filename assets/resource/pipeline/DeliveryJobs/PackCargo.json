@@ -4,6 +4,9 @@
     // 每次单击下一步前都需要确认页面稳定，否则会因为按钮错位导致单击失败
     "DeliveryJobsPackCargo": {
         "desc": "装箱货物",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsInCargoPackGoods",
             "DeliveryJobsInCargoRedistributionBid"
@@ -34,6 +37,9 @@
                 157
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsSelectTypeOfGoodsToPackNextStep"
         ]
@@ -63,6 +69,9 @@
                 157
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsOngoingDelivery",
             "DeliveryJobsRedistributionBidNextStep"
@@ -75,8 +84,11 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsInCargoPackGoods"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsCargoFillToMax"
         ],
@@ -92,7 +104,10 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsInCargoPackGoods"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsCargoFillToMax"
         ]
@@ -122,6 +137,9 @@
                 392
             ]
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]DeliveryJobsSelectItemToFill",
             "[JumpBack]DeliveryJobsSelectItemScrollUp"
@@ -140,7 +158,10 @@
         "threshold": 0.95,
         "order_by": "Score",
         "pre_wait_freezes": 80,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsFillCorrespondingGoods"
         ]
@@ -158,7 +179,10 @@
         "threshold": 0.95,
         "order_by": "Score",
         "pre_wait_freezes": 80,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsFillCorrespondingGoods"
         ]
@@ -166,6 +190,7 @@
     "DeliveryJobsSelectItemScrollUp": {
         "desc": "如果要填充的物品不在第一屏，向上滑动屏幕",
         "max_hit": 5,
+        "pre_delay": 0,
         "action": "Swipe",
         "begin": [
             240,
@@ -182,7 +207,9 @@
         "end_hold": 200,
         // 要慢慢的滑，不然惯性就过头了
         "duration": 2000,
-        "post_wait_freezes": 200
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsFillCorrespondingGoods": {
         "desc": "手动填满对应货物，通过单击进度条最右侧",
@@ -195,6 +222,7 @@
         ],
         "template": "DeliveryJobs/FillCorrespondingGoods.png",
         "threshold": 0.9,
+        "pre_delay": 0,
         "action": "Click",
         "target_offset": [
             -75,
@@ -202,12 +230,15 @@
             0,
             0
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsSelectItemScrollUpClearHitCount"
         ]
     },
     "DeliveryJobsSelectItemScrollUpClearHitCount": {
         "desc": "清除向上滑动屏幕的命中计数，下一个仓储节点可能也需要滑动",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "ClearHitCount",
         "custom_action_param": {
@@ -216,6 +247,8 @@
             ],
             "strict": false
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsFillToMaxNextStep"
         ]
@@ -231,7 +264,10 @@
         ],
         "template": "DeliveryJobs/CargoFillToMax.png",
         "threshold": 0.8,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsFillToMaxNextStep"
         ]
@@ -243,8 +279,11 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsCargoFillToMax"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsInCargoRedistributionBid",
             "DeliveryJobsCargoBid"
@@ -261,7 +300,10 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsCargoFillToMax"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsInCargoRedistributionBid",
             "DeliveryJobsCargoBid"
@@ -278,7 +320,10 @@
         ],
         "template": "DeliveryJobs/CargoBid.png",
         "threshold": 0.8,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsInCargoRedistributionBid"
         ]
@@ -290,8 +335,11 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsInCargoRedistributionBid"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
         "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsBackToDepot",
             "DeliveryJobsDeliverQuickly"
@@ -308,7 +356,10 @@
             "YellowConfirmButtonType2",
             "DeliveryJobsInCargoRedistributionBid"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsBackToDepot",
             "DeliveryJobsDeliverQuickly"
@@ -330,7 +381,10 @@
             "早めに配達してください",
             "최대한 빨리 배달하세요."
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsBackToDepot"
         ]
@@ -353,7 +407,10 @@
             "有待運送的貨物",
             "운송 대기 중인 화물 있음"
         ],
+        "pre_delay": 0,
         "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
         }
@@ -364,6 +421,9 @@
         "all_of": [
             "InWorld"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]DeliveryJobsGoToDepot"
         ]

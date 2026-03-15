@@ -1,6 +1,7 @@
 {
     "DeliveryJobsWulingLoop": {
         "desc": "武陵运送委托主循环",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -11,6 +12,8 @@
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToWulingDepot"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
             "[JumpBack]DeliveryJobsEnterWulingCityCargo",
@@ -32,7 +35,10 @@
                 166,
                 124
             ]
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckLocalDepotNodeWulingCityText": {
         "desc": "检查本地仓储节点中是否有武陵城区",
@@ -49,7 +55,10 @@
             "Wuling City",
             "武陵城内",
             "무릉성 도심"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckWulingCityCargo": {
         "desc": "检查武陵城区的货物是否准备好",
@@ -72,7 +81,10 @@
             "パッキング",
             "화물 포장",
             "입찰 보기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsEnterWulingCityCargo": {
         "desc": "进入武陵城区货物",
@@ -82,10 +94,13 @@
             "DeliveryJobsCheckWulingCityCargo"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsPackCargo"
         ]

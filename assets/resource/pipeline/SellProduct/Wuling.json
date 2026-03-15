@@ -2,6 +2,7 @@
     "SellProductWulingSell": {
         "desc": "在武陵售卖",
         "max_hit": 1,
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -9,6 +10,8 @@
                 "SellProductGoToWulingOutpost"
             ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
             "SellProductBackToRegionalConstruction"
@@ -21,6 +24,9 @@
         "all_of": [
             "SellProductCheckSkyKingFlatsTabText"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSkyKingFlatsSell",
             "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
@@ -32,10 +38,13 @@
         "all_of": [
             "SellProductInSkyKingFlats"
         ],
+        "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -47,6 +56,9 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -57,7 +69,10 @@
         "all_of": [
             "SellProductCheckSkyKingFlatsText",
             "SellProductInOutpost"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductGoToSkyKingFlatsOutpost": {
         "desc": "前往天王坪援建点据点",
@@ -67,7 +82,10 @@
             "SellProductCheckSkyKingFlatsTabText"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInSkyKingFlats"
         ]
@@ -88,7 +106,10 @@
             "Sky King",
             "天王原",
             "천왕"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckSkyKingFlatsText": {
         "desc": "检查天王坪援建点大字文本",
@@ -106,6 +127,9 @@
             "Sky King",
             "天王原",
             "천왕"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -1,6 +1,7 @@
 {
     "DeliveryJobsValleyIVLoop": {
         "desc": "四号谷地运送委托主循环",
+        "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -11,6 +12,8 @@
         "anchor": {
             "DeliveryJobsGoToDepot": "DeliveryJobsGoToValleyIVDepot"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]DeliveryJobsEnterDeliveryJob",
             "[JumpBack]DeliveryJobsEnterOriginiumScienceParkCargo",
@@ -35,7 +38,10 @@
                 166,
                 124
             ]
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText": {
         "desc": "检查本地仓储节点中是否有源石研究园",
@@ -52,7 +58,10 @@
             "Originium Science Park",
             "源石研究パーク",
             "오리지늄 연구 구역"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckLocalDepotNodeOriginLodespringText": {
         "desc": "检查本地仓储节点中是否有矿脉源区",
@@ -69,7 +78,10 @@
             "Origin Lodespring",
             "鉱山エリア",
             "광맥 구역"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
         "desc": "检查本地仓储节点中是否有供能高地",
@@ -85,7 +97,10 @@
             "Power Plateau",
             "エネルギー高地",
             "에너지 공급 고지"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckOriginiumScienceParkCargo": {
         "desc": "检查源石研究园的货物是否准备好",
@@ -108,7 +123,10 @@
             "パッキング",
             "화물 포장",
             "입찰 보기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckOriginLodespringCargo": {
         "desc": "检查矿脉源区的货物是否准备好",
@@ -131,7 +149,10 @@
             "パッキング",
             "화물 포장",
             "입찰 보기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsCheckPowerPlateauCargo": {
         "desc": "检查供能高地的货物是否准备好",
@@ -154,7 +175,10 @@
             "パッキング",
             "화물 포장",
             "입찰 보기"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsEnterOriginiumScienceParkCargo": {
         "desc": "进入源石研究园货物",
@@ -164,10 +188,13 @@
             "DeliveryJobsCheckOriginiumScienceParkCargo"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsPackCargo"
         ]
@@ -180,10 +207,13 @@
             "DeliveryJobsCheckOriginLodespringCargo"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsPackCargo"
         ]
@@ -196,10 +226,13 @@
             "DeliveryJobsCheckPowerPlateauCargo"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "DeliveryJobsPackCargo"
         ]

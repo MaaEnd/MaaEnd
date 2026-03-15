@@ -5,6 +5,9 @@
         "all_of": [
             "SellProductInOutpost"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
             "SellProductZeroProductAfterChangeStillEmpty",
@@ -34,7 +37,10 @@
             150,
             200
         ],
-        "count": 10
+        "count": 10,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductWhiteTextPosition": {
         "desc": "识别白色文字位置，判断是否有货",
@@ -56,7 +62,10 @@
             255,
             255
         ],
-        "count": 10
+        "count": 10,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductZeroProduct": {
         "desc": "货物数量不足",
@@ -77,7 +86,10 @@
                     }
                 ]
             }
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductZeroProductAfterChangeStillEmpty": {
         "desc": "更换货品后仍无货，进入换据点流程",
@@ -85,6 +97,9 @@
         "all_of": [
             "SellProductZeroProduct"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "当前选择产品缺货，请制造或更换"
         }
@@ -105,6 +120,9 @@
             "取引用の商品を選択してください",
             "거래할 상품 선택 필요"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -126,7 +144,10 @@
             "不足",
             "insufficient",
             "거점 관리권 보유량 부족"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductZeroMoneyWithTip": {
         "desc": "调度券不足（仅未成交时提示）",
@@ -134,6 +155,9 @@
         "all_of": [
             "SellProductZeroMoney"
         ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "该据点调度券不足，过一会再来吧"
         }
@@ -151,6 +175,7 @@
             "SellProduct/SellProductBarRight.png"
         ],
         "method": 10001,
+        "pre_delay": 0,
         "action": "Click",
         "target_offset": [
             40,
@@ -160,6 +185,8 @@
         ],
         // 单击后需要等待一会儿再交易
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSell"
         ]
@@ -177,6 +204,7 @@
             "SellProduct/SellProductBar.png"
         ],
         "method": 10001,
+        "pre_delay": 0,
         "action": "Swipe",
         "end_offset": [
             [
@@ -189,6 +217,8 @@
         "duration": [
             500
         ],
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSell"
         ]
@@ -209,7 +239,10 @@
             "trade",
             "거래"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSellCheck"
         ]
@@ -233,10 +266,13 @@
             }
         ],
         "pre_wait_freezes": 80,
+        "pre_delay": 0,
         "action": "Click",
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ],

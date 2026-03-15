@@ -6,7 +6,10 @@
             "SellProductCheckOutpostText",
             "SellProductCheckQTYInCurrentTradeText"
         ],
-        "pre_wait_freezes": 80
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductInValleyIVOutpost": {
         "desc": "在四号谷地据点",
@@ -15,7 +18,10 @@
             "SellProductInOutpost",
             "SellProductCheckRefugeeCampTabText"
         ],
-        "pre_wait_freezes": 80
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductInWulingOutpost": {
         "desc": "在武陵据点",
@@ -24,10 +30,16 @@
             "SellProductInOutpost",
             "SellProductCheckSkyKingFlatsTabText"
         ],
-        "pre_wait_freezes": 80
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductGoToOutpost": {
         "desc": "前往据点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[Anchor]SellProductInOutpost",
             "[Anchor]SellProductEnterOutpost",
@@ -36,22 +48,28 @@
     },
     "SellProductGoToValleyIVOutpost": {
         "desc": "前往四号谷地据点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductInOutpost": "SellProductInValleyIVOutpost",
             "SellProductEnterOutpost": "SellProductEnterValleyIVOutpost",
             "SellProductGoToRegion": "GoToValleyIV"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductGoToOutpost"
         ]
     },
     "SellProductGoToWulingOutpost": {
         "desc": "前往武陵据点",
+        "pre_delay": 0,
         "anchor": {
             "SellProductInOutpost": "SellProductInWulingOutpost",
             "SellProductEnterOutpost": "SellProductEnterWulingOutpost",
             "SellProductGoToRegion": "GoToWuling"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductGoToOutpost"
         ]
@@ -71,7 +89,10 @@
             "Outpost",
             "拠点",
             "거점"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckQTYInCurrentTradeText": {
         "desc": "检查本次交易份数文本",
@@ -88,7 +109,10 @@
             "QTY in current trade",
             "取引予定数",
             "이번 거래 수량"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckOutpostManagementText": {
         "desc": "检查地区建设页面中据点管理文本",
@@ -110,7 +134,10 @@
             "拠点",
             "outpost",
             "거점 관리"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductEnterOutpostLocked": {
         "desc": "识别据点管理是否未解锁",
@@ -128,6 +155,9 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtDevelopment"
         ],
@@ -142,7 +172,10 @@
             "SellProductCheckOutpostManagementText",
             "InValleyIVRegionalDevelopment"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInValleyIVOutpost"
         ]
@@ -154,7 +187,10 @@
             "SellProductCheckOutpostManagementText",
             "InWulingRegionalDevelopment"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInWulingOutpost"
         ]
@@ -166,7 +202,10 @@
             "CloseButtonType1",
             "SellProductInOutpost"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtDevelopment"
         ]

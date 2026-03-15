@@ -14,7 +14,10 @@
             "Select Goods to Trade",
             "取引商品を選択",
             "거래할 상품 선택"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductCheckNextGoodsText": {
         "desc": "检查下一个货品的文本",
@@ -32,7 +35,10 @@
             "Local Depot",
             "地域在庫",
             "지역 저장고"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "SellProductChangeGoods": {
         "desc": "识别更换货品并点击，进入更换界面",
@@ -55,7 +61,10 @@
             "상품 교체",
             "상품 선택"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSelectNewGood"
         ]
@@ -67,7 +76,10 @@
             "SellProductCheckNextGoodsText",
             "SellProductCheckSelectGoodsText"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductSelectNewGoodConfirm"
         ]
@@ -79,7 +91,10 @@
             "WhiteConfirmButtonType2",
             "SellProductCheckSelectGoodsText"
         ],
+        "pre_delay": 0,
         "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
