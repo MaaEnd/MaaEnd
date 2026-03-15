@@ -23,7 +23,19 @@
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_填充至满.png",
             "hits": [
-                "YellowConfirmButtonType2"
+                "WhiteConfirmButtonType2"
+            ]
+        },
+        {
+            "image": "帝江号_控制中枢_会客室_开展交流.png",
+            "hits": [
+                "YellowConfirmButtonType1"
+            ]
+        },
+        {
+            "image": "帝江号_控制中枢_制造舱_确认补货.png",
+            "hits": [
+                "WhiteConfirmButtonType1"
             ]
         }
     ]
