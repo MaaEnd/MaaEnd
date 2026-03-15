@@ -314,28 +314,6 @@
             "_AutoEcoFarmMoveAndWorkExit"
         ]
     },
-    "_AutoEcoFarmIsWorking": {
-        "desc": "识别是否正在工作，识别到就等30秒",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    557,
-                    639,
-                    165,
-                    40
-                ],
-                "expected": [
-                    "中"
-                ],
-                "threshold": 0.5
-            }
-        },
-        "pre_delay": 30000,
-        "focus": {
-            "Node.Recognition.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
-        }
-    },
     //下面是单纯靠近标记的节点
     "_AutoEcoFarmGotoTarget": {
         "desc": "不工作，直接走到标记消失为止",
