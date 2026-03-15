@@ -71,10 +71,14 @@
     "option.SkipLockedRow.description": "オン時、各行で最後のスロットを先に試し、既にロックされていれば行全体をスキップして前列のロック行を高速化。オフ時は順に処理。",
     "option.KeepFuturePromising.label": "有望な基質を保留",
     "option.KeepFuturePromising.description": "3つのスキルスロットが揃い、合計レベルが閾値以上の基質を保留します。武器マッチングより低い優先度です。",
+    "option.LockFuturePromising.label": "有望基質ヒット時にロック",
+    "option.LockFuturePromising.description": "オフ時は命中しても操作しません。",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "合計レベル最低要件",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description": "3スロットのレベル合計 ≥ この値で保留（3~15）。デフォルト: 6",
     "option.KeepSlot3Level3Practical.label": "実用基質を保留",
     "option.KeepSlot3Level3Practical.description": "スロット3のレベルが閾値以上でサポート即戦力スキルの基質を保留します。武器マッチングより低い優先度です。",
+    "option.LockSlot3Practical.label": "実用基質ヒット時にロック",
+    "option.LockSlot3Practical.description": "オフ時は命中しても操作しません。",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label": "スロット3最低レベル",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description": "スロット3レベル ≥ この値で保留（1~3d）。デフォルト: 3",
     "option.DiscardUnmatched.label": "不一致時に破棄",
@@ -474,3 +478,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）"
 }
+
+

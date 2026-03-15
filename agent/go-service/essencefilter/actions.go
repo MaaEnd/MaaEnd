@@ -355,10 +355,12 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	}
 	matchResult, matched := MatchEssenceSkills(ctx, skills, st.TargetSkillCombinations)
 	extendedReason := ""
+	shouldLockExtended := false
 	if !matched && opts != nil {
 		if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
 			if MatchFuturePromising(skills, st.CurrentSkillLevels, opts.FuturePromisingMinTotal) {
 				matched = true
+				shouldLockExtended = opts.LockFuturePromising
 				sum := st.CurrentSkillLevels[0] + st.CurrentSkillLevels[1] + st.CurrentSkillLevels[2]
 				matchResult = &SkillCombinationMatch{
 					SkillIDs:      []int{0, 0, 0},
@@ -380,6 +382,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			matchResult, slot3Lv, slot3Match = MatchSlot3Level3Practical(skills, st.CurrentSkillLevels, slot3MinLv)
 			if slot3Match {
 				matched = true
+				shouldLockExtended = opts.LockSlot3Practical
 				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", matchResult.SkillsChinese[2], slot3Lv, slot3MinLv)
 				st.ExtSlot3PracticalCount++
 				log.Info().Str("component", "EssenceFilter").Str("rule", "MatchSlot3Level3Practical").Str("slot3_skill", matchResult.SkillsChinese[2]).Int("slot3_level", slot3Lv).Int("min_level", slot3MinLv).Msg("keep practical essence")
@@ -393,10 +396,16 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)", skills[0], st.CurrentSkillLevels[0], skills[1], st.CurrentSkillLevels[1], skills[2], st.CurrentSkillLevels[2]), MatchedMessageColor)
 
 	if matched && extendedReason != "" {
-		st.MatchedCount++
-		log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
-		LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中：%s</div>`, escapeHTML(extendedReason)))
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
+		if shouldLockExtended {
+			st.MatchedCount++
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中并锁定：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
+		} else {
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #d18b00; font-weight: 900;">🗂️ 扩展规则命中（不操作）：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+		}
 	} else if matched {
 		st.MatchedCount++
 		weaponNames := make([]string, 0, len(matchResult.Weapons))
@@ -628,10 +637,10 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
 		if opts != nil {
 			if opts.KeepFuturePromising {
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「未来可期」锁定：%d 个", st.ExtFuturePromisingCount), "#064d7c")
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「未来可期」命中：%d 个", st.ExtFuturePromisingCount), "#064d7c")
 			}
 			if opts.KeepSlot3Level3Practical {
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「实用基质」锁定：%d 个", st.ExtSlot3PracticalCount), "#064d7c")
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「实用基质」命中：%d 个", st.ExtSlot3PracticalCount), "#064d7c")
 			}
 			if opts.ExportCalculatorScript {
 				logCalculatorResult(ctx)

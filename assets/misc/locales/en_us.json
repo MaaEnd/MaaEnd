@@ -71,10 +71,14 @@
     "option.SkipLockedRow.description": "When on, each row tries the last slot first; if already locked the whole row is skipped to speed up leading locked rows. When off, process items in order.",
     "option.KeepFuturePromising.label": "Keep Future-Promising Matrices",
     "option.KeepFuturePromising.description": "Keep matrices with all 3 skill slots filled and total level meeting the threshold. Lower priority than weapon matching.",
+    "option.LockFuturePromising.label": "Lock Future-Promising Hits",
+    "option.LockFuturePromising.description": "When off, do nothing when this rule hits.",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "Min Total Level",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description": "Keep when sum of 3 slot levels ≥ this value (3~15). Default: 6",
     "option.KeepSlot3Level3Practical.label": "Keep Practical Matrices",
     "option.KeepSlot3Level3Practical.description": "Keep matrices whose slot 3 level meets the threshold and is a plug-and-play support skill. Lower priority than weapon matching.",
+    "option.LockSlot3Practical.label": "Lock Practical Hits",
+    "option.LockSlot3Practical.description": "When off, do nothing when this rule hits.",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label": "Min Slot 3 Level",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description": "Keep when slot 3 level ≥ this value (1~3). Default: 3",
     "option.DiscardUnmatched.label": "Discard Unmatched",
@@ -474,3 +478,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)"
 }
+
+

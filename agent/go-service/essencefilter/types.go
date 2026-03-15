@@ -128,9 +128,13 @@ type EssenceFilterOptions struct {
 	// 保留未来可期基质：三种词条且总等级 >= n
 	KeepFuturePromising     bool `json:"keep_future_promising"`
 	FuturePromisingMinTotal int  `json:"future_promising_min_total"`
+	// 未来可期命中后是否执行锁定；关闭时仅分类命中并跳过（不锁定、不废弃）
+	LockFuturePromising bool `json:"lock_future_promising"`
 	// 保留实用基质：词条3等级 >= n 且为辅助即插即用技能
 	KeepSlot3Level3Practical bool `json:"keep_slot3_level3_practical"`
 	Slot3MinLevel            int  `json:"slot3_min_level"`
+	// 实用基质命中后是否执行锁定；关闭时仅分类命中并跳过（不锁定、不废弃）
+	LockSlot3Practical bool `json:"lock_slot3_practical"`
 	// 未匹配时废弃而非跳过
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）

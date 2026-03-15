@@ -71,10 +71,14 @@
     "option.SkipLockedRow.description": "켜면 각 행에서 마지막 칸을 먼저 시도하고, 이미 잠금이면 행 전체를 건너뛰어 앞쪽 잠금 행 처리를 가속합니다. 끄면 순서대로 처리합니다.",
     "option.KeepFuturePromising.label": "미래 유망 기질 보관",
     "option.KeepFuturePromising.description": "3개 스킬 슬롯이 모두 채워지고 총 레벨이 임계값 이상인 기질을 보관합니다. 무기 매칭보다 낮은 우선순위입니다.",
+    "option.LockFuturePromising.label": "미래 유망 히트 시 잠금",
+    "option.LockFuturePromising.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "최소 총 레벨",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description": "3슬롯 레벨 합계 ≥ 이 값일 때 보관 (3~15). 기본값: 6",
     "option.KeepSlot3Level3Practical.label": "실용 기질 보관",
     "option.KeepSlot3Level3Practical.description": "슬롯3 레벨이 임계값 이상이고 즉시 사용 가능한 보조 스킬인 기질을 보관합니다. 무기 매칭보다 낮은 우선순위입니다.",
+    "option.LockSlot3Practical.label": "실용 히트 시 잠금",
+    "option.LockSlot3Practical.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label": "슬롯3 최소 레벨",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description": "슬롯3 레벨 ≥ 이 값일 때 보관 (1~3). 기본값: 3",
     "option.DiscardUnmatched.label": "불일치 시 폐기",
@@ -474,3 +478,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "녹화된 입력",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "인식 이동 (MapTracker)"
 }
+
+
