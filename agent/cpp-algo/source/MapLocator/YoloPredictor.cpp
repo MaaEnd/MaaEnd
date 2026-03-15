@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <filesystem>
-#include <string_view>
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
@@ -14,31 +13,6 @@ namespace fs = std::filesystem;
 
 namespace maplocator
 {
-
-namespace
-{
-
-int ReadIntField(const Json& value, std::string_view key, int default_value = 0)
-{
-    const std::string keyString(key);
-    const auto field = value.find(keyString);
-    if (!field) {
-        return default_value;
-    }
-    return field->as<int>();
-}
-
-std::string ReadStringField(const Json& value, std::string_view key, std::string default_value = {})
-{
-    const std::string keyString(key);
-    const auto field = value.find(keyString);
-    if (!field) {
-        return default_value;
-    }
-    return field->as<std::string>();
-}
-
-} // namespace
 
 YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThreshold, int threads)
     : yoloConfThreshold(confThreshold)
@@ -88,16 +62,7 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
         if (tileMappingOpt) {
             const Json& tileMapping = *tileMappingOpt;
             for (auto& [key, val] : tileMapping.as_object()) {
-                tileRegions.emplace(
-                    key,
-                    TileRegion {
-                        .base_class = ReadStringField(val, "base_class"),
-                        .x = ReadIntField(val, "x"),
-                        .y = ReadIntField(val, "y"),
-                        .w = ReadIntField(val, "w"),
-                        .h = ReadIntField(val, "h"),
-                        .infer_margin = ReadIntField(val, "infer_margin"),
-                    });
+                tileRegions.emplace(key, val.as<TileRegion>());
             }
             const std::string tileMappingPathUtf8 = MAA_NS::path_to_utf8_string(tileMappingPath);
             LogInfo << "Loaded tile mapping" << VAR(tileMappingPathUtf8) << VAR(tileRegions.size());
