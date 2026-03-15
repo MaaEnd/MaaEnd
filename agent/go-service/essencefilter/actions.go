@@ -89,8 +89,8 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.TargetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
 	st.MatchedCombinationSummary = make(map[string]*SkillCombinationSummary)
 	st.EssenceTypes = essenceTypes
-	buildFilteredSkillStats(filteredWeapons)
 	setRunState(st)
+	buildFilteredSkillStats(filteredWeapons)
 
 	if len(filteredWeapons) == 0 {
 		LogMXUSimpleHTML(ctx, "符合条件的武器数量：0（仅扩展规则）")
