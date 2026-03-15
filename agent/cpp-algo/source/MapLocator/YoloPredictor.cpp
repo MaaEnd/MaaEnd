@@ -82,7 +82,8 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
             LogWarn << "Config file not found or invalid json: " << jsonPath;
         }
 
-        fs::path tileMappingPath = modelPath.parent_path() / "tile_mapping.json";
+        fs::path tileMappingPath = modelPath;
+        tileMappingPath.replace_filename(MAA_NS::path("tile_mapping.json"));
         auto tileMappingOpt = json::open(tileMappingPath);
         if (tileMappingOpt) {
             const Json& tileMapping = *tileMappingOpt;
@@ -98,10 +99,12 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
                         .infer_margin = ReadIntField(val, "infer_margin"),
                     });
             }
-            LogInfo << "Loaded tile mapping from: " << tileMappingPath << " count=" << tileRegions.size();
+            const std::string tileMappingPathUtf8 = MAA_NS::path_to_utf8_string(tileMappingPath);
+            LogInfo << "Loaded tile mapping" << VAR(tileMappingPathUtf8) << VAR(tileRegions.size());
         }
         else {
-            LogWarn << "Tile mapping file not found or invalid json: " << tileMappingPath;
+            const std::string tileMappingPathUtf8 = MAA_NS::path_to_utf8_string(tileMappingPath);
+            LogWarn << "Tile mapping file not found or invalid json" << VAR(tileMappingPathUtf8);
         }
 
         LogInfo << "YOLO Model loaded successfully.";
