@@ -1,6 +1,6 @@
 ---
 name: maaend-issue-log-analysis
-description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd/MaaEnd/issues/...` 或 `#1234`）。自动抓取 issue 正文和评论中的 `MaaEnd-logs-*.zip` 附件，下载解压后从 `maa.log`、`maa.bak.log`、`go-service.log`、`mxu-tauri.log`、`mxu-web-*.log`、`mxu-agent*.log`、`config/*`、`on_error/` 中筛选关键证据，并结合 MaaEnd、MaaFramework、MXU 的代码和文档判断根因、给出修复方案。用于用户让你分析 MaaEnd issue、日志包、识别失败、任务卡死、控制器差异、Pipeline/Agent/MXU 问题时。
+description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd/MaaEnd/issues/...` 或 `#1234`）。自动抓取 issue 正文和评论中的 `MaaEnd-logs-*.zip` 附件，下载解压后从 `maa.log`、`maa.bak.log`、`go-service.log`、`mxu-tauri.log`、`mxu-web-*.log`、`mxu-agent*.log`、`config/*`、`on_error/` 中筛选关键证据，并结合 MaaEnd、MaaFramework、MXU 的代码和文档判断根因、给出修复方案，供用户在让你分析 MaaEnd issue、日志包、识别失败、任务卡死、控制器差异、Pipeline/Agent/MXU 问题时使用。
 ---
 
 # MaaEnd Issue Log Analysis
@@ -28,7 +28,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
    - 如果同一个 issue 有多个日志包，先看最新一次复现；如果 issue 在对比不同版本或不同控制器，再补看前面的包。
 
 4. 下载并解压日志包。
-   - 二进制 zip 不能用网页抓取工具直接读取，应用终端下载。
+   - 二进制 zip 不能用网页抓取工具直接读取，应使用终端下载。
    - 用 `curl -L` 或等价方式下载到仓库内临时目录，例如 `.cache/issue-logs/issue-<number>/`。
    - 解压后用文件工具读取，不要把整份大日志完整塞进回复。
    - 先列一遍解压目录，不要假定结构固定。日志包可能包含：
