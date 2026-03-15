@@ -3,51 +3,40 @@
 //节点从Exit离开，这里关联下一个阶段的节点
 {
     //节点出入口
-    "_AutoEcoFindFarmFarmlandValleyStart": {
+    "_AutoEcoFarmFindFarmlandValleyStart": {
         "desc": "通过追踪标记来识别四号谷地的农田，并点击追踪标记",
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindValleyIVEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandValleyIVExit"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmFindEcoFarmValleyIV",
-            "_AutoEcoFindFarmFarmlandValleyIVExit"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-    "_AutoEcoFindFarmFarmlandWulinStart": {
+    "_AutoEcoFarmFindFarmlandWulinStart": {
         "desc": "通过追踪标记来识别武陵的农田，并点击追踪标记",
+        "anchor": {
+            "_AutoEcoFarmFindEcoFarmAnchor": "_AutoEcoFarmFindWulinEcoFarm",
+            "_AutoEcoFarmFindFarmandExitAnchor": "_AutoEcoFarmFindFarmlandWulinExit"
+        },
         "next": [
-            "[JumpBack]_AutoEcoFarmFindEcoFarmWulin",
-            "_AutoEcoFindFarmFarmlandWulinExit"
+            "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-    "_AutoEcoFindFarmFarmlandValleyIVExit": {
+
+    "_AutoEcoFarmFindFarmlandValleyIVExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetValleyIVStart"
         ]
     },
-    "_AutoEcoFindFarmFarmlandWulinExit": {
+    "_AutoEcoFarmFindFarmlandWulinExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetWulinStart"
         ]
     },
     //内部节点
-    "_AutoEcoFarmFindEcoFarmValleyIV": {
-        "desc": "[四号谷地版]任务主体",
-        "max_hit": 1,
-        "next": [
-            "_AutoEcoFarmFindValleyIVEcoFarm",
-            "[JumpBack]SceneEnterMapValleyIVOriginiumSciencePark"
-        ]
-    },
-    "_AutoEcoFarmFindEcoFarmWulin": {
-        "desc": "[武陵版]任务主体",
-        "max_hit": 1,
-        "next": [
-            "_AutoEcoFarmFindWulinEcoFarm",
-            "[JumpBack]SceneEnterMapWulingWulingCity"
-        ]
-    },
-    "_AutoEcoFarmFindEcoFarmAny": {
-        "desc": "[当前地图版]任务主体，用于循环任务,默认关闭",
-        "enabled": false,
-        "max_hit": 3,
+    "_AutoEcoFarmFindFarmlandOpenMap": {
+        "desc": "先打开大地图",
         "next": [
             "_AutoEcoFarmInMap",
             "[JumpBack]SceneEnterMapAny"
@@ -70,11 +59,11 @@
             }
         },
         "next": [
-            //两个版本都试试
-            "_AutoEcoFarmFindValleyIVEcoFarm",
-            "_AutoEcoFarmFindWulinEcoFarm"
+            //根据预定义的锚点来判断
+            "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
         ]
     },
+
     "_AutoEcoFarmFindValleyIVEcoFarm": {
         "desc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
@@ -97,9 +86,10 @@
                 "dy": 720
             }
         },
+        "post_wait_freezes": 200,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
             //不行的话尝试筛选标记
@@ -130,9 +120,10 @@
                 "dy": 720
             }
         },
+        "post_wait_freezes": 200,
         "next": [
             //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmland",
+            "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullWulinEcoFarmToCenter",
             //不行的话尝试筛选标记
@@ -204,9 +195,35 @@
             "[JumpBack]_AutoEcoFarmMutiSelection",
             "_AutoEcoFarmAlreadySetTarget",
             "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse"
+            "[JumpBack]_AutoEcoFarmMoveMouse",
             //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
+        ]
+    },
+    "_AutoEcoFarmFindFarmlandCustom": {
+        "desc": "全屏寻找农田,并点击离特定点最近的农田",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
+                "custom_recognition_param": {
+                    "recognitionNodeName": "_AutoEcoFarmFindFarmland",
+                    "xRatio": 0.5,
+                    "yRatio": 0.5
+                }
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "_AutoEcoFarmIsMrarking",
+            "[JumpBack]_AutoEcoFarmMutiSelection",
+            "_AutoEcoFarmAlreadySetTarget",
+            "_AutoEcoFarmSetTarget",
+            "[JumpBack]_AutoEcoFarmMoveMouse",
+            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmIsMrarking": {
@@ -233,7 +250,7 @@
             }
         },
         "next": [
-            "_AutoEcoFarmFindFarmland"
+            "_AutoEcoFarmFindFarmlandCustom"
         ]
     },
     "_AutoEcoFarmAlreadySetTarget": {
@@ -256,7 +273,7 @@
             }
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmSetTarget": {
@@ -283,7 +300,7 @@
             "type": "Click"
         },
         "next": [
-            //这里结束，触发Jumpback
+            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmMutiSelection": {

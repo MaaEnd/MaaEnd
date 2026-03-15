@@ -1,5 +1,14 @@
-<div style="background: #ffffff; color: #222222; padding: 12px; border-radius: 8px; border: 1px solid #e6f9ff; max-width:520px;">
-  <div style="font-size:1.0em; font-weight:700; color:#2b62c0;">下一个路径点</div>
-  <div style="font-size:0.9em; margin-top:8px; color:#333333;">坐标：%.1f, %.1f</div>
-  <div style="font-size:0.9em; color:#555555;">距离：%.1fpx</div>
+<div class="maptracker-internal-message-navigation-moving" style="background:#ffffff; color:#222222; padding:12px; border-radius:8px; border:1px solid #e6f9ff; max-width:560px;">
+  <style>
+    div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-moving) {
+      display: none !important;
+    }
+    div:has(.maptracker-internal-message-navigation-moving):has(~ div .maptracker-internal-message-navigation-finished) {
+      display: none !important;
+    }
+  </style>
+  <div style="font-size:1.0em; font-weight:700; color:#2b62c0;">下一个路径点（%d/%d）</div>
+  <div style="font-size:0.88em; margin-top:6px; color:#333333;">当前：%.1f, %.1f</div>
+  <div style="font-size:0.88em; color:#333333;">目标：%.1f, %.1f</div>
+  <img src="%s" alt="preview" style="display:block; width:128px; height:128px; margin-top:8px; border-radius:6px; background:#f7fbff;" />
 </div>

@@ -21,7 +21,7 @@
         "desc": "任务结束后清理背包",
         "max_hit": 1,
         "next": [
-            "[JumpBack]_AutoEcoFarmClearBagStart",
+            "_AutoEcoFarmClearBagStart",
             "_AutoEcoFarmJumpBack"
         ]
     }

@@ -51,7 +51,7 @@
                     "培養艙",
                     "Growth Chamber",
                     "培養室",
-                    "GROWTH CHAMBER"
+                    "GROWTH ?CHAMBER"
                 ]
             }
         },
@@ -166,6 +166,16 @@
                     "TO GROW"
                 ]
             }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
         },
         "next": [
             "[JumpBack]SortBy",
@@ -611,7 +621,7 @@
                     "培養艙",
                     "Growth Chamber",
                     "培養室",
-                    "GROWTH CHAMBER"
+                    "GROWTH ?CHAMBER"
                 ]
             }
         },

@@ -20,7 +20,7 @@
                     }
                 },
                 {
-                    "name": "CreditShoppingNew",
+                    "name": "CreditShoppingN2",
                     "option": {
                         "AutoGetCredits": "Yes",
                         "CreditShoppingForce": "IgnoreBlackList",

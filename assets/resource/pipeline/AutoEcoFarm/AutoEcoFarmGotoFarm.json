@@ -15,7 +15,7 @@
     "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandValleyStart"
+            "_AutoEcoFarmFindFarmlandValleyStart"
         ]
     },
     //武陵的节点出入口
@@ -30,7 +30,7 @@
     "_AutoEcoFarmGotoWulinEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandWulinStart"
+            "_AutoEcoFarmFindFarmlandWulinStart"
         ]
     },
     //内部节点
