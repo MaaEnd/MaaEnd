@@ -6,7 +6,6 @@
             "Node.Action.Starting": ""
         }
     },
-
     "NodeClick": {
         "desc": "点击屏幕上的某个位置",
         "action": {

@@ -1,0 +1,115 @@
+{
+    "EssenceFilterMainFailed": {
+        "desc": "入口点失败",
+        "action": {
+            "type": "DoNothing"
+        },
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Failed": "未能进入基质界面，结束任务"
+        }
+    },
+    "EssenceFilterCheckInInventory": {
+        "desc": "检查是否在背包Essence页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    46,
+                    74,
+                    30
+                ],
+                "template": "EssenceFilter/EssenceSlot.png",
+                "threshold": 0.8
+            }
+        },
+        "timeout": 2000,
+        "next": [
+            "FirstSwipeToTop"
+        ],
+        "on_error": [
+            "EssenceFilterNavigateToInventory"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "确认在基质界面"
+        }
+    },
+    "FirstSwipeToTop": {
+        "desc": "初始化位置，滑动到顶端",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    500,
+                    100
+                ],
+                "end": [
+                    500,
+                    500
+                ],
+                "end_hold": 5,
+                "duration": 100
+            }
+        },
+        "repeat": 3,
+        "post_delay": 500,
+        "next": [
+            "EssenceFilterInit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "滑动到顶端"
+        }
+    },
+    "EssenceFilterNavigateToInventory": {
+        "desc": "导航",
+        "action": "DoNothing",
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "不在基质界面"
+        }
+    },
+    "EssenceFilterInit": {
+        "desc": "初始化：加载数据与预设",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
+        },
+        "next": [
+            "OCREssenceInventoryNumber",
+            "EssenceRowDetect",
+            "EssenceDetectFinal",
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        }
+    },
+    "EssenceFilterFinish": {
+        "desc": "任务完成",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterFinishAction"
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": "任务完成"
+        }
+    }
+}
