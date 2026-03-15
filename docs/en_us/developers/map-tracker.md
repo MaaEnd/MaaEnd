@@ -51,7 +51,6 @@ Optional parameters:
 - `sprint_threshold`: Positive real number, default `20.0`. The distance threshold for performing the sprint action, in pixel distance. When the distance between the player and the next target point exceeds this value and the orientation is correct, the player will perform a sprint.
 
 - `stuck_threshold`: Positive integer, default `2000`. The minimum duration for judging being stuck, in milliseconds. If the player does not actually move after this period of time, automatic jumping will be triggered.
-  
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
 </details>

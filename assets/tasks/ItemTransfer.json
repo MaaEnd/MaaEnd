@@ -1189,23 +1189,15 @@
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 123,
-                            "threshold": 0.6
+                            "threshold": 0.4
                         },
                         "ItemTransferFindItemInBag": {
                             "expected": 123,
-                            "threshold": 0.6
+                            "threshold": 0.4
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 123,
-                            "threshold": 0.6
-                        },
-                        "ItemTransferRepoToBag": {
-                            "next": [
-                                "ItemTransferClickSortDescending",
-                                "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
-                                "ItemTransferScrollDownwardRepo"
-                            ]
+                            "threshold": 0.4
                         }
                     }
                 },

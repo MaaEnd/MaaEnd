@@ -835,7 +835,7 @@ func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.Custo
 	centerX := 135
 	beginY := 191
 	var endY int
-	// 如果 delta 为正，则向上滑动；如果 delta 为负，则向下滑动	
+	// 如果 delta 为正，则向上滑动；如果 delta 为负，则向下滑动
 	if delta > 0 {
 		endY = beginY - swipeDist
 		log.Info().Int("first_box_y", firstBoxY).Int("delta", delta).Int("swipe_dist", swipeDist).Msg("<EssenceFilter> SwipeCalibrate: too low, swipe up")

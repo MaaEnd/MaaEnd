@@ -466,5 +466,6 @@
     "resource/image/SeizeEntrustTask/7.98wMoney_en": "815e9cb4681c50a4764986d41a7907f4a91fda0c685d777ee92768558b93a886",
     "resource/image/AutoEcoFarm/AutoecofarmBlackcloseWhitegrouund": "36df158b476c53071720cba9d61f608c9dd8ea18ba8f915749561dcf8c834765",
     "resource/image/AutoEcoFarm/AutoecofarmWhitecloseblackgrouund": "14b9459451f4b4410a1f75aed750c15e4f51e924862a61d15e7e67c65495e419",
-    "resource/image/ClaimDijiangRewards/BackButton": "a3411fb118901e1914727abcbf3cf71d8d17f89eb253a5dfe3e5d604a5cbe0a8"
+    "resource/image/ClaimDijiangRewards/BackButton": "a3411fb118901e1914727abcbf3cf71d8d17f89eb253a5dfe3e5d604a5cbe0a8",
+    "resource/image/SceneManager/MapMissionReminder": "d9045a48d3a38a6c3dced4e8a7da1b08b7ed84a0931f7bdb2809543e9d312dfe"
 }
