@@ -5,7 +5,8 @@
 - 从每个武器的 skills 按位置归入 slot：idx0=slot1, idx1=slot2(若 len=3) 或 slot3(若 len=2), idx2=slot3
 - 技能名取「基名」：按 · / : / ： / [ 分割，取第一段（统一处理不同格式如 ·小、: xxx、[S] 等）
 - 五语（cn/tc/en/jp/kr）直接从 weapons_output 的 skills.CN/TC/EN/JP/KR 同位置提取，不再依赖 i18n
-- 每 slot 用 set 去重后排序，再按顺序赋 id 1..n
+- 每 slot 用 set 去重；id 分配规则：若存在已有的 skill_pools 文件，已出现的 (slot, cn) 保留原 id，
+  新增技能在该 slot 内分配「当前最大 id + 1」，保证同一技能 id 不随新增/删除其他技能而变化。
 """
 
 from __future__ import annotations
@@ -139,28 +140,67 @@ def extract_skills_by_slot(
     return slot1, slot2, slot3, translations
 
 
+def load_existing_ids(path: Path) -> Tuple[Dict[Tuple[str, str], int], Dict[str, int]]:
+    """从已有 skill_pools.json 加载 (slot_key, cn) -> id，以及每 slot 的 max_id。若文件不存在或格式不对则返回空。"""
+    existing_cn_to_id: Dict[Tuple[str, str], int] = {}
+    max_id_by_slot: Dict[str, int] = {}
+    if not path.exists():
+        return existing_cn_to_id, max_id_by_slot
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return existing_cn_to_id, max_id_by_slot
+    if not isinstance(data, dict):
+        return existing_cn_to_id, max_id_by_slot
+    for slot_key in ("slot1", "slot2", "slot3"):
+        lst = data.get(slot_key)
+        if not isinstance(lst, list):
+            continue
+        slot_max = 0
+        for item in lst:
+            if not isinstance(item, dict):
+                continue
+            cn = item.get("cn")
+            id_val = item.get("id")
+            if isinstance(cn, str) and isinstance(id_val, int):
+                existing_cn_to_id[(slot_key, cn)] = id_val
+                slot_max = max(slot_max, id_val)
+        max_id_by_slot[slot_key] = slot_max
+    return existing_cn_to_id, max_id_by_slot
+
+
 def build_skill_pools(
     slot1_set: Set[str],
     slot2_set: Set[str],
     slot3_set: Set[str],
     translations: Dict[Tuple[str, str], Dict[str, str]],
+    existing_cn_to_id: Dict[Tuple[str, str], int] | None = None,
+    max_id_by_slot: Dict[str, int] | None = None,
 ) -> Dict[str, List[Dict]]:
-    """按排序赋 id，并用 translations 填充五语。"""
+    """赋稳定 id：已有 (slot, cn) 沿用旧 id，新增技能用该 slot 的 max_id+1；最终按 id 排序输出。"""
+    existing = existing_cn_to_id or {}
+    max_ids = max_id_by_slot or {}
     out: Dict[str, List[Dict]] = {}
 
     for key, s in (("slot1", slot1_set), ("slot2", slot2_set), ("slot3", slot3_set)):
-        ordered = sorted(s)
+        next_id = (max_ids.get(key) or 0) + 1
         entries: List[Dict] = []
-        for i, base_cn in enumerate(ordered, start=1):
+        for base_cn in sorted(s):
             t = translations.get((key, base_cn), {"cn": base_cn, "tc": "", "en": "", "jp": "", "kr": ""})
+            eid = existing.get((key, base_cn))
+            if eid is None:
+                eid = next_id
+                next_id += 1
             entries.append({
                 "cn": t["cn"],
                 "tc": t.get("tc", ""),
                 "en": t.get("en", ""),
                 "jp": t.get("jp", ""),
                 "kr": t.get("kr", ""),
-                "id": i,
+                "id": eid,
             })
+        entries.sort(key=lambda x: x["id"])
         out[key] = entries
 
     return out
@@ -216,7 +256,12 @@ def main() -> int:
     slot1_set, slot2_set, slot3_set, translations = extract_skills_by_slot(
         weapons_data, lang_stopwords
     )
-    pools = build_skill_pools(slot1_set, slot2_set, slot3_set, translations)
+    existing_cn_to_id, max_id_by_slot = load_existing_ids(output_path)
+    pools = build_skill_pools(
+        slot1_set, slot2_set, slot3_set, translations,
+        existing_cn_to_id=existing_cn_to_id,
+        max_id_by_slot=max_id_by_slot,
+    )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     write_skill_pools(output_path, pools)
