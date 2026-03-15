@@ -517,5 +517,7 @@
     "resource/image/Common/Button/EnvironmentMonitoringButton": "64026af3bda560260f163a7728cacc5f372f672bd052f2c387d2e96724cfcd81",
     "resource/image/Common/Button/LevelUpButton": "58353e392d3ab89a26813e17190ade197b4cadb51d532bdac57a49d588f842fc",
     "resource/image/Common/Button/ShutterButton": "eda5e068d9fa4940d7efb73f4c3017c07cf979e01d43fdd82db6a1798085a773",
-    "resource/image/Common/Button/WhiteConfirmButtonType2": "217d142d60c81669aa93f82ddf1271b299876cf0dbe6bec7697df44218830dba"
+    "resource/image/Common/Button/WhiteConfirmButtonType2": "217d142d60c81669aa93f82ddf1271b299876cf0dbe6bec7697df44218830dba",
+    "resource/image/DeliveryJobs/YazhenPowder": "7b2c1d54d1f6815dba93327efe5a8b358a77e3602f370bf133491716d2b56848",
+    "resource/image/DeliveryJobs/JincaoPowder": "36fc1a38c6083019ef96d0465dcd55c38caea08d766b123cd026b5d186ea7b7d"
 }
