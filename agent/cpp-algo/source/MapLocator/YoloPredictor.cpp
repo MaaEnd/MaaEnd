@@ -1,29 +1,52 @@
-#include "YoloPredictor.h"
+#include <algorithm>
+#include <filesystem>
+#include <string_view>
+
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
-#include <atomic>
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
+#include <boost/regex.hpp>
 #include <meojson/json.hpp>
-#include <regex>
-#include <sstream>
 
-#include <algorithm>
-#include <iostream>
+#include "YoloPredictor.h"
+
 using Json = json::value;
 namespace fs = std::filesystem;
 
 namespace maplocator
 {
 
-YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThreshold)
+namespace
+{
+
+int ReadIntField(const Json& value, std::string_view key, int default_value = 0)
+{
+    const std::string keyString(key);
+    const auto field = value.find(keyString);
+    if (!field) {
+        return default_value;
+    }
+    return field->as<int>();
+}
+
+std::string ReadStringField(const Json& value, std::string_view key, std::string default_value = {})
+{
+    const std::string keyString(key);
+    const auto field = value.find(keyString);
+    if (!field) {
+        return default_value;
+    }
+    return field->as<std::string>();
+}
+
+} // namespace
+
+YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThreshold, int threads)
     : yoloConfThreshold(confThreshold)
 {
     if (!yoloModelPath.empty()) {
         ortEnv = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "MapLocatorYolo");
         Ort::SessionOptions sessionOptions;
-        sessionOptions.SetIntraOpNumThreads(1);
+        sessionOptions.SetIntraOpNumThreads(std::max(1, threads));
         sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
 
         auto osModelPath = MAA_NS::to_osstring(yoloModelPath);
@@ -59,23 +82,45 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
             LogWarn << "Config file not found or invalid json: " << jsonPath;
         }
 
+        fs::path tileMappingPath = modelPath.parent_path() / "tile_mapping.json";
+        auto tileMappingOpt = json::open(tileMappingPath);
+        if (tileMappingOpt) {
+            const Json& tileMapping = *tileMappingOpt;
+            for (auto& [key, val] : tileMapping.as_object()) {
+                tileRegions.emplace(
+                    key,
+                    TileRegion {
+                        .base_class = ReadStringField(val, "base_class"),
+                        .x = ReadIntField(val, "x"),
+                        .y = ReadIntField(val, "y"),
+                        .w = ReadIntField(val, "w"),
+                        .h = ReadIntField(val, "h"),
+                        .infer_margin = ReadIntField(val, "infer_margin"),
+                    });
+            }
+            LogInfo << "Loaded tile mapping from: " << tileMappingPath << " count=" << tileRegions.size();
+        }
+        else {
+            LogWarn << "Tile mapping file not found or invalid json: " << tileMappingPath;
+        }
+
         LogInfo << "YOLO Model loaded successfully.";
     }
 }
 
 std::string YoloPredictor::convertYoloNameToZoneId(const std::string& yoloName)
 {
-    std::string prefix = yoloName.length() >= 5 ? yoloName.substr(0, 5) : yoloName;
+    const std::string prefix = yoloName.length() >= 5 ? yoloName.substr(0, 5) : yoloName;
 
     auto it = regionMapping.find(prefix);
     if (it != regionMapping.end()) {
-        std::string regionName = it->second;
+        const std::string& regionName = it->second;
         if (yoloName.find("Base") != std::string::npos && yoloName.find("Map") != std::string::npos) {
             return regionName + "_Base";
         }
-        std::regex re(R"((Map\d+)Lv0*(\d+)Tier0*(\d+))");
-        std::smatch match;
-        if (std::regex_search(yoloName, match, re)) {
+        static const boost::regex kTierRegex(R"((Map\d+)Lv0*(\d+)Tier0*(\d+))");
+        boost::smatch match;
+        if (boost::regex_search(yoloName, match, kTierRegex)) {
             return regionName + "_L" + match[2].str() + "_" + match[3].str();
         }
     }
@@ -83,17 +128,18 @@ std::string YoloPredictor::convertYoloNameToZoneId(const std::string& yoloName)
     return yoloName;
 }
 
-std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
+YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
 {
     std::lock_guard<std::mutex> lock(yoloMutex);
+    YoloCoarseResult result;
 
     if (!isYoloLoaded || !ortSession) {
         LogError << "YOLO Error: Model is NOT loaded.";
-        return "";
+        return result;
     }
     if (minimap.empty()) {
         LogError << "YOLO Error: Input minimap is empty.";
-        return "";
+        return result;
     }
 
     const int OUTPUT_SIZE = 128;
@@ -156,7 +202,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
 
     if (inputNodeNames.empty() || outputNodeNames.empty()) {
         LogError << "YOLO Error: input/output node names are not configured. Check model JSON sidecar.";
-        return "";
+        return result;
     }
 
     // Run Inference
@@ -165,7 +211,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
     auto outputTensors = ortSession->Run(Ort::RunOptions { nullptr }, &inName, &inputTensor, 1, &outName, 1);
 
     if (outputTensors.empty()) {
-        return "";
+        return result;
     }
 
     float* outputData = outputTensors.front().GetTensorMutableData<float>();
@@ -189,18 +235,40 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
     }
 
     LogInfo << "YOLO Raw:" << VAR(predictedName) << VAR(maxIdx) << VAR(maxConf);
+    result.raw_class = predictedName;
+    result.confidence = maxConf;
 
     if (predictedName == "None") {
         LogInfo << "YOLO Predicted 'None', skipping localization.";
-        return "None";
+        result.valid = true;
+        result.is_none = true;
+        result.zone_id = "None";
+        return result;
     }
 
     if (maxConf > yoloConfThreshold && maxIdx < (int)yoloClassNames.size()) {
-        std::string zoneId = convertYoloNameToZoneId(predictedName);
-        std::string succMsg =
-            "YOLO Success: " + predictedName + " -> ZoneId: " + zoneId + " (Conf: " + std::to_string(maxConf * 100.0) + "%)";
+        result.valid = true;
+        result.zone_id = convertYoloNameToZoneId(predictedName);
+
+        auto tileIt = tileRegions.find(predictedName);
+        if (tileIt != tileRegions.end()) {
+            result.base_class = tileIt->second.base_class;
+            result.has_roi = true;
+            result.roi_x = tileIt->second.x;
+            result.roi_y = tileIt->second.y;
+            result.roi_w = tileIt->second.w;
+            result.roi_h = tileIt->second.h;
+            result.infer_margin = tileIt->second.infer_margin;
+        }
+
+        std::string succMsg = "YOLO Success: " + predictedName + " -> ZoneId: " + result.zone_id + " (Conf: "
+            + std::to_string(maxConf * 100.0) + "%)";
+        if (result.has_roi) {
+            succMsg += " ROI=(" + std::to_string(result.roi_x) + "," + std::to_string(result.roi_y) + "," + std::to_string(result.roi_w)
+                + "," + std::to_string(result.roi_h) + ") margin=" + std::to_string(result.infer_margin);
+        }
         LogInfo << succMsg;
-        return zoneId;
+        return result;
     }
     if (maxConf <= yoloConfThreshold) {
         LogInfo << "YOLO Fail: Low Confidence" << VAR(maxConf) << VAR(yoloConfThreshold);
@@ -209,7 +277,7 @@ std::string YoloPredictor::predictZoneByYOLO(const cv::Mat& minimap)
         LogInfo << "YOLO Fail: Index Out of Bounds" << VAR(maxIdx) << VAR(yoloClassNames.size());
     }
 
-    return "";
+    return result;
 }
 
 } // namespace maplocator

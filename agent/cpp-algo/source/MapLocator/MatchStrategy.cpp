@@ -1,7 +1,9 @@
+#include <filesystem>
+
+#include <MaaUtils/Logger.h>
+
 #include "MatchStrategy.h"
 #include "MapAlgorithm.h"
-#include <MaaUtils/Logger.h>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -120,17 +122,28 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
     cv::Rect peakRect(maxLoc.x - ex, maxLoc.y - ex, ex * 2 + 1, ex * 2 + 1);
     peakRect &= cv::Rect(0, 0, result.cols, result.rows);
 
-    cv::Mat tmp = result.clone();
+    thread_local cv::Mat peakBackupCache;
+    if (peakBackupCache.rows < peakRect.height || peakBackupCache.cols < peakRect.width || peakBackupCache.type() != result.type()) {
+        peakBackupCache.create(peakRect.size(), result.type());
+    }
+    cv::Mat peakBackup = peakBackupCache(cv::Rect(0, 0, peakRect.width, peakRect.height));
+    result(peakRect).copyTo(peakBackup);
+
     // 找次极大值：在最高分周围开辟“黑洞”区域屏蔽主峰，随后寻找全局次高分，用于计算 PSR 与 delta，判断周遭是否存在相似纹理导致匹配歧义
-    tmp(peakRect).setTo(-2.0f);
+    result(peakRect).setTo(-2.0f);
     double secondVal;
     cv::Point secondLoc;
-    cv::minMaxLoc(tmp, nullptr, &secondVal, nullptr, &secondLoc);
+    cv::minMaxLoc(result, nullptr, &secondVal, nullptr, &secondLoc);
+    peakBackup.copyTo(result(peakRect));
 
-    cv::Mat sideMask(result.size(), CV_8U, cv::Scalar(255));
-    sideMask(peakRect).setTo(0);
+    thread_local cv::Mat sideMaskCache;
+    if (sideMaskCache.size() != result.size() || sideMaskCache.type() != CV_8U) {
+        sideMaskCache.create(result.size(), CV_8U);
+    }
+    sideMaskCache.setTo(static_cast<uchar>(1));
+    sideMaskCache(peakRect).setTo(static_cast<uchar>(0));
     cv::Scalar mean, stddev;
-    cv::meanStdDev(result, mean, stddev, sideMask);
+    cv::meanStdDev(result, mean, stddev, sideMaskCache);
     // PSR (Peak to Sidelobe Ratio) 峰值旁瓣比：衡量最高分是否唯一。
     // 若匹配区域纹理单一或是重复铺装路面，旁瓣(周围区域)得分也会很高，导致 PSR 骤降，借此拒绝高分歧义解
     double psr = (maxVal - mean[0]) / (stddev[0] + 1e-6);
