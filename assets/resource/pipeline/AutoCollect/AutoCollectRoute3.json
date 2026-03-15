@@ -1,15 +1,15 @@
 {
-    "AutoCollectRoute1Start": {
+    "AutoCollectRoute3Start": {
         "next": [
-            "AutoCollectRoute1AssertLocation",
-            "[JumpBack]SceneEnterWorldWulingWulingCity5"
+            "AutoCollectRoute3AssertLocation",
+            "[JumpBack]SceneEnterWorldWulingWulingCity7"
         ]
     },
-    "AutoCollectRoute1End": {
+    "AutoCollectRoute3End": {
         "pre_delay": 0,
         "post_delay": 0
     },
-    "AutoCollectRoute1AssertLocation": {
+    "AutoCollectRoute3AssertLocation": {
         "recognition": {
             "type": "Custom",
             "param": {
@@ -19,8 +19,8 @@
                         {
                             "map_name": "map02_lv002",
                             "target": [
-                                663,
-                                733,
+                                424,
+                                850,
                                 20,
                                 20
                             ]
@@ -31,10 +31,10 @@
         },
         "desc": "传送到收集地",
         "next": [
-            "AutoCollectRoute1GotoFind1"
+            "AutoCollectRoute3GotoFind1"
         ]
     },
-    "AutoCollectRoute1GotoFind1": {
+    "AutoCollectRoute3GotoFind1": {
         "action": {
             "type": "Custom",
             "param": {
@@ -47,120 +47,88 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            654,
-                            722
+                            419,
+                            838
                         ],
                         [
-                            657,
-                            720
+                            418,
+                            838
                         ],
                         [
-                            659,
-                            720
+                            419,
+                            838
                         ],
                         [
-                            660,
-                            719
+                            424,
+                            833
                         ],
                         [
-                            661,
-                            719
+                            426,
+                            833
                         ],
                         [
-                            662,
-                            718
+                            428,
+                            832
                         ],
                         [
-                            662,
-                            701
+                            432,
+                            832
                         ],
                         [
-                            661,
-                            699
+                            433,
+                            831
                         ],
                         [
-                            661,
-                            697
+                            437,
+                            831
                         ],
                         [
-                            659,
-                            694
+                            439,
+                            830
                         ],
                         [
-                            659,
-                            690
+                            442,
+                            830
                         ],
                         [
-                            658,
-                            689
+                            444,
+                            829
                         ],
                         [
-                            658,
-                            685
+                            445,
+                            829
                         ],
                         [
-                            657,
-                            683
+                            446,
+                            827
                         ],
                         [
-                            657,
-                            680
+                            446,
+                            816
                         ],
                         [
-                            656,
-                            678
+                            449,
+                            813
                         ],
                         [
-                            656,
-                            676
+                            449,
+                            811
                         ],
                         [
-                            655,
-                            674
+                            451,
+                            808
                         ],
                         [
-                            655,
-                            673
+                            451,
+                            806
                         ],
                         [
-                            653,
-                            669
+                            453,
+                            803
                         ],
                         [
-                            653,
-                            668
-                        ],
-                        [
-                            651,
-                            665
-                        ],
-                        [
-                            651,
-                            663
-                        ],
-                        [
-                            648,
-                            658
-                        ],
-                        [
-                            648,
-                            657
-                        ],
-                        [
-                            646,
-                            653
-                        ],
-                        [
-                            646,
-                            652
-                        ],
-                        [
-                            645,
-                            651
-                        ],
-                        [
-                            645,
-                            650,
+                            453,
+                            802,
                             true
                         ]
                     ]
@@ -168,14 +136,14 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind2"
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind2"
         },
         "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute1GotoFind2": {
+    "AutoCollectRoute3GotoFind2": {
         "action": {
             "type": "Custom",
             "param": {
@@ -188,8 +156,8 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            647,
-                            648,
+                            456,
+                            800,
                             true
                         ]
                     ]
@@ -197,14 +165,14 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind3"
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind3"
         },
-        "desc": "前往收集地2",
+        "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute1GotoFind3": {
+    "AutoCollectRoute3GotoFind3": {
         "action": {
             "type": "Custom",
             "param": {
@@ -217,8 +185,8 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            647,
-                            646,
+                            456,
+                            799,
                             true
                         ]
                     ]
@@ -226,14 +194,14 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind4"
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind4"
         },
-        "desc": "前往收集地3",
+        "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute1GotoFind4": {
+    "AutoCollectRoute3GotoFind4": {
         "action": {
             "type": "Custom",
             "param": {
@@ -246,8 +214,8 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            643,
-                            642,
+                            457,
+                            795,
                             true
                         ]
                     ]
@@ -255,14 +223,14 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind5"
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind5"
         },
-        "desc": "前往收集地4",
+        "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
     },
-    "AutoCollectRoute1GotoFind5": {
+    "AutoCollectRoute3GotoFind5": {
         "action": {
             "type": "Custom",
             "param": {
@@ -275,8 +243,8 @@
                             "zone_id": "Wuling_Base"
                         },
                         [
-                            640,
-                            645,
+                            459,
+                            795,
                             true
                         ]
                     ]
@@ -284,9 +252,96 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1End"
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind6"
         },
-        "desc": "前往收集地5",
+        "desc": "前往收集地1",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute3GotoFind6": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            460,
+                            793,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind7"
+        },
+        "desc": "前往收集地1",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute3GotoFind7": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            457,
+                            791,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute3GotoFind8"
+        },
+        "desc": "前往收集地1",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute3GotoFind8": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            451,
+                            792,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute3End"
+        },
+        "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
