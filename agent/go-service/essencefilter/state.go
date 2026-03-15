@@ -26,6 +26,7 @@ type RunState struct {
 	CurrentCol          int
 	CurrentRow          int
 	MaxItemsPerRow      int
+	TotalCount          int // OCR 得到的库存总数，0 表示未知；用于计算剩余是否 <= 45 以决定是否尾扫
 	FirstRowSwipeDone   bool
 	FinalLargeScanUsed  bool
 	SwipeCalibrateRetry int
@@ -57,6 +58,7 @@ func (s *RunState) Reset() {
 	s.CurrentCol = 1
 	s.CurrentRow = 1
 	s.MaxItemsPerRow = 9
+	s.TotalCount = 0
 	s.FirstRowSwipeDone = false
 	s.FinalLargeScanUsed = false
 	s.SwipeCalibrateRetry = 0

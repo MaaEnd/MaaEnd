@@ -188,6 +188,9 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", maxSinglePage).Str("raw", text).Msg("total parsed")
 	LogMXUSimpleHTML(ctx, fmt.Sprintf("库存中共 <span style=\"color: #ff7000; font-weight: 900;\">%d</span> 个基质", n))
+	if st := getRunState(); st != nil {
+		st.TotalCount = n
+	}
 	if n <= maxSinglePage {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
 	}
@@ -514,6 +517,15 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
 		if (len(st.RowBoxes) == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
+			// 已知总数时：若 剩余 = total - 9*已扫行数 <= 45，直接进入尾扫，避免到底后继续 swipe 卡死
+			const maxRemainingForFinalScan = 45
+			rowsDone := st.CurrentRow
+			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
+			if st.TotalCount > 0 && remaining <= maxRemainingForFinalScan {
+				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，进入尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
+				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
+				return true
+			}
 			if !st.FirstRowSwipeDone {
 				st.FirstRowSwipeDone = true
 				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeFirst"}})
