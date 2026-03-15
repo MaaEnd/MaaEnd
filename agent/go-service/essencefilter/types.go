@@ -76,6 +76,9 @@ type EssenceFilterOptions struct {
 	FlawlessEssence bool `json:"flawless_essence"`
 	PureEssence     bool `json:"pure_essence"`
 
+	//跳过已标记基质
+	SkipMarkedEssence bool `json:"skipmarked_essence"`
+
 	// 保留未来可期基质：三种词条且总等级 >= n
 	KeepFuturePromising     bool `json:"keep_future_promising"`
 	FuturePromisingMinTotal int  `json:"future_promising_min_total"`

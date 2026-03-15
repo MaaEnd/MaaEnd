@@ -197,6 +197,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "SkipMarkedEssence",
                         "KeepFuturePromising",
                         "KeepSlot3Level3Practical",
                         "DiscardUnmatched",
@@ -336,6 +337,34 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "SkipMarkedEssence": {
+            "type": "switch",
+            "label": "$option.SkipMarkedEssence.label",
+            "description": "$option.SkipMarkedEssence.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "skipmarked_essence": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "skipmarked_essence": false
                             }
                         }
                     }

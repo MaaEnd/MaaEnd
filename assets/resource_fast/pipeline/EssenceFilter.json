@@ -176,7 +176,7 @@
                     72,
                     956,
                     570
-                ], // 高度放大，覆盖底部区域
+                ],
                 "template": "EssenceFilter/EssenceGeneral.png",
                 "method": 5,
                 "threshold": 0.35
@@ -186,6 +186,54 @@
             "type": "Custom",
             "param": {
                 "custom_action": "EssenceFilterRowCollectAction"
+            }
+        },
+        "next": [
+            "EssenceFilterRowNextItem"
+        ]
+    },
+"EssenceFilterPreCheckMark": {
+        "desc": "路由分支：等待面板打开，优先匹配已标记状态",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "timeout": 2000,
+        "next": [
+            "EssenceFilterIsMarked",
+            "EssenceFilterCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterRowNextItem"
+        ]
+    },
+    "EssenceFilterIsMarked": {
+        "desc": "识别到已锁定或废弃，触发跳过分支",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1195,
+                    180,
+                    43,
+                    21
+                ],
+                "template": [
+                    "EssenceFilter/LockButtonLocked.png",
+                    "EssenceFilter/DiscardButtonDiscarded.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "DoNothing",
+        "next": [
+            "EssenceFilterSkipMarkedLog"
+        ]
+    },
+    "EssenceFilterSkipMarkedLog": {
+        "desc": "日志输出并跳过",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterSkipMarkedAction"
             }
         },
         "next": [
@@ -611,7 +659,7 @@
                     76
                 ],
                 "end_hold": 700,
-                "duration": 500
+                "duration": 100
             }
         },
         "post_delay": 200,
