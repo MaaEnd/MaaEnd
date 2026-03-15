@@ -117,12 +117,6 @@ type MatcherConfig struct {
 	SuffixStopwordsMap map[string][]string `json:"suffixStopwords"`
 }
 
-// matcherConfigLegacy - for unmarshaling when suffixStopwords is an array
-type matcherConfigLegacy struct {
-	SimilarWordMap  map[string]string `json:"similarWordMap"`
-	SuffixStopwords []string          `json:"suffixStopwords"`
-}
-
 type EssenceFilterOptions struct {
 	Rarity6Weapon   bool `json:"rarity6_weapon"`
 	Rarity5Weapon   bool `json:"rarity5_weapon"`
@@ -152,42 +146,10 @@ type EssenceMeta struct {
 	Range ColorRange
 }
 
-// Global variables
+// Global variables (data in db.go; runtime state in RunState; matcher config in config.go)
 var (
-	weaponDB                WeaponDatabase
-	targetSkillCombinations []SkillCombination
-	visitedCount            int
-	matchedCount            int
-	extFuturePromisingCount int
-	extSlot3PracticalCount  int
-	filteredSkillStats      [3]map[int]int
-	statsLogged             bool
-
-	// 本次运行中命中的技能组合摘要，按技能 ID 组合聚合
-	matchedCombinationSummary map[string]*SkillCombinationSummary
-
-	// Grid traversal state
-	currentCol          int // 1~9
-	currentRow          int // row index
-	maxItemsPerRow      int
-	firstRowSwipeDone   bool // true after first row swipe is used
-	finalLargeScanUsed  bool // true if final large scan has been used
-	swipeCalibrateRetry int  // 校准重试次数，防止死循环
-
-	// Current item's three skills cache
-	currentSkills      [3]string
-	currentSkillLevels [3]int // 从 OCR 解析出的等级 (+1/+2/+3)，0 表示未识别
-
-	// Row processing: collected boxes and index
-	rowBoxes [][4]int
-	rowIndex int
-
-	// Matcher config - loaded from JSON config file, used for skill name matching
-	matcherConfig MatcherConfig
-
-	// Essence color matching parameters
+	// Essence color matching parameters (defaults; per-run selection in RunState.EssenceTypes)
 	FlawlessEssenceMeta = EssenceMeta{
-		// Name: "Flawless Essence",
 		Name: "无暇基质",
 		Range: ColorRange{
 			Lower: [3]int{18, 70, 220},
@@ -201,6 +163,4 @@ var (
 			Upper: [3]int{136, 255, 255},
 		},
 	}
-
-	EssenceTypes []EssenceMeta
 )

@@ -12,6 +12,9 @@ import (
 // Default locale for loading weapon skills
 const defaultLoadLocale = "CN"
 
+// weaponDB holds the loaded weapon database. Written by loader; read by filter, matcher, ui.
+var weaponDB WeaponDatabase
+
 // weaponTypeToID maps weapons_output.json weapon_type string to type_id (1-5)
 var weaponTypeToID = map[string]int{
 	"Sword":      1,
@@ -23,42 +26,87 @@ var weaponTypeToID = map[string]int{
 	"Wand":       5,
 }
 
-// LoadMatcherConfig - 加载匹配器配置（支持旧版 suffixStopwords 数组与新版按语言 map）
-func LoadMatcherConfig(path string) error {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return err
+// GetPoolBySlot returns the skill pool for the given slot (1, 2, or 3).
+func GetPoolBySlot(slot int) []SkillPool {
+	switch slot {
+	case 1:
+		return weaponDB.SkillPools.Slot1
+	case 2:
+		return weaponDB.SkillPools.Slot2
+	case 3:
+		return weaponDB.SkillPools.Slot3
+	default:
+		return nil
 	}
-	var withRaw struct {
-		SimilarWordMap     map[string]string   `json:"similarWordMap"`
-		SuffixStopwords    json.RawMessage     `json:"suffixStopwords"`
-		SuffixStopwordsMap map[string][]string `json:"-"`
+}
+
+// SkillNameByID returns the Chinese name for the skill ID in the given pool.
+func SkillNameByID(id int, pool []SkillPool) string {
+	for _, s := range pool {
+		if s.ID == id {
+			return s.Chinese
+		}
 	}
-	if err := json.Unmarshal(data, &withRaw); err != nil {
-		return err
+	return ""
+}
+
+func normalizeSimilarConvert(s string) string {
+	cfg := GetMatcherConfig()
+	for old, val := range cfg.SimilarWordMap {
+		s = strings.ReplaceAll(s, old, val)
 	}
-	matcherConfig.SimilarWordMap = withRaw.SimilarWordMap
-	if withRaw.SimilarWordMap == nil {
-		matcherConfig.SimilarWordMap = make(map[string]string)
+	return s
+}
+
+// cleanDisplayToCanonical normalizes a display skill name to a pool canonical name and returns (canonical, poolID, true) or ("", 0, false).
+func cleanDisplayToCanonical(display string, slot int, locale string) (canonical string, id int, ok bool) {
+	candidate := display
+	if idx := strings.Index(display, "·"); idx >= 0 {
+		candidate = strings.TrimSpace(display[:idx])
 	}
-	// Try suffixStopwords as object (new) then as array (legacy)
-	if err := json.Unmarshal(withRaw.SuffixStopwords, &matcherConfig.SuffixStopwordsMap); err == nil && len(matcherConfig.SuffixStopwordsMap) > 0 {
-		if stopwords, ok := matcherConfig.SuffixStopwordsMap["CN"]; ok {
-			matcherConfig.SuffixStopwords = stopwords
-		} else {
-			for _, v := range matcherConfig.SuffixStopwordsMap {
-				matcherConfig.SuffixStopwords = v
-				break
+	if candidate == "" {
+		return "", 0, false
+	}
+	pool := GetPoolBySlot(slot)
+	if len(pool) == 0 {
+		return "", 0, false
+	}
+	cfg := GetMatcherConfig()
+	stopwords := cfg.SuffixStopwords
+	if cfg.SuffixStopwordsMap != nil {
+		if w, has := cfg.SuffixStopwordsMap[locale]; has {
+			stopwords = w
+		}
+	}
+	candidates := []string{candidate}
+	for _, suf := range stopwords {
+		if strings.HasSuffix(candidate, suf) && len(candidate) > len(suf) {
+			trimmed := strings.TrimSuffix(candidate, suf)
+			if trimmed != "" {
+				candidates = append(candidates, trimmed)
 			}
 		}
-	} else {
-		var legacy []string
-		if err := json.Unmarshal(withRaw.SuffixStopwords, &legacy); err != nil {
-			return err
-		}
-		matcherConfig.SuffixStopwords = legacy
 	}
-	return nil
+	normCandidate := normalizeSimilarConvert(candidate)
+	if normCandidate != candidate {
+		candidates = append(candidates, normCandidate)
+		for _, suf := range stopwords {
+			if strings.HasSuffix(normCandidate, suf) && len(normCandidate) > len(suf) {
+				trimmed := strings.TrimSuffix(normCandidate, suf)
+				if trimmed != "" {
+					candidates = append(candidates, trimmed)
+				}
+			}
+		}
+	}
+	for _, c := range candidates {
+		for _, e := range pool {
+			if e.Chinese == c {
+				return e.Chinese, e.ID, true
+			}
+		}
+	}
+	return "", 0, false
 }
 
 // LoadSkillPoolsNew - load skill_pools.json (cn/tc/en) into weaponDB.SkillPools
@@ -79,56 +127,6 @@ func LoadSkillPoolsNew(path string) error {
 	weaponDB.SkillPools.Slot2 = raw.Slot2
 	weaponDB.SkillPools.Slot3 = raw.Slot3
 	return nil
-}
-
-// cleanDisplayToCanonical normalizes a display skill name to a pool canonical name and returns (canonical, poolID, true) or ("", 0, false).
-func cleanDisplayToCanonical(display string, slot int, locale string) (canonical string, id int, ok bool) {
-	candidate := display
-	if idx := strings.Index(display, "·"); idx >= 0 {
-		candidate = strings.TrimSpace(display[:idx])
-	}
-	if candidate == "" {
-		return "", 0, false
-	}
-	pool := getPoolBySlot(slot)
-	if len(pool) == 0 {
-		return "", 0, false
-	}
-	stopwords := matcherConfig.SuffixStopwords
-	if matcherConfig.SuffixStopwordsMap != nil {
-		if w, has := matcherConfig.SuffixStopwordsMap[locale]; has {
-			stopwords = w
-		}
-	}
-	candidates := []string{candidate}
-	for _, suf := range stopwords {
-		if strings.HasSuffix(candidate, suf) && len(candidate) > len(suf) {
-			trimmed := strings.TrimSuffix(candidate, suf)
-			if trimmed != "" {
-				candidates = append(candidates, trimmed)
-			}
-		}
-	}
-	normCandidate := normalizeSimilar(candidate)
-	if normCandidate != candidate {
-		candidates = append(candidates, normCandidate)
-		for _, suf := range stopwords {
-			if strings.HasSuffix(normCandidate, suf) && len(normCandidate) > len(suf) {
-				trimmed := strings.TrimSuffix(normCandidate, suf)
-				if trimmed != "" {
-					candidates = append(candidates, trimmed)
-				}
-			}
-		}
-	}
-	for _, c := range candidates {
-		for _, e := range pool {
-			if e.Chinese == c {
-				return e.Chinese, e.ID, true
-			}
-		}
-	}
-	return "", 0, false
 }
 
 // LoadWeaponsOutputAndConvert - load weapons_output.json and convert to weaponDB.Weapons with cleaning
