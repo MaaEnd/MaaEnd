@@ -82,6 +82,19 @@ This will fully set up the environment required for development.
 - About OCR node `expected` i18n: developers do not need to maintain multilingual text manually. Just write `expected` in your own current language, and the `tools/i18n` program will automatically convert OCR `expected` in pipeline files to proper i18n entries.
 - Prefer writing the full expected sentence instead of a partial fragment. For example, write "This is a sample sentence" rather than only "sample sentence".
 - If you intentionally need partial text, or you do not want the i18n program to auto-process this OCR node, add the skip marker comment `// @i18n-skip` inside the corresponding `expected` array.
+- Example (recommended, auto i18n processing enabled):
+    ```jsonc
+    "expected": [
+        "This is a sample sentence"
+    ]
+    ```
+- Example (skip auto i18n processing):
+    ```jsonc
+    "expected": [
+        // @i18n-skip
+        "sample sentence"
+    ]
+    ```
 
 ### About Reusable Nodes (Common Nodes)
 

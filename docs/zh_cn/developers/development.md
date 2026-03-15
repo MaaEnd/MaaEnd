@@ -82,6 +82,19 @@ python tools/setup_workspace.py
 - 关于 OCR 节点 `expected` 的 i18n：开发者无需手动维护多语言，只需按自己当前语言写入预期文本，`tools/i18n` 程序会自动将 pipeline 中 OCR 的 `expected` 处理为正确 i18n。
 - `expected` 建议写完整文本，不要只写片段。例如应写“这是一段示例内容”，而不是只写“示例内容”。
 - 若你确实需要写片段，或不希望该 OCR 节点被 i18n 程序自动处理，请在对应 `expected` 数组内添加跳过标记注释 `// @i18n-skip`。
+- 示例（会自动 i18n 处理，推荐）：
+    ```jsonc
+    "expected": [
+        "这是一段示例内容"
+    ]
+    ```
+- 示例（跳过自动 i18n 处理）：
+    ```jsonc
+    "expected": [
+        // @i18n-skip
+        "示例内容"
+    ]
+    ```
 
 ### 关于秦始皇节点（可复用节点或 Custom ）
 
