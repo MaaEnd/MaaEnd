@@ -20,4 +20,7 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("EssenceFilterSwipeCalibrateAction", &EssenceFilterSwipeCalibrateAction{})
 	maa.AgentServerRegisterCustomAction("EssenceFilterTraceAction", &EssenceFilterTraceAction{})
 	maa.AgentServerRegisterCustomAction("OCREssenceInventoryNumberAction", &OCREssenceInventoryNumberAction{})
+
+	//战斗后识别版本
+	maa.AgentServerRegisterCustomAction("EssenceFilterAfterBattleSkillDecisionAction", &EssenceFilterAfterBattleSkillDecisionAction{})
 }

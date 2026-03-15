@@ -1,0 +1,77 @@
+{
+    "EssenceFilterInitAfterBattle": {
+        "desc": "初始化：加载数据与预设[刷完基质版]",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFullScreenDetect1",
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        }
+    },
+    "EssenceFullScreenDetect1": {
+        "desc": "全屏模板匹配，收集所有格子,返回第一个",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35,
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "next": ["EssenceFindLockItem"]
+    },
+    "EssenceFindLockItem": {
+        "desc": "查找上锁的图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "EssenceFullScreenDetect1",
+                "roi_offset": [
+                    -300,
+                    0,
+                    700,
+                    -300
+                ],
+                "template": "EssenceFilter/LockButton.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 300,
+        "next": ["EssenceFilterAfterBattleCheckItemSlot1"],
+        "focus": {
+            "Node.Action.Succeeded": "基质未锁定"
+        }
+    }
+}
