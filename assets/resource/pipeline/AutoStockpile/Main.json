@@ -1,5 +1,8 @@
 {
     "AutoStockpileMain": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "自动囤货入口",
         "action": {"type": "Custom", "param": {"custom_action": "SubTask", "custom_action_param": {"sub": [
                         "AutoStockpileValleyIV",
@@ -7,12 +10,18 @@
                     ], "continue": true}}}
     },
     "AutoStockpileValleyIV": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "自动囤货四号谷地节点",
         "enabled": false,
         "anchor": {"AutoStockpileGotoTargetReigon": "GoToValleyIV"},
         "next": ["AutoStockpileTask"]
     },
     "AutoStockpileWuling": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "自动囤货武陵节点",
         "enabled": false,
         "anchor": {"AutoStockpileGotoTargetReigon": "GoToWuling"},

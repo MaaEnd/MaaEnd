@@ -1,5 +1,8 @@
 {
     "AutoStockpileFindMarketMark": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     50,
                     126,

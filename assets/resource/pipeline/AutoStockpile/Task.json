@@ -1,12 +1,18 @@
 {
     "AutoStockpileBuy": {
         "recognition": {"type": "And", "param": {"all_of": ["YellowConfirmButtonType2"]}},
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileCheckBuyResult"]
     },
     "AutoStockpileSkipSkipReigon": {
         "desc": "在这里处理没有解锁物资调度",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {"Node.Recognition.Starting": "该地区未解锁弹性物资调度，跳过该地区"}
     },
     "AutoStockpileDecision": {
@@ -15,7 +21,10 @@
             "type": "Custom",
             "param": {"custom_recognition": "AutoStockpile.Recognition", "custom_recognition_param": {}}
         },
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "AutoStockpile.SelectItem", "custom_action_param": {}}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockpileSelectedGoodsClick",
             "AutoStockpileNoCandidate"
@@ -23,19 +32,31 @@
     },
     "AutoStockpileNoCandidate": {
         "desc": "决策未找到合格商品时的兜底节点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {"Node.Recognition.Succeeded": "无合格商品，跳过本次购买"}
     },
-    "AutoStockpilerEnterStore": {"desc": "进入物资调度界面", "recognition": {"type": "TemplateMatch", "param": {"roi": [
+    "AutoStockpilerEnterStore": {
+        "desc": "进入物资调度界面",
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     885,
                     300,
                     135,
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [0.8]}}, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 80, "next": [
+                ], "threshold": [0.8]}},
+        "pre_delay": 0,
+        "action": {"type": "Click", "param": {}},
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
-        ]},
+        ]
+    },
     "AutoStockpileGotoElasticGoods": {
         "desc": "选择弹性物资调度",
         "recognition": {"type": "TemplateMatch", "param": {"roi": [
@@ -47,6 +68,7 @@
                     "AutoStockpile/ElasticGoodsButton.png",
                     "AutoStockpile/ElasticGoodsButtonSelected.png"
                 ], "threshold": [0.8]}},
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {"target_offset": [
                     20,
                     0,
@@ -54,19 +76,27 @@
                     0
                 ]}},
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockpileSwipeToBottom",
             "AutoStockpileGotoBottom"
         ]
     },
-    "AutoStockpileCheckInStore": {"recognition": {"type": "TemplateMatch", "param": {"roi": [
+    "AutoStockpileCheckInStore": {
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     54,
                     58,
                     60,
                     54
                 ], "template": [
                     "AutoStockpile/StapleGoodsButtonSelected.png"
-                ]}}, "focus": {"Node.Recognition.Succeeded": "该地区未解锁弹性物资调度，跳过该地区"}},
+                ]}},
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {"Node.Recognition.Succeeded": "该地区未解锁弹性物资调度，跳过该地区"}
+    },
     "AutoStockpileGotoBottom": {
         "desc": "将所有可购买物品展示在窗口中",
         "enabled": false,
@@ -76,6 +106,7 @@
                     52,
                     541
                 ], "template": ["AutoStockpile/ElasticGoodsButtonSide.png"], "threshold": [0.8]}},
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {"target_offset": [
                     10,
                     10,
@@ -83,31 +114,57 @@
                     -10
                 ]}},
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileMoveMouse"]
     },
-    "AutoStockpileTask": {"desc": "开始自动囤货任务", "next": [
+    "AutoStockpileTask": {
+        "desc": "开始自动囤货任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "EnsureInRegionalDevelopment",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
-        ]},
+        ]
+    },
     "EnsureInRegionalDevelopment": {
         "recognition": {"type": "And", "param": {"all_of": ["InRegionalDevelopment"]}},
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {"custom_action": "SubTask", "custom_action_param": {"sub": ["AutoStockpileChangeReigonTask"]}}
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoStockpilerEnterStore",
             "AutoStockpileSkipSkipReigon"
         ]
     },
-    "AutoStockpileChangeReigonTask": {"next": ["[Anchor]AutoStockpileGotoTargetReigon"]},
-    "AutoStockpileMoveMouse": {"desc": "避免鼠标遮挡", "action": {"type": "TouchMove", "param": {"target": [
+    "AutoStockpileChangeReigonTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["[Anchor]AutoStockpileGotoTargetReigon"]
+    },
+    "AutoStockpileMoveMouse": {
+        "desc": "避免鼠标遮挡",
+        "pre_delay": 0,
+        "action": {"type": "TouchMove", "param": {"target": [
                     891,
                     71,
                     24,
                     16
-                ]}}, "next": ["AutoStockpileDecision"]},
-    "AutoStockpileSwipeMax": {"desc": "选择最大购买数量", "action": {"type": "Swipe", "param": {"begin": [
+                ]}},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["AutoStockpileDecision"]
+    },
+    "AutoStockpileSwipeMax": {
+        "desc": "选择最大购买数量",
+        "pre_delay": 0,
+        "action": {"type": "Swipe", "param": {"begin": [
                     646,
                     498,
                     13,
@@ -117,22 +174,48 @@
                         499,
                         15,
                         11
-                    ]]}}, "post_wait_freezes": 80, "next": ["AutoStockpileBuy"]},
-    "AutoStockpileRelayNode": {"next": [
+                    ]]}},
+        "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["AutoStockpileBuy"]
+    },
+    "AutoStockpileRelayNode": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoStockpileDevSkipSwipe",
             "AutoStockpileSwipeSpecificQuantity",
             "AutoStockpileSwipeMax"
-        ]},
-    "AutoStockpileSwipeSpecificQuantity": {"enabled": false},
-    "AutoStockpileDevSkipSwipe": {"desc": "开发时启用，跳过选择数量", "enabled": false, "next": ["AutoStockpileBuy"]},
+        ]
+    },
+    "AutoStockpileSwipeSpecificQuantity": {
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileDevSkipSwipe": {
+        "desc": "开发时启用，跳过选择数量",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["AutoStockpileBuy"]
+    },
     "AutoStockpileCheckBuyResult": {
         "recognition": {"type": "And", "param": {"all_of": ["CloseRewardsButton"]}},
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "focus": {"Node.Action.Succeeded": "购买成功"}
     },
     "AutoStockpileSwipeToBottom": {
         "desc": "将所有可购买物品展示在窗口中（更稳定）",
+        "pre_delay": 0,
         "action": {"type": "Swipe", "param": {"begin": [
                     1200,
                     660,
@@ -146,6 +229,8 @@
                     ]], "duration": [100]}},
         "repeat": 2,
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileMoveMouse"]
     },
     "AutoStockpileSelectedGoodsClick": {
@@ -157,8 +242,11 @@
                     1200,
                     500
                 ], "template": "", "threshold": [0.8]}},
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileRelayNode"]
     }
 }
