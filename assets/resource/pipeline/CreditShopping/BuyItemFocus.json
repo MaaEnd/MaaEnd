@@ -9,7 +9,6 @@
         ],
         "expected": [
             "嵌晶玉",
-            "嵌晶玉",
             "Oroberyl",
             "赤晶玉"
         ],
@@ -54,7 +53,6 @@
             136
         ],
         "expected": [
-            "折金票",
             "折金票",
             "T-Creds",
             "折金券"
@@ -194,7 +192,8 @@
         "expected": [
             "武器检查单元",
             "武器檢查單元",
-            "Arms Inspector"
+            "Arms Inspector",
+            "武器検査ユニット"
         ],
         "next": [
             "CreditShoppingBuyFailed",
@@ -284,7 +283,6 @@
         ],
         "expected": [
             "嵌晶玉",
-            "嵌晶玉",
             "Oroberyl",
             "赤晶玉"
         ],
@@ -329,7 +327,6 @@
             136
         ],
         "expected": [
-            "折金票",
             "折金票",
             "T-Creds",
             "折金券"
@@ -561,7 +558,6 @@
         ],
         "expected": [
             "嵌晶玉",
-            "嵌晶玉",
             "Oroberyl",
             "赤晶玉"
         ],
@@ -606,7 +602,6 @@
             136
         ],
         "expected": [
-            "折金票",
             "折金票",
             "T-Creds",
             "折金券"
