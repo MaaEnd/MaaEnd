@@ -1163,7 +1163,14 @@ class ModeSelectStep(StepPage):
                     hotkey=(ord("m"), ord("M")),
                     icon_name="Move",
                     on_click=lambda: self.stepper.push_step(
-                        MapSelectStep(node_type=NODE_TYPE_MOVE)
+                        MapImageSelectStep(
+                            step_id="map_select",
+                            title="Select Map for Path",
+                            map_dir=MAP_DIR,
+                            on_select=lambda map_name: self.stepper.push_step(
+                                EditorAdapterStep(map_name, mode="create")
+                            ),
+                        )
                     ),
                 )
             )
@@ -1180,7 +1187,14 @@ class ModeSelectStep(StepPage):
                     hotkey=ord("a"),
                     icon_name="AssertLocation",
                     on_click=lambda: self.stepper.push_step(
-                        MapSelectStep(node_type=NODE_TYPE_ASSERT_LOCATION)
+                        MapImageSelectStep(
+                            step_id="map_select",
+                            title="Select Map for Assert Area",
+                            map_dir=MAP_DIR,
+                            on_select=lambda map_name: self.stepper.push_step(
+                                RegionEditorAdapterStep(map_name, mode="create")
+                            ),
+                        )
                     ),
                 )
             )
@@ -1194,23 +1208,6 @@ class ModeSelectStep(StepPage):
                     on_click=lambda: self.stepper.push_step(FileSelectStep()),
                 )
             )
-
-
-class MapSelectStep(MapImageSelectStep):
-    def __init__(self, *, node_type: str = NODE_TYPE_MOVE):
-        title = (
-            "Select Map for Path"
-            if node_type == NODE_TYPE_MOVE
-            else "Select Map for Assert Area"
-        )
-        super().__init__(step_id="map_select", title=title, map_dir=MAP_DIR)
-        self.node_type = node_type
-
-    def on_map_selected(self, map_name: str) -> None:
-        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-            self.stepper.push_step(RegionEditorAdapterStep(map_name, mode="create"))
-        else:
-            self.stepper.push_step(EditorAdapterStep(map_name, mode="create"))
 
 
 class FileSelectStep(StepPage):

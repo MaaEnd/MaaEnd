@@ -202,15 +202,15 @@ class MapImageSelectStep(StepPage):
         step_id: str,
         title: str,
         map_dir: str,
-        sort_key: Callable[[str], tuple] | None = None,
         enable_preview: bool = True,
+        on_select: Callable[[str], None] | None = None,
     ):
         super().__init__(StepData(step_id, title))
         self.map_dir = map_dir
         self.map_list = ScrollableListWidget(item_height=40)
         self._map_preview_cache: dict[str, object] = {}
+        self._on_select = on_select
 
-        key_fn = sort_key or (lambda name: (len(name), name.lower()))
         items = []
         if os.path.isdir(self.map_dir):
             map_files = [
@@ -218,7 +218,7 @@ class MapImageSelectStep(StepPage):
                 for f in os.listdir(self.map_dir)
                 if f.lower().endswith((".png", ".jpg"))
             ]
-            map_files.sort(key=key_fn)
+            map_files.sort(key=lambda name: (len(name), name.lower()))
             items = [{"label": m, "sub_label": "", "data": m} for m in map_files]
         self.map_list.set_items(items)
 
@@ -264,7 +264,9 @@ class MapImageSelectStep(StepPage):
             )
 
     def on_map_selected(self, map_name: str) -> None:
-        raise NotImplementedError()
+        if self._on_select is None:
+            raise NotImplementedError()
+        self._on_select(map_name)
 
 
 class PageStepper:
