@@ -538,7 +538,7 @@ type EssenceFilterSkipMarkedAction struct{}
 
 func (a *EssenceFilterSkipMarkedAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("skipped already marked essence")
-	LogMXUSimpleHTML(ctx, "该基质已被锁定/废弃，跳过")
+	LogMXUSimpleHTML(ctx, "该基质已被锁定/废弃，跳过")// @i18n-skip
 
 	// 跳过完毕后，直接去找下一个基质
 	ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{
