@@ -326,7 +326,8 @@
                     40
                 ],
                 "expected": [
-                    "中"
+                    "中",
+                    "Medium"
                 ],
                 "threshold": 0.5
             }

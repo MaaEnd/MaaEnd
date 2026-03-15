@@ -10,7 +10,10 @@
             150
         ],
         "expected": [
-            "购买商品"
+            "购买商品",
+            "購買商品",
+            "Purchase",
+            "購入"
         ],
         "next": [
             "CreditShoppingBuyFirstItemOCR_Oroberyl",
@@ -37,7 +40,10 @@
             150
         ],
         "expected": [
-            "购买商品"
+            "购买商品",
+            "購買商品",
+            "Purchase",
+            "購入"
         ],
         "next": [
             "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl",
@@ -64,7 +70,10 @@
             150
         ],
         "expected": [
-            "购买商品"
+            "购买商品",
+            "購買商品",
+            "Purchase",
+            "購入"
         ],
         "next": [
             "CreditShoppingBuyBlacklistItemOCR_Oroberyl",

@@ -79,6 +79,22 @@ python tools/setup_workspace.py
 - 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `install` 再进行ui中的测试。（或运行 build_and_install.py ，运行方法同上）**。
 - `resource_fast` 文件夹中清除了默认延迟，操作速度会大幅加快，但也对 pipeline 的鲁棒性提出来更高的要求。我们推荐优先使用 `resource_fast`，但也请开发者根据任务实际情况自行选择。  
   _说人话就是 `resource_fast` 难写的多，每次操作之后下一帧画面可能还是过渡动画，你也要想办法识别。但运行速度也更快，对自己有信心的可以试试。搞不定或者懒得弄就放 `resource` 里，操作慢一点但写起来简单。_
+- 关于 OCR 节点 `expected` 的 i18n：开发者无需手动维护多语言，只需按自己当前语言写入预期文本，`tools/i18n` 程序会自动将 pipeline 中 OCR 的 `expected` 处理为正确 i18n。
+- `expected` 建议写完整文本，不要只写片段。例如应写“这是一段示例内容”，而不是只写“示例内容”。
+- 若你确实需要写片段，或不希望该 OCR 节点被 i18n 程序自动处理，请在对应 `expected` 数组内添加跳过标记注释 `// @i18n-skip`。
+- 示例（会自动 i18n 处理，推荐）：
+    ```jsonc
+    "expected": [
+        "这是一段示例内容"
+    ]
+    ```
+- 示例（跳过自动 i18n 处理）：
+    ```jsonc
+    "expected": [
+        // @i18n-skip
+        "示例内容"
+    ]
+    ```
 
 ### 关于秦始皇节点（可复用节点或 Custom ）
 
