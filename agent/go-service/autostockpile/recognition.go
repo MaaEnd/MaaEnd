@@ -21,10 +21,13 @@ const (
 	autoStockpileComponent = "autostockpile"
 	anchorTargetRegionName = "AutoStockpileGotoTargetReigon"
 
-	overflowNodeName       = "AutoStockpileCheckOverflow"
-	overflowDetailNodeName = "AutoStockpileGetOverflowDetail"
-	locateGoodsNodeName    = "AutoStockpileLocateGoods"
-	goodsPriceNodeName     = "AutoStockpileGetGoodsPrice"
+	selectedGoodsClickNodeName = "AutoStockpileSelectedGoodsClick"
+	selectedGoodsClickResetY   = 180
+	findMarketMarkNodeName     = "AutoStockpileFindMarketMark"
+	overflowNodeName           = "AutoStockpileCheckOverflow"
+	overflowDetailNodeName     = "AutoStockpileGetOverflowDetail"
+	locateGoodsNodeName        = "AutoStockpileLocateGoods"
+	goodsPriceNodeName         = "AutoStockpileGetGoodsPrice"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
 	MAX_DISTANCE = 200
 )
@@ -102,7 +105,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("failed to init item map, OCR name matching disabled")
 	}
 
-	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img)
+	goodsROI := resolveGoodsRecognitionROI(ctx, arg.Img)
+	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img, goodsROI)
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -188,7 +192,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			continue
 		}
 
-		detail, recErr := runGoodsTemplateMatch(ctx, arg.Img, tpl.templatePath)
+		detail, recErr := runGoodsTemplateMatch(ctx, arg.Img, tpl.templatePath, goodsROI)
 		if recErr != nil {
 			log.Warn().
 				Err(recErr).
@@ -466,13 +470,13 @@ func parseGoodsFileName(filename, region string) (name string, tier string, ok b
 	return name, tier, true
 }
 
-func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string) (*maa.RecognitionDetail, error) {
+func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string, goodsROI []int) (*maa.RecognitionDetail, error) {
 	config := map[string]any{
 		locateGoodsNodeName: map[string]any{
 			"recognition": "TemplateMatch",
 			"template":    templatePath,
 			"threshold":   0.8,
-			"roi":         []int{63, 162, 1177, 553},
+			"roi":         goodsROI,
 		},
 	}
 
@@ -502,12 +506,141 @@ func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
 	return selected, hit
 }
 
-func runGoodsOCR(ctx *maa.Context, img image.Image) ([]priceCandidate, []ocrNameCandidate, error) {
+func resolveGoodsRecognitionROI(ctx *maa.Context, img image.Image) []int {
+	baseROI := []int{63, 162, 1177, 553}
+	marketMarkBox, found, err := runFindMarketMark(ctx, img)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "find_market_mark").
+			Msg("failed to locate market mark, use default goods roi")
+		return baseROI
+	}
+	if !found {
+		return baseROI
+	}
+
+	baseTop := baseROI[1]
+	baseBottom := baseTop + baseROI[3]
+	adjustedTop := marketMarkBox.Y()
+	if adjustedTop <= baseTop || adjustedTop >= baseBottom {
+		return baseROI
+	}
+
+	adjustedROI := []int{baseROI[0], adjustedTop, baseROI[2], baseBottom - adjustedTop}
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Int("market_mark_y", marketMarkBox.Y()).
+		Int("market_mark_height", marketMarkBox.Height()).
+		Ints("goods_roi", adjustedROI).
+		Msg("goods recognition roi adjusted")
+	return adjustedROI
+}
+
+func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error) {
+	detail, err := ctx.RunRecognition(findMarketMarkNodeName, img, nil)
+	if err != nil {
+		return maa.Rect{}, false, err
+	}
+	if detail == nil || !detail.Hit {
+		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
+			log.Warn().
+				Err(overrideErr).
+				Str("component", autoStockpileComponent).
+				Str("node", selectedGoodsClickNodeName).
+				Int("roi_y", selectedGoodsClickResetY).
+				Msg("failed to reset selected goods click roi y")
+		}
+		return maa.Rect{}, false, nil
+	}
+
+	box, hit := pickTopmostTemplateHit(detail)
+	if !hit {
+		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
+			log.Warn().
+				Err(overrideErr).
+				Str("component", autoStockpileComponent).
+				Str("node", selectedGoodsClickNodeName).
+				Int("roi_y", selectedGoodsClickResetY).
+				Msg("failed to reset selected goods click roi y")
+		}
+		return maa.Rect{}, false, nil
+	}
+	if overrideErr := overrideSelectedGoodsClickROIY(ctx, box.Y()); overrideErr != nil {
+		log.Warn().
+			Err(overrideErr).
+			Str("component", autoStockpileComponent).
+			Str("node", selectedGoodsClickNodeName).
+			Int("roi_y", box.Y()).
+			Msg("failed to override selected goods click roi y")
+	}
+	return box, hit, nil
+}
+
+func pickTopmostTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	results := recognitionResults(detail)
+	if len(results) == 0 {
+		return maa.Rect{}, false
+	}
+
+	hit := false
+	var selected maa.Rect
+	for _, result := range results {
+		tm, ok := result.AsTemplateMatch()
+		if !ok {
+			continue
+		}
+
+		if !hit || tm.Box.Y() < selected.Y() {
+			selected = tm.Box
+			hit = true
+		}
+	}
+
+	return selected, hit
+}
+
+func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	raw, err := ctx.GetNodeJSON(selectedGoodsClickNodeName)
+	if err != nil {
+		return err
+	}
+
+	var node struct {
+		Recognition struct {
+			Param struct {
+				ROI []int `json:"roi"`
+			} `json:"param"`
+		} `json:"recognition"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return err
+	}
+	if len(node.Recognition.Param.ROI) != 4 {
+		return fmt.Errorf("invalid roi length %d", len(node.Recognition.Param.ROI))
+	}
+
+	roi := append([]int(nil), node.Recognition.Param.ROI...)
+	roi[1] = y
+
+	return ctx.OverridePipeline(map[string]any{
+		selectedGoodsClickNodeName: map[string]any{
+			"roi": roi,
+		},
+	})
+}
+
+func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCandidate, []ocrNameCandidate, error) {
 	config := map[string]any{
 		goodsPriceNodeName: map[string]any{
 			"recognition": "OCR",
 			"expected":    []string{".*"},
-			"roi":         []int{63, 162, 1177, 553},
+			"roi":         goodsROI,
 		},
 	}
 

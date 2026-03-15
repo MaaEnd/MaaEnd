@@ -151,30 +151,14 @@
     "AutoStockpileSelectedGoodsClick": {
         "desc": "点击决策选中的商品",
         "enabled": false,
-        "recognition": {"type": "Or", "param": {"any_of": [
-                    "AutoStockpileSelectedGoodsOwned",
-                    "AutoStockpileSelectedGoodsMissing"
-                ]}},
+        "recognition": {"type": "TemplateMatch", "param": {"roi": [
+                    50,
+                    180,
+                    1200,
+                    500
+                ], "template": "", "threshold": [0.8]}},
         "action": {"type": "Click", "param": {}},
         "post_wait_freezes": 80,
         "next": ["AutoStockpileRelayNode"]
-    },
-    "AutoStockpileSelectedGoodsOwned": {
-        "desc": "定位商品（已拥有）",
-        "recognition": {"type": "TemplateMatch", "param": {"roi": [
-                    50,
-                    180,
-                    1200,
-                    500
-                ], "template": "", "threshold": [0.8], "order_by": "Vertical", "index": 1}}
-    },
-    "AutoStockpileSelectedGoodsMissing": {
-        "desc": "定位商品（未拥有）",
-        "recognition": {"type": "TemplateMatch", "param": {"roi": [
-                    50,
-                    180,
-                    1200,
-                    500
-                ], "template": ""}}
     }
 }

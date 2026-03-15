@@ -93,7 +93,8 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	})
 	_ = ctx.OverridePipeline(map[string]any{
 		"AutoStockpileSelectedGoodsClick": map[string]any{
-			"enabled": true,
+			"enabled":  true,
+			"template": []string{BuildTemplatePath(selection.ProductID)},
 		},
 	})
 
