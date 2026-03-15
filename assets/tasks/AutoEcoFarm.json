@@ -40,6 +40,7 @@
                     }
                 },
                 {
+                    //选取中心农田
                     "name": "Center",
                     "label": "Goto Center",
                     "pipeline_override": {
@@ -54,14 +55,20 @@
                                 }
                             }
                         },
+                        //先到目标位置再工作
                         "_AutoEcoFarmGotoTarget": {
                             "enabled": true
                         },
+                        //延长等待时间
                         "_AutoEcoFarmWork3": {
                             "pre_delay": 60000,
                             "focus": {
                                 "Node.Recognition.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
                             }
+                        },
+                        //关闭离开农场检测，没标记了就退
+                        "_AutoEcoFarmInAnyFarm": {
+                            "enabled": true
                         }
                     }
                 }
