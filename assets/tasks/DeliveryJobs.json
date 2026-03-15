@@ -233,24 +233,6 @@
             "label": "$task.DeliveryJobs.WhatToFillWuling",
             "cases": [
                 {
-                    "name": "芽针",
-                    "label": "$item.Yazhen",
-                    "pipeline_override": {
-                        "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/Yazhen.png"
-                        }
-                    }
-                },
-                {
-                    "name": "锦草",
-                    "label": "$item.Jincao",
-                    "pipeline_override": {
-                        "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/Jincao.png"
-                        }
-                    }
-                },
-                {
                     "name": "砂叶粉末",
                     "label": "$item.SandleafPowder",
                     "pipeline_override": {
@@ -285,9 +267,45 @@
                             "template": "DeliveryJobs/AketinePowder.png"
                         }
                     }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$item.YazhenPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/YazhenPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$item.JincaoPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/JincaoPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "芽针",
+                    "label": "$item.Yazhen",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/Yazhen.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$item.Jincao",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/Jincao.png"
+                        }
+                    }
                 }
             ],
-            "default_case": "芽针"
+            "default_case": "砂叶粉末"
         }
     }
 }
