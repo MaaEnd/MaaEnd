@@ -1,5 +1,8 @@
 {
     "ProtosyncMenuButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "大世界中的协议同步器按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -15,6 +18,9 @@
         ]
     },
     "AltClickProtosyncMenuButtonKeyDown": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的协议同步器按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
@@ -23,6 +29,9 @@
         ]
     },
     "AltClickProtosyncMenuButtonClick": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的协议同步器按钮（单击）",
         "action": "Click",
         "target": "ProtosyncMenuButton",
@@ -31,6 +40,9 @@
         ]
     },
     "AltClickProtosyncMenuButtonKeyUp": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的协议同步器按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
@@ -45,6 +57,9 @@
         }
     },
     "RegionalDevelopmentButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "大世界中的地区建设按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -60,6 +75,9 @@
         ]
     },
     "AltClickRegionalDevelopmentButtonKeyDown": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
@@ -68,6 +86,9 @@
         ]
     },
     "AltClickRegionalDevelopmentButtonClick": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",
         "action": "Click",
         "target": "RegionalDevelopmentButton",
@@ -76,6 +97,9 @@
         ]
     },
     "AltClickRegionalDevelopmentButtonKeyUp": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击大世界中的地区建设按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
@@ -90,6 +114,9 @@
         }
     },
     "ControlNexusButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "帝江号大世界中的控制枢纽按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -105,6 +132,9 @@
         ]
     },
     "AltClickControlNexusButtonKeyDown": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（按住 Alt 键）",
         "action": "KeyDown",
         "key": 164, // 0xA4	Left Alt key
@@ -113,6 +143,9 @@
         ]
     },
     "AltClickControlNexusButtonClick": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（单击）",
         "action": "Click",
         "target": "ControlNexusButton",
@@ -121,6 +154,9 @@
         ]
     },
     "AltClickControlNexusButtonKeyUp": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（释放 Alt 键）",
         "action": "KeyUp",
         "key": 164, // 0xA4	Left Alt key
@@ -135,6 +171,9 @@
         }
     },
     "IncomeReportButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "地区建设中的收支简报按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -157,6 +196,9 @@
         }
     },
     "DepotButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "地区建设中的仓储节点按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -179,6 +221,9 @@
         }
     },
     "ChangeRegionButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "地区建设中的更换地区按钮",
         "recognition": {
             "type": "Or",
@@ -201,6 +246,9 @@
         }
     },
     "__ChangeRegionButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -219,6 +267,9 @@
         }
     },
     "__ChangeRegionButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -237,6 +288,9 @@
         }
     },
     "RegionalDevelopmentLevelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "地区建设中的地区建设等级按钮",
         "recognition": {
             "type": "Or",
@@ -259,6 +313,9 @@
         }
     },
     "__RegionalDevelopmentLevelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -276,6 +333,9 @@
         }
     },
     "__RegionalDevelopmentLevelButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -293,6 +353,9 @@
         }
     },
     "YellowButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "黄色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
@@ -314,6 +377,9 @@
         }
     },
     "WhiteButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "白色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
@@ -358,6 +424,9 @@
         }
     },
     "GrayButtonBackground": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "灰色按钮背景色",
         "recognition": {
             "type": "ColorMatch",
@@ -392,6 +461,9 @@
         }
     },
     "YellowConfirmButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，黄色底，圆环形标志",
         "recognition": {
             "type": "And",
@@ -417,6 +489,9 @@
         }
     },
     "__YellowConfigmButtonType1Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "Or",
             "param": {
@@ -428,6 +503,9 @@
         }
     },
     "__YellowConfigmButtonType1IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -440,6 +518,9 @@
         }
     },
     "__YellowConfigmButtonType1IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -452,6 +533,9 @@
         }
     },
     "YellowConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，黄色底，对号标志",
         "recognition": {
             "type": "And",
@@ -477,6 +561,9 @@
         }
     },
     "__YellowConfirmButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "Or",
             "param": {
@@ -488,6 +575,9 @@
         }
     },
     "__YellowConfirmButtonType2IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -500,6 +590,9 @@
         }
     },
     "__YellowConfirmButtonType2IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -512,6 +605,9 @@
         }
     },
     "CancelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用取消按钮，有文字，白色底，X标志",
         "recognition": {
             "type": "And",
@@ -537,6 +633,9 @@
         }
     },
     "__CancelButtonIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "Or",
             "param": {
@@ -550,6 +649,9 @@
         }
     },
     "__CancelButtonType1Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -568,6 +670,9 @@
         }
     },
     "__CancelButtonType1HoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -586,6 +691,9 @@
         }
     },
     "__CancelButtonType1LineIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -604,6 +712,9 @@
         }
     },
     "__CancelButtonType1LineHoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -622,6 +733,9 @@
         }
     },
     "GrayCancelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用取消按钮，有文字，灰色底，X标志",
         "recognition": {
             "type": "And",
@@ -647,6 +761,9 @@
         }
     },
     "__GrayCancelButtonIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "Or",
             "param": {
@@ -658,6 +775,9 @@
         }
     },
     "__GrayCancelButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -676,6 +796,9 @@
         }
     },
     "__GrayCancelButtonType2HoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -694,6 +817,9 @@
         }
     },
     "WhiteConfirmButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志",
         "recognition": {
             "type": "Or",
@@ -718,6 +844,9 @@
         }
     },
     "__WhiteConfirmButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "And",
@@ -731,6 +860,9 @@
         }
     },
     "__WhiteConfirmButtonType1commonSearchAreas1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "Or",
@@ -743,6 +875,9 @@
         }
     },
     "__WhiteConfirmButtonType1commonSearchAreas1Stable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -759,6 +894,9 @@
         }
     },
     "__WhiteConfirmButtonType1commonSearchAreas1Hover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -775,6 +913,9 @@
         }
     },
     "__WhiteConfirmButtonType1Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "Or",
@@ -787,6 +928,9 @@
         }
     },
     "__WhiteConfirmButtonType1IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -806,6 +950,9 @@
         }
     },
     "__WhiteConfirmButtonType1IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，圆环形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -825,6 +972,9 @@
         }
     },
     "WhiteConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，对号形标志",
         "recognition": {
             "type": "Or",
@@ -849,6 +999,9 @@
         }
     },
     "__WhiteConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，对号形标志仅用于组合识别",
         "recognition": {
             "type": "And",
@@ -862,6 +1015,9 @@
         }
     },
     "__WhiteConfirmButtonType2commonSearchAreas1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，对号形标志仅用于组合识别",
         "recognition": {
             "type": "Or",
@@ -874,6 +1030,9 @@
         }
     },
     "__WhiteConfirmButtonType2commonSearchAreas1Stable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，对号形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -892,6 +1051,9 @@
         }
     },
     "__WhiteConfirmButtonType2commonSearchAreas1Hover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用确认按钮，有文字，白色底，对号形标志仅用于组合识别",
         "recognition": {
             "type": "TemplateMatch",
@@ -910,6 +1072,9 @@
         }
     },
     "__WhiteConfirmButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "Or",
             "param": {
@@ -921,6 +1086,9 @@
         }
     },
     "__WhiteConfirmButtonType2IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -939,6 +1107,9 @@
         }
     },
     "__WhiteConfirmButtonType2IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -957,6 +1128,9 @@
         }
     },
     "TeleportButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "传送按钮",
         "recognition": {
             "type": "Or",
@@ -981,6 +1155,9 @@
         }
     },
     "__TeleportButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -998,6 +1175,9 @@
         }
     },
     "__TeleportButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1016,6 +1196,9 @@
     },
 
     "CloseRewardsButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志",
         "recognition": {
             "type": "And",
@@ -1046,6 +1229,9 @@
         }
     },
     "__CloseRewardsButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "关闭奖励界面按钮，位于界面中部偏下，无文字，对号标志 仅",
         "recognition": {
             "type": "Or",
@@ -1058,6 +1244,9 @@
         }
     },
     "DectedCloseRewardsImage": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检测到奖励界面时的图标",
         "recognition": {
             "type": "TemplateMatch",
@@ -1077,6 +1266,9 @@
         }
     },
     "__CloseRewardsButtonStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1095,6 +1287,9 @@
         }
     },
     "__CloseRewardsButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1113,6 +1308,9 @@
         }
     },
     "LevelUpButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "升级按钮，位于界面右下，无文字",
         "recognition": {
             "type": "Or",
@@ -1137,6 +1335,9 @@
         }
     },
     "CloseButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用退出按钮，位于界面右上角的X,不兼容ESC菜单",
         "recognition": {
             "type": "Or",
@@ -1164,6 +1365,9 @@
         }
     },
     "__CloseButtonType1": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用频率最高的按钮,圆形白底黑色X",
         "recognition": {
             "type": "TemplateMatch",
@@ -1182,6 +1386,9 @@
         }
     },
     "__CloseButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "使用频率比较高的按钮,无形状白底黑色X(据点交易选择商品界面)",
         "recognition": {
             "type": "TemplateMatch",
@@ -1200,6 +1407,9 @@
         }
     },
     "__CloseButtonType3": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "百科关闭按钮,圆形灰色底白色X",
         "recognition": {
             "type": "TemplateMatch",
@@ -1218,6 +1428,9 @@
         }
     },
     "__CloseButtonType4": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "帝江号内关闭助力按钮,无形状黑底白色X",
         "recognition": {
             "type": "TemplateMatch",
@@ -1236,6 +1449,9 @@
         }
     },
     "__CloseButtonType5": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "Baker页面关闭按钮,圆形白底黑色X (背景灰) 后续删除的话记得测试 baker 场景的退出",
         "recognition": {
             "type": "TemplateMatch",
@@ -1254,6 +1470,9 @@
         }
     },
     "CloseButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "通用退出按钮，位于界面右上角的X,兼容ESC菜单",
         "recognition": {
             "type": "Or",
@@ -1281,6 +1500,9 @@
         }
     },
     "EnvironmentMonitoringButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "环境监测按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -1304,6 +1526,9 @@
         }
     },
     "EnterCameraModeButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "进入拍照按钮，位于大世界右侧界面",
         "recognition": "TemplateMatch",
         "roi": [
@@ -1327,6 +1552,9 @@
         }
     },
     "EnterCameraModeMenuButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "进入拍照按钮，位于交互菜单",
         "recognition": "TemplateMatch",
         "roi": [
@@ -1350,6 +1578,9 @@
         }
     },
     "ShutterButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "快门按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -1372,6 +1603,9 @@
         }
     },
     "__LevelUpButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -1390,6 +1624,9 @@
         }
     },
     "__LevelUpButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "recognition": {
             "type": "TemplateMatch",
             "param": {

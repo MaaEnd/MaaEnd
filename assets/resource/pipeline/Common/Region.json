@@ -1,5 +1,8 @@
 {
     "InWorld": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在大世界界面",
         "recognition": "Or",
         "any_of": [
@@ -8,6 +11,9 @@
         ]
     },
     "InDijiangWorld": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在帝江号大世界中",
         "recognition": "And",
         "all_of": [
@@ -15,6 +21,9 @@
         ]
     },
     "InRegionalDevelopment": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在地区建设界面",
         "recognition": "And",
         "all_of": [
@@ -24,6 +33,9 @@
         ]
     },
     "InValleyIVRegionalDevelopment": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在四号谷地地区建设界面",
         "recognition": "And",
         "all_of": [
@@ -32,6 +44,9 @@
         ]
     },
     "InWulingRegionalDevelopment": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在武陵地区建设界面",
         "recognition": "And",
         "all_of": [
@@ -40,6 +55,9 @@
         ]
     },
     "InLocalDepotNode": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在本地仓储节点界面",
         "recognition": "And",
         "all_of": [
@@ -56,6 +74,9 @@
         }
     },
     "InClaimDeliveryJobsNode": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "在[我转交的委托]界面",
         "recognition": "And",
         "all_of": [

@@ -1,5 +1,8 @@
 {
     "WaitLoadingColor": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "等待加载界面",
         "recognition": {
             "type": "And",
@@ -79,6 +82,9 @@
         }
     },
     "ESCMenu": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "Esc菜单内",
         "recognition": {
             "type": "OCR",
@@ -99,9 +105,15 @@
         }
     },
     "EmptyNode": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "空节点，无任何操作和识别，仅用于流程跳转"
     },
     "StopNode": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "流程结束节点，无任何操作和识别，仅用于流程结束",
         "action": "StopTask"
     }

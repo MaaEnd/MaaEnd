@@ -1,5 +1,8 @@
 {
     "CheckRegionalDevelopmentText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查地区建设界面左上角的文字",
         "recognition": "OCR",
         "roi": [
@@ -17,6 +20,9 @@
         ]
     },
     "CheckRegionalDevelopmentValleyIVText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查四号谷地地区建设左边的文字",
         "recognition": "OCR",
         "roi": [
@@ -34,6 +40,9 @@
         ]
     },
     "CheckRegionalDevelopmentWulingText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查武陵地区建设左边的文字",
         "recognition": "OCR",
         "roi": [
@@ -49,6 +58,9 @@
         ]
     },
     "CheckLocalDepotNodeText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
         "recognition": "OCR",
         "roi": [
@@ -66,6 +78,9 @@
         ]
     },
     "CheckCourierInfoText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
         "recognition": "OCR",
         "roi": [
@@ -84,6 +99,9 @@
     },
 
     "CheckChangeRegionConfirmText": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
         "desc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
         "roi": [
