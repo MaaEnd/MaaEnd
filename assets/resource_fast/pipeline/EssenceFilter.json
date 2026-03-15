@@ -495,6 +495,22 @@
             "Node.Action.Succeeded": "已确认上锁"
         }
     },
+    "EssenceFilterRecognitionLocked": {
+        "desc": "识别：是否已上锁（仅识别，试最后一个时用）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1217,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/LockButtonLocked.png",
+                "threshold": 0.9
+            }
+        }
+    },
     "EssenceFilterDiscardItemLog": {
         "desc": "日志：即将废弃 Essence",
         "action": {

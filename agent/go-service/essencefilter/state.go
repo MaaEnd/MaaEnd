@@ -39,6 +39,9 @@ type RunState struct {
 	RowBoxes [][4]int
 	RowIndex int
 
+	// TryLastFirst: global; true at init to skip locked rows by clicking last first; set false permanently when a row's last item is not locked
+	TryLastFirst bool
+
 	// Essence types selected for this run (e.g. Flawless, Pure)
 	EssenceTypes []EssenceMeta
 }
@@ -66,6 +69,7 @@ func (s *RunState) Reset() {
 	s.CurrentSkillLevels = [3]int{}
 	s.RowBoxes = nil
 	s.RowIndex = 0
+	s.TryLastFirst = true
 	// EssenceTypes is set by Init from options, not cleared here
 }
 

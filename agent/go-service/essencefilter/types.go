@@ -134,6 +134,8 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
+	// 跳过已识别（已锁）行：每行先试最后一个格子，已锁则整行跳过；关闭后不从最后一个试起
+	SkipLockedRow bool `json:"skip_locked_row"`
 }
 
 type ColorRange struct {

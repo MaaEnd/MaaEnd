@@ -83,6 +83,9 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
 	st.Reset()
+	if opts != nil && !opts.SkipLockedRow {
+		st.TryLastFirst = false
+	}
 	st.TargetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
 	st.MatchedCombinationSummary = make(map[string]*SkillCombinationSummary)
 	st.EssenceTypes = essenceTypes
@@ -526,6 +529,49 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	st := getRunState()
 	if st == nil {
 		return false
+	}
+	// Try-last-first: only when row is full (9). If total known and remaining this row < 9, skip and use normal logic.
+	if st.RowIndex == 0 && st.TryLastFirst && len(st.RowBoxes) > 0 {
+		remaining := st.TotalCount - st.MaxItemsPerRow*(st.CurrentRow-1)
+		if st.TotalCount > 0 && remaining < st.MaxItemsPerRow {
+			// partial row, do not try last first
+		} else {
+			rowCopy := make([][4]int, len(st.RowBoxes))
+			copy(rowCopy, st.RowBoxes)
+			sort.Slice(rowCopy, func(i, j int) bool { return rowCopy[i][0] < rowCopy[j][0] })
+			lastBox := rowCopy[len(rowCopy)-1]
+			clickingBox := [4]int{lastBox[0] + 10, lastBox[1] + 10, lastBox[2] - 20, lastBox[3] - 20}
+			log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Str("mode", "try_last_first").Ints("box", lastBox[:]).Msg("click last box (x-sorted rightmost) to check row locked")
+			ctx.RunTask("NodeClick", map[string]any{
+				"NodeClick": map[string]any{
+					"action": map[string]any{"param": map[string]any{"target": clickingBox}},
+				},
+			})
+			controller := ctx.GetTasker().GetController()
+			if controller == nil {
+				log.Error().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("controller nil")
+				return false
+			}
+			controller.PostScreencap().Wait()
+			img, err := controller.CacheImage()
+			if err != nil {
+				log.Error().Err(err).Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("get screenshot failed")
+				st.TryLastFirst = false
+				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}})
+				return true
+			}
+			detail, err := ctx.RunRecognition("EssenceFilterRecognitionLocked", img, nil)
+			log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Err(err).Bool("hit", detail != nil && detail.Hit).Interface("detail", detail).Msg("RunRecognition EssenceFilterRecognitionLocked result")
+			if err != nil || detail == nil || !detail.Hit {
+				st.TryLastFirst = false
+				log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("last item not locked, re-run row from first")
+				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceRowDetect"}})
+				return true
+			}
+			st.RowIndex = len(st.RowBoxes)
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+			return true
+		}
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
 		if (len(st.RowBoxes) == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
