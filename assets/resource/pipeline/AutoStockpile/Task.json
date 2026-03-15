@@ -44,9 +44,7 @@
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [
-                    0.8
-                ]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 80, "post_delay": 0, "rate_limit": 0, "next": [
+                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 80, "post_delay": 0, "rate_limit": 0, "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]},
@@ -159,12 +157,11 @@
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["AutoStockpileBuy"]
+        "next": ["AutoStockpileRelayNode"]
     },
     "AutoStockpileRelayNode": {"pre_delay": 0, "post_delay": 0, "rate_limit": 0, "next": [
-            "AutoStockpileDevSkipSwipe",
-            "AutoStockpileSwipeSpecificQuantity",
-            "AutoStockpileSwipeMax"
+            "AutoStockpileBuy",
+            "AutoStockpileCheckQuota"
         ]},
     "AutoStockpileSwipeSpecificQuantity": {"enabled": false, "pre_delay": 0, "post_delay": 0, "rate_limit": 0},
     "AutoStockpileDevSkipSwipe": {
@@ -173,7 +170,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["AutoStockpileBuy"]
+        "next": ["AutoStockpileRelayNode"]
     },
     "AutoStockpileCheckBuyResult": {
         "recognition": {"type": "And", "param": {"all_of": ["CloseRewardsButton"]}},
@@ -218,6 +215,24 @@
         "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": ["AutoStockpileRelayNode"]
-    }
+        "next": [
+            "AutoStockpileDevSkipSwipe",
+            "AutoStockpileSwipeSpecificQuantity",
+            "AutoStockpileSwipeMax"
+        ]
+    },
+    "AutoStockpileCheckQuota": {"recognition": {"type": "ColorMatch", "param": {"roi": [
+                    201,
+                    484,
+                    880,
+                    79
+                ], "method": 40, "lower": [[
+                        175,
+                        120,
+                        190
+                    ]], "upper": [[
+                        179,
+                        160,
+                        230
+                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "购买数量不足，取消购买"}}
 }
