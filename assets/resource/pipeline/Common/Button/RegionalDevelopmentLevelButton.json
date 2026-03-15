@@ -1,0 +1,69 @@
+{
+    "RegionalDevelopmentLevelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "地区建设中的地区建设等级按钮",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__RegionalDevelopmentLevelButton",
+                    "__RegionalDevelopmentLevelButtonHover"
+                ]
+            }
+        },
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__RegionalDevelopmentLevelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "地区建设等级按钮常态模板，按短路优先顺序先于悬停态匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    491,
+                    337,
+                    219,
+                    116
+                ],
+                "template": [
+                    "Common/Button/RegionalDevelopmentLevelButton.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__RegionalDevelopmentLevelButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "地区建设等级按钮悬停态模板，仅在常态未命中时作为短路回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    491,
+                    337,
+                    219,
+                    116
+                ],
+                "template": [
+                    "Common/Button/RegionalDevelopmentLevelButtonHover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

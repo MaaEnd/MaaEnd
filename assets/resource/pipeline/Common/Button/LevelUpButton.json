@@ -1,0 +1,73 @@
+{
+    "LevelUpButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "升级按钮，位于界面右下，无文字",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__LevelUpButton",
+                    "__LevelUpButtonHover"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__LevelUpButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "升级按钮常态模板，按短路优先顺序先于悬停态匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ],
+                "template": [
+                    "Common/Button/LevelUpButton.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    },
+    "__LevelUpButtonHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "升级按钮悬停态模板，仅在常态未命中时作为短路回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    985,
+                    591,
+                    277,
+                    112
+                ],
+                "template": [
+                    "Common/Button/LevelUpButtonHover.png"
+                ],
+                "method": 10001,
+                "threshold": 0.9
+            }
+        }
+    }
+}

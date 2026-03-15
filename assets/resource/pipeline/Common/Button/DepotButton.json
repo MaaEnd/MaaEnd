@@ -1,0 +1,27 @@
+{
+    "DepotButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "地区建设中的仓储节点按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1007,
+            331,
+            40,
+            52
+        ],
+        "template": "Common/Button/DepotButton.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}

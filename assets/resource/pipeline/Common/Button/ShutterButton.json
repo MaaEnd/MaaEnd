@@ -1,0 +1,27 @@
+{
+    "ShutterButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "快门按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            961,
+            465,
+            213,
+            183
+        ],
+        "template": "Common/Button/ShutterButton.png",
+        "threshold": 0.9,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}
