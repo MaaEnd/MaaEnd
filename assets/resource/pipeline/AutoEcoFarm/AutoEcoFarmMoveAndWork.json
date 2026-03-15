@@ -186,6 +186,7 @@
     },
     "_AutoEcoFarmInAnyFarm": {
         "desc": "确认是否在任意农场内,还在的话继续循环",
+        "enabled": true,
         "recognition": {
             "type": "Or",
             "param": {
