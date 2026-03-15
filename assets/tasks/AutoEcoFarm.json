@@ -41,7 +41,7 @@
                 },
                 {
                     "name": "Center",
-                    "label": "Goto Center",
+                    "label": "$task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label",
                     "pipeline_override": {
                         "_AutoEcoFarmFindFarmlandCustom": {
                             "recognition": {
