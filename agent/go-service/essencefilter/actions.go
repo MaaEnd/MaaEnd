@@ -202,7 +202,11 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 		return false
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", maxSinglePage).Str("raw", text).Msg("total parsed")
-	LogMXUSimpleHTML(ctx, fmt.Sprintf("库存中共 <span style=\"color: #ff7000; font-weight: 900;\">%d</span> 个基质", n))
+	msg := fmt.Sprintf("库存中共 <span style=\"color: #ff7000; font-weight: 900;\">%d</span> 个基质", n)
+	if v := GetMatcherConfig().DataVersion; v != "" {
+		msg += fmt.Sprintf(" <span style=\"color: #ff0000;\">当前数据日期：%s</span>(如果更新了请注意)", v)
+	}
+	LogMXUSimpleHTML(ctx, msg)
 	if st := getRunState(); st != nil {
 		st.TotalCount = n
 	}

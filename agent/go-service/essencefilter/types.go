@@ -112,6 +112,7 @@ type SkillCombinationSummary struct {
 
 // MatcherConfig - 匹配器配置结构（suffixStopwords 支持旧版数组或新版按语言 map）
 type MatcherConfig struct {
+	DataVersion        string              `json:"data_version"`
 	SimilarWordMap     map[string]string   `json:"similarWordMap"`
 	SuffixStopwords    []string            `json:"-"` // filled from SuffixStopwordsMap[locale] or legacy array
 	SuffixStopwordsMap map[string][]string `json:"suffixStopwords"`
