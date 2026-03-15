@@ -2,15 +2,32 @@
     // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
         "desc": "在任意地图界面",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -350,
-            0,
-            350,
-            60
-        ],
-        "template": [
-            "SceneManager/MapMind.png"
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MapMissionReminder.png"
+                ]
+            }
         ]
     },
     "InMapWulingWulingCity": {

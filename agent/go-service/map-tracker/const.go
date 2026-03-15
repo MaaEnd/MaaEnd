@@ -63,6 +63,14 @@ const (
 	ROTATION_MIN_SPEED     = 1.0
 )
 
+// Move action fine approach configuration
+const (
+	FINE_APPROACH_FINAL_TARGET       = "FinalTarget"
+	FINE_APPROACH_ALL_TARGETS        = "AllTargets"
+	FINE_APPROACH_NEVER              = "Never"
+	FINE_APPROACH_COMPLETE_THRESHOLD = 0.5
+)
+
 // MapTrackerInfer parameters default values
 var DEFAULT_INFERENCE_PARAM = MapTrackerInferParam{
 	MapNameRegex: "^map\\d+_lv\\d+$",
@@ -85,6 +93,7 @@ var DEFAULT_BIG_MAP_INFERENCE_PARAM = MapTrackerBigMapInferParam{
 
 // MapTrackerMove parameters default values
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
+	FineApproach:           FINE_APPROACH_FINAL_TARGET,
 	ArrivalThreshold:       2.5,
 	ArrivalTimeout:         60000,
 	RotationLowerThreshold: 7.5,

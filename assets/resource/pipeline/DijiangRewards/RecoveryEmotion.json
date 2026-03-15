@@ -125,9 +125,9 @@
             "type": "Click",
             "param": {
                 "target_offset": [
-                    -10,
+                    -5,
                     -70,
-                    -10,
+                    -5,
                     0
                 ]
             }
@@ -146,8 +146,11 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/LowEmotion.png",
-                    "ClaimDijiangRewards/NormalEmotion.png",
-                    "ClaimDijiangRewards/HighEmotion.png"
+                    "ClaimDijiangRewards/NormalEmotion.png"
+                ],
+                "threshold": [
+                    0.8,
+                    0.8
                 ],
                 "order_by": "Vertical"
             }

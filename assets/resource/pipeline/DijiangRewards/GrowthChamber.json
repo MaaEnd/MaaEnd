@@ -167,6 +167,16 @@
                 ]
             }
         },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                79,
+                81,
+                431,
+                639
+            ]
+        },
         "next": [
             "[JumpBack]SortBy",
             "[JumpBack]SortOrder",

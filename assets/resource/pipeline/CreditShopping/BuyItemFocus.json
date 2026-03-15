@@ -1,0 +1,830 @@
+{
+    "CreditShoppingBuyFirstItemOCR_Oroberyl": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "嵌晶玉",
+            "嵌晶玉",
+            "Oroberyl",
+            "赤晶玉"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Oroberyl"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武库配额",
+            "武庫配額",
+            "Arsenal Ticket",
+            "武庫配給"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArsenalTicket"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_TCreds": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "折金票",
+            "折金票",
+            "T-Creds",
+            "折金券"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.TCreds"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级认知载体",
+            "初級認知載體",
+            "Elementary Cognitive Carrier",
+            "初級認識媒体"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCognitiveCarrier"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查单元",
+            "武器檢查單元",
+            "Arms Inspector"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsInspector"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查装置",
+            "武器檢查裝置",
+            "Arms INSP Kit",
+            "武器検査セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsINSPKit"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_Protoprism": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱",
+            "協議稜柱",
+            "Protoprism",
+            "協約角柱"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protoprism"
+        }
+    },
+    "CreditShoppingBuyFirstItemOCR_Protohedron": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱组",
+            "協議稜柱組",
+            "Protohedron",
+            "協約角柱セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyFirstItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protohedron"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_Oroberyl": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "嵌晶玉",
+            "嵌晶玉",
+            "Oroberyl",
+            "赤晶玉"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Oroberyl"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武库配额",
+            "武庫配額",
+            "Arsenal Ticket",
+            "武庫配給"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArsenalTicket"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_TCreds": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "折金票",
+            "折金票",
+            "T-Creds",
+            "折金券"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.TCreds"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级认知载体",
+            "初級認知載體",
+            "Elementary Cognitive Carrier",
+            "初級認識媒体"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCognitiveCarrier"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型",
+            "중형 모형 틀"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查单元",
+            "武器檢查單元",
+            "Arms Inspector",
+            "武器検査ユニット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsInspector"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查装置",
+            "武器檢查裝置",
+            "Arms INSP Kit",
+            "武器検査セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsINSPKit"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱",
+            "協議稜柱",
+            "Protoprism",
+            "協約角柱"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protoprism"
+        }
+    },
+    "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱组",
+            "協議稜柱組",
+            "Protohedron",
+            "協約角柱セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyNormalItemWithDiscount"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protohedron"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_Oroberyl": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "嵌晶玉",
+            "嵌晶玉",
+            "Oroberyl",
+            "赤晶玉"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Oroberyl"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ArsenalTicket": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武库配额",
+            "武庫配額",
+            "Arsenal Ticket",
+            "武庫配給"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArsenalTicket"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_TCreds": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "折金票",
+            "折金票",
+            "T-Creds",
+            "折金券"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.TCreds"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ElementaryCognitiveCarrier": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级认知载体",
+            "初級認知載體",
+            "Elementary Cognitive Carrier",
+            "初級認識媒体"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCognitiveCarrier"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ElementaryCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "初级作战记录",
+            "初級作戰紀錄",
+            "Elementary Combat Record",
+            "初級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ElementaryCombatRecord"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_IntermediateCombatRecord": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "中级作战记录",
+            "中級作戰紀錄",
+            "Intermediate Combat Record",
+            "中級作戦記録"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.IntermediateCombatRecord"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_CastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "强固模具",
+            "強固模具",
+            "Cast Die",
+            "硬質金型"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.CastDie"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_HeavyCastDie": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "重型强固模具",
+            "重型強固模具",
+            "Heavy Cast Die",
+            "重硬質金型"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.HeavyCastDie"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ArmsInspector": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查单元",
+            "武器檢查單元",
+            "Arms Inspector",
+            "武器検査ユニット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsInspector"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_ArmsINSPKit": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "武器检查装置",
+            "武器檢查裝置",
+            "Arms INSP Kit",
+            "武器検査セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.ArmsINSPKit"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_Protoprism": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱",
+            "協議稜柱",
+            "Protoprism",
+            "協約角柱"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protoprism"
+        }
+    },
+    "CreditShoppingBuyBlacklistItemOCR_Protohedron": {
+        "recognition": "OCR",
+        "roi": [
+            406,
+            134,
+            219,
+            136
+        ],
+        "expected": [
+            "协议棱柱组",
+            "協議稜柱組",
+            "Protohedron",
+            "協約角柱セット"
+        ],
+        "next": [
+            "CreditShoppingBuyFailed",
+            "CreditShoppingBuyConfirm",
+            "CreditShoppingBuyBlacklistItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CreditShopping.buy_item.Protohedron"
+        }
+    }
+}
