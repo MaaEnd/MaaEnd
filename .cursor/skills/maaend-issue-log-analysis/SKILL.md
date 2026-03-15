@@ -206,6 +206,10 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - `mxu-agent*.log` 里有 HTML 提示，但 `go-service.log` 没有对应错误：
   - 说明这可能是面向用户展示的提示，不等于流程失败点本身。
 
+- `maa.bak.log` 里有同一入口、同类参数的历史成功样本，而本次 `maa.log` 失败：
+  - 这是判断“行为回归”或“某次改动引入脆弱性”的高价值证据。
+  - 回答时要明确：这是同配置历史成功对比，还是只是相似场景的旁证。
+
 ## Correlating With Code
 
 ### MaaEnd
