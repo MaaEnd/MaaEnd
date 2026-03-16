@@ -185,7 +185,7 @@
         ]
     },
     "GoToObservantSableChestedFowlbeastMapTrackerMove": {
-        "desc": "前往东张西望的黑腹雉羽兽，TODO: 请填写 path",
+        "desc": "前往东张西望的黑腹雉羽兽",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
