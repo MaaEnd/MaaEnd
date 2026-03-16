@@ -20,7 +20,8 @@
             "Friends",
             "フレンド",
             "Visit",
-            "拜访好友"
+            "拜访好友",
+            "拜訪好友"
         ],
         "next": [
             "ItemTransferStartMoveCamera"
@@ -117,6 +118,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",
@@ -353,6 +355,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",
@@ -472,7 +475,8 @@
             "已充滿",
             "Full",
             "FULL",
-            "已满"
+            "已满",
+            "已滿"
         ],
         "next": [
             "ItemTransferSwitchRepoToOriginReturn"
@@ -540,6 +544,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",

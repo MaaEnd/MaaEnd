@@ -8,7 +8,10 @@
             176,
             198
         ],
-        "expected": "协议传送点",
+        "expected": [
+            "协议传送点",
+            "協議傳送點"
+        ],
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -44,7 +47,10 @@
                     146,
                     100
                 ],
-                "expected": "传送"
+                "expected": [
+                    "传送",
+                    "傳送"
+                ]
             }
         ],
         "pre_delay": 0,

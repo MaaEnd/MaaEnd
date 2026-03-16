@@ -1,0 +1,85 @@
+name: Issue AI Analysis
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to analyze'
+        required: true
+        type: number
+
+jobs:
+  copilot-analysis:
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' && 
+       github.event.action == 'created' && 
+       contains(github.event.comment.body, '@MaaEndBot') && 
+       github.event.comment.user.type != 'Bot')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine issue number
+        id: issue_number
+        run: |
+          if [[ "${{ github.event_name }}" == "issues" ]] || [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            echo "issue_number=${{ github.event.issue.number }}" | tee -a "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "issue_number=${{ github.event.inputs.issue_number }}" | tee -a "$GITHUB_OUTPUT"
+          else
+            echo "Unknown trigger" && exit 1
+          fi
+
+      # 步骤 1：发布初始中文评论，提示正在分析，并附上 Actions 运行链接
+      - name: Create initial comment
+        id: initial_comment
+        uses: peter-evans/create-or-update-comment@main
+        with:
+          issue-number: ${{ steps.issue_number.outputs.issue_number }}
+          body: |
+            🤖 **MaaEndBot 正在分析该 Issue...**  
+            感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。  
+            您可以在此查看进度：🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      # 步骤 2：执行 AI 分析，生成结果文件 copilot_answer.md
+      # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
+      - name: AI analysis
+        shell: bash
+        env:
+          # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
+          # Personal access tokens (classic) 不行，只能是 Fine-grained token
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: |
+          # Free 模型不会调用工具和 skill（太笨），目前不建议换
+          copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
+            --prompt "分析一下 #${{ steps.issue_number.outputs.issue_number }}，将你的结论输出到 copilot_answer.md"
+          cat copilot_answer.md
+
+      # 步骤 3：将分析结果与运行链接合并，准备最终评论内容（中文链接描述）
+      - name: Prepare final comment
+        run: |
+          # 复制分析结果到新文件
+          cp copilot_answer.md final_comment.md
+          # 添加分隔线和中文运行链接描述
+          echo "" >> final_comment.md
+          echo "---" >> final_comment.md
+          echo "🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> final_comment.md
+
+      # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
+      - name: Update comment with analysis result
+        uses: peter-evans/create-or-update-comment@main
+        with:
+          comment-id: ${{ steps.initial_comment.outputs.comment-id }}
+          edit-mode: replace
+          body-path: final_comment.md
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}

@@ -5,7 +5,6 @@
 规则：
 1) 扫描目录：
    - assets/resource/pipeline
-   - assets/resource_fast/pipeline
    - assets/resource_adb/pipeline
 2) OCR 节点判定：
    - recognition == "OCR"
@@ -40,7 +39,6 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 PIPELINE_DIRS = [
     Path("assets/resource/pipeline"),
-    Path("assets/resource_fast/pipeline"),
     Path("assets/resource_adb/pipeline"),
 ]
 

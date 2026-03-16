@@ -20,7 +20,7 @@
         "FarmlandFindingScheme": {
             "type": "select",
             "label": "$task.AutoEcoFarm.option.FarmlandFindingScheme.label",
-            "default_case": "BRtoTL",
+            "default_case": "Center",
             "cases": [
                 {
                     "name": "BRtoTL",
@@ -28,13 +28,11 @@
                     "pipeline_override": {
                         "_AutoEcoFarmFindFarmlandCustom": {
                             "recognition": {
-                                "type": "Custom",
                                 "param": {
-                                    "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
                                     "custom_recognition_param": {
                                         "recognitionNodeName": "_AutoEcoFarmFindFarmland",
-                                        "xRatio": 0.5,
-                                        "yRatio": 0.5
+                                        "xRatio": 0,
+                                        "yRatio": 0
                                     }
                                 }
                             }
@@ -43,13 +41,11 @@
                 },
                 {
                     "name": "Center",
-                    "label": "Goto Center",
+                    "label": "$task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label",
                     "pipeline_override": {
                         "_AutoEcoFarmFindFarmlandCustom": {
                             "recognition": {
-                                "type": "Custom",
                                 "param": {
-                                    "custom_recognition": "autoEcoFarmFindNearestRecognitionResult",
                                     "custom_recognition_param": {
                                         "recognitionNodeName": "_AutoEcoFarmFindFarmland",
                                         "xRatio": 0.5,
@@ -61,11 +57,14 @@
                         "_AutoEcoFarmGotoTarget": {
                             "enabled": true
                         },
-                        "_AutoEcoFarmIsWorking": {
+                        "_AutoEcoFarmWork3": {
                             "pre_delay": 60000,
                             "focus": {
                                 "Node.Recognition.Succeeded": "等待60秒，让队友多干点活，不是脚本卡咯，别担心"
                             }
+                        },
+                        "_AutoEcoFarmInAnyFarm": {
+                            "enabled": false
                         }
                     }
                 }

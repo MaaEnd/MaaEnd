@@ -1,16 +1,17 @@
-#include "MapLocateAction.h"
-#include "MapLocator.h"
+#include <filesystem>
+#include <thread>
+
+#include <MaaFramework/MaaAPI.h>
 #include <MaaUtils/Logger.h>
-
-#include "MaaFramework/MaaAPI.h"
-
-#include "../utils.h"
 #include <MaaUtils/NoWarningCV.hpp>
 #include <MaaUtils/Platform.h>
-#include <filesystem>
 #ifdef _WIN32
 #include <MaaUtils/SafeWindows.hpp>
 #endif
+#include "../utils.h"
+
+#include "MapLocateAction.h"
+#include "MapLocator.h"
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
@@ -51,7 +52,8 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         MapLocatorConfig cfg;
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
-        cfg.yoloThreads = 1;
+        const unsigned hardwareThreads = std::thread::hardware_concurrency();
+        cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 
         auto loc = std::make_shared<MapLocator>();
         bool ok = loc->initialize(cfg);

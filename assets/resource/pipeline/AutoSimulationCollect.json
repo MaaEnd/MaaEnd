@@ -346,7 +346,8 @@
         "expected": [
             "直接完成模拟",
             "直接完成模擬",
-            "Complete Simulation",
+            "Content Mastered",
+            "Complete SIM",
             "模擬完了",
             "掌握",
             "Fully Grasped",
@@ -371,7 +372,8 @@
             150
         ],
         "expected": [
-            "确认"
+            "确认",
+            "確定"
         ],
         "action": "Click",
         "post_wait_freezes": 200, // 降低延迟

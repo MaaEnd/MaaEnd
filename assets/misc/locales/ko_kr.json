@@ -67,12 +67,18 @@
     "option.FlawlessEssence.label": "🟨무결 기질",
     "option.PureEssence.label": "🟪순수 기질",
     "option.SelectExtraRules.label": "확장 규칙",
+    "option.SkipLockedRow.label": "식별된 잠금 행 건너뛰기",
+    "option.SkipLockedRow.description": "켜면 각 행에서 마지막 칸을 먼저 시도하고, 이미 잠금이면 행 전체를 건너뛰어 앞쪽 잠금 행 처리를 가속합니다. 끄면 순서대로 처리합니다.",
     "option.KeepFuturePromising.label": "미래 유망 기질 보관",
     "option.KeepFuturePromising.description": "3개 스킬 슬롯이 모두 채워지고 총 레벨이 임계값 이상인 기질을 보관합니다. 무기 매칭보다 낮은 우선순위입니다.",
+    "option.LockFuturePromising.label": "미래 유망 히트 시 잠금",
+    "option.LockFuturePromising.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "최소 총 레벨",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description": "3슬롯 레벨 합계 ≥ 이 값일 때 보관 (3~15). 기본값: 6",
     "option.KeepSlot3Level3Practical.label": "실용 기질 보관",
     "option.KeepSlot3Level3Practical.description": "슬롯3 레벨이 임계값 이상이고 즉시 사용 가능한 보조 스킬인 기질을 보관합니다. 무기 매칭보다 낮은 우선순위입니다.",
+    "option.LockSlot3Practical.label": "실용 히트 시 잠금",
+    "option.LockSlot3Practical.description": "끄면 이 규칙이 맞아도 아무 동작을 하지 않습니다.",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label": "슬롯3 최소 레벨",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description": "슬롯3 레벨 ≥ 이 값일 때 보관 (1~3). 기본값: 3",
     "option.DiscardUnmatched.label": "불일치 시 폐기",
@@ -466,7 +472,8 @@
     "task.AutoEcoFarm.label": "🌾생태 농장",
     "task.AutoEcoFarm.description": "\n## 태스크 기능:\n태스크 시작 전 가방 속 아이템을 자동으로 일괄 수납합니다 (기본 켜짐). 그 후 수확, 재배, 물주기 등 관련 작업을 자동으로 수행합니다.\n## 유의사항 - 태스크 시작 전 아래 준비를 완료해 주세요:\n1. **우릉 통합 산업 코어를 생태 농장 가장자리(지도 동쪽)에 배치**해 주세요. 자동 경로 탐색 시 끼임 현상을 방지할 수 있습니다.\n2. **3명의 팀원을 풀 파티로 구성**해 주세요. 수확은 대부분 팀원이 수행하며, 주 역할은 유도만 하므로 팀원이 부족하면 농지를 많이 놓치게 됩니다.\n3. 게임 언어를 간체 중국어로 설정해 주세요. 현재 OCR은 다른 언어를 지원하지 않습니다.\n## 권장 사항:\n1. 농지를 **촘촘하게 배치하고 가능한 농장 중앙에 가깝게** 배치하세요. 정사각형 형태가 가장 안정적입니다.\n2. 농장 **대각선 방향에 스프링클러를 배치하지 마세요**. 끼임 현상이 발생할 수 있습니다.",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "농지 탐색 방식",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "우하단에서 좌상단으로 1회 주행합니다. 농지를 촘촘하게 배치하고, 가급적 정사각형으로 만들어 주세요.",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "오른쪽 아래에서 왼쪽 위까지 순서대로 수거합니다. 농지를 직사각형으로 배치해야 합니다.",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label": "가장 중앙 농지로 이동하여 1회만 수거합니다. 농지를 원형으로 배치해야 합니다.",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "태스크 시작 전 가방 잡동사니 수납",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "태스크 종료 후 가방 잡동사니 수납",
     "task.GiftOperator.label": "🎁오퍼레이터 선물",
@@ -476,3 +483,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "녹화된 입력",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "인식 이동 (MapTracker)"
 }
+
+

@@ -12,9 +12,10 @@ import (
 
 var buildSlotIndicesOnce sync.Once
 
-// MatchEssenceSkills - 先用原始清洗文本匹配，失败后再用相近字替换后的文本匹配
+// MatchEssenceSkills - 先用原始清洗文本匹配，失败后再用相近字替换后的文本匹配。
+// targetSkillCombinations is the list of target combinations (from RunState); passed by caller.
 // 返回结构化的技能组合匹配结果（可能对应多把武器），不再在此处拼接武器名字符串。
-func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string) (*SkillCombinationMatch, bool) {
+func MatchEssenceSkills(ctx *maa.Context, ocrSkills []string, targetSkillCombinations []SkillCombination) (*SkillCombinationMatch, bool) {
 	if len(ocrSkills) != 3 {
 		log.Warn().Int("len", len(ocrSkills)).Strs("ocr_skills", ocrSkills).Msg("[EssenceFilter] MatchEssenceSkills: OCR 数量不足")
 		return nil, false
@@ -112,7 +113,7 @@ func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) 
 		return nil, 0, false
 	}
 	buildSlotIndicesOnce.Do(buildSlotIndices)
-	pool := getPoolBySlot(3)
+	pool := GetPoolBySlot(3)
 	if len(pool) == 0 {
 		return nil, 0, false
 	}
@@ -120,7 +121,7 @@ func MatchSlot3Level3Practical(ocrSkills []string, levels [3]int, minLevel int) 
 	for i := 0; i < 3; i++ {
 		id, matched := matchSkillIDEnhanced(3, ocrSkills[i])
 		if matched {
-			slot3Chinese := skillNameByID(id, pool)
+			slot3Chinese := SkillNameByID(id, pool)
 			if slot3Chinese == "" {
 				slot3Chinese = ocrSkills[i]
 			}
@@ -183,7 +184,7 @@ var slotIndices [3]slotIndex
 // 构建技能索引（启动或首次匹配时）
 func buildSlotIndices() {
 	for i := 0; i < 3; i++ {
-		pool := getPoolBySlot(i + 1)
+		pool := GetPoolBySlot(i + 1)
 		idx := slotIndex{
 			rawFullIndex:  make(map[string][]int),
 			rawCoreIndex:  make(map[string][]int),
@@ -251,7 +252,8 @@ func cleanChinese(text string) string {
 
 // trimStopSuffix - 去除停用后缀（从配置文件加载）
 func trimStopSuffix(s string) string {
-	for _, suf := range matcherConfig.SuffixStopwords {
+	cfg := GetMatcherConfig()
+	for _, suf := range cfg.SuffixStopwords {
 		if strings.HasSuffix(s, suf) && utf8.RuneCountInString(s) > utf8.RuneCountInString(suf) {
 			return strings.TrimSuffix(s, suf)
 		}
@@ -261,7 +263,8 @@ func trimStopSuffix(s string) string {
 
 // normalizeSimilar - 相近/误识替换（键为误识，值为正确），仅作用于 OCR 文本，不改技能池（从配置文件加载）
 func normalizeSimilar(s string) string {
-	for old, val := range matcherConfig.SimilarWordMap {
+	cfg := GetMatcherConfig()
+	for old, val := range cfg.SimilarWordMap {
 		s = strings.ReplaceAll(s, old, val)
 	}
 	return s
@@ -309,7 +312,7 @@ func editDistance(a, b string, max int) int {
 // 先用原始，再用相近替换后的文本匹配；每阶段都有详细日志
 func matchSkillIDEnhanced(slot int, ocrText string) (int, bool) {
 	idx := slotIndices[slot-1]
-	pool := getPoolBySlot(slot)
+	pool := GetPoolBySlot(slot)
 	idToName := make(map[int]string, len(pool))
 	for _, s := range pool {
 		idToName[s.ID] = s.Chinese
@@ -481,30 +484,6 @@ func attemptMatch(phase matchPhase, slot int, cleaned, core string, idx slotInde
 		return bestID, true
 	}
 	return 0, false
-}
-
-// getPoolBySlot - 按槽位获取技能池
-func getPoolBySlot(slot int) []SkillPool {
-	switch slot {
-	case 1:
-		return weaponDB.SkillPools.Slot1
-	case 2:
-		return weaponDB.SkillPools.Slot2
-	case 3:
-		return weaponDB.SkillPools.Slot3
-	default:
-		return nil
-	}
-}
-
-// skillNameByID - 按 ID 取技能中文名
-func skillNameByID(id int, pool []SkillPool) string {
-	for _, s := range pool {
-		if s.ID == id {
-			return s.Chinese
-		}
-	}
-	return ""
 }
 
 func firstChar(s string) string {
