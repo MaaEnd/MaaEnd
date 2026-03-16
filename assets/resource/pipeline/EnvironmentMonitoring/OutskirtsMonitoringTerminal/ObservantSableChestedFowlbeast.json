@@ -159,11 +159,12 @@
     "GoToObservantSableChestedFowlbeast": {
         "desc": "前往东张西望的黑腹雉羽兽",
         "next": [
-            "GoToObservantSableChestedFowlbeastStartPos"
+            "GoToObservantSableChestedFowlbeastStartPos",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley0"
         ]
     },
     "GoToObservantSableChestedFowlbeastStartPos": {
-        "desc": "在东张西望的黑腹雉羽兽任务开始位置附近，TODO: 请填写 target",
+        "desc": "在东张西望的黑腹雉羽兽任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -171,10 +172,10 @@
                 {
                     "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
-                        15,
-                        15
+                        342.2,
+                        124.2,
+                        4,
+                        4
                     ]
                 }
             ]
@@ -189,7 +190,16 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv001",
-            "path": []
+            "path": [
+                [
+                    349.9,
+                    128.0
+                ],
+                [
+                    373.3,
+                    135.6
+                ]
+            ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
@@ -200,10 +210,10 @@
         ]
     },
     "ObservantSableChestedFowlbeastAdjustCamera": {
-        "desc": "东张西望的黑腹雉羽兽任务中调整朝向，TODO: 请按实际拍照朝向修改",
+        "desc": "东张西望的黑腹雉羽兽任务中调整朝向",
         "max_hit": 2,
         "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }
