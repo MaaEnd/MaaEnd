@@ -1,6 +1,6 @@
 # 开发手册 - QuantizedSliding 参考文档
 
-`QuantizedSliding` 是一个通过 `Custom` 节点调用的 go-service 自定义动作，
+`QuantizedSliding` 是一个通过 `Custom` 动作类型调用的 go-service 自定义动作实现，
 用于处理“拖动滑条选择数量，但目标值是离散档位”的界面。
 
 它适合下面这类场景：
@@ -11,9 +11,31 @@
 
 当前实现位于：
 
-- Go 动作：`agent/go-service/quantizedsliding/action.go`
+- Go 动作包：`agent/go-service/quantizedsliding/`
+- 包内注册：`agent/go-service/quantizedsliding/register.go`
+- go-service 总注册入口：`agent/go-service/register.go`
 - 公共 Pipeline：`assets/resource/pipeline/QuantizedSliding/Main.json`
 - 现有接入示例：`assets/resource/pipeline/AutoStockpile/Task.json`
+
+其中 `agent/go-service/quantizedsliding/` 已按职责拆分为多个文件：
+
+| 文件           | 作用                                       |
+| -------------- | ------------------------------------------ |
+| `types.go`     | 参数结构、动作类型、常量与包级变量         |
+| `handlers.go`  | `Run()` 分发、各阶段处理函数、状态重置     |
+| `overrides.go` | Pipeline override 构造逻辑                 |
+| `ocr.go`       | OCR 文本提取与识别框解析                   |
+| `normalize.go` | 按钮参数归一化与基础计算辅助               |
+| `register.go`  | 向 go-service 注册 `QuantizedSliding` 动作 |
+
+## 执行模式
+
+`QuantizedSliding` 当前有两种执行模式：
+
+1. **对外调用模式**：当业务任务以 `custom_action: "QuantizedSliding"` 调用它时，Go 侧会自动构造内部 Pipeline override，并从 `QuantizedSlidingMain` 开始执行整条内部节点链。
+2. **内部节点模式**：当当前节点本身就是 `QuantizedSlidingMain`、`QuantizedSlidingFindStart`、`QuantizedSlidingGetMaxQuantity`、`QuantizedSlidingFindEnd`、`QuantizedSlidingCheckQuantity`、`QuantizedSlidingDone` 之一时，Go 侧会直接处理该阶段逻辑。
+
+也就是说，业务接入方通常只需要传一次 `custom_action_param`，**不需要**手动串起内部节点。
 
 ## 它是怎么工作的
 
@@ -30,11 +52,22 @@
 7. OCR 再次识别当前数量；若仍不等于目标值，则通过加减按钮微调。
 8. 数量与目标一致后结束。
 
-对应的内部节点由 `QuantizedSliding` 自己调用 `QuantizedSlidingMain` 子流程完成，调用方**不需要**手动串这些内部节点。
+其中第 5 步的精确点击位置，当前实现按线性插值计算：
+
+```text
+numerator = Target - 1
+denominator = maxQuantity - 1
+clickX = startX + (endX - startX) * numerator / denominator
+clickY = startY + (endY - startY) * numerator / denominator
+```
+
+计算出的 `[clickX, clickY]` 会被动态写入公共节点 `QuantizedSlidingPreciseClick` 的 `action.param.target`。
+
+对应的内部节点由 `QuantizedSliding` 自己调用 `QuantizedSlidingMain` 及其后继节点链完成，调用方**不需要**手动串这些内部节点。
 
 ## 调用方式
 
-在业务 Pipeline 中，像普通 `Custom` 动作一样调用即可：
+在业务 Pipeline 中，像普通 `Custom` 动作一样调用即可。下面示例采用 MaaFramework Pipeline 协议 v2 写法。
 
 ```json
 "SomeTaskAdjustQuantity": {
@@ -56,7 +89,7 @@
 
 ## 参数说明
 
-`custom_action_param` 需要传入一个 JSON 对象，字段如下：
+`custom_action_param` 推荐直接传入一个 JSON 对象；当前实现也兼容“内容本身还是一段 JSON”的字符串。常用字段如下：
 
 | 字段             | 类型                    | 必填 | 说明                                              |
 | ---------------- | ----------------------- | ---- | ------------------------------------------------- |
@@ -93,20 +126,14 @@
 
 如果传入 `[x, y]`，内部会自动补成 `[x, y, 1, 1]`。
 
+另外，实际从 JSON 反序列化进入 Go 后，这类数组可能表现为 `[]float64` 或 `[]any`，当前实现会自动归一化为整数数组；但如果长度既不是 `2` 也不是 `4`，动作会直接报错返回失败。
+
 ## 方向约定
 
-`Direction` 决定“滑到最大值”时的目标方向：
+`Direction` 决定“滑到最大值”时的目标方向。当前实现写死的覆盖终点为：
 
-- `right` / `up`：会把滑动终点覆盖到屏幕右上区域附近；
-- `left` / `down`：会把滑动终点覆盖到屏幕左下区域附近。
-
-这不是说滑块一定沿着屏幕对角线运动，而是当前实现通过给 `Swipe` 节点动态覆盖一个足够远的终点区域，强制把滑块推向对应端点。
-
-因此，`Direction` 填错时，最常见的结果不是“差一点”，而是：
-
-- 最大值识别错误；
-- 滑块没有被推到真实端点；
-- 后续比例点击整体偏移。
+- `right` / `up`：`[1260, 10, 10, 10]`
+- `left` / `down`：`[10, 700, 10, 10]`
 
 ## 依赖的公共节点
 
@@ -163,10 +190,15 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 - 必须使用 **1280×720** 为基准；
 - OCR 节点当前使用的 `expected` 是 `"\\d+"`，也就是只期望数字；
-- Go 侧最终会从 OCR 文本中提取所有数字字符后再转为整数。
+- Go 侧最终会从 OCR 文本中提取**所有数字字符**后再转为整数。
 
-这意味着像 `12/99`、`数量 12` 这类文本，只要 OCR 能稳定读到数字，通常也能被解析；
-但如果 OCR 容易把数字识别成字母，整个动作就会失败。
+这意味着：
+
+- `数量 12` 通常会被解析为 `12`；
+- `12/99` 会被解析为 `1299`，而不是 `12`；
+- 如果 OCR 容易把数字识别成字母，整个动作就会失败。
+
+所以 `QuantityBox` 不仅要“能读到数字”，还要尽量避免把其他数字组一起框进去。
 
 ### 4. 选择按钮定位方式
 
@@ -229,7 +261,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 加减按钮无法识别或无法点击；
 - 微调次数过多仍未收敛。
 
-当前实现会把单次微调点击次数限制在 `30` 以内，`QuantizedSlidingCheckQuantity` 的 `max_hit` 为 `4`。如果走满后仍未到目标值，就会失败并进入 `QuantizedSlidingFail`。
+当前实现会把单次微调点击次数限制在 `0 ~ 30` 之间，`QuantizedSlidingCheckQuantity` 的 `max_hit` 为 `4`。如果走满后仍未到目标值，就会失败并进入 `QuantizedSlidingFail`。
 
 ## 为什么还需要微调按钮
 
@@ -252,6 +284,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 
 - **把它当成普通滑动节点**：它本质上是一个完整子流程，不只是一次 `Swipe`。
 - **`Direction` 填反**：会导致“滑到最大值”这一步本身就不成立。
+- **OCR 框进了多个数字组**：例如 `12/99` 会被拼成 `1299`，不是自动取第一个数字。
 - **`QuantityBox` 截得太紧**：数字跳动或描边变化时 OCR 容易失败。
 - **只给按钮坐标，不做识别兜底**：界面轻微偏移后就可能点歪。
 - **滑块模板不通用**：不同界面滑块样式不一致时，公共模板可能失效。
@@ -269,7 +302,18 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 5. `Target` 是否有可能大于当前场景允许的最大值。
 6. 失败分支是否有明确处理，例如提示、跳过或取消当前任务。
 
+## 代码定位
+
+如果需要继续追实现，建议按下面顺序看：
+
+1. `agent/go-service/quantizedsliding/register.go`：确认动作注册名。
+2. `agent/go-service/quantizedsliding/handlers.go`：看 `Run()` 如何区分“对外调用模式”和“内部节点模式”。
+3. `agent/go-service/quantizedsliding/overrides.go`：看内部 Pipeline override、方向终点和按钮分支是怎么生成的。
+4. `agent/go-service/quantizedsliding/ocr.go`：看 OCR 文本与识别框提取逻辑。
+5. `agent/go-service/quantizedsliding/normalize.go`：看按钮参数归一化、点击次数限制和中心点计算。
+6. `assets/resource/pipeline/QuantizedSliding/Main.json`：看公共节点默认配置，例如 `max_hit`、`post_wait_freezes`、默认 `next` 关系。
+
 ## 相关文档
 
-- [Custom 自定义动作参考文档](./custom-action.md)：了解 `Custom` 节点的通用调用方式。
+- [Custom 自定义动作参考文档](./custom-action.md)：了解 `Custom` 动作的通用调用方式。
 - [开发手册](./development.md)：了解 Pipeline / Go Service 的整体开发规范。

@@ -1,6 +1,6 @@
 # Development Guide - QuantizedSliding Reference Document
 
-`QuantizedSliding` is a go-service custom action invoked through a `Custom` node.
+`QuantizedSliding` is a go-service custom action implementation invoked through the `Custom` action type.
 It is used for interfaces where you drag a slider to choose a quantity, but the target value is a discrete level rather than a continuous value.
 
 It is suitable for scenarios like these:
@@ -11,9 +11,37 @@ It is suitable for scenarios like these:
 
 The current implementation is located at:
 
-- Go action: `agent/go-service/quantizedsliding/action.go`
+- Go action package: `agent/go-service/quantizedsliding/`
+- Package-local registration: `agent/go-service/quantizedsliding/register.go`
+- go-service global registration entry: `agent/go-service/register.go`
 - Shared Pipeline: `assets/resource/pipeline/QuantizedSliding/Main.json`
 - Existing integration example: `assets/resource/pipeline/AutoStockpile/Task.json`
+
+`agent/go-service/quantizedsliding/` is now split by responsibility:
+
+| File           | Responsibility                                                         |
+| -------------- | ---------------------------------------------------------------------- |
+| `types.go`     | Parameter structs, action type, constants, and package-level variables |
+| `handlers.go`  | `Run()` dispatch, per-stage handlers, and state reset                  |
+| `overrides.go` | Pipeline override construction                                         |
+| `ocr.go`       | OCR text extraction and recognition box parsing                        |
+| `normalize.go` | Button parameter normalization and basic calculation helpers           |
+| `register.go`  | Registers the `QuantizedSliding` action into go-service                |
+
+## Execution modes
+
+`QuantizedSliding` currently has two execution modes:
+
+1. **External invocation mode**: when a business task calls it with `custom_action: "QuantizedSliding"`, the Go side automatically constructs the internal Pipeline override and starts running the full internal flow from `QuantizedSlidingMain` through its downstream nodes.
+2. **Internal node mode**: when the current node itself is one of `QuantizedSlidingMain`, `QuantizedSlidingFindStart`, `QuantizedSlidingGetMaxQuantity`, `QuantizedSlidingFindEnd`, `QuantizedSlidingCheckQuantity`, or `QuantizedSlidingDone`, the Go side directly handles that specific stage.
+
+In other words, the business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
+
+In addition, the current implementation adds one layer of compatibility for `custom_action_param`:
+
+- You can pass a JSON object directly.
+- You can also pass a string whose content is itself JSON.
+- On the Go side, the outer layer is parsed first, and then one nested JSON layer is unpacked automatically when possible.
 
 ## How it works
 
@@ -30,11 +58,24 @@ The overall steps are:
 7. Use OCR again to read the current quantity. If it still does not equal the target value, fine-tune it through the increase/decrease buttons.
 8. Finish after the quantity matches the target value.
 
-The corresponding internal nodes are executed by `QuantizedSliding` itself through the `QuantizedSlidingMain` subflow. The caller does **not** need to manually chain those internal nodes.
+For step 5, the current implementation computes the precise click position using linear interpolation:
+
+```text
+numerator = Target - 1
+denominator = maxQuantity - 1
+clickX = startX + (endX - startX) * numerator / denominator
+clickY = startY + (endY - startY) * numerator / denominator
+```
+
+The computed `[clickX, clickY]` is then dynamically written into `QuantizedSlidingPreciseClick.action.param.target`.
+
+The internal nodes are executed by `QuantizedSliding` itself through `QuantizedSlidingMain` and its downstream nodes. The caller does **not** need to manually chain those internal nodes.
 
 ## How to call it
 
-In a business Pipeline, call it like a normal `Custom` action:
+In a business Pipeline, call it like a normal `Custom` action. The example below uses MaaFramework Pipeline protocol v2 syntax.
+
+It is generally recommended to pass a JSON object directly instead of manually writing an escaped JSON string.
 
 ```json
 "SomeTaskAdjustQuantity": {
@@ -56,7 +97,7 @@ In a business Pipeline, call it like a normal `Custom` action:
 
 ## Parameter description
 
-`custom_action_param` must be a JSON object with the following fields:
+`custom_action_param` is best passed as a JSON object directly. The current implementation also accepts a string whose content is itself JSON. The commonly used fields are:
 
 | Field            | Type                    | Required | Description                                                             |
 | ---------------- | ----------------------- | -------- | ----------------------------------------------------------------------- |
@@ -68,7 +109,7 @@ In a business Pipeline, call it like a normal `Custom` action:
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
-These two fields support two forms.
+These two fields support two forms:
 
 #### 1. Pass a template path (recommended)
 
@@ -93,12 +134,14 @@ Supported formats:
 
 If `[x, y]` is passed, it will be automatically normalized to `[x, y, 1, 1]` internally.
 
+Also note that after JSON deserialization on the Go side, these arrays may appear as `[]float64` or `[]any`. The current implementation normalizes them into integer arrays automatically. However, if the length is neither `2` nor `4`, the action fails immediately.
+
 ## Direction convention
 
-`Direction` determines which direction is treated as “toward the maximum value” when swiping:
+`Direction` determines which direction is treated as “toward the maximum value.” The current implementation uses these hardcoded override end regions:
 
-- `right` / `up`: the swipe end point is overridden to a region near the upper-right area of the screen;
-- `left` / `down`: the swipe end point is overridden to a region near the lower-left area of the screen.
+- `right` / `up`: `[1260, 10, 10, 10]`
+- `left` / `down`: `[10, 700, 10, 10]`
 
 This does not mean the slider handle literally moves along the screen diagonal. The current implementation simply overrides the `Swipe` node with a sufficiently distant end region to force the slider toward the corresponding endpoint.
 
@@ -163,10 +206,15 @@ Note:
 
 - You must use **1280×720** as the baseline resolution;
 - The OCR node currently uses `expected: "\\d+"`, meaning it expects digits only;
-- On the Go side, all digit characters are extracted from the OCR text and then converted to an integer.
+- On the Go side, **all digit characters** are extracted from the OCR text and then converted to an integer.
 
-That means text like `12/99` or `Qty 12` can usually still be parsed as long as OCR reads the digits reliably.
-But if OCR frequently misreads digits as letters, the whole action will fail.
+That means:
+
+- `Qty 12` is usually parsed as `12`;
+- `12/99` is parsed as `1299`, not `12`;
+- If OCR frequently misreads digits as letters, the whole action will fail.
+
+So `QuantityBox` must not only “read digits,” but should also avoid including unrelated numeric groups whenever possible.
 
 ### 4. Choose how to locate the buttons
 
@@ -230,7 +278,7 @@ File location: `assets/resource/pipeline/AutoStockpile/Task.json`
 - The increase/decrease buttons cannot be recognized or clicked;
 - Too many fine-tuning attempts still do not converge.
 
-The current implementation limits a single fine-tuning branch to at most `30` clicks, and `QuantizedSlidingCheckQuantity` has `max_hit = 4`. If those limits are exhausted and the target value is still not reached, the flow fails and enters `QuantizedSlidingFail`.
+The current implementation clamps a single fine-tuning branch to the range `0 ~ 30`, and `QuantizedSlidingCheckQuantity` has `max_hit = 4`. If those limits are exhausted and the target value is still not reached, the flow fails and enters `QuantizedSlidingFail`.
 
 ## Why fine-tuning buttons are still needed
 
@@ -251,8 +299,9 @@ This is much faster than relying only on repeated button clicks, and much more s
 
 ## Common pitfalls
 
-- **Treating it like a normal swipe node**: it is essentially a complete subflow, not just a single `Swipe`.
+- **Treating it like a single `Swipe` action**: it is essentially a complete internal flow, not just one `Swipe` step.
 - **Setting `Direction` backwards**: this breaks the “swipe to max” step itself.
+- **Including multiple number groups in `QuantityBox`**: for example, `12/99` is parsed as `1299`, not automatically treated as the first number only.
 - **Making `QuantityBox` too tight**: OCR easily fails when digits move or outlines change.
 - **Using only button coordinates without a recognition fallback**: small UI shifts can make clicks miss.
 - **Assuming the slider template is universally reusable**: the shared template may fail if different screens use different slider styles.
@@ -270,7 +319,18 @@ After integration, check at least the following:
 5. Whether `Target` can exceed the maximum value allowed by the current scenario.
 6. Whether the failure branch has a clear handling strategy, such as a prompt, skip, or canceling the current task.
 
+## Code references
+
+If you need to follow the implementation further, review in this order:
+
+1. `agent/go-service/quantizedsliding/register.go`: confirm the registered action name.
+2. `agent/go-service/quantizedsliding/handlers.go`: see how `Run()` distinguishes external invocation mode from internal node mode.
+3. `agent/go-service/quantizedsliding/overrides.go`: see how internal Pipeline overrides, direction end regions, and button branches are generated.
+4. `agent/go-service/quantizedsliding/ocr.go`: see OCR text and recognition box extraction logic.
+5. `agent/go-service/quantizedsliding/normalize.go`: see button parameter normalization, click-repeat clamping, and center-point calculation.
+6. `assets/resource/pipeline/QuantizedSliding/Main.json`: see default shared-node configuration such as `max_hit`, `post_wait_freezes`, and default `next` relationships.
+
 ## Related documents
 
-- [Custom Action Reference Document](./custom-action.md): Learn the general calling convention of `Custom` nodes.
+- [Custom Action Reference Document](./custom-action.md): Learn the general calling convention of `Custom` actions.
 - [Development Guide](./development.md): Learn the overall development conventions for Pipeline and Go Service.
