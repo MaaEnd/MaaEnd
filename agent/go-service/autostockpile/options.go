@@ -9,6 +9,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var autoStockpileDefaultPriceLimits = map[string]int{
+	"price_limits_ValleyIV.Tier1": 1000,
+	"price_limits_ValleyIV.Tier2": 1400,
+	"price_limits_ValleyIV.Tier3": 1700,
+	"price_limits_Wuling.Tier1":   1400,
+	"price_limits_Wuling.Tier2":   1700,
+}
+
 func getSelectionConfigFromNode(ctx *maa.Context, nodeName string) (SelectionConfig, error) {
 	region, _ := resolveGoodsRegion(ctx)
 
@@ -95,7 +103,7 @@ func collectRegionPriceLimits(attach map[string]json.RawMessage, region string) 
 			return nil, fmt.Errorf("%s: missing tier suffix", key)
 		}
 
-		threshold, err := parsePriceLimitValue(value)
+		threshold, err := parsePriceLimitOverrideValue(key, value)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", key, err)
 		}
@@ -104,6 +112,21 @@ func collectRegionPriceLimits(attach map[string]json.RawMessage, region string) 
 	}
 
 	return priceLimits, nil
+}
+
+func parsePriceLimitOverrideValue(key string, data json.RawMessage) (int, error) {
+	var stringValue string
+	if err := json.Unmarshal(data, &stringValue); err == nil {
+		if strings.TrimSpace(stringValue) == "" {
+			threshold, ok := autoStockpileDefaultPriceLimits[key]
+			if !ok {
+				return 0, fmt.Errorf("missing default threshold")
+			}
+			return threshold, nil
+		}
+	}
+
+	return parsePriceLimitValue(data)
 }
 
 // minPositiveThreshold 返回价格阈值中的最小正值，用作当前地区的默认 fallback。
