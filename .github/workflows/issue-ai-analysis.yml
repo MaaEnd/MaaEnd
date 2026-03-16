@@ -90,9 +90,12 @@ jobs:
                 # 构建评论正文：当前输出 + 分隔符 + 运行链接
                 {
                   echo "${{ env.INITIAL_BODY }}"
+                  echo ""
                   echo "---"
                   echo ""
+                  echo "<details><summary>点击此处展开/折叠分析过程</summary>"
                   echo "$current_content"
+                  echo "</details>"
                 } > "$BODY_FILE"
 
                 # 使用 jq 构造 JSON 并通过 API 更新评论
@@ -132,9 +135,14 @@ jobs:
         run: |
           # 复制分析结果到新文件
           cp copilot_answer.md final_comment.md
-          # 添加分隔线和中文运行链接描述
+
           echo "" >> final_comment.md
           echo "---" >> final_comment.md
+          echo "" >> final_comment.md
+          echo "<details><summary>点击此处展开/折叠分析过程</summary>" >> final_comment.md
+          cat copilot_output.log >> final_comment.md
+          echo "</details>" >> final_comment.md
+          echo "" >> final_comment.md
           echo "🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> final_comment.md
 
       # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
