@@ -12,6 +12,13 @@ on:
         required: true
         type: number
 
+env:
+  # 初始评论内容（包含运行链接，仅出现一次）
+  INITIAL_BODY: |
+    🤖 **MaaEndBot 正在分析该 Issue...**  
+    感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。  
+    您可以在此查看进度：🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
 jobs:
   copilot-analysis:
     if: |
@@ -42,16 +49,13 @@ jobs:
         uses: peter-evans/create-or-update-comment@main
         with:
           issue-number: ${{ steps.issue_number.outputs.issue_number }}
-          body: |
-            🤖 **MaaEndBot 正在分析该 Issue...**  
-            感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。  
-            您可以在此查看进度：🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          body: ${{ env.INITIAL_BODY }}
           token: ${{ secrets.MAAEND_BOT_TOKEN }}
 
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
-      # 步骤 2：执行 AI 分析，并流式更新评论（每隔 10 秒）
+      # 步骤 2：执行 AI 分析，并流式更新评论（固定时间间隔）
       - name: Run Copilot analysis with streaming updates
         shell: bash
         env:
@@ -70,7 +74,7 @@ jobs:
 
           # 启动 Copilot 后台进程，将输出重定向到文件（同时捕获错误输出）
           copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
-            --prompt "分析一下 #$ISSUE_NUMBER，请逐步输出分析过程，不要一次性给出全部结论。" > "$OUTPUT_FILE" 2>&1 &
+            --prompt "分析一下 #${{ steps.issue_number.outputs.issue_number }}，将你的结论输出到 copilot_answer.md" > "$OUTPUT_FILE" 2>&1 &
           COPILOT_PID=$!
           echo "Copilot started with PID $COPILOT_PID"
 
@@ -85,15 +89,15 @@ jobs:
               if [ "$current_content" != "$last_content" ] && [ -n "$current_content" ]; then
                 # 构建评论正文：当前输出 + 分隔符 + 运行链接
                 {
-                  echo "$current_content"
-                  echo ""
+                  echo "${{ env.INITIAL_BODY }}"
                   echo "---"
-                  echo "🔗 [GitHub Action 运行记录]($RUN_URL)"
+                  echo ""
+                  echo "$current_content"
                 } > "$BODY_FILE"
 
                 # 使用 jq 构造 JSON 并通过 API 更新评论
                 jq -n --arg body "$(cat "$BODY_FILE")" '{"body":$body}' | \
-                curl -L -X PATCH \
+                curl -s -L -X PATCH \
                   -H "Authorization: token $GITHUB_TOKEN" \
                   -H "Accept: application/vnd.github.v3+json" \
                   "https://api.github.com/repos/$REPO/issues/comments/$COMMENT_ID" \
@@ -103,25 +107,25 @@ jobs:
                 echo "Comment updated at $(date)"
               fi
             fi
+            # 每隔 10 秒
             sleep 10
           done
 
-          # Copilot 进程结束，最后更新一次评论（最终结果）
-          if [ -f "$OUTPUT_FILE" ]; then
-            final_content=$(cat "$OUTPUT_FILE")
-            {
-              echo "$final_content"
-              echo ""
-              echo "---"
-              echo "🔗 [GitHub Action 运行记录]($RUN_URL)"
-            } > "$BODY_FILE"
+      # 步骤 3：将分析结果与运行链接合并，准备最终评论内容（中文链接描述）
+      - name: Prepare final comment
+        run: |
+          # 复制分析结果到新文件
+          cp copilot_answer.md final_comment.md
+          # 添加分隔线和中文运行链接描述
+          echo "" >> final_comment.md
+          echo "---" >> final_comment.md
+          echo "🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> final_comment.md
 
-            jq -n --arg body "$(cat "$BODY_FILE")" '{"body":$body}' | \
-            curl -L -X PATCH \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/$REPO/issues/comments/$COMMENT_ID" \
-              -d @-
-
-            echo "Final comment updated at $(date)"
-          fi
+      # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
+      - name: Update comment with analysis result
+        uses: peter-evans/create-or-update-comment@main
+        with:
+          comment-id: ${{ steps.initial_comment.outputs.comment-id }}
+          edit-mode: replace
+          body-path: final_comment.md
+          token: ${{ secrets.MAAEND_BOT_TOKEN }}
