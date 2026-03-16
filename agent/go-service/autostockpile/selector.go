@@ -10,6 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const swipeMaxNodeName = "AutoStockpileSwipeMax"
+
 type candidateGoods struct {
 	goods     GoodsItem
 	threshold int
@@ -98,6 +100,18 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		},
 	})
 
+	overrideEnable, enableSwipeMax, enableSpecificQuantity := resolveSwipeEnable(selection, result, cfg)
+	if overrideEnable {
+		_ = ctx.OverridePipeline(map[string]any{
+			swipeMaxNodeName: map[string]any{
+				"enabled": enableSwipeMax,
+			},
+			swipeSpecificQuantityNodeName: map[string]any{
+				"enabled": enableSpecificQuantity,
+			},
+		})
+	}
+
 	log.Info().
 		Str("component", "autostockpile").
 		Str("template", BuildTemplatePath(selection.ProductID)).
@@ -105,6 +119,9 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("threshold", selection.Threshold).
 		Int("price", selection.CurrentPrice).
 		Int("score", selection.Score).
+		Bool("swipe_max_enabled", enableSwipeMax).
+		Bool("swipe_specific_quantity_enabled", enableSpecificQuantity).
+		Int("overflow_amount", result.OverflowAmount).
 		Msg("product selected and pipeline overridden")
 	maafocus.NodeActionStarting(ctx, fmt.Sprintf("已选择物资: %s (价格 %d, 阈值 %d)", selection.ProductName, selection.CurrentPrice, selection.Threshold))
 
@@ -170,6 +187,21 @@ func SelectBestProduct(result RecognitionResult, cfg SelectionConfig, bypassThre
 		CurrentPrice:  best.goods.Price,
 		Score:         best.score,
 	}
+}
+
+func resolveSwipeEnable(selection SelectionResult, result RecognitionResult, cfg SelectionConfig) (bool, bool, bool) {
+	if !selection.Selected {
+		return false, false, false
+	}
+
+	enableSwipeMax := selection.CurrentPrice < selection.Threshold || (cfg.SundayMode && result.Sunday)
+	if enableSwipeMax {
+		return true, true, false
+	}
+	if cfg.OverflowMode && result.OverflowAmount > 0 {
+		return true, false, true
+	}
+	return true, true, false
 }
 
 func extractRecoDetailJson(rd *maa.RecognitionDetail) string {

@@ -21,9 +21,10 @@ type ItemValueChangeRecognition struct{}
 
 // RecognitionResult 表示识别阶段输出的结构化结果。
 type RecognitionResult struct {
-	Overflow bool        `json:"overflow"`
-	Sunday   bool        `json:"sunday"`
-	Goods    []GoodsItem `json:"Goods"`
+	Overflow       bool        `json:"overflow"`
+	OverflowAmount int         `json:"overflow_amount"`
+	Sunday         bool        `json:"sunday"`
+	Goods          []GoodsItem `json:"Goods"`
 }
 
 // GoodsItem 表示一次识别得到的单个商品信息。

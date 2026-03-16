@@ -21,13 +21,14 @@ const (
 	autoStockpileComponent = "autostockpile"
 	anchorTargetRegionName = "AutoStockpileGotoTargetReigon"
 
-	selectedGoodsClickNodeName = "AutoStockpileSelectedGoodsClick"
-	selectedGoodsClickResetY   = 180
-	findMarketMarkNodeName     = "AutoStockpileFindMarketMark"
-	overflowNodeName           = "AutoStockpileCheckOverflow"
-	overflowDetailNodeName     = "AutoStockpileGetOverflowDetail"
-	locateGoodsNodeName        = "AutoStockpileLocateGoods"
-	goodsPriceNodeName         = "AutoStockpileGetGoodsPrice"
+	selectedGoodsClickNodeName    = "AutoStockpileSelectedGoodsClick"
+	swipeSpecificQuantityNodeName = "AutoStockpileSwipeSpecificQuantity"
+	selectedGoodsClickResetY      = 180
+	findMarketMarkNodeName        = "AutoStockpileFindMarketMark"
+	overflowNodeName              = "AutoStockpileCheckOverflow"
+	overflowDetailNodeName        = "AutoStockpileGetOverflowDetail"
+	locateGoodsNodeName           = "AutoStockpileLocateGoods"
+	goodsPriceNodeName            = "AutoStockpileGetGoodsPrice"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
 	MAX_DISTANCE = 120
 )
@@ -80,14 +81,28 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("failed to run overflow color match")
 	}
 
+	overflowAmount := 0
 	if overflowDetected {
 		if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
+			overflowAmount = cur + plus - max
 			log.Info().
 				Str("component", autoStockpileComponent).
 				Int("overflow_current", cur).
 				Int("overflow_max", max).
 				Int("overflow_plus", plus).
+				Int("overflow_amount", overflowAmount).
 				Msg("overflow detail parsed")
+
+			if overflowAmount > 0 {
+				if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
+					log.Warn().
+						Err(err).
+						Str("component", autoStockpileComponent).
+						Str("node", swipeSpecificQuantityNodeName).
+						Int("overflow_amount", overflowAmount).
+						Msg("failed to override swipe specific quantity target")
+				}
+			}
 		}
 	}
 
@@ -276,9 +291,10 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Msg("goods-price binding finished")
 
 	resultPayload := RecognitionResult{
-		Overflow: overflowDetected,
-		Sunday:   time.Now().Weekday() == time.Sunday,
-		Goods:    resultGoods,
+		Overflow:       overflowDetected,
+		OverflowAmount: overflowAmount,
+		Sunday:         time.Now().Weekday() == time.Sunday,
+		Goods:          resultGoods,
 	}
 
 	resultDetail, err := json.Marshal(resultPayload)
@@ -369,6 +385,76 @@ func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max i
 	}
 
 	return current, max, plus, current > 0 || max > 0 || plus > 0
+}
+
+func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	customActionParam, err := loadSwipeSpecificQuantityCustomActionParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	return ctx.OverridePipeline(map[string]any{
+		swipeSpecificQuantityNodeName: buildSwipeSpecificQuantityTargetOverride(customActionParam, overflowAmount),
+	})
+}
+
+func loadSwipeSpecificQuantityCustomActionParam(ctx *maa.Context) (map[string]any, error) {
+	raw, err := ctx.GetNodeJSON(swipeSpecificQuantityNodeName)
+	if err != nil {
+		return nil, err
+	}
+
+	var node struct {
+		Action struct {
+			Param struct {
+				CustomActionParam any `json:"custom_action_param"`
+			} `json:"param"`
+		} `json:"action"`
+	}
+	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+		return nil, err
+	}
+
+	return normalizeCustomActionParam(node.Action.Param.CustomActionParam)
+}
+
+func buildSwipeSpecificQuantityTargetOverride(customActionParam map[string]any, overflowAmount int) map[string]any {
+	clonedParam := make(map[string]any, len(customActionParam))
+	for key, item := range customActionParam {
+		clonedParam[key] = item
+	}
+	clonedParam["Target"] = overflowAmount
+
+	return map[string]any{
+		"action": map[string]any{
+			"param": map[string]any{
+				"custom_action_param": clonedParam,
+			},
+		},
+	}
+}
+
+func normalizeCustomActionParam(raw any) (map[string]any, error) {
+	switch value := raw.(type) {
+	case map[string]any:
+		cloned := make(map[string]any, len(value))
+		for key, item := range value {
+			cloned[key] = item
+		}
+		return cloned, nil
+	case string:
+		var nested any
+		if err := json.Unmarshal([]byte(value), &nested); err != nil {
+			return nil, err
+		}
+		return normalizeCustomActionParam(nested)
+	default:
+		return nil, fmt.Errorf("unsupported custom_action_param type %T", raw)
+	}
 }
 
 func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {

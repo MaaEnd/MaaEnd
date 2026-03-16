@@ -45,7 +45,7 @@
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 80, "post_delay": 0, "rate_limit": 0, "next": [
+                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 200, "post_delay": 0, "rate_limit": 0, "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]},
@@ -60,6 +60,7 @@
                     "AutoStockpile/ElasticGoodsButton.png",
                     "AutoStockpile/ElasticGoodsButtonSelected.png"
                 ], "threshold": [0.8]}},
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "action": {"type": "Click", "param": {"target_offset": [
                     20,
@@ -143,6 +144,7 @@
     },
     "AutoStockpileSwipeMax": {
         "desc": "选择最大购买数量",
+        "enabled": false,
         "pre_delay": 0,
         "action": {"type": "Swipe", "param": {"begin": [
                     646,
@@ -161,7 +163,6 @@
         "next": ["AutoStockpileRelayNode"]
     },
     "AutoStockpileRelayNode": {"pre_delay": 0, "post_delay": 0, "rate_limit": 0, "next": ["AutoStockpileBuy"]},
-    "AutoStockpileSwipeSpecificQuantity": {"enabled": false, "pre_delay": 0, "post_delay": 0, "rate_limit": 0},
     "AutoStockpileDevSkipSwipe": {
         "desc": "开发时启用，跳过选择数量",
         "enabled": false,
@@ -217,8 +218,8 @@
         "next": [
             "AutoStockpileCheckQuota",
             "AutoStockpileDevSkipSwipe",
-            "AutoStockpileSwipeSpecificQuantity",
-            "AutoStockpileSwipeMax"
+            "AutoStockpileSwipeMax",
+            "AutoStockpileSwipeSpecificQuantity"
         ]
     },
     "AutoStockpileCheckQuota": {"recognition": {"type": "ColorMatch", "param": {"roi": [
@@ -234,5 +235,29 @@
                         179,
                         160,
                         230
-                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "可购买数量不足，取消购买"}}
+                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "可购买数量不足，取消购买"}},
+    "AutoStockpileSwipeSpecificQuantity": {
+        "desc": "滑动到指定数值",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {"custom_action": "QuantizedSliding", "custom_action_param": {"DecreaseButton": [
+                        483,
+                        523
+                    ], "Direction": "right", "IncreaseButton": [
+                        742,
+                        525
+                    ], "QuantityBox": [
+                        360,
+                        490,
+                        110,
+                        70
+                    ], "Target": 1}}
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["AutoStockpileRelayNode"],
+        "focus": {"Node.Action.Failed": "定量滑动失败，取消购买"}
+    }
 }
