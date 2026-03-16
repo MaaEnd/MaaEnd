@@ -9,7 +9,7 @@
         "rate_limit": 0,
         "next": ["AutoStockpileCheckBuyResult"]
     },
-    "AutoStockpileSkipSkipReigon": {
+    "AutoStockpileSkipSkipRegion": {
         "desc": "在这里处理没有解锁物资调度",
         "pre_delay": 0,
         "post_delay": 0,
@@ -116,16 +116,16 @@
         "pre_delay": 0,
         "action": {
             "type": "Custom",
-            "param": {"custom_action": "SubTask", "custom_action_param": {"sub": ["AutoStockpileChangeReigonTask"]}}
+            "param": {"custom_action": "SubTask", "custom_action_param": {"sub": ["AutoStockpileChangeRegionTask"]}}
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoStockpilerEnterStore",
-            "AutoStockpileSkipSkipReigon"
+            "AutoStockpileSkipSkipRegion"
         ]
     },
-    "AutoStockpileChangeReigonTask": {
+    "AutoStockpileChangeRegionTask": {
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
