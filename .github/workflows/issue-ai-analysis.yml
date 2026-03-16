@@ -51,7 +51,6 @@ jobs:
         run: |
           copilot --allow-all --no-ask-user \
           -- model gpt-5-mini \
-          # --model gpt-5.4 --reasoning-effort xhigh \
           --prompt "分析一下#${{ env.ISSUE_NUMBER }}" \
           >> $COPILOT_ANSWER
 
