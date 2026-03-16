@@ -46,7 +46,7 @@ jobs:
         run: |
           copilot --model gpt-5-mini \
             --prompt "分析一下#${{ steps.issue_number.outputs.issue_number }}" \
-            --allow-all --no-ask-user >> copilot_answer.md
+            --yolo >> copilot_answer.md
 
           cat copilot_answer.md
 
