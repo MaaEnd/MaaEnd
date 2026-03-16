@@ -56,10 +56,12 @@ jobs:
         run: npm install -g @github/copilot
 
       # 步骤 2：执行 AI 分析，并流式更新评论（固定时间间隔）
+      # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
       - name: Run Copilot analysis with streaming updates
         shell: bash
         env:
-          # Copilot 所需 token（Fine-grained token，需包含 Copilot 权限）
+          # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
+          # Personal access tokens (classic) 不行，只能是 Fine-grained token
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           # 用于更新评论的 token
           GITHUB_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
@@ -73,6 +75,7 @@ jobs:
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           # 启动 Copilot 后台进程，将输出重定向到文件（同时捕获错误输出）
+          # 这里用了 gpt-5.4-xhigh。免费模型不会调用工具和 skill（太笨），不建议用
           copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
             --prompt "分析一下 #${{ steps.issue_number.outputs.issue_number }}，将你的结论输出到 copilot_answer.md" > "$OUTPUT_FILE" 2>&1 &
           COPILOT_PID=$!
