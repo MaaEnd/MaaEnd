@@ -44,9 +44,8 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          copilot --model gpt-5.4 --reasoning-effort xhigh \
-            --prompt "分析一下#${{ steps.issue_number.outputs.issue_number }}" \
-            --yolo >> copilot_answer.md
+          copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
+            --prompt "分析一下 #${{ steps.issue_number.outputs.issue_number }}，将你的结论输出到 copilot_answer.md"
 
           cat copilot_answer.md
 
