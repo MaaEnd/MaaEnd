@@ -79,7 +79,7 @@ assets/resource/image/AutoStockpile/Goods/{Region}/{BaseName}.Tier{N}.png
 
 > [!NOTE]
 >
-> `agent/go-service/autostockpile/recognition.go` 当前会固定调用 `InitItemMap("zh_cn")`，因此商品名映射至少要维护 `zh_cn` 项，不能只加其他语言。
+> `agent/go-service/autostockpile` 会在注册阶段固定初始化 `InitItemMap("zh_cn")`，因此商品名映射至少要维护 `zh_cn` 项，不能只加其他语言。
 
 ## 添加商品
 

@@ -83,7 +83,7 @@ The UI text below is intentionally kept as the literal `zh_cn` text shown in the
 
 > [!NOTE]
 >
-> `agent/go-service/autostockpile/recognition.go` currently calls `InitItemMap("zh_cn")` unconditionally, so the `zh_cn` mapping must always be maintained. You cannot add only other languages.
+> `agent/go-service/autostockpile` initializes `InitItemMap("zh_cn")` during registration, so the `zh_cn` mapping must always be maintained. You cannot add only other languages.
 
 ## Adding items
 

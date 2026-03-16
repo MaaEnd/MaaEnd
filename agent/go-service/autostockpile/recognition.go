@@ -113,13 +113,6 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
-	if err := InitItemMap("zh_cn"); err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Msg("failed to init item map, OCR name matching disabled")
-	}
-
 	goodsROI := resolveGoodsRecognitionROI(ctx, arg.Img)
 	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img, goodsROI)
 	if err != nil {
