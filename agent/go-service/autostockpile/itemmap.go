@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile/levenshtein"
 )
@@ -19,7 +20,10 @@ type ItemMap struct {
 	IDToName map[string]string
 }
 
-var cachedItemMap *ItemMap
+var (
+	cachedItemMap   *ItemMap
+	cachedItemMapMu sync.RWMutex
+)
 
 // LoadItemMap 从嵌入的 item_map.json 加载商品映射数据。
 // 参数 locale 指定语言区域（如 "zh_cn"）。
@@ -48,8 +52,22 @@ func LoadItemMap(locale string) (*ItemMap, error) {
 	}, nil
 }
 
-// InitItemMap 初始化并缓存 ItemMap，仅在首次调用时加载文件。
+// InitItemMap 初始化并缓存 ItemMap，仅在首次成功调用时加载文件。
 func InitItemMap(locale string) error {
+	cachedItemMapMu.RLock()
+	if cachedItemMap != nil {
+		cachedItemMapMu.RUnlock()
+		return nil
+	}
+	cachedItemMapMu.RUnlock()
+
+	cachedItemMapMu.Lock()
+	defer cachedItemMapMu.Unlock()
+
+	if cachedItemMap != nil {
+		return nil
+	}
+
 	itemMap, err := LoadItemMap(locale)
 	if err != nil {
 		return err
@@ -60,6 +78,9 @@ func InitItemMap(locale string) error {
 
 // GetItemMap 返回缓存的 ItemMap，若未初始化则返回空映射。
 func GetItemMap() *ItemMap {
+	cachedItemMapMu.RLock()
+	defer cachedItemMapMu.RUnlock()
+
 	if cachedItemMap == nil {
 		return &ItemMap{
 			NameToID: make(map[string]string),
