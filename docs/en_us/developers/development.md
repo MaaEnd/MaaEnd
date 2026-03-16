@@ -105,6 +105,7 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
 - [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
 - [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
+- [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
 - [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
 
 ## Code Specifications
