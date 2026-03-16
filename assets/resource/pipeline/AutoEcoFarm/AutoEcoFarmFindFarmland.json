@@ -169,7 +169,7 @@
                 "roi": [
                     649,
                     225,
-                    515,
+                    631,
                     399
                 ],
                 "expected": [
@@ -244,7 +244,7 @@
                 "roi": [
                     649,
                     225,
-                    515,
+                    631,
                     399
                 ],
                 "expected": [
@@ -270,6 +270,22 @@
         "next": [
             "_AutoEcoFarmFindValleyIVEcoFarm"
         ]
+    },
+    "_AutoEcoFarmFindFarmland": {
+        "desc": "给custom调用的识别节点，全屏识别农田",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "order_by": "Horizontal"
+            }
+        }
     },
     "_AutoEcoFarmPullWulinEcoFarmToCenter": {
         "desc": "将“实验作物试点”拉到屏幕中间",
