@@ -48,8 +48,10 @@ jobs:
             --prompt "分析一下#${{ steps.issue_number.outputs.issue_number }}" \
             --allow-all --no-ask-user >> copilot_answer.md
 
+          cat copilot_answer.md
+
       - name: Create Comment
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@main
         with:
           issue-number: ${{ steps.issue_number.outputs.issue_number }}
           body-path: copilot_answer.md
