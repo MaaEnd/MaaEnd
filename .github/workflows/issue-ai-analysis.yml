@@ -135,17 +135,11 @@ jobs:
             fi
           done
 
-      - shell: bash
+      - name: Full Analysis (完整分析结果)
+        shell: bash
         run: |
-          echo "cat copilot_output.log"
-          echo "---"
-          echo ""
           cat copilot_output.log
-
           echo ""
-          echo "---"
-          
-          echo "cat copilot_answer.md"
           echo "---"
           echo ""
           cat copilot_answer.md
