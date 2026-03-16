@@ -86,6 +86,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 		if debugmode {
 			maafocus.NodeActionStarting(ctx, "读取初始节点失败")
 		}
+		return nil, false
 	}
 
 	minX = result1.Box.X()
