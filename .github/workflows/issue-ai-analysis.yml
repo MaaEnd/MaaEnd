@@ -50,8 +50,13 @@ jobs:
         uses: peter-evans/create-or-update-comment@main
         with:
           issue-number: ${{ steps.issue_number.outputs.issue_number }}
-          body: ${{ env.INITIAL_BODY }}
           token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          body: |
+            ${{ env.INITIAL_BODY }}
+            
+            ---
+            
+            ${{ env.ACTION_LINK }}
 
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
@@ -59,6 +64,7 @@ jobs:
       # 步骤 2：执行 AI 分析，并流式更新评论（固定时间间隔）
       # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
       - name: Run Copilot analysis with streaming updates
+        if: false
         shell: bash
         env:
           # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
@@ -87,12 +93,12 @@ jobs:
 
           # 循环检查，直到 Copilot 进程结束
           while true; do
-            # 启动一个后台 sleep 60 进程
+            # 启动一个后台 sleep 进程
             sleep 30 &
             sleep_pid=$!
         
             # 等待两个进程中的任意一个结束
-            # - 如果 sleep 先结束，表示 60 秒已到，需要执行 curl
+            # - 如果 sleep 先结束，表示 30 秒已到，需要执行 curl
             # - 如果 COPILOT_PID 先结束，表示监控进程已退出，循环结束
             wait -n $COPILOT_PID $sleep_pid 2>/dev/null
             wait_ret=$?
