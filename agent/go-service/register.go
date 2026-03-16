@@ -14,6 +14,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/quantizedsliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/subtask"
 	"github.com/rs/zerolog/log"
@@ -33,6 +34,7 @@ func registerAll() {
 	charactercontroller.Register()
 	resell.Register()
 	puzzle.Register()
+	quantizedsliding.Register()
 	essencefilter.Register()
 	dailyrewards.Register()
 	maptracker.Register()
