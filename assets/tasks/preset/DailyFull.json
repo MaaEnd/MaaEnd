@@ -16,7 +16,7 @@
                     "option": {
                         "AutoStartExchange": "Yes",
                         "ProductionAssistanceWithoutTheControlNexus": "No",
-                        "ClueStockLimit": "3"
+                        "ClueStockLimit": "2"
                     }
                 },
                 {

@@ -1,0 +1,59 @@
+{
+    "RegionalDevelopmentButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "大世界中的地区建设按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            164,
+            3,
+            232,
+            84
+        ],
+        "template": "Common/Button/RegionalDevelopmentButton.png",
+        "threshold": 0.8,
+        "next": [
+            "AltClickRegionalDevelopmentButtonKeyDown"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonKeyDown": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（按住 Alt 键）",
+        "action": "KeyDown",
+        "key": 164, // 0xA4	Left Alt key
+        "next": [
+            "AltClickRegionalDevelopmentButtonClick"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonClick": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（单击）",
+        "action": "Click",
+        "target": "RegionalDevelopmentButton",
+        "next": [
+            "AltClickRegionalDevelopmentButtonKeyUp"
+        ]
+    },
+    "AltClickRegionalDevelopmentButtonKeyUp": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "使用 Alt + 点击大世界中的地区建设按钮（释放 Alt 键）",
+        "action": "KeyUp",
+        "key": 164, // 0xA4	Left Alt key
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}

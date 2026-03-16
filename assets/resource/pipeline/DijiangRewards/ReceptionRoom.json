@@ -71,6 +71,20 @@
             "ReceptionRoom"
         ]
     },
+    "EndExchangeJBC": {
+        "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": "Click"
+    },
     "ReceptionRoom": {
         "desc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
         "recognition": {
@@ -164,7 +178,8 @@
             "timeout": 1000
         },
         "next": [
-            "ReceiveAll"
+            "ReceiveAll",
+            "EndExchange"
         ]
     },
     "ReceiveAll": {
@@ -207,7 +222,8 @@
         },
         "next": [
             "SendClues",
-            "Collect"
+            "Collect",
+            "EndExchange"
         ]
     },
     "SendClues": {
@@ -440,7 +456,8 @@
         "next": [
             "ReadySetClues",
             "EndExchange",
-            "WhiteConfirmButtonType2"
+            "WhiteConfirmButtonType2",
+            "EndExchangeJBC"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "放置线索失败"

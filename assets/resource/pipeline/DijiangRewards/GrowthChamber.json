@@ -543,7 +543,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80
+        }
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
@@ -552,10 +555,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    59,
-                    343,
-                    287,
-                    291
+                    89,
+                    380,
+                    300,
+                    158
                 ],
                 "expected": [
                     "基核数量",
@@ -581,7 +584,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 120
+                "dy": -120
             }
         },
         "post_delay": 0,

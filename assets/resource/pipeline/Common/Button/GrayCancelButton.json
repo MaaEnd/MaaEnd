@@ -1,0 +1,91 @@
+{
+    // 灰色取消按钮。
+    // 先用灰色背景锁定候选框，再对子图标按常态 -> 悬停态顺序短路匹配，最终以背景框作为点击目标。
+    "GrayCancelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "灰色取消按钮：灰底 X 标志，以灰色背景框作为点击目标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrayButtonBackground",
+                    "__GrayCancelButtonIcon"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    "__GrayCancelButtonIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "灰色取消按钮图标聚合节点，按稳定态优先短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__GrayCancelButtonType2Icon",
+                    "__GrayCancelButtonType2HoverIcon"
+                ]
+            }
+        }
+    },
+    "__GrayCancelButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "灰色取消按钮常态图标，在灰色背景框附近优先匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GrayButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__GrayCancelButtonType2HoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "灰色取消按钮悬停态图标，在常态未命中时作为回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GrayButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

@@ -1,0 +1,83 @@
+{
+    // 黄色确认按钮类型2。
+    // 主节点先拿黄色背景框，再对子图标执行短路优先识别；图标一旦命中，就不再继续尝试后续图标节点。
+    "YellowConfirmButtonType2": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "黄色确认按钮类型2：黄色底，对号标志，以背景框作为点击目标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowButtonBackground",
+                    "__YellowConfirmButtonType2Icon"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    // 类型2图标聚合节点。
+    // 按 stable -> hover 的顺序短路匹配，优先命中常态图标。
+    "__YellowConfirmButtonType2Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "黄色确认按钮类型2图标聚合节点，按稳定态优先短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__YellowConfirmButtonType2IconStable",
+                    "__YellowConfirmButtonType2IconHover"
+                ]
+            }
+        }
+    },
+    // 稳定态模板识别节点。
+    "__YellowConfirmButtonType2IconStable": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "黄色确认按钮类型2稳定态图标，在黄色背景框内匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    // 悬停态模板识别节点，仅在稳定态未命中时继续尝试。
+    "__YellowConfirmButtonType2IconHover": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "黄色确认按钮类型2悬停态图标，在稳定态未命中时作为回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "YellowButtonBackground",
+                "template": [
+                    "Common/Button/YellowConfirmButtonType2Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

@@ -57,6 +57,7 @@ class RouteEditorApp:
         self.raw_points: list[PathPoint] = []
         self.points: list[PathPoint] = []
         self.density_val = tk.IntVar(value=50)
+        self.disable_optimization_var = tk.BooleanVar(value=False)
         self.strict_var = tk.BooleanVar(value=False)
         self.action_chain_var = tk.StringVar(value="Run")
         self.locator_debug_var = tk.StringVar(value="Locator: --")
@@ -168,6 +169,17 @@ class RouteEditorApp:
         )
         self.slider_density.pack(side=tk.LEFT)
 
+        self.disable_optimization_check = tk.Checkbutton(
+            density_frame,
+            text="禁优化",
+            variable=self.disable_optimization_var,
+            onvalue=True,
+            offvalue=False,
+            font=("Microsoft YaHei", 9),
+            command=self._on_optimization_mode_changed,
+        )
+        self.disable_optimization_check.pack(side=tk.LEFT, padx=(6, 0))
+
         secondary_row = tk.Frame(toolbar_frame)
         secondary_row.pack(fill=tk.X, pady=(4, 0))
 
@@ -253,6 +265,12 @@ class RouteEditorApp:
 
     def _set_locator_debug(self, text: str) -> None:
         self.locator_debug_var.set(text)
+
+    def _on_optimization_mode_changed(self) -> None:
+        slider_state = tk.DISABLED if self.disable_optimization_var.get() else tk.NORMAL
+        self.slider_density.config(state=slider_state)
+        if self.raw_points:
+            self.reprocess_points()
 
     def _refresh_zone_label(self) -> None:
         self.zone_label.config(text=self._compact_zone_label_text(self.zone_state.label_text()))
@@ -584,7 +602,10 @@ class RouteEditorApp:
         if not self.recording_service:
             return
         self.recording_service.stop()
-        self._set_status("正在停止录制并优化路径点...", "#f59e0b")
+        if self.disable_optimization_var.get():
+            self._set_status("正在停止录制并输出完整路径点...", "#f59e0b")
+        else:
+            self._set_status("正在停止录制并优化路径点...", "#f59e0b")
         self.btn_stop.config(state=tk.DISABLED)
 
     def _on_recording_finished(self, raw_path: list[PathPoint]) -> None:
@@ -600,7 +621,10 @@ class RouteEditorApp:
     def reprocess_points(self) -> None:
         if not self.raw_points:
             return
-        self.points = simplify_path(self.raw_points, self.density_val.get())
+        if self.disable_optimization_var.get():
+            self.points = normalize_path_points(self.raw_points)
+        else:
+            self.points = simplify_path(self.raw_points, self.density_val.get())
         self.history.clear()
         self._clear_selection()
         self._reset_point_property_controls()

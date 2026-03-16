@@ -1,0 +1,28 @@
+{
+    "EnterCameraModeButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "进入拍照按钮，位于大世界右侧界面",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1118,
+            207,
+            158,
+            212
+        ],
+        "template": "Common/Button/EnterCameraModeButton.png",
+        "threshold": 0.9,
+        "action": "ClickKey",
+        "key": 82, // R 0x52
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    }
+}

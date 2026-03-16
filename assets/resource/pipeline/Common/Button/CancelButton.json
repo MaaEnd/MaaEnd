@@ -1,0 +1,139 @@
+{
+    // 白色取消按钮。
+    // 先用白色背景锁定候选框，再在该框附近对子图标按顺序短路匹配，最终以背景框作为点击目标。
+    "CancelButton": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮：白底 X 标志，以白色背景框作为点击目标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteButtonBackground",
+                    "__CancelButtonIcon"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        }
+    },
+    // 取消按钮图标聚合节点。
+    // 顺序即优先级：任一子节点命中后停止继续尝试。
+    "__CancelButtonIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮图标聚合节点，按图标变体顺序短路匹配",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__CancelButtonType1Icon",
+                    "__CancelButtonType1HoverIcon",
+                    "__CancelButtonType1LineIcon",
+                    "__CancelButtonType1LineHoverIcon"
+                ]
+            }
+        }
+    },
+    "__CancelButtonType1Icon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮常态图标，在白色背景框附近优先匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1HoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮悬停态图标，在常态未命中时回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1Hover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1LineIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮细线变体常态图标，在前两种未命中时继续匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1Line.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    },
+    "__CancelButtonType1LineHoverIcon": {
+        "rate_limit": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "desc": "白色取消按钮细线变体悬停态图标，作为该组最后的回退匹配",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "WhiteButtonBackground",
+                "roi_offset": [
+                    -20,
+                    -20,
+                    60,
+                    40
+                ],
+                "template": [
+                    "Common/Button/CancelButtonType1LineHover.png"
+                ],
+                "threshold": 0.9
+            }
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "configs": {
+        "name": "通用按钮，测试传送按钮",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "传送.png",
+            "hits": [
+                "TeleportButton"
+            ]
+        }
+    ]
+}
