@@ -204,5 +204,19 @@
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStep1Anchor",
             "[JumpBack][Anchor]__ScenePrivateMapSwipeToStepFinishAnchor"
         ]
+    },
+    "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick": {
+        "desc": "在武陵-武陵城地图界面，进入[锚点]大世界",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapTeleportSuccess",
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+        ]
     }
 }

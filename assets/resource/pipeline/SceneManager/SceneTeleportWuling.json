@@ -2044,5 +2044,41 @@
         "next": [
             "__ScenePrivateMapTeleportConfirmWithSwipeAnchorClear"
         ]
+    },
+    "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley11Try0": {
+        "desc": "在地图界面找锚点",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+        },
+        "action": "Custom",
+        "custom_action": "MapTrackerBigMapPick",
+        "custom_action_param": {
+            "map_name": "map02_lv002",
+            "target": [
+                694,
+                914
+            ],
+            "on_find": "Click",
+            "disable_auto_open_map": true
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                -100,
+                300,
+                100,
+                300
+            ]
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm"
+        ]
     }
 }
