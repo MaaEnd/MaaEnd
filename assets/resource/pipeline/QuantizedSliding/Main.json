@@ -1,52 +1,54 @@
 {
     "QuantizedSlidingFindStart": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "识别滑动起点，存入go",
         "recognition": {"type": "And", "param": {"all_of": ["QuantizedSlidingSwipeButton"]}},
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingSwipeToMax"]
     },
     "QuantizedSlidingMain": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "在这里清除状态，保证不被之前的任务影响",
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingFindStart"]
     },
     "QuantizedSlidingFindEnd": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "识别滑动终点，交由go计算出精确点击位置",
         "recognition": {"type": "And", "param": {"all_of": ["QuantizedSlidingSwipeButton"]}},
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingPreciseClick"]
     },
     "QuantizedSlidingGetMaxQuantity": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "识别最大可选数量，存入go，如果小于target，会在此处action返回false",
         "recognition": {"type": "And", "param": {"all_of": ["QuantizedSlidingGetQuantity"]}},
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingFindEnd"]
     },
     "QuantizedSlidingPreciseClick": {
-        "rate_limit": 0,
+        "desc": "x, y精确点击",
         "pre_delay": 0,
-        "post_delay": 0,
-        "desc": "x, y精确点击", "action": {"type": "Click", "param": {"target": [
+        "action": {"type": "Click", "param": {"target": [
                     0,
                     0
-                ]}}, "post_wait_freezes": 80, "next": ["QuantizedSlidingClearMaxHit"]},
-    "QuantizedSlidingClearMaxHit": {
-        "rate_limit": 0,
-        "pre_delay": 0,
+                ]}},
+        "post_wait_freezes": 80,
         "post_delay": 0,
+        "rate_limit": 0,
+        "next": ["QuantizedSlidingClearMaxHit"]
+    },
+    "QuantizedSlidingClearMaxHit": {
         "desc": "清空节点MaxHit",
+        "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
@@ -54,27 +56,30 @@
                 "custom_action_param": {"nodes": ["QuantizedSlidingCheckQuantity"]}
             }
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingJumpBackNode"]
     },
     "QuantizedSlidingJumpBackNode": {
-        "rate_limit": 0,
+        "desc": "返回节点",
         "pre_delay": 0,
         "post_delay": 0,
-        "desc": "返回节点", "next": [
+        "rate_limit": 0,
+        "next": [
             "QuantizedSlidingCheckQuantity",
             "QuantizedSlidingFail"
-        ]},
+        ]
+    },
     "QuantizedSlidingFail": {
-        "rate_limit": 0,
+        "desc": "如果路由至此，则说明微调失败（超过次数）",
         "pre_delay": 0,
         "post_delay": 0,
-        "desc": "如果路由至此，则说明微调失败（超过次数）"},
+        "rate_limit": 0
+    },
     "QuantizedSlidingDecreaseQuantity": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "desc": "增加数量",
+        "desc": "减少数量",
         "enabled": false,
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {"target": [
                     0,
                     0,
@@ -83,41 +88,43 @@
                 ]}},
         "repeat": 1,
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingJumpBackNode"]
     },
     "QuantizedSlidingDone": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "数量与Target一致，成功咯~",
         "enabled": false,
-        "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}}
+        "pre_delay": 0,
+        "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "QuantizedSlidingSwipeButton": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "用于定位滑动按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {"template": ["QuantizedSliding/SwipeButton.png"], "green_mask": true}
-        }
-    },
-    "QuantizedSlidingGetQuantity": {
-        "rate_limit": 0,
+        },
         "pre_delay": 0,
         "post_delay": 0,
-        "desc": "识别当前选择的数量", "recognition": {"type": "OCR", "param": {"roi": [
+        "rate_limit": 0
+    },
+    "QuantizedSlidingGetQuantity": {
+        "desc": "识别当前选择的数量",
+        "recognition": {"type": "OCR", "param": {"roi": [
                     0,
                     0,
                     0,
                     0
-                ], "expected": ["\\d+"]}}},
-    "QuantizedSlidingSwipeToMax": {
-        "rate_limit": 0,
+                ], "expected": ["\\d+"]}},
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "QuantizedSlidingSwipeToMax": {
         "desc": "滑动到最大",
+        "pre_delay": 0,
         "action": {
             "type": "Swipe",
             "param": {"begin": "QuantizedSlidingFindStart", "end": ["QuantizedSlidingFindStart"], "end_offset": [[
@@ -128,16 +135,18 @@
                     ]]}
         },
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingGetMaxQuantity"]
     },
     "QuantizedSlidingCheckQuantity": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "识别当前数量，交由go选择分支",
         "max_hit": 4,
         "recognition": {"type": "And", "param": {"all_of": ["QuantizedSlidingGetQuantity"]}},
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "QuantizedSliding"}},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "QuantizedSlidingDone",
             "QuantizedSlidingIncreaseQuantity",
@@ -145,11 +154,9 @@
         ]
     },
     "QuantizedSlidingIncreaseQuantity": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "增加数量",
         "enabled": false,
+        "pre_delay": 0,
         "action": {"type": "Click", "param": {"target": [
                     0,
                     0,
@@ -158,6 +165,8 @@
                 ]}},
         "repeat": 1,
         "post_wait_freezes": 80,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["QuantizedSlidingJumpBackNode"]
     }
 }
