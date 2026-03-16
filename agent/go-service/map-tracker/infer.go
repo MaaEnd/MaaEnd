@@ -567,13 +567,13 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	stableConvincedMapName := globalInferState.convinced.mapName
 	stableLocX := globalInferState.convinced.x
 	stableLocY := globalInferState.convinced.y
+	isInTime := globalInferState.convinced.mapName != "" &&
+		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
+		globalInferState.pendingHitCount == 0
 
 	globalInferState.mu.Unlock()
 
 	isStable := func() bool {
-		isInTime := globalInferState.convinced.mapName != "" &&
-			(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
-			globalInferState.pendingHitCount == 0
 		if !isInTime {
 			return false
 		}

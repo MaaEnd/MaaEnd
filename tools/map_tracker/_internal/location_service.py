@@ -28,7 +28,7 @@ def unique_map_key(name: str) -> str:
 
 
 class LocationRecord(NamedTuple):
-    MapName: str
+    map_name: str
     x: float
     y: float
     timestamp: float
@@ -94,8 +94,6 @@ class LocationService:
             return None
         if not isinstance(data_obj, dict):
             return None
-        if not any(kw in line for kw in self.MESSAGE_KEYWORDS):
-            return None
 
         log_map_name = data_obj.get("MapName")
         x = data_obj.get("X")
@@ -120,7 +118,7 @@ class LocationService:
             return None
 
         return LocationRecord(
-            MapName=str(log_map_name), x=x, y=y, timestamp=ts, raw=data_obj
+            map_name=str(log_map_name), x=x, y=y, timestamp=ts, raw=data_obj
         )
 
     def get_locations(
@@ -163,7 +161,7 @@ class LocationService:
                     record = self._parse_location_line(line)
                     if record is None:
                         continue
-                    if not self._is_map_match(record.MapName, expected_map_name):
+                    if not self._is_map_match(record.map_name, expected_map_name):
                         continue
                     if record.timestamp < start_time:
                         continue

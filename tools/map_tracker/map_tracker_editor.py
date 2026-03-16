@@ -196,7 +196,7 @@ class PathEditPage(BasePage):
             raise ValueError(f"Cannot load map: {self.map_name}")
 
         self._main_img = self.img.copy()
-        self._main_dim_img = self._main_img / 4
+        self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
         self.view = ViewportManager(
             self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
         )
@@ -440,8 +440,8 @@ class PathEditPage(BasePage):
             ts = loc.timestamp
             if ts < self._recording_last_ts:
                 continue
-            if loc.MapName:
-                self._sync_tier_by_log_map(loc.MapName)
+            if loc.map_name:
+                self._sync_tier_by_log_map(loc.map_name)
 
             x = loc.x
             y = loc.y
