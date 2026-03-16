@@ -39,6 +39,16 @@
         }
     },
     "SwipeChooseSortBy": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    109,
+                    386,
+                    356,
+                    189
+                ]
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
