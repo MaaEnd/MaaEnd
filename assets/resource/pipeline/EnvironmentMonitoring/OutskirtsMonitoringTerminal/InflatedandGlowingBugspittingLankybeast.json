@@ -159,20 +159,21 @@
     "GoToInflatedAndGlowingBugspittingLankybeast": {
         "desc": "前往肚子鼓气后发光的吐虫长股兽",
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeastStartPos"
+            "GoToInflatedAndGlowingBugspittingLankybeastStartPos",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley7"
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastStartPos": {
-        "desc": "在肚子鼓气后发光的吐虫长股兽任务开始位置附近，TODO: 请填写 target",
+        "desc": "在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "TODO_FILL_MAP_NAME",
+                    "map_name": "map02_lv001",
                     "target": [
-                        0,
-                        0,
+                        280,
+                        580,
                         15,
                         15
                     ]
@@ -184,12 +185,37 @@
         ]
     },
     "GoToInflatedAndGlowingBugspittingLankybeastMapTrackerMove": {
-        "desc": "前往肚子鼓气后发光的吐虫长股兽，TODO: 请填写 path",
+        "desc": "前往肚子鼓气后发光的吐虫长股兽",
         "action": "Custom",
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
-            "map_name": "TODO_FILL_MAP_NAME",
-            "path": []
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    290.5,
+                    585.0
+                ],
+                [
+                    300.4,
+                    575.0
+                ],
+                [
+                    303.0,
+                    562.5
+                ],
+                [
+                    303.7,
+                    548.6
+                ],
+                [
+                    297.9,
+                    545.0
+                ],
+                [
+                    287.9,
+                    546.3
+                ]
+            ]
         },
         "anchor": {
             "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
@@ -200,7 +226,7 @@
         ]
     },
     "InflatedAndGlowingBugspittingLankybeastAdjustCamera": {
-        "desc": "肚子鼓气后发光的吐虫长股兽任务中调整朝向，TODO: 请按实际拍照朝向修改",
+        "desc": "肚子鼓气后发光的吐虫长股兽任务中调整朝向",
         "max_hit": 2,
         "next": [
             "EnvironmentMonitoringSwipeScreenUp"
