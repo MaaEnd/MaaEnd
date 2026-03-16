@@ -22,8 +22,6 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') && 
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
-    env:
-      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,31 +29,28 @@ jobs:
         run: npm install -g @github/copilot
 
       - name: Determine issue number
-        id: number
+        id: issue_number
         run: |
           if [[ "${{ github.event_name }}" == "issues" ]] || [[ "${{ github.event_name }}" == "issue_comment" ]]; then
-            echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+            echo "issue_number=${{ github.event.issue.number }}" | tee -a "$GITHUB_OUTPUT"
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "ISSUE_NUMBER=${{ github.event.inputs.issue_number }}" >> $GITHUB_ENV
+            echo "issue_number=${{ github.event.inputs.issue_number }}" | tee -a "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi
 
-      - name: Request AI analysis
+      - name: AI analysis
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
           copilot -- model gpt-5-mini \
-          --prompt "分析一下#${{ env.ISSUE_NUMBER }}" \
-          --allow-all --no-ask-user >> $COPILOT_ANSWER
-
-          echo "COPILOT_ANSWER=$COPILOT_ANSWER" >> $GITHUB_ENV
+            --prompt "分析一下#${{ steps.issue_number.outputs.issue_number }}" \
+            --allow-all --no-ask-user >> copilot_answer.md
 
       - name: Create Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ env.ISSUE_NUMBER }}
-          body: ${{ env.COPILOT_ANSWER }}
+          issue-number: ${{ steps.issue_number.outputs.issue_number }}
+          body-path: copilot_answer.md
           token: ${{ secrets.GITHUB_TOKEN }}
