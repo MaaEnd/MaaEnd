@@ -11,7 +11,9 @@
                 "ClueSetting",
                 "SelectToGrow"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {

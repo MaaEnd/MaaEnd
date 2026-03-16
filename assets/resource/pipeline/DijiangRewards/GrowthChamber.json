@@ -543,7 +543,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "post_wait_freezes": {
+            "time": 80
+        }
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
