@@ -49,6 +49,8 @@ Optional parameters:
 
 - `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately.
 
+- `map_name_match_rule`: String, default `"^%s(_tier_\\w+)$"`. Used to generate `map_name_regex` for `MapTrackerInfer`. `%s` will be replaced by `map_name` (with regex escaping). The default rule matches map names like `map02_lv003_tier_xxx`.
+
 - `rotation_lower_threshold`: Real number between $(0, 180]$, default `7.5`. The direction angle deviation threshold for judging the need for fine-tuning the orientation, in degrees.
 
 - `rotation_upper_threshold`: Real number between $(0, 180]$, default `60.0`. The direction angle deviation threshold for judging the need for large-scale orientation adjustment. At this time, the player will slow down to adjust orientation.

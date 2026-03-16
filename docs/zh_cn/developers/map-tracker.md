@@ -49,6 +49,8 @@
 
 - `arrival_timeout`: 正整数，默认 `60000`。判断无法到达下一个目标点的时间阈值，单位是毫秒。超过这个时间还未到达下一个目标点，则寻路立即失败。
 
+- `map_name_match_rule`: 字符串，默认 `"^%s(_tier_\\w+)$"`。用于生成 `MapTrackerInfer` 的 `map_name_regex`。其中 `%s` 会被替换为 `map_name`（并自动做正则转义）。默认规则会匹配如 `map02_lv003_tier_xxx` 这样的地图名。
+
 - `rotation_lower_threshold`: 介于 $(0, 180]$ 的实数，默认 `7.5`。判断需要微调朝向的方向角偏离阈值，单位是度。
 
 - `rotation_upper_threshold`: 介于 $(0, 180]$ 的实数，默认 `60.0`。判断需要大幅调整朝向的方向角偏离阈值，单位是度。此时玩家将会使用更慢的速度转向。
