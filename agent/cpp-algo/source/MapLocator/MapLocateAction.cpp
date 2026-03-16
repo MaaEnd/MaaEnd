@@ -1,5 +1,4 @@
-#include <cmath>
-#include <cstring>
+#include <algorithm>
 #include <filesystem>
 #include <thread>
 #include <vector>
@@ -212,8 +211,8 @@ bool TryBuildAssertRect(const MapLocateAssertLocationParam& param, MaaRect* out_
 
     out_rect->x = static_cast<int>(std::lround(param.target[0]));
     out_rect->y = static_cast<int>(std::lround(param.target[1]));
-    out_rect->width = static_cast<int>(std::lround(width));
-    out_rect->height = static_cast<int>(std::lround(height));
+    out_rect->width = std::max(1, static_cast<int>(std::lround(width)));
+    out_rect->height = std::max(1, static_cast<int>(std::lround(height)));
     return true;
 }
 

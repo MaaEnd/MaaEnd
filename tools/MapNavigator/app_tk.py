@@ -294,8 +294,24 @@ class RouteEditorApp:
 
         self.root.bind_all("<Control-z>", lambda _event: self.undo())
         self.root.bind_all("<Control-y>", lambda _event: self.redo())
-        self.root.bind_all("<Delete>", lambda _event: self.delete_selected_point())
-        self.root.bind_all("<BackSpace>", lambda _event: self.delete_selected_point())
+        self.root.bind_all("<Delete>", self._on_delete_key)
+        self.root.bind_all("<BackSpace>", self._on_delete_key)
+
+    def _on_delete_key(self, event) -> None:
+        widget = event.widget.focus_get() if hasattr(event.widget, "focus_get") else None
+        if widget is None and hasattr(self.root, "focus_get"):
+            widget = self.root.focus_get()
+
+        text_like_types = [tk.Entry, tk.Text]
+        for ttk_widget_name in ("Entry", "Combobox", "Spinbox"):
+            ttk_widget_type = getattr(ttk, ttk_widget_name, None)
+            if ttk_widget_type is not None:
+                text_like_types.append(ttk_widget_type)
+
+        if isinstance(widget, tuple(text_like_types)):
+            return
+
+        self.delete_selected_point()
 
     def _set_status(self, text: str, color: str) -> None:
         self.status_label.config(text=text, fg=color)
