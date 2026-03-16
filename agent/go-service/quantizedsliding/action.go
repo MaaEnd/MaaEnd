@@ -33,13 +33,26 @@ type QuantizedSlidingAction struct {
 	Target         int
 	QuantityBox    []int
 	Direction      string
-	IncreaseButton []int
-	DecreaseButton []int
+	IncreaseButton buttonTarget
+	DecreaseButton buttonTarget
 
 	startBox    []int
 	endBox      []int
 	maxQuantity int
 	logger      zerolog.Logger
+}
+
+type buttonTarget struct {
+	coordinates []int
+	template    string
+}
+
+func (b buttonTarget) logValue() any {
+	if b.template != "" {
+		return b.template
+	}
+
+	return append([]int(nil), b.coordinates...)
 }
 
 var quantizedSlidingActionNodes = []string{
@@ -84,7 +97,7 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
-	increaseButton, err := normalizeButton(params.IncreaseButton)
+	increaseButton, err := normalizeButtonParam(params.IncreaseButton)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -92,7 +105,7 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
-	decreaseButton, err := normalizeButton(params.DecreaseButton)
+	decreaseButton, err := normalizeButtonParam(params.DecreaseButton)
 	if err != nil {
 		a.logger.Error().
 			Err(err).
@@ -110,8 +123,8 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		Int("target", a.Target).
 		Ints("quantity_box", a.QuantityBox).
 		Str("direction", a.Direction).
-		Ints("increase_button", a.IncreaseButton).
-		Ints("decrease_button", a.DecreaseButton).
+		Interface("increase_button", a.IncreaseButton.logValue()).
+		Interface("decrease_button", a.DecreaseButton.logValue()).
 		Msg("parsed custom action parameters")
 
 	switch arg.CurrentTaskName {
@@ -384,7 +397,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 
 	switch {
 	case currentQuantity == a.Target:
-		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride("QuantizedSlidingDone", nil, 0)); err != nil {
+		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride("QuantizedSlidingDone", buttonTarget{}, 0)); err != nil {
 			a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -413,7 +426,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 				Int("target", a.Target).
 				Int("diff", diff).
 				Int("repeat", repeat).
-				Ints("increase_button", a.IncreaseButton).
+				Interface("increase_button", a.IncreaseButton.logValue()).
 				Msg("failed to override increase quantity node")
 			return false
 		}
@@ -423,7 +436,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("target", a.Target).
 			Int("diff", diff).
 			Int("repeat", repeat).
-			Ints("button", a.IncreaseButton).
+			Interface("button", a.IncreaseButton.logValue()).
 			Str("next", "QuantizedSlidingIncreaseQuantity").
 			Msg("quantity below target, branch to increase")
 		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "QuantizedSlidingIncreaseQuantity"}}); err != nil {
@@ -441,7 +454,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 				Int("target", a.Target).
 				Int("diff", diff).
 				Int("repeat", repeat).
-				Ints("decrease_button", a.DecreaseButton).
+				Interface("decrease_button", a.DecreaseButton.logValue()).
 				Msg("failed to override decrease quantity node")
 			return false
 		}
@@ -451,7 +464,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("target", a.Target).
 			Int("diff", diff).
 			Int("repeat", repeat).
-			Ints("button", a.DecreaseButton).
+			Interface("button", a.DecreaseButton.logValue()).
 			Str("next", "QuantizedSlidingDecreaseQuantity").
 			Msg("quantity above target, branch to decrease")
 		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "QuantizedSlidingDecreaseQuantity"}}); err != nil {
@@ -462,7 +475,7 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 	}
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target []int, repeat int) map[string]any {
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
 	override := map[string]any{
 		"QuantizedSlidingDone": map[string]any{
 			"enabled": nextNode == "QuantizedSlidingDone",
@@ -481,17 +494,44 @@ func buildCheckQuantityBranchOverride(nextNode string, target []int, repeat int)
 
 	repeat = clampClickRepeat(repeat)
 
+	if target.template != "" {
+		override[nextNode] = buildTemplateMatchButtonOverride(target.template, repeat)
+		return override
+	}
+
 	override[nextNode] = map[string]any{
 		"enabled": true,
 		"action": map[string]any{
 			"param": map[string]any{
-				"target": append([]int(nil), target...),
+				"target": append([]int(nil), target.coordinates...),
 			},
 		},
 		"repeat": repeat,
 	}
 
 	return override
+}
+
+func buildTemplateMatchButtonOverride(template string, repeat int) map[string]any {
+	return map[string]any{
+		"enabled": true,
+		"recognition": map[string]any{
+			"type": "TemplateMatch",
+			"param": map[string]any{
+				"template":   []string{template},
+				"threshold":  []float64{0.8},
+				"green_mask": true,
+			},
+		},
+		"action": map[string]any{
+			"type": "Click",
+			"param": map[string]any{
+				"target":        true,
+				"target_offset": []int{5, 5, -5, -5},
+			},
+		},
+		"repeat": repeat,
+	}
 }
 
 func clampClickRepeat(repeat int) int {
@@ -616,6 +656,24 @@ func normalizeButton(btn any) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("button must be [x,y] or [x,y,w,h], got len=%d", len(numbers))
 	}
+}
+
+func normalizeButtonParam(btn any) (buttonTarget, error) {
+	if template, ok := btn.(string); ok {
+		template = strings.TrimSpace(template)
+		if template == "" {
+			return buttonTarget{}, fmt.Errorf("button template must not be empty")
+		}
+
+		return buttonTarget{template: template}, nil
+	}
+
+	coordinates, err := normalizeButton(btn)
+	if err != nil {
+		return buttonTarget{}, err
+	}
+
+	return buttonTarget{coordinates: coordinates}, nil
 }
 
 func normalizeIntSlice(raw any) ([]int, error) {
