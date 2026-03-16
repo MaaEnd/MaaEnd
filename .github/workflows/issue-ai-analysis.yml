@@ -16,8 +16,9 @@ env:
   # 初始评论内容（包含运行链接，仅出现一次）
   INITIAL_BODY: |
     🤖 **MaaEndBot 正在分析该 Issue...**  
-    感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。  
-    您可以在此查看进度：🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+    感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。
+  ACTION_LINK: |
+    🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
 jobs:
   copilot-analysis:
@@ -116,6 +117,8 @@ jobs:
                   echo "<details><summary>点击此处展开/折叠分析过程</summary>"
                   echo "$current_content"
                   echo "</details>"
+                  echo ""
+                  echo "${{ env.ACTION_LINK }}"
                 } > "$BODY_FILE"
 
                 # 使用 jq 构造 JSON 并通过 API 更新评论
@@ -157,11 +160,11 @@ jobs:
           echo "" >> final_comment.md
           echo "---" >> final_comment.md
           echo "" >> final_comment.md
-          echo "<details><summary>点击此处展开/折叠分析过程</summary>" >> final_comment.md
+          echo "<details><summary>点击此处展开分析过程</summary>" >> final_comment.md
           cat copilot_output.log >> final_comment.md
           echo "</details>" >> final_comment.md
           echo "" >> final_comment.md
-          echo "🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> final_comment.md
+          echo "${{ env.ACTION_LINK }}" >> final_comment.md
 
       # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
       - name: Update comment with analysis result
