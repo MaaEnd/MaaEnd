@@ -53,9 +53,7 @@ jobs:
           token: ${{ secrets.MAAEND_BOT_TOKEN }}
           body: |
             ${{ env.INITIAL_BODY }}
-            
             ---
-            
             ${{ env.ACTION_LINK }}
 
       - name: Install Copilot CLI
