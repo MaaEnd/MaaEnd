@@ -318,9 +318,10 @@ func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
 			"recognition": "ColorMatch",
 			"roi":         []int{43, 125, 641, 49},
 			"method":      40,
-			"lower":       [][]int{{23, 255, 255}},
+			"lower":       [][]int{{23, 240, 240}},
 			"upper":       [][]int{{35, 255, 255}},
 			"count":       500,
+			"connected":   true,
 		},
 	}
 

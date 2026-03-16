@@ -2,6 +2,7 @@
     "AutoStockpileBuy": {
         "desc": "进行购买操作",
         "recognition": {"type": "And", "param": {"all_of": ["YellowConfirmButtonType2"]}},
+        "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": {"type": "Click", "param": {}},
         "post_wait_freezes": 80,
@@ -45,9 +46,7 @@
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [
-                    0.8
-                ]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 200, "post_delay": 0, "rate_limit": 0, "next": [
+                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 200, "post_delay": 0, "rate_limit": 0, "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]},
@@ -118,6 +117,7 @@
             "type": "Custom",
             "param": {"custom_action": "SubTask", "custom_action_param": {"sub": ["AutoStockpileChangeRegionTask"]}}
         },
+        "post_wait_freezes": 100,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -140,6 +140,7 @@
                     24,
                     16
                 ]}},
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": ["AutoStockpileDecision"]
@@ -204,7 +205,7 @@
         "next": ["AutoStockpileMoveMouse"]
     },
     "AutoStockpileSelectedGoodsClick": {
-        "desc": "点击决策选中的商品",
+        "desc": "点击决策选中的商品 (tamplte为占位符图片)",
         "enabled": false,
         "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     50,
@@ -230,14 +231,14 @@
                     880,
                     79
                 ], "method": 40, "lower": [[
-                        175,
-                        120,
-                        190
+                        172,
+                        80,
+                        150
                     ]], "upper": [[
                         179,
-                        160,
-                        230
-                    ]], "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "可购买数量不足，取消购买"}},
+                        180,
+                        240
+                    ]], "connected": true, "count": 1000}}, "pre_delay": 0, "post_delay": 0, "rate_limit": 0, "focus": {"Node.Recognition.Succeeded": "可购买数量不足，取消购买"}},
     "AutoStockpileSwipeSpecificQuantity": {
         "desc": "滑动到指定数值",
         "enabled": false,
