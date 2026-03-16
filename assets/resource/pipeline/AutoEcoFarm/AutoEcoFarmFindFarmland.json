@@ -238,10 +238,26 @@
     "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
         "desc": "将生态园拉到屏幕中间",
         "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    649,
+                    225,
+                    515,
+                    399
+                ],
+                "expected": [
+                    "生|态|种|植",
+                    "生|態|種|植"
+                ],
+                "threshold": 0.7
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": "_AutoEcoFarmFindValleyIVEcoFarm",
+                "begin": true,
                 "end": [
                     640,
                     360,
@@ -258,10 +274,26 @@
     "_AutoEcoFarmPullWulinEcoFarmToCenter": {
         "desc": "将“实验作物试点”拉到屏幕中间",
         "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    237,
+                    98,
+                    671,
+                    373
+                ],
+                "expected": [
+                    "作|物|试|点",
+                    "作|物|測|試"
+                ],
+                "threshold": 0.7
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": "_AutoEcoFarmFindWulinEcoFarm",
+                "begin": true,
                 "end": [
                     640,
                     360,
@@ -273,34 +305,6 @@
         "post_wait_freezes": 200,
         "next": [
             "_AutoEcoFarmFindWulinEcoFarm"
-        ]
-    },
-    "_AutoEcoFarmFindFarmland": {
-        "desc": "全屏寻找农田,识别到了后点击",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
-                ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "order_by": "Horizontal"
-            }
-        },
-        "action": {
-            "type": "Click"
-        },
-        "next": [
-            "_AutoEcoFarmIsMrarking",
-            "[JumpBack]_AutoEcoFarmMutiSelection",
-            "_AutoEcoFarmAlreadySetTarget",
-            "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse",
-            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
         ]
     },
     "_AutoEcoFarmFindFarmlandCustom": {
