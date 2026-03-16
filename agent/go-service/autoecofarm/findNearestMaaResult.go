@@ -82,7 +82,7 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	//读取第一个结果为默认值
 	result1, isTemplateMatch := results[0].AsTemplateMatch()
 	if result1 == nil || isTemplateMatch == false {
-		log.Error().Err(err).Msg("读取初始节点失败")
+		log.Error().Msg("读取初始节点失败")
 		if debugmode {
 			maafocus.NodeActionStarting(ctx, "读取初始节点失败")
 		}
