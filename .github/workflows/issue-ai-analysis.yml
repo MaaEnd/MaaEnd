@@ -13,7 +13,7 @@ on:
         type: number
 
 jobs:
-  request-analysis:
+  copilot-analysis:
     if: |
       (github.event_name == 'issues' && github.event.action == 'opened') ||
       github.event_name == 'workflow_dispatch' ||
@@ -22,8 +22,6 @@ jobs:
        contains(github.event.comment.body, '@MaaEndBot') && 
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     env:
       COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
     steps:
@@ -43,20 +41,19 @@ jobs:
             echo "Unknown trigger" && exit 1
           fi
 
-      - name: Build full issue context and request AI analysis
+      - name: Request AI analysis
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          copilot --allow-all --no-ask-user \
-          -- model gpt-5-mini \
+          copilot -- model gpt-5-mini \
           --prompt "分析一下#${{ env.ISSUE_NUMBER }}" \
-          >> $COPILOT_ANSWER
+          --allow-all --no-ask-user >> $COPILOT_ANSWER
 
           echo "COPILOT_ANSWER=$COPILOT_ANSWER" >> $GITHUB_ENV
 
-      - name: Create or Update Comment
+      - name: Create Comment
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ env.ISSUE_NUMBER }}
