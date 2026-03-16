@@ -82,7 +82,24 @@ jobs:
           last_content=""
 
           # 循环检查，直到 Copilot 进程结束
-          while kill -0 $COPILOT_PID 2>/dev/null; do
+          while true; do
+            # 启动一个后台 sleep 60 进程
+            sleep 30 &
+            sleep_pid=$!
+        
+            # 等待两个进程中的任意一个结束
+            # - 如果 sleep 先结束，表示 60 秒已到，需要执行 curl
+            # - 如果 COPILOT_PID 先结束，表示监控进程已退出，循环结束
+            wait -n $COPILOT_PID $sleep_pid 2>/dev/null
+            wait_ret=$?
+        
+            # 检查哪个进程结束了
+            if ! kill -0 $COPILOT_PID 2>/dev/null; then
+                # 监控进程已结束，退出循环（清理后台 sleep 进程）
+                kill $sleep_pid 2>/dev/null
+                break
+            fi
+
             if [ -f "$OUTPUT_FILE" ]; then
               current_content=$(cat "$OUTPUT_FILE")
               # 只有当内容变化且非空时才更新评论
@@ -110,8 +127,6 @@ jobs:
                 echo "Comment updated at $(date)"
               fi
             fi
-            # 每隔 10 秒
-            sleep 10
           done
 
       - shell: bash
