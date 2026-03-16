@@ -16,7 +16,7 @@ env:
   # 初始评论内容（包含运行链接，仅出现一次）
   INITIAL_BODY: |
     🤖 **MaaEndBot 正在分析该 Issue...**  
-    感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。
+    感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
   ACTION_LINK: |
     🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
@@ -62,7 +62,6 @@ jobs:
       # 步骤 2：执行 AI 分析，并流式更新评论（固定时间间隔）
       # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
       - name: Run Copilot analysis with streaming updates
-        if: false
         shell: bash
         env:
           # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
