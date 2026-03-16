@@ -20,6 +20,7 @@ from model import (
     get_display_action,
     get_point_actions,
     normalize_path_points,
+    normalize_zone_id,
     try_parse_action_type,
 )
 
@@ -48,7 +49,7 @@ def load_points_from_json_file(file_path: str | Path, apply_zone_inference: bool
         raise ValueError("未找到可识别的 path 数据")
 
     selected_route = max(routes, key=len)
-    source_has_zone_info = any(str(point.get("zone", "") or "") for point in selected_route)
+    source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
     if apply_zone_inference:
         selected_route = infer_missing_zones(selected_route)
     return ImportedRoute(
@@ -63,7 +64,7 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
     current_zone = ""
 
     for point in normalize_path_points(points):
-        zone_id = str(point.get("zone", "") or "")
+        zone_id = normalize_zone_id(point.get("zone", ""))
         if zone_id and zone_id != current_zone:
             exported_nodes.append({"action": "ZONE", "zone_id": zone_id})
             current_zone = zone_id
@@ -111,7 +112,7 @@ def infer_missing_zones(points: list[PathPoint]) -> list[PathPoint]:
     route_scores: dict[str, int] = {}
 
     for point in inferred:
-        explicit_zone = str(point.get("zone", "") or "")
+        explicit_zone = normalize_zone_id(point.get("zone", ""))
         if explicit_zone:
             route_scores[explicit_zone] = route_scores.get(explicit_zone, 0) + 100
             point_matches.append([explicit_zone])
@@ -157,8 +158,8 @@ def split_route_into_segments(points: list[PathPoint]) -> list[tuple[int, int]]:
     distances: list[float] = []
 
     for idx in range(1, len(points)):
-        prev_zone = str(points[idx - 1].get("zone", "") or "")
-        curr_zone = str(points[idx].get("zone", "") or "")
+        prev_zone = normalize_zone_id(points[idx - 1].get("zone", ""))
+        curr_zone = normalize_zone_id(points[idx].get("zone", ""))
         if prev_zone and curr_zone and prev_zone != curr_zone:
             break_indices.add(idx)
 
@@ -357,7 +358,7 @@ def _fill_unknown_zones(points: list[PathPoint], fallback_zone: str) -> None:
     if not points:
         return
 
-    known_indices = [idx for idx, point in enumerate(points) if point.get("zone")]
+    known_indices = [idx for idx, point in enumerate(points) if normalize_zone_id(point.get("zone", ""))]
     if not known_indices:
         if fallback_zone:
             for point in points:
@@ -365,20 +366,20 @@ def _fill_unknown_zones(points: list[PathPoint], fallback_zone: str) -> None:
         return
 
     for idx, point in enumerate(points):
-        if point.get("zone"):
+        if normalize_zone_id(point.get("zone", "")):
             continue
 
         prev_zone = ""
         next_zone = ""
 
         for prev_idx in range(idx - 1, -1, -1):
-            zone_name = str(points[prev_idx].get("zone", "") or "")
+            zone_name = normalize_zone_id(points[prev_idx].get("zone", ""))
             if zone_name:
                 prev_zone = zone_name
                 break
 
         for next_idx in range(idx + 1, len(points)):
-            zone_name = str(points[next_idx].get("zone", "") or "")
+            zone_name = normalize_zone_id(points[next_idx].get("zone", ""))
             if zone_name:
                 next_zone = zone_name
                 break
@@ -482,8 +483,10 @@ def _parse_point_list(node: list[Any], zone_hint: str) -> PathPoint | None:
             actions.append(parsed_action)
             continue
 
-        if isinstance(extra, str) and extra.strip():
-            zone = extra.strip()
+        if isinstance(extra, str):
+            parsed_zone = normalize_zone_id(extra)
+            if parsed_zone:
+                zone = parsed_zone
 
         if isinstance(extra, list):
             actions.extend(_parse_action_chain_value(extra))
@@ -503,8 +506,9 @@ def _parse_point_list(node: list[Any], zone_hint: str) -> PathPoint | None:
 def _resolve_zone_hint(node: dict[str, Any], fallback: str) -> str:
     for key in ZONE_HINT_KEYS:
         value = node.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
+        zone_id = normalize_zone_id(value)
+        if zone_id:
+            return zone_id
     return fallback
 
 

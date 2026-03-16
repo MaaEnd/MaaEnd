@@ -1,14 +1,16 @@
 {
     "LogMXU": {
         "desc": "输出信息到MXU控制台，支持HTML渲染",
+        "pre_delay": 0,
         "action": "DoNothing",
+        "post_delay": 0,
         "focus": {
             "Node.Action.Starting": ""
         }
     },
-
     "NodeClick": {
         "desc": "点击屏幕上的某个位置",
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -26,7 +28,8 @@
                 283,
                 250
             ]
-        }
+        },
+        "post_delay": 0
     },
     "EssenceColorMatch": {
         "desc": "为每一个格子做ColorMatch确保只锁定对应颜色, ROI和lower/upper由EssenceFilterRowCollectAction的override传入。预填为金色基质",
@@ -53,6 +56,8 @@
                 "connected": true,
                 "count": 100
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
     }
 }

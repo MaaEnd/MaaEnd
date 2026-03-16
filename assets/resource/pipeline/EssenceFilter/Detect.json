@@ -1,0 +1,93 @@
+{
+    "OCREssenceInventoryNumber": {
+        "desc": "OCR 识别背包中的基质数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    93,
+                    48,
+                    74,
+                    22
+                ],
+                "expected": [
+                    "\\d+(\\/\\d+)?"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "OCREssenceInventoryNumberAction"
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal",
+            "EssenceFilterFinish"
+        ]
+    },
+    "EssenceRowDetect": {
+        "desc": "整行模板匹配，收集所有格子",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    18,
+                    72,
+                    956,
+                    119
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterRowCollectAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem",
+            "EssenceDetectFinal"
+        ]
+    },
+    "EssenceDetectFinal": {
+        "desc": "尾扫：扩大 ROI 捕获底部剩余行",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    18,
+                    72,
+                    956,
+                    570
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterRowCollectAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem"
+        ]
+    }
+}

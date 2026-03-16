@@ -1,0 +1,180 @@
+{
+    "EssenceFilterLockItemLog": {
+        "desc": "日志：即将锁定Essence",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterTraceAction",
+                "custom_action_param": {
+                    "step": "LockItem"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCheckLocked",
+            "EssenceFilterLockItem"
+        ]
+    },
+    "EssenceFilterLockItem": {
+        "desc": "锁定Essence",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1217,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/LockButton.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 300,
+        "next": [
+            "EssenceFilterCheckLocked",
+            "EssenceFilterLockItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已锁定基质"
+        }
+    },
+    "EssenceFilterCheckLocked": {
+        "desc": "确认已上锁",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1217,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/LockButtonLocked.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterLockItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已确认上锁"
+        }
+    },
+    "EssenceFilterRecognitionLocked": {
+        "desc": "识别：是否已上锁（仅识别，试最后一个时用）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1217,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/LockButtonLocked.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "EssenceFilterDiscardItemLog": {
+        "desc": "日志：即将废弃 Essence",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterTraceAction",
+                "custom_action_param": {
+                    "step": "DiscardItem"
+                }
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCheckDiscarded",
+            "EssenceFilterDiscardItem"
+        ]
+    },
+    "EssenceFilterDiscardItem": {
+        "desc": "废弃 Essence",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1195,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/DiscardButton.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 300,
+        "next": [
+            "EssenceFilterCheckDiscarded",
+            "EssenceFilterDiscardItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已废弃基质"
+        }
+    },
+    "EssenceFilterCheckDiscarded": {
+        "desc": "确认已废弃",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1195,
+                    180,
+                    21,
+                    21
+                ],
+                "template": "EssenceFilter/DiscardButtonDiscarded.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "on_error": [
+            "EssenceFilterDiscardItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已确认废弃"
+        }
+    },
+    "EssenceFilterRowNextItem": {
+        "desc": "处理下一个命中的格子，或滑动/结束",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterRowNextItemAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ]
+    }
+}

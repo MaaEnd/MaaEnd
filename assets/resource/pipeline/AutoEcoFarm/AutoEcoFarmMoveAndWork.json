@@ -186,6 +186,7 @@
     },
     "_AutoEcoFarmInAnyFarm": {
         "desc": "确认是否在任意农场内,还在的话继续循环",
+        "enabled": true,
         "recognition": {
             "type": "Or",
             "param": {
@@ -249,7 +250,8 @@
                     266
                 ],
                 "expected": [
-                    "收获|育苗|浇水"
+                    "收获|育苗|浇水",
+                    "收穫|育苗|澆水"
                 ],
                 "threshold": 0.7
             }
@@ -313,29 +315,6 @@
         "next": [
             "_AutoEcoFarmMoveAndWorkExit"
         ]
-    },
-    "_AutoEcoFarmIsWorking": {
-        "desc": "识别是否正在工作，识别到就等30秒",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    557,
-                    639,
-                    165,
-                    40
-                ],
-                "expected": [
-                    "中",
-                    "Medium"
-                ],
-                "threshold": 0.5
-            }
-        },
-        "pre_delay": 30000,
-        "focus": {
-            "Node.Recognition.Succeeded": "等待30秒，让队友多干点活，不是脚本卡咯，别担心"
-        }
     },
     //下面是单纯靠近标记的节点
     "_AutoEcoFarmGotoTarget": {

@@ -1,0 +1,99 @@
+{
+    "EssenceFilterMainFailed": {
+        "desc": "入口点失败",
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Failed": "未能进入基质界面，结束任务"
+        }
+    },
+    "EssenceFilterCheckInInventory": {
+        "desc": "检查是否在背包Essence页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    46,
+                    74,
+                    30
+                ],
+                "template": "EssenceFilter/EssenceSlot.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 2000,
+        "next": [
+            "EssenceFilterInit"
+        ],
+        "on_error": [
+            "EssenceFilterNavigateToInventory"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "确认在基质界面"
+        }
+    },
+    "EssenceFilterNavigateToInventory": {
+        "desc": "导航",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "不在基质界面"
+        }
+    },
+    "EssenceFilterInit": {
+        "desc": "初始化：加载数据与预设",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "OCREssenceInventoryNumber",
+            "EssenceRowDetect",
+            "EssenceDetectFinal",
+            "EssenceFilterFinish"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        }
+    },
+    "EssenceFilterFinish": {
+        "desc": "任务完成",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterFinishAction"
+            }
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Succeeded": "任务完成"
+        }
+    }
+}

@@ -67,12 +67,18 @@
     "option.FlawlessEssence.label": "🟨純粋基質",
     "option.PureEssence.label": "🟪清浄基質",
     "option.SelectExtraRules.label": "拡張ルール",
+    "option.SkipLockedRow.label": "識別済みロック行をスキップ",
+    "option.SkipLockedRow.description": "オン時、各行で最後のスロットを先に試し、既にロックされていれば行全体をスキップして前列のロック行を高速化。オフ時は順に処理。",
     "option.KeepFuturePromising.label": "有望な基質を保留",
     "option.KeepFuturePromising.description": "3つのスキルスロットが揃い、合計レベルが閾値以上の基質を保留します。武器マッチングより低い優先度です。",
+    "option.LockFuturePromising.label": "有望基質ヒット時にロック",
+    "option.LockFuturePromising.description": "オフ時は命中しても操作しません。",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label": "合計レベル最低要件",
     "option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description": "3スロットのレベル合計 ≥ この値で保留（3~15）。デフォルト: 6",
     "option.KeepSlot3Level3Practical.label": "実用基質を保留",
     "option.KeepSlot3Level3Practical.description": "スロット3のレベルが閾値以上でサポート即戦力スキルの基質を保留します。武器マッチングより低い優先度です。",
+    "option.LockSlot3Practical.label": "実用基質ヒット時にロック",
+    "option.LockSlot3Practical.description": "オフ時は命中しても操作しません。",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label": "スロット3最低レベル",
     "option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description": "スロット3レベル ≥ この値で保留（1~3d）。デフォルト: 3",
     "option.DiscardUnmatched.label": "不一致時に破棄",
@@ -461,7 +467,8 @@
     "task.AutoEcoFarm.label": "🌾生態農場",
     "task.AutoEcoFarm.description": "\n## タスク機能:\nタスク開始前にバックパックのアイテムを自動で一括収納し（初期設定でオン）、収穫・植栽・散水などの一連の操作を自動実行します。\n## 注意 - タスク開始前に必ず準備を行ってください:\n1. **武陵統合工業コアをエコロジカルファームの端（マップ東側）に設置**してください。自動経路探索のスタックを回避できます。\n2. **隊員3人をフル編成**してください。収穫作業は隊員主体で行われ、主人公は誘導役のため、隊員が足りないと大量の農地を取りこぼします。\n3. ゲーム言語を簡体字中国語に設定してください。現在OCRは他言語に対応していません。\n## 推奨事項:\n1. 農地は**密集型に配置し、できるだけ農場の中心寄り**に設置してください。正方形が最も安定します。\n2. 農場の**対角線上にスプリンクラーを設置しないでください**。スタックの原因になります。",
     "task.AutoEcoFarm.option.FarmlandFindingScheme.label": "農地探索方式",
-    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "右下から左上へ1周走行。農地を密集した配置に、できれば正方形にしてください。",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[1].label": "右下から左上まで一括回収。農地は長方形に配置する必要があります。",
+    "task.AutoEcoFarm.option.FarmlandFindingScheme.cases[2].label": "中央の農地まで移動し、1回だけ回収。農地は円形に配置する必要があります。",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagBeforeTasks.label": "タスク開始前にバックパック内の雑品を収納",
     "task.AutoEcoFarm.option.AutoEcoFarmClearBagAfterTasks.label": "タスク終了後にバックパック内の雑品を収納",
     "task.GiftOperator.label": "🎁オペレーターにプレゼント",
@@ -471,3 +478,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）"
 }
+
+

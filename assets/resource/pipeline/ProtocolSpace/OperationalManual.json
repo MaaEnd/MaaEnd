@@ -57,6 +57,7 @@
         ],
         "expected": [
             "员养成",
+            "員養成",
             "Operator Progression"
         ],
         "action": "Click",
@@ -68,8 +69,8 @@
         "next": [
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
-            "[JumpBack]ProtocolSpaceOperationalManualScrollList",
-            "ProtocolSpaceOperationalManualScrollEnd"
+            "ProtocolSpaceOperationalManualScrollEnd",
+            "[JumpBack]ProtocolSpaceOperationalManualScrollList"
         ]
     },
     "ProtocolSpaceOperationalManualScrollList": {

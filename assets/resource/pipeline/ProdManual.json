@@ -48,6 +48,7 @@
                 ],
                 "expected": [
                     "简制手册",
+                    "簡制手冊",
                     "簡製手冊",
                     "Crafting Manual",
                     "製作手帳"
@@ -139,6 +140,7 @@
             "param": {
                 "expected": [
                     "点击屏幕继续",
+                    "點按螢幕繼續",
                     "Tap to continue",
                     "Click to continue"
                 ]
@@ -220,7 +222,9 @@
                 ],
                 "expected": [
                     "每获取对应数量物品",
+                    "每獲取對應數量物品",
                     "可解锁相应内容",
+                    "可解鎖對應內容",
                     "Obtain",
                     "Unlock"
                 ]
@@ -378,6 +382,7 @@
                 ],
                 "expected": [
                     "应急食药",
+                    "緊急食藥",
                     "Emergency",
                     "Ration"
                 ]
@@ -540,6 +545,7 @@
                 ],
                 "expected": [
                     "键领取",
+                    "快速領取",
                     "[Cc]laim"
                 ]
             }
