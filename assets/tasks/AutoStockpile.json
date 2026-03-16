@@ -18,7 +18,7 @@
         "AutoStockpileOverflowBuyLowPriceGoods": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileOverflowBuyLowPriceGoods.label",
-            "default_case": "No",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
@@ -86,21 +86,21 @@
                     "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier1PriceLimit.label",
                     "pipeline_type": "int",
                     "verify": "^(\\d+)?$",
-                    "default": "1000"
+                    "default": "800"
                 },
                 {
                     "name": "ValleyIVTier2PriceLimit",
                     "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier2PriceLimit.label",
                     "pipeline_type": "int",
                     "verify": "^(\\d+)?$",
-                    "default": "1400"
+                    "default": "1200"
                 },
                 {
                     "name": "ValleyIVTier3PriceLimit",
                     "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier3PriceLimit.label",
                     "pipeline_type": "int",
                     "verify": "^(\\d+)?$",
-                    "default": "1700"
+                    "default": "1500"
                 }
             ],
             "pipeline_override": {
@@ -144,14 +144,14 @@
                     "label": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.inputs.WulingTier1PriceLimit.label",
                     "pipeline_type": "int",
                     "verify": "^(\\d+)?$",
-                    "default": "1400"
+                    "default": "1200"
                 },
                 {
                     "name": "WulingTier2PriceLimit",
                     "label": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.inputs.WulingTier2PriceLimit.label",
                     "pipeline_type": "int",
                     "verify": "^(\\d+)?$",
-                    "default": "1700"
+                    "default": "1500"
                 }
             ],
             "pipeline_override": {

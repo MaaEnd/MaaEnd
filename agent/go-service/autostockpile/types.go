@@ -139,5 +139,5 @@ func minInt(a, b, c int) int {
 }
 
 const (
-	defaultFallbackBuyThreshold = 1000
+	defaultFallbackBuyThreshold = 800
 )

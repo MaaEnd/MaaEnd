@@ -10,11 +10,11 @@ import (
 )
 
 var autoStockpileDefaultPriceLimits = map[string]int{
-	"price_limits_ValleyIV.Tier1": 1000,
-	"price_limits_ValleyIV.Tier2": 1400,
-	"price_limits_ValleyIV.Tier3": 1700,
-	"price_limits_Wuling.Tier1":   1400,
-	"price_limits_Wuling.Tier2":   1700,
+	"price_limits_ValleyIV.Tier1": 800,
+	"price_limits_ValleyIV.Tier2": 1200,
+	"price_limits_ValleyIV.Tier3": 1500,
+	"price_limits_Wuling.Tier1":   1200,
+	"price_limits_Wuling.Tier2":   1500,
 }
 
 func getSelectionConfigFromNode(ctx *maa.Context, nodeName string) (SelectionConfig, error) {
