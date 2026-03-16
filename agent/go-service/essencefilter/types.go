@@ -1,5 +1,7 @@
 package essencefilter
 
+import "encoding/json"
+
 // WeaponData - weapon data
 type WeaponData struct {
 	InternalID    string   `json:"internal_id"`
@@ -10,12 +12,57 @@ type WeaponData struct {
 	SkillsChinese []string `json:"skills_chinese"` // for logging/matching
 }
 
-// SkillPool - skill pool entry
+// SkillPool - skill pool entry (supports both "chinese"/"english" and "cn"/"en" from new skill_pools.json)
 type SkillPool struct {
 	ID      int    `json:"id"`
 	English string `json:"english"`
 	Chinese string `json:"chinese"`
 }
+
+// skillPoolJSON - for unmarshaling; cn/tc/en map to Chinese when chinese is empty
+type skillPoolJSON struct {
+	ID      int    `json:"id"`
+	English string `json:"english"`
+	Chinese string `json:"chinese"`
+	CN      string `json:"cn"`
+	TC      string `json:"tc"`
+	EN      string `json:"en"`
+}
+
+// UnmarshalJSON supports both legacy (chinese/english) and new (cn/tc/en) skill_pools.json
+func (s *SkillPool) UnmarshalJSON(data []byte) error {
+	var raw skillPoolJSON
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	s.ID = raw.ID
+	s.English = raw.EN
+	if s.English == "" {
+		s.English = raw.English
+	}
+	s.Chinese = raw.Chinese
+	if s.Chinese == "" {
+		s.Chinese = raw.CN
+	}
+	if s.Chinese == "" {
+		s.Chinese = raw.TC
+	}
+	return nil
+}
+
+// WeaponOutputEntry - single weapon from weapons_output.json
+type WeaponOutputEntry struct {
+	InternalID string              `json:"internal_id"`
+	WeaponType string              `json:"weapon_type"`
+	Rarity     int                 `json:"rarity"`
+	IconPath   string              `json:"icon_path"`
+	Names      map[string]string   `json:"names"`
+	Skills     map[string][]string `json:"skills"`
+	SkillIDs   []string            `json:"skill_ids"` // internal ids, not used for matching
+}
+
+// WeaponsOutputRaw - root structure of weapons_output.json: map internal_id -> weapon
+type WeaponsOutputRaw map[string]WeaponOutputEntry
 
 // Location 刷取地点数据：记录该地点可选的附加属性（slot2）和技能属性（slot3）池
 type Location struct {
@@ -63,10 +110,12 @@ type SkillCombinationSummary struct {
 	Count         int
 }
 
-// MatcherConfig - 匹配器配置结构
+// MatcherConfig - 匹配器配置结构（suffixStopwords 支持旧版数组或新版按语言 map）
 type MatcherConfig struct {
-	SimilarWordMap  map[string]string `json:"similarWordMap"`
-	SuffixStopwords []string          `json:"suffixStopwords"`
+	DataVersion        string              `json:"data_version"`
+	SimilarWordMap     map[string]string   `json:"similarWordMap"`
+	SuffixStopwords    []string            `json:"-"` // filled from SuffixStopwordsMap[locale] or legacy array
+	SuffixStopwordsMap map[string][]string `json:"suffixStopwords"`
 }
 
 type EssenceFilterOptions struct {
@@ -86,6 +135,8 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
+	// 跳过已识别（已锁）行：每行先试最后一个格子，已锁则整行跳过；关闭后不从最后一个试起
+	SkipLockedRow bool `json:"skip_locked_row"`
 }
 
 type ColorRange struct {
@@ -98,43 +149,10 @@ type EssenceMeta struct {
 	Range ColorRange
 }
 
-// Global variables
+// Global variables (data in db.go; runtime state in RunState; matcher config in config.go)
 var (
-	weaponDB                WeaponDatabase
-	targetSkillCombinations []SkillCombination
-	visitedCount            int
-	matchedCount            int
-	extFuturePromisingCount int
-	extSlot3PracticalCount  int
-	filteredSkillStats      [3]map[int]int
-	statsLogged             bool
-
-	// 本次运行中命中的技能组合摘要，按技能 ID 组合聚合
-	matchedCombinationSummary map[string]*SkillCombinationSummary
-
-	// Grid traversal state
-	currentCol          int // 1~9
-	currentRow          int // row index
-	maxItemsPerRow      int
-	firstRowSwipeDone   bool // true after first row swipe is used
-	finalLargeScanUsed  bool // true if final large scan has been used
-	swipeCalibrateRetry int  // 校准重试次数，防止死循环
-
-	// Current item's three skills cache
-	currentSkills      [3]string
-	currentSkillLevels [3]int // 从 OCR 解析出的等级 (+1/+2/+3)，0 表示未识别
-
-	// Row processing: collected boxes and index
-	rowBoxes       [][4]int
-	rowIndex       int
-	weaponDataPath string
-
-	// Matcher config - loaded from JSON config file, used for skill name matching
-	matcherConfig MatcherConfig
-
-	// Essence color matching parameters
+	// Essence color matching parameters (defaults; per-run selection in RunState.EssenceTypes)
 	FlawlessEssenceMeta = EssenceMeta{
-		// Name: "Flawless Essence",
 		Name: "无暇基质",
 		Range: ColorRange{
 			Lower: [3]int{18, 70, 220},
@@ -148,6 +166,4 @@ var (
 			Upper: [3]int{136, 255, 255},
 		},
 	}
-
-	EssenceTypes []EssenceMeta
 )

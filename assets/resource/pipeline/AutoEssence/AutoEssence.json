@@ -20,7 +20,8 @@
             "VFOriginiumScienceParkLocationAssertion",
             "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
-            "WLWulingCityLocationAssertion"
+            "WLWulingCityLocationAssertion",
+            "WLQingboStockadeLocationAssertion"
         ],
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"

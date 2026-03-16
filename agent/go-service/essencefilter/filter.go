@@ -1,11 +1,8 @@
 package essencefilter
 
 import (
-	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/rs/zerolog/log"
 )
 
 // FilterWeaponsByConfig - 根据配置过滤武器
@@ -39,47 +36,18 @@ func ExtractSkillCombinations(weapons []WeaponData) []SkillCombination {
 	return combinations
 }
 
-// logSkillPools - print all pools from DB
-func logSkillPools() {
-	for _, entry := range []struct {
-		slot string
-		pool []SkillPool
-	}{
-		{"Slot1", weaponDB.SkillPools.Slot1},
-		{"Slot2", weaponDB.SkillPools.Slot2},
-		{"Slot3", weaponDB.SkillPools.Slot3},
-	} {
-		for _, s := range entry.pool {
-			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
-		}
-	}
-}
-
-// buildFilteredSkillStats - count skill IDs per slot after filter
+// buildFilteredSkillStats - count skill IDs per slot after filter; writes to RunState.FilteredSkillStats
 func buildFilteredSkillStats(filtered []WeaponData) {
-	for i := range filteredSkillStats {
-		filteredSkillStats[i] = make(map[int]int)
+	st := getRunState()
+	if st == nil {
+		return
+	}
+	for i := range st.FilteredSkillStats {
+		st.FilteredSkillStats[i] = make(map[int]int)
 	}
 	for _, w := range filtered {
 		for i, id := range w.SkillIDs {
-			filteredSkillStats[i][id]++
-		}
-	}
-}
-
-// logFilteredSkillStats - log counts per slot
-func logFilteredSkillStats() {
-	for slotIdx, stat := range filteredSkillStats {
-		slot := slotIdx + 1
-		pool := getPoolBySlot(slot)
-		ids := make([]int, 0, len(stat))
-		for id := range stat {
-			ids = append(ids, id)
-		}
-		sort.Ints(ids)
-		for _, id := range ids {
-			name := skillNameByID(id, pool)
-			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
+			st.FilteredSkillStats[i][id]++
 		}
 	}
 }

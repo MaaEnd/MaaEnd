@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from model import PathPoint
+from model import PathPoint, normalize_zone_id
 
 
 class ZoneState:
@@ -19,7 +19,7 @@ class ZoneState:
         zone_id = self.current_zone()
         if not zone_id:
             return list(range(len(points)))
-        return [index for index, point in enumerate(points) if point.get("zone") == zone_id]
+        return [index for index, point in enumerate(points) if normalize_zone_id(point.get("zone", "")) == zone_id]
 
     def current_points(self, points: list[PathPoint]) -> list[PathPoint]:
         return [points[index] for index in self.point_indices(points)]
@@ -28,7 +28,7 @@ class ZoneState:
         previous_zone = self.current_zone()
         discovered = []
         for point in points:
-            zone_id = point.get("zone", "")
+            zone_id = normalize_zone_id(point.get("zone", ""))
             if zone_id and zone_id not in discovered:
                 discovered.append(zone_id)
 

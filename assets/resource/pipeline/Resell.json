@@ -123,6 +123,7 @@
         ],
         "expected": [
             "稳定需求",
+            "穩定需求",
             "Staple"
         ],
         "threshold": 0.6,
@@ -143,6 +144,7 @@
         ],
         "expected": [
             "弹性需求",
+            "彈性需求",
             "Elastic"
         ],
         "threshold": 0.6,

@@ -1,0 +1,253 @@
+{
+    "EssenceFilterCheckItemSlot1": {
+        "desc": "OCR 识别技能槽 1",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    235,
+                    115,
+                    27
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemAction",
+                "custom_action_param": {
+                    "slot": 1,
+                    "is_last": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterCheckItemSlot1Level",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot1Level": {
+        "desc": "OCR 识别技能槽 1 等级",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1216,
+                    254,
+                    27,
+                    22
+                ],
+                "expected": [
+                    "\\+?\\d+"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemLevelAction",
+                "custom_action_param": {
+                    "slot": 1
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterCheckItemSlot2",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot2": {
+        "desc": "OCR 识别技能槽 2",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    272,
+                    115,
+                    27
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemAction",
+                "custom_action_param": {
+                    "slot": 2,
+                    "is_last": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterCheckItemSlot2Level",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot2Level": {
+        "desc": "OCR 识别技能槽 2 等级",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1216,
+                    292,
+                    27,
+                    22
+                ],
+                "expected": [
+                    "\\+?\\d+"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemLevelAction",
+                "custom_action_param": {
+                    "slot": 2
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterCheckItemSlot3",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot3": {
+        "desc": "OCR 识别技能槽 3",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1000,
+                    309,
+                    115,
+                    27
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemAction",
+                "custom_action_param": {
+                    "slot": 3,
+                    "is_last": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterCheckItemSlot3Level",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemSlot3Level": {
+        "desc": "OCR 识别技能槽 3 等级",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1216,
+                    329,
+                    27,
+                    22
+                ],
+                "expected": [
+                    "\\+?\\d+"
+                ],
+                "only_rec": true,
+                "threshold": 0.3
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterCheckItemLevelAction",
+                "custom_action_param": {
+                    "slot": 3
+                }
+            }
+        },
+        "post_delay": 0,
+        "timeout": 1500,
+        "rate_limit": 300,
+        "next": [
+            "EssenceFilterSkillDecision",
+            "EssenceFilterCheckItemOCRFallback"
+        ]
+    },
+    "EssenceFilterCheckItemOCRFallback": {
+        "desc": "OCR 超时：跳过",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Failed": "OCR 超时：跳过"
+        }
+    },
+    "EssenceFilterSkillDecision": {
+        "desc": "匹配技能并决定是否上锁",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterSkillDecisionAction"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterRowNextItem"
+        ]
+    }
+}

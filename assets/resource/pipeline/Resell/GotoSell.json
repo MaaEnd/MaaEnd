@@ -85,7 +85,10 @@
             89,
             19
         ],
-        "expected": ".*飞船.*",
+        "expected": [
+            ".*飞船.*",
+            ".*飛船.*"
+        ],
         "threshold": 0.8,
         "pre_delay": 0,
         "action": "Click",

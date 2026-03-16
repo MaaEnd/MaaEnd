@@ -4,9 +4,60 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]EssenceFilterSwitchTab",
-            "EssenceFilterCheckInInventory",
+            "EssenceFilterSwitchTab",
+            "EssenceFilterInitNormalize",
             "[JumpBack]SceneEnterMenuValuables"
+        ],
+        "on_error": "EssenceFilterMainFailed"
+    },
+    "EssenceFilterInitNormalize": {
+        "desc": "初始化：若在基质栏位则先切武器库再切回基质页，否则直接切基质页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    46,
+                    74,
+                    30
+                ],
+                "template": "EssenceFilter/EssenceSlot.png",
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "timeout": 2000,
+        "next": [
+            "EssenceFilterSwitchToWeapon"
+        ]
+    },
+    "EssenceFilterSwitchToWeapon": {
+        "desc": "切换到武器库标签页",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    200,
+                    0,
+                    350,
+                    80
+                ],
+                "template": "EssenceFilter/EssenceWeapon.png",
+                "threshold": 0.9
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterSwitchTab"
         ]
     },
     "EssenceFilterSwitchTab": {
@@ -24,9 +75,14 @@
                 "threshold": 0.9
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": 400
+        "post_wait_freezes": 400,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterCheckInInventory"
+        ]
     }
 }

@@ -14,13 +14,15 @@ from json_import import (
 )
 from model import (
     ACTION_COLORS,
+    ACTION_MENU_NAMES,
     ACTION_NAMES,
     ActionType,
     PathPoint,
     get_point_actions,
     normalize_path_points,
+    normalize_zone_id,
     resolve_zone_image,
-    set_point_actions,
+    set_manual_point_actions,
     simplify_path,
 )
 from point_editing import PointEditingService
@@ -48,6 +50,7 @@ class RouteEditorApp:
                 on_status=lambda text, color: self.root.after(0, lambda: self._set_status(text, color)),
                 on_finished=lambda raw_path: self.root.after(0, lambda: self._on_recording_finished(raw_path)),
                 on_error=lambda err: self.root.after(0, lambda: self._on_recording_error(err)),
+                on_locator_detail=lambda text: self.root.after(0, lambda: self._set_locator_debug(text)),
             )
 
         # 轨迹数据状态
@@ -56,6 +59,7 @@ class RouteEditorApp:
         self.density_val = tk.IntVar(value=50)
         self.strict_var = tk.BooleanVar(value=False)
         self.action_chain_var = tk.StringVar(value="Run")
+        self.locator_debug_var = tk.StringVar(value="Locator: --")
 
         # 领域服务
         self.zone_state = ZoneState()
@@ -84,10 +88,13 @@ class RouteEditorApp:
         self._refresh_zone_label()
 
     def _build_layout(self) -> None:
-        btn_frame = tk.Frame(self.root)
-        btn_frame.pack(fill=tk.X, pady=2, padx=8)
+        toolbar_frame = tk.Frame(self.root)
+        toolbar_frame.pack(fill=tk.X, pady=2, padx=8)
 
-        left_frame = tk.Frame(btn_frame)
+        primary_row = tk.Frame(toolbar_frame)
+        primary_row.pack(fill=tk.X)
+
+        left_frame = tk.Frame(primary_row)
         left_frame.pack(side=tk.LEFT, fill=tk.Y)
 
         self.btn_start = tk.Button(
@@ -121,70 +128,69 @@ class RouteEditorApp:
         self.btn_import = tk.Button(left_frame, text="📂 导入 JSON", command=self.import_json, padx=10)
         self.btn_import.pack(side=tk.LEFT, padx=3)
 
-        ttk.Separator(left_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        zone_frame = tk.Frame(primary_row)
+        zone_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=12)
 
-        self.btn_prev = tk.Button(left_frame, text="◀", command=self.prev_zone, width=4)
-        self.btn_prev.pack(side=tk.LEFT, padx=2)
+        self.btn_prev = tk.Button(zone_frame, text="◀", command=self.prev_zone, width=4)
+        self.btn_prev.pack(side=tk.LEFT, padx=(0, 4))
 
         self.zone_label = tk.Label(
-            btn_frame,
+            zone_frame,
             text="— 无区域信息 —",
             font=("Consolas", 10, "bold"),
             fg="#1e293b",
             anchor="center",
-            width=28,
         )
-        self.zone_label.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=10)
+        self.zone_label.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=4)
 
-        right_frame = tk.Frame(btn_frame)
-        right_frame.pack(side=tk.RIGHT, fill=tk.Y)
+        self.btn_next = tk.Button(zone_frame, text="▶", command=self.next_zone, width=4)
+        self.btn_next.pack(side=tk.LEFT, padx=(4, 0))
 
-        self.btn_next = tk.Button(right_frame, text="▶", command=self.next_zone, width=4)
-        self.btn_next.pack(side=tk.LEFT, padx=2)
+        density_frame = tk.Frame(primary_row)
+        density_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
-        ttk.Separator(right_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=10)
-
-        tk.Label(right_frame, text="密度:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(2, 0))
+        tk.Label(density_frame, text="密度:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(2, 0))
         self.slider_density = tk.Scale(
-            right_frame,
+            density_frame,
             from_=0,
             to=100,
             orient=tk.HORIZONTAL,
             variable=self.density_val,
             showvalue=False,
             width=10,
-            length=70,
+            length=88,
             command=lambda _value: self.reprocess_points(),
         )
         self.slider_density.pack(side=tk.LEFT)
 
-        ttk.Separator(right_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        secondary_row = tk.Frame(toolbar_frame)
+        secondary_row.pack(fill=tk.X, pady=(4, 0))
 
-        self.action_menu = ttk.Combobox(right_frame, values=list(ACTION_NAMES.values()), width=10, state="readonly")
+        tk.Label(secondary_row, text="动作:", font=("Microsoft YaHei", 9)).pack(side=tk.LEFT, padx=(0, 4))
+        self.action_menu = ttk.Combobox(secondary_row, values=ACTION_MENU_NAMES, width=10, state="readonly")
         self.action_menu.set(ACTION_NAMES[ActionType.RUN])
         self.action_menu.pack(side=tk.LEFT, padx=2)
 
-        self.btn_apply_action = tk.Button(right_frame, text="设单", command=self.apply_action_to_selected)
+        self.btn_apply_action = tk.Button(secondary_row, text="设单", command=self.apply_action_to_selected)
         self.btn_apply_action.pack(side=tk.LEFT, padx=2)
 
-        self.btn_append_action = tk.Button(right_frame, text="追加", command=self.append_action_to_selected)
+        self.btn_append_action = tk.Button(secondary_row, text="追加", command=self.append_action_to_selected)
         self.btn_append_action.pack(side=tk.LEFT, padx=2)
 
-        self.btn_pop_action = tk.Button(right_frame, text="退一", command=self.pop_action_from_selected, width=4)
+        self.btn_pop_action = tk.Button(secondary_row, text="退一", command=self.pop_action_from_selected, width=4)
         self.btn_pop_action.pack(side=tk.LEFT, padx=2)
 
         self.action_chain_label = tk.Label(
-            right_frame,
+            secondary_row,
             textvariable=self.action_chain_var,
             font=("Consolas", 8),
             fg="#475569",
             anchor="w",
-            width=18,
         )
-        self.action_chain_label.pack(side=tk.LEFT, padx=(4, 6))
+        self.action_chain_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(8, 8))
 
         self.strict_check = tk.Checkbutton(
-            right_frame,
+            secondary_row,
             text="严格",
             variable=self.strict_var,
             onvalue=True,
@@ -194,7 +200,7 @@ class RouteEditorApp:
         self.strict_check.pack(side=tk.LEFT, padx=(4, 2))
 
         self.btn_del_point = tk.Button(
-            right_frame,
+            secondary_row,
             text="🗑",
             command=self.delete_selected_point,
             fg="#e74c3c",
@@ -210,6 +216,16 @@ class RouteEditorApp:
             font=("Microsoft YaHei", 9),
         )
         self.status_label.pack(fill=tk.X, padx=10, pady=2)
+
+        self.locator_debug_label = tk.Label(
+            self.root,
+            textvariable=self.locator_debug_var,
+            fg="#475569",
+            anchor="w",
+            justify=tk.LEFT,
+            font=("Consolas", 8),
+        )
+        self.locator_debug_label.pack(fill=tk.X, padx=10, pady=(0, 4))
 
         self.canvas = tk.Canvas(self.root, bg="#0f172a", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -229,6 +245,9 @@ class RouteEditorApp:
 
     def _set_status(self, text: str, color: str) -> None:
         self.status_label.config(text=text, fg=color)
+
+    def _set_locator_debug(self, text: str) -> None:
+        self.locator_debug_var.set(text)
 
     def _refresh_zone_label(self) -> None:
         self.zone_label.config(text=self._compact_zone_label_text(self.zone_state.label_text()))
@@ -462,6 +481,7 @@ class RouteEditorApp:
         self.btn_start.config(state=tk.DISABLED)
         self.btn_stop.config(state=tk.NORMAL)
         self._set_status("● 正在启动识别引擎...", "#3b82f6")
+        self._set_locator_debug("Locator: waiting for first result...")
         try:
             self.recording_service.start()
         except Exception as exc:
@@ -583,7 +603,7 @@ class RouteEditorApp:
 
         self.push_undo()
         action_type = self.point_editor.action_name_to_type(self.action_menu.get())
-        set_point_actions(point, get_point_actions(point) + [action_type])
+        set_manual_point_actions(point, get_point_actions(point) + [action_type])
         self._sync_action_controls()
         self._on_points_structure_changed(redraw_fast=False)
 
@@ -596,9 +616,9 @@ class RouteEditorApp:
         self.push_undo()
         actions = get_point_actions(point)
         if len(actions) <= 1:
-            set_point_actions(point, [int(ActionType.RUN)])
+            set_manual_point_actions(point, [int(ActionType.RUN)])
         else:
-            set_point_actions(point, actions[:-1])
+            set_manual_point_actions(point, actions[:-1])
         self._sync_action_controls()
         self._on_points_structure_changed(redraw_fast=False)
 
@@ -767,7 +787,7 @@ class RouteEditorApp:
         return result["points"]
 
     def _validate_zone_assignments(self, points: list[PathPoint], title: str) -> bool:
-        zone_ids = sorted({str(point.get("zone", "") or "").strip() for point in points if str(point.get("zone", "") or "").strip()})
+        zone_ids = sorted({normalize_zone_id(point.get("zone", "")) for point in points if normalize_zone_id(point.get("zone", ""))})
         if not zone_ids:
             return True
 
@@ -785,7 +805,7 @@ class RouteEditorApp:
     def _dominant_zone(points: list[PathPoint]) -> str:
         counts: dict[str, int] = {}
         for point in points:
-            zone_name = str(point.get("zone", "") or "")
+            zone_name = normalize_zone_id(point.get("zone", ""))
             if not zone_name:
                 continue
             counts[zone_name] = counts.get(zone_name, 0) + 1

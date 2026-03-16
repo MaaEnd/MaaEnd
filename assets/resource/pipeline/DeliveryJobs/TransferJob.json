@@ -65,6 +65,7 @@
             "Transfer delivery job to another courier?",
             "配達任務を他人に委託しますか？",
             "给他人派送",
+            "給他人運送",
             "운송 임무를 다른 사람에게 위탁하시겠습니까?"
         ],
         "pre_delay": 0,

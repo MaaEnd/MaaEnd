@@ -1189,15 +1189,15 @@
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 123,
-                            "threshold": 0.4
+                            "threshold": 0.3
                         },
                         "ItemTransferFindItemInBag": {
                             "expected": 123,
-                            "threshold": 0.4
+                            "threshold": 0.3
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 123,
-                            "threshold": 0.4
+                            "threshold": 0.3
                         }
                     }
                 },

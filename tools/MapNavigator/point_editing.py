@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from model import ACTION_NAMES, ActionType, PathPoint, set_point_actions
+from model import ACTION_NAMES, ActionType, PathPoint, get_point_actions, set_manual_point_actions, set_point_actions
 
 
 class CoordinateProjector(Protocol):
@@ -39,7 +39,7 @@ class PointEditingService:
         for action_type, display_name in ACTION_NAMES.items():
             if display_name == action_name:
                 return int(action_type)
-        return int(ActionType.NONE)
+        return int(ActionType.RUN)
 
     def insert_point(
         self,
@@ -103,7 +103,12 @@ class PointEditingService:
             return False
 
         global_idx = zone_indices[selected_idx]
-        set_point_actions(points[global_idx], [self.action_name_to_type(action_name)])
+        current_actions = get_point_actions(points[global_idx])
+        new_actions = [self.action_name_to_type(action_name)]
+        if current_actions == new_actions:
+            set_point_actions(points[global_idx], new_actions)
+        else:
+            set_manual_point_actions(points[global_idx], new_actions)
         points[global_idx]["strict"] = strict_arrival
         return True
 
