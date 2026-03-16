@@ -111,6 +111,22 @@ jobs:
             sleep 10
           done
 
+      - shell: bash
+        run: |
+          echo "cat copilot_output.log"
+          echo "---"
+          echo ""
+          cat copilot_output.log
+
+          echo ""
+          echo "---"
+          
+          echo "cat copilot_answer.md"
+          echo "---"
+          echo ""
+          cat copilot_answer.md
+          
+
       # 步骤 3：将分析结果与运行链接合并，准备最终评论内容（中文链接描述）
       - name: Prepare final comment
         run: |
