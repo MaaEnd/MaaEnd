@@ -46,7 +46,9 @@
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 200, "post_delay": 0, "rate_limit": 0, "next": [
+                ], "threshold": [
+                    0.8
+                ]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 200, "post_delay": 0, "rate_limit": 0, "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]},
@@ -205,7 +207,7 @@
         "next": ["AutoStockpileMoveMouse"]
     },
     "AutoStockpileSelectedGoodsClick": {
-        "desc": "点击决策选中的商品 (tamplte为占位符图片)",
+        "desc": "点击决策选中的商品 (template)",
         "enabled": false,
         "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     50,
