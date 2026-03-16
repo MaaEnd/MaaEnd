@@ -81,6 +81,34 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
     return exported_nodes
 
 
+def export_assert_location_node(zone_id: str, target: tuple[float, float, float, float]) -> dict[str, Any]:
+    normalized_zone_id = normalize_zone_id(zone_id)
+    if not normalized_zone_id:
+        raise ValueError("AssertLocation 缺少有效的 zone_id")
+
+    x, y, w, h = target
+    if w <= 0.0 or h <= 0.0:
+        raise ValueError("AssertLocation 的 target 宽高必须大于 0")
+
+    compact_target = [
+        _compact_number(x),
+        _compact_number(y),
+        _compact_number(w),
+        _compact_number(h),
+    ]
+    return {
+        "NodeName": {
+            "recognition": "Custom",
+            "custom_recognition": "MapLocateAssertLocation",
+            "custom_recognition_param": {
+                "zone_id": normalized_zone_id,
+                "target": compact_target,
+            },
+            "action": "DoNothing",
+        }
+    }
+
+
 def load_jsonc(file_path: str | Path) -> Any:
     text = Path(file_path).read_text(encoding="utf-8")
     sanitized = strip_json_comments(text)

@@ -94,3 +94,59 @@ MapLocator 仅负责“充当系统明亮的眼睛”——即高频、高精度
     }
 }
 ```
+
+### custom_recognition: MapLocateAssertLocation
+
+判断玩家当前是否位于指定 `zone_id` 的某个矩形区域内。
+
+这个节点本质上是对 `MapLocateRecognition` 的一次薄封装：底层仍然先做一次定位，然后检查返回的 `zone_id` 与 `(x, y)` 是否满足给定条件。它是一个纯判定节点，不负责移动，也不会修改任何导航状态。
+
+#### 节点参数
+
+**必填参数 (`custom_recognition_param`)**：
+
+- `zone_id`: 目标区域名，必须与定位结果中的区域名完全一致。
+- `target`: 由 4 个数字组成的数组 `[x, y, w, h]`，表示左上角坐标与矩形宽高。
+
+**可选参数 (`custom_recognition_param`)**：
+
+- `loc_threshold`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+- `yolo_threshold`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+- `force_global_search`: 含义同 [MapLocateRecognition](#custom_recognition-maplocaterecognition)。
+
+#### 返回值结构 (Out Detail)
+
+该节点同样会向 `out_detail` 输出 JSON，常用字段如下：
+
+- `status`: 底层定位状态码，语义同 `MapLocateRecognition`。
+- `matched`: 真假值。只有当区域和矩形都命中时才为 `true`。
+- `inTarget`: 与 `matched` 等价，便于直接读取“是否在目标框中”。
+- `message`: 底层定位日志或失败原因。
+- `zoneId`: 本次判定要求的目标区域名。
+- `x` / `y` / `rot` / `locConf` / `latencyMs`: 本次定位结果；只有定位成功时才有意义。
+- `target`: 回显本次判定使用的 `[x, y, w, h]`。
+
+#### 示例用法
+
+```json
+{
+    "WulingBaseAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                605,
+                878,
+                60,
+                20
+            ]
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> 这个节点适合在进入 `MapNavigateAction` 之前做入口判定。例如：先判断人物是否已经站在传送落点附近，再决定后续是否继续跑对应路线。

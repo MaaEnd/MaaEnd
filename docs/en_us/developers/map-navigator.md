@@ -215,6 +215,7 @@ It supports:
 3. Deleting points, dragging points, changing actions, and editing strict-arrival settings in the GUI.
 4. Importing existing JSON / JSONC files, recursively searching recognizable `path` data, and continuing editing.
 5. One-click copying of the canonical `path` that can be pasted directly into `custom_action_param.path`.
+6. A separate `Assert Mode` for manually selecting a map and drawing a rectangle, then exporting a `MapLocateAssertLocation` node.
 
 ### Running the Tool
 
@@ -360,6 +361,19 @@ This is especially useful for:
 - Migrating old paths to the new navigation module.
 - Reusing existing routes in collaborative development.
 - Modifying a previously created route.
+
+### Assert Mode
+
+When you do not need to record a route, but instead need to check whether the character is currently inside a certain rectangular area, you can use the `Assert Mode` at the top of the tool.
+
+Workflow:
+
+1. Enable `Assert Mode`.
+2. Select the target `zone` from the dropdown.
+3. Drag a rectangle on the map.
+4. Click `Copy Assert` to copy a complete `MapLocateAssertLocation` node to the clipboard.
+
+This mode does not modify the current path data. It simply reuses the same map rendering workflow to generate area-assertion nodes quickly.
 
 ---
 

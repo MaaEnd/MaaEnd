@@ -94,3 +94,59 @@ When executing a long-distance respawn teleport, or when you need to skip the pr
     }
 }
 ```
+
+### custom_recognition: MapLocateAssertLocation
+
+Checks whether the player is currently inside a specified rectangle within a given `zone_id`.
+
+This node is essentially a thin wrapper around `MapLocateRecognition`: it performs one localization pass first, then validates whether the returned `zone_id` and `(x, y)` satisfy the target condition. It is a pure recognition/assertion node. It does not move the character and does not alter navigation state.
+
+#### Node Parameters
+
+**Required Parameters (`custom_recognition_param`)**:
+
+- `zone_id`: Target zone name. It must exactly match the localized zone name.
+- `target`: An array of 4 numbers `[x, y, w, h]`, representing the top-left corner and the rectangle width and height.
+
+**Optional Parameters (`custom_recognition_param`)**:
+
+- `loc_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+- `yolo_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+- `force_global_search`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+
+#### Return Value Structure (Out Detail)
+
+This node also writes a JSON object to `out_detail`. Common fields include:
+
+- `status`: Underlying localization status code, with the same meaning as `MapLocateRecognition`.
+- `matched`: Boolean. `true` only when both the zone and the rectangle match.
+- `inTarget`: Equivalent to `matched`, provided for direct "inside target area" checks.
+- `message`: Underlying localization log or failure reason.
+- `zoneId`: The target zone name required by this assertion.
+- `x` / `y` / `rot` / `locConf` / `latencyMs`: The localization result for this check; only meaningful when localization succeeds.
+- `target`: Echoes the `[x, y, w, h]` rectangle used for this assertion.
+
+#### Usage Example
+
+```json
+{
+    "WulingBaseAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                605,
+                878,
+                60,
+                20
+            ]
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> This node is useful as an entry guard before `MapNavigateAction`. For example, you can first confirm that the character is already near a portal landing area, and then decide whether to continue with the corresponding route.
