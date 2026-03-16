@@ -83,22 +83,43 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	_ = ctx.OverridePipeline(map[string]any{
+	if err := ctx.OverridePipeline(map[string]any{
 		"AutoStockpileSelectedGoodsOwned": map[string]any{
 			"template": []string{BuildTemplatePath(selection.ProductID)},
 		},
-	})
-	_ = ctx.OverridePipeline(map[string]any{
+	}); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("node", "AutoStockpileSelectedGoodsOwned").
+			Msg("failed to override pipeline for selected goods (owned)")
+		return false
+	}
+	if err := ctx.OverridePipeline(map[string]any{
 		"AutoStockpileSelectedGoodsMissing": map[string]any{
 			"template": []string{BuildTemplatePath(selection.ProductID)},
 		},
-	})
-	_ = ctx.OverridePipeline(map[string]any{
+	}); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("node", "AutoStockpileSelectedGoodsMissing").
+			Msg("failed to override pipeline for selected goods (missing)")
+		return false
+	}
+	if err := ctx.OverridePipeline(map[string]any{
 		"AutoStockpileSelectedGoodsClick": map[string]any{
 			"enabled":  true,
 			"template": []string{BuildTemplatePath(selection.ProductID)},
 		},
-	})
+	}); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("node", "AutoStockpileSelectedGoodsClick").
+			Msg("failed to override pipeline for selected goods (click)")
+		return false
+	}
 
 	overrideEnable, enableSwipeMax, enableSpecificQuantity := resolveSwipeEnable(selection, result, cfg)
 	if overrideEnable {
