@@ -8,7 +8,7 @@ This document describes how to use nodes related to MapTracker.
 
 ### Key Concepts
 
-1. **Map Name**: Each large map has a unique name in the game, e.g., "map001_lv001", where "map001" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution).
+1. **Map Name**: Each large map has a unique name in the game, e.g., "map01_lv001", where "map01" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution). The `map_name` must **exactly match** the filename (without the `.png` extension) in that directory.
 2. **Coordinate System**: The coordinates used by MapTracker are the pixel coordinates $(x, y)$ of the above large map images, with the upper-left corner of the image as the origin $(0, 0)$.
 
 ## Node Descriptions
@@ -27,7 +27,7 @@ The following details the specific usage of the nodes provided by MapTracker. Th
 
 Required parameters:
 
-- `map_name`: The unique name of the map. E.g., "map001_lv001".
+- `map_name`: The unique name of the map. E.g., "map01_lv001".
 
 - `path`: A list of real-number waypoints consisting of several coordinates. The player will move to these coordinate points in sequence.
 
@@ -107,7 +107,7 @@ Optional parameters:
 
 Required parameters:
 
-- `map_name`: The unique map name. For example, "map001_lv001".
+- `map_name`: The unique map name. For example, "map01_lv001".
 
 - `target`: A list with 2 real numbers `[x, y]`, representing the target map coordinate.
 
@@ -126,7 +126,7 @@ Optional parameters:
         "action": "Custom",
         "custom_action": "MapTrackerBigMapPick",
         "custom_action_param": {
-            "map_name": "map002_lv002",
+            "map_name": "map02_lv002",
             "target": [
                 585.8,
                 825.5
@@ -170,7 +170,7 @@ Required parameters:
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map002_lv002",
+                    "map_name": "map02_lv002",
                     "target": [
                         670,
                         350,
@@ -199,8 +199,8 @@ Optional parameters:
 
     - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map001_lv001$`: Only matches "map001_lv001" (Fourth Valley - Hub Area).
-    - `^map001_lv\\d+$`: Matches all sub-regions of "map001" (Fourth Valley).
+    - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).
+    - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Fourth Valley).
 
 - `print`: Boolean value, default `false`. Whether to enable UI message printing of recognition results.
 

@@ -55,7 +55,7 @@ Upon successful localization or termination of detection, the node will output c
     - `2 (ScreenBlocked)`: Image overwhelmed/occluded by unknown, massive obstructions.
     - `3 (Teleported)`: Coordinate displacement between two frames severely exceeded human/vehicle movement limits, deduced as a forced teleportation.
     - `4 (YoloFailed)`: The initial YOLO model confirmed the current game screenshot does not contain a minimap recognition area.
-- `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map001_lv001").
+- `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map01_lv001").
 - `x`: (On Success) The global pixel coordinate on the X-axis (horizontal).
 - `y`: (On Success) The global pixel coordinate on the Y-axis (vertical).
 - `rot`: (On Success) The true yaw angle computed output (high precision, usually $0^\circ \sim 360^\circ$ with North as zero).
