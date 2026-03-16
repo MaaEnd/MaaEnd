@@ -19,7 +19,7 @@ import (
 
 const (
 	autoStockpileComponent = "autostockpile"
-	anchorTargetRegionName = "AutoStockpileGotoTargetReigon"
+	anchorTargetRegionName = "AutoStockpileGotoTargetRegion"
 
 	selectedGoodsClickNodeName    = "AutoStockpileSelectedGoodsClick"
 	swipeSpecificQuantityNodeName = "AutoStockpileSwipeSpecificQuantity"

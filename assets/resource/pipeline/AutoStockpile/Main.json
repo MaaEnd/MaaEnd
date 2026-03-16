@@ -1,30 +1,30 @@
 {
     "AutoStockpileMain": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "自动囤货入口",
+        "pre_delay": 0,
         "action": {"type": "Custom", "param": {"custom_action": "SubTask", "custom_action_param": {"sub": [
                         "AutoStockpileValleyIV",
                         "AutoStockpileWuling"
-                    ], "continue": true}}}
+                    ], "continue": true}}},
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoStockpileValleyIV": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "自动囤货四号谷地节点",
         "enabled": false,
-        "anchor": {"AutoStockpileGotoTargetReigon": "GoToValleyIV"},
+        "pre_delay": 0,
+        "anchor": {"AutoStockpileGotoTargetRegion": "GoToValleyIV"},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileTask"]
     },
     "AutoStockpileWuling": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "自动囤货武陵节点",
         "enabled": false,
-        "anchor": {"AutoStockpileGotoTargetReigon": "GoToWuling"},
+        "pre_delay": 0,
+        "anchor": {"AutoStockpileGotoTargetRegion": "GoToWuling"},
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": ["AutoStockpileTask"]
     }
 }
