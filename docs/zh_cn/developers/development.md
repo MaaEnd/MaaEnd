@@ -105,6 +105,7 @@ python tools/setup_workspace.py
 - [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
 - [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
 - [CharacterController 参考文档](./character-controller.md)：角色视角旋转、移动及朝向目标自动移动等控制节点。
+- [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。
 - [节点测试参考文档](./node-testing.md)：节点静态截图测试的目录约定、Schema 和编写建议。
 
 ## 代码规范
