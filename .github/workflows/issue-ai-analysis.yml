@@ -44,7 +44,7 @@ jobs:
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          copilot -- model gpt-5-mini \
+          copilot --model gpt-5-mini \
             --prompt "分析一下#${{ steps.issue_number.outputs.issue_number }}" \
             --allow-all --no-ask-user >> copilot_answer.md
 
