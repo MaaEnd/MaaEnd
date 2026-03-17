@@ -316,7 +316,12 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
+                        // 确保不会转交任务
                         "DeliveryJobsEnterDeliveryJob": {
+                            "enabled": false
+                        },
+                        // 回到大世界后直接停止任务，不继续后续流程
+                        "DeliveryJobsBackToDepot": {
                             "next": [
                                 "DeliveryJobsAcceptJobOnly"
                             ]
