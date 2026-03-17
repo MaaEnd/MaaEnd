@@ -4,6 +4,8 @@
 #include <optional>
 #include <string>
 
+#include <MaaUtils/NoWarningCV.hpp>
+
 namespace maplocator
 {
 
@@ -59,6 +61,38 @@ struct LocateResult
     LocateStatus status;
     std::optional<MapPosition> position;
     std::string debugMessage; // 用于向 Pipeline 输出日志
+};
+
+enum class GlobalSearchMode
+{
+    LegacyCoarse,
+    FullMapFine,
+    RoiFine,
+};
+
+struct SearchConstraint
+{
+    GlobalSearchMode mode = GlobalSearchMode::LegacyCoarse;
+    bool yolo_validated = false;
+    cv::Rect roi {};
+};
+
+struct YoloCoarseResult
+{
+    bool valid = false;
+    bool is_none = false;
+
+    std::string raw_class;
+    std::string base_class;
+    std::string zone_id;
+    float confidence = 0.0f;
+
+    bool has_roi = false;
+    int roi_x = 0;
+    int roi_y = 0;
+    int roi_w = 0;
+    int roi_h = 0;
+    int infer_margin = 0;
 };
 
 // roi及搜索相关常量

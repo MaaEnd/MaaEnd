@@ -1,0 +1,115 @@
+{
+    "WLQingboStockadeLocationAssertion": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition_param": {
+                    "expected": [
+                        {
+                            "map_name": "map02_lv003",
+                            "target": [
+                                287,
+                                542,
+                                28,
+                                40
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "WLQingboStockadeMoveToTriggerPoint",
+            "AutoEssenceWalkAround": "WLQingboStockadeWalkAround1"
+        },
+        "focus": {
+            "Node.Action.Starting": "📍附近的能量淤积点：\n<p style=\"text-align: center\"><strong>清波寨</strong></p>"
+        }
+    },
+    "WLQingboStockadeMoveToTriggerPoint": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv003",
+                    "path": [
+                        [
+                            305,
+                            559
+                        ],
+                        [
+                            293,
+                            561
+                        ],
+                        [
+                            294,
+                            571
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "[Anchor]AutoEssenceAfterMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点"
+        }
+    },
+    "WLQingboStockadeWalkAround1": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv003",
+                    "path": [
+                        [
+                            295,
+                            579
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLQingboStockadeWalkAround2"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    },
+    "WLQingboStockadeWalkAround2": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapTrackerMove",
+                "custom_action_param": {
+                    "map_name": "map02_lv003",
+                    "path": [
+                        [
+                            291,
+                            561
+                        ]
+                    ],
+                    "rotation_lower_threshold": 12.0,
+                    "rotation_upper_threshold": 120.0,
+                    "sprint_threshold": 6.0
+                }
+            }
+        },
+        "next": [
+            "AutoEssenceCheckOngoing",
+            "WLQingboStockadeWalkAround1"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在散步中"
+        }
+    }
+}

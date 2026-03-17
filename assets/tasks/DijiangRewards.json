@@ -11,7 +11,9 @@
                 "ClueSetting",
                 "SelectToGrow"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -110,7 +112,7 @@
             "type": "select",
             "label": "$option.ClueStockLimit.label",
             "description": "$option.ClueStockLimit.description",
-            "default_case": "3",
+            "default_case": "2",
             "cases": [
                 {
                     "name": "1",
@@ -127,24 +129,6 @@
                     "pipeline_override": {
                         "ClueItemCount": {
                             "expected": "^(?:[3-9]|[1-9]\\d+)$"
-                        }
-                    }
-                },
-                {
-                    "name": "3",
-                    "label": "$option.ClueStockLimit.cases.3.label",
-                    "pipeline_override": {
-                        "ClueItemCount": {
-                            "expected": "^(?:[4-9]|[1-9]\\d+)$"
-                        }
-                    }
-                },
-                {
-                    "name": "4",
-                    "label": "$option.ClueStockLimit.cases.4.label",
-                    "pipeline_override": {
-                        "ClueItemCount": {
-                            "expected": "^(?:[5-9]|[1-9]\\d+)$"
                         }
                     }
                 }

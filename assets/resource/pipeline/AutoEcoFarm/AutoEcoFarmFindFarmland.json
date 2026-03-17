@@ -43,7 +43,7 @@
         ]
     },
     "_AutoEcoFarmInMap": {
-        "desc": "查找标记管理按钮来确认是否在地图界面",
+        "desc": "查找标记管理按钮来确认是否在地图界面，找到后点一下",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -60,7 +60,105 @@
             }
         },
         "next": [
-            //根据预定义的锚点来判断
+            "_AutoEcoFarmClickTargetManager"
+        ]
+    },
+    //下面这段代码是在地图上清除标记，只留工业设备，方便找农田
+    "_AutoEcoFarmClickTargetManager": {
+        "desc": "点开标记显示管理",
+        "max_hit": 3,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    25,
+                    635,
+                    156,
+                    48
+                ],
+                "expected": [
+                    "标记|显示|管理"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmClickClear"
+        ]
+    },
+    "_AutoEcoFarmClickClear": {
+        "desc": "点击清空选中",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    49,
+                    637,
+                    142,
+                    50
+                ],
+                "expected": [
+                    "清空",
+                    "Clear",
+                    "クリア"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmScrollToIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmScrollToIndustrialFacilities": {
+        "desc": "滚动一下",
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    159,
+                    347,
+                    19,
+                    15
+                ],
+                "dy": -480
+            }
+        },
+        "post_wait_freezes": 500,
+        "next": [
+            "_AutoEcoFarmClickIndustrialFacilities"
+        ]
+    },
+    "_AutoEcoFarmClickIndustrialFacilities": {
+        "desc": "点击工业设备",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    18,
+                    44,
+                    337,
+                    593
+                ],
+                "expected": [
+                    "工业设备"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "action": "Click",
+        "next": [
+            "_AutoEcoFarmExitTargetManager"
+        ]
+    },
+    "_AutoEcoFarmExitTargetManager": {
+        "desc": "按一下esc",
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 //esc键
+            }
+        },
+        "next": [
             "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
         ]
     },
@@ -73,7 +171,7 @@
                 "roi": [
                     649,
                     225,
-                    515,
+                    631,
                     399
                 ],
                 "expected": [
@@ -142,10 +240,26 @@
     "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
         "desc": "将生态园拉到屏幕中间",
         "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    649,
+                    225,
+                    631,
+                    399
+                ],
+                "expected": [
+                    "生|态|种|植",
+                    "生|態|種|植"
+                ],
+                "threshold": 0.7
+            }
+        },
         "action": {
             "type": "Swipe",
             "param": {
-                "begin": "_AutoEcoFarmFindValleyIVEcoFarm",
+                "begin": true,
                 "end": [
                     640,
                     360,
@@ -159,28 +273,8 @@
             "_AutoEcoFarmFindValleyIVEcoFarm"
         ]
     },
-    "_AutoEcoFarmPullWulinEcoFarmToCenter": {
-        "desc": "将“实验作物试点”拉到屏幕中间",
-        "max_hit": 10,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": "_AutoEcoFarmFindWulinEcoFarm",
-                "end": [
-                    640,
-                    360,
-                    1,
-                    1
-                ]
-            }
-        },
-        "post_wait_freezes": 200,
-        "next": [
-            "_AutoEcoFarmFindWulinEcoFarm"
-        ]
-    },
     "_AutoEcoFarmFindFarmland": {
-        "desc": "全屏寻找农田,识别到了后点击",
+        "desc": "给custom调用的识别节点，全屏识别农田",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -193,18 +287,42 @@
                 "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
                 "order_by": "Horizontal"
             }
+        }
+    },
+    "_AutoEcoFarmPullWulinEcoFarmToCenter": {
+        "desc": "将“实验作物试点”拉到屏幕中间",
+        "max_hit": 10,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    237,
+                    98,
+                    671,
+                    373
+                ],
+                "expected": [
+                    "作|物|试|点",
+                    "作|物|測|試"
+                ],
+                "threshold": 0.7
+            }
         },
         "action": {
-            "type": "Click"
+            "type": "Swipe",
+            "param": {
+                "begin": true,
+                "end": [
+                    640,
+                    360,
+                    1,
+                    1
+                ]
+            }
         },
+        "post_wait_freezes": 200,
         "next": [
-            "_AutoEcoFarmIsMrarking",
-            "[JumpBack]_AutoEcoFarmMutiSelection",
-            "_AutoEcoFarmAlreadySetTarget",
-            "_AutoEcoFarmSetTarget",
-            "[JumpBack]_AutoEcoFarmMoveMouse",
-            //识别不到农田的话不结束脚本，而是只结束该子任务，因为农田可能就在边上
-            "[Anchor]_AutoEcoFarmFindFarmandExitAnchor"
+            "_AutoEcoFarmFindWulinEcoFarm"
         ]
     },
     "_AutoEcoFarmFindFarmlandCustom": {

@@ -313,12 +313,12 @@
     },
     "BlacklistOCR_Oroberyl": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "嵌晶玉",
@@ -330,12 +330,12 @@
     },
     "BlacklistOCR_ArsenalTicket": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "武库配额",
@@ -348,12 +348,12 @@
     },
     "BlacklistOCR_TCreds": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "折金票",
@@ -365,12 +365,12 @@
     },
     "BlacklistOCR_ElementaryCognitiveCarrier": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "初级认知载体",
@@ -383,12 +383,12 @@
     },
     "BlacklistOCR_ElementaryCombatRecord": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "初级作战记录",
@@ -402,12 +402,12 @@
     },
     "BlacklistOCR_IntermediateCombatRecord": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "中级作战记录",
@@ -421,12 +421,12 @@
     },
     "BlacklistOCR_CastDie": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "强固模具",
@@ -440,12 +440,12 @@
     },
     "BlacklistOCR_HeavyCastDie": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "重型强固模具",
@@ -459,12 +459,12 @@
     },
     "BlacklistOCR_ArmsInspector": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "武器检查单元",
@@ -477,12 +477,12 @@
     },
     "BlacklistOCR_ArmsINSPKit": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "武器检查装置",
@@ -495,12 +495,12 @@
     },
     "BlacklistOCR_Protoprism": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
         "expected": [
             "协议棱柱",
@@ -513,14 +513,19 @@
     },
     "BlacklistOCR_Protohedron": {
         "recognition": "OCR",
-        "roi": "CanAfford",
+        "roi": "IsDiscount",
         "roi_offset": [
-            -89,
-            36,
-            66,
-            4
+            -69,
+            169,
+            43,
+            -3
         ],
-        "expected": "a^",
+        "expected": [
+            "协议棱柱组",
+            "協議稜柱組",
+            "Protohedron",
+            "協約角柱セット"
+        ],
         "only_rec": true,
         "order_by": "Vertical"
     }

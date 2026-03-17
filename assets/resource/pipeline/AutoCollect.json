@@ -1,0 +1,52 @@
+{
+    "AutoCollectStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoCollectRoute1Sub",
+            "[JumpBack]AutoCollectRoute2Sub",
+            "[JumpBack]AutoCollectRoute3Sub",
+            "AutoCollectEnd"
+        ]
+    },
+    "AutoCollectEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute1Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute1Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.label"
+        }
+    },
+    "AutoCollectRoute2Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute2Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.label"
+        }
+    },
+    "AutoCollectRoute3Sub": {
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoCollectRoute3Start"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.label"
+        }
+    }
+}

@@ -246,7 +246,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "FuturePromisingMinTotal"
+                        "FuturePromisingMinTotal",
+                        "LockFuturePromising"
                     ],
                     "pipeline_override": {
                         "EssenceFilterInit": {
@@ -262,6 +263,34 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "keep_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "LockFuturePromising": {
+            "type": "switch",
+            "label": "$option.LockFuturePromising.label",
+            "description": "$option.LockFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "lock_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "lock_future_promising": false
                             }
                         }
                     }
@@ -299,7 +328,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "Slot3MinLevel"
+                        "Slot3MinLevel",
+                        "LockSlot3Practical"
                     ],
                     "pipeline_override": {
                         "EssenceFilterInit": {
@@ -315,6 +345,34 @@
                         "EssenceFilterInit": {
                             "attach": {
                                 "keep_slot3_level3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "LockSlot3Practical": {
+            "type": "switch",
+            "label": "$option.LockSlot3Practical.label",
+            "description": "$option.LockSlot3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "lock_slot3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "lock_slot3_practical": false
                             }
                         }
                     }

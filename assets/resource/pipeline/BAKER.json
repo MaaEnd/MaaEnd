@@ -131,8 +131,8 @@
             "全部顯示",
             "Show All",
             "すべて",
-            "筛选生效中",
-            "篩選生效中"
+            "篩選生效中",
+            "筛选生效中"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -210,7 +210,8 @@
         ],
         "expected": [
             "保存",
-            "儲存"
+            "儲存",
+            "Save"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -527,8 +528,8 @@
             "全部顯示",
             "Show All",
             "すべて",
-            "筛选生效中",
-            "篩選生效中"
+            "篩選生效中",
+            "筛选生效中"
         ],
         "action": "Click",
         "post_wait_freezes": 1,

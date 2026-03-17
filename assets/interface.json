@@ -82,7 +82,6 @@
             "name": "官服",
             "label": "$resource.CN.label",
             "path": [
-                "./resource_fast",
                 "./resource"
             ]
         }
@@ -134,6 +133,7 @@
         "tasks/SeizeEntrustTask.json",
         "tasks/DeliveryJobs.json",
         "tasks/SellProduct.json",
+        "tasks/AutoStockpile.json",
         "tasks/AutoResell.json",
         "tasks/Crafting.json",
         "tasks/GearAssembly.json",
@@ -144,6 +144,7 @@
         "tasks/ProtocolSpace.json",
         "tasks/GiftOperator.json",
         "tasks/AutoEcoFarm.json",
+        "tasks/AutoCollect.json",
         // group: realtime
         "tasks/RealTimeTask.json",
         // group: utility

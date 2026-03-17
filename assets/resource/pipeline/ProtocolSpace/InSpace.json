@@ -349,6 +349,7 @@
         ],
         "action": "Click",
         "next": [
+            "ProtocolSpaceRewardSanityLow",
             "ProtocolSpaceRewardClaim"
         ],
         "focus": {

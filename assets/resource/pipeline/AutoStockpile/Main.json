@@ -1,0 +1,53 @@
+{
+    "AutoStockpileMain": {
+        "desc": "自动囤货入口",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "AutoStockpileValleyIV",
+                        "AutoStockpileWuling"
+                    ],
+                    "continue": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileValleyIV": {
+        "desc": "自动囤货四号谷地节点",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoStockpileGotoTargetRegion": "GoToValleyIV"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileTask"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 四号谷地"
+        }
+    },
+    "AutoStockpileWuling": {
+        "desc": "自动囤货武陵节点",
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoStockpileGotoTargetRegion": "GoToWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileTask"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 武陵"
+        }
+    }
+}

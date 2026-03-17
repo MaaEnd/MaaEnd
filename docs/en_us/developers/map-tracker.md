@@ -8,7 +8,7 @@ This document describes how to use nodes related to MapTracker.
 
 ### Key Concepts
 
-1. **Map Name**: Each large map has a unique name in the game, e.g., "map001_lv001", where "map001" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution).
+1. **Map Name**: Each large map has a unique name in the game, e.g., "map01_lv001", where "map01" indicates the region is "Fourth Valley" and "lv001" indicates the sub-region is "Hub Area". Please check `/assets/resource/image/MapTracker/map` to get all map names and images (these images have been scaled to fit the minimap UI in the game with 720P resolution). The `map_name` must **exactly match** the filename (without the `.png` extension) in that directory.
 2. **Coordinate System**: The coordinates used by MapTracker are the pixel coordinates $(x, y)$ of the above large map images, with the upper-left corner of the image as the origin $(0, 0)$.
 
 ## Node Descriptions
@@ -27,7 +27,7 @@ The following details the specific usage of the nodes provided by MapTracker. Th
 
 Required parameters:
 
-- `map_name`: The unique name of the map. E.g., "map001_lv001".
+- `map_name`: The unique name of the map. E.g., "map01_lv001".
 
 - `path`: A list of real-number waypoints consisting of several coordinates. The player will move to these coordinate points in sequence.
 
@@ -47,7 +47,9 @@ Optional parameters:
 
 - `arrival_threshold`: Positive real number, default `2.5`. The distance threshold for judging arrival at the next target point, in pixel distance. A larger value makes it easier to be judged as arriving at the target point but may result in incomplete pathfinding; a smaller value requires more precise arrival at the target point but may make pathfinding difficult to complete.
 
-- `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately. However, timeout during fine-approach will not fail the action but just terminates fine-approach.
+- `arrival_timeout`: Positive integer, default `60000`. The time threshold for judging failure to reach the next target point, in milliseconds. If the next target point is not reached after this time, pathfinding fails immediately.
+
+- `map_name_match_rule`: String, default `"^%s(_tier_\\w+)$"`. Used to generate `map_name_regex` for `MapTrackerInfer`. `%s` will be replaced by `map_name` (with regex escaping). The default rule matches map names like `map02_lv003_tier_xxx`.
 
 - `rotation_lower_threshold`: Real number between $(0, 180]$, default `7.5`. The direction angle deviation threshold for judging the need for fine-tuning the orientation, in degrees.
 
@@ -105,15 +107,20 @@ Optional parameters:
 
 Required parameters:
 
-- `map_name`: The unique map name. For example, "map001_lv001".
+- `map_name`: The unique map name. For example, "map01_lv001".
 
 - `target`: A list with 2 real numbers `[x, y]`, representing the target map coordinate.
 
 Optional parameters:
 
-- `on_find`: Action after the target point enters the viewport. Can be `"Click"`, `"Teleport"`, or `"DoNothing"`. Default is `"Click"`.
+- `on_find`: Action to perform after the target point is found. Default is `"Click"`. Available values:
+    - `"Click"`: Click the target point (default).
+    - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
+    - `"DoNothing"`: Perform no action.
 
-- `disable_auto_open_map`: Boolean, default `false`. Whether to disable auto-opening the corresponding map screen.
+- `auto_open_map_scene`: Boolean, default `false`. Whether to automatically open the corresponding big-map scene before picking. This feature depends on SceneManager nodes. If disabled, make sure the player is already in the correct big-map scene.
+
+- `no_zoom`: Boolean, default `false`. Whether to disable automatic zoom adjustment (which adjusts the big-map zoom to a suitable range). Disabling this may reduce the success rate of this node.
 
 #### Example Usage
 
@@ -124,7 +131,7 @@ Optional parameters:
         "action": "Custom",
         "custom_action": "MapTrackerBigMapPick",
         "custom_action_param": {
-            "map_name": "map002_lv002",
+            "map_name": "map02_lv002",
             "target": [
                 585.8,
                 825.5
@@ -168,7 +175,7 @@ Required parameters:
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map002_lv002",
+                    "map_name": "map02_lv002",
                     "target": [
                         670,
                         350,
@@ -197,8 +204,8 @@ Optional parameters:
 
     - `^map\\d+_lv\\d+$`: Default value. Matches all regular maps.
     - `^map\\d+_lv\\d+(_tier_\\d+)?$`: Matches all regular maps and tiered maps (Tier).
-    - `^map001_lv001$`: Only matches "map001_lv001" (Fourth Valley - Hub Area).
-    - `^map001_lv\\d+$`: Matches all sub-regions of "map001" (Fourth Valley).
+    - `^map01_lv001$`: Only matches "map01_lv001" (Fourth Valley - Hub Area).
+    - `^map01_lv\\d+$`: Matches all sub-regions of "map01" (Fourth Valley).
 
 - `print`: Boolean value, default `false`. Whether to enable UI message printing of recognition results.
 

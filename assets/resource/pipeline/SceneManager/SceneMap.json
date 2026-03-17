@@ -122,8 +122,8 @@
                     150
                 ],
                 "template": [
-                    "Common/Button/WhiteConfirmButtonType1.png",
-                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },
@@ -149,8 +149,8 @@
                     150
                 ],
                 "template": [
-                    "Common/Button/WhiteConfirmButtonType1.png",
-                    "Common/Button/WhiteConfirmButtonType1Hover.png"
+                    "Common/Button/TeleportButton.png",
+                    "Common/Button/TeleportButtonHover.png"
                 ]
             }
         },
@@ -240,7 +240,8 @@
                 "template": [
                     "SceneManager/MapOverviewEnter.png"
                 ],
-                "green_mask": true
+                "green_mask": true,
+                "threshold": 0.9
             }
         },
         "action": {

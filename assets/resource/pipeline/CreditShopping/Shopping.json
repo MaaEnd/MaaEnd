@@ -187,11 +187,17 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "BlacklistOCR",
-            "IsDiscount"
+            "IsDiscount",
+            "BlacklistOCR"
         ],
         "box_index": 4,
         "action": "Click",
+        "target_offset": [
+            0,
+            -100,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]

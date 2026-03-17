@@ -14,9 +14,9 @@ func LoadMatcherConfig(path string) error {
 		return err
 	}
 	var withRaw struct {
-		DataVersion        string            `json:"data_version"`
-		SimilarWordMap     map[string]string `json:"similarWordMap"`
-		SuffixStopwords    json.RawMessage   `json:"suffixStopwords"`
+		DataVersion        string              `json:"data_version"`
+		SimilarWordMap     map[string]string   `json:"similarWordMap"`
+		SuffixStopwords    json.RawMessage     `json:"suffixStopwords"`
 		SuffixStopwordsMap map[string][]string `json:"-"`
 	}
 	if err := json.Unmarshal(data, &withRaw); err != nil {

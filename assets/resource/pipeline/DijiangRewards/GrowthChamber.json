@@ -485,17 +485,16 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    75,
-                    512,
-                    253,
-                    111
+                    86,
+                    537,
+                    169,
+                    86
                 ],
                 "expected": [
                     "基核数量",
                     "基核數量",
                     "Amount of seeds",
                     "基核数",
-                    "基核數",
                     "默认",
                     "預設",
                     "Default",
@@ -503,6 +502,7 @@
                     "品质",
                     "品質",
                     "Quality",
+                    "基核數",
                     "Amount of Seeds"
                 ]
             }
@@ -542,6 +542,9 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 80
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -552,17 +555,16 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    59,
-                    343,
-                    287,
-                    291
+                    89,
+                    380,
+                    300,
+                    158
                 ],
                 "expected": [
                     "基核数量",
                     "基核數量",
                     "Amount of seeds",
                     "基核数",
-                    "基核數",
                     "默认",
                     "預設",
                     "Default",
@@ -573,7 +575,8 @@
                     "総在庫",
                     "品质",
                     "品質",
-                    "Quality"
+                    "Quality",
+                    "基核數"
                 ]
             }
         },
@@ -581,7 +584,7 @@
         "action": {
             "type": "Scroll",
             "param": {
-                "dx": 120
+                "dy": -120
             }
         },
         "post_delay": 0,

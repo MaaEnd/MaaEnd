@@ -65,7 +65,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/resource/pipeline assets/resource_fast/pipeline assets/resource_adb/pipeline
+          git add assets/resource/pipeline assets/resource_adb/pipeline
           git commit -m "chore: auto sync OCR i18n expected"
 
       - name: Force push fixed branch

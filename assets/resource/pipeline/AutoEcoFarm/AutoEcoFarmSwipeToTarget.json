@@ -230,7 +230,9 @@
         "next": [
             "_AutoEcoFarmAltDown"
         ],
-        "focus": {"Node.Recognition.Failed": "识别不到标记，随便转转视角尝试解决问题"}
+        "focus": {
+            "Node.Recognition.Failed": "识别不到标记，随便转转视角尝试解决问题"
+        }
     },
     "_AutoEcoFarmAltDown": {
         "desc": "按下alt",

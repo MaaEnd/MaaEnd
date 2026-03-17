@@ -45,6 +45,8 @@
                 }
             }
         },
-        "next": ["AutoEcoFarmExit"]
+        "next": [
+            "AutoEcoFarmExit"
+        ]
     }
 }

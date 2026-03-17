@@ -1,0 +1,24 @@
+{
+    "AutoStockpileFindMarketMark": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    50,
+                    126,
+                    83,
+                    575
+                ],
+                "template": [
+                    "AutoStockpile/MarketMark.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -355,10 +355,12 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	}
 	matchResult, matched := MatchEssenceSkills(ctx, skills, st.TargetSkillCombinations)
 	extendedReason := ""
+	shouldLockExtended := false
 	if !matched && opts != nil {
 		if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
 			if MatchFuturePromising(skills, st.CurrentSkillLevels, opts.FuturePromisingMinTotal) {
 				matched = true
+				shouldLockExtended = opts.LockFuturePromising
 				sum := st.CurrentSkillLevels[0] + st.CurrentSkillLevels[1] + st.CurrentSkillLevels[2]
 				matchResult = &SkillCombinationMatch{
 					SkillIDs:      []int{0, 0, 0},
@@ -380,6 +382,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			matchResult, slot3Lv, slot3Match = MatchSlot3Level3Practical(skills, st.CurrentSkillLevels, slot3MinLv)
 			if slot3Match {
 				matched = true
+				shouldLockExtended = opts.LockSlot3Practical
 				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", matchResult.SkillsChinese[2], slot3Lv, slot3MinLv)
 				st.ExtSlot3PracticalCount++
 				log.Info().Str("component", "EssenceFilter").Str("rule", "MatchSlot3Level3Practical").Str("slot3_skill", matchResult.SkillsChinese[2]).Int("slot3_level", slot3Lv).Int("min_level", slot3MinLv).Msg("keep practical essence")
@@ -393,10 +396,16 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)", skills[0], st.CurrentSkillLevels[0], skills[1], st.CurrentSkillLevels[1], skills[2], st.CurrentSkillLevels[2]), MatchedMessageColor)
 
 	if matched && extendedReason != "" {
-		st.MatchedCount++
-		log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
-		LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中：%s</div>`, escapeHTML(extendedReason)))
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
+		if shouldLockExtended {
+			st.MatchedCount++
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中并锁定：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
+		} else {
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #d18b00; font-weight: 900;">🗂️ 扩展规则命中（不操作）：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+		}
 	} else if matched {
 		st.MatchedCount++
 		weaponNames := make([]string, 0, len(matchResult.Weapons))
@@ -534,6 +543,13 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	if st == nil {
 		return false
 	}
+	if st.PendingFinalScan {
+		st.PendingFinalScan = false
+		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
+		LogMXUSimpleHTML(ctx, "补 swipe 完成，进入尾扫")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
+		return true
+	}
 	// Try-last-first: only when row is full (9). If total known and remaining this row < 9, skip and use normal logic.
 	if st.RowIndex == 0 && st.TryLastFirst && len(st.RowBoxes) > 0 {
 		remaining := st.TotalCount - st.MaxItemsPerRow*(st.CurrentRow-1)
@@ -579,14 +595,12 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
 		if (len(st.RowBoxes) == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
-			// 已知总数时：若 剩余 = total - 9*已扫行数 <= 45，直接进入尾扫，避免到底后继续 swipe 卡死
 			const maxRemainingForFinalScan = 45
 			rowsDone := st.CurrentRow
 			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
 			if st.TotalCount > 0 && remaining <= maxRemainingForFinalScan {
-				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，进入尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-				return true
+				st.PendingFinalScan = true
+				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，先补一次滑动再尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
 			}
 			if !st.FirstRowSwipeDone {
 				st.FirstRowSwipeDone = true
@@ -628,10 +642,10 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
 		if opts != nil {
 			if opts.KeepFuturePromising {
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「未来可期」锁定：%d 个", st.ExtFuturePromisingCount), "#064d7c")
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「未来可期」命中：%d 个", st.ExtFuturePromisingCount), "#064d7c")
 			}
 			if opts.KeepSlot3Level3Practical {
-				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「实用基质」锁定：%d 个", st.ExtSlot3PracticalCount), "#064d7c")
+				LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("扩展规则「实用基质」命中：%d 个", st.ExtSlot3PracticalCount), "#064d7c")
 			}
 			if opts.ExportCalculatorScript {
 				logCalculatorResult(ctx)
@@ -642,11 +656,11 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 	return true
 }
 
-const firstRowTargetY = 86//首行Y
-const calibrateTolerance = 8//校准误差
-const calibrateScrollRatio = 1.1//校准滑动比例
-const calibrateSwipeMin = 8//校准滑动最小值
-const calibrateSwipeMax = 40//校准滑动最大值
+const firstRowTargetY = 86       //首行Y
+const calibrateTolerance = 8     //校准误差
+const calibrateScrollRatio = 1.1 //校准滑动比例
+const calibrateSwipeMin = 8      //校准滑动最小值
+const calibrateSwipeMax = 40     //校准滑动最大值
 
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
 type EssenceFilterSwipeCalibrateAction struct{}

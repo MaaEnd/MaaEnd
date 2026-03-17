@@ -6,13 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/draw"
 	_ "image/png"
 	"math"
 	"os"
-	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -48,29 +45,17 @@ type MapTrackerInferParam struct {
 	Threshold float64 `json:"threshold,omitempty"`
 }
 
-// MapCache represents a preloaded map image
-type MapCache struct {
-	Name     string
-	Img      *image.RGBA
-	Integral minicv.IntegralArray
-	OffsetX  int
-	OffsetY  int
-}
-
 // MapTrackerInfer is the custom recognition component for map tracking
 type MapTrackerInfer struct {
 	// Cache for preloaded resources
-	mapsOnce    sync.Once
 	pointerOnce sync.Once
-	maps        []MapCache
 	pointer     *image.RGBA
-	mapsErr     error
 	pointerErr  error
 
-	// Cache for scaled maps
-	scaledMu    sync.Mutex
-	scaledScale float64
-	scaledMaps  []MapCache
+	// Cache for scaled maps (recomputed per request scale)
+	scaledMapsMu sync.Mutex
+	scaledMaps   []MapCache
+	scaledScale  float64
 }
 
 type InferState struct {
@@ -106,6 +91,8 @@ type InferLocationRawResult struct {
 }
 
 var emptyLocationRawResult = InferLocationRawResult{"", 0, 0, 0.0, "", 0}
+
+var mapCoreNameRegexp = regexp.MustCompile(`^(.+?)(?:_tier_\w+)?$`)
 
 type InferRotationRawResult struct {
 	rot           int
@@ -144,8 +131,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	i.initPointer(ctx)
 
 	// Check for initialization errors
-	if i.mapsErr != nil {
-		log.Error().Err(i.mapsErr).Msg("Failed to initialize maps")
+	if mapTrackerResource.rawMapsErr != nil {
+		log.Error().Err(mapTrackerResource.rawMapsErr).Msg("Failed to initialize maps")
 		return nil, false
 	}
 	if i.pointerErr != nil {
@@ -189,7 +176,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	// Process internal location hit
 	if internalLocHit {
 		isCloseToConvinced := func() bool {
-			if globalInferState.convinced.mapName == "" || globalInferState.convinced.mapName != loc.mapName {
+			if !isMapNameCoreMatch(globalInferState.convinced.mapName, loc.mapName) {
 				return false
 			}
 			dx := globalInferState.convinced.x - loc.x
@@ -198,7 +185,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		}
 
 		isCloseToPending := func() bool {
-			if globalInferState.pending.mapName == "" || globalInferState.pending.mapName != loc.mapName {
+			if !isMapNameCoreMatch(globalInferState.pending.mapName, loc.mapName) {
 				return false
 			}
 			dx := globalInferState.pending.x - loc.x
@@ -369,16 +356,24 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 	}
 }
 
+func getMapCoreName(mapName string) string {
+	matches := mapCoreNameRegexp.FindStringSubmatch(mapName)
+	if len(matches) < 2 {
+		return mapName
+	}
+	return matches[1]
+}
+
+func isMapNameCoreMatch(mapName1, mapName2 string) bool {
+	if mapName1 == "" || mapName2 == "" {
+		return false
+	}
+	return getMapCoreName(mapName1) == getMapCoreName(mapName2)
+}
+
 // initMaps initializes the map cache (thread-safe, runs once)
 func (i *MapTrackerInfer) initMaps(ctx *maa.Context) {
-	i.mapsOnce.Do(func() {
-		i.maps, i.mapsErr = i.loadMaps(ctx)
-		if i.mapsErr != nil {
-			log.Error().Err(i.mapsErr).Msg("Failed to load maps")
-		} else {
-			log.Info().Int("mapsCount", len(i.maps)).Msg("Map images loaded")
-		}
-	})
+	mapTrackerResource.initRawMaps(ctx)
 }
 
 // initPointer initializes the pointer template cache (thread-safe, runs once)
@@ -391,105 +386,6 @@ func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
 			log.Info().Msg("Pointer template image loaded")
 		}
 	})
-}
-
-// loadMaps loads all map images from the resource directory
-// and try crops them if map bbox data exists
-func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
-	// Find map directory using search strategy
-	mapDir := findResource(MAP_DIR)
-	if mapDir == "" {
-		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
-	}
-
-	// Read bbox data from configured resource path first
-	rectList := make(map[string][]int)
-	rectPath := findResource(MAP_BBOX_DATA_PATH)
-	if rectPath != "" {
-		if data, err := os.ReadFile(rectPath); err == nil {
-			if err := json.Unmarshal(data, &rectList); err != nil {
-				log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map bbox data")
-			} else {
-				log.Info().Str("path", rectPath).Msg("Map bbox data loaded")
-			}
-		} else {
-			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to read map bbox data")
-		}
-	}
-
-	// Read directory entries
-	entries, err := os.ReadDir(mapDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read map directory: %w", err)
-	}
-
-	// Load all PNG files
-	maps := make([]MapCache, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		filename := entry.Name()
-		if !strings.HasSuffix(filename, ".png") {
-			continue
-		}
-
-		// Load image
-		imgPath := filepath.Join(mapDir, filename)
-		file, err := os.Open(imgPath)
-		if err != nil {
-			log.Warn().Err(err).Str("path", imgPath).Msg("Failed to open map image")
-			continue
-		}
-
-		img, _, err := image.Decode(file)
-		file.Close()
-		if err != nil {
-			log.Warn().Err(err).Str("path", imgPath).Msg("Failed to decode map image")
-			continue
-		}
-
-		// Extract map name (remove ".png" suffix)
-		name := strings.TrimSuffix(filename, ".png")
-
-		var imgRGBA *image.RGBA
-		offsetX, offsetY := 0, 0
-
-		// Crop if valid rect exists
-		if r, ok := rectList[name]; ok && len(r) == 4 {
-			rect := image.Rect(r[0], r[1], r[2], r[3])
-			expand := LOC_RADIUS / 2
-			rect = image.Rect(rect.Min.X-expand, rect.Min.Y-expand, rect.Max.X+expand, rect.Max.Y+expand)
-
-			// Crop precisely using drawing
-			b := img.Bounds()
-			r0 := rect.Intersect(b)
-			dst := image.NewRGBA(image.Rect(0, 0, r0.Dx(), r0.Dy()))
-			draw.Draw(dst, dst.Bounds(), img, r0.Min, draw.Src)
-			imgRGBA = dst
-			offsetX, offsetY = r0.Min.X, r0.Min.Y
-		} else {
-			imgRGBA = minicv.ImageConvertRGBA(img)
-		}
-
-		// Precompute integral image
-		integral := minicv.GetIntegralArray(imgRGBA)
-
-		maps = append(maps, MapCache{
-			Name:     name,
-			Img:      imgRGBA,
-			Integral: integral,
-			OffsetX:  offsetX,
-			OffsetY:  offsetY,
-		})
-	}
-
-	if len(maps) == 0 {
-		return nil, fmt.Errorf("no valid map images found in %s", mapDir)
-	}
-
-	return maps, nil
 }
 
 // loadPointer loads the pointer template image
@@ -547,59 +443,75 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	// try to match the convinced map around the convinced location first.
 	globalInferState.mu.Lock()
 
-	isStable := globalInferState.convinced.mapName != "" &&
-		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
-		globalInferState.pendingHitCount == 0
-	stableMapName := globalInferState.convinced.mapName
+	stableConvincedMapName := globalInferState.convinced.mapName
 	stableLocX := globalInferState.convinced.x
 	stableLocY := globalInferState.convinced.y
+	isInTime := globalInferState.convinced.mapName != "" &&
+		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
+		globalInferState.pendingHitCount == 0
 
 	globalInferState.mu.Unlock()
 
-	// Try fast search if stable
-	if isStable && mapNameRegex.MatchString(stableMapName) {
+	isStable := func() bool {
+		if !isInTime {
+			return false
+		}
 		for _, mapData := range scaledMaps {
-			if mapData.Name == stableMapName {
-				expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
-				expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
-				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
+			if isMapNameCoreMatch(stableConvincedMapName, mapData.Name) && mapNameRegex.MatchString(mapData.Name) {
+				return true
+			}
+		}
+		return false
+	}
 
-				matchX, matchY, matchVal := minicv.MatchTemplateInArea(
-					mapData.Img,
-					mapData.Integral,
-					miniMap,
-					miniStats,
-					expectedCenterX-searchRadius,
-					expectedCenterY-searchRadius,
-					searchRadius*2,
-					searchRadius*2,
-				)
+	// Try fast search if stable
+	if isStable() {
+		fastBestVal := -1.0
+		fastBestX, fastBestY := 0.0, 0.0
+		fastBestMapName := ""
 
-				if matchVal > param.Threshold {
-					// Fast search hit
-					bestX := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
-					bestY := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
-					elapsedTimeMs := time.Since(t0).Milliseconds()
-					log.Debug().Float64("conf", matchVal).
-						Str("map", stableMapName).
-						Float64("X", bestX).
-						Float64("Y", bestY).
-						Int64("elapsedTimeMs", elapsedTimeMs).
-						Msg("Internal fast search location inference completed")
+		for idx := range scaledMaps {
+			mapData := &scaledMaps[idx]
+			if !isMapNameCoreMatch(stableConvincedMapName, mapData.Name) || !mapNameRegex.MatchString(mapData.Name) {
+				continue
+			}
 
-					return &InferLocationRawResult{
-						mapName:       mapData.Name,
-						x:             bestX,
-						y:             bestY,
-						conf:          matchVal,
-						source:        FAST_SEARCH_HIT,
-						elapsedTimeMs: elapsedTimeMs,
-					}
-				}
+			expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
+			expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
+			searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
+			searchArea := [4]int{
+				expectedCenterX - searchRadius,
+				expectedCenterY - searchRadius,
+				searchRadius * 2,
+				searchRadius * 2,
+			}
 
-				// If fast search fails (low confidence), fallback to full search
-				log.Debug().Float64("conf", matchVal).Msg("Empirical fast search miss")
-				break
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.getIntegralArray(), miniMap, miniStats, searchArea)
+
+			if matchVal > fastBestVal {
+				fastBestVal = matchVal
+				fastBestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
+				fastBestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
+				fastBestMapName = mapData.Name
+			}
+		}
+
+		if fastBestVal > param.Threshold {
+			elapsedTimeMs := time.Since(t0).Milliseconds()
+			log.Debug().Float64("conf", fastBestVal).
+				Str("map", fastBestMapName).
+				Float64("X", fastBestX).
+				Float64("Y", fastBestY).
+				Int64("elapsedTimeMs", elapsedTimeMs).
+				Msg("Internal fast search location inference completed")
+
+			return &InferLocationRawResult{
+				mapName:       fastBestMapName,
+				x:             fastBestX,
+				y:             fastBestY,
+				conf:          fastBestVal,
+				source:        FAST_SEARCH_HIT,
+				elapsedTimeMs: elapsedTimeMs,
 			}
 		}
 	} else {
@@ -623,17 +535,17 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	for i := range scaledMaps {
 		if mapNameRegex.MatchString(scaledMaps[i].Name) {
 			triedCount++
-			if singleMapToTry == nil {
+			if triedCount == 1 {
 				singleMapToTry = &scaledMaps[i]
-			} else {
-				singleMapToTry = nil // Found more than one
-				break
 			}
 		}
 	}
+	if triedCount != 1 {
+		singleMapToTry = nil
+	}
 
 	if singleMapToTry != nil {
-		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
+		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.getIntegralArray(), miniMap, miniStats)
 		bestVal = matchVal
 		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
 		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
@@ -642,15 +554,16 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		resChan := make(chan mapResult, triedCount)
 		var wg sync.WaitGroup
 
-		for _, mapData := range scaledMaps {
+		for idx := range scaledMaps {
+			mapData := &scaledMaps[idx]
 			if !mapNameRegex.MatchString(mapData.Name) {
 				continue
 			}
 
 			wg.Add(1)
-			go func(m MapCache) {
+			go func(m *MapCache) {
 				defer wg.Done()
-				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.Integral, miniMap, miniStats)
+				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.getIntegralArray(), miniMap, miniStats)
 				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
 				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
 				resChan <- mapResult{matchVal, mx, my, m.Name}
@@ -693,32 +606,6 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		source:        FULL_SEARCH_HIT,
 		elapsedTimeMs: time.Since(t0).Milliseconds(),
 	}
-}
-
-// getScaledMaps returns cached scaled maps or recomputes them
-func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
-	i.scaledMu.Lock()
-	defer i.scaledMu.Unlock()
-
-	if i.scaledScale == scale && len(i.scaledMaps) > 0 {
-		return i.scaledMaps
-	}
-
-	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
-	newScaled := make([]MapCache, 0, len(i.maps))
-	for _, m := range i.maps {
-		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, MapCache{
-			Name:     m.Name,
-			Img:      sImg,
-			Integral: minicv.GetIntegralArray(sImg),
-			OffsetX:  m.OffsetX,
-			OffsetY:  m.OffsetY,
-		})
-	}
-	i.scaledScale = scale
-	i.scaledMaps = newScaled
-	return i.scaledMaps
 }
 
 // inferRotation infers the player's rotation angle
@@ -796,4 +683,29 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 
 func roundTo1Decimal(value float64) float64 {
 	return math.Round(value*10.0) / 10.0
+}
+
+// getScaledMaps recomputes scaled map cache for the requested scale.
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
+	i.scaledMapsMu.Lock()
+	defer i.scaledMapsMu.Unlock()
+
+	if i.scaledMaps != nil && math.Abs(i.scaledScale-scale) < 1e-6 {
+		return i.scaledMaps
+	}
+
+	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
+	for _, m := range mapTrackerResource.rawMaps {
+		sImg := minicv.ImageScale(m.Img, scale)
+		newScaled = append(newScaled, MapCache{
+			Name:    m.Name,
+			Img:     sImg,
+			OffsetX: m.OffsetX,
+			OffsetY: m.OffsetY,
+		})
+	}
+
+	i.scaledMaps = newScaled
+	i.scaledScale = scale
+	return i.scaledMaps
 }

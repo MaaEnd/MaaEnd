@@ -444,6 +444,7 @@ enc_temp_folder/*
 
 # MaaDebugger
 .nicegui/*
+.maa
 
 # Build
 install/
@@ -478,3 +479,6 @@ venv/
 
 # maa-tools
 tests/maatools
+
+# oh-my-opencode
+.sisyphus/

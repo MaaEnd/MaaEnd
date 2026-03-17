@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "通用按钮，测试确定按钮",
+        "name": "通用按钮，测试黄色确定按钮类型2(对号)",
         "resource": "官服",
         "controller": [
             "Win32",

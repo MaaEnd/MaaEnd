@@ -69,8 +69,8 @@
         "next": [
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceEnableAnchor",
             "[Anchor]ProtocolSpaceOperationalManualFindProtocolSpaceDisableAnchor",
-            "[JumpBack]ProtocolSpaceOperationalManualScrollList",
-            "ProtocolSpaceOperationalManualScrollEnd"
+            "ProtocolSpaceOperationalManualScrollEnd",
+            "[JumpBack]ProtocolSpaceOperationalManualScrollList"
         ]
     },
     "ProtocolSpaceOperationalManualScrollList": {

@@ -6,19 +6,19 @@
 
 ## 文件与职责（同一 case 放一起）
 
-| 文件 | 职责 |
-|------|------|
-| `types.go` | 数据类型与常量（武器、技能池、组合、选项、基质颜色等） |
-| `state.go` | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()` |
-| `config.go` | 匹配器配置加载 `LoadMatcherConfig`、`GetMatcherConfig()` |
-| `loader.go` | 数据加载（skill_pools / weapons_output / locations）+ DB 访问（`weaponDB`、`GetPoolBySlot`、`SkillNameByID`）+ 展示名转规范名（`cleanDisplayToCanonical`、`weaponTypeToID`） |
-| `matcher.go` | 技能匹配：OCR 文本 → 技能 ID（`MatchEssenceSkills`、`MatchFuturePromising`、`MatchSlot3Level3Practical`），依赖 config 与 loader 的池访问 |
-| `filter.go` | 按稀有度过滤武器、提取技能组合、统计过滤后技能分布（写入 state）、`skillCombinationKey` |
-| `ui.go` | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（同一 case：本次运行的结果展示） |
-| `actions.go` | 所有 CustomAction：Init / OCR 库存与 Trace / CheckItem·CheckItemLevel·SkillDecision / RowCollect·RowNextItem·Finish·SwipeCalibrate |
-| `options.go` | 从节点 attach 读取 `EssenceFilterOptions`、 rarity/essence 列表格式化 |
-| `resource_path.go` | 监听资源加载路径，供 Init 解析数据目录 |
-| `register.go` | 注册 ResourceSink 与各 CustomAction，供上层 `go-service` 统一加载 |
+| 文件               | 职责                                                                                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `types.go`         | 数据类型与常量（武器、技能池、组合、选项、基质颜色等）                                                                                                                       |
+| `state.go`         | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()`                                                                                                            |
+| `config.go`        | 匹配器配置加载 `LoadMatcherConfig`、`GetMatcherConfig()`                                                                                                                     |
+| `loader.go`        | 数据加载（skill_pools / weapons_output / locations）+ DB 访问（`weaponDB`、`GetPoolBySlot`、`SkillNameByID`）+ 展示名转规范名（`cleanDisplayToCanonical`、`weaponTypeToID`） |
+| `matcher.go`       | 技能匹配：OCR 文本 → 技能 ID（`MatchEssenceSkills`、`MatchFuturePromising`、`MatchSlot3Level3Practical`），依赖 config 与 loader 的池访问                                    |
+| `filter.go`        | 按稀有度过滤武器、提取技能组合、统计过滤后技能分布（写入 state）、`skillCombinationKey`                                                                                      |
+| `ui.go`            | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（同一 case：本次运行的结果展示）                                                                             |
+| `actions.go`       | 所有 CustomAction：Init / OCR 库存与 Trace / CheckItem·CheckItemLevel·SkillDecision / RowCollect·RowNextItem·Finish·SwipeCalibrate                                           |
+| `options.go`       | 从节点 attach 读取 `EssenceFilterOptions`、 rarity/essence 列表格式化                                                                                                        |
+| `resource_path.go` | 监听资源加载路径，供 Init 解析数据目录                                                                                                                                       |
+| `register.go`      | 注册 ResourceSink 与各 CustomAction，供上层 `go-service` 统一加载                                                                                                            |
 
 ## 数据流概要
 

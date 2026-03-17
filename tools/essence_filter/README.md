@@ -12,11 +12,11 @@ python tools/essence_filter/extract_skill_pools.py
 
 ### 参数
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `--input` | `assets/data/EssenceFilter/weapons_output.json` | 输入的 weapons_output.json 路径 |
-| `--output` | `assets/data/EssenceFilter/skill_pools.json` | 输出的 skill_pools.json 路径 |
-| `--base-dir` | 当前目录 | 仓库根目录 |
+| 参数         | 默认值                                          | 说明                            |
+| ------------ | ----------------------------------------------- | ------------------------------- |
+| `--input`    | `assets/data/EssenceFilter/weapons_output.json` | 输入的 weapons_output.json 路径 |
+| `--output`   | `assets/data/EssenceFilter/skill_pools.json`    | 输出的 skill_pools.json 路径    |
+| `--base-dir` | 当前目录                                        | 仓库根目录                      |
 
 ### 提取规则
 

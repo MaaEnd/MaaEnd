@@ -134,12 +134,12 @@
     "IsDiscount": {
         "desc": "有折扣",
         "recognition": "OCR",
-        "roi": "BlacklistOCR",
+        "roi": "CanAfford",
         "roi_offset": [
-            62,
-            -172,
-            -34,
-            7
+            -18,
+            -132,
+            21,
+            3
         ],
         "expected": [
             "99|95|75|50|25"

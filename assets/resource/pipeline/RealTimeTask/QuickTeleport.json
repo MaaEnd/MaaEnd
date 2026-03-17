@@ -10,7 +10,9 @@
         ],
         "expected": [
             "协议传送点",
-            "協議傳送點"
+            "協議傳送點",
+            "TP Point",
+            "協約転送ポイント"
         ],
         "pre_delay": 0,
         "action": "Click",

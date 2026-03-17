@@ -193,12 +193,12 @@ func LoadWeaponsOutputAndConvert(weaponsOutputPath string, locale string) error 
 		}
 		typeID := weaponTypeToID[entry.WeaponType]
 		weapons = append(weapons, WeaponData{
-			InternalID:     entry.InternalID,
-			ChineseName:    name,
-			TypeID:         typeID,
-			Rarity:         entry.Rarity,
-			SkillIDs:       []int{ids[0], ids[1], ids[2]},
-			SkillsChinese:  []string{canonicals[0], canonicals[1], canonicals[2]},
+			InternalID:    entry.InternalID,
+			ChineseName:   name,
+			TypeID:        typeID,
+			Rarity:        entry.Rarity,
+			SkillIDs:      []int{ids[0], ids[1], ids[2]},
+			SkillsChinese: []string{canonicals[0], canonicals[1], canonicals[2]},
 		})
 	}
 	weaponDB.Weapons = weapons

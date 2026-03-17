@@ -1,8 +1,5 @@
 {
     "CheckRegionalDevelopmentText": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "检查地区建设界面左上角的文字",
         "recognition": "OCR",
         "roi": [
@@ -17,12 +14,12 @@
             "Regional Development",
             "地域建設",
             "지역 건설"
-        ]
-    },
-    "CheckRegionalDevelopmentValleyIVText": {
-        "rate_limit": 0,
+        ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckRegionalDevelopmentValleyIVText": {
         "desc": "检查四号谷地地区建设左边的文字",
         "recognition": "OCR",
         "roi": [
@@ -37,12 +34,12 @@
             "Valley IV",
             "4번 협곡",
             "Valley"
-        ]
-    },
-    "CheckRegionalDevelopmentWulingText": {
-        "rate_limit": 0,
+        ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckRegionalDevelopmentWulingText": {
         "desc": "检查武陵地区建设左边的文字",
         "recognition": "OCR",
         "roi": [
@@ -55,12 +52,12 @@
             "武陵",
             "Wuling",
             "무릉"
-        ]
-    },
-    "CheckLocalDepotNodeText": {
-        "rate_limit": 0,
+        ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckLocalDepotNodeText": {
         "desc": "检查本地仓储节点界面的文字，来确认已经进入了仓储节点界面",
         "recognition": "OCR",
         "roi": [
@@ -75,12 +72,12 @@
             "Local Depot Node",
             "地域保管ボックス",
             "현재 지역 저장고 노드"
-        ]
-    },
-    "CheckCourierInfoText": {
-        "rate_limit": 0,
+        ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "CheckCourierInfoText": {
         "desc": "检查「我转交的委托」界面中的运送人信息文字，来确认已经进入了运送人信息界面",
         "recognition": "OCR",
         "roi": [
@@ -95,13 +92,13 @@
             "Courier Info",
             "配達員詳細",
             "운송인 정보"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
 
     "CheckChangeRegionConfirmText": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "检查更换地区确认界面中的文本",
         "recognition": "OCR",
         "roi": [
@@ -120,6 +117,9 @@
             "是否切换",
             "是否切換",
             "선택한 지역의 건설 상황을 확인하시겠습니까?"
-        ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

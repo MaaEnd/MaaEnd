@@ -4,11 +4,14 @@ package maptracker
 import (
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/draw"
 	"math"
 	"os"
 	"regexp"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -18,6 +21,11 @@ type MapTrackerBigMapPick struct {
 	externalOnce sync.Once
 	externalData map[string]mapExternalDataItem
 	externalErr  error
+
+	zoomTemplateOnce sync.Once
+	zoomInTemplate   *image.RGBA
+	zoomOutTemplate  *image.RGBA
+	zoomTemplateErr  error
 }
 
 type mapExternalDataItem struct {
@@ -32,8 +40,10 @@ type MapTrackerBigMapPickParam struct {
 	Target [2]float64 `json:"target"`
 	// OnFind controls behavior when target enters viewport. Valid values: "Click", "Teleport", "DoNothing".
 	OnFind string `json:"on_find,omitempty"`
-	// DisableAutoOpenMap controls whether to skip auto-running scene_manager_node before picking.
-	DisableAutoOpenMap bool `json:"disable_auto_open_map,omitempty"`
+	// AutoOpenMapScene controls whether to automatically open the big map scene before picking.
+	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
+	// NoZoom controls whether to disable auto zoom before picking.
+	NoZoom bool `json:"no_zoom,omitempty"`
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -46,22 +56,22 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		return false
 	}
 
-	sceneManagerNode, hasSceneMapping, err := a.getSceneManagerNode(param.MapName)
-	if err != nil {
-		log.Error().Err(err).Str("map", param.MapName).Msg("Failed to resolve scene manager mapping")
-		return false
-	}
-	if hasSceneMapping && !param.DisableAutoOpenMap {
-		if _, err := ctx.RunTask(sceneManagerNode); err != nil {
-			log.Error().Err(err).Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Failed to run scene manager node")
+	if param.AutoOpenMapScene {
+		sceneManagerNode, hasSceneMapping, err := a.getSceneManagerNode(param.MapName)
+		if err != nil {
+			log.Error().Err(err).Str("map", param.MapName).Msg("Failed to resolve scene manager mapping")
 			return false
 		}
-		log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Scene manager node completed before big-map pick")
-	} else if hasSceneMapping {
-		log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Auto-open map is disabled; skipping scene manager node")
-	}
+		if hasSceneMapping {
+			if _, err := ctx.RunTask(sceneManagerNode); err != nil {
+				log.Error().Err(err).Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Failed to run scene manager node")
+				return false
+			}
+			log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Str("onFind", param.OnFind).Msg("Scene manager node completed before big-map pick")
+		} else {
+			log.Warn().Str("map", param.MapName).Msg("No scene manager mapping found for the map, cannot auto open map scene")
+		}
 
-	if param.OnFind == "Teleport" {
 		if _, err := ctx.RunTask("__ScenePrivateMapFilterClear"); err != nil {
 			log.Error().Err(err).Str("map", param.MapName).Msg("Failed to clear map filters before pick")
 			return false
@@ -70,6 +80,12 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 
 	ctrl := ctx.GetTasker().GetController()
 	aw := NewActionWrapper(ctx, ctrl)
+
+	if !param.NoZoom {
+		if err := a.doAutoZoom(ctx, ctrl, aw); err != nil {
+			log.Warn().Err(err).Msg("Failed to auto adjust big-map zoom")
+		}
+	}
 
 	for attempt := 1; attempt <= BIG_MAP_PICK_RETRY; attempt++ {
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
@@ -80,9 +96,10 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 
 		targetInViewX, targetInViewY := inferRes.ViewPort.GetScreenCoordOf(param.Target[0], param.Target[1])
 		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
-			if param.OnFind == "Click" {
-				aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 50)
-			} else if param.OnFind == "Teleport" {
+			switch param.OnFind {
+			case "Click":
+				aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100)
+			case "Teleport":
 				if err := runBigMapTeleportNode(ctx, aw, targetInViewX, targetInViewY); err != nil {
 					log.Error().Err(err).Str("map", param.MapName).Msg("Failed to run teleport sequence on find")
 					return false
@@ -189,7 +206,7 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 }
 
 func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, targetInViewY float64) error {
-	aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 50)
+	aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100)
 
 	teleportNodeName := "__MapTrackerBigMapPickTeleport"
 	teleportNodeOverride := map[string]any{
@@ -207,6 +224,108 @@ func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, t
 	}
 
 	return nil
+}
+
+func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, aw *ActionWrapper) error {
+	a.initZoomTemplates()
+	if a.zoomTemplateErr != nil {
+		return a.zoomTemplateErr
+	}
+	if a.zoomInTemplate == nil || a.zoomOutTemplate == nil {
+		return fmt.Errorf("zoom templates are not initialized")
+	}
+
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil {
+		return fmt.Errorf("failed to get cached image for auto zoom: %w", err)
+	}
+	if img == nil {
+		return fmt.Errorf("cached image is nil for auto zoom")
+	}
+
+	screen := minicv.ImageConvertRGBA(img)
+	searchArea := [4]int{
+		int(math.Round(ZOOM_BUTTON_AREA_X)),
+		int(math.Round(ZOOM_BUTTON_AREA_Y)),
+		int(math.Round(ZOOM_BUTTON_AREA_W)),
+		int(math.Round(ZOOM_BUTTON_AREA_H)),
+	}
+	screenIntegral := minicv.GetIntegralArray(screen)
+
+	zoomOutX, zoomOutY, outVal := minicv.MatchTemplateInArea(
+		screen,
+		screenIntegral,
+		a.zoomOutTemplate,
+		minicv.GetImageStats(a.zoomOutTemplate),
+		searchArea,
+	)
+	zoomInX, zoomInY, inVal := minicv.MatchTemplateInArea(
+		screen,
+		screenIntegral,
+		a.zoomInTemplate,
+		minicv.GetImageStats(a.zoomInTemplate),
+		searchArea,
+	)
+
+	outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
+	inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
+
+	if outMatched && inMatched {
+		cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
+		cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*0.7))
+		aw.ClickSync(0, cx, cy, 100)
+		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
+		return nil
+	}
+	if !outMatched && !inMatched {
+		log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("No zoom button matched for auto zoom")
+		return nil
+	}
+
+	pressZoomButton := func(matchX, matchY float64, tpl *image.RGBA) {
+		cx := int(math.Round(matchX + float64(tpl.Rect.Dx())/2.0))
+		cy := int(math.Round(matchY + float64(tpl.Rect.Dy())/2.0))
+		aw.ClickSync(0, cx, cy, 200)
+	}
+
+	if outMatched {
+		pressZoomButton(zoomOutX, zoomOutY, a.zoomOutTemplate)
+		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-out button")
+	} else {
+		pressZoomButton(zoomInX, zoomInY, a.zoomInTemplate)
+		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-in button")
+	}
+	return nil
+}
+
+func (a *MapTrackerBigMapPick) initZoomTemplates() {
+	loadMapTrackerTemplate := func(path string) (*image.RGBA, error) {
+		resolvedPath := findResource(path)
+		if resolvedPath == "" {
+			return nil, fmt.Errorf("template not found: %s", path)
+		}
+
+		file, err := os.Open(resolvedPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open template %s: %w", path, err)
+		}
+		defer file.Close()
+
+		img, _, err := image.Decode(file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode template %s: %w", path, err)
+		}
+
+		rgba := image.NewRGBA(img.Bounds())
+		draw.Draw(rgba, rgba.Bounds(), img, img.Bounds().Min, draw.Src)
+		return rgba, nil
+	}
+
+	a.zoomTemplateOnce.Do(func() {
+		a.zoomOutTemplate, a.zoomTemplateErr = loadMapTrackerTemplate(ZOOM_OUT_IMG_PATH)
+		a.zoomInTemplate, a.zoomTemplateErr = loadMapTrackerTemplate(ZOOM_IN_IMG_PATH)
+	})
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {

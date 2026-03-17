@@ -1,0 +1,167 @@
+{
+    "task": [
+        {
+            "name": "AutoStockpile",
+            "label": "$task.AutoStockpile.label",
+            "entry": "AutoStockpileMain",
+            "description": "$task.AutoStockpile.description",
+            "group": ["daily"],
+            "option": [
+                "AutoStockpileOverflowBuyLowPriceGoods",
+                "AutoStockpileBuyAllGoodsOnSunday",
+                "AutoStockpileValleyIV",
+                "AutoStockpileWuling"
+            ]
+        }
+    ],
+    "option": {
+        "AutoStockpileOverflowBuyLowPriceGoods": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileOverflowBuyLowPriceGoods.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileDecision": {
+                            "attach": {
+                                "overflow_mode": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileBuyAllGoodsOnSunday": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileBuyAllGoodsOnSunday.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileDecision": {
+                            "attach": {
+                                "sunday_mode": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileValleyIV.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockpileValleyIVPriceLimits"
+                    ],
+                    "pipeline_override": {
+                        "AutoStockpileValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileValleyIVPriceLimits": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.description",
+            "inputs": [
+                {
+                    "name": "ValleyIVTier1PriceLimit",
+                    "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier1PriceLimit.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "800"
+                },
+                {
+                    "name": "ValleyIVTier2PriceLimit",
+                    "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier2PriceLimit.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "1200"
+                },
+                {
+                    "name": "ValleyIVTier3PriceLimit",
+                    "label": "$task.AutoStockpile.option.AutoStockpileValleyIVPriceLimits.inputs.ValleyIVTier3PriceLimit.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "1500"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileDecision": {
+                    "attach": {
+                        "price_limits_ValleyIV.Tier1": "{ValleyIVTier1PriceLimit}",
+                        "price_limits_ValleyIV.Tier2": "{ValleyIVTier2PriceLimit}",
+                        "price_limits_ValleyIV.Tier3": "{ValleyIVTier3PriceLimit}"
+                    }
+                }
+            }
+        },
+        "AutoStockpileWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileWuling.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockpileWulingPriceLimits"
+                    ],
+                    "pipeline_override": {
+                        "AutoStockpileWuling": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileWulingPriceLimits": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.description",
+            "inputs": [
+                {
+                    "name": "WulingTier1PriceLimit",
+                    "label": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.inputs.WulingTier1PriceLimit.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "1200"
+                },
+                {
+                    "name": "WulingTier2PriceLimit",
+                    "label": "$task.AutoStockpile.option.AutoStockpileWulingPriceLimits.inputs.WulingTier2PriceLimit.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "1500"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileDecision": {
+                    "attach": {
+                        "price_limits_Wuling.Tier1": "{WulingTier1PriceLimit}",
+                        "price_limits_Wuling.Tier2": "{WulingTier2PriceLimit}"
+                    }
+                }
+            }
+        }
+    }
+}

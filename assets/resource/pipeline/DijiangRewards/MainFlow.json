@@ -24,7 +24,8 @@
             "[JumpBack]GrowthChamber",
             "[JumpBack]RecoveryEmotion",
             "InLastCarbin",
-            "[JumpBack]CarbinSwipe"
+            "[JumpBack]CarbinSwipe",
+            "[JumpBack]EndExchangeJBC"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "未识别到指定舱室"

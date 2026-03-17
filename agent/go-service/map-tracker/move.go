@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,6 +37,8 @@ type MapTrackerMoveParam struct {
 	NoPrint bool `json:"no_print,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
+	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
+	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -82,13 +85,13 @@ var navigationMovingHTML string
 //go:embed messages/navigation_finished.html
 var navigationFinishedHTML string
 
-var _ maa.CustomActionRunner = &MapTrackerMove{}
-
 var previewMapCache = struct {
 	mu  sync.RWMutex
 	key string
 	img *image.RGBA
 }{}
+
+var _ maa.CustomActionRunner = &MapTrackerMove{}
 
 // Run implements maa.CustomActionRunner
 func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -141,7 +144,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		targetX, targetY := target[0], target[1]
 		enableFineApproach := (param.FineApproach == FINE_APPROACH_ALL_TARGETS) ||
 			(param.FineApproach == FINE_APPROACH_FINAL_TARGET && i == len(param.Path)-1)
-		inFineApproach := false
 		log.Info().Int("index", i).Float64("targetX", targetX).Float64("targetY", targetY).Msg("Navigating to next target point")
 
 		// Show navigation UI
@@ -159,10 +161,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 
 		var (
-			lastLoopTime     = time.Time{}
-			lastArrivalTime  = time.Now()
-			prevLocationTime = time.Time{}
-			prevLocation     *[2]float64
+			lastLoopTime                = time.Time{}
+			lastArrivalTime             = time.Now()
+			prevLocationTime            = time.Time{}
+			prevLocation                *[2]float64
+			fineApproachOngoing         = false
+			fineApproachExpectedEndTime = time.Time{}
 		)
 
 		for {
@@ -184,7 +188,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check arrival timeout
 			deltaArrivalMs := loopStartTime.Sub(lastArrivalTime).Milliseconds()
 			if deltaArrivalMs > param.ArrivalTimeout {
-				if inFineApproach {
+				if fineApproachOngoing {
 					log.Warn().Msg("Fine approach timeout, ending fine approach")
 					break
 				} else {
@@ -222,24 +226,26 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 			}
 			dist := math.Hypot(curX-targetX, curY-targetY)
-			if inFineApproach {
-				if dist < FINE_APPROACH_COMPLETE_THRESHOLD {
-					log.Info().Int("index", i).Float64("dist", dist).Msg("Fine approach reached target point")
+			if fineApproachOngoing {
+				if loopStartTime.After(fineApproachExpectedEndTime) || dist < FINE_APPROACH_COMPLETE_THRESHOLD {
+					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
 					finishCurrentTarget(curX, curY, rot)
 					break
 				}
 			} else {
 				if dist < param.ArrivalThreshold {
 					if enableFineApproach {
-						inFineApproach = true
+						fineApproachOngoing = true
+						fineApproachExpectedElapsed := time.Duration(float64(time.Second) * (dist / MovementWalk.Speed))
+						fineApproachExpectedEndTime = loopStartTime.Add(fineApproachExpectedElapsed)
 						if movement.Speed > MovementWalk.Speed {
 							aw.KeyTypeSync(KEY_CTRL, 25)
 							movement = &MovementWalk
 						}
 						aw.KeyDownSync(KEY_W, 25)
-						log.Info().Int("index", i).Float64("dist", dist).Msg("Entering fine approach")
+						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
-						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached")
+						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached (ordinary approach)")
 						finishCurrentTarget(curX, curY, rot)
 						break
 					}
@@ -304,7 +310,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						aw.KeyTypeSync(KEY_CTRL, 25)
 						movement = &MovementWalk
 					}
-				} else if !inFineApproach {
+				} else if !fineApproachOngoing {
 					// Rotation is good: at least set to 'run'
 					if movement.Speed < MovementRun.Speed {
 						aw.KeyTypeSync(KEY_CTRL, 25)
@@ -334,7 +340,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						}
 						aw.RotateCamera(int(finalDeltaRot*rotationSpeed), 75, 25)
 						aw.KeyDownSync(KEY_W, 25)
-					} else if !inFineApproach {
+					} else if !fineApproachOngoing {
 						// Rotation is acceptable but can be improved: at least ensure 'run'
 						if movement.Speed < MovementRun.Speed {
 							aw.KeyTypeSync(KEY_CTRL, 25)
@@ -426,6 +432,14 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("fine_approach must be one of %q, %q, %q", FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER)
 	}
 
+	if len(param.MapNameMatchRule) == 0 {
+		param.MapNameMatchRule = DEFAULT_MOVING_PARAM.MapNameMatchRule
+	}
+	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
+	if _, err := regexp.Compile(mapNameRegex); err != nil {
+		return nil, fmt.Errorf("map_name_match_rule produced invalid regex %q: %w", mapNameRegex, err)
+	}
+
 	if param.RotationLowerThreshold < 0 {
 		return nil, fmt.Errorf("rotation_lower_threshold must be non-negative")
 	} else if param.RotationLowerThreshold > 180 {
@@ -486,8 +500,9 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	// Run recognition
+	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
 	inferConfig := map[string]any{
-		"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
+		"map_name_regex": mapNameRegex,
 		"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
 		"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
 	}
@@ -534,6 +549,14 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	return &result, nil
+}
+
+func buildMapNameRegex(rule string, mapName string) string {
+	escapedName := regexp.QuoteMeta(mapName)
+	if strings.Contains(rule, "%s") {
+		return fmt.Sprintf(rule, escapedName)
+	}
+	return rule
 }
 
 // calcTargetRotation calculates the angle from (fromX, fromY) to (toX, toY).

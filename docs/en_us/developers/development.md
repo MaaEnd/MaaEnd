@@ -77,8 +77,6 @@ This will fully set up the environment required for development.
 - **When prompted that features such as "HDR" or "Automatically manage color for apps" are enabled, do not take screenshots or pick colors-this may cause template effects to be inconsistent with the actual display on the user's device.**
 - For color matching, it is recommended to prioritize using HSV or grayscale space for matching. Different GPU vendors (such as NVIDIA, AMD, Intel) have different rendering methods, and using RGB color values directly will have slight deviations on various devices; by fixing the hue in HSV space and only making appropriate adjustments to saturation and brightness, more unified and stable recognition results can be obtained across the three GPU types.
 - The resource folder is in a linked state; modifying `assets` is equivalent to modifying the content in `install`, no additional copying is required. **However, `interface.json` is copied-if modified, you need to manually copy it back to `install` for UI testing (or run build_and_install.py, method as above).**
-- The `resource_fast` folder has default delays removed, which will greatly speed up operation speed but also place higher requirements on the robustness of the pipeline. We recommend using `resource_fast` first, but developers can also choose according to the actual situation of the task.
-  _In plain terms, `resource_fast` is much harder to write-after each operation, the next frame may still show transition animations, and you have to find a way to recognize them. But the running speed is faster-feel free to try it if you are confident. If you can't figure it out or are too lazy to do it, put it in `resource` -the operation is slower but easier to write._
 - About OCR node `expected` i18n: developers do not need to maintain multilingual text manually. Just write `expected` in your own current language, and the `tools/i18n` program will automatically convert OCR `expected` in pipeline files to proper i18n entries.
 - Prefer writing the full expected sentence instead of a partial fragment. For example, write "This is a sample sentence" rather than only "sample sentence".
 - If you intentionally need partial text, or you do not want the i18n program to auto-process this OCR node, add the skip marker comment `// @i18n-skip` inside the corresponding `expected` array.
@@ -107,6 +105,7 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
 - [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
 - [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
+- [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
 - [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
 
 ## Code Specifications
