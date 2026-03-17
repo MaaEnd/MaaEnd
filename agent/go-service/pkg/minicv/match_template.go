@@ -184,14 +184,12 @@ func MatchTemplateAnyScale(
 		if minScale > maxScale {
 			break
 		}
-
-		var stepLen float64
 		if stepCount < 1 {
 			stepCount = 1
-			stepLen = 0.0
-		} else if stepCount == 1 {
-			stepLen = 0.0
-		} else {
+		}
+
+		stepLen := 0.0
+		if stepCount > 1 {
 			stepLen = (maxScale - minScale) / float64(stepCount-1)
 		}
 
@@ -199,33 +197,69 @@ func MatchTemplateAnyScale(
 		iterBestScale := minScale
 		iterBestX, iterBestY, iterBestScore := 0.0, 0.0, -1.0
 
-		for idx := range stepCount {
-			var scale float64
-			if stepCount == 1 {
-				scale = (minScale + maxScale) * 0.5
-			} else if stepCount%2 == 0 {
-				scale = minScale + float64(idx)*stepLen
-			} else {
-				scale = minScale + (float64(idx)+0.5)*stepLen
-			}
-			if scale <= 0 {
-				continue
-			}
+		type result struct {
+			idx   int
+			scale float64
+			x     float64
+			y     float64
+			score float64
+			valid bool
+		}
 
-			scaledTpl := ImageScale(tpl, scale)
-			scaledStats := GetImageStats(scaledTpl)
-			if scaledStats.Std < 1e-12 {
-				continue
-			}
+		workerCount := min(stepCount, 8)
+		resChan := make(chan result, stepCount)
 
-			x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+		for workerID := range workerCount {
+			go func(id int) {
+				for idx := id; idx < stepCount; idx += workerCount {
+					scale := minScale
+					if stepCount == 1 {
+						scale = (minScale + maxScale) * 0.5
+					} else {
+						scale = minScale + float64(idx)*stepLen
+					}
 
-			if score > iterBestScore {
-				iterBestScore = score
-				iterBestX = x
-				iterBestY = y
-				iterBestScale = scale
-				iterBestIdx = idx
+					if scale <= 0 {
+						resChan <- result{idx: idx, scale: scale, score: -1.0, valid: false}
+						continue
+					}
+
+					scaledTpl := ImageScale(tpl, scale)
+					scaledStats := GetImageStats(scaledTpl)
+					if scaledStats.Std < 1e-12 {
+						resChan <- result{
+							idx:   idx,
+							scale: scale,
+							score: -1.0,
+							valid: false,
+						}
+						continue
+					}
+
+					x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+
+					resChan <- result{
+						idx:   idx,
+						scale: scale,
+						x:     x,
+						y:     y,
+						score: score,
+						valid: true,
+					}
+				}
+			}(workerID)
+		}
+
+		for range stepCount {
+			res := <-resChan
+			if res.valid {
+				if res.score > iterBestScore {
+					iterBestScore = res.score
+					iterBestX = res.x
+					iterBestY = res.y
+					iterBestScale = res.scale
+					iterBestIdx = res.idx
+				}
 			}
 		}
 
