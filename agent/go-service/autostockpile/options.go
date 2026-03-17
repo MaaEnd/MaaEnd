@@ -60,31 +60,22 @@ func normalizePriceLimitThreshold(tierID string, threshold int) int {
 func getSelectionConfigFromNode(ctx *maa.Context, nodeName string) (SelectionConfig, error) {
 	region, _ := resolveGoodsRegion(ctx)
 
-	raw, err := ctx.GetNodeJSON(nodeName)
+	node, err := ctx.GetNode(nodeName)
 	if err != nil {
-		log.Error().Err(err).Str("component", "autostockpile").Str("node", nodeName).Msg("failed to get node json")
+		log.Error().Err(err).Str("component", "autostockpile").Str("node", nodeName).Msg("failed to get node")
 		return SelectionConfig{}, err
 	}
 
-	return parseSelectionConfigFromNodeJSON(raw, region)
+	return parseSelectionConfigFromAttach(node.Attach, region)
 }
 
-// parseSelectionConfigFromNodeJSON 解析节点 attach 配置，并按当前地区提取有效阈值。
-func parseSelectionConfigFromNodeJSON(raw string, region string) (SelectionConfig, error) {
+func parseSelectionConfigFromAttach(attach map[string]any, region string) (SelectionConfig, error) {
 	cfg := SelectionConfig{FallbackThreshold: defaultFallbackBuyThreshold}
-	if raw == "" {
+	if len(attach) == 0 {
 		return cfg, nil
 	}
 
-	var wrapper struct {
-		Attach map[string]json.RawMessage `json:"attach"`
-	}
-
-	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
-		return SelectionConfig{}, err
-	}
-
-	attachJSON, err := json.Marshal(wrapper.Attach)
+	attachJSON, err := json.Marshal(attach)
 	if err != nil {
 		return SelectionConfig{}, err
 	}
@@ -92,7 +83,12 @@ func parseSelectionConfigFromNodeJSON(raw string, region string) (SelectionConfi
 		return SelectionConfig{}, err
 	}
 
-	if err := applyRegionScopedConfig(wrapper.Attach, region, &cfg); err != nil {
+	rawAttach, err := marshalAttachRawMessages(attach)
+	if err != nil {
+		return SelectionConfig{}, err
+	}
+
+	if err := applyRegionScopedConfig(rawAttach, region, &cfg); err != nil {
 		return SelectionConfig{}, err
 	}
 	if cfg.FallbackThreshold <= 0 {
@@ -107,6 +103,23 @@ func parseSelectionConfigFromNodeJSON(raw string, region string) (SelectionConfi
 	}
 
 	return cfg, nil
+}
+
+func marshalAttachRawMessages(attach map[string]any) (map[string]json.RawMessage, error) {
+	if len(attach) == 0 {
+		return nil, nil
+	}
+
+	rawAttach := make(map[string]json.RawMessage, len(attach))
+	for key, value := range attach {
+		rawValue, err := json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+		rawAttach[key] = rawValue
+	}
+
+	return rawAttach, nil
 }
 
 // applyRegionScopedConfig 从扁平前缀配置中收集当前地区的阈值，并覆盖为当前地区的有效配置。

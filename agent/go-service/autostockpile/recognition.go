@@ -401,23 +401,21 @@ func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) e
 }
 
 func loadSwipeSpecificQuantityCustomActionParam(ctx *maa.Context) (map[string]any, error) {
-	raw, err := ctx.GetNodeJSON(swipeSpecificQuantityNodeName)
+	node, err := ctx.GetNode(swipeSpecificQuantityNodeName)
 	if err != nil {
 		return nil, err
 	}
 
-	var node struct {
-		Action struct {
-			Param struct {
-				CustomActionParam any `json:"custom_action_param"`
-			} `json:"param"`
-		} `json:"action"`
-	}
-	if err := json.Unmarshal([]byte(raw), &node); err != nil {
-		return nil, err
+	if node.Action == nil {
+		return nil, fmt.Errorf("node %s missing action", swipeSpecificQuantityNodeName)
 	}
 
-	return normalizeCustomActionParam(node.Action.Param.CustomActionParam)
+	param, ok := node.Action.Param.(*maa.CustomActionParam)
+	if !ok || param == nil {
+		return nil, fmt.Errorf("node %s action param type %T is not *maa.CustomActionParam", swipeSpecificQuantityNodeName, node.Action.Param)
+	}
+
+	return normalizeCustomActionParam(param.CustomActionParam)
 }
 
 func buildSwipeSpecificQuantityTargetOverride(customActionParam map[string]any, overflowAmount int) map[string]any {
@@ -692,26 +690,20 @@ func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
 		return fmt.Errorf("context is nil")
 	}
 
-	raw, err := ctx.GetNodeJSON(selectedGoodsClickNodeName)
+	node, err := ctx.GetNode(selectedGoodsClickNodeName)
 	if err != nil {
 		return err
 	}
 
-	var node struct {
-		Recognition struct {
-			Param struct {
-				ROI []int `json:"roi"`
-			} `json:"param"`
-		} `json:"recognition"`
-	}
-	if err := json.Unmarshal([]byte(raw), &node); err != nil {
+	roi, err := recognitionParamROI(node)
+	if err != nil {
 		return err
 	}
-	if len(node.Recognition.Param.ROI) != 4 {
-		return fmt.Errorf("invalid roi length %d", len(node.Recognition.Param.ROI))
+	if len(roi) != 4 {
+		return fmt.Errorf("invalid roi length %d", len(roi))
 	}
 
-	roi := append([]int(nil), node.Recognition.Param.ROI...)
+	roi = append([]int(nil), roi...)
 	roi[1] = y
 
 	return ctx.OverridePipeline(map[string]any{
@@ -719,6 +711,39 @@ func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
 			"roi": roi,
 		},
 	})
+}
+
+func recognitionParamROI(node *maa.Node) ([]int, error) {
+	if node == nil || node.Recognition == nil || node.Recognition.Param == nil {
+		return nil, fmt.Errorf("node %s missing recognition param", selectedGoodsClickNodeName)
+	}
+
+	var target maa.Target
+	switch param := node.Recognition.Param.(type) {
+	case *maa.TemplateMatchParam:
+		target = param.ROI
+	case *maa.FeatureMatchParam:
+		target = param.ROI
+	case *maa.ColorMatchParam:
+		target = param.ROI
+	case *maa.OCRParam:
+		target = param.ROI
+	case *maa.NeuralNetworkClassifyParam:
+		target = param.ROI
+	case *maa.NeuralNetworkDetectParam:
+		target = param.ROI
+	case *maa.CustomRecognitionParam:
+		target = param.ROI
+	default:
+		return nil, fmt.Errorf("node %s has unsupported recognition param type %T", selectedGoodsClickNodeName, node.Recognition.Param)
+	}
+
+	rect, err := target.AsRect()
+	if err != nil {
+		return nil, fmt.Errorf("node %s roi: %w", selectedGoodsClickNodeName, err)
+	}
+
+	return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 }
 
 func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCandidate, []ocrNameCandidate, error) {
