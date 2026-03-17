@@ -12,7 +12,7 @@ type quantizedSlidingParam struct {
 	Direction         string               `json:"Direction"`
 	IncreaseButton    any                  `json:"IncreaseButton"`
 	DecreaseButton    any                  `json:"DecreaseButton"`
-	CenterPointOffset any                  `json:"centerPointOffset"`
+	CenterPointOffset any                  `json:"CenterPointOffset"`
 }
 
 // quantityFilterParam 定义数量 OCR 预处理使用的单组颜色阈值。
