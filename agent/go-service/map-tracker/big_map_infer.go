@@ -36,6 +36,7 @@ type MapTrackerBigMapInfer struct {
 
 	scaledMapsMu sync.Mutex
 	scaledMaps   []MapCache
+	scaledScale  float64
 }
 
 var _ maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
@@ -275,6 +276,10 @@ func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []MapCache {
 	r.scaledMapsMu.Lock()
 	defer r.scaledMapsMu.Unlock()
 
+	if r.scaledMaps != nil && math.Abs(r.scaledScale-scale) < 1e-6 {
+		return r.scaledMaps
+	}
+
 	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
 	for _, m := range mapTrackerResource.rawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
@@ -287,6 +292,7 @@ func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []MapCache {
 	}
 
 	r.scaledMaps = newScaled
+	r.scaledScale = scale
 	return r.scaledMaps
 }
 

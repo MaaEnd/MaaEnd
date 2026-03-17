@@ -55,6 +55,7 @@ type MapTrackerInfer struct {
 	// Cache for scaled maps (recomputed per request scale)
 	scaledMapsMu sync.Mutex
 	scaledMaps   []MapCache
+	scaledScale  float64
 }
 
 type InferState struct {
@@ -689,7 +690,10 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 	i.scaledMapsMu.Lock()
 	defer i.scaledMapsMu.Unlock()
 
-	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
+	if i.scaledMaps != nil && math.Abs(i.scaledScale-scale) < 1e-6 {
+		return i.scaledMaps
+	}
+
 	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
 	for _, m := range mapTrackerResource.rawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
@@ -702,5 +706,6 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 	}
 
 	i.scaledMaps = newScaled
+	i.scaledScale = scale
 	return i.scaledMaps
 }
