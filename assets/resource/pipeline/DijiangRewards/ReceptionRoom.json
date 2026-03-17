@@ -425,7 +425,6 @@
             "ReceptionRoomNeedReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
             "StartExchange",
-            "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
     },
