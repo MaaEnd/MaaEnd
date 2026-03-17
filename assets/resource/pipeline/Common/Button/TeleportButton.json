@@ -2,9 +2,6 @@
     // 传送按钮。
     // 主节点对常态和悬停态模板做短路优先识别，命中后直接点击。
     "TeleportButton": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "传送按钮：按常态优先短路匹配常态与悬停态模板",
         "recognition": {
             "type": "Or",
@@ -15,6 +12,7 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
@@ -26,12 +24,11 @@
                 0,
                 0
             ]
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__TeleportButton": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "传送按钮常态模板，在右下固定区域优先匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -47,12 +44,12 @@
                 ],
                 "threshold": 0.9
             }
-        }
-    },
-    "__TeleportButtonHover": {
-        "rate_limit": 0,
+        },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__TeleportButtonHover": {
         "desc": "传送按钮悬停态模板，在常态未命中时作为回退匹配",
         "recognition": {
             "type": "TemplateMatch",
@@ -68,6 +65,9 @@
                 ],
                 "threshold": 0.9
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
