@@ -449,12 +449,25 @@
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                     "QuantityBox": [
-                        360,
-                        490,
-                        110,
-                        70
+                        340,
+                        430,
+                        200,
+                        140
                     ],
-                    "Target": 1
+                    "Target": 1,
+                    "QuantityFilter": {
+                        "lower": [
+                            20,
+                            150,
+                            150
+                        ],
+                        "upper": [
+                            35,
+                            255,
+                            255
+                        ],
+                        "method": 40
+                    }
                 }
             }
         },
