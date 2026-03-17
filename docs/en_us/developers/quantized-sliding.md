@@ -37,12 +37,6 @@ The current implementation is located at:
 
 In other words, the business-side caller usually only needs to pass `custom_action_param` once and does **not** need to manually chain the internal nodes.
 
-In addition, the current implementation adds one layer of compatibility for `custom_action_param`:
-
-- You can pass a JSON object directly.
-- You can also pass a string whose content is itself JSON.
-- On the Go side, the outer layer is parsed first, and then one nested JSON layer is unpacked automatically when possible.
-
 ## How it works
 
 `QuantizedSliding` does not simply “swipe to a fixed percentage.” Instead, it uses a **detect, calculate, then fine-tune** flow.
@@ -75,7 +69,7 @@ The internal nodes are executed by `QuantizedSliding` itself through `QuantizedS
 
 In a business Pipeline, call it like a normal `Custom` action. The example below uses MaaFramework Pipeline protocol v2 syntax.
 
-It is generally recommended to pass a JSON object directly instead of manually writing an escaped JSON string.
+Pass `custom_action_param` as a JSON object directly.
 
 ```json
 "SomeTaskAdjustQuantity": {
@@ -88,7 +82,8 @@ It is generally recommended to pass a JSON object directly instead of manually w
                 "QuantityBox": [360, 490, 110, 70],
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png"
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "centerPointOffset": [-10, 0]
             }
         }
     }
@@ -97,15 +92,22 @@ It is generally recommended to pass a JSON object directly instead of manually w
 
 ## Parameter description
 
-`custom_action_param` is best passed as a JSON object directly. The current implementation also accepts a string whose content is itself JSON. The commonly used fields are:
+`custom_action_param` should be passed as a JSON object directly. The commonly used fields are:
 
-| Field            | Type                    | Required | Description                                                             |
-| ---------------- | ----------------------- | -------- | ----------------------------------------------------------------------- |
-| `Target`         | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.        |
-| `QuantityBox`    | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`. |
-| `Direction`      | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.              |
-| `IncreaseButton` | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.  |
-| `DecreaseButton` | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.  |
+| Field               | Type                    | Required | Description                                                             |
+| ------------------- | ----------------------- | -------- | ----------------------------------------------------------------------- |
+| `Target`            | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.        |
+| `QuantityBox`       | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`. |
+| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.              |
+| `IncreaseButton`    | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.  |
+| `DecreaseButton`    | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.  |
+| `centerPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.  |
+
+`centerPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
+
+- `x` is the horizontal offset. Negative moves left, positive moves right.
+- `y` is the vertical offset. Negative moves up, positive moves down.
+- If omitted, the default is `[-10, 0]`, which means clicking 10 pixels to the left of the slider center.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
@@ -243,6 +245,7 @@ The human-readable strings below are kept exactly as they appear in the current 
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "QuantityBox": [360, 490, 110, 70],
+                "centerPointOffset": [-10, 0],
                 "Target": 1
             }
         }

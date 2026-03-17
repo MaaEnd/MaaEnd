@@ -6,11 +6,12 @@ import (
 )
 
 type quantizedSlidingParam struct {
-	Target         int    `json:"Target"`
-	QuantityBox    []int  `json:"QuantityBox"`
-	Direction      string `json:"Direction"`
-	IncreaseButton any    `json:"IncreaseButton"`
-	DecreaseButton any    `json:"DecreaseButton"`
+	Target            int    `json:"Target"`
+	QuantityBox       []int  `json:"QuantityBox"`
+	Direction         string `json:"Direction"`
+	IncreaseButton    any    `json:"IncreaseButton"`
+	DecreaseButton    any    `json:"DecreaseButton"`
+	CenterPointOffset any    `json:"centerPointOffset"`
 }
 
 // QuantizedSlidingAction 实现量化滑动选择功能,用于处理游戏中需要通过滑动选择数量的 UI 场景。
@@ -24,11 +25,12 @@ type quantizedSlidingParam struct {
 //   - IncreaseButton: 增加数量按钮的坐标
 //   - DecreaseButton: 减少数量按钮的坐标
 type QuantizedSlidingAction struct {
-	Target         int
-	QuantityBox    []int
-	Direction      string
-	IncreaseButton buttonTarget
-	DecreaseButton buttonTarget
+	Target            int
+	QuantityBox       []int
+	Direction         string
+	IncreaseButton    buttonTarget
+	DecreaseButton    buttonTarget
+	CenterPointOffset [2]int
 
 	startBox    []int
 	endBox      []int
@@ -60,7 +62,6 @@ var quantizedSlidingActionNodes = []string{
 
 const maxClickRepeat = 30
 
-// centerPointOffset 用于微调点击位置
-var centerPointOffset = [2]int{-10, 0}
+var defaultCenterPointOffset = [2]int{-10, 0}
 
 var _ maa.CustomActionRunner = &QuantizedSlidingAction{}

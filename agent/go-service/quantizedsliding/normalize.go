@@ -50,6 +50,23 @@ func normalizeButtonParam(btn any) (buttonTarget, error) {
 	return buttonTarget{coordinates: coordinates}, nil
 }
 
+func normalizeCenterPointOffset(raw any) ([2]int, error) {
+	if raw == nil {
+		return defaultCenterPointOffset, nil
+	}
+
+	numbers, err := normalizeIntSlice(raw)
+	if err != nil {
+		return [2]int{}, err
+	}
+
+	if len(numbers) != 2 {
+		return [2]int{}, fmt.Errorf("centerPointOffset must be [x,y], got len=%d", len(numbers))
+	}
+
+	return [2]int{numbers[0], numbers[1]}, nil
+}
+
 func normalizeIntSlice(raw any) ([]int, error) {
 	switch v := raw.(type) {
 	case []int:
@@ -75,9 +92,9 @@ func normalizeIntSlice(raw any) ([]int, error) {
 	}
 }
 
-func centerPoint(rect []int) (int, int) {
+func centerPoint(rect []int, offset [2]int) (int, int) {
 	if len(rect) < 4 {
 		return 0, 0
 	}
-	return rect[0] + rect[2]/2 + centerPointOffset[0], rect[1] + rect[3]/2 + centerPointOffset[1]
+	return rect[0] + rect[2]/2 + offset[0], rect[1] + rect[3]/2 + offset[1]
 }

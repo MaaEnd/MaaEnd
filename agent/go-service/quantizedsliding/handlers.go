@@ -50,11 +50,20 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
+	centerPointOffset, err := normalizeCenterPointOffset(params.CenterPointOffset)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Msg("failed to normalize center point offset")
+		return false
+	}
+
 	a.Target = params.Target
 	a.QuantityBox = append([]int(nil), params.QuantityBox...)
 	a.Direction = strings.ToLower(strings.TrimSpace(params.Direction))
 	a.IncreaseButton = increaseButton
 	a.DecreaseButton = decreaseButton
+	a.CenterPointOffset = centerPointOffset
 
 	a.logger.Info().
 		Int("target", a.Target).
@@ -62,6 +71,7 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
+		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Msg("parsed custom action parameters")
 
 	switch arg.CurrentTaskName {
@@ -203,8 +213,8 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 		return false
 	}
 
-	startX, startY := centerPoint(a.startBox)
-	endX, endY := centerPoint(a.endBox)
+	startX, startY := centerPoint(a.startBox, a.CenterPointOffset)
+	endX, endY := centerPoint(a.endBox, a.CenterPointOffset)
 
 	numerator := a.Target - 1
 	denominator := a.maxQuantity - 1

@@ -80,7 +80,8 @@ clickY = startY + (endY - startY) * numerator / denominator
                 "QuantityBox": [360, 490, 110, 70],
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                "DecreaseButton": "AutoStockpile/DecreaseButton.png"
+                "DecreaseButton": "AutoStockpile/DecreaseButton.png",
+                "centerPointOffset": [-10, 0]
             }
         }
     }
@@ -89,15 +90,22 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 ## 参数说明
 
-`custom_action_param` 推荐直接传入一个 JSON 对象；当前实现也兼容“内容本身还是一段 JSON”的字符串。常用字段如下：
+`custom_action_param` 请直接传入一个 JSON 对象。常用字段如下：
 
-| 字段             | 类型                    | 必填 | 说明                                              |
-| ---------------- | ----------------------- | ---- | ------------------------------------------------- |
-| `Target`         | `int`                   | 是   | 目标数量。最终希望调到的档位值。                  |
-| `QuantityBox`    | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。    |
-| `Direction`      | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。 |
-| `IncreaseButton` | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。        |
-| `DecreaseButton` | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。        |
+| 字段                | 类型                    | 必填 | 说明                                              |
+| ------------------- | ----------------------- | ---- | ------------------------------------------------- |
+| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                  |
+| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。    |
+| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。 |
+| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。        |
+| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。        |
+| `centerPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。 |
+
+`centerPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
+
+- `x` 为水平方向偏移，负数表示向左，正数表示向右；
+- `y` 为垂直方向偏移，负数表示向上，正数表示向下；
+- 不传时默认使用 `[-10, 0]`，即相对滑块中心向左偏移 10 像素。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
 
@@ -226,6 +234,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "QuantityBox": [360, 490, 110, 70],
+                "centerPointOffset": [-10, 0],
                 "Target": 1
             }
         }
