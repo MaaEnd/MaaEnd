@@ -83,7 +83,7 @@ Pass `custom_action_param` as a JSON object directly.
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-                "centerPointOffset": [-10, 0]
+                "CenterPointOffset": [-10, 0]
             }
         }
     }
@@ -94,20 +94,48 @@ Pass `custom_action_param` as a JSON object directly.
 
 `custom_action_param` should be passed as a JSON object directly. The commonly used fields are:
 
-| Field               | Type                    | Required | Description                                                             |
-| ------------------- | ----------------------- | -------- | ----------------------------------------------------------------------- |
-| `Target`            | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.        |
-| `QuantityBox`       | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`. |
-| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.              |
-| `IncreaseButton`    | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.  |
-| `DecreaseButton`    | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.  |
-| `centerPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.  |
+| Field               | Type                    | Required | Description                                                                                               |
+| ------------------- | ----------------------- | -------- | --------------------------------------------------------------------------------------------------------- |
+| `Target`            | `int`                   | Yes      | The target quantity. The final discrete value you want to reach.                                          |
+| `QuantityBox`       | `int[4]`                | Yes      | OCR region for the current quantity. The format must be `[x, y, w, h]`.                                   |
+| `QuantityFilter`    | `object`                | No       | Optional color filtering for quantity OCR, useful when digit color is stable but the background is noisy. |
+| `Direction`         | `string`                | Yes      | Drag direction. Supports `left` / `right` / `up` / `down`.                                                |
+| `IncreaseButton`    | `string` or `int[2\|4]` | Yes      | The “increase quantity” button. Can be a template path or coordinates.                                    |
+| `DecreaseButton`    | `string` or `int[2\|4]` | Yes      | The “decrease quantity” button. Can be a template path or coordinates.                                    |
+| `CenterPointOffset` | `int[2]`                | No       | Click offset relative to the slider handle center, default `[-10, 0]`.                                    |
 
-`centerPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
+`CenterPointOffset` is used to fine-tune the final click position for `QuantizedSlidingPreciseClick`. Its format must be `[x, y]`:
 
 - `x` is the horizontal offset. Negative moves left, positive moves right.
 - `y` is the vertical offset. Negative moves up, positive moves down.
 - If omitted, the default is `[-10, 0]`, which means clicking 10 pixels to the left of the slider center.
+
+### `QuantityFilter`
+
+`QuantityFilter` is an **optional enhancement**. If omitted, `QuantizedSliding` behaves exactly like the current version. If provided, OCR for `QuantizedSlidingGetQuantity` first applies color filtering and then reads the digits.
+
+It is a good fit when:
+
+- the digit color itself is stable;
+- the background, outline, shadow, or nearby numbers introduce OCR noise;
+- `QuantityBox` is already correct, but OCR needs one more preprocessing step.
+
+Minimal example:
+
+```json
+"QuantityFilter": {
+    "method": 4,
+    "lower": [0, 0, 0],
+    "upper": [255, 255, 255]
+}
+```
+
+Constraints and limits:
+
+- `lower` and `upper` must both be present and must have the same length;
+- use the common `ColorMatch` methods already used in this repo: `4` (RGB), `40` (HSV), or `6` (GRAY);
+- only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
+- `QuantityFilter` improves OCR preprocessing, but it is not a substitute for an inaccurate `QuantityBox`.
 
 ### `IncreaseButton` / `DecreaseButton` formats
 
@@ -245,7 +273,7 @@ The human-readable strings below are kept exactly as they appear in the current 
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "QuantityBox": [360, 490, 110, 70],
-                "centerPointOffset": [-10, 0],
+                "CenterPointOffset": [-10, 0],
                 "Target": 1
             }
         }

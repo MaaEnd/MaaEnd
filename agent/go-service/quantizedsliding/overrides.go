@@ -16,8 +16,12 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
-func buildMainInitializationOverride(end []int, quantityBox []int) map[string]any {
-	return map[string]any{
+func buildMainInitializationOverride(end []int, quantityBox []int, quantityFilter *quantityFilterParam) map[string]any {
+	quantityParam := map[string]any{
+		"roi": append([]int(nil), quantityBox...),
+	}
+
+	override := map[string]any{
 		"QuantizedSlidingSwipeToMax": map[string]any{
 			"action": map[string]any{
 				"param": map[string]any{
@@ -28,11 +32,33 @@ func buildMainInitializationOverride(end []int, quantityBox []int) map[string]an
 		"QuantizedSlidingGetQuantity": map[string]any{
 			"recognition": map[string]any{
 				"param": map[string]any{
-					"roi": append([]int(nil), quantityBox...),
+					"roi": quantityParam["roi"],
 				},
 			},
 		},
 	}
+
+	if quantityFilter == nil {
+		return override
+	}
+
+	quantityParam["color_filter"] = "QuantizedSlidingQuantityFilter"
+	override["QuantizedSlidingGetQuantity"] = map[string]any{
+		"recognition": map[string]any{
+			"param": quantityParam,
+		},
+	}
+	override["QuantizedSlidingQuantityFilter"] = map[string]any{
+		"recognition": map[string]any{
+			"param": map[string]any{
+				"method": quantityFilter.Method,
+				"lower":  [][]int{append([]int(nil), quantityFilter.Lower...)},
+				"upper":  [][]int{append([]int(nil), quantityFilter.Upper...)},
+			},
+		},
+	}
+
+	return override
 }
 
 func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {

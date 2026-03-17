@@ -67,6 +67,46 @@ func normalizeCenterPointOffset(raw any) ([2]int, error) {
 	return [2]int{numbers[0], numbers[1]}, nil
 }
 
+func normalizeQuantityFilter(raw *quantityFilterParam) (*quantityFilterParam, error) {
+	if raw == nil {
+		return nil, nil
+	}
+
+	if len(raw.Lower) == 0 || len(raw.Upper) == 0 {
+		return nil, fmt.Errorf("QuantityFilter lower and upper must both be provided")
+	}
+
+	if len(raw.Lower) != len(raw.Upper) {
+		return nil, fmt.Errorf("QuantityFilter lower and upper must have the same length, got lower=%d upper=%d", len(raw.Lower), len(raw.Upper))
+	}
+
+	channelCount, err := quantityFilterChannelCount(raw.Method)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(raw.Lower) != channelCount {
+		return nil, fmt.Errorf("QuantityFilter lower and upper must each contain %d values for method %d, got %d", channelCount, raw.Method, len(raw.Lower))
+	}
+
+	return &quantityFilterParam{
+		Lower:  append([]int(nil), raw.Lower...),
+		Upper:  append([]int(nil), raw.Upper...),
+		Method: raw.Method,
+	}, nil
+}
+
+func quantityFilterChannelCount(method int) (int, error) {
+	switch method {
+	case 4, 40:
+		return 3, nil
+	case 6:
+		return 1, nil
+	default:
+		return 0, fmt.Errorf("unsupported QuantityFilter method %d, expected 4 (RGB), 40 (HSV), or 6 (GRAY)", method)
+	}
+}
+
 func normalizeIntSlice(raw any) ([]int, error) {
 	switch v := raw.(type) {
 	case []int:

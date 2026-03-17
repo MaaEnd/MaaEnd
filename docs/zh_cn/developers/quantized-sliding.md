@@ -81,7 +81,7 @@ clickY = startY + (endY - startY) * numerator / denominator
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "DecreaseButton": "AutoStockpile/DecreaseButton.png",
-                "centerPointOffset": [-10, 0]
+                "CenterPointOffset": [-10, 0]
             }
         }
     }
@@ -92,20 +92,48 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 `custom_action_param` 请直接传入一个 JSON 对象。常用字段如下：
 
-| 字段                | 类型                    | 必填 | 说明                                              |
-| ------------------- | ----------------------- | ---- | ------------------------------------------------- |
-| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                  |
-| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。    |
-| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。 |
-| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。        |
-| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。        |
-| `centerPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。 |
+| 字段                | 类型                    | 必填 | 说明                                                                |
+| ------------------- | ----------------------- | ---- | ------------------------------------------------------------------- |
+| `Target`            | `int`                   | 是   | 目标数量。最终希望调到的档位值。                                    |
+| `QuantityBox`       | `int[4]`                | 是   | 当前数量 OCR 区域，格式固定为 `[x, y, w, h]`。                      |
+| `QuantityFilter`    | `object`                | 否   | 数量 OCR 的可选颜色过滤参数，适合数字颜色稳定但背景干扰较多的场景。 |
+| `Direction`         | `string`                | 是   | 拖动方向，支持 `left` / `right` / `up` / `down`。                   |
+| `IncreaseButton`    | `string` 或 `int[2\|4]` | 是   | “增加数量”按钮。可传模板路径，也可传坐标。                          |
+| `DecreaseButton`    | `string` 或 `int[2\|4]` | 是   | “减少数量”按钮。可传模板路径，也可传坐标。                          |
+| `CenterPointOffset` | `int[2]`                | 否   | 相对滑块识别框中心点的点击偏移，默认 `[-10, 0]`。                   |
 
-`centerPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
+`CenterPointOffset` 用于微调 `QuantizedSlidingPreciseClick` 的落点。格式固定为 `[x, y]`：
 
 - `x` 为水平方向偏移，负数表示向左，正数表示向右；
 - `y` 为垂直方向偏移，负数表示向上，正数表示向下；
 - 不传时默认使用 `[-10, 0]`，即相对滑块中心向左偏移 10 像素。
+
+### `QuantityFilter`
+
+`QuantityFilter` 是一个**可选增强项**。不传时，`QuantizedSliding` 的行为与旧版本一致；传入后，会先对 `QuantizedSlidingGetQuantity` 的 OCR 结果做颜色过滤，再识别数字。
+
+它适合这类场景：
+
+- 数字本身颜色稳定；
+- 背景、描边、阴影或其他数字干扰较多；
+- `QuantityBox` 本身已经框准，只是 OCR 前缺少一层颜色筛选。
+
+最小示例：
+
+```json
+"QuantityFilter": {
+    "method": 4,
+    "lower": [0, 0, 0],
+    "upper": [255, 255, 255]
+}
+```
+
+约束与限制：
+
+- `lower` / `upper` 必须同时存在，且长度一致；
+- 当前建议使用仓库内已有的常见 `ColorMatch` 模式：`4`（RGB）、`40`（HSV）或 `6`（GRAY）；
+- 当前仅支持**单组**颜色阈值，不支持 `[[...], [...]]` 这种多段范围；
+- `QuantityFilter` 只是增强 OCR 预处理，不是 `QuantityBox` 选区不准时的替代品。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
 
@@ -234,7 +262,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
                 "Direction": "right",
                 "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                 "QuantityBox": [360, 490, 110, 70],
-                "centerPointOffset": [-10, 0],
+                "CenterPointOffset": [-10, 0],
                 "Target": 1
             }
         }

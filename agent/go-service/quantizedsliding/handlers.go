@@ -65,21 +65,39 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
+	quantityFilter, err := normalizeQuantityFilter(params.QuantityFilter)
+	if err != nil {
+		a.logger.Error().
+			Err(err).
+			Msg("failed to normalize quantity filter")
+		return false
+	}
+
 	a.Target = params.Target
 	a.QuantityBox = append([]int(nil), params.QuantityBox...)
+	a.QuantityFilter = quantityFilter
 	a.Direction = strings.ToLower(strings.TrimSpace(params.Direction))
 	a.IncreaseButton = increaseButton
 	a.DecreaseButton = decreaseButton
 	a.CenterPointOffset = centerPointOffset
 
-	a.logger.Info().
+	parseLog := a.logger.Info().
 		Int("target", a.Target).
 		Ints("quantity_box", a.QuantityBox).
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
-		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
-		Msg("parsed custom action parameters")
+		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
+		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]})
+
+	if a.QuantityFilter != nil {
+		parseLog = parseLog.
+			Int("quantity_filter_method", a.QuantityFilter.Method).
+			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
+			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
+	}
+
+	parseLog.Msg("parsed custom action parameters")
 
 	switch arg.CurrentTaskName {
 	case "QuantizedSlidingMain":
@@ -124,18 +142,27 @@ func (a *QuantizedSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActio
 		return false
 	}
 
-	override := buildMainInitializationOverride(end, a.QuantityBox)
+	override := buildMainInitializationOverride(end, a.QuantityBox, a.QuantityFilter)
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
 		return false
 	}
 
-	a.logger.Info().
+	initializationLog := a.logger.Info().
 		Str("direction", a.Direction).
 		Ints("end", end).
 		Ints("quantity_roi", a.QuantityBox).
-		Msg("main initialization completed with pipeline overrides")
+		Bool("quantity_filter_enabled", a.QuantityFilter != nil)
+
+	if a.QuantityFilter != nil {
+		initializationLog = initializationLog.
+			Int("quantity_filter_method", a.QuantityFilter.Method).
+			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
+			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
+	}
+
+	initializationLog.Msg("main initialization completed with pipeline overrides")
 	return true
 }
 
