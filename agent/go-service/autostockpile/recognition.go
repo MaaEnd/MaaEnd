@@ -93,6 +93,10 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 				Int("overflow_amount", overflowAmount).
 				Msg("overflow detail parsed")
 
+			if overflowAmount <= 0 {
+				overflowDetected = false
+			}
+
 			if overflowAmount > 0 {
 				if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
 					log.Warn().
@@ -312,16 +316,16 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}, len(resultGoods) > 0
 }
 
+// TODO: 当前 ColorMatch 溢出识别不够准确，需要改进。
 func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
 	config := map[string]any{
 		overflowNodeName: map[string]any{
 			"recognition": "ColorMatch",
-			"roi":         []int{43, 125, 641, 49},
+			"roi":         []int{250, 135, 325, 30},
 			"method":      40,
-			"lower":       [][]int{{23, 240, 240}},
-			"upper":       [][]int{{35, 255, 255}},
-			"count":       500,
-			"connected":   true,
+			"lower":       [][]int{{0, 200, 200}},
+			"upper":       [][]int{{20, 255, 255}},
+			"count":       100,
 		},
 	}
 
