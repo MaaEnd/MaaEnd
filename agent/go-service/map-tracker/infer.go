@@ -107,6 +107,8 @@ type InferLocationRawResult struct {
 
 var emptyLocationRawResult = InferLocationRawResult{"", 0, 0, 0.0, "", 0}
 
+var mapCoreNameRegexp = regexp.MustCompile(`^(.+?)(?:_tier_\w+)?$`)
+
 type InferRotationRawResult struct {
 	rot           int
 	conf          float64
@@ -189,7 +191,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	// Process internal location hit
 	if internalLocHit {
 		isCloseToConvinced := func() bool {
-			if globalInferState.convinced.mapName == "" || globalInferState.convinced.mapName != loc.mapName {
+			if !isMapNameCoreMatch(globalInferState.convinced.mapName, loc.mapName) {
 				return false
 			}
 			dx := globalInferState.convinced.x - loc.x
@@ -198,7 +200,7 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		}
 
 		isCloseToPending := func() bool {
-			if globalInferState.pending.mapName == "" || globalInferState.pending.mapName != loc.mapName {
+			if !isMapNameCoreMatch(globalInferState.pending.mapName, loc.mapName) {
 				return false
 			}
 			dx := globalInferState.pending.x - loc.x
@@ -367,6 +369,21 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 	} else {
 		return &DEFAULT_INFERENCE_PARAM, nil
 	}
+}
+
+func getMapCoreName(mapName string) string {
+	matches := mapCoreNameRegexp.FindStringSubmatch(mapName)
+	if len(matches) < 2 {
+		return mapName
+	}
+	return matches[1]
+}
+
+func isMapNameCoreMatch(mapName1, mapName2 string) bool {
+	if mapName1 == "" || mapName2 == "" {
+		return false
+	}
+	return getMapCoreName(mapName1) == getMapCoreName(mapName2)
 }
 
 // initMaps initializes the map cache (thread-safe, runs once)
@@ -547,59 +564,77 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	// try to match the convinced map around the convinced location first.
 	globalInferState.mu.Lock()
 
-	isStable := globalInferState.convinced.mapName != "" &&
-		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
-		globalInferState.pendingHitCount == 0
-	stableMapName := globalInferState.convinced.mapName
+	stableConvincedMapName := globalInferState.convinced.mapName
 	stableLocX := globalInferState.convinced.x
 	stableLocY := globalInferState.convinced.y
+	isInTime := globalInferState.convinced.mapName != "" &&
+		(time.Now().UnixMilli()-globalInferState.convincedLastHitTime < CONVINCED_VALID_TIME_MS) &&
+		globalInferState.pendingHitCount == 0
 
 	globalInferState.mu.Unlock()
 
-	// Try fast search if stable
-	if isStable && mapNameRegex.MatchString(stableMapName) {
+	isStable := func() bool {
+		if !isInTime {
+			return false
+		}
 		for _, mapData := range scaledMaps {
-			if mapData.Name == stableMapName {
-				expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
-				expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
-				searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
+			if isMapNameCoreMatch(stableConvincedMapName, mapData.Name) && mapNameRegex.MatchString(mapData.Name) {
+				return true
+			}
+		}
+		return false
+	}
 
-				matchX, matchY, matchVal := minicv.MatchTemplateInArea(
-					mapData.Img,
-					mapData.Integral,
-					miniMap,
-					miniStats,
-					expectedCenterX-searchRadius,
-					expectedCenterY-searchRadius,
-					searchRadius*2,
-					searchRadius*2,
-				)
+	// Try fast search if stable
+	if isStable() {
+		fastBestVal := -1.0
+		fastBestX, fastBestY := 0.0, 0.0
+		fastBestMapName := ""
 
-				if matchVal > param.Threshold {
-					// Fast search hit
-					bestX := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
-					bestY := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
-					elapsedTimeMs := time.Since(t0).Milliseconds()
-					log.Debug().Float64("conf", matchVal).
-						Str("map", stableMapName).
-						Float64("X", bestX).
-						Float64("Y", bestY).
-						Int64("elapsedTimeMs", elapsedTimeMs).
-						Msg("Internal fast search location inference completed")
+		for _, mapData := range scaledMaps {
+			if !isMapNameCoreMatch(stableConvincedMapName, mapData.Name) || !mapNameRegex.MatchString(mapData.Name) {
+				continue
+			}
 
-					return &InferLocationRawResult{
-						mapName:       mapData.Name,
-						x:             bestX,
-						y:             bestY,
-						conf:          matchVal,
-						source:        FAST_SEARCH_HIT,
-						elapsedTimeMs: elapsedTimeMs,
-					}
-				}
+			expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
+			expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
+			searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
 
-				// If fast search fails (low confidence), fallback to full search
-				log.Debug().Float64("conf", matchVal).Msg("Empirical fast search miss")
-				break
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(
+				mapData.Img,
+				mapData.Integral,
+				miniMap,
+				miniStats,
+				expectedCenterX-searchRadius,
+				expectedCenterY-searchRadius,
+				searchRadius*2,
+				searchRadius*2,
+			)
+
+			if matchVal > fastBestVal {
+				fastBestVal = matchVal
+				fastBestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(mapData.OffsetX))
+				fastBestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(mapData.OffsetY))
+				fastBestMapName = mapData.Name
+			}
+		}
+
+		if fastBestVal > param.Threshold {
+			elapsedTimeMs := time.Since(t0).Milliseconds()
+			log.Debug().Float64("conf", fastBestVal).
+				Str("map", fastBestMapName).
+				Float64("X", fastBestX).
+				Float64("Y", fastBestY).
+				Int64("elapsedTimeMs", elapsedTimeMs).
+				Msg("Internal fast search location inference completed")
+
+			return &InferLocationRawResult{
+				mapName:       fastBestMapName,
+				x:             fastBestX,
+				y:             fastBestY,
+				conf:          fastBestVal,
+				source:        FAST_SEARCH_HIT,
+				elapsedTimeMs: elapsedTimeMs,
 			}
 		}
 	} else {
@@ -623,13 +658,13 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	for i := range scaledMaps {
 		if mapNameRegex.MatchString(scaledMaps[i].Name) {
 			triedCount++
-			if singleMapToTry == nil {
+			if triedCount == 1 {
 				singleMapToTry = &scaledMaps[i]
-			} else {
-				singleMapToTry = nil // Found more than one
-				break
 			}
 		}
+	}
+	if triedCount != 1 {
+		singleMapToTry = nil
 	}
 
 	if singleMapToTry != nil {

@@ -1,0 +1,219 @@
+{
+    "ObservantSableChestedFowlbeastJob": {
+        "desc": "东张西望的黑腹雉羽兽任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AcceptObservantSableChestedFowlbeast",
+            "GoToObservantSableChestedFowlbeastMission"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastText": {
+        "desc": "检查是否有东张西望的黑腹雉羽兽文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": [
+            "东张西望的黑腹雉羽兽",
+            "東張西望的黑腹雉羽獸",
+            "Observant Sable-chested Fowlbeast",
+            "キョロキョロする黒腹羽獣",
+            "두리번거리는 검은 배의 파울비스트"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastReadyText": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否准备好",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastJob": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "CheckObservantSableChestedFowlbeastGoToMissionText": {
+        "desc": "检查东张西望的黑腹雉羽兽委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "CheckObservantSableChestedFowlbeastText",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "InObservantSableChestedFowlbeastMission": {
+        "desc": "是否在东张西望的黑腹雉羽兽任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": [
+            "东张西望的黑腹雉羽兽",
+            "東張西望的黑腹雉羽獸",
+            "Observant Sable-chested Fowlbeast",
+            "キョロキョロする黒腹羽獣",
+            "두리번거리는 검은 배의 파울비스트"
+        ]
+    },
+    "AcceptObservantSableChestedFowlbeast": {
+        "desc": "接取东张西望的黑腹雉羽兽委托",
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastJob"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GoToObservantSableChestedFowlbeastMission"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastMission": {
+        "desc": "前往东张西望的黑腹雉羽兽任务",
+        "recognition": "And",
+        "all_of": [
+            "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastGoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "ObservantSableChestedFowlbeastTrackOrGoTo"
+        ]
+    },
+    "ObservantSableChestedFowlbeastTrackOrGoTo": {
+        "desc": "在东张西望的黑腹雉羽兽任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "InObservantSableChestedFowlbeastMission"
+        ],
+        "next": [
+            "TrackObservantSableChestedFowlbeast",
+            "GoToObservantSableChestedFowlbeast"
+        ]
+    },
+    "TrackObservantSableChestedFowlbeast": {
+        "desc": "追踪东张西望的黑腹雉羽兽任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "InObservantSableChestedFowlbeastMission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoToObservantSableChestedFowlbeast"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeast": {
+        "desc": "前往东张西望的黑腹雉羽兽",
+        "next": [
+            "GoToObservantSableChestedFowlbeastStartPos",
+            "[JumpBack]SceneEnterWorldWulingJingyuValley0"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastStartPos": {
+        "desc": "在东张西望的黑腹雉羽兽任务开始位置附近",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "map02_lv001",
+                    "target": [
+                        342.2,
+                        124.2,
+                        4,
+                        4
+                    ]
+                }
+            ]
+        },
+        "next": [
+            "GoToObservantSableChestedFowlbeastMapTrackerMove"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastMapTrackerMove": {
+        "desc": "前往东张西望的黑腹雉羽兽",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "map02_lv001",
+            "path": [
+                [
+                    349.9,
+                    128.0
+                ],
+                [
+                    373.3,
+                    135.6
+                ]
+            ]
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "ObservantSableChestedFowlbeastAdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "ObservantSableChestedFowlbeastAdjustCamera": {
+        "desc": "东张西望的黑腹雉羽兽任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "EnvironmentMonitoringSwipeScreenDown"
+        ]
+    }
+}

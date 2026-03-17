@@ -6,6 +6,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from history_store import UndoRedoHistory
 from json_import import (
+    export_assert_location_node,
     export_path_nodes,
     infer_missing_zones,
     list_available_zone_ids,
@@ -56,8 +57,11 @@ class RouteEditorApp:
         # 轨迹数据状态
         self.raw_points: list[PathPoint] = []
         self.points: list[PathPoint] = []
+        self.available_zone_ids = list_available_zone_ids()
         self.density_val = tk.IntVar(value=50)
         self.disable_optimization_var = tk.BooleanVar(value=False)
+        self.assert_mode_var = tk.BooleanVar(value=False)
+        self.assert_zone_var = tk.StringVar(value="")
         self.strict_var = tk.BooleanVar(value=False)
         self.action_chain_var = tk.StringVar(value="Run")
         self.locator_debug_var = tk.StringVar(value="Locator: --")
@@ -77,6 +81,8 @@ class RouteEditorApp:
         self.ui_nodes: list[int] = []
         self.ui_texts: list[int] = []
         self.selection_rect_id: int | None = None
+        self.assert_rect_id: int | None = None
+        self.assert_rect_text_id: int | None = None
 
         # 交互状态
         self.drag_start_x = 0
@@ -84,13 +90,18 @@ class RouteEditorApp:
         self.is_panning = False
         self.is_dragging = False
         self.is_box_selecting = False
+        self.is_assert_selecting = False
         self.box_select_start_x = 0
         self.box_select_start_y = 0
+        self.assert_start_world_x = 0.0
+        self.assert_start_world_y = 0.0
+        self.assert_rect_world: tuple[float, float, float, float] | None = None
         self._redraw_pending = False
 
         self._build_layout()
         self.renderer = MapRenderer(self.canvas, root, MAP_IMAGE_DIR)
         self._bind_events()
+        self._sync_assert_controls()
         self._refresh_zone_label()
 
     def _build_layout(self) -> None:
@@ -130,6 +141,9 @@ class RouteEditorApp:
 
         self.btn_copy_path = tk.Button(left_frame, text="📋 复制 Path", command=self.copy_path, padx=10)
         self.btn_copy_path.pack(side=tk.LEFT, padx=3)
+
+        self.btn_copy_assert = tk.Button(left_frame, text="📍 复制 Assert", command=self.copy_assert_location, padx=10)
+        self.btn_copy_assert.pack(side=tk.LEFT, padx=3)
 
         self.btn_import = tk.Button(left_frame, text="📂 导入 JSON", command=self.import_json, padx=10)
         self.btn_import.pack(side=tk.LEFT, padx=3)
@@ -206,6 +220,27 @@ class RouteEditorApp:
         )
         self.action_chain_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(8, 8))
 
+        self.assert_mode_check = tk.Checkbutton(
+            secondary_row,
+            text="Assert 模式",
+            variable=self.assert_mode_var,
+            onvalue=True,
+            offvalue=False,
+            font=("Microsoft YaHei", 9),
+            command=self._on_assert_mode_changed,
+        )
+        self.assert_mode_check.pack(side=tk.LEFT, padx=(4, 2))
+
+        self.assert_zone_combo = ttk.Combobox(
+            secondary_row,
+            values=self.available_zone_ids,
+            width=20,
+            state="disabled",
+            textvariable=self.assert_zone_var,
+        )
+        self.assert_zone_combo.pack(side=tk.LEFT, padx=(2, 8))
+        self.assert_zone_combo.bind("<<ComboboxSelected>>", lambda _event: self._on_assert_zone_changed())
+
         self.strict_check = tk.Checkbutton(
             secondary_row,
             text="严格",
@@ -259,6 +294,24 @@ class RouteEditorApp:
 
         self.root.bind_all("<Control-z>", lambda _event: self.undo())
         self.root.bind_all("<Control-y>", lambda _event: self.redo())
+        self.root.bind_all("<Delete>", self._on_delete_key)
+        self.root.bind_all("<BackSpace>", self._on_delete_key)
+
+    def _on_delete_key(self, event) -> None:
+        widget = event.widget.focus_get() if hasattr(event.widget, "focus_get") else None
+        if widget is None and hasattr(self.root, "focus_get"):
+            widget = self.root.focus_get()
+
+        text_like_types = [tk.Entry, tk.Text]
+        for ttk_widget_name in ("Entry", "Combobox", "Spinbox"):
+            ttk_widget_type = getattr(ttk, ttk_widget_name, None)
+            if ttk_widget_type is not None:
+                text_like_types.append(ttk_widget_type)
+
+        if isinstance(widget, tuple(text_like_types)):
+            return
+
+        self.delete_selected_point()
 
     def _set_status(self, text: str, color: str) -> None:
         self.status_label.config(text=text, fg=color)
@@ -272,7 +325,80 @@ class RouteEditorApp:
         if self.raw_points:
             self.reprocess_points()
 
+    def _default_assert_zone(self) -> str:
+        current_zone = normalize_zone_id(self.zone_state.current_zone())
+        if current_zone:
+            return current_zone
+        return self.available_zone_ids[0] if self.available_zone_ids else ""
+
+    def _display_zone_id(self) -> str:
+        if self.assert_mode_var.get():
+            return normalize_zone_id(self.assert_zone_var.get(), default=self._default_assert_zone())
+        return self.zone_state.current_zone()
+
+    def _current_assert_target(self) -> tuple[float, float, float, float] | None:
+        if self.assert_rect_world is None:
+            return None
+        x0, y0, x1, y1 = self.assert_rect_world
+        left, right = sorted((x0, x1))
+        top, bottom = sorted((y0, y1))
+        return round(left, 2), round(top, 2), round(right - left, 2), round(bottom - top, 2)
+
+    def _clear_assert_rect(self, redraw: bool = True) -> None:
+        self.assert_rect_world = None
+        self.is_assert_selecting = False
+        if self.assert_rect_id is not None:
+            self.canvas.itemconfig(self.assert_rect_id, state="hidden")
+        if self.assert_rect_text_id is not None:
+            self.canvas.itemconfig(self.assert_rect_text_id, state="hidden")
+        if redraw:
+            self.schedule_redraw(fast=True)
+
+    def _set_assert_rect_world(self, x0: float, y0: float, x1: float, y1: float) -> None:
+        self.assert_rect_world = (x0, y0, x1, y1)
+
+    def _sync_assert_controls(self) -> None:
+        if self.assert_mode_var.get():
+            self.btn_prev.config(state=tk.DISABLED)
+            self.btn_next.config(state=tk.DISABLED)
+            combo_state = "readonly" if self.available_zone_ids else "disabled"
+            self.assert_zone_combo.config(state=combo_state)
+        else:
+            self.btn_prev.config(state=tk.NORMAL)
+            self.btn_next.config(state=tk.NORMAL)
+            self.assert_zone_combo.config(state="disabled")
+
+    def _on_assert_mode_changed(self) -> None:
+        if self.assert_mode_var.get():
+            if not self.available_zone_ids and not normalize_zone_id(self.zone_state.current_zone()):
+                messagebox.showerror("Assert 模式不可用", "未找到可用 zone 底图，无法进入 Assert 模式。")
+                self.assert_mode_var.set(False)
+                return
+            if not normalize_zone_id(self.assert_zone_var.get()):
+                self.assert_zone_var.set(self._default_assert_zone())
+            self._set_status("Assert 模式：先选地图，再用左键拖拽框出判定区域；Delete 或垃圾桶可清除。", "#3b82f6")
+        else:
+            self.is_assert_selecting = False
+            self._set_status("返回路径编辑模式。", "#10b981")
+        self._sync_assert_controls()
+        self._refresh_zone_label()
+        self.fit_view()
+
+    def _on_assert_zone_changed(self) -> None:
+        zone_id = normalize_zone_id(self.assert_zone_var.get())
+        if not zone_id:
+            return
+        self.assert_zone_var.set(zone_id)
+        self._clear_assert_rect(redraw=False)
+        self._refresh_zone_label()
+        self.fit_view()
+
     def _refresh_zone_label(self) -> None:
+        if self.assert_mode_var.get():
+            zone_id = self._display_zone_id()
+            text = f"Assert: {zone_id}" if zone_id else "Assert: 请选择地图"
+            self.zone_label.config(text=self._compact_zone_label_text(text))
+            return
         self.zone_label.config(text=self._compact_zone_label_text(self.zone_state.label_text()))
 
     def _on_points_structure_changed(self, redraw_fast: bool = False) -> None:
@@ -443,15 +569,20 @@ class RouteEditorApp:
         self.canvas.config(cursor="cross")
 
     def fit_view(self) -> None:
-        points = self.zone_state.current_points(self.points)
-        zone_id = self.zone_state.current_zone()
+        zone_id = self._display_zone_id()
+        points = [] if self.assert_mode_var.get() else self.zone_state.current_points(self.points)
 
         box_min_x, box_max_x, box_min_y, box_max_y = 0, 100, 0, 100
         map_image = self.renderer._get_map_pil(zone_id)
         if map_image:
             box_max_x, box_max_y = map_image.size
 
-        if points:
+        assert_target = self._current_assert_target()
+        if self.assert_mode_var.get() and assert_target is not None:
+            target_x, target_y, target_w, target_h = assert_target
+            box_min_x, box_max_x = target_x, target_x + target_w
+            box_min_y, box_max_y = target_y, target_y + target_h
+        elif points:
             xs = [point["x"] for point in points]
             ys = [point["y"] for point in points]
             box_min_x, box_max_x = min(xs), max(xs)
@@ -478,13 +609,18 @@ class RouteEditorApp:
 
     def _do_redraw(self, fast: bool) -> None:
         self._redraw_pending = False
-        zone_id = self.zone_state.current_zone()
-        self.zone_point_global_indices = self.zone_state.point_indices(self.points)
-        points = [self.points[index] for index in self.zone_point_global_indices]
+        zone_id = self._display_zone_id()
+        if self.assert_mode_var.get():
+            self.zone_point_global_indices = []
+            points = []
+        else:
+            self.zone_point_global_indices = self.zone_state.point_indices(self.points)
+            points = [self.points[index] for index in self.zone_point_global_indices]
 
         self.renderer.request_render(zone_id, fast=fast)
         self._render_path(points)
         self._render_nodes(points)
+        self._render_assert_rect()
 
     def _render_path(self, points: list[PathPoint]) -> None:
         if len(points) <= 1:
@@ -563,6 +699,62 @@ class RouteEditorApp:
             self.canvas.itemconfig(self.ui_texts[idx], text=label_text)
 
         self.canvas.tag_raise("node")
+        if self.selection_rect_id is not None:
+            self.canvas.tag_raise(self.selection_rect_id)
+
+    def _render_assert_rect(self) -> None:
+        target = self._current_assert_target()
+        if not self.assert_mode_var.get() or target is None:
+            if self.assert_rect_id is not None:
+                self.canvas.itemconfig(self.assert_rect_id, state="hidden")
+            if self.assert_rect_text_id is not None:
+                self.canvas.itemconfig(self.assert_rect_text_id, state="hidden")
+            return
+
+        target_x, target_y, target_w, target_h = target
+        x0, y0 = self.renderer.world_to_canvas(target_x, target_y)
+        x1, y1 = self.renderer.world_to_canvas(target_x + target_w, target_y + target_h)
+
+        if self.assert_rect_id is None:
+            self.assert_rect_id = self.canvas.create_rectangle(
+                x0,
+                y0,
+                x1,
+                y1,
+                outline="#f43f5e",
+                fill="#f43f5e",
+                stipple="gray25",
+                width=3,
+            )
+        else:
+            self.canvas.coords(self.assert_rect_id, x0, y0, x1, y1)
+            self.canvas.itemconfig(
+                self.assert_rect_id,
+                outline="#f43f5e",
+                fill="#f43f5e",
+                stipple="gray25",
+                width=3,
+                state="normal",
+            )
+
+        label_text = f"Assert [{target_x:.1f}, {target_y:.1f}, {target_w:.1f}, {target_h:.1f}]"
+        label_x = min(x0, x1) + 8
+        label_y = min(y0, y1) + 8
+        if self.assert_rect_text_id is None:
+            self.assert_rect_text_id = self.canvas.create_text(
+                label_x,
+                label_y,
+                text=label_text,
+                fill="#fff1f2",
+                anchor="nw",
+                font=("Consolas", 9, "bold"),
+            )
+        else:
+            self.canvas.coords(self.assert_rect_text_id, label_x, label_y)
+            self.canvas.itemconfig(self.assert_rect_text_id, text=label_text, fill="#fff1f2", state="normal")
+
+        self.canvas.tag_raise(self.assert_rect_id)
+        self.canvas.tag_raise(self.assert_rect_text_id)
         if self.selection_rect_id is not None:
             self.canvas.tag_raise(self.selection_rect_id)
 
@@ -668,6 +860,24 @@ class RouteEditorApp:
         )
 
     def on_click(self, event) -> None:
+        if self.assert_mode_var.get():
+            zone_id = self._display_zone_id()
+            if not zone_id:
+                messagebox.showinfo("提示", "请先在 Assert 模式下选择地图。")
+                return
+            self.is_dragging = False
+            self.is_box_selecting = False
+            self.is_assert_selecting = True
+            self.assert_start_world_x, self.assert_start_world_y = self.renderer.canvas_to_world(event.x, event.y)
+            self._set_assert_rect_world(
+                self.assert_start_world_x,
+                self.assert_start_world_y,
+                self.assert_start_world_x,
+                self.assert_start_world_y,
+            )
+            self.schedule_redraw(fast=True)
+            return
+
         if event.state & 0x0004:
             self.is_box_selecting = True
             self.is_dragging = False
@@ -753,6 +963,15 @@ class RouteEditorApp:
         self._on_points_structure_changed(redraw_fast=False)
 
     def delete_selected_point(self) -> None:
+        if self.assert_mode_var.get():
+            if self.assert_rect_world is None:
+                messagebox.showinfo("提示", "当前没有可删除的 Assert 区域")
+                return
+            self._clear_assert_rect(redraw=False)
+            self._set_status("已清除 Assert 区域。", "#10b981")
+            self.schedule_redraw(fast=True)
+            return
+
         self._normalize_selection_state()
         if not self.selected_indices:
             messagebox.showinfo("提示", "请先点击选中一个点")
@@ -768,6 +987,14 @@ class RouteEditorApp:
             self._on_points_structure_changed(redraw_fast=False)
 
     def on_drag(self, event) -> None:
+        if self.assert_mode_var.get():
+            if not self.is_assert_selecting:
+                return
+            world_x, world_y = self.renderer.canvas_to_world(event.x, event.y)
+            self._set_assert_rect_world(self.assert_start_world_x, self.assert_start_world_y, world_x, world_y)
+            self.schedule_redraw(fast=True)
+            return
+
         if self.is_box_selecting:
             self._show_selection_rect(self.box_select_start_x, self.box_select_start_y, event.x, event.y)
             return
@@ -787,6 +1014,22 @@ class RouteEditorApp:
             self.schedule_redraw(fast=True)
 
     def on_release(self, event) -> None:
+        if self.assert_mode_var.get():
+            if not self.is_assert_selecting:
+                return
+            world_x, world_y = self.renderer.canvas_to_world(event.x, event.y)
+            self._set_assert_rect_world(self.assert_start_world_x, self.assert_start_world_y, world_x, world_y)
+            self.is_assert_selecting = False
+            target = self._current_assert_target()
+            if target is not None:
+                zone_id = self._display_zone_id()
+                self._set_status(
+                    f"Assert 区域已更新: zone={zone_id} target=[{target[0]:.1f}, {target[1]:.1f}, {target[2]:.1f}, {target[3]:.1f}]",
+                    "#10b981",
+                )
+            self.schedule_redraw(fast=True)
+            return
+
         if self.is_box_selecting:
             if abs(event.x - self.box_select_start_x) <= 4 and abs(event.y - self.box_select_start_y) <= 4:
                 idx_in_zone = self.get_node_at(event.x, event.y)
@@ -982,6 +1225,29 @@ class RouteEditorApp:
         )
 
     # ---- 导出 ----
+    def copy_assert_location(self) -> None:
+        zone_id = self._display_zone_id()
+        if not zone_id:
+            messagebox.showwarning("复制失败", "请先选择 Assert 地图")
+            return
+
+        target = self._current_assert_target()
+        if target is None:
+            messagebox.showwarning("复制失败", "请先开启 Assert 模式并在地图上拖拽框出判定区域")
+            return
+
+        try:
+            node = export_assert_location_node(zone_id, target)
+        except Exception as exc:
+            messagebox.showerror("复制失败", str(exc))
+            return
+
+        assert_text = json.dumps(node, indent=4, ensure_ascii=False)
+        self.root.clipboard_clear()
+        self.root.clipboard_append(assert_text)
+        self.root.update()
+        self._set_status("MapLocateAssertLocation 节点已复制到剪贴板", "#10b981")
+
     def copy_path(self) -> None:
         if not self.points:
             messagebox.showwarning("复制失败", "当前没有任何轨迹数据")

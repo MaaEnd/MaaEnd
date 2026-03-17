@@ -164,7 +164,9 @@
             }
         },
         "action": "Click",
-        "next": ["_AutoEcoFarmJumpBack"]
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
     },
     "_AutoEcoFarmCloseFertilizer": {
         "desc": "识别到肥料界面则关掉,带Jumpback",
@@ -182,7 +184,9 @@
             }
         },
         "action": "Click",
-        "next": ["_AutoEcoFarmJumpBack"]
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
     },
     "_AutoEcoFarmInAnyFarm": {
         "desc": "确认是否在任意农场内,还在的话继续循环",
@@ -320,7 +324,9 @@
     "_AutoEcoFarmGotoTarget": {
         "desc": "不工作，直接走到标记消失为止",
         "enabled": false,
-        "next": ["_AutoEcoFarmJumpNotWork"]
+        "next": [
+            "_AutoEcoFarmJumpNotWork"
+        ]
     },
     "_AutoEcoFarmJumpNotWork": {
         "desc": "不工作版往前跳，防止被卡住，先按下w",

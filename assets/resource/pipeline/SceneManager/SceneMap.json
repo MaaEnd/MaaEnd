@@ -240,7 +240,8 @@
                 "template": [
                     "SceneManager/MapOverviewEnter.png"
                 ],
-                "green_mask": true
+                "green_mask": true,
+                "threshold": 0.9
             }
         },
         "action": {

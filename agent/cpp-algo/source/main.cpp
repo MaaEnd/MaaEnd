@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];

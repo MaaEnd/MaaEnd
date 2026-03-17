@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -36,6 +37,8 @@ type MapTrackerMoveParam struct {
 	NoPrint bool `json:"no_print,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
+	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
+	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -429,6 +432,14 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("fine_approach must be one of %q, %q, %q", FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER)
 	}
 
+	if len(param.MapNameMatchRule) == 0 {
+		param.MapNameMatchRule = DEFAULT_MOVING_PARAM.MapNameMatchRule
+	}
+	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
+	if _, err := regexp.Compile(mapNameRegex); err != nil {
+		return nil, fmt.Errorf("map_name_match_rule produced invalid regex %q: %w", mapNameRegex, err)
+	}
+
 	if param.RotationLowerThreshold < 0 {
 		return nil, fmt.Errorf("rotation_lower_threshold must be non-negative")
 	} else if param.RotationLowerThreshold > 180 {
@@ -489,8 +500,9 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	// Run recognition
+	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
 	inferConfig := map[string]any{
-		"map_name_regex": "^" + regexp.QuoteMeta(param.MapName) + "$",
+		"map_name_regex": mapNameRegex,
 		"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
 		"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
 	}
@@ -537,6 +549,14 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	}
 
 	return &result, nil
+}
+
+func buildMapNameRegex(rule string, mapName string) string {
+	escapedName := regexp.QuoteMeta(mapName)
+	if strings.Contains(rule, "%s") {
+		return fmt.Sprintf(rule, escapedName)
+	}
+	return rule
 }
 
 // calcTargetRotation calculates the angle from (fromX, fromY) to (toX, toY).

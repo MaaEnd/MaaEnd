@@ -324,7 +324,7 @@
         ]
     },
     "SceneEnterWorldWulingWulingCity6": {
-        "desc": "从任意界面进入武陵-武陵城-储备站大世界",
+        "desc": "从任意界面进入武陵-武陵城-储备站左上大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
@@ -354,6 +354,18 @@
         "post_delay": 0,
         "next": [
             "__ScenePrivateMapWulingWulingCityEnterWorldAnchor",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
+        ]
+    },
+    "SceneEnterWorldWulingWulingCity8": {
+        "desc": "从任意界面进入武陵-武陵城-储备站右下大世界",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley11Try0"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapWulingWulingCity"
         ]
     }

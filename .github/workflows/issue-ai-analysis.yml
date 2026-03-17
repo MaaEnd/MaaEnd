@@ -1,4 +1,4 @@
-name: Issue AI Analysis
+name: AI Issue Analysis
 
 on:
   issues:
@@ -17,69 +17,44 @@ jobs:
     if: |
       (github.event_name == 'issues' && github.event.action == 'opened') ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && 
-       github.event.action == 'created' && 
-       contains(github.event.comment.body, '@MaaEndBot') && 
+      (github.event_name == 'issue_comment' &&
+       github.event.action == 'created' &&
+       contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Determine issue number
-        id: issue_number
-        run: |
-          if [[ "${{ github.event_name }}" == "issues" ]] || [[ "${{ github.event_name }}" == "issue_comment" ]]; then
-            echo "issue_number=${{ github.event.issue.number }}" | tee -a "$GITHUB_OUTPUT"
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "issue_number=${{ github.event.inputs.issue_number }}" | tee -a "$GITHUB_OUTPUT"
-          else
-            echo "Unknown trigger" && exit 1
-          fi
-
-      # 步骤 1：发布初始中文评论，提示正在分析，并附上 Actions 运行链接
-      - name: Create initial comment
-        id: initial_comment
-        uses: peter-evans/create-or-update-comment@main
+      # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
+      # 详细使用文档：https://github.com/MistEO/ai-issue-analysis
+      # 最佳实践参考：
+      # - https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
+      # - https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev-v2/.claude/skills/maa-issue-log-analysis/SKILL.md
+      - name: Analyze issue with AI
+        id: analysis
+        uses: Misteo/ai-issue-analysis@main
         with:
-          issue-number: ${{ steps.issue_number.outputs.issue_number }}
-          body: |
+          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          bot-name: '@MaaEndBot'
+          initial-comment-body: |
             🤖 **MaaEndBot 正在分析该 Issue...**  
-            感谢您的反馈！系统正在自动分析该问题，预计耗时约 10 分钟。  
-            您可以在此查看进度：🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+            
+            感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
 
-      - name: Install Copilot CLI
-        run: npm install -g @github/copilot
-
-      # 步骤 2：执行 AI 分析，生成结果文件 copilot_answer.md
-      # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
-      - name: AI analysis
-        shell: bash
+      - name: Consume outputs
         env:
-          # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
-          # Personal access tokens (classic) 不行，只能是 Fine-grained token
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
+          ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
+          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
+          COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
+          COPILOT_OUTPUT: ${{ steps.analysis.outputs.copilot-output }}
+          FINAL_CONCLUSION: ${{ steps.analysis.outputs.final-conclusion }}
         run: |
-          # Free 模型不会调用工具和 skill（太笨），目前不建议换
-          copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
-            --prompt "分析一下 #${{ steps.issue_number.outputs.issue_number }}，将你的结论输出到 copilot_answer.md"
-          cat copilot_answer.md
-
-      # 步骤 3：将分析结果与运行链接合并，准备最终评论内容（中文链接描述）
-      - name: Prepare final comment
-        run: |
-          # 复制分析结果到新文件
-          cp copilot_answer.md final_comment.md
-          # 添加分隔线和中文运行链接描述
-          echo "" >> final_comment.md
-          echo "---" >> final_comment.md
-          echo "🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> final_comment.md
-
-      # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
-      - name: Update comment with analysis result
-        uses: peter-evans/create-or-update-comment@main
-        with:
-          comment-id: ${{ steps.initial_comment.outputs.comment-id }}
-          edit-mode: replace
-          body-path: final_comment.md
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          printf '%s\n' "$ANALYSIS_PROMPT"
+          echo "issue_number=$ISSUE_NUMBER"
+          echo "comment_id=$COMMENT_ID"
+          echo "comment_url=$COMMENT_URL"
+          printf '%s\n' "$COPILOT_OUTPUT"
+          printf '%s\n' "$FINAL_CONCLUSION"

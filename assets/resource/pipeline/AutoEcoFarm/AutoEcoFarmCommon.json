@@ -80,7 +80,9 @@
         "next": [
             "_AutoEcoFarmSwipeToGround2"
         ],
-        "focus": {"Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"}
+        "focus": {
+            "Node.Recognition.Failed": "识别不到标记，拉低视角视角尝试解决问题"
+        }
     },
     "_AutoEcoFarmSwipeToGround2": {
         "desc": "按下alt",

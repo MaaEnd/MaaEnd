@@ -2,9 +2,6 @@
     // 按钮颜色基础节点。
     // 这些节点只负责提供背景候选框，供确认/取消类按钮做后续组合识别。
     "YellowButtonBackground": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "黄色按钮背景色，用作黄色按钮组合识别的背景框",
         "recognition": {
             "type": "ColorMatch",
@@ -23,12 +20,12 @@
                 "connected": true,
                 "count": 3000
             }
-        }
-    },
-    "WhiteButtonBackground": {
-        "rate_limit": 0,
+        },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "WhiteButtonBackground": {
         "desc": "白色按钮背景色，用作白色按钮组合识别的背景框",
         "recognition": {
             "type": "ColorMatch",
@@ -70,12 +67,12 @@
                 "connected": true,
                 "count": 100
             }
-        }
-    },
-    "GrayButtonBackground": {
-        "rate_limit": 0,
+        },
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GrayButtonBackground": {
         "desc": "灰色按钮背景色，用作灰色按钮组合识别的背景框",
         "recognition": {
             "type": "ColorMatch",
@@ -107,6 +104,9 @@
                 "connected": true,
                 "count": 100
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

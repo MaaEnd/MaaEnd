@@ -1,8 +1,5 @@
 {
     "IncomeReportButton": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
         "desc": "地区建设中的收支简报按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -13,6 +10,7 @@
         ],
         "template": "Common/Button/IncomeReportButton.png",
         "threshold": 0.8,
+        "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
             "time": 80,
@@ -22,6 +20,8 @@
                 0,
                 0
             ]
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

@@ -202,15 +202,15 @@ class MapImageSelectStep(StepPage):
         step_id: str,
         title: str,
         map_dir: str,
-        sort_key: Callable[[str], tuple] | None = None,
         enable_preview: bool = True,
+        on_select: Callable[[str], None] | None = None,
     ):
         super().__init__(StepData(step_id, title))
         self.map_dir = map_dir
         self.map_list = ScrollableListWidget(item_height=40)
         self._map_preview_cache: dict[str, object] = {}
+        self._on_select = on_select
 
-        key_fn = sort_key or (lambda name: (len(name), name.lower()))
         items = []
         if os.path.isdir(self.map_dir):
             map_files = [
@@ -218,7 +218,7 @@ class MapImageSelectStep(StepPage):
                 for f in os.listdir(self.map_dir)
                 if f.lower().endswith((".png", ".jpg"))
             ]
-            map_files.sort(key=key_fn)
+            map_files.sort(key=lambda name: (len(name), name.lower()))
             items = [{"label": m, "sub_label": "", "data": m} for m in map_files]
         self.map_list.set_items(items)
 
@@ -264,7 +264,9 @@ class MapImageSelectStep(StepPage):
             )
 
     def on_map_selected(self, map_name: str) -> None:
-        raise NotImplementedError()
+        if self._on_select is None:
+            raise NotImplementedError()
+        self._on_select(map_name)
 
 
 class PageStepper:
@@ -494,6 +496,93 @@ class TextInputWidget:
             display = "|" if cursor_visible else self.placeholder
             color = 0xFFFFFF if cursor_visible else 0x666677
             drawer.text(display, (x1 + pad_x, text_y), font_scale, color=color)
+
+
+class RadioSelectWidget:
+    """Simple vertical radio selector widget."""
+
+    def __init__(self, title: str = "", item_height: int = 24):
+        self.title = title
+        self.item_height = item_height
+        self.items: list[dict] = []
+        self.selected_idx: int = -1
+
+    def set_items(self, items: list[dict], selected_data: object | None = None) -> None:
+        self.items = items
+        self.selected_idx = -1
+        if not items:
+            return
+        if selected_data is not None:
+            for i, item in enumerate(items):
+                if item.get("data") == selected_data:
+                    self.selected_idx = i
+                    return
+        self.selected_idx = 0
+
+    def get_selected_data(self) -> object | None:
+        if 0 <= self.selected_idx < len(self.items):
+            return self.items[self.selected_idx].get("data")
+        return None
+
+    def select_by_data(self, data: object) -> bool:
+        for i, item in enumerate(self.items):
+            if item.get("data") == data:
+                changed = self.selected_idx != i
+                self.selected_idx = i
+                return changed
+        return False
+
+    def get_height(self) -> int:
+        title_h = 22 if self.title else 0
+        return title_h + max(0, len(self.items)) * self.item_height + 8
+
+    def handle_click(self, x: int, y: int, rect: tuple[int, int, int, int]) -> int:
+        x1, y1, x2, y2 = rect
+        if not (x1 <= x <= x2 and y1 <= y <= y2):
+            return -1
+        title_h = 22 if self.title else 0
+        list_y1 = y1 + title_h
+        if y < list_y1:
+            return -1
+        idx = (y - list_y1) // self.item_height
+        if 0 <= idx < len(self.items):
+            if self.selected_idx != idx:
+                self.selected_idx = idx
+                return idx
+        return -1
+
+    def render(
+        self,
+        drawer: "Drawer",
+        rect: tuple[int, int, int, int],
+        *,
+        font_scale: float = 0.4,
+    ) -> None:
+        x1, y1, x2, y2 = rect
+        drawer.rect((x1, y1), (x2, y2), color=0x0A0A14, thickness=-1)
+        drawer.rect((x1, y1), (x2, y2), color=0x223044, thickness=1)
+
+        cy = y1
+        if self.title:
+            drawer.text(f"[ {self.title} ]", (x1 + 8, cy + 16), 0.45, color=0x40FFFF)
+            cy += 22
+
+        for i, item in enumerate(self.items):
+            iy1 = cy + i * self.item_height
+            iy2 = iy1 + self.item_height
+            selected = i == self.selected_idx
+            if selected:
+                drawer.rect((x1 + 2, iy1), (x2 - 2, iy2), color=0x132B4F, thickness=-1)
+            label = str(item.get("label", ""))
+            color = 0xFFFFFF if selected else 0xC8C8C8
+            cy_mark = iy1 + self.item_height // 2
+            mark_x = x1 + 14
+            if selected:
+                drawer.circle((mark_x, cy_mark), 6, color=0xFFFFFF, thickness=1)
+                drawer.circle((mark_x, cy_mark), 3, color=0xFFFFFF, thickness=-1)
+            else:
+                drawer.circle((mark_x, cy_mark), 6, color=0x7A7A7A, thickness=1)
+            drawer.text(label, (x1 + 26, iy2 - 7), font_scale, color=color)
 
 
 class ScrollableListWidget:

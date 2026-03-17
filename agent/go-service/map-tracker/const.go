@@ -94,6 +94,7 @@ var DEFAULT_BIG_MAP_INFERENCE_PARAM = MapTrackerBigMapInferParam{
 // MapTrackerMove parameters default values
 var DEFAULT_MOVING_PARAM = MapTrackerMoveParam{
 	FineApproach:           FINE_APPROACH_FINAL_TARGET,
+	MapNameMatchRule:       "^%s(_tier_\\w+)?$",
 	ArrivalThreshold:       2.5,
 	ArrivalTimeout:         60000,
 	RotationLowerThreshold: 7.5,

@@ -53,7 +53,14 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 		maafocus.NodeActionStarting(ctx, msg1)
 	}
 	//调用外部识别函数并提取识别结果
-	detail, _ := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
+	detail, err := ctx.RunRecognition(params.RecognitionNodeName, arg.Img, nil)
+	if detail == nil || err != nil {
+		log.Error().Err(err).Msg("调用识别节点识别失败")
+		if debugmode {
+			maafocus.NodeActionStarting(ctx, "调用识别节点识别失败")
+		}
+		return nil, false
+	}
 
 	recdetails := detail.DetailJson
 	if debugmode {
@@ -73,7 +80,14 @@ func (m *autoEcoFarmFindNearestRecognitionResult) Run(ctx *maa.Context, arg *maa
 	var maxY int
 
 	//读取第一个结果为默认值
-	result1, _ := results[0].AsTemplateMatch()
+	result1, isTemplateMatch := results[0].AsTemplateMatch()
+	if result1 == nil || isTemplateMatch == false {
+		log.Error().Msg("读取初始节点失败")
+		if debugmode {
+			maafocus.NodeActionStarting(ctx, "读取初始节点失败")
+		}
+		return nil, false
+	}
 
 	minX = result1.Box.X()
 	maxX = result1.Box.X()
