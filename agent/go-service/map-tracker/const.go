@@ -22,6 +22,15 @@ const (
 	ROT_RADIUS   = 12
 )
 
+// Big map zoom button configuration
+const (
+	ZOOM_BUTTON_AREA_X    = 0.95 * WORK_W
+	ZOOM_BUTTON_AREA_Y    = 0.25 * WORK_H
+	ZOOM_BUTTON_AREA_W    = 0.05 * WORK_W
+	ZOOM_BUTTON_AREA_H    = 0.50 * WORK_H
+	ZOOM_BUTTON_THRESHOLD = 0.75
+)
+
 // Big map infer configuration
 const (
 	PADDING_LR           = 0.192 * WORK_W
@@ -53,6 +62,8 @@ const (
 	MAP_EXTERNAL_DATA_PATH = "data/MapTracker/map_external_data.json"
 	MAP_DIR                = "resource/image/MapTracker/map"
 	POINTER_PATH           = "resource/image/MapTracker/pointer.png"
+	ZOOM_IN_IMG_PATH       = "resource/image/MapTracker/BigMapZoomIn.png"
+	ZOOM_OUT_IMG_PATH      = "resource/image/MapTracker/BigMapZoomOut.png"
 )
 
 // Move action configuration
