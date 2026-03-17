@@ -543,6 +543,13 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	if st == nil {
 		return false
 	}
+	if st.PendingFinalScan {
+		st.PendingFinalScan = false
+		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
+		LogMXUSimpleHTML(ctx, "补 swipe 完成，进入尾扫")
+		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
+		return true
+	}
 	// Try-last-first: only when row is full (9). If total known and remaining this row < 9, skip and use normal logic.
 	if st.RowIndex == 0 && st.TryLastFirst && len(st.RowBoxes) > 0 {
 		remaining := st.TotalCount - st.MaxItemsPerRow*(st.CurrentRow-1)
@@ -588,14 +595,12 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
 		if (len(st.RowBoxes) == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
-			// 已知总数时：若 剩余 = total - 9*已扫行数 <= 45，直接进入尾扫，避免到底后继续 swipe 卡死
 			const maxRemainingForFinalScan = 45
 			rowsDone := st.CurrentRow
 			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
 			if st.TotalCount > 0 && remaining <= maxRemainingForFinalScan {
-				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，进入尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
-				return true
+				st.PendingFinalScan = true
+				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，先补一次滑动再尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
 			}
 			if !st.FirstRowSwipeDone {
 				st.FirstRowSwipeDone = true
