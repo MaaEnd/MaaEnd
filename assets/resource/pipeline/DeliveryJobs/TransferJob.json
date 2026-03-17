@@ -89,5 +89,12 @@
             // 否则会因为无法识别到相关货物，导致退出去重新进入本地仓储界面
             "InLocalDepotNode"
         ]
+    },
+    "DeliveryJobsAcceptJobOnly": {
+        "desc": "仅接取任务，停止后续转交流程，并提醒用户",
+        "action": "StopTask",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AcceptJobOnly"
+        }
     }
 }

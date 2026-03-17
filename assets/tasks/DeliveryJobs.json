@@ -8,7 +8,8 @@
             "option": [
                 "ValleyIV",
                 "Wuling",
-                "PackCargoSelectItem"
+                "PackCargoSelectItem",
+                "DeliveryJobsAcceptOnly"
             ],
             "group": ["daily"]
         }
@@ -306,6 +307,27 @@
                 }
             ],
             "default_case": "砂叶粉末"
+        },
+        "DeliveryJobsAcceptOnly": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.AcceptOnly.label",
+            "description": "$task.DeliveryJobs.AcceptOnly.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterDeliveryJob": {
+                            "next": [
+                                "DeliveryJobsAcceptJobOnly"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         }
     }
 }
