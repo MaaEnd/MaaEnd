@@ -113,7 +113,14 @@ Required parameters:
 
 Optional parameters:
 
-- `on_find`: Action after the target point enters the viewport. Can be `"Click"`, `"Teleport"`, or `"DoNothing"`. Default is `"Click"`. When set to `"Teleport"`, MapTrackerBigMapPick will automatically enter the map scene.
+- `on_find`: Action to perform after the target point is found. Default is `"Click"`. Available values:
+    - `"Click"`: Click the target point (default).
+    - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
+    - `"DoNothing"`: Perform no action.
+
+- `AutoOpenMapScene`: Boolean, default `false`. Whether to automatically open the corresponding big-map scene before picking. This feature depends on SceneManager nodes. If disabled, make sure the player is already in the correct big-map scene.
+
+- `NoZoom`: Boolean, default `false`. Whether to disable automatic zoom adjustment (which adjusts the big-map zoom to a suitable range). Disabling this may reduce the success rate of this node.
 
 #### Example Usage
 
