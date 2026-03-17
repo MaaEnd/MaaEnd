@@ -34,6 +34,13 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
+	if params.Target <= 0 {
+		a.logger.Error().
+			Int("target", params.Target).
+			Msg("invalid target, must be greater than 0")
+		return false
+	}
+
 	increaseButton, err := normalizeButtonParam(params.IncreaseButton)
 	if err != nil {
 		a.logger.Error().
