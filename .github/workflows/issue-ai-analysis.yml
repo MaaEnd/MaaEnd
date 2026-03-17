@@ -12,208 +12,30 @@ on:
         required: true
         type: number
 
-env:
-  CACHE_DIR: .cache
-  ANALYSIS_PROMPT_FILE: .cache/analysis_prompt.txt
-  COPILOT_OUTPUT_FILE: .cache/copilot_output.log
-  COMMENT_BODY_FILE: .cache/comment_body.txt
-  COPILOT_ANSWER_FILE: copilot_answer.md
-  FINAL_COMMENT_FILE: final_comment.md
-  # 初始评论内容（包含运行链接，仅出现一次）
-  INITIAL_BODY: |
-    🤖 **MaaBot 正在分析该 Issue...**  
-    感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
-  ACTION_LINK: |
-    🔗 [GitHub Action 运行记录](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-  DETAILS_BEGIN: |
-    <details><summary>点击此处展开分析过程</summary>
-  DETAILS_END: |
-    </details>
-
 jobs:
   copilot-analysis:
     if: |
       (github.event_name == 'issues' && github.event.action == 'opened') ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && 
-       github.event.action == 'created' && 
-       contains(github.event.comment.body, '@MaaEndBot') && 
+      (github.event_name == 'issue_comment' &&
+       github.event.action == 'created' &&
+       contains(github.event.comment.body, '@MaaEndBot') &&
        github.event.comment.user.type != 'Bot')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Determine issue number
-        id: issue_number
-        run: |
-          mkdir -p "${{ env.CACHE_DIR }}"
-
-          if [[ "${{ github.event_name }}" == "issues" ]] || [[ "${{ github.event_name }}" == "issue_comment" ]]; then
-            echo "issue_number=${{ github.event.issue.number }}" | tee -a "$GITHUB_OUTPUT"
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "issue_number=${{ github.event.inputs.issue_number }}" | tee -a "$GITHUB_OUTPUT"
-          else
-            echo "Unknown trigger" && exit 1
-          fi
-
-      - name: Build analysis prompt
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          ISSUE_NUMBER: ${{ steps.issue_number.outputs.issue_number }}
-          BOT_NAME: "@MaaEndBot"
-          ANALYSIS_PROMPT_FILE: ${{ env.ANALYSIS_PROMPT_FILE }}
-          COPILOT_ANSWER_FILE: ${{ env.COPILOT_ANSWER_FILE }}
-        run: |
-          python <<'PY'
-          import json
-          import os
-          import re
-          from pathlib import Path
-
-          event_name = os.environ["EVENT_NAME"]
-          issue_number = os.environ["ISSUE_NUMBER"]
-          bot_name = os.environ["BOT_NAME"]
-          analysis_prompt_file = Path(os.environ["ANALYSIS_PROMPT_FILE"])
-          copilot_answer_file = os.environ["COPILOT_ANSWER_FILE"]
-          event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text(encoding="utf-8"))
-
-          raw_comment = ""
-          if event_name == "issue_comment":
-              raw_comment = event.get("comment", {}).get("body", "")
-
-          cleaned_comment = re.sub(rf"{re.escape(bot_name)}\b", "", raw_comment, flags=re.IGNORECASE)
-          cleaned_comment = re.sub(r"^[\s,，.。!！?？:：]+", "", cleaned_comment).strip()
-
-          prompt = f"分析 GitHub Issue #{issue_number}。把最终结论写到 {copilot_answer_file}。"
-          if event_name == "issue_comment" and cleaned_comment:
-              prompt += f" 补充要求：{cleaned_comment}"
-          analysis_prompt_file.write_text(prompt, encoding="utf-8")
-          PY
-
-      # 步骤 1：发布初始中文评论，提示正在分析，并附上 Actions 运行链接
-      - name: Create initial comment
-        id: initial_comment
-        uses: peter-evans/create-or-update-comment@main
+      # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
+      # 最佳实践参考：
+      # - https://github.com/MaaEnd/MaaEnd/blob/ci/prompt/.claude/skills/maaend-issue-log-analysis/SKILL.md
+      # - https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev-v2/.claude/skills/maa-issue-log-analysis/SKILL.md
+      - name: Analyze issue with AI
+        uses: Misteo/ai-issue-analysis@main
         with:
-          issue-number: ${{ steps.issue_number.outputs.issue_number }}
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
-          body: |
-            ${{ env.INITIAL_BODY }}
-            ---
-            ${{ env.ACTION_LINK }}
-
-      - name: Install Copilot CLI
-        run: npm install -g @github/copilot
-
-      # 步骤 2：执行 AI 分析，并流式更新评论（固定时间间隔）
-      # 注意需搭配 issue 分析 skill 使用: https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
-      - name: Run Copilot analysis with streaming updates
-        shell: bash
-        env:
-          # GitHub 个人设置里添加 Fine-grained token, 勾选上所有 Copilot 相关的，过期时间不能超过一年。
-          # Personal access tokens (classic) 不行，只能是 Fine-grained token
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-          # 用于更新评论的 token
-          GITHUB_TOKEN: ${{ secrets.MAAEND_BOT_TOKEN }}
-          COMMENT_ID: ${{ steps.initial_comment.outputs.comment-id }}
-          REPO: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ steps.issue_number.outputs.issue_number }}
-          ANALYSIS_PROMPT_FILE: ${{ env.ANALYSIS_PROMPT_FILE }}
-          OUTPUT_FILE: ${{ env.COPILOT_OUTPUT_FILE }}
-          BODY_FILE: ${{ env.COMMENT_BODY_FILE }}
-        run: |
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          # 启动 Copilot 后台进程，将输出重定向到文件（同时捕获错误输出）
-          # 这里用了 gpt-5.4-xhigh。免费模型不会调用工具和 skill（太笨），不建议用
-          copilot --yolo --model gpt-5.4 --reasoning-effort xhigh \
-            --prompt "$(cat "$ANALYSIS_PROMPT_FILE")" > "$OUTPUT_FILE" 2>&1 &
-          COPILOT_PID=$!
-          echo "Copilot started with PID $COPILOT_PID"
-
-          # 记录上一次更新的内容，避免重复更新
-          last_content=""
-
-          # 循环检查，直到 Copilot 进程结束
-          while true; do
-            # 启动一个后台 sleep 进程
-            sleep 30 &
-            sleep_pid=$!
-        
-            # 等待两个进程中的任意一个结束
-            # - 如果 sleep 先结束，表示 30 秒已到，需要执行 curl
-            # - 如果 COPILOT_PID 先结束，表示监控进程已退出，循环结束
-            wait -n $COPILOT_PID $sleep_pid 2>/dev/null
-            wait_ret=$?
-        
-            # 检查哪个进程结束了
-            if ! kill -0 $COPILOT_PID 2>/dev/null; then
-                # 监控进程已结束，退出循环（清理后台 sleep 进程）
-                kill $sleep_pid 2>/dev/null
-                break
-            fi
-
-            if [ -f "$OUTPUT_FILE" ]; then
-              current_content=$(cat "$OUTPUT_FILE")
-              # 只有当内容变化且非空时才更新评论
-              if [ "$current_content" != "$last_content" ] && [ -n "$current_content" ]; then
-                # 构建评论正文：当前输出 + 分隔符 + 运行链接
-                {
-                  echo "${{ env.INITIAL_BODY }}"
-                  echo ""
-                  echo "---"
-                  echo ""
-                  echo "${{ env.DETAILS_BEGIN }}"
-                  echo "$current_content"
-                  echo "${{ env.DETAILS_END }}"
-                  echo ""
-                  echo "${{ env.ACTION_LINK }}"
-                } > "$BODY_FILE"
-
-                # 使用 jq 构造 JSON 并通过 API 更新评论
-                jq -n --arg body "$(cat "$BODY_FILE")" '{"body":$body}' | \
-                curl -s -L -X PATCH \
-                  -H "Authorization: token $GITHUB_TOKEN" \
-                  -H "Accept: application/vnd.github.v3+json" \
-                  "https://api.github.com/repos/$REPO/issues/comments/$COMMENT_ID" \
-                  -d @-
-
-                last_content="$current_content"
-                echo "Comment updated at $(date)"
-              fi
-            fi
-          done
-
-      - name: Full Analysis (完整分析结果)
-        shell: bash
-        run: |
-          cat "${{ env.COPILOT_OUTPUT_FILE }}"
-          echo ""
-          echo "---"
-          echo ""
-          cat "${{ env.COPILOT_ANSWER_FILE }}"
-
-      # 步骤 3：将分析结果与运行链接合并，准备最终评论内容（中文链接描述）
-      - name: Prepare final comment
-        run: |
-          # 复制分析结果到新文件
-          cp "${{ env.COPILOT_ANSWER_FILE }}" "${{ env.FINAL_COMMENT_FILE }}"
-
-          echo "" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "---" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "${{ env.DETAILS_BEGIN }}" >> "${{ env.FINAL_COMMENT_FILE }}"
-          cat "${{ env.COPILOT_OUTPUT_FILE }}" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "${{ env.DETAILS_END }}" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "" >> "${{ env.FINAL_COMMENT_FILE }}"
-          echo "${{ env.ACTION_LINK }}" >> "${{ env.FINAL_COMMENT_FILE }}"
-
-      # 步骤 4：更新之前发布的评论，替换为分析结论 + 运行链接
-      - name: Update comment with analysis result
-        uses: peter-evans/create-or-update-comment@main
-        with:
-          comment-id: ${{ steps.initial_comment.outputs.comment-id }}
-          edit-mode: replace
-          body-path: ${{ env.FINAL_COMMENT_FILE }}
-          token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          bot-name: '@MaaEndBot'
+          initial-comment-body: |
+            🤖 **MaaBot 正在分析该 Issue...**
+            感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
