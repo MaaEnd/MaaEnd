@@ -9,7 +9,7 @@
         "rate_limit": 0,
         "next": ["AutoStockpileCheckBuyResult"]
     },
-    "AutoStockpileSkipSkipRegion": {
+    "AutoStockpileRegionUnavailable": {
         "desc": "在这里处理没有解锁物资调度",
         "pre_delay": 0,
         "post_delay": 0,
@@ -38,14 +38,16 @@
         "rate_limit": 0,
         "focus": {"Node.Recognition.Succeeded": "无合格商品，跳过本次购买"}
     },
-    "AutoStockpilerEnterStore": {"desc": "进入物资调度界面", "recognition": {"type": "TemplateMatch", "param": {"roi": [
+    "AutoStockpileEnterStore": {"desc": "进入物资调度界面", "recognition": {"type": "TemplateMatch", "param": {"roi": [
                     885,
                     300,
                     135,
                     143
                 ], "template": [
                     "AutoStockpile/StockRedistributionButton.png"
-                ], "threshold": [0.8]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 400, "post_delay": 0, "rate_limit": 0, "next": [
+                ], "threshold": [
+                    0.8
+                ]}}, "pre_delay": 0, "action": {"type": "Click", "param": {}}, "post_wait_freezes": 400, "post_delay": 0, "rate_limit": 0, "next": [
             "AutoStockpileGotoElasticGoods",
             "AutoStockpileCheckInStore"
         ]},
@@ -119,8 +121,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpilerEnterStore",
-            "AutoStockpileSkipSkipRegion"
+            "AutoStockpileEnterStore",
+            "AutoStockpileRegionUnavailable"
         ]
     },
     "AutoStockpileChangeRegionTask": {
