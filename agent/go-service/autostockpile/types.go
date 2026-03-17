@@ -77,7 +77,7 @@ func (c *PriceLimitConfig) UnmarshalJSON(data []byte) error {
 		if err != nil {
 			return fmt.Errorf("price_limits.%s: %w", key, err)
 		}
-		parsed[key] = threshold
+		parsed[key] = normalizePriceLimitThreshold(key, threshold)
 	}
 
 	*c = parsed

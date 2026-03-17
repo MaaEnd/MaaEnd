@@ -10,11 +10,51 @@ import (
 )
 
 var autoStockpileDefaultPriceLimits = map[string]int{
-	"price_limits_ValleyIV.Tier1": 800,
-	"price_limits_ValleyIV.Tier2": 1200,
-	"price_limits_ValleyIV.Tier3": 1500,
-	"price_limits_Wuling.Tier1":   1200,
-	"price_limits_Wuling.Tier2":   1500,
+	"ValleyIVTier1": 800,
+	"ValleyIVTier2": 1200,
+	"ValleyIVTier3": 1500,
+	"WulingTier1":   1200,
+	"WulingTier2":   1500,
+}
+
+func defaultPriceLimitForTier(tierID string) (int, bool) {
+	threshold, ok := autoStockpileDefaultPriceLimits[tierID]
+	return threshold, ok
+}
+
+func requireDefaultPriceLimitForTier(tierID string) (int, error) {
+	threshold, ok := defaultPriceLimitForTier(tierID)
+	if !ok {
+		return 0, fmt.Errorf("missing default threshold for %s", tierID)
+	}
+	return threshold, nil
+}
+
+func priceLimitTierIDFromAttachKey(key string) (string, error) {
+	const prefix = "price_limits_"
+	if !strings.HasPrefix(key, prefix) {
+		return "", fmt.Errorf("invalid price limit key %s", key)
+	}
+
+	remainder := strings.TrimPrefix(key, prefix)
+	parts := strings.SplitN(remainder, ".", 2)
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		return "", fmt.Errorf("invalid price limit key %s", key)
+	}
+
+	return parts[0] + parts[1], nil
+}
+
+func normalizePriceLimitThreshold(tierID string, threshold int) int {
+	if threshold != 0 {
+		return threshold
+	}
+
+	if defaultThreshold, ok := defaultPriceLimitForTier(tierID); ok {
+		return defaultThreshold
+	}
+
+	return threshold
 }
 
 func getSelectionConfigFromNode(ctx *maa.Context, nodeName string) (SelectionConfig, error) {
@@ -115,18 +155,24 @@ func collectRegionPriceLimits(attach map[string]json.RawMessage, region string) 
 }
 
 func parsePriceLimitOverrideValue(key string, data json.RawMessage) (int, error) {
+	tierID, err := priceLimitTierIDFromAttachKey(key)
+	if err != nil {
+		return 0, err
+	}
+
 	var stringValue string
 	if err := json.Unmarshal(data, &stringValue); err == nil {
 		if strings.TrimSpace(stringValue) == "" {
-			threshold, ok := autoStockpileDefaultPriceLimits[key]
-			if !ok {
-				return 0, fmt.Errorf("missing default threshold")
-			}
-			return threshold, nil
+			return requireDefaultPriceLimitForTier(tierID)
 		}
 	}
 
-	return parsePriceLimitValue(data)
+	threshold, err := parsePriceLimitValue(data)
+	if err != nil {
+		return 0, err
+	}
+
+	return normalizePriceLimitThreshold(tierID, threshold), nil
 }
 
 // minPositiveThreshold 返回价格阈值中的最小正值，用作当前地区的默认 fallback。
