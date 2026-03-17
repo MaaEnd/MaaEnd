@@ -80,9 +80,10 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 
 		targetInViewX, targetInViewY := inferRes.ViewPort.GetScreenCoordOf(param.Target[0], param.Target[1])
 		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
-			if param.OnFind == "Click" {
+			switch param.OnFind {
+			case "Click":
 				aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 50)
-			} else if param.OnFind == "Teleport" {
+			case "Teleport":
 				if err := runBigMapTeleportNode(ctx, aw, targetInViewX, targetInViewY); err != nil {
 					log.Error().Err(err).Str("map", param.MapName).Msg("Failed to run teleport sequence on find")
 					return false

@@ -56,27 +56,28 @@ func ComputeNCC(img *image.RGBA, imgIntArr IntegralArray, tpl *image.RGBA, tplSt
 }
 
 // MatchTemplate performs template matching on the whole image,
-// returns (x, y, score) of the best match, where x and y are subpixel-accurate coordinates.
+// returns (x, y, val) of the best match, where x and y are subpixel-accurate coordinates.
 func MatchTemplate(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
-) (float64, float64, float64) {
+) (x, y, val float64) {
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
-	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, 0, 0, iw, ih)
+	return MatchTemplateInArea(img, imgIntArr, tpl, tplStats, [4]int{0, 0, iw, ih})
 }
 
 // MatchTemplateInArea performs template matching such that the center of the template
-// remains within the specified rectangle (ax, ay, aw, ah).
-// Returns (x, y, score) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
+// remains within the specified area's rectangle (x, y, w, h).
+// Returns (x, y, val) of the best match, where (x, y) is the top-left corner with subpixel accuracy.
 func MatchTemplateInArea(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	tplStats StatsResult,
-	ax, ay, aw, ah int,
-) (float64, float64, float64) {
+	rect [4]int,
+) (x, y, val float64) {
+	ax, ay, aw, ah := rect[0], rect[1], rect[2], rect[3]
 	iw, ih := img.Rect.Dx(), img.Rect.Dy()
 	tw, th := tpl.Rect.Dx(), tpl.Rect.Dy()
 
@@ -93,14 +94,14 @@ func MatchTemplateInArea(
 		s    float64
 	}
 
-	numWorkers, step := 4, 3
+	numWorkers, stepLen := 4, 3
 	resChan := make(chan result, numWorkers)
 
 	for i := range numWorkers {
 		go func(id int) {
 			lx, ly, lm := 0, 0, -1.0
-			for y := minY + id*step; y <= maxY; y += numWorkers * step {
-				for x := minX; x <= maxX; x += step {
+			for y := minY + id*stepLen; y <= maxY; y += numWorkers * stepLen {
+				for x := minX; x <= maxX; x += stepLen {
 					s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
 					if s > lm {
 						lm, lx, ly = s, x, y
@@ -121,8 +122,8 @@ func MatchTemplateInArea(
 
 	fm, fx, fy := bc.s, bc.x, bc.y
 	// Fine-tuning pass around the best result
-	for y := max(minY, bc.y-step+1); y <= min(maxY, bc.y+step-1); y++ {
-		for x := max(minX, bc.x-step+1); x <= min(maxX, bc.x+step-1); x++ {
+	for y := max(minY, bc.y-stepLen+1); y <= min(maxY, bc.y+stepLen-1); y++ {
+		for x := max(minX, bc.x-stepLen+1); x <= min(maxX, bc.x+stepLen-1); x++ {
 			s := ComputeNCC(img, imgIntArr, tpl, tplStats, x, y)
 			if s > fm {
 				fm, fx, fy = s, x, y
@@ -152,17 +153,17 @@ func MatchTemplateInArea(
 	return subX, subY, fm
 }
 
-// MatchTemplateAnyScaleInArea performs iterative template matching over a scale range.
+// MatchTemplateAnyScale performs iterative template matching over a scale range.
 // The number of iterations is defined by len(steps), and each element controls the
 // sampling count for that iteration.
-// Returns (x, y, score, scale) for the best match found across all iterations.
-func MatchTemplateAnyScaleInArea(
+// Returns (x, y, val, bestScale) for the best match found across all iterations.
+func MatchTemplateAnyScale(
 	img *image.RGBA,
 	imgIntArr IntegralArray,
 	tpl *image.RGBA,
 	minScale, maxScale float64,
 	steps []int,
-) (float64, float64, float64, float64) {
+) (x, y, val, bestScale float64) {
 	if minScale > maxScale {
 		minScale, maxScale = maxScale, minScale
 	}
@@ -183,13 +184,15 @@ func MatchTemplateAnyScaleInArea(
 		if minScale > maxScale {
 			break
 		}
+
+		var stepLen float64
 		if stepCount < 1 {
 			stepCount = 1
-		}
-
-		stepSize := 0.0
-		if stepCount > 1 {
-			stepSize = (maxScale - minScale) / float64(stepCount-1)
+			stepLen = 0.0
+		} else if stepCount == 1 {
+			stepLen = 0.0
+		} else {
+			stepLen = (maxScale - minScale) / float64(stepCount-1)
 		}
 
 		iterBestIdx := 0
@@ -197,11 +200,13 @@ func MatchTemplateAnyScaleInArea(
 		iterBestX, iterBestY, iterBestScore := 0.0, 0.0, -1.0
 
 		for idx := range stepCount {
-			scale := minScale
+			var scale float64
 			if stepCount == 1 {
 				scale = (minScale + maxScale) * 0.5
+			} else if stepCount%2 == 0 {
+				scale = minScale + float64(idx)*stepLen
 			} else {
-				scale = minScale + float64(idx)*stepSize
+				scale = minScale + (float64(idx)+0.5)*stepLen
 			}
 			if scale <= 0 {
 				continue
@@ -214,6 +219,7 @@ func MatchTemplateAnyScaleInArea(
 			}
 
 			x, y, score := MatchTemplate(img, imgIntArr, scaledTpl, scaledStats)
+
 			if score > iterBestScore {
 				iterBestScore = score
 				iterBestX = x
@@ -230,19 +236,20 @@ func MatchTemplateAnyScaleInArea(
 			bestScale = iterBestScale
 		}
 
-		if stepSize <= 0 {
+		if stepLen <= 0 {
 			break
 		}
 
-		if iterBestIdx == 0 {
+		switch iterBestIdx {
+		case 0:
 			minScale = iterBestScale
-			maxScale = iterBestScale + stepSize
-		} else if iterBestIdx == stepCount-1 {
-			minScale = iterBestScale - stepSize
+			maxScale = iterBestScale + stepLen
+		case stepCount - 1:
+			minScale = iterBestScale - stepLen
 			maxScale = iterBestScale
-		} else {
-			minScale = iterBestScale - stepSize
-			maxScale = iterBestScale + stepSize
+		default:
+			minScale = iterBestScale - stepLen
+			maxScale = iterBestScale + stepLen
 		}
 
 		minScale = max(minScale0, minScale)

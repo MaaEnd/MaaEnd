@@ -86,7 +86,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	coarseBestMap := MapCache{}
 	hasCoarseBestMap := false
 	triedMaps := 0
-	coarseMatchingSteps := []int{8, 4}
+	coarseMatchingSteps := []int{12}
 	coarseTplScaleMin := 1.0 / GAME_MAP_SCALE_MAX
 	coarseTplScaleMax := 1.0 / GAME_MAP_SCALE_MIN
 
@@ -106,7 +106,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	if triedMaps == 1 {
 		single := candidateMaps[0]
-		_, _, score, tplScale := minicv.MatchTemplateAnyScaleInArea(
+		_, _, score, tplScale := minicv.MatchTemplateAnyScale(
 			single.Img,
 			single.Integral,
 			fastTpl,
@@ -126,7 +126,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 			wg.Add(1)
 			go func(m MapCache) {
 				defer wg.Done()
-				_, _, score, tplScale := minicv.MatchTemplateAnyScaleInArea(
+				_, _, score, tplScale := minicv.MatchTemplateAnyScale(
 					m.Img,
 					m.Integral,
 					fastTpl,
@@ -163,12 +163,12 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return nil, false
 	}
 
-	fineMatchingSteps := []int{8, 4}
-	fineMatchingScaleOffset := (coarseTplScaleMax - coarseTplScaleMin) / 32.0
+	fineMatchingSteps := []int{4, 2}
+	fineMatchingScaleOffset := (coarseTplScaleMax - coarseTplScaleMin) / 24.0
 	fineMinScale := max(coarseTplScaleMin, coarseBestTplScale-fineMatchingScaleOffset)
 	fineMaxScale := min(coarseTplScaleMax, coarseBestTplScale+fineMatchingScaleOffset)
 
-	matchX, matchY, fineScore, fineTplScale := minicv.MatchTemplateAnyScaleInArea(
+	matchX, matchY, fineScore, fineTplScale := minicv.MatchTemplateAnyScale(
 		coarseBestMap.Img,
 		coarseBestMap.Integral,
 		fastTpl,
@@ -190,8 +190,8 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	viewScale := 1.0 / fineTplScale
 	viewScale = min(GAME_MAP_SCALE_MAX, max(GAME_MAP_SCALE_MIN, viewScale))
-	sampleOriginMapX := roundTo1Decimal(matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX))
-	sampleOriginMapY := roundTo1Decimal(matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY))
+	sampleOriginMapX := matchX/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetX)
+	sampleOriginMapY := matchY/float64(WIRE_MATCH_PRECISION) + float64(coarseBestMap.OffsetY)
 	viewOriginMapX := roundTo1Decimal(sampleOriginMapX - float64(sampleOffsetX)/viewScale)
 	viewOriginMapY := roundTo1Decimal(sampleOriginMapY - float64(sampleOffsetY)/viewScale)
 

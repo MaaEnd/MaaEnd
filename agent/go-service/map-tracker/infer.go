@@ -599,17 +599,14 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			expectedCenterX := int(math.Round((stableLocX - float64(mapData.OffsetX)) * scale))
 			expectedCenterY := int(math.Round((stableLocY - float64(mapData.OffsetY)) * scale))
 			searchRadius := max(int(float64(CONVINCED_DISTANCE_THRESHOLD)*scale), 1)
+			searchArea := [4]int{
+				expectedCenterX - searchRadius,
+				expectedCenterY - searchRadius,
+				searchRadius * 2,
+				searchRadius * 2,
+			}
 
-			matchX, matchY, matchVal := minicv.MatchTemplateInArea(
-				mapData.Img,
-				mapData.Integral,
-				miniMap,
-				miniStats,
-				expectedCenterX-searchRadius,
-				expectedCenterY-searchRadius,
-				searchRadius*2,
-				searchRadius*2,
-			)
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.Integral, miniMap, miniStats, searchArea)
 
 			if matchVal > fastBestVal {
 				fastBestVal = matchVal
