@@ -37,5 +37,6 @@ jobs:
           copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
-            🤖 **MaaBot 正在分析该 Issue...**
+            🤖 **MaaBot 正在分析该 Issue...**  
+            
             感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
