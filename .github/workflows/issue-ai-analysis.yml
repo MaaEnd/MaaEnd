@@ -38,19 +38,21 @@ jobs:
           copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
-            🤖 **MaaBot 正在分析该 Issue...**  
+            🤖 **MaaEndBot 正在分析该 Issue...**  
             
             感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
 
       - name: Consume outputs
         env:
           ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
+          ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
           COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
           COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
           COPILOT_OUTPUT: ${{ steps.analysis.outputs.copilot-output }}
           FINAL_CONCLUSION: ${{ steps.analysis.outputs.final-conclusion }}
         run: |
           printf '%s\n' "$ANALYSIS_PROMPT"
+          echo "issue_number=$ISSUE_NUMBER"
           echo "comment_id=$COMMENT_ID"
           echo "comment_url=$COMMENT_URL"
           printf '%s\n' "$COPILOT_OUTPUT"
