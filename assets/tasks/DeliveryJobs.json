@@ -9,7 +9,7 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem",
-                "DeliveryJobsAcceptOnly"
+                "DeliveryJobsAcceptJobOnly"
             ],
             "group": ["daily"]
         }
@@ -308,10 +308,10 @@
             ],
             "default_case": "砂叶粉末"
         },
-        "DeliveryJobsAcceptOnly": {
+        "DeliveryJobsAcceptJobOnly": {
             "type": "switch",
-            "label": "$task.DeliveryJobs.AcceptOnly.label",
-            "description": "$task.DeliveryJobs.AcceptOnly.description",
+            "label": "$task.DeliveryJobs.AcceptJobOnly.label",
+            "description": "$task.DeliveryJobs.AcceptJobOnly.description",
             "cases": [
                 {
                     "name": "Yes",
