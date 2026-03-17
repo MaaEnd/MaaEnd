@@ -24,7 +24,7 @@ const (
 
 // Big map infer configuration
 const (
-	PADDING_LR           = 0.133 * WORK_W
+	PADDING_LR           = 0.192 * WORK_W
 	PADDING_TB           = 0.208 * WORK_H
 	SAMPLE_PADDING_LR    = 0.4 * WORK_W
 	SAMPLE_PADDING_TB    = 0.4 * WORK_H

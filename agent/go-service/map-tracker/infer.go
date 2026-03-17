@@ -6,13 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/draw"
 	_ "image/png"
 	"math"
 	"os"
-	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -48,29 +45,12 @@ type MapTrackerInferParam struct {
 	Threshold float64 `json:"threshold,omitempty"`
 }
 
-// MapCache represents a preloaded map image
-type MapCache struct {
-	Name     string
-	Img      *image.RGBA
-	Integral minicv.IntegralArray
-	OffsetX  int
-	OffsetY  int
-}
-
 // MapTrackerInfer is the custom recognition component for map tracking
 type MapTrackerInfer struct {
 	// Cache for preloaded resources
-	mapsOnce    sync.Once
 	pointerOnce sync.Once
-	maps        []MapCache
 	pointer     *image.RGBA
-	mapsErr     error
 	pointerErr  error
-
-	// Cache for scaled maps
-	scaledMu    sync.Mutex
-	scaledScale float64
-	scaledMaps  []MapCache
 }
 
 type InferState struct {
@@ -146,8 +126,8 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	i.initPointer(ctx)
 
 	// Check for initialization errors
-	if i.mapsErr != nil {
-		log.Error().Err(i.mapsErr).Msg("Failed to initialize maps")
+	if mapTrackerResource.rawMapsErr != nil {
+		log.Error().Err(mapTrackerResource.rawMapsErr).Msg("Failed to initialize maps")
 		return nil, false
 	}
 	if i.pointerErr != nil {
@@ -388,14 +368,7 @@ func isMapNameCoreMatch(mapName1, mapName2 string) bool {
 
 // initMaps initializes the map cache (thread-safe, runs once)
 func (i *MapTrackerInfer) initMaps(ctx *maa.Context) {
-	i.mapsOnce.Do(func() {
-		i.maps, i.mapsErr = i.loadMaps(ctx)
-		if i.mapsErr != nil {
-			log.Error().Err(i.mapsErr).Msg("Failed to load maps")
-		} else {
-			log.Info().Int("mapsCount", len(i.maps)).Msg("Map images loaded")
-		}
-	})
+	mapTrackerResource.initRawMaps(ctx)
 }
 
 // initPointer initializes the pointer template cache (thread-safe, runs once)
@@ -408,105 +381,6 @@ func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
 			log.Info().Msg("Pointer template image loaded")
 		}
 	})
-}
-
-// loadMaps loads all map images from the resource directory
-// and try crops them if map bbox data exists
-func (i *MapTrackerInfer) loadMaps(ctx *maa.Context) ([]MapCache, error) {
-	// Find map directory using search strategy
-	mapDir := findResource(MAP_DIR)
-	if mapDir == "" {
-		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
-	}
-
-	// Read bbox data from configured resource path first
-	rectList := make(map[string][]int)
-	rectPath := findResource(MAP_BBOX_DATA_PATH)
-	if rectPath != "" {
-		if data, err := os.ReadFile(rectPath); err == nil {
-			if err := json.Unmarshal(data, &rectList); err != nil {
-				log.Warn().Err(err).Str("path", rectPath).Msg("Failed to unmarshal map bbox data")
-			} else {
-				log.Info().Str("path", rectPath).Msg("Map bbox data loaded")
-			}
-		} else {
-			log.Warn().Err(err).Str("path", rectPath).Msg("Failed to read map bbox data")
-		}
-	}
-
-	// Read directory entries
-	entries, err := os.ReadDir(mapDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read map directory: %w", err)
-	}
-
-	// Load all PNG files
-	maps := make([]MapCache, 0)
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		filename := entry.Name()
-		if !strings.HasSuffix(filename, ".png") {
-			continue
-		}
-
-		// Load image
-		imgPath := filepath.Join(mapDir, filename)
-		file, err := os.Open(imgPath)
-		if err != nil {
-			log.Warn().Err(err).Str("path", imgPath).Msg("Failed to open map image")
-			continue
-		}
-
-		img, _, err := image.Decode(file)
-		file.Close()
-		if err != nil {
-			log.Warn().Err(err).Str("path", imgPath).Msg("Failed to decode map image")
-			continue
-		}
-
-		// Extract map name (remove ".png" suffix)
-		name := strings.TrimSuffix(filename, ".png")
-
-		var imgRGBA *image.RGBA
-		offsetX, offsetY := 0, 0
-
-		// Crop if valid rect exists
-		if r, ok := rectList[name]; ok && len(r) == 4 {
-			rect := image.Rect(r[0], r[1], r[2], r[3])
-			expand := LOC_RADIUS / 2
-			rect = image.Rect(rect.Min.X-expand, rect.Min.Y-expand, rect.Max.X+expand, rect.Max.Y+expand)
-
-			// Crop precisely using drawing
-			b := img.Bounds()
-			r0 := rect.Intersect(b)
-			dst := image.NewRGBA(image.Rect(0, 0, r0.Dx(), r0.Dy()))
-			draw.Draw(dst, dst.Bounds(), img, r0.Min, draw.Src)
-			imgRGBA = dst
-			offsetX, offsetY = r0.Min.X, r0.Min.Y
-		} else {
-			imgRGBA = minicv.ImageConvertRGBA(img)
-		}
-
-		// Precompute integral image
-		integral := minicv.GetIntegralArray(imgRGBA)
-
-		maps = append(maps, MapCache{
-			Name:     name,
-			Img:      imgRGBA,
-			Integral: integral,
-			OffsetX:  offsetX,
-			OffsetY:  offsetY,
-		})
-	}
-
-	if len(maps) == 0 {
-		return nil, fmt.Errorf("no valid map images found in %s", mapDir)
-	}
-
-	return maps, nil
 }
 
 // loadPointer loads the pointer template image
@@ -540,7 +414,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 
 	// Use cached scaled maps
 	scale := param.Precision
-	scaledMaps := i.getScaledMaps(scale)
+	scaledMaps := mapTrackerResource.getScaledMaps(scale)
 	if len(scaledMaps) == 0 {
 		log.Warn().Msg("No maps available for matching")
 		return nil
@@ -591,7 +465,8 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		fastBestX, fastBestY := 0.0, 0.0
 		fastBestMapName := ""
 
-		for _, mapData := range scaledMaps {
+		for idx := range scaledMaps {
+			mapData := &scaledMaps[idx]
 			if !isMapNameCoreMatch(stableConvincedMapName, mapData.Name) || !mapNameRegex.MatchString(mapData.Name) {
 				continue
 			}
@@ -606,7 +481,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 				searchRadius * 2,
 			}
 
-			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.Integral, miniMap, miniStats, searchArea)
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.getIntegralArray(), miniMap, miniStats, searchArea)
 
 			if matchVal > fastBestVal {
 				fastBestVal = matchVal
@@ -665,7 +540,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	}
 
 	if singleMapToTry != nil {
-		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.Integral, miniMap, miniStats)
+		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.getIntegralArray(), miniMap, miniStats)
 		bestVal = matchVal
 		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
 		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
@@ -674,15 +549,16 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		resChan := make(chan mapResult, triedCount)
 		var wg sync.WaitGroup
 
-		for _, mapData := range scaledMaps {
+		for idx := range scaledMaps {
+			mapData := &scaledMaps[idx]
 			if !mapNameRegex.MatchString(mapData.Name) {
 				continue
 			}
 
 			wg.Add(1)
-			go func(m MapCache) {
+			go func(m *MapCache) {
 				defer wg.Done()
-				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.Integral, miniMap, miniStats)
+				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.getIntegralArray(), miniMap, miniStats)
 				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
 				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
 				resChan <- mapResult{matchVal, mx, my, m.Name}
@@ -725,32 +601,6 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 		source:        FULL_SEARCH_HIT,
 		elapsedTimeMs: time.Since(t0).Milliseconds(),
 	}
-}
-
-// getScaledMaps returns cached scaled maps or recomputes them
-func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
-	i.scaledMu.Lock()
-	defer i.scaledMu.Unlock()
-
-	if i.scaledScale == scale && len(i.scaledMaps) > 0 {
-		return i.scaledMaps
-	}
-
-	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
-	newScaled := make([]MapCache, 0, len(i.maps))
-	for _, m := range i.maps {
-		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, MapCache{
-			Name:     m.Name,
-			Img:      sImg,
-			Integral: minicv.GetIntegralArray(sImg),
-			OffsetX:  m.OffsetX,
-			OffsetY:  m.OffsetY,
-		})
-	}
-	i.scaledScale = scale
-	i.scaledMaps = newScaled
-	return i.scaledMaps
 }
 
 // inferRotation infers the player's rotation angle
