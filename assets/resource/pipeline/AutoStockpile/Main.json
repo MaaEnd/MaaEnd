@@ -29,7 +29,10 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileTask"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 四号谷地"
+        }
     },
     "AutoStockpileWuling": {
         "desc": "自动囤货武陵节点",
@@ -42,6 +45,9 @@
         "rate_limit": 0,
         "next": [
             "AutoStockpileTask"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "正在前往: 武陵"
+        }
     }
 }
