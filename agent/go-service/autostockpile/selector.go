@@ -127,7 +127,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Bool("swipe_specific_quantity_enabled", enableSpecificQuantity).
 		Int("overflow_amount", result.OverflowAmount).
 		Msg("product selected and pipeline overridden")
-	maafocus.NodeActionStarting(ctx, fmt.Sprintf("已选择物资: %s (价格 %d, 阈值 %d)", selection.ProductName, selection.CurrentPrice, selection.Threshold))
+	maafocus.NodeActionStarting(ctx, fmt.Sprintf("【%s】%s (价格 %d, 阈值 %d)", formatSelectionMode(selection, result, cfg), selection.ProductName, selection.CurrentPrice, selection.Threshold))
 
 	return true
 }
@@ -206,6 +206,19 @@ func resolveSwipeEnable(selection SelectionResult, result RecognitionResult, cfg
 		return true, false, true
 	}
 	return true, true, false
+}
+
+func formatSelectionMode(selection SelectionResult, result RecognitionResult, cfg SelectionConfig) string {
+	if selection.CurrentPrice < selection.Threshold {
+		return "低价购买"
+	}
+	if cfg.SundayMode && result.Sunday {
+		return "周日清空"
+	}
+	if cfg.OverflowMode && result.OverflowAmount > 0 {
+		return "防溢出"
+	}
+	return "低价购买"
 }
 
 func extractRecoDetailJson(rd *maa.RecognitionDetail) string {
