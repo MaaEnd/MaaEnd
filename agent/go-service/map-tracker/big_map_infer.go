@@ -103,8 +103,6 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}
 	triedMaps = len(candidateMaps)
 
-	t1 := time.Now()
-
 	type coarseResult struct {
 		score    float64
 		tplScale float64
@@ -227,8 +225,6 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		Float64("y", result.ViewPort.OriginMapY).
 		Float64("scale", result.ViewPort.Scale).
 		Int64("inferTimeMs", result.InferTimeMs).
-		Dur("prepareDuration", t1.Sub(t0)).
-		Dur("matchingDuration", time.Since(t1)).
 		Msg("Big-map inference completed")
 
 	return &maa.CustomRecognitionResult{

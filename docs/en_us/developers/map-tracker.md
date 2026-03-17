@@ -118,9 +118,9 @@ Optional parameters:
     - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
     - `"DoNothing"`: Perform no action.
 
-- `AutoOpenMapScene`: Boolean, default `false`. Whether to automatically open the corresponding big-map scene before picking. This feature depends on SceneManager nodes. If disabled, make sure the player is already in the correct big-map scene.
+- `auto_open_map_scene`: Boolean, default `false`. Whether to automatically open the corresponding big-map scene before picking. This feature depends on SceneManager nodes. If disabled, make sure the player is already in the correct big-map scene.
 
-- `NoZoom`: Boolean, default `false`. Whether to disable automatic zoom adjustment (which adjusts the big-map zoom to a suitable range). Disabling this may reduce the success rate of this node.
+- `no_zoom`: Boolean, default `false`. Whether to disable automatic zoom adjustment (which adjusts the big-map zoom to a suitable range). Disabling this may reduce the success rate of this node.
 
 #### Example Usage
 

@@ -43,7 +43,7 @@ type MapTrackerBigMapPickParam struct {
 	// AutoOpenMapScene controls whether to automatically open the big map scene before picking.
 	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
 	// NoZoom controls whether to disable auto zoom before picking.
-	NoZoom bool `json:"active_zoom,omitempty"`
+	NoZoom bool `json:"no_zoom,omitempty"`
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -62,14 +62,14 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			log.Error().Err(err).Str("map", param.MapName).Msg("Failed to resolve scene manager mapping")
 			return false
 		}
-		if hasSceneMapping && param.OnFind == "Teleport" {
+		if hasSceneMapping {
 			if _, err := ctx.RunTask(sceneManagerNode); err != nil {
 				log.Error().Err(err).Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Msg("Failed to run scene manager node")
 				return false
 			}
 			log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Str("onFind", param.OnFind).Msg("Scene manager node completed before big-map pick")
-		} else if hasSceneMapping {
-			log.Info().Str("map", param.MapName).Str("sceneManagerNode", sceneManagerNode).Str("onFind", param.OnFind).Msg("Skipping scene manager node because on_find is not Teleport")
+		} else {
+			log.Warn().Str("map", param.MapName).Msg("No scene manager mapping found for the map, cannot auto open map scene")
 		}
 
 		if _, err := ctx.RunTask("__ScenePrivateMapFilterClear"); err != nil {
@@ -276,6 +276,10 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 		cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*0.7))
 		aw.ClickSync(0, cx, cy, 100)
 		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
+		return nil
+	}
+	if !outMatched && !inMatched {
+		log.Warn().Float64("outVal", outVal).Float64("inVal", inVal).Msg("No zoom button matched for auto zoom")
 		return nil
 	}
 
