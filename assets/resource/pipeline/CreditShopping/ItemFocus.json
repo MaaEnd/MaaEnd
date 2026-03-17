@@ -520,7 +520,12 @@
             66,
             4
         ],
-        "expected": "a^",
+        "expected": [
+            "协议棱柱组",
+            "協議稜柱組",
+            "Protohedron",
+            "協約角柱セット"
+        ],
         "only_rec": true,
         "order_by": "Vertical"
     }
