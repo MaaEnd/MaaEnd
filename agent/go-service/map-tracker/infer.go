@@ -51,6 +51,10 @@ type MapTrackerInfer struct {
 	pointerOnce sync.Once
 	pointer     *image.RGBA
 	pointerErr  error
+
+	// Cache for scaled maps (recomputed per request scale)
+	scaledMapsMu sync.Mutex
+	scaledMaps   []MapCache
 }
 
 type InferState struct {
@@ -414,7 +418,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 
 	// Use cached scaled maps
 	scale := param.Precision
-	scaledMaps := mapTrackerResource.getScaledMaps(scale)
+	scaledMaps := i.getScaledMaps(scale)
 	if len(scaledMaps) == 0 {
 		log.Warn().Msg("No maps available for matching")
 		return nil
@@ -678,4 +682,25 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 
 func roundTo1Decimal(value float64) float64 {
 	return math.Round(value*10.0) / 10.0
+}
+
+// getScaledMaps recomputes scaled map cache for the requested scale.
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
+	i.scaledMapsMu.Lock()
+	defer i.scaledMapsMu.Unlock()
+
+	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
+	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
+	for _, m := range mapTrackerResource.rawMaps {
+		sImg := minicv.ImageScale(m.Img, scale)
+		newScaled = append(newScaled, MapCache{
+			Name:    m.Name,
+			Img:     sImg,
+			OffsetX: m.OffsetX,
+			OffsetY: m.OffsetY,
+		})
+	}
+
+	i.scaledMaps = newScaled
+	return i.scaledMaps
 }

@@ -28,8 +28,7 @@ type MapTrackerResource struct {
 	rawMaps     []MapCache
 	rawMapsErr  error
 
-	scaledMapsMu      sync.Mutex
-	scaledMapsByScale map[float64][]MapCache
+	integralCacheMu sync.Mutex
 }
 
 // MapCache represents a preloaded map image.
@@ -44,6 +43,9 @@ type MapCache struct {
 
 // getIntegralArray lazily initializes integral array when first needed.
 func (m *MapCache) getIntegralArray() minicv.IntegralArray {
+	mapTrackerResource.integralCacheMu.Lock()
+	defer mapTrackerResource.integralCacheMu.Unlock()
+
 	if m.cachedIntegralArray == nil {
 		integral := minicv.GetIntegralArray(m.Img)
 		m.cachedIntegralArray = &integral
@@ -155,7 +157,6 @@ func (r *MapTrackerResource) initRawMaps(ctx *maa.Context) {
 		if r.rawMapsErr != nil {
 			log.Error().Err(r.rawMapsErr).Msg("Failed to load maps")
 		} else {
-			r.scaledMapsByScale = make(map[float64][]MapCache)
 			log.Info().Int("mapsCount", len(r.rawMaps)).Msg("Map images loaded")
 		}
 	})
@@ -301,32 +302,4 @@ func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
 	}
 
 	return maps, nil
-}
-
-// getScaledMaps returns cached scaled maps or recomputes them.
-func (r *MapTrackerResource) getScaledMaps(scale float64) []MapCache {
-	r.scaledMapsMu.Lock()
-	defer r.scaledMapsMu.Unlock()
-
-	if r.scaledMapsByScale == nil {
-		r.scaledMapsByScale = make(map[float64][]MapCache)
-	}
-
-	if cached, ok := r.scaledMapsByScale[scale]; ok && len(cached) > 0 {
-		return cached
-	}
-
-	log.Info().Float64("scale", scale).Msg("Recomputing scaled maps cache")
-	newScaled := make([]MapCache, 0, len(r.rawMaps))
-	for _, m := range r.rawMaps {
-		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, MapCache{
-			Name:    m.Name,
-			Img:     sImg,
-			OffsetX: m.OffsetX,
-			OffsetY: m.OffsetY,
-		})
-	}
-	r.scaledMapsByScale[scale] = newScaled
-	return newScaled
 }

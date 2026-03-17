@@ -33,6 +33,9 @@ type MapTrackerBigMapInferParam struct {
 type MapTrackerBigMapInfer struct {
 	mapsOnce sync.Once
 	mapsErr  error
+
+	scaledMapsMu sync.Mutex
+	scaledMaps   []MapCache
 }
 
 var _ maa.CustomRecognitionRunner = &MapTrackerBigMapInfer{}
@@ -89,7 +92,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	coarseTplScaleMin := 1.0 / GAME_MAP_SCALE_MAX
 	coarseTplScaleMax := 1.0 / GAME_MAP_SCALE_MIN
 
-	scaledMaps := mapTrackerResource.getScaledMaps(WIRE_MATCH_PRECISION)
+	scaledMaps := r.getScaledMaps(WIRE_MATCH_PRECISION)
 	candidateMaps := make([]*MapCache, 0, len(scaledMaps))
 	for idx := range scaledMaps {
 		m := &scaledMaps[idx]
@@ -265,6 +268,26 @@ func (r *MapTrackerBigMapInfer) initMaps(ctx *maa.Context) {
 		}
 		log.Info().Int("mapsCount", len(mapTrackerResource.rawMaps)).Msg("Big-map maps cache initialized")
 	})
+}
+
+// getScaledMaps recomputes scaled map cache for the requested scale.
+func (r *MapTrackerBigMapInfer) getScaledMaps(scale float64) []MapCache {
+	r.scaledMapsMu.Lock()
+	defer r.scaledMapsMu.Unlock()
+
+	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
+	for _, m := range mapTrackerResource.rawMaps {
+		sImg := minicv.ImageScale(m.Img, scale)
+		newScaled = append(newScaled, MapCache{
+			Name:    m.Name,
+			Img:     sImg,
+			OffsetX: m.OffsetX,
+			OffsetY: m.OffsetY,
+		})
+	}
+
+	r.scaledMaps = newScaled
+	return r.scaledMaps
 }
 
 func cropBigMapTemplate(screen *image.RGBA) (*image.RGBA, int, int, bool) {
