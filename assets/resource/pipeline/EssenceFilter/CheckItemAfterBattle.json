@@ -235,7 +235,7 @@
             "type": "DoNothing"
         },
         "post_delay": 0,
-        "next": [],
+        "next": ["EssenceFilterAfterBattleRowNextItem"],
         "focus": {
             "Node.Action.Failed": "OCR 超时：跳过"
         }
@@ -250,6 +250,6 @@
             }
         },
         "post_delay": 0,
-        "next": []
+        "next": ["EssenceFilterAfterBattleRowNextItem"]
     }
 }

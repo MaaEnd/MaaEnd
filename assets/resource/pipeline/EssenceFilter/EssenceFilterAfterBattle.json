@@ -19,15 +19,16 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFullScreenDetect1",
+            "EssenceFilterAfterBattleRowNextItem",
             "EssenceFilterFinish"
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
         }
     },
-    "EssenceFullScreenDetect1": {
-        "desc": "全屏模板匹配，收集所有格子,返回第一个",
+
+    "EssenceFullScreenDetectAll": {
+        "desc": "战利品全屏模板匹配：收集所有基质图标（不点击）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -39,21 +40,21 @@
                 ],
                 "template": "EssenceFilter/EssenceGeneral.png",
                 "method": 5,
-                "threshold": 0.35,
-                "index": 0
+                "threshold": 0.35
             }
         },
         "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "next": ["EssenceFindLockItem"]
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0
     },
     "EssenceFindLockItem": {
         "desc": "查找上锁的图标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "roi": "EssenceFullScreenDetect1",
+                "roi": "EssenceFilterAfterBattleRowNextItem",
                 "roi_offset": [
                     -300,
                     0,
