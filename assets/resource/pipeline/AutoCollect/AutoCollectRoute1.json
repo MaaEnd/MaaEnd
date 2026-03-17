@@ -3,7 +3,10 @@
         "next": [
             "AutoCollectRoute1AssertLocation",
             "[JumpBack]SceneEnterWorldWulingWulingCity5"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线1"
+        }
     },
     "AutoCollectRoute1End": {
         "pre_delay": 0,
@@ -48,115 +51,107 @@
                         },
                         [
                             654,
+                            723
+                        ],
+                        [
+                            656,
+                            723
+                        ],
+                        [
+                            658,
                             722
                         ],
                         [
-                            657,
+                            662,
+                            722
+                        ],
+                        [
+                            663,
                             720
                         ],
                         [
-                            659,
-                            720
+                            663,
+                            711
                         ],
                         [
-                            660,
-                            719
+                            664,
+                            709
                         ],
                         [
-                            661,
-                            719
+                            664,
+                            702
                         ],
                         [
-                            662,
-                            718
-                        ],
-                        [
-                            662,
+                            663,
                             701
                         ],
                         [
-                            661,
+                            663,
                             699
                         ],
                         [
                             661,
-                            697
+                            696
                         ],
                         [
-                            659,
+                            661,
                             694
                         ],
                         [
-                            659,
-                            690
+                            660,
+                            692
                         ],
                         [
-                            658,
+                            660,
                             689
                         ],
                         [
+                            659,
+                            687
+                        ],
+                        [
+                            659,
+                            682
+                        ],
+                        [
                             658,
-                            685
-                        ],
-                        [
-                            657,
-                            683
-                        ],
-                        [
-                            657,
                             680
                         ],
                         [
-                            656,
-                            678
+                            658,
+                            677
                         ],
                         [
-                            656,
-                            676
+                            657,
+                            675
                         ],
                         [
-                            655,
-                            674
-                        ],
-                        [
-                            655,
-                            673
-                        ],
-                        [
-                            653,
+                            657,
                             669
                         ],
                         [
-                            653,
+                            656,
                             668
                         ],
                         [
-                            651,
-                            665
-                        ],
-                        [
-                            651,
-                            663
-                        ],
-                        [
-                            648,
-                            658
-                        ],
-                        [
-                            648,
-                            657
-                        ],
-                        [
-                            646,
-                            653
-                        ],
-                        [
-                            646,
-                            652
+                            656,
+                            666
                         ],
                         [
                             645,
-                            651
+                            656
+                        ],
+                        [
+                            645,
+                            654
+                        ],
+                        [
+                            644,
+                            653
+                        ],
+                        [
+                            643,
+                            653
                         ],
                         [
                             645,
@@ -284,9 +279,96 @@
             }
         },
         "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute1End"
+            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind6"
         },
         "desc": "前往收集地5",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute1GotoFind6": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            639,
+                            647,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind7"
+        },
+        "desc": "前往收集地6",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute1GotoFind7": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            641,
+                            649,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute1GotoFind8"
+        },
+        "desc": "前往收集地7",
+        "next": [
+            "AutoCollectClickStart"
+        ]
+    },
+    "AutoCollectRoute1GotoFind8": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "map_name": "map02_lv002",
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            643,
+                            652,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "anchor": {
+            "AutoCollectClickAfter": "AutoCollectRoute1End"
+        },
+        "desc": "前往收集地8",
         "next": [
             "AutoCollectClickStart"
         ]

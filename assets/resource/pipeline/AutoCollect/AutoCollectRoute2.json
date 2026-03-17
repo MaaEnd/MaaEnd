@@ -3,7 +3,10 @@
         "next": [
             "AutoCollectRoute2AssertLocation",
             "[JumpBack]SceneEnterWorldWulingWulingCity2"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "开始路线2"
+        }
     },
     "AutoCollectRoute2End": {
         "pre_delay": 0,

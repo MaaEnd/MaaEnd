@@ -56,16 +56,16 @@
                 ]
             }
         },
-        // "action": {
-        //     "type": "Click",
-        //     "param": {}
-        // },
-        "action": { //调试用，按q
-            "type": "ClickKey",
-            "param": {
-                "key": 81
-            }
+        "action": {
+            "type": "Click",
+            "param": {}
         },
+        // "action": { //调试用，按q
+        //     "type": "ClickKey",
+        //     "param": {
+        //         "key": 81
+        //     }
+        // },
         "repeat": 3,
         "focus": {
             "Node.Recognition.Succeeded": "识别到采集物"
