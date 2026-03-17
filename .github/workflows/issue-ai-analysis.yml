@@ -1,4 +1,4 @@
-name: Issue AI Analysis
+name: AI Issue Analysis
 
 on:
   issues:
