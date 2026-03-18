@@ -92,7 +92,7 @@ func isFriendNameExist(name string) bool {
 func getFriendItemsRoi(ctx *maa.Context, arg *maa.CustomRecognitionArg) ([]maa.Rect, bool) {
 	detail_items, err := ctx.RunRecognition("VisitFriendsRecognitionItemEnterButton", arg.Img)
 	if err != nil || detail_items == nil {
-		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItem")
+		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemEnterButton")
 		return nil, false
 	}
 	var friendItemRoiOffset = maa.Rect{-1140, -30, 1175, 65} // 按钮映射到整个item的偏移
