@@ -327,19 +327,19 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 			"roi": result.Roi,
 		},
 		"VisitFriendsMenuClueExchange": map[string]any{
-			"enable": result.ClueExchange,
+			"enabled": result.ClueExchange,
 		},
 		"VisitFriendsMenuAssistControlNexus": map[string]any{
-			"enable": result.ControlNexusAssist,
+			"enabled": result.ControlNexusAssist,
 		},
 		"VisitFriendsMenuAssistMFGCabin1": map[string]any{
-			"enable": result.MFGCabinAssist,
+			"enabled": result.MFGCabinAssist,
 		},
 		"VisitFriendsMenuAssistMFGCabin2": map[string]any{
-			"enable": result.MFGCabinAssist,
+			"enabled": result.MFGCabinAssist,
 		},
 		"VisitFriendsMenuAssistGrowthChamberSwipe": map[string]any{
-			"enable": result.GrowthChamberAssist,
+			"enabled": result.GrowthChamberAssist,
 		},
 	}
 	ctx.RunTask("VisitFriendsEnterShip", override)
