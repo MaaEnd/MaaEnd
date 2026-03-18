@@ -23,7 +23,6 @@
             "_AutoEcoFarmFindFarmlandOpenMap"
         ]
     },
-
     "_AutoEcoFarmFindFarmlandValleyIVExit": {
         "next": [
             "_AutoEcoFarmSwipeToTargetValleyIVStart"
@@ -162,17 +161,16 @@
             "[Anchor]_AutoEcoFarmFindEcoFarmAnchor"
         ]
     },
-
     "_AutoEcoFarmFindValleyIVEcoFarm": {
         "desc": "寻找源石研究园的生态种植这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    649,
-                    225,
-                    631,
-                    399
+                    337,
+                    166,
+                    943,
+                    458
                 ],
                 "expected": [
                     "生|态|种|植",
@@ -185,17 +183,17 @@
             "type": "Scroll",
             "param": {
                 "target": true,
-                "dy": 720
+                "dy": 240
             }
         },
-        "post_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 10,
         "next": [
             //找到农田就下一步，没找到再拉缩放
             "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullValleyIVEcoFarmToCenter",
-            //不行的话尝试筛选标记
-            "[JumpBack]_AutoEcoFarmClickTargetManager",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
@@ -206,10 +204,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    237,
-                    98,
-                    671,
-                    373
+                    222,
+                    17,
+                    802,
+                    454
                 ],
                 "expected": [
                     "作|物|试|点",
@@ -222,17 +220,17 @@
             "type": "Scroll",
             "param": {
                 "target": true,
-                "dy": 720
+                "dy": 240
             }
         },
-        "post_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 10,
         "next": [
             //找到农田就下一步，没找到再拉缩放
             "_AutoEcoFarmFindFarmlandCustom",
             //通过一个自循环来做到多次识别→拉近
             "_AutoEcoFarmPullWulinEcoFarmToCenter",
-            //不行的话尝试筛选标记
-            "[JumpBack]_AutoEcoFarmClickTargetManager",
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
@@ -268,9 +266,13 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 10,
         "next": [
-            "_AutoEcoFarmFindValleyIVEcoFarm"
+            "_AutoEcoFarmFindValleyIVEcoFarm",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
     "_AutoEcoFarmFindFarmland": {
@@ -320,9 +322,13 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 10,
         "next": [
-            "_AutoEcoFarmFindWulinEcoFarm"
+            "_AutoEcoFarmFindWulinEcoFarm",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
     "_AutoEcoFarmFindFarmlandCustom": {
