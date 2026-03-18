@@ -43,6 +43,9 @@ type RunState struct {
 	// TryLastFirst: global; true at init to skip locked rows by clicking last first; set false permanently when a row's last item is not locked
 	TryLastFirst bool
 
+	// 记录本行扫描到的真实物理格子总数
+	PhysicalItemCount int
+
 	// Essence types selected for this run (e.g. Flawless, Pure)
 	EssenceTypes []EssenceMeta
 }
@@ -72,6 +75,7 @@ func (s *RunState) Reset() {
 	s.RowBoxes = nil
 	s.RowIndex = 0
 	s.TryLastFirst = true
+	s.PhysicalItemCount = 0
 	// EssenceTypes is set by Init from options, not cleared here
 }
 
