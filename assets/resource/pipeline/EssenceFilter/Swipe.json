@@ -45,6 +45,54 @@
             "EssenceFilterSwipeCalibrate"
         ]
     },
+    "EssenceFilterSwipeFirstNoCalibrate": {
+        "desc": "首行滑动（不校准，用于尾扫前最后一次补滑）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    135,
+                    191
+                ],
+                "end": [
+                    135,
+                    75
+                ],
+                "end_hold": 700,
+                "duration": 100
+            }
+        },
+        "post_delay": 200,
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal"
+        ]
+    },
+    "EssenceFilterSwipeNextNoCalibrate": {
+        "desc": "后续滑动（不校准，用于尾扫前最后一次补滑）",
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    135,
+                    191
+                ],
+                "end": [
+                    135,
+                    76
+                ],
+                "end_hold": 700,
+                "duration": 101
+            }
+        },
+        "post_delay": 200,
+        "next": [
+            "EssenceRowDetect",
+            "EssenceDetectFinal"
+        ]
+    },
     "EssenceFilterSwipeCalibrateCorrect": {
         "desc": "校准微滑（由 SwipeCalibrateAction 通过 RunTask override begin/end 调用）",
         "pre_delay": 0,

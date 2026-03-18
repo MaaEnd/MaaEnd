@@ -29,6 +29,7 @@ type RunState struct {
 	TotalCount          int // OCR 得到的库存总数，0 表示未知；用于计算剩余是否 <= 45 以决定是否尾扫
 	FirstRowSwipeDone   bool
 	FinalLargeScanUsed  bool
+	InFinalScan         bool // 当前 RowBoxes 来自 EssenceDetectFinal；尾扫后禁用 TryLastFirst 等“回头重扫行”逻辑
 	PendingFinalScan    bool // 剩余 ≤ 45 时先补一次 swipe，下次进 RowNextItem 再进尾扫
 	SwipeCalibrateRetry int
 
@@ -68,6 +69,7 @@ func (s *RunState) Reset() {
 	s.TotalCount = 0
 	s.FirstRowSwipeDone = false
 	s.FinalLargeScanUsed = false
+	s.InFinalScan = false
 	s.PendingFinalScan = false
 	s.SwipeCalibrateRetry = 0
 	s.CurrentSkills = [3]string{}

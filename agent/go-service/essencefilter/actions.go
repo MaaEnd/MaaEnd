@@ -564,6 +564,7 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 	}
 
 	isFallbackScan := arg.CurrentTaskName == "EssenceDetectFinal"
+	st.InFinalScan = isFallbackScan
 	if isFallbackScan && !st.FinalLargeScanUsed {
 		st.FinalLargeScanUsed = true
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
@@ -593,13 +594,16 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	}
 	if st.PendingFinalScan {
 		st.PendingFinalScan = false
+		// 尾扫后直接基于已收集的 RowBoxes 逐个处理，不再尝试 TryLastFirst/回 EssenceRowDetect
+		st.InFinalScan = true
+		st.TryLastFirst = false
 		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
 		LogMXUSimpleHTML(ctx, "补 swipe 完成，进入尾扫")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
 		return true
 	}
 	// Try-last-first: only when row is full (9). If total known and remaining this row < 9, skip and use normal logic.
-	if st.RowIndex == 0 && st.TryLastFirst && len(st.RowBoxes) > 0 {
+	if st.RowIndex == 0 && st.TryLastFirst && !st.InFinalScan && len(st.RowBoxes) > 0 {
 		remaining := st.TotalCount - st.MaxItemsPerRow*(st.CurrentRow-1)
 		if st.TotalCount > 0 && remaining < st.MaxItemsPerRow {
 			// partial row, do not try last first
@@ -650,12 +654,20 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				st.PendingFinalScan = true
 				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，先补一次滑动再尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
 			}
+			nextNode := "EssenceFilterSwipeNext"
 			if !st.FirstRowSwipeDone {
 				st.FirstRowSwipeDone = true
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeFirst"}})
-			} else {
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeNext"}})
+				nextNode = "EssenceFilterSwipeFirst"
 			}
+			// 最后一次补滑（remaining <= 45）不走校准：避免 SwipeCalibrate 识别失败导致流程中断
+			if st.PendingFinalScan {
+				if nextNode == "EssenceFilterSwipeFirst" {
+					nextNode = "EssenceFilterSwipeFirstNoCalibrate"
+				} else {
+					nextNode = "EssenceFilterSwipeNextNoCalibrate"
+				}
+			}
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}})
 			LogMXUSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", st.CurrentRow+1))
 			st.CurrentRow++
 			return true
