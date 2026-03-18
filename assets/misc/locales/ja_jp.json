@@ -302,6 +302,8 @@
     "option.ProtocolSpaceSuccessCount.label": "行動成功回数上限",
     "option.ProtocolSpaceFailedCount.label": "行動失敗回数上限",
     "option.ProtocolSpaceCountUnlimited.label": "無制限",
+    "option.ProtocolSpaceTeamChoose.label": "チーム選択",
+    "option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label": "デフォルト",
     "option.RewardsSetOption.label": "選択可能報酬セット",
     "option.OperatorProgression.label": "オペレーター育成",
     "option.OperatorProgression.OperatorEXP.label": "オペレーター経験",

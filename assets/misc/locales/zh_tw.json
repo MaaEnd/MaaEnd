@@ -434,6 +434,8 @@
     "option.ProtocolSpaceSuccessCount.label": "行動成功次數上限",
     "option.ProtocolSpaceFailedCount.label": "行動失敗次數上限",
     "option.ProtocolSpaceCountUnlimited.label": "無限制",
+    "option.ProtocolSpaceTeamChoose.label": "選擇隊伍",
+    "option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label": "預設",
     "option.RewardsSetOption.label": "可選獎勵組",
     "option.OperatorProgression.label": "幹員養成",
     "option.OperatorProgression.OperatorEXP.label": "幹員經驗",

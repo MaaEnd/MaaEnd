@@ -180,6 +180,8 @@
     "option.ProtocolSpaceSuccessCount.label": "Max action success count",
     "option.ProtocolSpaceFailedCount.label": "Max action failure count",
     "option.ProtocolSpaceCountUnlimited.label": "Unlimited",
+    "option.ProtocolSpaceTeamChoose.label": "Select Team",
+    "option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label": "Default",
     "option.RewardsSetOption.label": "Optional Reward Set",
     "option.OperatorProgression.label": "Operator Progression",
     "option.OperatorProgression.OperatorEXP.label": "Operator Experience",

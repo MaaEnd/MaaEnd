@@ -406,6 +406,8 @@
     "option.ProtocolSpaceSuccessCount.label": "行动成功次数上限",
     "option.ProtocolSpaceFailedCount.label": "行动失败次数上限",
     "option.ProtocolSpaceCountUnlimited.label": "无限制",
+    "option.ProtocolSpaceTeamChoose.label": "选择队伍",
+    "option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label": "默认",
     "option.RewardsSetOption.label": "可选奖励组",
     "option.OperatorProgression.label": "干员养成",
     "option.OperatorProgression.OperatorEXP.label": "干员经验",

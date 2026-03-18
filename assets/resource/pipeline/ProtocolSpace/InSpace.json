@@ -22,11 +22,60 @@
         "action": "Click",
         "post_wait_freezes": 500,
         "next": [
+            "[JumpBack]ProtocolSpaceTeamChoose",
             "ProtocolSpacePopupSanityLow",
             "ProtocolSpaceEnterSpaceConfirm"
         ],
         "focus": {
             "Node.Action.Succeeded": "进入协议空间"
+        }
+    },
+    "ProtocolSpaceTeamChooseTextRecognition": {
+        "desc": "识别协议空间队伍",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -60,
+            500,
+            35
+        ],
+        "expected": [
+            "01"
+        ]
+    },
+    "ProtocolSpaceTeamChoose": {
+        "desc": "选择协议空间队伍",
+        "recognition": "And",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "all_of": [
+            "ProtocolSpaceTeamChooseTextRecognition",
+            {
+                "recognition": "ColorMatch",
+                "roi": "ProtocolSpaceTeamChooseTextRecognition",
+                "roi_offset": [
+                    -30,
+                    0,
+                    10,
+                    0
+                ],
+                "lower": [
+                    30,
+                    30,
+                    30
+                ],
+                "upper": [
+                    45,
+                    45,
+                    45
+                ],
+                "connected": true
+            }
+        ],
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "focus": {
+            "Node.Action.Succeeded": "选择队伍"
         }
     },
     "ProtocolSpacePopupSanityLow": {

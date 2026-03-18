@@ -406,6 +406,8 @@
     "option.ProtocolSpaceSuccessCount.label": "행동 성공 횟수 상한",
     "option.ProtocolSpaceFailedCount.label": "행동 실패 횟수 상한",
     "option.ProtocolSpaceCountUnlimited.label": "무제한",
+    "option.ProtocolSpaceTeamChoose.label": "팀 선택",
+    "option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label": "기본값",
     "option.RewardsSetOption.label": "선택 보상 세트",
     "option.OperatorProgression.label": "오퍼레이터 육성",
     "option.OperatorProgression.OperatorEXP.label": "오퍼레이터 경험",
