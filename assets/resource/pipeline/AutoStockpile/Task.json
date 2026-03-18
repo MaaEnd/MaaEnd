@@ -96,7 +96,7 @@
         ]
     },
     "AutoStockpileGotoElasticGoods": {
-        "desc": "选择弹性物资调度",
+        "desc": "选择弹性物资调度，需要优化",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -118,14 +118,7 @@
         "pre_delay": 0,
         "action": {
             "type": "Click",
-            "param": {
-                "target_offset": [
-                    20,
-                    0,
-                    -10,
-                    0
-                ]
-            }
+            "param": {}
         },
         "post_wait_freezes": 200,
         "post_delay": 0,
