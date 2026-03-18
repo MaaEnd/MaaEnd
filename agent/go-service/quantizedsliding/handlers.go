@@ -2,6 +2,7 @@ package quantizedsliding
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -183,7 +184,11 @@ func (a *QuantizedSlidingAction) handleFindStart(_ *maa.Context, arg *maa.Custom
 	return true
 }
 
-func (a *QuantizedSlidingAction) handleGetMaxQuantity(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil {
+		a.logger.Error().Msg("context is nil")
+		return false
+	}
 	if arg == nil {
 		a.logger.Error().Msg("custom action arg is nil")
 		return false
@@ -196,12 +201,40 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(_ *maa.Context, arg *maa.C
 	}
 
 	a.maxQuantity = maxQuantity
-	if a.maxQuantity < a.Target {
+	nextNode, err := resolveMaxQuantityNext(a.maxQuantity, a.Target)
+	if err != nil {
 		a.logger.Error().
 			Int("max_quantity", a.maxQuantity).
 			Int("target", a.Target).
 			Msg("max quantity lower than target")
 		return false
+	}
+	if nextNode != "" {
+		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, buttonTarget{}, 0)); err != nil {
+			a.logger.Error().
+				Err(err).
+				Int("max_quantity", a.maxQuantity).
+				Int("target", a.Target).
+				Str("next", nextNode).
+				Msg("failed to override direct-done branch")
+			return false
+		}
+		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Int("max_quantity", a.maxQuantity).
+				Int("target", a.Target).
+				Str("next", nextNode).
+				Msg("failed to override next for direct-done branch")
+			return false
+		}
+
+		a.logger.Info().
+			Int("max_quantity", a.maxQuantity).
+			Int("target", a.Target).
+			Str("next", nextNode).
+			Msg("max quantity already satisfies target, branch to done")
+		return true
 	}
 
 	a.logger.Info().
@@ -220,7 +253,7 @@ func (a *QuantizedSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.Custom
 		a.logger.Error().Msg("recognition detail is nil")
 		return false
 	}
-	if a.maxQuantity <= 1 {
+	if a.maxQuantity < 1 {
 		a.logger.Error().
 			Int("max_quantity", a.maxQuantity).
 			Msg("invalid max quantity for precise click calculation")
@@ -448,4 +481,15 @@ func (a *QuantizedSlidingAction) resetState() {
 	a.startBox = nil
 	a.endBox = nil
 	a.maxQuantity = 0
+}
+
+func resolveMaxQuantityNext(maxQuantity int, target int) (string, error) {
+	if maxQuantity < target {
+		return "", fmt.Errorf("max quantity %d lower than target %d", maxQuantity, target)
+	}
+	if maxQuantity == 1 && target == 1 {
+		return "QuantizedSlidingDone", nil
+	}
+
+	return "", nil
 }

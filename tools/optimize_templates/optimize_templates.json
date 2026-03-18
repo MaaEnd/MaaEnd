@@ -555,5 +555,6 @@
     "resource/image/AutoStockpile/Goods/ValleyIV/AstarronCrystals.Tier2": "947e8c162f1d235a519a8eea979313cd1ea08896da06900270dbeebe07724319",
     "resource/image/AutoStockpile/Goods/ValleyIV/MusbeastScrimshawDangles.Tier1": "b58b082494b45f450a32763cbf97950fa16abbd2704287132580d37cd70f0dad",
     "resource/image/AutoStockpile/Goods/ValleyIV/VigilantPickaxes.Tier3": "acc18d044ed4ee961dcfc127403a70fbd622e8de3d2e3342302aa1afb7bba385",
-    "resource/image/AutoStockpile/Goods/ValleyIV/UnitySyrup.Tier2": "589a49ec448ab00afb471fbcc1231e4cc3745872a9cebc2a5896b181655908e7"
+    "resource/image/AutoStockpile/Goods/ValleyIV/UnitySyrup.Tier2": "589a49ec448ab00afb471fbcc1231e4cc3745872a9cebc2a5896b181655908e7",
+    "resource/image/SceneManager/Backpack": "62ebbe8f6c31257fec1715cf023bf0034b73aaa548f18e8367d0c67109e18de5"
 }

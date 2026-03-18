@@ -971,6 +971,23 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": [
+                                    -250,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/Backpack.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
                                     0,
                                     0,
                                     400,
@@ -1002,6 +1019,15 @@
                     }
                 ]
             }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
         },
         "action": {
             "type": "ClickKey",
