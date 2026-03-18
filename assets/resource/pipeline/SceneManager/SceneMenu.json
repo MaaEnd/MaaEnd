@@ -857,20 +857,10 @@
     },
     "__ScenePrivateWorldFactoryEnterMenuBluePrint": {
         "desc": "从大世界工厂模式进入蓝图菜单",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    60,
-                    60
-                ],
-                "template": [
-                    "SceneManager/WorldFactoryActive.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InWorldFactory"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
@@ -892,20 +882,10 @@
     },
     "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
         "desc": "从大世界工厂模式进入装备加工界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    60,
-                    60
-                ],
-                "template": [
-                    "SceneManager/WorldFactoryActive.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InWorldFactory"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
