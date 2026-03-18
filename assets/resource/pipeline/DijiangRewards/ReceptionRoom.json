@@ -39,7 +39,51 @@
             "Node.PipelineNode.Failed": "进入会客室识别"
         }
     },
+    "EntryReceptionRoom_OnError": {
+        "desc": "[会客室·进入] 主流程: 从控制中枢点击会客室区域进入（出错重试）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    485,
+                    0,
+                    336,
+                    260
+                ],
+                "expected": [
+                    "^会客室$",
+                    "^會客室$",
+                    "Reception"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000,
+            "target": [
+                662,
+                543,
+                309,
+                48
+            ]
+        },
+        "next": [
+            "WaitEndExchange",
+            "ReceptionRoom"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入会客室识别"
+        }
+    },
     "WaitEndExchange": {
+        "timeout": 5000,
+        "on_error": [
+            "EntryReceptionRoom_OnError"
+        ],
         "desc": "等待线索交流结束",
         "recognition": {
             "type": "Or",
@@ -52,6 +96,25 @@
         },
         "next": [
             "EndExchange"
+        ]
+    },
+    "StartExchange_OnError": {
+        "desc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "StartExchangeText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CloseExchangeRewards"
         ]
     },
     "EndExchange": {
@@ -108,7 +171,7 @@
         "next": [
             "ReceptionRoomNeedCollectClues",
             "ReceptionRoomNeedReceiveClues",
-            "[JumpBack]ReceptionRoomSetClues",
+            "ReceptionRoomSetClues",
             "StartExchange",
             "ExitClueLibrary",
             "ExitReceptionRoom",
@@ -138,6 +201,10 @@
         ]
     },
     "CloseExchangeRewards": {
+        "timeout": 5000,
+        "on_error": [
+            "StartExchange_OnError"
+        ],
         "desc": "[会客室·线索] 识别线索交流结束界面关闭按钮",
         "recognition": {
             "type": "And",
@@ -152,7 +219,7 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]ReceptionRoomSetClues",
+            "ReceptionRoomSetClues",
             "ExitClueLibrary",
             "ExitReceptionRoom"
         ]
@@ -182,7 +249,36 @@
             "EndExchange"
         ]
     },
+    "ReceptionRoomNeedReceiveClues_OnError": {
+        "desc": "[会客室·线索] 识别是否有可领取的线索（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "ReceptionRoomNeedReceiveCluesColor",
+                    "ReceptionRoomNeedReceiveCluesText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "next": [
+            "ReceiveAll",
+            "EndExchange"
+        ]
+    },
     "ReceiveAll": {
+        "timeout": 5000,
+        "on_error": [
+            "ReceptionRoomNeedReceiveClues_OnError"
+        ],
         "desc": "[会客室·线索] 领取界面点击「一键领取」按钮",
         "recognition": {
             "type": "And",
@@ -198,7 +294,7 @@
             "type": "Click"
         },
         "next": [
-            "[JumpBack]ReceptionRoomSetClues",
+            "ReceptionRoomSetClues",
             "StartExchange",
             "ExitClueLibrary",
             "ExitReceptionRoom"
@@ -226,7 +322,33 @@
             "EndExchange"
         ]
     },
+    "ReceptionRoomNeedCollectClues_OnError": {
+        "desc": "[会客室·线索] 识别是否有可收集的线索（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "ReceptionRoomNeedCollectCluesColor",
+                    "ReceptionRoomNeedCollectCluesText"
+                ],
+                "box_index": 2
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "SendClues",
+            "Collect",
+            "EndExchange"
+        ]
+    },
     "SendClues": {
+        "timeout": 5000,
+        "on_error": [
+            "ReceptionRoomNeedCollectClues_OnError"
+        ],
         "desc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新",
         "recognition": {
             "type": "OCR",
@@ -251,13 +373,42 @@
             }
         },
         "next": [
-            "[JumpBack]SendTheMostClues",
-            "[JumpBack]EntrySendClues",
-            "[JumpBack]SendCluesSwipe",
-            "ExitSend"
+            "EntrySendClues"
+        ]
+    },
+    "SendClues_OnError": {
+        "desc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新（出错重试）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    727,
+                    350,
+                    346,
+                    198
+                ],
+                "expected": [
+                    "已达自有线索库容量上限",
+                    "已達自有線索庫容量上限",
+                    "Local clue library is full"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "next": [
+            "EntrySendClues"
         ]
     },
     "SendCluesSwipe": {
+        "timeout": 5000,
+        "on_error": [
+            "InSend_OnError"
+        ],
         "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
         "max_hit": 1,
         "recognition": {
@@ -281,9 +432,16 @@
             "param": {
                 "dy": -120
             }
-        }
+        },
+        "next": [
+            "InSend"
+        ]
     },
     "SendTheMostClues": {
+        "timeout": 5000,
+        "on_error": [
+            "InSend_OnError"
+        ],
         "desc": "[会客室·线索] 在赠予界面识别自有库存数量 3–20 的线索并点击，以便发送",
         "recognition": {
             "type": "And",
@@ -302,7 +460,30 @@
             "Send"
         ]
     },
+    "SendTheMostClues_OnError": {
+        "desc": "[会客室·线索] 在赠予界面识别自有库存数量 3–20 的线索并点击，以便发送（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ClueItem",
+                    "ClueItemCount"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "Send"
+        ]
+    },
     "Send": {
+        "timeout": 5000,
+        "on_error": [
+            "SendTheMostClues_OnError"
+        ],
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
         "recognition": {
             "type": "TemplateMatch",
@@ -320,9 +501,16 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "next": [
+            "InSend"
+        ]
     },
     "ExitSend": {
+        "timeout": 5000,
+        "on_error": [
+            "InSend_OnError"
+        ],
         "desc": "[会客室·线索] 发送完成后关闭赠予界面",
         "recognition": {
             "type": "TemplateMatch",
@@ -349,6 +537,10 @@
         ]
     },
     "EntrySendClues": {
+        "timeout": 5000,
+        "on_error": [
+            "SendClues_OnError"
+        ],
         "desc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
         "max_hit": 1,
         "recognition": {
@@ -374,9 +566,58 @@
         "post_wait_freezes": {
             "time": 100,
             "timeout": 1500
-        }
+        },
+        "next": [
+            "InSend"
+        ]
+    },
+    "InSend_OnError": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    11,
+                    6,
+                    241,
+                    51
+                ],
+                "expected": [
+                    "赠予自有线索"
+                ]
+            }
+        },
+        "next": [
+            "SendTheMostClues",
+            "SendCluesSwipe",
+            "ExitSend"
+        ]
+    },
+    "InSend": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    11,
+                    6,
+                    241,
+                    51
+                ],
+                "expected": [
+                    "赠予自有线索"
+                ]
+            }
+        },
+        "next": [
+            "SendTheMostClues",
+            "SendCluesSwipe",
+            "ExitSend"
+        ]
     },
     "Collect": {
+        "timeout": 5000,
+        "on_error": [
+            "ReceptionRoomNeedCollectClues_OnError"
+        ],
         "desc": "[会客室·领奖] 点击黄按钮领取会客室收集奖励",
         "recognition": {
             "type": "And",
@@ -395,7 +636,30 @@
             "ExitCollect"
         ]
     },
+    "Collect_OnError": {
+        "desc": "[会客室·领奖] 点击黄按钮领取会客室收集奖励（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    "ReceptionRoomCollectCluesText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitCollect"
+        ]
+    },
     "ExitCollect": {
+        "timeout": 5000,
+        "on_error": [
+            "Collect_OnError"
+        ],
         "desc": "[会客室·领奖] 领奖后点击左上会客室标题关闭收集界面",
         "recognition": {
             "type": "OCR",
@@ -423,7 +687,7 @@
         },
         "next": [
             "ReceptionRoomNeedReceiveClues",
-            "[JumpBack]ReceptionRoomSetClues",
+            "ReceptionRoomSetClues",
             "StartExchange",
             "ExitReceptionRoom"
         ]
@@ -454,15 +718,49 @@
         "rate_limit": 0,
         "next": [
             "ReadySetClues",
-            "EndExchange",
-            "WhiteConfirmButtonType2",
-            "EndExchangeJBC"
+            "EndExchange"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "放置线索失败"
+        }
+    },
+    "ReceptionRoomSetClues_OnError": {
+        "desc": "[会客室·线索] 点击会客室内的任务红点，放置线索（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSetClueTips"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -40,
+                    50,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReadySetClues",
+            "EndExchange"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "放置线索失败"
         }
     },
     "ReadySetClues": {
+        "timeout": 5000,
+        "on_error": [
+            "ReceptionRoomSetClues_OnError"
+        ],
         "desc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
         "recognition": {
             "type": "OCR",
@@ -493,6 +791,10 @@
         }
     },
     "AlreadyHaveClues": {
+        "timeout": 5000,
+        "on_error": [
+            "ReadySetClues_OnError"
+        ],
         "desc": "[会客室·线索] 识别「已填入」，无需再放置线索",
         "recognition": {
             "type": "OCR",
@@ -513,9 +815,46 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoom"
+        ]
+    },
+    "ReadySetClues_OnError": {
+        "desc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置（出错重试）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    868,
+                    182,
+                    393,
+                    130
+                ],
+                "expected": [
+                    "线索",
+                    "線索",
+                    "Clue"
+                ],
+                "order_by": "Vertical"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AlreadyHaveClues",
+            "SetClues"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "会客室线索区域状态识别失败"
+        }
     },
     "SetClues": {
+        "timeout": 5000,
+        "on_error": [
+            "ReadySetClues_OnError"
+        ],
         "desc": "[会客室·线索] 点击空位或已有线索格以放置/替换线索",
         "recognition": {
             "type": "Or",
@@ -549,7 +888,10 @@
             "target": "ReceptionRoomSetClueTips"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoom"
+        ]
     },
     "ExitClueLibrary": {
         "desc": "[会客室·线索] 线索库界面点击左上会客室标题返回会客室主界面",
