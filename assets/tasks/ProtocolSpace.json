@@ -31,7 +31,7 @@
                     "label": "$option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label",
                     "pipeline_override": {
                         "ProtocolSpaceTeamChoose": {
-                            "disabled": true
+                            "enabled": false
                         }
                     }
                 },
