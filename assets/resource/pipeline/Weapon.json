@@ -109,7 +109,7 @@
                     200,
                     200
                 ],
-                "template": "Weapon/UpgradeMaterialsDelete.png",
+                "template": "Weapon/UpgradeMaterialsDelete.png"
             }
         ],
         "box_index": 0,
