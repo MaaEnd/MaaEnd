@@ -21,7 +21,7 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 	skills := []string{st.CurrentSkills[0], st.CurrentSkills[1], st.CurrentSkills[2]}
 
 	// 从 Context 中获取用户配置的选项（如是否开启未来可期等），若获取不到则使用默认配置
-	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterAfterBattleInit")
 	if opts == nil {
 		opts = &EssenceFilterOptions{}
 	}
@@ -132,7 +132,7 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		} else {
 			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Msg("not matched, skip to next item")
 			LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleRowNextItem"}})
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterAfterBattleCloseDetail"}})
 		}
 	}
 

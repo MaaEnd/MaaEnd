@@ -1,5 +1,26 @@
 {
-    "EssenceFilterInitAfterBattle": {
+    "EssenceFilterAfterBattleStart": {
+        "desc": "识别画面中是否有基质，是的话开始任务，要加Jumpback",
+        //有基质才开始任务，不然直接返回失败
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleInit"
+        ]
+    },
+    "EssenceFilterAfterBattleInit": {
         "desc": "初始化：加载数据与预设[刷完基质版]",
         "pre_delay": 0,
         "action": {
@@ -7,6 +28,22 @@
             "param": {
                 "custom_action": "EssenceFilterInitAction"
             }
+        },
+        "attach": {
+            "rarity6_weapon": true,
+            "rarity5_weapon": true,
+            "rarity4_weapon": false,
+            "flawless_essence": true,
+            "pure_essence": false,
+            "keep_future_promising": false,
+            "future_promising_min_total": 6,
+            "lock_future_promising": false,
+            "keep_slot3_level3_practical": false,
+            "slot3_min_level": 3,
+            "lock_slot3_practical": false,
+            "discard_unmatched": true,
+            "export_calculator_script": false,
+            "skip_locked_row": false
         },
         "post_wait_freezes": {
             "time": 50,
@@ -19,16 +56,15 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem",
+            "EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterFinish"
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
         }
     },
-
     "EssenceFullScreenDetectAll": {
-        "desc": "战利品全屏模板匹配：收集所有基质图标（不点击）",
+        "desc": "战利品全屏模板匹配：收集所有基质图标（不点击）,给custom调用",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -54,15 +90,15 @@
         "recognition": {
             "type": "TemplateMatch",
             "param": {
-                "roi": "EssenceFilterAfterBattleRowNextItem",
-                "roi_offset": [
-                    -300,
+                "roi": [
                     0,
-                    700,
-                    -300
+                    0,
+                    1280,
+                    720
                 ],
                 "template": "EssenceFilter/LockButton.png",
-                "threshold": 0.9
+                "threshold": 0.9,
+                "order_by": "Score"
             }
         },
         "pre_delay": 0,
@@ -70,7 +106,9 @@
             "type": "DoNothing"
         },
         "post_delay": 300,
-        "next": ["EssenceFilterAfterBattleCheckItemSlot1"],
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
         "focus": {
             "Node.Action.Succeeded": "基质未锁定"
         }

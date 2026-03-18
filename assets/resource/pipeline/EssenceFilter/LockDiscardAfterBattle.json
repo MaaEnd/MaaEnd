@@ -30,7 +30,7 @@
                     15
                 ],
                 "template": "EssenceFilter/LockButton.png",
-                "threshold": 0.9
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
@@ -59,13 +59,13 @@
                     15
                 ],
                 "template": "EssenceFilter/LockButtonLocked.png",
-                "threshold": 0.9
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "EssenceFilterAfterBattleCloseDetail"
         ],
         "on_error": [
             "EssenceFilterAfterBattleLockItem"
@@ -87,7 +87,7 @@
                     15
                 ],
                 "template": "EssenceFilter/LockButtonLocked.png",
-                "threshold": 0.9
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
@@ -124,7 +124,7 @@
                     17
                 ],
                 "template": "EssenceFilter/DiscardButton.png",
-                "threshold": 0.9
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
@@ -153,13 +153,13 @@
                     17
                 ],
                 "template": "EssenceFilter/DiscardButtonDiscarded.png",
-                "threshold": 0.9
+                "threshold": 0.8
             }
         },
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "EssenceFilterAfterBattleCloseDetail"
         ],
         "on_error": [
             "EssenceFilterAfterBattleDiscardItem"
@@ -167,6 +167,21 @@
         "focus": {
             "Node.Action.Succeeded": "已确认废弃"
         }
+    },
+    "EssenceFilterAfterBattleCloseDetail": {
+        "desc": "点击左上角，关闭基质详情，防遮挡",
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    0,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ]
     },
     "EssenceFilterAfterBattleRowNextItem": {
         "desc": "处理下一个命中的格子，或滑动/结束",
@@ -184,6 +199,7 @@
             "type": "Click"
         },
         "post_delay": 0,
+        "post_wait_freezes": 200,
         "next": [
             "EssenceFindLockItem"
         ],
