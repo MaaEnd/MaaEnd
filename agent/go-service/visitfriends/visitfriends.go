@@ -121,7 +121,12 @@ func getFriendItemsName(ctx *maa.Context, arg *maa.CustomRecognitionArg, itemRoi
 	}
 	detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemName", arg.Img, override)
 	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemName")
+		log.Error().
+			Str("component", "VisitFriends").
+			Str("step", "getFriendItemsName").
+			Str("recognition", "VisitFriendsRecognitionItemName").
+			Err(err).
+			Msg("run recognition failed")
 		return "", false
 	}
 	name, ok := detail.Results.Best.AsOCR()
@@ -139,7 +144,12 @@ func getFriendClueExchangeEnable(ctx *maa.Context, arg *maa.CustomRecognitionArg
 	}
 	detail, err := ctx.RunRecognition("VisitFriendsRecognitionItemClueExchange", arg.Img, override)
 	if err != nil || detail == nil {
-		log.Error().Err(err).Msg("Failed to run recognition VisitFriendsRecognitionItemClueExchange")
+		log.Error().
+			Str("component", "VisitFriends").
+			Str("step", "getFriendClueExchangeEnable").
+			Str("recognition", "VisitFriendsRecognitionItemClueExchange").
+			Err(err).
+			Msg("run recognition failed")
 		return false, false
 	}
 	return detail.Hit, true
@@ -148,7 +158,10 @@ func getFriendClueExchangeEnable(ctx *maa.Context, arg *maa.CustomRecognitionArg
 type VisitFriendsMainAction struct{}
 
 func (a *VisitFriendsMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	log.Info().Msg("VisitFriendsMain Run")
+	log.Info().
+		Str("component", "VisitFriends").
+		Str("step", "main_run").
+		Msg("start")
 	menuKeyMap = make(map[int]FriendItem)
 	menuKeyNext = 0
 	currentAssistCount = 0
