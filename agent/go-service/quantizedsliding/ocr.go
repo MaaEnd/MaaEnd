@@ -207,13 +207,17 @@ type ocrCandidate struct {
 }
 
 func buildOCRCandidate(results []*maa.RecognitionResult, priority int) ocrCandidate {
-	fragments := collectOCRFragments(results)
-	text := aggregateOCRFragments(fragments)
+	return buildOCRCandidateFromFragments(collectOCRFragments(results), priority)
+}
+
+func buildOCRCandidateFromFragments(fragments []ocrFragment, priority int) ocrCandidate {
+	uniqueFragments := uniqueOCRFragments(fragments)
+	text := joinOCRFragments(uniqueFragments)
 
 	return ocrCandidate{
 		text:          text,
 		digitCount:    countDigits(text),
-		fragmentCount: len(fragments),
+		fragmentCount: len(uniqueFragments),
 		priority:      priority,
 	}
 }
@@ -286,8 +290,12 @@ func countDigits(text string) int {
 }
 
 func aggregateOCRFragments(fragments []ocrFragment) string {
+	return joinOCRFragments(uniqueOCRFragments(fragments))
+}
+
+func uniqueOCRFragments(fragments []ocrFragment) []ocrFragment {
 	if len(fragments) == 0 {
-		return ""
+		return nil
 	}
 
 	unique := make([]ocrFragment, 0, len(fragments))
@@ -313,8 +321,16 @@ func aggregateOCRFragments(fragments []ocrFragment) string {
 		return unique[i].x < unique[j].x
 	})
 
+	return unique
+}
+
+func joinOCRFragments(fragments []ocrFragment) string {
+	if len(fragments) == 0 {
+		return ""
+	}
+
 	var builder strings.Builder
-	for _, fragment := range unique {
+	for _, fragment := range fragments {
 		builder.WriteString(fragment.text)
 	}
 
