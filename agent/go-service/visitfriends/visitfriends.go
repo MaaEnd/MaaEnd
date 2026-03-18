@@ -233,12 +233,22 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 		}
 
 		item, ok := getFriendItem(index)
-		if params.AssistMode == "only_growth_chamber" {
+		switch params.AssistMode {
+		case "only_growth_chamber":
 			if item.GrowthChamberAssist && currentAssistCount < maxAssistCount {
 				result.GrowthChamberAssist = true
 				result.HasTarget = true
 			}
-		} else {
+		case "without_control_nexus":
+			if item.MFGCabinAssist && currentAssistCount < maxAssistCount {
+				result.MFGCabinAssist = true
+				result.HasTarget = true
+			}
+			if item.GrowthChamberAssist && currentAssistCount < maxAssistCount {
+				result.GrowthChamberAssist = true
+				result.HasTarget = true
+			}
+		default:
 			if item.ControlNexusAssist && currentAssistCount < maxAssistCount {
 				result.ControlNexusAssist = true
 				result.HasTarget = true

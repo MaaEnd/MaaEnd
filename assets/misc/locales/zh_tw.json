@@ -114,6 +114,7 @@
     "option.ProductionAssistType.label": "生產助力模式",
     "option.ProductionAssistType.ProductionAssistAll.label": "助力全部",
     "option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label": "僅助力培養艙",
+    "option.ProductionAssistType.ProductionAssistWithoutControlNexus.label": "不助力總控中樞",
     "option.ClueSend.label": "溢出後贈送線索",
     "option.ClueSend.description": "設定溢出時最多贈送多少條線索",
     "option.ClueSend.MaxClueSend.label": "指定最大贈送數量",

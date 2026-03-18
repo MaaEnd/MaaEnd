@@ -114,6 +114,7 @@
     "option.ProductionAssistType.label": "Production Assist Mode",
     "option.ProductionAssistType.ProductionAssistAll.label": "Assist All",
     "option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label": "Assist Growth Chamber Only",
+    "option.ProductionAssistType.ProductionAssistWithoutControlNexus.label": "Assist Without Control Nexus",
     "option.ClueSend.label": "Send excess clues",
     "option.ClueSend.description": "Configure how many clues at most will be sent when overflowing",
     "option.ClueSend.MaxClueSend.label": "Max clues to send",

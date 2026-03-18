@@ -13,7 +13,9 @@
                 "Win32-Window-Background",
                 "Win32-Front"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -33,6 +35,17 @@
                         "VisitFriendsMenuScanTargetFriendOpen": {
                             "custom_recognition_param": {
                                 "assist_mode": "only_growth_chamber"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "ProductionAssistWithoutControlNexus",
+                    "label": "$option.ProductionAssistType.ProductionAssistWithoutControlNexus.label",
+                    "pipeline_override": {
+                        "VisitFriendsMenuScanTargetFriendOpen": {
+                            "custom_recognition_param": {
+                                "assist_mode": "without_control_nexus"
                             }
                         }
                     }

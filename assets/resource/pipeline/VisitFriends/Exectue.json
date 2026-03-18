@@ -113,7 +113,10 @@
             "VisitFriendsMenuClueExchange",
             "VisitFriendsMenuClueExchangeFull",
             "VisitFriendsFakeTrue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "尝试线索交换"
+        }
     },
     "VisitFriendsMenuAssistControlNexusEntry": {
         "pre_delay": 0,
@@ -122,7 +125,10 @@
             "VisitFriendsMenuAssistControlNexus",
             "VisitFriendsMenuAssistFull",
             "VisitFriendsFakeTrue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "尝试助力总控中枢"
+        }
     },
     "VisitFriendsMenuAssistMFGCabin1Entry": {
         "pre_delay": 0,
@@ -131,7 +137,10 @@
             "VisitFriendsMenuAssistMFGCabin1",
             "VisitFriendsMenuAssistFull",
             "VisitFriendsFakeTrue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "尝试助力制造舱1"
+        }
     },
     "VisitFriendsMenuAssistMFGCabin2Entry": {
         "pre_delay": 0,
@@ -140,7 +149,10 @@
             "VisitFriendsMenuAssistMFGCabin2",
             "VisitFriendsMenuAssistFull",
             "VisitFriendsFakeTrue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "尝试助力制造舱2"
+        }
     },
     "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
         "pre_delay": 0,
@@ -148,7 +160,10 @@
         "next": [
             "VisitFriendsMenuAssistGrowthChamberSwipe",
             "VisitFriendsFakeTrue"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "尝试助力成长舱滑动"
+        }
     },
     "VisitFriendsMenuClueExchange": {
         "desc": "执行线索交换",
