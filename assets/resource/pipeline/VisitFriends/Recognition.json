@@ -1,0 +1,75 @@
+{
+    "VisitFriendsRecognitionItemEnterButton": {
+        "desc": "识别进入好友船的按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -150,
+            135,
+            150,
+            460
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemName": {
+        "desc": "识别好友名称",
+        "recognition": "OCR",
+        "roi":[
+            130,
+            110,
+            300,
+            35
+        ],
+        "expected": [
+            ".*#.*"
+        ]
+    },
+    "VisitFriendsRecognitionItemClueExchange": {
+        "desc": "识别线索交换",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1159,
+            111,
+            85,
+            95
+        ],
+        "template": "VisitFriends/ClueExchangeAvailable.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailControlNexusAssist": {
+        "desc": "在详情界面识别总控中枢",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailControlNexusAssist.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailMFGCabinAssist": {
+        "desc": "在详情界面识别制造仓",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailMFGCabinAssist.png",
+        "threshold": 0.9
+    },
+    "VisitFriendsRecognitionItemDetailGrowthChamberAssist": {
+        "desc": "在详情界面识别培养舱",
+        "recognition": "TemplateMatch",
+        "roi": [
+            700,
+            280,
+            300,
+            150
+        ],
+        "template": "VisitFriends/DetailGrowthChamberAssist.png",
+        "threshold": 0.9
+    }
+}

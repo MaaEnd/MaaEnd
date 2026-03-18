@@ -1,0 +1,118 @@
+{
+    "VisitFriendsMenuScan": {
+        "desc": "识别当前好友列表",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuScanScrollFinish",
+            "VisitFriendsMenuScanFriendsFull",
+            "[JumpBack]VisitFriendsMenuScanTargetFriendOpen",
+            "[JumpBack]VisitFriendsMenuScanScrollList"
+        ]
+    },
+    "VisitFriendsMenuScanTargetFriendOpen": {
+        "desc": "前往需要拜访的好友",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanTargetFriendOpenRecognition",
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuScanTargetFriendOpenAction"
+    },
+    "VisitFriendsMenuScanScrollFinish": {
+        "desc": "判断是否滚动完成",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanScrollFinishRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "好友列表已滚动到底部，拜访完成"
+        }
+    },
+    "VisitFriendsMenuScanFriendsFull": {
+        "desc": "拜访好友已达到上限",
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanScrollFullRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "拜访好友次数已满，停止拜访"
+        }
+    },
+    "VisitFriendsMenuScanScrollList": {
+        "desc": "向下滚动好友列表",
+        "action": "Swipe",
+        "begin": [
+            650,
+            470
+        ],
+        "end": [
+            650,
+            150
+        ],
+        "end_hold": 600, // 太短了松开会晃动
+        "focus": {
+            "Node.Action.Succeeded": "向下滑动好友列表"
+        }
+    },
+    "VisitFriendsMenuScanDetailOpen": {
+        "desc": "识别进入好友船的按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -150,
+            135,
+            150,
+            460
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9,
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                400,
+                300,
+                500,
+                100
+            ]
+        },
+        "next": [
+            "VisitFriendsMenuScanDetailSave"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "打开好友详情"
+        }
+    },
+    "VisitFriendsMenuScanDetailSave": {
+        "desc": "保存好友船详情",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "Custom",
+        "custom_recognition": "VisitFriendsMenuScanDetailSaveRecognition",
+        "custom_recognition_param": {
+            "index": 0
+        },
+        "next": [
+            "VisitFriendsMenuScanDetailClose"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "读取好友详情"
+        }
+    },
+    "VisitFriendsMenuScanDetailClose": {
+        "desc": "关闭好友船详情",
+        "recognition": "And",
+        "all_of": [
+            "GrayCancelButton"
+        ],
+        "action": "Click",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "post_wait_freezes": 400,
+        "focus": {
+            "Node.Action.Succeeded": "关闭好友详情"
+        }
+    }
+}
