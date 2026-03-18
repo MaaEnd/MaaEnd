@@ -166,6 +166,7 @@ func (a *VisitFriendsMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 	menuKeyNext = 0
 	currentAssistCount = 0
 	currentClueExchangeCount = 0
+	lastScrollItemName = ""
 	return true
 }
 
