@@ -36,11 +36,11 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -64,11 +64,11 @@
         },
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyFirst",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -151,30 +151,22 @@
     "AutoGetCreditsBuy": {
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanNotAfford",
-            "BuyFirstOCR_CanNotAfford"
+            "BuyFirstOCR_CanNotAfford",
+            "BuyFirstCanNotAffordNotSoldOut",
+            "BuyFirstCanNotAfford"
         ],
-        "box_index": 3
+        "box_index": 2
     },
     "CreditShoppingBuyFirst": {
         "desc": "优先购买",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "BuyFirstOCR"
+            "BuyFirstOCR",
+            "BuyFirstNotSoldOut",
+            "BuyFirstCanAfford"
         ],
-        "box_index": 3,
+        "box_index": 2,
         "action": "Click",
-        "target_offset": [
-            25,
-            -102,
-            -61,
-            -8
-        ],
         "next": [
             "CreditShoppingBuyFirstItem"
         ]

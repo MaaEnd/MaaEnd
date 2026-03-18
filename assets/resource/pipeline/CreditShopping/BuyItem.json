@@ -26,8 +26,8 @@
             "CreditShoppingBuyFirstItemOCR_HeavyCastDie",
             "CreditShoppingBuyFirstItemOCR_ArmsInspector",
             "CreditShoppingBuyFirstItemOCR_ArmsINSPKit",
-            "CreditShoppingBuyFirstItemOCR_Protoprism",
-            "CreditShoppingBuyFirstItemOCR_Protohedron"
+            "CreditShoppingBuyFirstItemOCR_Protohedron",
+            "CreditShoppingBuyFirstItemOCR_Protoprism"
         ]
     },
     "CreditShoppingBuyNormalItemWithDiscount": {
@@ -56,8 +56,8 @@
             "CreditShoppingBuyNormalItemWithDiscountOCR_HeavyCastDie",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsInspector",
             "CreditShoppingBuyNormalItemWithDiscountOCR_ArmsINSPKit",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism",
-            "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron"
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protohedron",
+            "CreditShoppingBuyNormalItemWithDiscountOCR_Protoprism"
         ]
     },
     "CreditShoppingBuyBlacklistItem": {
@@ -86,8 +86,8 @@
             "CreditShoppingBuyBlacklistItemOCR_HeavyCastDie",
             "CreditShoppingBuyBlacklistItemOCR_ArmsInspector",
             "CreditShoppingBuyBlacklistItemOCR_ArmsINSPKit",
-            "CreditShoppingBuyBlacklistItemOCR_Protoprism",
-            "CreditShoppingBuyBlacklistItemOCR_Protohedron"
+            "CreditShoppingBuyBlacklistItemOCR_Protohedron",
+            "CreditShoppingBuyBlacklistItemOCR_Protoprism"
         ]
     },
     "CreditShoppingBuyFailed": {

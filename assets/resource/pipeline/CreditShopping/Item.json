@@ -31,29 +31,6 @@
         "count": 20000,
         "order_by": "Vertical"
     },
-    "CanNotAfford": {
-        "desc": "买不起（价格是红色）",
-        "recognition": "ColorMatch",
-        "roi": "NotSoldOut",
-        "roi_offset": [
-            94,
-            133,
-            -94,
-            -147
-        ],
-        "lower": [
-            255,
-            131,
-            131
-        ],
-        "upper": [
-            255,
-            192,
-            192
-        ],
-        "count": 20,
-        "order_by": "Vertical"
-    },
     "CanAfford": {
         "desc": "买得起（价格不是红色）",
         "recognition": "ColorMatch",
@@ -77,6 +54,92 @@
         "count": 20,
         "order_by": "Vertical"
     },
+    "BuyFirstNotSoldOut": {
+        "desc": "优先购买路径中的非售罄",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstOCR",
+        "roi_offset": [
+            -50,
+            -172,
+            101,
+            151
+        ],
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 20000,
+        "order_by": "Vertical"
+    },
+    "BuyFirstCanAfford": {
+        "desc": "优先购买路径中的买得起",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstNotSoldOut",
+        "roi_offset": [
+            83,
+            131,
+            -77,
+            -145
+        ],
+        "lower": [
+            76,
+            76,
+            76
+        ],
+        "upper": [
+            108,
+            108,
+            108
+        ],
+        "count": 20,
+        "order_by": "Vertical"
+    },
+    "BuyFirstCanNotAffordNotSoldOut": {
+        "desc": "额度不足路径中的非售罄",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstOCR_CanNotAfford",
+        "roi_offset": [
+            -50,
+            -172,
+            101,
+            151
+        ],
+        "method": 6,
+        "lower": [
+            120
+        ],
+        "upper": [
+            255
+        ],
+        "count": 20000,
+        "order_by": "Vertical"
+    },
+    "BuyFirstCanNotAfford": {
+        "desc": "额度不足路径中的买不起",
+        "recognition": "ColorMatch",
+        "roi": "BuyFirstCanNotAffordNotSoldOut",
+        "roi_offset": [
+            83,
+            131,
+            -77,
+            -145
+        ],
+        "lower": [
+            255,
+            131,
+            131
+        ],
+        "upper": [
+            255,
+            192,
+            192
+        ],
+        "count": 20,
+        "order_by": "Vertical"
+    },
     "BuyFirstOCR": {
         "desc": "按用户指定顺序购买",
         "recognition": "Or",
@@ -91,8 +154,8 @@
             "BuyFirstOCR_HeavyCastDie",
             "BuyFirstOCR_ArmsInspector",
             "BuyFirstOCR_ArmsINSPKit",
-            "BuyFirstOCR_Protoprism",
-            "BuyFirstOCR_Protohedron"
+            "BuyFirstOCR_Protohedron",
+            "BuyFirstOCR_Protoprism"
         ]
     },
     "BuyFirstOCR_CanNotAfford": {
@@ -109,8 +172,8 @@
             "BuyFirstOCR_CanNotAfford_HeavyCastDie",
             "BuyFirstOCR_CanNotAfford_ArmsInspector",
             "BuyFirstOCR_CanNotAfford_ArmsINSPKit",
-            "BuyFirstOCR_CanNotAfford_Protoprism",
-            "BuyFirstOCR_CanNotAfford_Protohedron"
+            "BuyFirstOCR_CanNotAfford_Protohedron",
+            "BuyFirstOCR_CanNotAfford_Protoprism"
         ]
     },
     "BlacklistOCR": {
@@ -127,8 +190,8 @@
             "BlacklistOCR_HeavyCastDie",
             "BlacklistOCR_ArmsInspector",
             "BlacklistOCR_ArmsINSPKit",
-            "BlacklistOCR_Protoprism",
-            "BlacklistOCR_Protohedron"
+            "BlacklistOCR_Protohedron",
+            "BlacklistOCR_Protoprism"
         ]
     },
     "IsDiscount": {
