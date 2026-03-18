@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
-	"image/draw"
 	"math"
 	"os"
 	"regexp"
@@ -21,11 +20,6 @@ type MapTrackerBigMapPick struct {
 	externalOnce sync.Once
 	externalData map[string]mapExternalDataItem
 	externalErr  error
-
-	zoomTemplateOnce sync.Once
-	zoomInTemplate   *image.RGBA
-	zoomOutTemplate  *image.RGBA
-	zoomTemplateErr  error
 }
 
 type mapExternalDataItem struct {
@@ -227,12 +221,14 @@ func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, t
 }
 
 func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, aw *ActionWrapper) error {
-	a.initZoomTemplates()
-	if a.zoomTemplateErr != nil {
-		return a.zoomTemplateErr
+	zoomInTemplate, err := mapTrackerResource.zoomInTemplate.Get()
+	if err != nil {
+		return fmt.Errorf("failed to load zoom-in template: %w", err)
 	}
-	if a.zoomInTemplate == nil || a.zoomOutTemplate == nil {
-		return fmt.Errorf("zoom templates are not initialized")
+
+	zoomOutTemplate, err := mapTrackerResource.zoomOutTemplate.Get()
+	if err != nil {
+		return fmt.Errorf("failed to load zoom-out template: %w", err)
 	}
 
 	ctrl.PostScreencap().Wait()
@@ -256,15 +252,15 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 	zoomOutX, zoomOutY, outVal := minicv.MatchTemplateInArea(
 		screen,
 		screenIntegral,
-		a.zoomOutTemplate,
-		minicv.GetImageStats(a.zoomOutTemplate),
+		zoomOutTemplate.Image,
+		zoomOutTemplate.Stats,
 		searchArea,
 	)
 	zoomInX, zoomInY, inVal := minicv.MatchTemplateInArea(
 		screen,
 		screenIntegral,
-		a.zoomInTemplate,
-		minicv.GetImageStats(a.zoomInTemplate),
+		zoomInTemplate.Image,
+		zoomInTemplate.Stats,
 		searchArea,
 	)
 
@@ -290,42 +286,13 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 	}
 
 	if outMatched {
-		pressZoomButton(zoomOutX, zoomOutY, a.zoomOutTemplate)
+		pressZoomButton(zoomOutX, zoomOutY, zoomOutTemplate.Image)
 		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-out button")
 	} else {
-		pressZoomButton(zoomInX, zoomInY, a.zoomInTemplate)
+		pressZoomButton(zoomInX, zoomInY, zoomInTemplate.Image)
 		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by pressing zoom-in button")
 	}
 	return nil
-}
-
-func (a *MapTrackerBigMapPick) initZoomTemplates() {
-	loadMapTrackerTemplate := func(path string) (*image.RGBA, error) {
-		resolvedPath := findResource(path)
-		if resolvedPath == "" {
-			return nil, fmt.Errorf("template not found: %s", path)
-		}
-
-		file, err := os.Open(resolvedPath)
-		if err != nil {
-			return nil, fmt.Errorf("failed to open template %s: %w", path, err)
-		}
-		defer file.Close()
-
-		img, _, err := image.Decode(file)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode template %s: %w", path, err)
-		}
-
-		rgba := image.NewRGBA(img.Bounds())
-		draw.Draw(rgba, rgba.Bounds(), img, img.Bounds().Min, draw.Src)
-		return rgba, nil
-	}
-
-	a.zoomTemplateOnce.Do(func() {
-		a.zoomOutTemplate, a.zoomTemplateErr = loadMapTrackerTemplate(ZOOM_OUT_IMG_PATH)
-		a.zoomInTemplate, a.zoomTemplateErr = loadMapTrackerTemplate(ZOOM_IN_IMG_PATH)
-	})
 }
 
 func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string) (*MapTrackerBigMapInferResult, error) {

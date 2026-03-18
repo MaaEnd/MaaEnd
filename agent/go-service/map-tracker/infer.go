@@ -8,7 +8,6 @@ import (
 	"image"
 	_ "image/png"
 	"math"
-	"os"
 	"regexp"
 	"sync"
 	"time"
@@ -47,11 +46,6 @@ type MapTrackerInferParam struct {
 
 // MapTrackerInfer is the custom recognition component for map tracking
 type MapTrackerInfer struct {
-	// Cache for preloaded resources
-	pointerOnce sync.Once
-	pointer     *image.RGBA
-	pointerErr  error
-
 	// Cache for scaled maps (recomputed per request scale)
 	scaledMapsMu sync.Mutex
 	scaledMaps   []MapCache
@@ -126,17 +120,10 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
 
-	// Initialize resources on first run
-	i.initMaps(ctx)
-	i.initPointer(ctx)
-
-	// Check for initialization errors
+	// Initialize map resources
+	mapTrackerResource.initRawMaps(ctx)
 	if mapTrackerResource.rawMapsErr != nil {
 		log.Error().Err(mapTrackerResource.rawMapsErr).Msg("Failed to initialize maps")
-		return nil, false
-	}
-	if i.pointerErr != nil {
-		log.Error().Err(i.pointerErr).Msg("Failed to initialize pointer")
 		return nil, false
 	}
 
@@ -371,47 +358,6 @@ func isMapNameCoreMatch(mapName1, mapName2 string) bool {
 	return getMapCoreName(mapName1) == getMapCoreName(mapName2)
 }
 
-// initMaps initializes the map cache (thread-safe, runs once)
-func (i *MapTrackerInfer) initMaps(ctx *maa.Context) {
-	mapTrackerResource.initRawMaps(ctx)
-}
-
-// initPointer initializes the pointer template cache (thread-safe, runs once)
-func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
-	i.pointerOnce.Do(func() {
-		i.pointer, i.pointerErr = i.loadPointer(ctx)
-		if i.pointerErr != nil {
-			log.Error().Err(i.pointerErr).Msg("Failed to load pointer template")
-		} else {
-			log.Info().Msg("Pointer template image loaded")
-		}
-	})
-}
-
-// loadPointer loads the pointer template image
-func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
-	// Find pointer template using search strategy
-	pointerPath := findResource(POINTER_PATH)
-	if pointerPath == "" {
-		return nil, fmt.Errorf("pointer template not found (searched in cache and standard locations)")
-	}
-
-	// Load image
-	file, err := os.Open(pointerPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open pointer template: %w", err)
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode pointer template: %w", err)
-	}
-
-	rgba := minicv.ImageConvertRGBA(img)
-	return rgba, nil
-}
-
 // inferLocation infers the player's location on the map.
 // Returns a raw result with mapName, x/y (map coordinates), conf, source, and elapsedTimeMs.
 func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *regexp.Regexp, param *MapTrackerInferParam) *InferLocationRawResult {
@@ -613,18 +559,14 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
 	t0 := time.Now()
 
-	if i.pointer == nil {
+	pointerTemplate, err := mapTrackerResource.pointerTemplateLoader.Get()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to load pointer template image")
 		return nil
 	}
 
 	// Crop pointer area from screen
 	patch := minicv.ImageCropSquareByRadius(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
-
-	// Precompute needle (pointer) statistics
-	pointerStats := minicv.GetImageStats(i.pointer)
-	if pointerStats.Std < 1e-6 {
-		return nil
-	}
 
 	// Try all rotation angles in parallel
 	type result struct {
@@ -644,7 +586,7 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 
 			// Match against pointer template
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, i.pointer, pointerStats)
+			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats)
 
 			resChan <- result{a, matchVal}
 		}(angle)

@@ -17,9 +17,20 @@ import (
 )
 
 var (
-	resourcePath       atomic.Value // string
-	registerSinkOnce   sync.Once
-	mapTrackerResource = &MapTrackerResource{}
+	resourcePath     atomic.Value // string
+	registerSinkOnce sync.Once
+
+	mapTrackerResource = &MapTrackerResource{
+		pointerTemplateLoader: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return findResource("resource/image/MapTracker/pointer.png") },
+		),
+		zoomInTemplate: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return findResource("resource/image/MapTracker/BigMapZoomIn.png") },
+		),
+		zoomOutTemplate: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return findResource("resource/image/MapTracker/BigMapZoomOut.png") },
+		),
+	}
 )
 
 // MapTrackerResource stores globally shared map resources for map-tracker.
@@ -29,6 +40,10 @@ type MapTrackerResource struct {
 	rawMapsErr  error
 
 	integralCacheMu sync.Mutex
+
+	pointerTemplateLoader *minicv.TemplateLoader
+	zoomInTemplate        *minicv.TemplateLoader
+	zoomOutTemplate       *minicv.TemplateLoader
 }
 
 // MapCache represents a preloaded map image.
