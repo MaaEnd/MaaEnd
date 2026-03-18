@@ -236,6 +236,29 @@
                 "green_mask": true
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEntryValuables",
+            "[JumpBack]__ScenePrivateWorldEnterMenuCheckMainUI"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuEntryValuables": {
+        "desc": "进入贵重品库菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    0,
+                    425,
+                    80
+                ],
+                "template": [
+                    "SceneManager/ValuableEntry.png"
+                ]
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {
@@ -243,17 +266,15 @@
             }
         },
         "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                0,
-                0,
-                200,
-                100
-            ]
+            "time": 500,
+            "timeout": 2000
         },
         "next": [
             "__ScenePrivateAnyEnterMenuValuablesSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入贵重品库菜单失败"
+        }
     },
     "__ScenePrivateMenuListEnterMenuValuables": {
         "desc": "从菜单列表进入贵重品库菜单",

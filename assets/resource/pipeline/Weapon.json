@@ -17,7 +17,7 @@
                     0,
                     0,
                     155,
-                    72
+                    85
                 ],
                 "expected": [
                     "武器"
@@ -82,9 +82,9 @@
             "param": {
                 "roi": [
                     22,
-                    555,
-                    90,
-                    87
+                    522,
+                    117,
+                    120
                 ],
                 "template": "Weapon/EmptyUpgradeMaterial.png",
                 "threshold": 0.8
@@ -101,10 +101,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1215,
+                    1201,
                     54,
-                    39,
-                    104
+                    53,
+                    135
                 ],
                 "template": "Weapon/AddUpgradeMaterialButton.png",
                 "threshold": 0.8
@@ -166,7 +166,7 @@
                 "roi": [
                     16,
                     561,
-                    277,
+                    375,
                     133
                 ],
                 "expected": [
@@ -186,13 +186,14 @@
         ]
     },
     "WeaponUpgradeClickLevelSort": {
+        "desc": "识别武器等级",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
                     16,
                     561,
-                    277,
+                    375,
                     133
                 ],
                 "expected": [
@@ -216,7 +217,7 @@
                 "roi": [
                     16,
                     561,
-                    277,
+                    375,
                     133
                 ],
                 "expected": [

@@ -84,5 +84,10 @@
         "action": {
             "type": "Click"
         }
+    },
+    "__ScenePrivateWorldEnterMenuEntryValuables": {
+        "action": {
+            "type": "Click"
+        }
     }
 }
