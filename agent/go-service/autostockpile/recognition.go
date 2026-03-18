@@ -299,7 +299,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(resultDetail),
-	}, len(resultGoods) > 0
+	}, true
 }
 
 func validateItemMap(itemMap *ItemMap) error {
