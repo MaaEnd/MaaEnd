@@ -83,7 +83,7 @@
                     "name": "ProtocolSpaceTeamChoose05",
                     "label": "05",
                     "pipeline_override": {
-                        "ProtocolSpaceTeamChoose": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
                             "expected": [
                                 "05"
                             ]
