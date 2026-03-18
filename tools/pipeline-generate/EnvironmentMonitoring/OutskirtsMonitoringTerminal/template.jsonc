@@ -1,0 +1,210 @@
+// 城郊监测终端 OutskirtsMonitoringTerminal 通用任务节点模板
+// 使用 MAA-pipeline-generate 工具与 data.json 批量生成对应的 Pipeline 文件
+//
+// 运行方式（从 MaaEnd 仓库根目录）：
+//   node <generate.mjs路径> tools/pipeline-generate/OutskirtsMonitoringTerminal/template.jsonc tools/pipeline-generate/OutskirtsMonitoringTerminal/data.json --output-dir assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal
+//
+// 变量说明：
+//   Id                   - 节点 ID 标识符（英文，无空格）
+//   Name                 - 任务中文名称（用于 desc 文本）
+//   ExpectedText         - 任务列表项 OCR 识别文本（多语言数组）
+//   InExpectedText       - 任务详情界面 OCR 识别文本（多数情况与 ExpectedText 相同）
+//   StartPosDesc         - GoTo${Id}StartPos 节点描述
+//   JumpBackNode         - 传送节点名称
+//   MapName              - 地图名称
+//   MapTarget            - 位置断言目标坐标 [x, y, w, h]
+//   MapPath              - 寻路路径点数组 [[x, y], ...]
+//   CameraSwipeDirection - 调整镜头朝向的滑动节点名称
+{
+    "${Id}Job": {
+        "desc": "${Name}任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}ReadyText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "Accept${Id}",
+            "GoTo${Id}Mission"
+        ]
+    },
+    "Check${Id}Text": {
+        "desc": "检查是否有${Name}文本",
+        "recognition": "OCR",
+        "roi": [
+            63,
+            208,
+            1158,
+            71
+        ],
+        "expected": "${ExpectedText}"
+    },
+    "Check${Id}ReadyText": {
+        "desc": "检查${Name}委托是否准备好",
+        "recognition": "OCR",
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "의뢰 수령",
+            "임무로 이동하기"
+        ]
+    },
+    "Check${Id}Job": {
+        "desc": "检查${Name}委托是否可以接取",
+        "recognition": "OCR",
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "接取委托",
+            "接取委託",
+            "Accept Job",
+            "引き受ける",
+            "의뢰 수령"
+        ]
+    },
+    "Check${Id}GoToMissionText": {
+        "desc": "检查${Name}委托是否可以前往",
+        "recognition": "OCR",
+        "roi": "Check${Id}Text",
+        "roi_offset": [
+            65,
+            408,
+            248,
+            19
+        ],
+        "expected": [
+            "前往任务",
+            "前往任務",
+            "Go to Mission",
+            "任務へ",
+            "임무로 이동하기"
+        ]
+    },
+    "In${Id}Mission": {
+        "desc": "是否在${Name}任务界面",
+        "recognition": "OCR",
+        "roi": [
+            415,
+            50,
+            855,
+            241
+        ],
+        "expected": "${InExpectedText}"
+    },
+    "Accept${Id}": {
+        "desc": "接取${Name}委托",
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}Job"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "GoTo${Id}Mission"
+        ]
+    },
+    "GoTo${Id}Mission": {
+        "desc": "前往${Name}任务",
+        "recognition": "And",
+        "all_of": [
+            "Check${Id}Text",
+            "Check${Id}GoToMissionText"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "next": [
+            "${Id}TrackOrGoTo"
+        ]
+    },
+    "${Id}TrackOrGoTo": {
+        "desc": "在${Name}任务中，如果有开始追踪的按钮就点击追踪，没有就直接前往",
+        "recognition": "And",
+        "all_of": [
+            "In${Id}Mission"
+        ],
+        "next": [
+            "Track${Id}",
+            "GoTo${Id}"
+        ]
+    },
+    "Track${Id}": {
+        "desc": "追踪${Name}任务",
+        "recognition": "And",
+        "all_of": [
+            "TrackMissionButton",
+            "In${Id}Mission"
+        ],
+        "action": "Click",
+        "next": [
+            "GoTo${Id}"
+        ]
+    },
+    "GoTo${Id}": {
+        "desc": "前往${Name}",
+        "next": [
+            "GoTo${Id}StartPos",
+            "${JumpBackNode}"
+        ]
+    },
+    "GoTo${Id}StartPos": {
+        "desc": "${StartPosDesc}",
+        "recognition": "Custom",
+        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition_param": {
+            "expected": [
+                {
+                    "map_name": "${MapName}",
+                    "target": "${MapTarget}"
+                }
+            ]
+        },
+        "next": [
+            "GoTo${Id}MapTrackerMove"
+        ]
+    },
+    "GoTo${Id}MapTrackerMove": {
+        "desc": "前往${Name}",
+        "action": "Custom",
+        "custom_action": "MapTrackerMove",
+        "custom_action_param": {
+            "map_name": "${MapName}",
+            "path": "${MapPath}"
+        },
+        "anchor": {
+            "EnvironmentMonitoringBactToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
+            "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
+        },
+        "next": [
+            "EnvironmentMonitoringTakePhoto"
+        ]
+    },
+    "${Id}AdjustCamera": {
+        "desc": "${Name}任务中调整朝向",
+        "max_hit": 2,
+        "next": [
+            "${CameraSwipeDirection}"
+        ]
+    }
+}
