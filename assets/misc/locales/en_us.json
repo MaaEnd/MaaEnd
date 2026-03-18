@@ -111,6 +111,10 @@
     "option.AutoStartExchange.description": "Automatically starts clue exchange during base tasks. It is not recommended to enable this option, as clue exchange tasks should wait for credit point transaction tasks to actively initiate in order to obtain high-value items.",
     "option.ProductionAssistanceWithoutTheControlNexus.label": "Production Assistance without Master Control Nexus",
     "option.ProductionAssistanceWithoutTheControlNexus.description": "When enabled, the mood recovery function of the Master Control Nexus is disabled",
+    "option.ProductionAssistType.label": "Production Assist Mode",
+    "option.ProductionAssistType.ProductionAssistAll.label": "Assist All",
+    "option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label": "Assist Growth Chamber Only",
+    "option.ProductionAssistType.ProductionAssistWithoutControlNexus.label": "Assist Without Control Nexus",
     "option.ClueSend.label": "Send excess clues",
     "option.ClueSend.description": "Configure how many clues at most will be sent when overflowing",
     "option.ClueSend.MaxClueSend.label": "Max clues to send",
@@ -400,8 +404,6 @@
     "task.SellProduct.TaskEnd": "Sell task completed",
     "task.VisitFriends.label": "🤝 Visit Friends",
     "task.VisitFriends.description": "Visit friends to perform support and intel exchange.",
-    "option.PriorStealVegetables.label": "Steal Vegetables Mode",
-    "option.PriorStealVegetables.description": "When enabled: vegetables can be stolen only when both production-assist and clue-exchange counts are 1–5. Before entering the ship, both growth chamber assist availability and clue exchange availability must be met. Due to script logic, it may not visit all eligible friends to meet the 5 steal-vegetable quota; please check manually if any are missed. If the quota is not met, adding more friends is recommended.",
     "task.ReceiveProdManual.label": "🌾 Claim Simple Crafting Manual Rewards",
     "task.ReceiveProdManual.description": "Claim all simple crafting manual rewards.",
     "task.ReadAllWiki.label": "📖 Mark Encyclopedia as Read",
@@ -501,3 +503,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "Prerecorded Input",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "Recognition Navigation (MapTracker)"
 }
+
+

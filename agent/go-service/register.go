@@ -17,6 +17,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/quantizedsliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/subtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	"github.com/rs/zerolog/log"
 )
 
@@ -41,6 +42,7 @@ func registerAll() {
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autofight.Register()
+	visitfriends.Register()
 	autostockpile.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")

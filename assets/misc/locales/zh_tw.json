@@ -111,6 +111,10 @@
     "option.AutoStartExchange.description": "在基建任務過程中，自動開啟線索交流，並不推薦開啟此選項，線索交流任務應該等待信用點交易任務主動開啟以獲取高價值物品",
     "option.ProductionAssistanceWithoutTheControlNexus.label": "不使用總控中樞生產助力",
     "option.ProductionAssistanceWithoutTheControlNexus.description": "開啟後不會使用總控中樞的恢復心情功能",
+    "option.ProductionAssistType.label": "生產助力模式",
+    "option.ProductionAssistType.ProductionAssistAll.label": "助力全部",
+    "option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label": "僅助力培養艙",
+    "option.ProductionAssistType.ProductionAssistWithoutControlNexus.label": "不助力總控中樞",
     "option.ClueSend.label": "溢出後贈送線索",
     "option.ClueSend.description": "設定溢出時最多贈送多少條線索",
     "option.ClueSend.MaxClueSend.label": "指定最大贈送數量",
@@ -254,8 +258,6 @@
     "task.SellProduct.TaskEnd": "售賣任務已完成",
     "task.VisitFriends.label": "🤝拜訪好友",
     "task.VisitFriends.description": "拜訪好友，執行生產助力流程與情報交流",
-    "option.PriorStealVegetables.label": "偷菜模式",
-    "option.PriorStealVegetables.description": "開啟後：僅當生產助力與線索交流數量均為 1～5 時才能啟動偷菜，進入飛船前須同時滿足培養艙可助力且線索交流可用。鑑於腳本邏輯，可能無法遍歷所有滿足條件的好友以滿足 5 次偷菜需求，如有遺漏請自行檢查。如未滿足 5 次偷菜需求，建議透過新增更多好友以解決。",
     "task.ReceiveProdManual.label": "🌾簡製手冊領取",
     "task.ReceiveProdManual.description": "領取所有簡製手冊獎勵",
     "task.ReadAllWiki.label": "📖百科已讀",
@@ -501,3 +503,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "錄製操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "識別尋路（MapTracker）"
 }
+
+

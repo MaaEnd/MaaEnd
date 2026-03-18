@@ -1,0 +1,552 @@
+{
+    "VisitFriendsEnterShip": {
+        "desc": "识别进入好友船的按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -150,
+            135,
+            150,
+            460
+        ],
+        "template": "VisitFriends/EnterButton.png",
+        "threshold": 0.9,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                400,
+                300,
+                500,
+                100
+            ]
+        },
+        "next": [
+            "VisitFriendsEnterShipConfirm"
+        ]
+    },
+    "VisitFriendsEnterShipConfirm": {
+        "desc": "识别进入好友船的确认",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            "YellowConfirmButtonType1"
+        ],
+        "action": "Click",
+        "next": [
+            "[JumpBack]SceneWaitLoadingExit",
+            "VisitFriendsEnterShipSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "进入好友飞船"
+        }
+    },
+    "VisitFriendsEnterShipSuccess": {
+        "desc": "进入好友船成功的标志",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ShipEscButton.png",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "threshold": 0.9,
+        "action": "ClickKey",
+        "key": 89, // Y
+        "next": [
+            "VisitFriendsEnterMenuTerminalSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "打开菜单"
+        }
+    },
+    "VisitFriendsEnterMenuTerminalSuccess": {
+        "desc": "进入好友菜单成功的标志",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            200,
+            70
+        ],
+        "expected": [
+            "访客终端",
+            "訪客終端",
+            "Guest Terminal",
+            "訪問端末",
+            "방문자 단말기"
+        ],
+        "pre_wait_freezes": 400,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "VisitFriendsMenuClueExchangeEntry",
+                "VisitFriendsMenuAssistControlNexusEntry",
+                "VisitFriendsMenuAssistMFGCabin1Entry",
+                "VisitFriendsMenuAssistMFGCabin2Entry",
+                "VisitFriendsMenuAssistGrowthChamberSwipeEntry"
+            ],
+            "continue": true,
+            "strict": false
+        },
+        "next": [
+            "VisitFriendsMenuTerminalExitToWorldShip"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "完成助力"
+        }
+    },
+    "VisitFriendsFakeTrue": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "VisitFriendsMenuClueExchangeEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuClueExchange",
+            "VisitFriendsMenuClueExchangeFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistControlNexusEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistControlNexus",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin1Entry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin1",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistMFGCabin2Entry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistMFGCabin2",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistGrowthChamberSwipeEntry": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "VisitFriendsMenuAssistGrowthChamberSwipe",
+            "VisitFriendsMenuAssistFull",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuClueExchange": {
+        "desc": "执行线索交换",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    410,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalReceptionRoom.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ClueExchange.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueExchangeAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "进行线索交换"
+        }
+    },
+    "VisitFriendsMenuClueExchangeFull": {
+        "desc": "线索交换不可助力",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    410,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalReceptionRoom.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "expected": [
+                    "无法参与交流",
+                    "無法參與交流",
+                    "共有会参加不可",
+                    "교류에 참여할 수 없습니다",
+                    "Cannot join this exchange"
+                ]
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueExchangeFullAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "线索交换已满"
+        }
+    },
+    "VisitFriendsMenuAssistFull": {
+        "desc": "助力已满",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -300,
+                    300,
+                    300,
+                    250
+                ],
+                "template": "VisitFriends/TerminalNotice.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "icon",
+                "roi_offset": [
+                    -500,
+                    -10,
+                    500,
+                    20
+                ],
+                "expected": [
+                    "明日再来",
+                    "明天再來",
+                    "上限に達しました",
+                    "도해 주세요",
+                    "Come back tomorrow"
+                ]
+            }
+        ],
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistFullAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "助力已满"
+        }
+    },
+    "VisitFriendsMenuAssistControlNexus": {
+        "desc": "执行控制中枢协助",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    100,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalControlNexus.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    250,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "助力控制中枢"
+        }
+    },
+    "VisitFriendsMenuAssistMFGCabin1": {
+        "desc": "执行制造舱1协助",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    610,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "助力制造舱1"
+        }
+    },
+    "VisitFriendsMenuAssistMFGCabin2": {
+        "desc": "执行制造舱2协助",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalMFGCabin.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "focus": {
+            "Node.Recognition.Succeeded": "助力制造舱2"
+        }
+    },
+    "VisitFriendsMenuAssistGrowthChamberSwipe": {
+        "desc": "执行生长舱协助",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "TemplateMatch",
+        "roi": [
+            410,
+            400,
+            200,
+            200
+        ],
+        "template": "VisitFriends/TerminalReceptionRoom.png",
+        "threshold": 0.9,
+        "action": "Swipe",
+        "begin": [
+            1000,
+            500
+        ],
+        "end": [
+            600,
+            500
+        ],
+        "end_hold": 200,
+        "next": [
+            "VisitFriendsMenuAssistGrowthChamber",
+            "VisitFriendsFakeTrue"
+        ]
+    },
+    "VisitFriendsMenuAssistGrowthChamber": {
+        "desc": "执行生长舱协助",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    810,
+                    400,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/TerminalGrowthChamber.png",
+                "threshold": 0.9,
+                "sub_name": "icon"
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": "icon",
+                "roi_offset": [
+                    0,
+                    0,
+                    200,
+                    200
+                ],
+                "template": "VisitFriends/ProductionAssist.png",
+                "threshold": 0.9
+            }
+        ],
+        "box_index": 1,
+        "action": "Custom",
+        "custom_action": "VisitFriendsMenuClueAssistAction",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "助力生长舱"
+        }
+    },
+    "VisitFriendsMenuTerminalExitToWorldShip": {
+        "desc": "从好友菜单返回世界界面",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    200,
+                    70
+                ],
+                "expected": [
+                    "访客终端",
+                    "訪客終端",
+                    "Guest Terminal",
+                    "訪問端末",
+                    "방문자 단말기"
+                ]
+            },
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 400,
+        "action": "Click",
+        "next": [
+            "VisitFriendsWorldShipExitToMenuFriends"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "返回好友世界"
+        }
+    },
+    "VisitFriendsWorldShipExitToMenuFriends": {
+        "desc": "从世界界面返回好友菜单",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "TemplateMatch",
+        "template": "VisitFriends/ShipEscButton.png",
+        "roi": [
+            0,
+            0,
+            100,
+            100
+        ],
+        "pre_wait_freezes": 400,
+        "action": "ClickKey",
+        "key": 27, // ESC
+        "next": [
+            "VisitFriendsEnterFriendsListSuccess"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "返回好友列表"
+        }
+    },
+    "VisitFriendsEnterFriendsListSuccess": {
+        "desc": "进入好友列表成功的标志",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            150,
+            120
+        ],
+        "pre_wait_freezes": {
+            "time": 1000,
+            "target": [
+                -300,
+                -300,
+                300,
+                300
+            ]
+        },
+        "template": "VisitFriends/OnFriendList.png",
+        "threshold": 0.8
+    },
+    "VisitFriendsMenuClickAction": {
+        "desc": "点击助力",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Click"
+        // 调试用
+        // "target_offset": [
+        //     0,
+        //     -60,
+        //     0,
+        //     0
+        // ]
+    }
+}

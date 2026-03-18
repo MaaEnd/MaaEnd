@@ -111,6 +111,10 @@
     "option.AutoStartExchange.description": "基地任務中に手がかり交換を自動的に開始します。このオプションの有効化は推奨されません。高価値なアイテムを獲得するためには、手がかり交換任務はクレジット取引任務が主動的に開始するのを待つべきです。",
     "option.ProductionAssistanceWithoutTheControlNexus.label": "マスターコントロールネクサスを使用しない生産支援",
     "option.ProductionAssistanceWithoutTheControlNexus.description": "有効にすると、マスターコントロールネクサスの気分回復機能は使用されません",
+    "option.ProductionAssistType.label": "生産支援モード",
+    "option.ProductionAssistType.ProductionAssistAll.label": "全施設支援",
+    "option.ProductionAssistType.ProductionAssistOnlyGrowthChamber.label": "育成舎のみ支援",
+    "option.ProductionAssistType.ProductionAssistWithoutControlNexus.label": "総合制御中枢を支援しない",
     "option.ClueSend.label": "溢れた手掛かりを贈る",
     "option.ClueSend.description": "溢れた際に最大何件まで贈るかを設定します",
     "option.ClueSend.MaxClueSend.label": "最大贈呈数の指定",
@@ -254,8 +258,6 @@
     "task.SellProduct.TaskEnd": "販売タスクが完了しました",
     "task.VisitFriends.label": "🤝 フレンド訪問",
     "task.VisitFriends.description": "フレンドを訪問し、支援と情報交換を実行します。",
-    "option.PriorStealVegetables.label": "収穫モード",
-    "option.PriorStealVegetables.description": "有効時：生産助力と手がかり交換の両方が1～5のときのみ収穫を開始できます。艦船に入る前に、培養室が助力可能であることと、手がかり交換が利用可能であることの両方を満たす必要があります。スクリプトの仕様上、条件を満たす全フレンドを巡回して5回の収穫を達成できない場合があります。漏れがあればご自身で確認してください。5回に満たない場合は、フレンドを増やすことをお勧めします。",
     "task.ReceiveProdManual.label": "🌾 簡易製作手帳報酬受取",
     "task.ReceiveProdManual.description": "すべての簡易製作手帳報酬を受け取ります。",
     "task.ReadAllWiki.label": "📖 図鑑を既読にする",
@@ -501,3 +503,5 @@
     "option.GiftOperatorMoveMode.cases.Recorded.label": "記録済み操作",
     "option.GiftOperatorMoveMode.cases.MapTracker.label": "認識移動（MapTracker）"
 }
+
+

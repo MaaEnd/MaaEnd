@@ -556,5 +556,15 @@
     "resource/image/AutoStockpile/Goods/ValleyIV/MusbeastScrimshawDangles.Tier1": "b58b082494b45f450a32763cbf97950fa16abbd2704287132580d37cd70f0dad",
     "resource/image/AutoStockpile/Goods/ValleyIV/VigilantPickaxes.Tier3": "acc18d044ed4ee961dcfc127403a70fbd622e8de3d2e3342302aa1afb7bba385",
     "resource/image/AutoStockpile/Goods/ValleyIV/UnitySyrup.Tier2": "589a49ec448ab00afb471fbcc1231e4cc3745872a9cebc2a5896b181655908e7",
-    "resource/image/SceneManager/Backpack": "62ebbe8f6c31257fec1715cf023bf0034b73aaa548f18e8367d0c67109e18de5"
+    "resource/image/SceneManager/Backpack": "62ebbe8f6c31257fec1715cf023bf0034b73aaa548f18e8367d0c67109e18de5",
+    "resource/image/VisitFriends/DetailMFGCabinAssist": "70dbe41baced68f410e5c52249e2d40f3fc564f5f690ed38b46d5fa017c3102b",
+    "resource/image/VisitFriends/TerminalReceptionRoom": "a51e7d6ad7a4bab2a7683cb02ec85631ac16e3f2194d2ffe4ec87adb7c1c44c7",
+    "resource/image/VisitFriends/DetailGrowthChamberAssist": "5014403aa96c96a36374f7df6287086997f1444e5f08fc17a8f069d5a2888e12",
+    "resource/image/VisitFriends/DetailControlNexusAssist": "4e1a3a67c3f3c52c3bacd92c5e4f102e54a4bd04ba9a970d31a9fa0ac711c3ca",
+    "resource/image/VisitFriends/TerminalMFGCabin": "0f9b624f9c34c3a572a98663222fd72ec0bcd1775e89c1f9f738c27e32f88f9e",
+    "resource/image/VisitFriends/TerminalNotice": "3cdd2d7b22eeb3b7f64398b81743be96c3f13c18c559d4c4849bc97868fca022",
+    "resource/image/VisitFriends/TerminalControlNexus": "205733cb805b3b47d587011ab047054c3a2fbc716af5c6a394c4e7f510e28537",
+    "resource/image/VisitFriends/TerminalGrowthChamber": "71480500443962f9c74714fbfa259a54d5968b1c734ec322923c67aaee667ba0",
+    "resource/image/VisitFriends/EnterButton": "c4d78df14a5092e27d612028eea582980467f70a6e8867f626b537a303983df7",
+    "resource/image/VisitFriends/ShipEscButton": "4c4bb533f29382bc591b20a90ad41bae4679b385998734e0f3c2b9d18f4b815d"
 }
