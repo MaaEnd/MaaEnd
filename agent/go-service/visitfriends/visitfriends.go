@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type FriendItem struct {
+type friendItem struct {
 	Name                string
 	ClueExchange        bool
 	ControlNexusAssist  bool
@@ -16,7 +16,7 @@ type FriendItem struct {
 }
 
 var (
-	menuKeyMap               = make(map[int]FriendItem)
+	menuKeyMap               = make(map[int]friendItem)
 	menuKeyNext              int
 	maxAssistCount           = 5
 	maxClueExchangeCount     = 5
@@ -25,7 +25,7 @@ var (
 	lastScrollItemName       string
 )
 
-func getFriendItem(key int) (FriendItem, bool) {
+func getFriendItem(key int) (friendItem, bool) {
 	item, ok := menuKeyMap[key]
 	return item, ok
 }
@@ -33,7 +33,7 @@ func getFriendItem(key int) (FriendItem, bool) {
 func registerFriendItem(name string) int {
 	menuKeyNext++
 	key := menuKeyNext
-	menuKeyMap[key] = FriendItem{Name: name}
+	menuKeyMap[key] = friendItem{Name: name}
 	return key
 }
 
@@ -162,7 +162,7 @@ func (a *VisitFriendsMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		Str("component", "VisitFriends").
 		Str("step", "main_run").
 		Msg("start")
-	menuKeyMap = make(map[int]FriendItem)
+	menuKeyMap = make(map[int]friendItem)
 	menuKeyNext = 0
 	currentAssistCount = 0
 	currentClueExchangeCount = 0
