@@ -8,7 +8,7 @@
                 {
                     "name": "VisitFriends",
                     "option": {
-                        "PriorStealVegetables": "Yes"
+                        "ProductionAssistType": "ProductionAssistOnlyGrowthChamber"
                     }
                 },
                 {
