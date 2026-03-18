@@ -23,64 +23,6 @@
         }
     },
     "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -250,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/Backpack.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -200,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/WorldMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    }
-                ]
-            }
-        },
         "action": {
             "type": "Click"
         }
