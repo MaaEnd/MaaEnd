@@ -529,15 +529,14 @@
                 "roi": [
                     59,
                     343,
-                    287,
+                    395,
                     291
                 ],
                 "expected": [
                     "拥有数量",
                     "持有數量",
-                    "Amount owned",
-                    "総在庫",
-                    "Amount Owned"
+                    "(?i)^Amount\\s*owned$",
+                    "総在庫"
                 ]
             }
         },
