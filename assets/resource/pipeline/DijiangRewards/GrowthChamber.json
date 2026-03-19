@@ -213,7 +213,8 @@
                     "nyx$",
                     "endra$",
                     "lete$"
-                ]
+                ],
+                "order_by": "Vertical"
             }
         }
     },
