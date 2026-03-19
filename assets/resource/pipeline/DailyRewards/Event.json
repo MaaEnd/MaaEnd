@@ -74,13 +74,13 @@
             "DailyEventUnreadLimitedTimeSignin",
             "DailyEventUnreadWeeklyRoutine",
             "DailyEventUnreadGuideEvent",
-            "DailyEventUnreadUnknow"
+            "DailyEventUnreadUnknown"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "切换活动"
         }
     },
-    "DailyEventUnreadUnknow": {
+    "DailyEventUnreadUnknown": {
         "desc": "跳过未支持的活动",
         "pre_delay": 0,
         "post_delay": 0,
