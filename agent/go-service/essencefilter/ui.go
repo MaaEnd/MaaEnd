@@ -131,7 +131,12 @@ func logSkillPools(engine *matchapi.Engine) {
 		{"Slot3", engine.SkillPools().Slot3},
 	} {
 		for _, s := range entry.pool {
-			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
+			log.Info().
+				Str("component", "EssenceFilter").
+				Str("slot", entry.slot).
+				Int("id", s.ID).
+				Str("skill", s.Chinese).
+				Msg("skill pool")
 		}
 	}
 }
@@ -166,7 +171,13 @@ func logFilteredSkillStats() {
 		sort.Ints(ids)
 		for _, id := range ids {
 			name := idToName[id]
-			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
+			log.Info().
+				Str("component", "EssenceFilter").
+				Int("slot", slot).
+				Int("skill_id", id).
+				Str("skill", name).
+				Int("count", stat[id]).
+				Msg("filtered skill stats")
 		}
 	}
 }
