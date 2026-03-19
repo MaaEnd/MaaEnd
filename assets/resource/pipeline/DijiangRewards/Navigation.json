@@ -59,6 +59,9 @@
                     "ClaimDijiangRewards/InControlNexus.png"
                 ]
             }
-        }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0
     }
 }

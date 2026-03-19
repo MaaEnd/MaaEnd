@@ -32,6 +32,9 @@
         "next": [
             "GrowthChamber"
         ],
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "timeout": 5000,
         "on_error": [
             "EntryGrowthChamber_OnError"
@@ -66,6 +69,9 @@
             "time": 100,
             "timeout": 1000
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GrowthChamber"
         ],
@@ -93,6 +99,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ClaimAllGrowReward",
             "Grow",
@@ -316,6 +325,9 @@
                 639
             ]
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SortBy",
             "SortOrder",
@@ -326,6 +338,9 @@
     },
     "SelectGrowTarget": {
         "desc": "选择培养目标",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -357,6 +372,9 @@
     },
     "SelectGrow": {
         "desc": "选择培养目标",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "And",
             "param": {
@@ -382,6 +400,9 @@
     },
     "SelectGrow_OnError": {
         "desc": "选择培养目标（出错重试）",
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "recognition": {
             "type": "And",
             "param": {

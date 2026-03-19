@@ -18,6 +18,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -59,6 +62,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -91,6 +97,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "timeout": 5000,
         "next": [
             "EndExchange"
@@ -127,6 +136,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Click",
         "next": [
             "ReceptionRoom"
@@ -165,6 +177,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": "Click",
         "timeout": 5000,
         "on_error": [
@@ -205,6 +220,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ReceptionRoomNeedCollectClues",
             "ReceptionRoomNeedReceiveClues",
@@ -230,6 +248,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -252,6 +273,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -298,6 +322,9 @@
                 "box_index": 2
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -351,6 +378,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -400,6 +430,9 @@
                 "box_index": 2
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -453,6 +486,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -514,6 +550,8 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Scroll",
             "param": {
@@ -569,6 +607,9 @@
                 "box_index": 1
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -615,6 +656,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -665,6 +709,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -725,6 +772,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -815,6 +865,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SendTheMostClues",
             "SendCluesSwipe",
@@ -840,6 +893,9 @@
         "next": [
             "ExitCollect"
         ],
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "on_error": [
             "Collect_OnError"
         ]
@@ -883,6 +939,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -1190,6 +1249,9 @@
                 59
             ]
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ExitReceptionRoom"
         ],
@@ -1244,6 +1306,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click",
             "param": {
