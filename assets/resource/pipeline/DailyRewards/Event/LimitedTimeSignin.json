@@ -1,0 +1,73 @@
+{
+    "DailyEventUnreadLimitedTimeSignin": {
+        "desc": "处理限时签到活动",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "connected": true,
+                "count": 200,
+                "sub_name": "color"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "color",
+                "expected": [
+                    "限时签到",
+                    "限時簽到",
+                    "Limited-Time Sign-In",
+                    "時限スタンプ",
+                    "기간 한정 출석 체크"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadLimitedTimeSigninPickAll",
+            "DailyEventUnreadLimitedTimeSigninFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入限时签到活动"
+        }
+    },
+    "DailyEventUnreadLimitedTimeSigninPickAll": {
+        "desc": "限时签到活动内一键领取",
+        "recognition": "OCR",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "expected": [
+            "一键领取",
+            "快速領取",
+            "Claim All",
+            "一括受取",
+            "일괄 획득"
+        ],
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyEventUnreadLimitedTimeSigninFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

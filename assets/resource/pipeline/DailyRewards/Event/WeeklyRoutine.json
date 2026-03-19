@@ -1,0 +1,113 @@
+{
+    "DailyEventUnreadWeeklyRoutine": {
+        "desc": "处理每周事务活动",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "ColorMatch",
+                "roi": [
+                    -200,
+                    0,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    13
+                ],
+                "lower": [
+                    230,
+                    230,
+                    0
+                ],
+                "connected": true,
+                "count": 200,
+                "sub_name": "color"
+            },
+            {
+                "recognition": "OCR",
+                "roi": "color",
+                "expected": [
+                    "每周事务",
+                    "每週事務",
+                    "Weekly Routine",
+                    "ウィークリークエスト",
+                    "주간 업무"
+                ],
+                "only_rec": true
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "DailyEventUnreadWeeklyRoutinePickOne",
+            "DailyEventUnreadWeeklyRoutinePickAll",
+            "DailyEventUnreadWeeklyRoutineFinish"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "进入每周事务活动"
+        }
+    },
+    "DailyEventUnreadWeeklyRoutinePickOne": {
+        "desc": "领取积分",
+        "recognition": "OCR",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "roi": [
+            -170,
+            200,
+            170,
+            400
+        ],
+        "expected": [
+            "领取",
+            "領取",
+            "Claim",
+            "受取",
+            "획득"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                -800,
+                -110,
+                800,
+                110
+            ]
+        },
+        "next": [
+            "DailyEventUnreadWeeklyRoutinePickAll",
+            "DailyEventUnreadWeeklyRoutineFinish"
+        ]
+    },
+    "DailyEventUnreadWeeklyRoutinePickAll": {
+        "desc": "每周事务活动内一键领取",
+        "recognition": "OCR",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "roi": [
+            -160,
+            -120,
+            160,
+            120
+        ],
+        "expected": [
+            "一键领取",
+            "快速領取",
+            "Claim All",
+            "一括受取",
+            "일괄 획득"
+        ],
+        "action": "Click",
+        "next": [
+            "SceneNoticeRewardsConfirm"
+        ]
+    },
+    "DailyEventUnreadWeeklyRoutineFinish": {
+        "desc": "领取完了",
+        "pre_delay": 0,
+        "post_delay": 0
+    }
+}

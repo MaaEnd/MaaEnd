@@ -1,16 +1,16 @@
 package dailyrewards
 
 import (
-	"github.com/MaaXYZ/maa-framework-go/v4"
+	"encoding/json"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 type dailyEventUnreadItem struct {
-	Box  maa.Rect // 活动左侧item坐标
-	Text string   // 活动名称
+	Box  maa.Rect `json:"box"`
+	Text string   `json:"text"`
 }
-
-var dailyEventUnreadItems []dailyEventUnreadItem
 
 type dailyEventUnreadDetail struct {
 	Box maa.Rect // 活动右侧红点坐标
@@ -21,7 +21,7 @@ var dailyEventUnreadDetails []dailyEventUnreadDetail
 type DailyEventUnreadItemInitRecognition struct{}
 
 func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	dailyEventUnreadItems = nil
+	var items []dailyEventUnreadItem
 
 	// 在左侧区域查找所有红点图标
 	overrideParamRedDot := map[string]any{
@@ -73,7 +73,7 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 		}
 
 		duplicate := false
-		for _, existing := range dailyEventUnreadItems {
+		for _, existing := range items {
 			if existing.Text == ocrResult.Text {
 				duplicate = true
 				break
@@ -84,7 +84,7 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			continue
 		}
 
-		dailyEventUnreadItems = append(dailyEventUnreadItems, dailyEventUnreadItem{
+		items = append(items, dailyEventUnreadItem{
 			Box:  ocrResult.Box,
 			Text: ocrResult.Text,
 		})
@@ -94,137 +94,68 @@ func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.Cus
 			Msg("Found unread event")
 	}
 
-	if len(dailyEventUnreadItems) == 0 {
+	if len(items) == 0 {
 		log.Info().Msg("No unread events found after OCR")
 		return nil, false
 	}
 
-	log.Info().Int("count", len(dailyEventUnreadItems)).Msg("Unread events initialized")
+	log.Info().Int("count", len(items)).Msg("Unread events initialized")
+
+	detailJSON, err := json.Marshal(map[string]any{
+		"items": items,
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to marshal unread items result")
+		return nil, false
+	}
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
-		Detail: `{"custom": "init unread events"}`,
+		Detail: string(detailJSON),
 	}, true
 }
 
-type DailyEventUnreadItemSwitchRecognition struct{}
+type DailyEventUnreadItemInitAction struct{}
 
-func (r *DailyEventUnreadItemSwitchRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if len(dailyEventUnreadItems) == 0 {
-		return nil, false
+func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if arg.RecognitionDetail == nil {
+		log.Error().Msg("DailyEventUnreadItemInitAction: RecognitionDetail is nil")
+		return false
+	}
+	if arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Results.Best == nil {
+		log.Error().Msg("DailyEventUnreadItemInitAction: Results or Best is nil")
+		return false
+	}
+	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
+	if !ok {
+		log.Error().Msg("DailyEventUnreadItemInitAction: failed to get custom recognition result")
+		return false
+	}
+	var result struct {
+		Items []dailyEventUnreadItem `json:"items"`
+	}
+	if err := json.Unmarshal([]byte(customResult.Detail), &result); err != nil {
+		log.Error().Err(err).Msg("DailyEventUnreadItemInitAction: failed to parse recognition detail")
+		return false
 	}
 
-	// 取出第一个未读条目
-	item := dailyEventUnreadItems[0]
-	dailyEventUnreadItems = dailyEventUnreadItems[1:]
+	actionResult := true
+	for _, item := range result.Items {
+		log.Info().
+			Str("text", item.Text).
+			Interface("box", item.Box).
+			Msg("Processing unread event item")
 
-	log.Debug().
-		Str("text", item.Text).
-		Interface("box", item.Box).
-		Int("remaining", len(dailyEventUnreadItems)).
-		Msg("Switch unread item")
-
-	return &maa.CustomRecognitionResult{
-		Box:    item.Box,
-		Detail: `{"custom": "switch unread item"}`,
-	}, true
-}
-
-type DailyEventUnreadDetailInitRecognition struct{}
-
-func (r *DailyEventUnreadDetailInitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	dailyEventUnreadDetails = nil
-
-	// 在屏幕右侧区域查找红点
-	overrideParamRedDot := map[string]any{
-		"DailyEventRecognitionRedDot": map[string]any{
-			"roi": maa.Rect{-800, 0, 800, 720},
-		},
-	}
-	detail, err := ctx.RunRecognition("DailyEventRecognitionRedDot", arg.Img, overrideParamRedDot)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to run TemplateMatch for RedDot on right side")
-		return nil, false
-	}
-	if detail == nil || !detail.Hit || detail.Results == nil || len(detail.Results.Filtered) == 0 {
-		log.Info().Msg("No red dot found on right side")
-		return nil, false
-	}
-
-	// 遍历所有红点，过滤掉左侧包含"前往"的按钮，收集有效红点位置
-	for _, result := range detail.Results.Filtered {
-		tmResult, ok := result.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-
-		redDotBox := tmResult.Box
-
-		// 检测红点左侧是否包含"前往"，有则跳过
-		overrideParamGotoButton := map[string]any{
-			"DailyEventRecognitionGotoButton": map[string]any{
-				"roi": maa.Rect{
-					redDotBox.X() - 200,
-					redDotBox.Y(),
-					200,
-					50},
+		override := map[string]any{
+			"DailyEventUnreadItemSwitch": map[string]any{
+				"roi": item.Box,
 			},
 		}
-
-		ocrDetail, err := ctx.RunRecognition("DailyEventRecognitionGotoButton", arg.Img, overrideParamGotoButton)
+		detail, err := ctx.RunTask("DailyEventUnreadItemSwitch", override)
 		if err != nil {
-			log.Warn().Err(err).Msg("Failed to run OCR for reward text")
-			continue
+			actionResult = false
 		}
-		if ocrDetail != nil && ocrDetail.Hit {
-			log.Debug().Interface("box", redDotBox).Msg("Found '前往' text, skipping this red dot")
-			continue
-		}
-
-		clickBox := maa.Rect{
-			redDotBox.X() - 2,
-			redDotBox.Y() + 10,
-			2,
-			2,
-		}
-		dailyEventUnreadDetails = append(dailyEventUnreadDetails, dailyEventUnreadDetail{
-			Box: clickBox,
-		})
-		log.Debug().
-			Interface("redDotBox", redDotBox).
-			Interface("clickBox", clickBox).
-			Msg("Found claimable reward")
+		log.Debug().Interface("detail", detail).Msg("DailyEventUnreadItemSwitch task result")
 	}
 
-	if len(dailyEventUnreadDetails) == 0 {
-		log.Info().Msg("No claimable rewards found after filtering")
-		return nil, false
-	}
-
-	log.Info().Int("count", len(dailyEventUnreadDetails)).Msg("Unread details initialized")
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: `{"custom": "init unread details"}`,
-	}, true
-}
-
-type DailyEventUnreadDetailPickRecognition struct{}
-
-func (r *DailyEventUnreadDetailPickRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if len(dailyEventUnreadDetails) == 0 {
-		return nil, false
-	}
-
-	// 取出第一个红点位置
-	item := dailyEventUnreadDetails[0]
-	dailyEventUnreadDetails = dailyEventUnreadDetails[1:]
-
-	log.Debug().
-		Interface("box", item.Box).
-		Int("remaining", len(dailyEventUnreadDetails)).
-		Msg("Pick unread detail")
-
-	return &maa.CustomRecognitionResult{
-		Box:    item.Box,
-		Detail: `{"custom": "pick unread detail"}`,
-	}, true
+	return actionResult
 }
