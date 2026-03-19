@@ -180,7 +180,8 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleRowNextItem"
+            "EssenceFilterAfterBattleRowNextItem",
+            "EssenceFilterAfterBattleExit"
         ]
     },
     "EssenceFilterAfterBattleRowNextItem": {
