@@ -25,8 +25,10 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 
 	attachs, _ := getOptionsFromAttach(ctx, "EssenceFilterAfterBattleInit")
 	if attachs == nil {
-		attachs = &EssenceFilterOptions{}
+		def := defaultEssenceFilterOptions()
+		attachs = &def
 	}
+
 	opts := matchapi.EssenceFilterOptions{
 		// exact 精确匹配只在你选择了稀有度时才启用
 		Rarity6Weapon: attachs.Rarity6Weapon,
