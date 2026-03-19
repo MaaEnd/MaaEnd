@@ -3,6 +3,7 @@ package minicv
 import (
 	"fmt"
 	"image"
+	_ "image/png"
 	"os"
 	"sync"
 )

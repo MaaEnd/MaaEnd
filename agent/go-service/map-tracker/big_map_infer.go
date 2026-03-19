@@ -17,6 +17,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type BigMapViewport = mt.BigMapViewport
+
 // MapTrackerBigMapInferResult represents the output of big map inference.
 type MapTrackerBigMapInferResult struct {
 	MapName     string            `json:"mapName"`

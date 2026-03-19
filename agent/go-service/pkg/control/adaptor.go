@@ -5,6 +5,7 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+// ControlAdaptor defines an interface for abstracting control actions, allowing different implementations for different platforms.
 type ControlAdaptor interface {
 	// Ctx returns the wrapped Maa Framework context.
 	Ctx() *maa.Context
@@ -12,7 +13,7 @@ type ControlAdaptor interface {
 	// TouchDown performs a touch down at (x, y) with the given contact ID and delay after the action.
 	TouchDown(contact, x, y int, delayMillis int)
 
-	// TouchMove performs a touch move to (x, y) with the given contact ID and delay after the action.
+	// TouchUp performs a touch up of the given contact ID with delay after the action.
 	TouchUp(contact int, delayMillis int)
 
 	// TouchClick performs a touch down and up at (x, y) with the given contact ID, duration of the touch, and delay after the action.
@@ -30,7 +31,7 @@ type ControlAdaptor interface {
 	// KeyUp performs a key up of the given key code with delay after the action.
 	KeyUp(keyCode int, delayMillis int)
 
-	// KeyClick performs a key type of the given key code with delay after the action.
+	// KeyType performs a key type of the given key code with delay after the action.
 	KeyType(keyCode int, delayMillis int)
 
 	// RotateCamera performs a camera rotation by only-hover swipe starting from the center of the screen
