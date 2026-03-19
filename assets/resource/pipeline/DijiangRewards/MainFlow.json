@@ -186,41 +186,6 @@
                     "LastCarbinText"
                 ]
             }
-        },
-        "next": [
-            "FinishAllDijiangTask"
-        ]
-    },
-    "FinishAllDijiangTask": {
-        "desc": "[主流程·收尾] 帝江基建流程结束，返回主界面或关闭弹窗",
-        "next": [
-            "InMainWindow",
-            "[JumpBack]CloseButtonType2",
-            "[JumpBack]GrayCancelButton",
-            "[JumpBack]BackButton"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "帝江基建流程结束后未能返回主界面"
-        }
-    },
-    "BackButton": {
-        "desc": "返回键",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    1086,
-                    0,
-                    194,
-                    125
-                ],
-                "template": [
-                    "ClaimDijiangRewards/BackButton.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click"
         }
     },
     "CancelExit": {

@@ -750,46 +750,8 @@
             }
         },
         "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        },
-        "next": [
-            "FinishAllDijiangTask"
-        ],
-        "timeout": 5000,
-        "on_error": [
-            "NoMaterials_OnError"
-        ]
-    },
-    "NoMaterials_OnError": {
-        "desc": "缺少原料无法获取（出错重试）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    640,
-                    464,
-                    368,
-                    143
-                ],
-                "expected": [
-                    "缺少原料",
-                    "无法获取",
-                    "無法提取"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "contact": 1
-            }
-        },
-        "next": [
-            "FinishAllDijiangTask"
-        ]
+            "type": "StopTask"
+        }
     },
     "InSelectGrowSwipe": {
         "desc": "在选择培养对象界面滑动",
