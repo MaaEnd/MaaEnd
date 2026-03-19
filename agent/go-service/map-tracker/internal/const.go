@@ -6,6 +6,12 @@ const (
 	WORK_H = 720
 )
 
+// Big map viewport configuration
+const (
+	VIEWPORT_PADDING_LR = 0.192 * WORK_W
+	VIEWPORT_PADDING_TB = 0.208 * WORK_H
+)
+
 // Big map zoom button configuration
 const (
 	ZOOM_BUTTON_AREA_X    = 0.95 * WORK_W
@@ -47,19 +53,8 @@ const (
 	ROTATION_MIN_SPEED     = 1.0
 )
 
-// Move action fine approach configuration
+// Misc
 const (
+	RAW_MAP_BBOX_EXPAND_PX           = 20
 	FINE_APPROACH_COMPLETE_THRESHOLD = 0.5
-)
-
-// Win32 action related codes
-const (
-	KEY_W     = 0x57
-	KEY_A     = 0x41
-	KEY_S     = 0x53
-	KEY_D     = 0x44
-	KEY_SHIFT = 0x10
-	KEY_CTRL  = 0x11
-	KEY_ALT   = 0x12
-	KEY_SPACE = 0x20
 )

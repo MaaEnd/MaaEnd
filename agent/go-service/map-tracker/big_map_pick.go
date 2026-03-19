@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -84,15 +85,15 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	aw := mt.NewActionWrapper(ctx, ctrl)
+	ca := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
 
 	if !param.NoZoom {
-		if err := a.doAutoZoom(ctx, ctrl, aw); err != nil {
+		if err := a.doAutoZoom(ctx, ctrl, ca); err != nil {
 			log.Warn().Err(err).Msg("Failed to auto adjust big-map zoom")
 		}
 	}
 
-	for attempt := 1; attempt <= BIG_MAP_PICK_RETRY; attempt++ {
+	for attempt := 1; attempt <= mt.BIG_MAP_PICK_RETRY; attempt++ {
 		inferRes, err := doBigMapInferForMap(ctx, ctrl, param.MapName)
 		if err != nil {
 			log.Error().Err(err).Str("map", param.MapName).Int("attempt", attempt).Msg("Currently not in that map")
@@ -103,9 +104,9 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 		if inferRes.ViewPort.IsViewCoordInView(targetInViewX, targetInViewY) {
 			switch param.OnFind {
 			case "Click":
-				aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100)
+				ca.TouchClick(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100, 0)
 			case "Teleport":
-				if err := runBigMapTeleportNode(ctx, aw, targetInViewX, targetInViewY); err != nil {
+				if err := runBigMapTeleportNode(ctx, ca, targetInViewX, targetInViewY); err != nil {
 					log.Error().Err(err).Str("map", param.MapName).Msg("Failed to run teleport sequence on find")
 					return false
 				}
@@ -123,7 +124,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			return true
 		}
 
-		if attempt == BIG_MAP_PICK_RETRY {
+		if attempt == mt.BIG_MAP_PICK_RETRY {
 			break
 		}
 
@@ -138,7 +139,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 			Float64("targetInViewY", targetInViewY).
 			Msg("Panning big-map toward target")
 
-		if !doDragViewport(aw, &inferRes.ViewPort, deltaInViewX, deltaInViewY) {
+		if !doDragViewport(ca, &inferRes.ViewPort, deltaInViewX, deltaInViewY) {
 			continue
 		}
 	}
@@ -181,7 +182,7 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 	a.externalOnce.Do(func() {
 		a.externalData = map[string]mapExternalDataItem{}
 
-		path := findResource(MAP_EXTERNAL_DATA_PATH)
+		path := mt.FindResource(mt.MAP_EXTERNAL_DATA_PATH)
 		if path == "" {
 			return
 		}
@@ -210,8 +211,8 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 	return item.SceneManagerNode, true, nil
 }
 
-func runBigMapTeleportNode(ctx *maa.Context, aw *mt.ActionWrapper, targetInViewX, targetInViewY float64) error {
-	aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100)
+func runBigMapTeleportNode(ctx *maa.Context, ca control.ControlAdaptor, targetInViewX, targetInViewY float64) error {
+	ca.TouchClick(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100, 0)
 
 	teleportNodeName := "__MapTrackerBigMapPickTeleport"
 	teleportNodeOverride := map[string]any{
@@ -231,13 +232,13 @@ func runBigMapTeleportNode(ctx *maa.Context, aw *mt.ActionWrapper, targetInViewX
 	return nil
 }
 
-func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, aw *mt.ActionWrapper) error {
-	zoomInTemplate, err := mapTrackerResource.zoomInTemplate.Get()
+func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, ca control.ControlAdaptor) error {
+	zoomInTemplate, err := mt.Resource.ZoomInTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-in template: %w", err)
 	}
 
-	zoomOutTemplate, err := mapTrackerResource.zoomOutTemplate.Get()
+	zoomOutTemplate, err := mt.Resource.ZoomOutTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-out template: %w", err)
 	}
@@ -253,10 +254,10 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 
 	screen := minicv.ImageConvertRGBA(img)
 	searchArea := [4]int{
-		int(math.Round(ZOOM_BUTTON_AREA_X)),
-		int(math.Round(ZOOM_BUTTON_AREA_Y)),
-		int(math.Round(ZOOM_BUTTON_AREA_W)),
-		int(math.Round(ZOOM_BUTTON_AREA_H)),
+		int(math.Round(mt.ZOOM_BUTTON_AREA_X)),
+		int(math.Round(mt.ZOOM_BUTTON_AREA_Y)),
+		int(math.Round(mt.ZOOM_BUTTON_AREA_W)),
+		int(math.Round(mt.ZOOM_BUTTON_AREA_H)),
 	}
 	screenIntegral := minicv.GetIntegralArray(screen)
 
@@ -275,13 +276,13 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 		searchArea,
 	)
 
-	outMatched := outVal >= ZOOM_BUTTON_THRESHOLD
-	inMatched := inVal >= ZOOM_BUTTON_THRESHOLD
+	outMatched := outVal >= mt.ZOOM_BUTTON_THRESHOLD
+	inMatched := inVal >= mt.ZOOM_BUTTON_THRESHOLD
 
 	if outMatched && inMatched {
 		cx := int(math.Round((zoomOutX + zoomInX) / 2.0))
 		cy := int(math.Round(zoomInY + (zoomOutY-zoomInY)*0.7))
-		aw.ClickSync(0, cx, cy, 100)
+		ca.TouchClick(0, cx, cy, 100, 0)
 		log.Info().Float64("outVal", outVal).Float64("inVal", inVal).Msg("Auto zoom adjusted by clicking slider area")
 		return nil
 	}
@@ -293,7 +294,7 @@ func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller
 	pressZoomButton := func(matchX, matchY float64, tpl *image.RGBA) {
 		cx := int(math.Round(matchX + float64(tpl.Rect.Dx())/2.0))
 		cy := int(math.Round(matchY + float64(tpl.Rect.Dy())/2.0))
-		aw.ClickSync(0, cx, cy, 200)
+		ca.TouchClick(0, cx, cy, 200, 0)
 	}
 
 	if outMatched {
@@ -359,14 +360,14 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	return &result, nil
 }
 
-func doDragViewport(aw *mt.ActionWrapper, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY float64) bool {
+func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY float64) bool {
 	left := int(math.Round(viewport.Left))
 	top := int(math.Round(viewport.Top))
 	right := int(math.Round(viewport.Right))
 	bottom := int(math.Round(viewport.Bottom))
 
-	rawDragDx := -deltaInViewX * BIG_MAP_PAN_FACTOR
-	rawDragDy := -deltaInViewY * BIG_MAP_PAN_FACTOR
+	rawDragDx := -deltaInViewX * mt.BIG_MAP_PAN_FACTOR
+	rawDragDy := -deltaInViewY * mt.BIG_MAP_PAN_FACTOR
 	startX, startY := pickDragStartCorner(left, top, right, bottom, rawDragDx, rawDragDy)
 
 	dragDx := int(math.Round(rawDragDx))
@@ -396,7 +397,7 @@ func doDragViewport(aw *mt.ActionWrapper, viewport *mt.BigMapViewport, deltaInVi
 		return false
 	}
 
-	aw.SwipeSync(startX, startY, dragDx, dragDy, 100, 50)
+	ca.Swipe(startX, startY, dragDx, dragDy, 100, 50)
 	return true
 }
 

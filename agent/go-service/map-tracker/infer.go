@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -54,7 +55,7 @@ var mapTrackerInferDefaultParam = MapTrackerInferParam{
 type MapTrackerInfer struct {
 	// Cache for scaled maps (recomputed per request scale)
 	scaledMapsMu sync.Mutex
-	scaledMaps   []MapCache
+	scaledMaps   []mt.MapCache
 	scaledScale  float64
 }
 
@@ -151,9 +152,9 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
 
 	// Initialize map resources
-	mapTrackerResource.initRawMaps(ctx)
-	if mapTrackerResource.rawMapsErr != nil {
-		log.Error().Err(mapTrackerResource.rawMapsErr).Msg("Failed to initialize maps")
+	mt.Resource.InitRawMaps(ctx)
+	if mt.Resource.RawMapsErr != nil {
+		log.Error().Err(mt.Resource.RawMapsErr).Msg("Failed to initialize maps")
 		return nil, false
 	}
 
@@ -465,7 +466,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 				searchRadius * 2,
 			}
 
-			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.getIntegralArray(), miniMap, miniStats, searchArea)
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.GetIntegralArray(), miniMap, miniStats, searchArea)
 
 			if matchVal > fastBestVal {
 				fastBestVal = matchVal
@@ -510,7 +511,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	triedCount := 0
 
 	// Special case: if there's only one map to check, run it directly to avoid goroutine overhead
-	var singleMapToTry *MapCache
+	var singleMapToTry *mt.MapCache
 	for i := range scaledMaps {
 		if mapNameRegex.MatchString(scaledMaps[i].Name) {
 			triedCount++
@@ -524,7 +525,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	}
 
 	if singleMapToTry != nil {
-		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.getIntegralArray(), miniMap, miniStats)
+		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.GetIntegralArray(), miniMap, miniStats)
 		bestVal = matchVal
 		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
 		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
@@ -540,9 +541,9 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			}
 
 			wg.Add(1)
-			go func(m *MapCache) {
+			go func(m *mt.MapCache) {
 				defer wg.Done()
-				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.getIntegralArray(), miniMap, miniStats)
+				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.GetIntegralArray(), miniMap, miniStats)
 				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
 				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
 				resChan <- mapResult{matchVal, mx, my, m.Name}
@@ -592,7 +593,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
 	t0 := time.Now()
 
-	pointerTemplate, err := mapTrackerResource.pointerTemplateLoader.Get()
+	pointerTemplate, err := mt.Resource.PointerTemplateLoader.Get()
 	if err != nil {
 		log.Warn().Err(err).Msg("Failed to load pointer template image")
 		return nil
@@ -661,7 +662,7 @@ func roundTo1Decimal(value float64) float64 {
 }
 
 // getScaledMaps recomputes scaled map cache for the requested scale.
-func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []mt.MapCache {
 	i.scaledMapsMu.Lock()
 	defer i.scaledMapsMu.Unlock()
 
@@ -669,10 +670,10 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 		return i.scaledMaps
 	}
 
-	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
-	for _, m := range mapTrackerResource.rawMaps {
+	newScaled := make([]mt.MapCache, 0, len(mt.Resource.RawMaps))
+	for _, m := range mt.Resource.RawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, MapCache{
+		newScaled = append(newScaled, mt.MapCache{
 			Name:    m.Name,
 			Img:     sImg,
 			OffsetX: m.OffsetX,

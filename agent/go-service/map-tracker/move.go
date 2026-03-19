@@ -18,6 +18,7 @@ import (
 	"time"
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -127,8 +128,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	aw := mt.NewActionWrapper(ctx, ctrl)
-	loopInterval := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
+	ca := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	loopInterval := time.Duration(mt.INFER_INTERVAL_MS) * time.Millisecond
 
 	if param.PathTrim && len(param.Path) > 1 {
 		if initRes, err := doInfer(ctx, ctrl, param); err == nil && initRes != nil {
@@ -153,14 +154,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
 	// Reset player movement type by sprint once
-	aw.KeyDownSync(KEY_S, 50)
-	aw.KeyTypeSync(KEY_SHIFT, 50)
-	aw.KeyUpSync(KEY_S, 50)
-	aw.KeyTypeSync(KEY_W, 50)
+	ca.KeyDown(control.KEY_S, 50)
+	ca.KeyType(control.KEY_SHIFT, 50)
+	ca.KeyUp(control.KEY_S, 50)
+	ca.KeyType(control.KEY_W, 50)
 	movement := &MovementRun
 
 	// Adaptive rotation sensitivity local state
-	rotationSpeed := ROTATION_DEFAULT_SPEED
+	rotationSpeed := mt.ROTATION_DEFAULT_SPEED
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 
 	// For each target point
@@ -176,7 +177,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
 			if !param.NoPrint {
 				maafocus.NodeActionStarting(
-					aw.Ctx(),
+					ca.Ctx(),
 					a.buildNavigationMovingHTML(param, i, initResult.X, initResult.Y, targetX, targetY),
 				)
 			}
@@ -205,7 +206,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check stopping signal
 			if ctx.GetTasker().Stopping() {
 				log.Warn().Msg("Task is stopping, exiting navigation loop")
-				aw.KeyUpSync(KEY_W, 25)
+				ca.KeyUp(control.KEY_W, 25)
 				return false
 			}
 
@@ -217,7 +218,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					break
 				} else {
 					log.Error().Msg("Arrival timeout, stopping task")
-					doEmergencyStop(aw, param.NoPrint)
+					doEmergencyStop(ca, param.NoPrint)
 					return false
 				}
 			}
@@ -226,7 +227,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			result, err := doInfer(ctx, ctrl, param)
 			if err != nil {
 				log.Error().Err(err).Msg("Inference failed during navigation")
-				aw.KeyUpSync(KEY_W, 25)
+				ca.KeyUp(control.KEY_W, 25)
 				continue
 			}
 			curX, curY := result.X, result.Y
@@ -245,13 +246,13 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
 					// Pause slightly if next target is in a very different direction
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
-						aw.KeyUpSync(KEY_W, 25)
+						ca.KeyUp(control.KEY_W, 25)
 					}
 				}
 			}
 			dist := math.Hypot(curX-targetX, curY-targetY)
 			if fineApproachOngoing {
-				if loopStartTime.After(fineApproachExpectedEndTime) || dist < FINE_APPROACH_COMPLETE_THRESHOLD {
+				if loopStartTime.After(fineApproachExpectedEndTime) || dist < mt.FINE_APPROACH_COMPLETE_THRESHOLD {
 					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
 					finishCurrentTarget(curX, curY, rot)
 					break
@@ -263,10 +264,10 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						fineApproachExpectedElapsed := time.Duration(float64(time.Second) * (dist / MovementWalk.Speed))
 						fineApproachExpectedEndTime = loopStartTime.Add(fineApproachExpectedElapsed)
 						if movement.Speed > MovementWalk.Speed {
-							aw.KeyTypeSync(KEY_CTRL, 25)
+							ca.KeyType(control.KEY_CTRL, 25)
 							movement = &MovementWalk
 						}
-						aw.KeyDownSync(KEY_W, 25)
+						ca.KeyDown(control.KEY_W, 25)
 						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
 						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached (ordinary approach)")
@@ -287,12 +288,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				deltaLocationMs := loopStartTime.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
-					doEmergencyStop(aw, param.NoPrint)
+					doEmergencyStop(ca, param.NoPrint)
 					return false
 				}
 				if deltaLocationMs > param.StuckThreshold {
 					log.Info().Msg("Stuck detected, jumping...")
-					aw.KeyTypeSync(KEY_SPACE, 100)
+					ca.KeyType(control.KEY_SPACE, 100)
 				}
 			} else {
 				prevLocation = &[2]float64{curX, curY}
@@ -310,7 +311,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
 						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
 							idealRotSpeed := rotAdjState.deltaRot / (float64(actualDeltaRot) + 1e-6)
-							if idealRotSpeed >= ROTATION_MIN_SPEED && idealRotSpeed <= ROTATION_MAX_SPEED {
+							if idealRotSpeed >= mt.ROTATION_MIN_SPEED && idealRotSpeed <= mt.ROTATION_MAX_SPEED {
 								rotationSpeed = rotationSpeed*0.618 + idealRotSpeed*0.382
 								rotAdjStateCache = rotAdjState
 								log.Debug().
@@ -331,21 +332,21 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if absRawDeltaRot > param.RotationLowerThreshold {
 					// Ensure no sprinting: forcibly set to 'walk'
 					if movement.Speed > MovementRun.Speed {
-						aw.KeyTypeSync(KEY_CTRL, 25)
+						ca.KeyType(control.KEY_CTRL, 25)
 						movement = &MovementWalk
 					}
 				} else if !fineApproachOngoing {
 					// Rotation is good: at least set to 'run'
 					if movement.Speed < MovementRun.Speed {
-						aw.KeyTypeSync(KEY_CTRL, 25)
+						ca.KeyType(control.KEY_CTRL, 25)
 						movement = &MovementRun
 					}
-					aw.KeyDownSync(KEY_W, 5)
+					ca.KeyDown(control.KEY_W, 5)
 
 					if dist > param.SprintThreshold {
 						// Target is far enough: enable 'sprint'
 						if movement.Speed < MovementSprint.Speed {
-							aw.KeyTypeSync(KEY_SHIFT, 100)
+							ca.KeyType(control.KEY_SHIFT, 100)
 							movement = &MovementSprint
 						}
 					}
@@ -359,19 +360,19 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if absRawDeltaRot > param.RotationUpperThreshold {
 						// Rotation is very bad: forcibly set to 'walk' for better control
 						if movement.Speed > MovementWalk.Speed {
-							aw.KeyTypeSync(KEY_CTRL, 25)
+							ca.KeyType(control.KEY_CTRL, 25)
 							movement = &MovementWalk
 						}
-						aw.RotateCamera(int(finalDeltaRot*rotationSpeed), 75, 25)
-						aw.KeyDownSync(KEY_W, 25)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 75, 25)
+						ca.KeyDown(control.KEY_W, 25)
 					} else if !fineApproachOngoing {
 						// Rotation is acceptable but can be improved: at least ensure 'run'
 						if movement.Speed < MovementRun.Speed {
-							aw.KeyTypeSync(KEY_CTRL, 25)
+							ca.KeyType(control.KEY_CTRL, 25)
 							movement = &MovementRun
 						}
-						aw.KeyDownSync(KEY_W, 25)
-						aw.RotateCamera(int(finalDeltaRot*rotationSpeed), 75, 25)
+						ca.KeyDown(control.KEY_W, 25)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 75, 25)
 					}
 
 					// Update adaptive rotation state
@@ -382,7 +383,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						startTime:       time.Now(),
 						expectedElapsed: time.Duration(float64(time.Second) * math.Abs(finalDeltaRot) / movement.RotationSpeed),
 					}
-					aw.ResetCamera(25)
+					ca.RotateCameraEliminateSideEffect(25)
 				}
 			}
 		}
@@ -390,9 +391,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	// End of all targets reached, stop movement and reset to running mode
-	aw.KeyUpSync(KEY_W, 25)
+	ca.KeyUp(control.KEY_W, 25)
 	if movement.Speed < MovementRun.Speed {
-		aw.KeyTypeSync(KEY_CTRL, 25)
+		ca.KeyType(control.KEY_CTRL, 25)
 	}
 
 	// Show finished UI summary
@@ -405,7 +406,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			finishedX, finishedY = finalInfer.X, finalInfer.Y
 		}
 		maafocus.NodeActionStarting(
-			aw.Ctx(),
+			ca.Ctx(),
 			a.buildNavigationFinishedHTML(param, finishedX, finishedY),
 		)
 	}
@@ -501,13 +502,13 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	return &param, nil
 }
 
-func doEmergencyStop(aw *mt.ActionWrapper, noPrint bool) {
+func doEmergencyStop(ca control.ControlAdaptor, noPrint bool) {
 	log.Warn().Msg("Emergency stop triggered")
 	if !noPrint {
-		maafocus.NodeActionStarting(aw.Ctx(), emergencyStopHTML)
+		maafocus.NodeActionStarting(ca.Ctx(), emergencyStopHTML)
 	}
-	aw.KeyUpSync(KEY_W, 100)
-	aw.Ctx().GetTasker().PostStop()
+	ca.KeyUp(control.KEY_W, 100)
+	ca.Ctx().GetTasker().PostStop()
 }
 
 func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*MapTrackerInferResult, error) {
@@ -750,7 +751,7 @@ func buildNavigationPreviewDataURL(path [][2]float64, targetIndex int, mapName s
 }
 
 func getCachedPreviewMapRGBA(mapName string) (*image.RGBA, error) {
-	mapPath := findResource(filepath.ToSlash(filepath.Join(MAP_DIR, mapName+".png")))
+	mapPath := mt.FindResource(filepath.ToSlash(filepath.Join(mt.MAP_DIR, mapName+".png")))
 	if mapPath == "" {
 		return nil, fmt.Errorf("map image not found")
 	}

@@ -3,14 +3,6 @@ package maptracker
 
 import "math"
 
-const (
-	viewportWorkW = 1280
-	viewportWorkH = 720
-
-	viewportPaddingLR = 0.192 * viewportWorkW
-	viewportPaddingTB = 0.208 * viewportWorkH
-)
-
 // BigMapViewport represents a big-map viewport mapping between map coordinates and screen coordinates.
 //
 // Left/Top/Right/Bottom are viewport bounds in screen space.
@@ -30,7 +22,7 @@ type BigMapViewport struct {
 
 // NewBigMapViewport creates a viewport using fixed big-map screen bounds and inferred map origin/scale.
 func NewBigMapViewport(originMapX, originMapY, scale float64) *BigMapViewport {
-	left, top, right, bottom := bigMapViewBounds(viewportWorkW, viewportWorkH)
+	left, top, right, bottom := bigMapViewBounds(WORK_W, WORK_H)
 	return &BigMapViewport{
 		Left:       float64(left),
 		Top:        float64(top),
@@ -68,8 +60,8 @@ func (bmv *BigMapViewport) IsViewCoordInView(viewX, viewY float64) bool {
 }
 
 func bigMapViewBounds(screenW, screenH int) (left int, top int, right int, bottom int) {
-	padLR := int(math.Round(viewportPaddingLR))
-	padTB := int(math.Round(viewportPaddingTB))
+	padLR := int(math.Round(VIEWPORT_PADDING_LR))
+	padTB := int(math.Round(VIEWPORT_PADDING_TB))
 	left = max(0, min(screenW, padLR))
 	right = max(0, min(screenW, screenW-padLR))
 	top = max(0, min(screenH, padTB))
