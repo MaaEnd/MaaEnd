@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
@@ -11,12 +10,14 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/hdrcheck"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/quantizedsliding"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/resell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/subtask"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/processcheck"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/visitfriends"
 	"github.com/rs/zerolog/log"
 )
@@ -25,6 +26,7 @@ func registerAll() {
 	// Pre-Check Custom
 	aspectratio.Register()
 	hdrcheck.Register()
+	processcheck.Register()
 
 	// General Custom
 	subtask.Register()

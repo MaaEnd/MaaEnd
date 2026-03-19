@@ -371,6 +371,13 @@ jobs:
           ./rcedit.exe "install/MaaEnd.exe" --set-icon "maaend.ico"
           echo "MaaEnd.exe icon modified successfully"
 
+      - name: Remove cpp-algo debug symbols
+        shell: pwsh
+        run: |
+          if (Test-Path "install/agent/cpp-algo.pdb") {
+            Remove-Item "install/agent/cpp-algo.pdb" -Force
+          }
+
       - name: Package ZIP
         shell: pwsh
         run: |

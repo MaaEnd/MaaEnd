@@ -270,7 +270,7 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         return std::nullopt;
     }
 
-    int maxAllowedLost = (currentZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;
+    int maxAllowedLost = IsPathHeatmapZone(currentZoneId) ? 10 : options.max_lost_frames;
     if (currentZoneId.empty() || !motionTracker->isTracking(maxAllowedLost)) {
         return std::nullopt;
     }
@@ -891,7 +891,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         return std::nullopt;
     }
 
-    const bool isNativePathHeatmap = currentZoneId.find("OMVBase") != std::string::npos;
+    const bool isPathHeatmapZone = IsPathHeatmapZone(currentZoneId);
     MapPosition rawPrimaryPos {};
     auto trackingTmpl = primaryStrategy->extractTemplateFeature(minimap);
     auto trackingResult = tryTracking(trackingTmpl, primaryStrategy.get(), now, options, &rawPrimaryPos);
@@ -901,7 +901,7 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
         return LocateResult { .status = LocateStatus::Success, .position = trackingResult, .debugMessage = "Tracking Success" };
     }
 
-    const bool shouldTryDualTracking = !isNativePathHeatmap && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
+    const bool shouldTryDualTracking = !isPathHeatmapZone && rawPrimaryPos.score > 0.1 && (!trackingResult || trackingHeld);
     if (shouldTryDualTracking) {
         auto fallbackStrategy =
             MatchStrategyFactory::create(currentZoneId, trackingCfg, matchCfg, baseImgCfg, tierImgCfg, MatchMode::ForcePathHeatmap);
@@ -954,6 +954,13 @@ SearchConstraint MapLocator::Impl::buildSearchConstraint(
         return constraint;
     }
 
+    const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
+    if (isPathHeatmapZone) {
+        LogInfo << "YOLO validated path-heatmap zone; keeping legacy coarse heatmap search." << VAR(expectedZoneSelector)
+                << VAR(coarse.raw_class) << VAR(targetZoneId);
+        return constraint;
+    }
+
     if (!coarse.has_roi) {
         constraint.mode = GlobalSearchMode::FullMapFine;
         LogInfo << "YOLO validated zone without ROI mapping; using full-map direct fine search." << VAR(expectedZoneSelector)
@@ -990,9 +997,9 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     const std::string& targetZoneId,
     const SearchConstraint& constraint)
 {
-    const bool isNativePathHeatmap = targetZoneId.find("OMVBase") != std::string::npos;
+    const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
     const unsigned hardwareThreads = std::max(1U, std::thread::hardware_concurrency());
-    const bool canSpeculateDualMode = !isNativePathHeatmap && constraint.mode != GlobalSearchMode::LegacyCoarse && hardwareThreads >= 8;
+    const bool canSpeculateDualMode = !isPathHeatmapZone && constraint.mode != GlobalSearchMode::LegacyCoarse && hardwareThreads >= 8;
 
     auto runSearch = [this, &constraint, &targetZoneId](const cv::Mat& searchMinimap, MatchMode mode) -> GlobalSearchAttempt {
         GlobalSearchAttempt attempt;
@@ -1030,7 +1037,7 @@ std::optional<MapPosition> MapLocator::Impl::tryGlobalSearchWithFallback(
     const MapPosition& rawGlobalPrimaryPos = primaryAttempt.rawPos;
 
     const bool shouldTryDualMode =
-        !globalResult && !isNativePathHeatmap && (constraint.mode != GlobalSearchMode::LegacyCoarse || rawGlobalPrimaryPos.score > 0.1);
+        !globalResult && !isPathHeatmapZone && (constraint.mode != GlobalSearchMode::LegacyCoarse || rawGlobalPrimaryPos.score > 0.1);
     if (!shouldTryDualMode) {
         if (fallbackTask.valid()) {
             // Keep the future alive so its destructor cannot block the successful path.
@@ -1141,12 +1148,13 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         return LocateResult { .status = LocateStatus::YoloFailed,
                               .debugMessage = "YOLO is confident but zone validation failed. Aborting before broad search." };
     }
-    if (coarse.valid && !coarse.is_none && coarse.has_roi && constraint.mode != GlobalSearchMode::RoiFine) {
+    const bool isPathHeatmapZone = IsPathHeatmapZone(targetZoneId);
+    if (coarse.valid && !coarse.is_none && coarse.has_roi && !isPathHeatmapZone && constraint.mode != GlobalSearchMode::RoiFine) {
         return LocateResult { .status = LocateStatus::YoloFailed,
                               .debugMessage = "YOLO is confident but ROI constraint validation failed. Aborting to avoid broad search." };
     }
 
-    int maxAllowedLost = (targetZoneId.find("OMVBase") != std::string::npos) ? 10 : options.max_lost_frames;
+    int maxAllowedLost = IsPathHeatmapZone(targetZoneId) ? 10 : options.max_lost_frames;
     auto globalResult = tryGlobalSearchWithFallback(minimap, targetZoneId, constraint);
     if (!globalResult) {
         motionTracker->markLost();
