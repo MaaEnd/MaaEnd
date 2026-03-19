@@ -1,6 +1,6 @@
 {
     "DailyEventUnreadGuideEvent": {
-        "desc": "处理每周事务活动",
+        "desc": "处理引入活动",
         "recognition": "And",
         "all_of": [
             {
