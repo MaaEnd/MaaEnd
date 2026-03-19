@@ -1,6 +1,7 @@
 package matchapi
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -34,9 +35,9 @@ func TestMatchOCR_ExactMatch(t *testing.T) {
 		FuturePromisingMinTotal:  0,
 		LockFuturePromising:      false,
 		KeepSlot3Level3Practical: false,
-		Slot3MinLevel:           0,
-		LockSlot3Practical:     false,
-		DiscardUnmatched:       false,
+		Slot3MinLevel:            0,
+		LockSlot3Practical:       false,
+		DiscardUnmatched:         false,
 	}
 
 	res, err := engine.MatchOCR(ocr, opts)
@@ -81,6 +82,12 @@ func TestMatchOCR_ExactMatch(t *testing.T) {
 			t.Fatalf("SkillsChinese mismatch at %d: expected %s got %s", i, weapon.SkillsChinese[i], res.SkillsChinese[i])
 		}
 	}
+	if !strings.HasPrefix(res.Reason, "精准匹配") {
+		t.Fatalf("expected Reason to start with 精准匹配, got %q", res.Reason)
+	}
+	if !strings.Contains(res.Reason, weapon.ChineseName) {
+		t.Fatalf("expected Reason to contain weapon name %q, got %q", weapon.ChineseName, res.Reason)
+	}
 }
 
 func TestMatchOCR_FuturePromising(t *testing.T) {
@@ -105,9 +112,9 @@ func TestMatchOCR_FuturePromising(t *testing.T) {
 		FuturePromisingMinTotal:  6,
 		LockFuturePromising:      true,
 		KeepSlot3Level3Practical: false,
-		Slot3MinLevel:           0,
-		LockSlot3Practical:     false,
-		DiscardUnmatched:       true,
+		Slot3MinLevel:            0,
+		LockSlot3Practical:       false,
+		DiscardUnmatched:         true,
 	}
 
 	res, err := engine.MatchOCR(ocr, opts)
@@ -154,9 +161,9 @@ func TestMatchOCR_Slot3Practical(t *testing.T) {
 		FuturePromisingMinTotal:  0,
 		LockFuturePromising:      false,
 		KeepSlot3Level3Practical: true,
-		Slot3MinLevel:           3,
-		LockSlot3Practical:     false, // validate ShouldLock=false
-		DiscardUnmatched:       true,
+		Slot3MinLevel:            3,
+		LockSlot3Practical:       false, // validate ShouldLock=false
+		DiscardUnmatched:         true,
 	}
 
 	res, err := engine.MatchOCR(ocr, opts)
@@ -219,9 +226,9 @@ func TestMatchOCR_UnorderedExact(t *testing.T) {
 		FuturePromisingMinTotal:  0,
 		LockFuturePromising:      false,
 		KeepSlot3Level3Practical: false,
-		Slot3MinLevel:           0,
-		LockSlot3Practical:     false,
-		DiscardUnmatched:       false,
+		Slot3MinLevel:            0,
+		LockSlot3Practical:       false,
+		DiscardUnmatched:         false,
 	}
 
 	res, err := engine.MatchOCR(ocr, opts)
@@ -251,5 +258,69 @@ func TestMatchOCR_UnorderedExact(t *testing.T) {
 	if !found {
 		t.Fatalf("unordered exact match weapons did not include internal_id=%s", weapon.InternalID)
 	}
+	if !strings.HasPrefix(res.Reason, "精准匹配") {
+		t.Fatalf("expected Reason to start with 精准匹配, got %q", res.Reason)
+	}
+	if !strings.Contains(res.Reason, weapon.ChineseName) {
+		t.Fatalf("expected Reason to contain weapon name %q, got %q", weapon.ChineseName, res.Reason)
+	}
 }
 
+func TestMatchOCR_MatchNoneReason(t *testing.T) {
+	engine, err := NewDefaultEngine()
+	if err != nil {
+		t.Fatalf("NewDefaultEngine: %v", err)
+	}
+
+	ocr := OCRInput{
+		Skills: [3]string{"__no_such_skill_1__", "__no_such_skill_2__", "__no_such_skill_3__"},
+		Levels: [3]int{1, 1, 1},
+	}
+	baseOpts := EssenceFilterOptions{
+		Rarity6Weapon:            false,
+		Rarity5Weapon:            false,
+		Rarity4Weapon:            false,
+		KeepFuturePromising:      false,
+		FuturePromisingMinTotal:  0,
+		LockFuturePromising:      false,
+		KeepSlot3Level3Practical: false,
+		Slot3MinLevel:            0,
+		LockSlot3Practical:       false,
+	}
+
+	t.Run("discard_unmatched_true", func(t *testing.T) {
+		opts := baseOpts
+		opts.DiscardUnmatched = true
+		res, err := engine.MatchOCR(ocr, opts)
+		if err != nil {
+			t.Fatalf("MatchOCR: %v", err)
+		}
+		if res.Kind != MatchNone {
+			t.Fatalf("expected Kind=MatchNone, got %v", res.Kind)
+		}
+		if res.Reason != "未匹配" {
+			t.Fatalf("expected Reason=未匹配, got %q", res.Reason)
+		}
+		if !res.ShouldDiscard {
+			t.Fatalf("expected ShouldDiscard=true")
+		}
+	})
+
+	t.Run("discard_unmatched_false", func(t *testing.T) {
+		opts := baseOpts
+		opts.DiscardUnmatched = false
+		res, err := engine.MatchOCR(ocr, opts)
+		if err != nil {
+			t.Fatalf("MatchOCR: %v", err)
+		}
+		if res.Kind != MatchNone {
+			t.Fatalf("expected Kind=MatchNone, got %v", res.Kind)
+		}
+		if res.Reason != "未匹配" {
+			t.Fatalf("expected Reason=未匹配, got %q", res.Reason)
+		}
+		if res.ShouldDiscard {
+			t.Fatalf("expected ShouldDiscard=false")
+		}
+	})
+}

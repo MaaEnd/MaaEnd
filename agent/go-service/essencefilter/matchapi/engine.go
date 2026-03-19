@@ -113,7 +113,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			SkillIDs:      exact.SkillIDs,
 			SkillsChinese: exact.SkillsChinese,
 			Weapons:       exact.Weapons,
-			Reason:        "",
+			Reason:        exactMatchReason(exact.Weapons),
 			ShouldLock:    true,
 			ShouldDiscard: false,
 		}, nil
@@ -161,7 +161,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		SkillIDs:      []int{},
 		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 		Weapons:       []WeaponData{},
-		Reason:        "",
+		Reason:        "未匹配",
 		ShouldLock:    false,
 		ShouldDiscard: opts.DiscardUnmatched,
 	}, nil
@@ -356,4 +356,3 @@ func rarityKey(opts EssenceFilterOptions) string {
 	}
 	return key
 }
-

@@ -57,9 +57,9 @@ type SkillCombinationSummary struct {
 
 // MatcherConfig is the data driving fuzzy OCR->skill-id mapping.
 type MatcherConfig struct {
-	DataVersion        string            `json:"data_version"`
-	SimilarWordMap     map[string]string `json:"similarWordMap"`
-	SuffixStopwords    []string          `json:"-"`
+	DataVersion        string              `json:"data_version"`
+	SimilarWordMap     map[string]string   `json:"similarWordMap"`
+	SuffixStopwords    []string            `json:"-"`
 	SuffixStopwordsMap map[string][]string `json:"suffixStopwords"`
 }
 
@@ -78,7 +78,7 @@ type EssenceFilterOptions struct {
 	// Slot3 Practical extension.
 	KeepSlot3Level3Practical bool `json:"keep_slot3_level3_practical"`
 	Slot3MinLevel            int  `json:"slot3_min_level"`
-	LockSlot3Practical      bool `json:"lock_slot3_practical"`
+	LockSlot3Practical       bool `json:"lock_slot3_practical"`
 
 	// No-match behavior.
 	DiscardUnmatched bool `json:"discard_unmatched"`
@@ -109,6 +109,8 @@ type MatchResult struct {
 	SkillsChinese []string
 	Weapons       []WeaponData
 
+	// Reason is always set for logging/UI: MatchExact uses "精准匹配：" + 武器中文名（、分隔）；
+	// MatchFuturePromising / MatchSlot3Level3Practical use fixed Chinese prefixes; MatchNone is "未匹配".
 	Reason string
 
 	// Final directives for pipeline.
@@ -122,4 +124,3 @@ type EngineData struct {
 	Weapons    []WeaponData
 	Locations  []Location
 }
-

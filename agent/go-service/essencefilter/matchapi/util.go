@@ -51,3 +51,14 @@ func runeCount(s string) int {
 	return utf8.RuneCountInString(s)
 }
 
+// exactMatchReason builds a human-readable reason for MatchExact (prefix + weapon names).
+func exactMatchReason(weapons []WeaponData) string {
+	if len(weapons) == 0 {
+		return "精准匹配"
+	}
+	names := make([]string, len(weapons))
+	for i, w := range weapons {
+		names[i] = w.ChineseName
+	}
+	return "精准匹配：" + strings.Join(names, "、")
+}
