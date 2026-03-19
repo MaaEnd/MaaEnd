@@ -1160,6 +1160,9 @@
             "time": 200,
             "timeout": 2000
         },
+        "next": [
+            "InDijiangControlNexus"
+        ],
         "on_error": [
             "ExitGrowthChamber_OnError"
         ]
@@ -1193,6 +1196,9 @@
         "post_wait_freezes": {
             "time": 200,
             "timeout": 2000
-        }
+        },
+        "next": [
+            "InDijiangControlNexus"
+        ]
     }
 }

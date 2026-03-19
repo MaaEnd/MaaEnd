@@ -600,6 +600,9 @@
             "time": 80,
             "timeout": 2000
         },
+        "next": [
+            "InDijiangControlNexus"
+        ],
         "on_error": [
             "Exit_MFG_Cabin_OnError"
         ]
@@ -634,6 +637,9 @@
         "post_wait_freezes": {
             "time": 80,
             "timeout": 2000
-        }
+        },
+        "next": [
+            "InDijiangControlNexus"
+        ]
     }
 }
