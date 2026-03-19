@@ -19,8 +19,8 @@
    - 若存在 I18nHotFix.json，会先将 hotfix 覆盖到对应语言表
    简中(CN) -> 繁中(TC) -> 英文(EN) -> 日文(JP)
 5) 额外处理：
-   - 英文 expected 会转为仅忽略大小写的正则
-   - OCR 节点会按新旧文本的最长显示宽度，尝试扩展 roi 宽度
+   - 英文 expected 会转为仅忽略大小写、并在单词间放宽空格的正则
+   - OCR 节点会按新旧文本的最长显示宽度，通过 roi_offset 尝试扩展 roi 宽度
    - roi 优先读取 recognition.param.roi，其次 node.roi
    - only_rec: true 的节点不参与 roi 调整
 
@@ -423,6 +423,15 @@ def detect_line_indent(text: str, key_start: int) -> str:
     return text[line_start:i]
 
 
+def detect_closing_brace_indent(text: str, brace_index: int) -> str:
+    line_start = text.rfind("\n", 0, brace_index)
+    line_start = 0 if line_start < 0 else line_start + 1
+    i = line_start
+    while i < len(text) and text[i] in (" ", "\t"):
+        i += 1
+    return text[line_start:i]
+
+
 def build_expected_array_text(
     values: Sequence[str], key_indent: str, newline: str
 ) -> str:
@@ -480,6 +489,113 @@ def parse_array_number_values(
         if i < parser.n and parser.text[i] == "]":
             return values
         raise ValueError(f"Expected ',' or ']' at index {i}")
+
+
+def build_inserted_array_member_text(
+    key: str,
+    values: Sequence[Union[int, float]],
+    key_indent: str,
+    closing_indent: str,
+    newline: str,
+) -> str:
+    array_text = build_numeric_array_text(values, key_indent, newline)
+    return f",{newline}{key_indent}{json.dumps(key)}: {array_text}{newline}{closing_indent}"
+
+
+def apply_roi_offset(
+    roi_values: Sequence[Union[int, float]],
+    roi_offset_values: Sequence[Union[int, float]],
+) -> Optional[List[Union[int, float]]]:
+    if len(roi_values) != 4 or len(roi_offset_values) != 4:
+        return None
+
+    x, y, w, h = [float(v) for v in roi_values]
+    left, top, right, bottom = [float(v) for v in roi_offset_values]
+    new_w = w + right - left
+    new_h = h + bottom - top
+    if new_w <= 0 or new_h <= 0:
+        return None
+    return [x + left, y + top, new_w, new_h]
+
+
+def locate_node_roi_members(
+    parser: JsoncParser, node_member: Member
+) -> Tuple[Optional[Member], Optional[Member]]:
+    node_members, _ = parser.parse_object_members(node_member.value_start)
+    node_map = member_map(node_members)
+
+    recognition_member = node_map.get("recognition")
+    if recognition_member:
+        recognition_str = get_string_value(parser, recognition_member)
+        if recognition_str != "OCR":
+            rec_members = get_object_members(parser, recognition_member)
+            if rec_members is not None:
+                rec_map = member_map(rec_members)
+                param_member = rec_map.get("param")
+                if param_member:
+                    param_members = get_object_members(parser, param_member)
+                    if param_members is not None:
+                        param_map = member_map(param_members)
+                        roi_member = param_map.get("roi")
+                        roi_offset_member = get_array_member_if_exists(
+                            parser, param_map, "roi_offset"
+                        )
+                        if roi_member is not None:
+                            return roi_member, roi_offset_member
+
+    roi_member = node_map.get("roi")
+    if roi_member is None:
+        return None, None
+    roi_offset_member = get_array_member_if_exists(parser, node_map, "roi_offset")
+    return roi_member, roi_offset_member
+
+
+def resolve_effective_roi(
+    parser: JsoncParser,
+    roi_member: Member,
+    roi_offset_member: Optional[Member],
+    root_member_map: Dict[str, Member],
+    roi_cache: Dict[str, Optional[List[Union[int, float]]]],
+    visiting: Set[str],
+) -> Optional[List[Union[int, float]]]:
+    ch = parser.text[roi_member.value_start]
+    base_roi: Optional[List[Union[int, float]]] = None
+    if ch == "[":
+        base_roi = parse_array_number_values(parser, roi_member)
+    elif ch == '"':
+        roi_ref = get_string_value(parser, roi_member)
+        if roi_ref is None:
+            return None
+        if roi_ref in roi_cache:
+            base_roi = roi_cache[roi_ref]
+        else:
+            ref_member = root_member_map.get(roi_ref)
+            if ref_member is None or roi_ref in visiting:
+                return None
+            visiting.add(roi_ref)
+            ref_roi_member, ref_roi_offset_member = locate_node_roi_members(
+                parser, ref_member
+            )
+            if ref_roi_member is not None:
+                base_roi = resolve_effective_roi(
+                    parser,
+                    ref_roi_member,
+                    ref_roi_offset_member,
+                    root_member_map,
+                    roi_cache,
+                    visiting,
+                )
+            visiting.remove(roi_ref)
+            roi_cache[roi_ref] = base_roi
+    if base_roi is None or len(base_roi) != 4:
+        return None
+
+    if roi_offset_member is None:
+        return base_roi
+    roi_offset_values = parse_array_number_values(parser, roi_offset_member)
+    if roi_offset_values is None or len(roi_offset_values) != 4:
+        return None
+    return apply_roi_offset(base_roi, roi_offset_values)
 
 
 def resolve_lang_ids(
@@ -745,6 +861,8 @@ def process_pipeline_file(
 
     root_start = parser.skip_ws_comments(0)
     root_members, _ = parser.parse_object_members(root_start)
+    root_member_map = {member.key: member for member in root_members}
+    roi_cache: Dict[str, Optional[List[Union[int, float]]]] = {}
 
     changes: List[NodeChange] = []
     unresolved_nodes: List[Tuple[str, str, List[str]]] = []
@@ -756,7 +874,7 @@ def process_pipeline_file(
             continue
 
         node_name = node_member.key
-        node_members, _ = parser.parse_object_members(node_member.value_start)
+        node_members, node_end = parser.parse_object_members(node_member.value_start)
         node_map = member_map(node_members)
         only_rec = get_bool_value(parser, node_map.get("only_rec")) is True
 
@@ -764,6 +882,8 @@ def process_pipeline_file(
         is_ocr = False
         expected_member: Optional[Member] = None
         roi_member: Optional[Member] = None
+        roi_offset_member: Optional[Member] = None
+        roi_container_end = node_end
 
         if recognition_member:
             recognition_str = get_string_value(parser, recognition_member)
@@ -783,15 +903,20 @@ def process_pipeline_file(
                     # 优先取 recognition.param.expected，其次 recognition.expected
                     param_member = rec_map.get("param")
                     if param_member:
-                        param_members = get_object_members(parser, param_member)
+                        param_members, param_end = parser.parse_object_members(
+                            param_member.value_start
+                        )
                         if param_members is not None:
                             param_map = member_map(param_members)
                             expected_member = get_array_member_if_exists(
                                 parser, param_map, "expected"
                             )
-                            roi_member = get_array_member_if_exists(
-                                parser, param_map, "roi"
+                            roi_member = param_map.get("roi")
+                            roi_offset_member = get_array_member_if_exists(
+                                parser, param_map, "roi_offset"
                             )
+                            if roi_member is not None:
+                                roi_container_end = param_end
                     if expected_member is None:
                         expected_member = get_array_member_if_exists(
                             parser, rec_map, "expected"
@@ -800,7 +925,10 @@ def process_pipeline_file(
         if expected_member is None:
             expected_member = get_array_member_if_exists(parser, node_map, "expected")
         if roi_member is None:
-            roi_member = get_array_member_if_exists(parser, node_map, "roi")
+            roi_member = node_map.get("roi")
+            roi_offset_member = get_array_member_if_exists(parser, node_map, "roi_offset")
+            if roi_member is not None:
+                roi_container_end = node_end
 
         if not (is_ocr and expected_member):
             continue
@@ -844,28 +972,64 @@ def process_pipeline_file(
         old_roi: Optional[List[Union[int, float]]] = None
         new_roi: Optional[List[Union[int, float]]] = None
         if not only_rec and roi_member is not None:
-            roi_values = parse_array_number_values(parser, roi_member)
-            if roi_values is not None and len(roi_values) == 4:
+            effective_roi = resolve_effective_roi(
+                parser,
+                roi_member,
+                roi_offset_member,
+                root_member_map,
+                roi_cache,
+                {node_name},
+            )
+            if effective_roi is not None and len(effective_roi) == 4:
                 old_max_width = estimate_expected_max_width(
                     old_expected, lang_ids, tables
                 )
                 new_max_width = estimate_translated_max_width(lang_ids, tables)
                 expanded_roi = compute_expanded_roi(
-                    roi_values, old_max_width, new_max_width
+                    effective_roi, old_max_width, new_max_width
                 )
                 if expanded_roi is not None:
-                    key_indent = detect_line_indent(text, roi_member.key_start)
-                    replacements.append(
-                        Replacement(
-                            value_start=roi_member.value_start,
-                            value_end=roi_member.value_end,
-                            replacement=build_numeric_array_text(
-                                expanded_roi, key_indent, newline
-                            ),
-                        )
-                    )
-                    old_roi = list(roi_values)
-                    new_roi = expanded_roi
+                    delta_w = expanded_roi[2] - effective_roi[2]
+                    if delta_w > 0:
+                        key_indent = detect_line_indent(text, roi_member.key_start)
+                        if roi_offset_member is not None:
+                            roi_offset_values = parse_array_number_values(
+                                parser, roi_offset_member
+                            )
+                            if roi_offset_values is not None and len(roi_offset_values) == 4:
+                                new_roi_offset = list(roi_offset_values)
+                                new_roi_offset[2] = float(new_roi_offset[2]) + delta_w
+                                replacements.append(
+                                    Replacement(
+                                        value_start=roi_offset_member.value_start,
+                                        value_end=roi_offset_member.value_end,
+                                        replacement=build_numeric_array_text(
+                                            new_roi_offset, key_indent, newline
+                                        ),
+                                    )
+                                )
+                            else:
+                                delta_w = 0
+                        else:
+                            closing_indent = detect_closing_brace_indent(
+                                text, roi_container_end - 1
+                            )
+                            replacements.append(
+                                Replacement(
+                                    value_start=roi_container_end - 1,
+                                    value_end=roi_container_end - 1,
+                                    replacement=build_inserted_array_member_text(
+                                        "roi_offset",
+                                        [0, 0, delta_w, 0],
+                                        key_indent,
+                                        closing_indent,
+                                        newline,
+                                    ),
+                                )
+                            )
+                        if delta_w > 0:
+                            old_roi = list(effective_roi)
+                            new_roi = expanded_roi
 
         if not replacements:
             continue
