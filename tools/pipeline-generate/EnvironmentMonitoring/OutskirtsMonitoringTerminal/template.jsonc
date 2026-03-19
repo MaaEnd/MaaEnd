@@ -2,7 +2,7 @@
 // 使用 MAA-pipeline-generate 工具与 data.json 批量生成对应的 Pipeline 文件
 //
 // 运行方式（从 MaaEnd 仓库根目录）：
-//   node <generate.mjs路径> tools/pipeline-generate/OutskirtsMonitoringTerminal/template.jsonc tools/pipeline-generate/OutskirtsMonitoringTerminal/data.json --output-dir assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal
+//   npx @joebao/maa-pipeline-generate tools/pipeline-generate/EnvironmentMonitoring/OutskirtsMonitoringTerminal/template.jsonc tools/pipeline-generate/EnvironmentMonitoring/OutskirtsMonitoringTerminal/data.json --output-dir assets/resource/pipeline/EnvironmentMonitoring/OutskirtsMonitoringTerminal
 //
 // 变量说明：
 //   Id                   - 节点 ID 标识符（英文，无空格）
