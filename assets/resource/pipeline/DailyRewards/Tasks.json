@@ -145,7 +145,8 @@
                 ],
                 "template": [
                     "DailyRewards/FinishedTaskIcon.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "next": [
