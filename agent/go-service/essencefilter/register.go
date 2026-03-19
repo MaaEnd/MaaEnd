@@ -6,6 +6,17 @@ import (
 
 var (
 	_ maa.ResourceEventSink = &resourcePathSink{}
+
+	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
+	_ maa.CustomActionRunner = &EssenceFilterCheckItemAction{}
+	_ maa.CustomActionRunner = &EssenceFilterCheckItemLevelAction{}
+	_ maa.CustomActionRunner = &EssenceFilterRowCollectAction{}
+	_ maa.CustomActionRunner = &EssenceFilterRowNextItemAction{}
+	_ maa.CustomActionRunner = &EssenceFilterSkillDecisionAction{}
+	_ maa.CustomActionRunner = &EssenceFilterFinishAction{}
+	_ maa.CustomActionRunner = &EssenceFilterSwipeCalibrateAction{}
+	_ maa.CustomActionRunner = &EssenceFilterTraceAction{}
+	_ maa.CustomActionRunner = &OCREssenceInventoryNumberAction{}
 )
 
 func Register() {

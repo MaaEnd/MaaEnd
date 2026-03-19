@@ -235,22 +235,20 @@ func weaponListHTML(weapons []matchapi.WeaponData) string {
 }
 
 func logCalculatorResult(ctx *maa.Context) {
-	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
-	selectedRarities := make(map[int]bool)
-	if opts != nil {
-		if opts.Rarity4Weapon {
-			selectedRarities[4] = true
-		}
-		if opts.Rarity5Weapon {
-			selectedRarities[5] = true
-		}
-		if opts.Rarity6Weapon {
-			selectedRarities[6] = true
-		}
-	}
 	st := getRunState()
 	if st == nil {
 		return
+	}
+	po := &st.PipelineOpts
+	selectedRarities := make(map[int]bool)
+	if po.Rarity4Weapon {
+		selectedRarities[4] = true
+	}
+	if po.Rarity5Weapon {
+		selectedRarities[5] = true
+	}
+	if po.Rarity6Weapon {
+		selectedRarities[6] = true
 	}
 	if st.MatchEngine == nil {
 		return
