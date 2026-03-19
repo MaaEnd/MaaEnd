@@ -2,24 +2,25 @@
 
 This document explains how to maintain item templates, item mappings, price thresholds, and region expansion for `AutoStockpile`.
 
-The current implementation consists of two parts:
+The current implementation consists of two cooperating parts:
 
-- Pipeline is responsible for entering the screen, switching regions, and executing the purchase flow.
-- `agent/go-service/autostockpile/` is responsible for item recognition, config loading, and deciding what to buy.
+- `assets/resource/pipeline/AutoStockpile/` is responsible for entering the screen, switching regions, executing the purchase flow, and maintaining default params for recognition nodes in `Helper.json`.
+- `agent/go-service/autostockpile/` is responsible for runtime overrides of recognition-node params, recognition result parsing, and deciding what to buy.
 
 ## Overview
 
 The core maintenance points of AutoStockpile are as follows:
 
-| Module                        | Path                                               | Purpose                                                   |
-| ----------------------------- | -------------------------------------------------- | --------------------------------------------------------- |
-| Item name mapping             | `agent/go-service/autostockpile/item_map.json`     | Maps OCR item names to internal item IDs                  |
-| Item template images          | `assets/resource/image/AutoStockpile/Goods/`       | Template images for matching on the item details page     |
-| Region and price options      | `assets/tasks/AutoStockpile.json`                  | User-configurable region toggles and price thresholds     |
-| Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json` | Defines entry subtasks for each region                    |
-| Main stockpiling Pipeline     | `assets/resource/pipeline/AutoStockpile/Task.json` | Runs recognition, clicking, purchasing, and related flow  |
-| Go recognition/decision logic | `agent/go-service/autostockpile/`                  | Loads templates, recognizes items, and applies thresholds |
-| Multilingual copy             | `assets/misc/locales/*.json`                       | UI text for AutoStockpile tasks and options               |
+| Module                        | Path                                                 | Purpose                                                                                            |
+| ----------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Item name mapping             | `agent/go-service/autostockpile/item_map.json`       | Maps OCR item names to internal item IDs                                                           |
+| Item template images          | `assets/resource/image/AutoStockpile/Goods/`         | Template images for matching on the item details page                                              |
+| Region and price options      | `assets/tasks/AutoStockpile.json`                    | User-configurable region toggles and price thresholds                                              |
+| Region entry Pipeline         | `assets/resource/pipeline/AutoStockpile/Main.json`   | Defines entry subtasks for each region                                                             |
+| Main stockpiling Pipeline     | `assets/resource/pipeline/AutoStockpile/Task.json`   | Runs recognition, clicking, purchasing, and related flow                                           |
+| Recognition node defaults     | `assets/resource/pipeline/AutoStockpile/Helper.json` | Default params for overflow detection, goods OCR, template matching, and related recognition nodes |
+| Go recognition/decision logic | `agent/go-service/autostockpile/`                    | Applies runtime recognition overrides, parses results, and applies thresholds                      |
+| Multilingual copy             | `assets/misc/locales/*.json`                         | UI text for AutoStockpile tasks and options                                                        |
 
 ## Naming conventions
 
@@ -146,8 +147,9 @@ Notes:
 
 Why:
 
-- Go automatically scans templates under `assets/resource/image/AutoStockpile/Goods/{Region}/`.
-- When selecting an item, it dynamically overrides template paths for nodes such as `AutoStockpileSelectedGoodsClick` based on the item ID.
+- Go iterates item IDs for the current region from `item_map.json` and builds template paths via `BuildTemplatePath`.
+- During recognition, Go overrides the template and ROI of `AutoStockpileLocateGoods` to locate each item; during selection, Go overrides the template of `AutoStockpileSelectedGoodsClick` to click the chosen item.
+- `Helper.json` already defines default params (ROI, thresholds, and similar settings) for the recognition nodes; Go overrides them at runtime as needed.
 
 That means as long as the item mapping and template image are correct, the existing flow can recognize and click the new item.
 
