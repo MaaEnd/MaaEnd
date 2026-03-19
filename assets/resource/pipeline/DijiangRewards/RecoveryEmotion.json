@@ -33,9 +33,9 @@
         "next": [
             "RecoveryEmotionAssistUseAssist"
         ],
-        "focus": {
-            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
-        }
+        "on_error": [
+            "RecoveryEmotion_OnError"
+        ]
     },
     "RecoveryEmotion_OnError": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭（出错重试）",
@@ -98,7 +98,29 @@
             "StartRecoveryEmotion"
         ],
         "on_error": [
-            "RecoveryEmotion_OnError"
+            "RecoveryEmotionAssistUseAssist_OnError"
+        ]
+    },
+    "RecoveryEmotionAssistUseAssist_OnError": {
+        "desc": "[恢复心情·需要助力] 点击使用助力（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "UseAssistText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StartRecoveryEmotion"
         ]
     },
     "StartRecoveryEmotion_OnError": {
@@ -161,9 +183,6 @@
         "rate_limit": 0,
         "next": [
             "BackToControlNexus"
-        ],
-        "on_error": [
-            "StartRecoveryEmotion_OnError"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
@@ -231,7 +250,39 @@
             "StartRecoveryEmotion"
         ],
         "on_error": [
-            "StartRecoveryEmotion_OnError"
+            "SelectLowEmotion_OnError"
+        ]
+    },
+    "SelectLowEmotion_OnError": {
+        "desc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击（出错重试）",
+        "max_hit": 6,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "EmotionIcon",
+                    "EmotionBar",
+                    "EmotionEmpty"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -5,
+                    -70,
+                    -5,
+                    0
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StartRecoveryEmotion"
         ]
     },
     "EmotionIcon": {
@@ -340,11 +391,8 @@
             "ConfirmRecoveryEmotion"
         ],
         "on_error": [
-            "StartRecoveryEmotion_OnError"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
-        }
+            "CouldNotAssistEmotion_OnError"
+        ]
     },
     "CouldNotAssistEmotion_OnError": {
         "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭（出错重试）",
@@ -399,7 +447,28 @@
             "CloseButtonType1"
         ],
         "on_error": [
-            "CouldNotAssistEmotion_OnError"
+            "ConfirmRecoveryEmotion_OnError"
+        ]
+    },
+    "ConfirmRecoveryEmotion_OnError": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CloseButtonType1"
         ]
     },
     "EmotionFull_OnError": {
@@ -464,7 +533,33 @@
             "CloseButtonType1"
         ],
         "on_error": [
-            "EmotionFull_OnError"
+            "BackToControlNexus_OnError"
+        ]
+    },
+    "BackToControlNexus_OnError": {
+        "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢（出错重试）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    980,
+                    102,
+                    187,
+                    82
+                ],
+                "template": [
+                    "Resell/back.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CloseButtonType1"
         ]
     }
 }
