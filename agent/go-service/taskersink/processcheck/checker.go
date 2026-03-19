@@ -18,7 +18,7 @@ type blacklistEntry struct {
 	displayName string
 }
 
-// Lowercase keywords matched against process names via strings.Contains.
+// Keywords matched against process names via strings.Contains.
 var blacklist = []blacklistEntry{
 	{"RTSSHooksLoader64.exe", "RTSSHooksLoader64"},
 	{"RTSSHooksLoader.exe", "RTSSHooksLoader"},
@@ -72,7 +72,6 @@ func checkBlacklistedProcesses() []string {
 
 	for _, p := range procs {
 		name, err := p.Name()
-		log.Debug().Str("name", name).Msg("Checking process")
 		if err != nil {
 			continue
 		}
