@@ -36,12 +36,12 @@
         "max_hit": 1,
         "recognition": "TemplateMatch",
         "roi": [
-            796,
-            480,
-            130,
-            137
+            709,
+            418,
+            361,
+            274
         ],
-        "template": "Baker/FilterResetBtn.png",
+        "template": "Baker/ResetBakerFilter.png",
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
@@ -191,12 +191,12 @@
         "max_hit": 1,
         "recognition": "TemplateMatch",
         "roi": [
-            796,
-            480,
-            130,
-            137
+            709,
+            418,
+            361,
+            274
         ],
-        "template": "Baker/FilterResetBtn.png",
+        "template": "Baker/ResetBakerFilter.png",
         "action": "Click",
         "post_wait_freezes": 1,
         "next": [
