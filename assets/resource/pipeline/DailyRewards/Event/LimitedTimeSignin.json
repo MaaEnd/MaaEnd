@@ -51,6 +51,12 @@
     "DailyEventUnreadLimitedTimeSigninPickAll": {
         "desc": "限时签到活动内一键领取",
         "recognition": "OCR",
+        "roi": [
+            -160,
+            -440,
+            160,
+            160
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "expected": [
