@@ -1,4 +1,24 @@
 {
+    "AutoStockpileKettle": {
+        "desc": "希望+3（确认稳定标识，画面未稳定会是黑边）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    7,
+                    119,
+                    68,
+                    84
+                ],
+                "template": [
+                    "AutoStockpile/AutoStockpileKettle.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
+    },
     "AutoStockpileBuy": {
         "desc": "进行购买操作",
         "recognition": {
@@ -108,7 +128,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -117,29 +137,27 @@
         ]
     },
     "AutoStockpileGotoElasticGoods": {
-        "desc": "选择弹性物资调度，需要优化",
+        "desc": "选择弹性物资调度",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    338,
-                    57,
-                    69,
-                    62
-                ],
-                "template": [
-                    "AutoStockpile/ElasticGoodsButton.png",
-                    "AutoStockpile/ElasticGoodsButtonSelected.png"
-                ],
-                "threshold": [
-                    0.8
+                "all_of": [
+                    "AutoStockpileElasticGoodsButton",
+                    "AutoStockpileKettle"
                 ]
             }
         },
         "pre_delay": 0,
         "action": {
             "type": "Click",
-            "param": {}
+            "param": {
+                "target_offset": [
+                    0,
+                    10,
+                    0,
+                    0
+                ]
+            }
         },
         "post_wait_freezes": 200,
         "post_delay": 0,
@@ -527,7 +545,7 @@
             "param": {
                 "all_of": [
                     "CloseButtonType1",
-                    "AutoStockpileGotoElasticGoods"
+                    "AutoStockpileElasticGoodsButton"
                 ]
             }
         },
@@ -536,7 +554,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 400,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -561,5 +579,26 @@
         "next": [
             "AutoStockpileBackToRegionalConstruction"
         ]
+    },
+    "AutoStockpileElasticGoodsButton": {
+        "desc": "弹性物资调度黑白双煞",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    338,
+                    57,
+                    69,
+                    62
+                ],
+                "template": [
+                    "AutoStockpile/ElasticGoodsButton.png",
+                    "AutoStockpile/ElasticGoodsButtonSelected.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        }
     }
 }
