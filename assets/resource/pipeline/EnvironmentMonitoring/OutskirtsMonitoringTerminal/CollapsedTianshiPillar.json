@@ -190,6 +190,7 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv001",
+            "fine_approach": "Never",
             "path": [
                 [
                     213,
