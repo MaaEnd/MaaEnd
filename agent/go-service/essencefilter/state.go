@@ -1,6 +1,10 @@
 package essencefilter
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
+)
 
 var (
 	currentRun   *RunState
@@ -19,8 +23,10 @@ type RunState struct {
 	StatsLogged             bool
 
 	// Target combinations and match summary
-	TargetSkillCombinations   []SkillCombination
-	MatchedCombinationSummary map[string]*SkillCombinationSummary
+	MatchEngine *matchapi.Engine
+
+	TargetSkillCombinations   []matchapi.SkillCombination
+	MatchedCombinationSummary map[string]*matchapi.SkillCombinationSummary
 
 	// Grid traversal
 	CurrentCol          int
@@ -63,6 +69,7 @@ func (s *RunState) Reset() {
 	s.StatsLogged = false
 	s.TargetSkillCombinations = nil
 	s.MatchedCombinationSummary = nil
+	s.MatchEngine = nil
 	s.CurrentCol = 1
 	s.CurrentRow = 1
 	s.MaxItemsPerRow = 9

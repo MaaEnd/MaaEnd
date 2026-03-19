@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/rs/zerolog/log"
 )
 
@@ -27,33 +28,28 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		base = "data"
 	}
 	gameDataDir := filepath.Join(base, "EssenceFilter")
-	matcherConfigPath := filepath.Join(gameDataDir, "matcher_config.json")
-	if err := LoadMatcherConfig(matcherConfigPath); err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatcherConfig").Msg("load matcher config failed")
-		return false
-	}
-	log.Info().Str("component", "EssenceFilter").Str("step", "LoadMatcherConfig").Msg("matcher config loaded")
-	if err := LoadNewFormat(gameDataDir); err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadDatabase").Msg("load DB failed")
+	engine, err := matchapi.NewEngineFromDir(gameDataDir)
+	if err != nil {
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
 		return false
 	}
 	LogMXUSimpleHTML(ctx, "武器数据加载完成")
-	logSkillPools()
+	logSkillPools(engine)
 
 	opts, err := getOptionsFromAttach(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadOptions").Msg("load options failed")
 		return false
 	}
-	var WeaponRarity []int
+	var weaponRarity []int
 	if opts.Rarity6Weapon {
-		WeaponRarity = append(WeaponRarity, 6)
+		weaponRarity = append(weaponRarity, 6)
 	}
 	if opts.Rarity5Weapon {
-		WeaponRarity = append(WeaponRarity, 5)
+		weaponRarity = append(weaponRarity, 5)
 	}
 	if opts.Rarity4Weapon {
-		WeaponRarity = append(WeaponRarity, 4)
+		weaponRarity = append(weaponRarity, 4)
 	}
 	var essenceTypes []EssenceMeta
 	if opts.FlawlessEssence {
@@ -68,26 +64,54 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return false
 	}
 
-	if len(WeaponRarity) == 0 {
+	if len(weaponRarity) == 0 {
 		LogMXUSimpleHTML(ctx, "未选择武器稀有度，仅使用扩展规则")
 	} else {
-		LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(WeaponRarity)))
+		LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择稀有度：%s", rarityListToString(weaponRarity)))
 	}
 	LogMXUSimpleHTML(ctx, fmt.Sprintf("已选择基质类型：%s", essenceListToString(essenceTypes)))
-	filteredWeapons := FilterWeaponsByConfig(WeaponRarity)
-	names := make([]string, 0, len(filteredWeapons))
-	for _, w := range filteredWeapons {
-		names = append(names, w.ChineseName)
-	}
-	log.Info().Str("component", "EssenceFilter").Str("step", "FilterWeapons").Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("weapons filtered")
 
 	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
 	st.Reset()
-	st.TargetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
-	st.MatchedCombinationSummary = make(map[string]*SkillCombinationSummary)
+	st.MatchEngine = engine
+
+	matchOpts := matchapi.EssenceFilterOptions{
+		Rarity6Weapon:               opts.Rarity6Weapon,
+		Rarity5Weapon:               opts.Rarity5Weapon,
+		Rarity4Weapon:               opts.Rarity4Weapon,
+		KeepFuturePromising:         opts.KeepFuturePromising,
+		FuturePromisingMinTotal:    opts.FuturePromisingMinTotal,
+		LockFuturePromising:         opts.LockFuturePromising,
+		KeepSlot3Level3Practical:   opts.KeepSlot3Level3Practical,
+		Slot3MinLevel:              opts.Slot3MinLevel,
+		LockSlot3Practical:         opts.LockSlot3Practical,
+		DiscardUnmatched:           opts.DiscardUnmatched,
+	}
+
+	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
+	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	st.EssenceTypes = essenceTypes
 	setRunState(st)
-	buildFilteredSkillStats(filteredWeapons)
+
+	// Build filtered skill stats for logging/UI.
+	for i := range st.FilteredSkillStats {
+		st.FilteredSkillStats[i] = make(map[int]int)
+	}
+	for _, combo := range st.TargetSkillCombinations {
+		for slotIdx, id := range combo.SkillIDs {
+			if slotIdx >= 0 && slotIdx < 3 {
+				st.FilteredSkillStats[slotIdx][id]++
+			}
+		}
+	}
+
+	filteredWeapons := make([]matchapi.WeaponData, 0, len(st.TargetSkillCombinations))
+	names := make([]string, 0, len(st.TargetSkillCombinations))
+	for _, combo := range st.TargetSkillCombinations {
+		filteredWeapons = append(filteredWeapons, combo.Weapon)
+		names = append(names, combo.Weapon.ChineseName)
+	}
+	log.Info().Str("component", "EssenceFilter").Str("step", "FilterWeapons").Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("weapons filtered")
 
 	if len(filteredWeapons) == 0 {
 		LogMXUSimpleHTML(ctx, "符合条件的武器数量：0（仅扩展规则）")
@@ -119,24 +143,27 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	if len(st.TargetSkillCombinations) > 0 {
 		const columns = 3
-		var skillIdSlots [3][]int
+		uniqueNameSlots := [3]map[int]string{}
+		for i := 0; i < 3; i++ {
+			uniqueNameSlots[i] = make(map[int]string)
+		}
 		for _, c := range st.TargetSkillCombinations {
 			for i, skillID := range c.SkillIDs {
-				skillIdSlots[i] = append(skillIdSlots[i], skillID)
+				if i >= 0 && i < 3 && i < len(c.SkillsChinese) {
+					uniqueNameSlots[i][skillID] = c.SkillsChinese[i]
+				}
 			}
 		}
 		var skillBuilder strings.Builder
 		skillBuilder.WriteString(`<div style="color: #00bfff; font-weight: 900;">目标技能列表：</div>`)
 		slotColors := []string{"#47b5ff", "#11dd11", "#e877fe"}
-		for i, idSlot := range skillIdSlots {
-			uniqueIds := make(map[int]struct{})
-			for _, id := range idSlot {
-				uniqueIds[id] = struct{}{}
-			}
-			pool := GetPoolBySlot(i + 1)
-			skillNames := make([]string, 0, len(uniqueIds))
-			for id := range uniqueIds {
-				skillNames = append(skillNames, SkillNameByID(id, pool))
+		for i := 0; i < 3; i++ {
+			idToName := uniqueNameSlots[i]
+			skillNames := make([]string, 0, len(idToName))
+			for _, name := range idToName {
+				if name != "" {
+					skillNames = append(skillNames, name)
+				}
 			}
 			sort.Strings(skillNames)
 			if len(skillNames) == 0 {
@@ -200,8 +227,10 @@ func (a *OCREssenceInventoryNumberAction) Run(ctx *maa.Context, arg *maa.CustomA
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckTotal").Int("count", n).Int("max_single_page", maxSinglePage).Str("raw", text).Msg("total parsed")
 	msg := fmt.Sprintf("库存中共 <span style=\"color: #ff7000; font-weight: 900;\">%d</span> 个基质", n)
-	if v := GetMatcherConfig().DataVersion; v != "" {
-		msg += fmt.Sprintf(" <span style=\"color: #ff0000;\">当前数据日期：%s</span>(如果更新了请注意)", v)
+	if st := getRunState(); st != nil && st.MatchEngine != nil {
+		if v := st.MatchEngine.DataVersion(); v != "" {
+			msg += fmt.Sprintf(" <span style=\"color: #ff0000; font-weight: 900;\">当前数据日期：%s</span>(如果更新了请注意)", v)
+		}
 	}
 	LogMXUSimpleHTML(ctx, msg)
 	if st := getRunState(); st != nil {
@@ -346,64 +375,45 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		return false
 	}
 	skills := []string{st.CurrentSkills[0], st.CurrentSkills[1], st.CurrentSkills[2]}
+	ocr := matchapi.OCRInput{
+		Skills: [3]string{st.CurrentSkills[0], st.CurrentSkills[1], st.CurrentSkills[2]},
+		Levels: [3]int{st.CurrentSkillLevels[0], st.CurrentSkillLevels[1], st.CurrentSkillLevels[2]},
+	}
 	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
 	if opts == nil {
 		opts = &EssenceFilterOptions{}
 	}
-	matchResult, matched := MatchEssenceSkills(ctx, skills, st.TargetSkillCombinations)
-	extendedReason := ""
-	shouldLockExtended := false
-	if !matched && opts != nil {
-		if opts.KeepFuturePromising && opts.FuturePromisingMinTotal > 0 {
-			if MatchFuturePromising(skills, st.CurrentSkillLevels, opts.FuturePromisingMinTotal) {
-				matched = true
-				shouldLockExtended = opts.LockFuturePromising
-				sum := st.CurrentSkillLevels[0] + st.CurrentSkillLevels[1] + st.CurrentSkillLevels[2]
-				matchResult = &SkillCombinationMatch{
-					SkillIDs:      []int{0, 0, 0},
-					SkillsChinese: []string{skills[0], skills[1], skills[2]},
-					Weapons:       []WeaponData{},
-				}
-				extendedReason = fmt.Sprintf("未来可期：总等级 %d ≥ %d", sum, opts.FuturePromisingMinTotal)
-				st.ExtFuturePromisingCount++
-				log.Info().Str("component", "EssenceFilter").Str("rule", "MatchFuturePromising").Strs("skills", skills).Ints("levels", st.CurrentSkillLevels[:]).Int("sum", sum).Int("min_total", opts.FuturePromisingMinTotal).Msg("keep future promising essence")
-			}
-		}
-		slot3MinLv := opts.Slot3MinLevel
-		if slot3MinLv <= 0 {
-			slot3MinLv = 3
-		}
-		if !matched && opts.KeepSlot3Level3Practical {
-			var slot3Lv int
-			var slot3Match bool
-			matchResult, slot3Lv, slot3Match = MatchSlot3Level3Practical(skills, st.CurrentSkillLevels, slot3MinLv)
-			if slot3Match {
-				matched = true
-				shouldLockExtended = opts.LockSlot3Practical
-				extendedReason = fmt.Sprintf("实用基质：词条3(%s)等级 %d ≥ %d", matchResult.SkillsChinese[2], slot3Lv, slot3MinLv)
-				st.ExtSlot3PracticalCount++
-				log.Info().Str("component", "EssenceFilter").Str("rule", "MatchSlot3Level3Practical").Str("slot3_skill", matchResult.SkillsChinese[2]).Int("slot3_level", slot3Lv).Int("min_level", slot3MinLv).Msg("keep practical essence")
-			}
-		}
+
+	if st.MatchEngine == nil {
+		return false
 	}
+	matchOpts := matchapi.EssenceFilterOptions{
+		Rarity6Weapon:               opts.Rarity6Weapon,
+		Rarity5Weapon:               opts.Rarity5Weapon,
+		Rarity4Weapon:               opts.Rarity4Weapon,
+		KeepFuturePromising:         opts.KeepFuturePromising,
+		FuturePromisingMinTotal:    opts.FuturePromisingMinTotal,
+		LockFuturePromising:        opts.LockFuturePromising,
+		KeepSlot3Level3Practical:   opts.KeepSlot3Level3Practical,
+		Slot3MinLevel:              opts.Slot3MinLevel,
+		LockSlot3Practical:        opts.LockSlot3Practical,
+		DiscardUnmatched:           opts.DiscardUnmatched,
+	}
+
+	matchResult, err := st.MatchEngine.MatchOCR(ocr, matchOpts)
+	if err != nil || matchResult == nil {
+		return false
+	}
+
+	extendedReason := matchResult.Reason
 	MatchedMessageColor := "#00bfff"
-	if matched {
+	if matchResult.Kind != matchapi.MatchNone {
 		MatchedMessageColor = "#064d7c"
 	}
 	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)", skills[0], st.CurrentSkillLevels[0], skills[1], st.CurrentSkillLevels[1], skills[2], st.CurrentSkillLevels[2]), MatchedMessageColor)
 
-	if matched && extendedReason != "" {
-		if shouldLockExtended {
-			st.MatchedCount++
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
-			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中并锁定：%s</div>`, escapeHTML(extendedReason)))
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
-		} else {
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
-			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #d18b00; font-weight: 900;">🗂️ 扩展规则命中（不操作）：%s</div>`, escapeHTML(extendedReason)))
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
-		}
-	} else if matched {
+	switch matchResult.Kind {
+	case matchapi.MatchExact:
 		st.MatchedCount++
 		weaponNames := make([]string, 0, len(matchResult.Weapons))
 		for _, w := range matchResult.Weapons {
@@ -418,23 +428,45 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			weaponsHTML.WriteString(fmt.Sprintf(`<span style="color: %s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName)))
 		}
 		LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`, weaponsHTML.String()))
+
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
 			if s, ok := st.MatchedCombinationSummary[key]; ok {
 				s.Count++
 			} else {
-				st.MatchedCombinationSummary[key] = &SkillCombinationSummary{
+				st.MatchedCombinationSummary[key] = &matchapi.SkillCombinationSummary{
 					SkillIDs:      append([]int(nil), matchResult.SkillIDs...),
 					SkillsChinese: append([]string(nil), matchResult.SkillsChinese...),
 					OCRSkills:     append([]string(nil), skills...),
-					Weapons:       append([]WeaponData(nil), matchResult.Weapons...),
+					Weapons:       append([]matchapi.WeaponData(nil), matchResult.Weapons...),
 					Count:         1,
 				}
 			}
 		}
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
-	} else {
-		if opts.DiscardUnmatched {
+
+	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
+		if matchResult.Kind == matchapi.MatchFuturePromising {
+			st.ExtFuturePromisingCount++
+			log.Info().Str("component", "EssenceFilter").Str("rule", "MatchFuturePromising").Strs("skills", skills).Ints("levels", st.CurrentSkillLevels[:]).Msg("keep future promising essence")
+		} else {
+			st.ExtSlot3PracticalCount++
+			log.Info().Str("component", "EssenceFilter").Str("rule", "MatchSlot3Level3Practical").Str("slot3_skill", matchResult.SkillsChinese[2]).Ints("levels", st.CurrentSkillLevels[:]).Msg("keep practical essence")
+		}
+
+		if matchResult.ShouldLock {
+			st.MatchedCount++
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中并锁定：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
+		} else {
+			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
+			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #d18b00; font-weight: 900;">🗂️ 扩展规则命中（不操作）：%s</div>`, escapeHTML(extendedReason)))
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
+		}
+
+	case matchapi.MatchNone:
+		if matchOpts.DiscardUnmatched {
 			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Msg("not matched, discard item")
 			LogMXUHTML(ctx, `<div style="color: #ff6b6b; font-weight: 900;">🗑️ 未匹配到目标技能组合，废弃该物品</div>`)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterDiscardItemLog"}})
