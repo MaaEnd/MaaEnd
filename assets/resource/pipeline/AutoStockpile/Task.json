@@ -79,7 +79,10 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "无合格商品，跳过本次购买"
-        }
+        },
+        "next": [
+            "AutoStockpileBackToRegionalConstruction"
+        ]
     },
     "AutoStockpileEnterStore": {
         "desc": "进入物资调度界面",
@@ -343,7 +346,10 @@
         "rate_limit": 0,
         "focus": {
             "Node.Action.Succeeded": "购买成功"
-        }
+        },
+        "next": [
+            "AutoStockpileBackToRegionalConstruction"
+        ]
     },
     "AutoStockpileSwipeToBottom": {
         "desc": "将所有可购买物品展示在窗口中（更稳定）",
@@ -445,7 +451,10 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "可购买数量不足，取消购买"
-        }
+        },
+        "next": [
+            "AutoStockpileCancelBuy"
+        ]
     },
     "AutoStockpileSwipeSpecificQuantity": {
         "desc": "滑动到指定数值",
@@ -485,12 +494,12 @@
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "AutoStockpileRelayNode"
-        ],
         "focus": {
             "Node.Action.Failed": "定量滑动失败，取消购买"
-        }
+        },
+        "next": [
+            "AutoStockpileRelayNode"
+        ]
     },
     "AutoStockpileCheckBuy": {
         "desc": "确认可以进行购买操作",
@@ -509,6 +518,48 @@
             "AutoStockpileDevSkipSwipe",
             "AutoStockpileSwipeSpecificQuantity",
             "AutoStockpileSwipeMax"
+        ]
+    },
+    "AutoStockpileBackToRegionalConstruction": {
+        "desc": "流程优化，返回地区建设页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1",
+                    "AutoStockpileGotoElasticGoods"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileCancelBuy": {
+        "desc": "退出购买页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileBackToRegionalConstruction"
         ]
     }
 }
