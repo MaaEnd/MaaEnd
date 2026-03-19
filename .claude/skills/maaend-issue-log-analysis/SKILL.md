@@ -329,7 +329,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 ## 关键证据
 
-<details><summary>点击此处展开关键证据</summary>
+<details><summary>点击此处展开</summary>
 
 - `maa.log`：...
 - `go-service.log`：...
@@ -362,7 +362,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 给修复 AI 的指令，要求可直接执行。
 
-<details><summary>点击此处展开 AI 修复指令</summary>
+<details><summary>点击此处展开</summary>
 
 ~~~text
 已确认事实：
