@@ -24,14 +24,20 @@ func (e *Engine) DataVersion() string {
 	return e.cfg.DataVersion
 }
 
+// SkillPools returns the skill pool tables currently loaded in this engine.
+// The returned struct aliases the engine's internal slices; callers must treat it as read-only.
 func (e *Engine) SkillPools() SkillPools {
 	return e.data.SkillPools
 }
 
+// Weapons returns the weapon rows currently loaded in this engine.
+// The returned slice aliases the engine's backing array; callers must treat it as read-only.
 func (e *Engine) Weapons() []WeaponData {
 	return e.data.Weapons
 }
 
+// Locations returns the location extra-pool rows currently loaded in this engine.
+// The returned slice aliases the engine's backing array; callers must treat it as read-only.
 func (e *Engine) Locations() []Location {
 	return e.data.Locations
 }
@@ -61,7 +67,7 @@ func NewEngineFromDir(dataDir string) (*Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	weapons, err := loadWeaponsOutputAndConvert(dataDir, cfg)
+	weapons, err := loadWeaponsOutputAndConvert(dataDir, cfg, pools)
 	if err != nil {
 		return nil, err
 	}

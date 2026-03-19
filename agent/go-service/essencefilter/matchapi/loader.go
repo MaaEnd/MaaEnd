@@ -196,13 +196,7 @@ type WeaponOutputEntry struct {
 
 type WeaponsOutputRaw map[string]WeaponOutputEntry
 
-func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig) ([]WeaponData, error) {
-	// Need skill pools for canonical skill conversion.
-	pools, err := loadSkillPools(dataDir)
-	if err != nil {
-		return nil, err
-	}
-
+func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillPools) ([]WeaponData, error) {
 	b, err := os.ReadFile(filepath.Join(dataDir, "weapons_output.json"))
 	if err != nil {
 		return nil, err
