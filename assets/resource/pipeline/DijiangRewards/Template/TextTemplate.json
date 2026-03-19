@@ -339,5 +339,21 @@
                 ]
             }
         }
+    },
+    "AssistText": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    977,
+                    0,
+                    303,
+                    157
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        }
     }
 }

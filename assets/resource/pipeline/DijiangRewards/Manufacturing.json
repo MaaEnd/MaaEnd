@@ -74,7 +74,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedTake",
@@ -178,7 +178,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssist",
@@ -205,7 +205,7 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedTakeClose"
@@ -260,7 +260,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedReStock",
@@ -278,22 +278,15 @@
             "param": {
                 "all_of": [
                     "InMFGCarbin",
-                    "NeedAssistColor"
+                    "NeedAssistColor",
+                    "AssistText"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -60,
-                    10,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -308,22 +301,15 @@
             "param": {
                 "all_of": [
                     "InMFGCarbin",
-                    "NeedAssistColor"
+                    "NeedAssistColor",
+                    "AssistText"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -60,
-                    10,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -348,7 +334,7 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistAssistMAX",
@@ -402,7 +388,7 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "MFGCarbinNeedAssistConfirm"
@@ -470,7 +456,7 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 3000,
+        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "Exit_MFG_Cabin"
