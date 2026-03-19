@@ -152,6 +152,12 @@ func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		}
 		detail, err := ctx.RunTask("DailyEventUnreadItemSwitch", override)
 		if err != nil {
+			log.Error().
+				Err(err).
+				Str("task", "DailyEventUnreadItemSwitch").
+				Str("text", item.Text).
+				Interface("box", item.Box).
+				Msg("DailyEventUnreadItemSwitch task failed")
 			actionResult = false
 		}
 		log.Debug().Interface("detail", detail).Msg("DailyEventUnreadItemSwitch task result")
