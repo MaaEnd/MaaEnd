@@ -118,32 +118,42 @@ type DailyEventUnreadItemInitAction struct{}
 
 func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg.RecognitionDetail == nil {
-		log.Error().Msg("DailyEventUnreadItemInitAction: RecognitionDetail is nil")
+		log.Error().
+			Str("component", "DailyEventUnreadItemInitAction").
+			Msg("recognition detail is nil")
 		return false
 	}
 	if arg.RecognitionDetail.Results == nil || arg.RecognitionDetail.Results.Best == nil {
-		log.Error().Msg("DailyEventUnreadItemInitAction: Results or Best is nil")
+		log.Error().
+			Str("component", "DailyEventUnreadItemInitAction").
+			Msg("results or best is nil")
 		return false
 	}
 	customResult, ok := arg.RecognitionDetail.Results.Best.AsCustom()
 	if !ok {
-		log.Error().Msg("DailyEventUnreadItemInitAction: failed to get custom recognition result")
+		log.Error().
+			Str("component", "DailyEventUnreadItemInitAction").
+			Msg("failed to get custom recognition result")
 		return false
 	}
 	var result struct {
 		Items []dailyEventUnreadItem `json:"items"`
 	}
 	if err := json.Unmarshal([]byte(customResult.Detail), &result); err != nil {
-		log.Error().Err(err).Msg("DailyEventUnreadItemInitAction: failed to parse recognition detail")
+		log.Error().
+			Err(err).
+			Str("component", "DailyEventUnreadItemInitAction").
+			Msg("failed to parse recognition detail")
 		return false
 	}
 
 	actionResult := true
 	for _, item := range result.Items {
 		log.Info().
+			Str("component", "DailyEventUnreadItemInitAction").
 			Str("text", item.Text).
 			Interface("box", item.Box).
-			Msg("Processing unread event item")
+			Msg("processing unread event item")
 
 		override := map[string]any{
 			"DailyEventUnreadItemSwitch": map[string]any{
@@ -160,7 +170,10 @@ func (a *DailyEventUnreadItemInitAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				Msg("DailyEventUnreadItemSwitch task failed")
 			actionResult = false
 		}
-		log.Debug().Interface("detail", detail).Msg("DailyEventUnreadItemSwitch task result")
+		log.Debug().
+			Str("component", "DailyEventUnreadItemInitAction").
+			Interface("detail", detail).
+			Msg("DailyEventUnreadItemSwitch task result")
 	}
 
 	return actionResult
