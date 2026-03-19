@@ -556,9 +556,12 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 80,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileEnsureBack"
+        ]
     },
     "AutoStockpileCancelBuy": {
         "desc": "退出购买页面",
@@ -608,5 +611,19 @@
         "next": [
             "AutoStockpileGotoElasticGoods"
         ]
+    },
+    "AutoStockpileEnsureBack": {
+        "desc": "确保已回到地区建设界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileEnterStore"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
