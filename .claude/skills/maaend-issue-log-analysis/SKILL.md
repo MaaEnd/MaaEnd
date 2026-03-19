@@ -323,8 +323,8 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ## Issue 概要
 
 - issue：`#1234`
-- 版本 / 控制器 / 任务：优先写 `zh_cn` 中文任务名，必要时补 task id
-- 任务描述 / 相关选项：优先写 `assets/misc/locales/zh_cn.json` 中的中文 `label` / `description`
+- 版本 / 控制器：优先写 `zh_cn` 中文任务名，必要时补 task id
+- 任务 / 相关选项：优先写 `assets/misc/locales/zh_cn.json` 中的中文 `label` / `description`
 - 用户现象：
 
 ## 关键证据
