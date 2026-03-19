@@ -776,6 +776,24 @@ def estimate_translated_max_width(
     return max(widths, default=0.0)
 
 
+def estimate_roi_base_width(
+    old_expected: Sequence[str],
+    new_expected: Sequence[str],
+    lang_ids: Sequence[str],
+    tables: Dict[str, Dict[str, str]],
+) -> float:
+    """
+    ROI 宽度基准：
+    - 若本轮生成结果与旧 expected 不同，说明当前 ROI 仍对应“旧文本”，
+      基准宽度取旧 expected 中能匹配回语言表的文本宽度。
+    - 若本轮生成结果与旧 expected 相同，说明节点已经处于当前展开结果，
+      基准宽度取当前展开后的最长文本宽度，避免重复放大。
+    """
+    if list(old_expected) == list(new_expected):
+        return estimate_translated_max_width(lang_ids, tables)
+    return estimate_expected_max_width(old_expected, lang_ids, tables)
+
+
 def compute_expanded_roi(
     roi_values: Sequence[Union[int, float]],
     old_max_width: float,
@@ -981,8 +999,8 @@ def process_pipeline_file(
                 {node_name},
             )
             if effective_roi is not None and len(effective_roi) == 4:
-                old_max_width = estimate_expected_max_width(
-                    old_expected, lang_ids, tables
+                old_max_width = estimate_roi_base_width(
+                    old_expected, new_expected, lang_ids, tables
                 )
                 new_max_width = estimate_translated_max_width(lang_ids, tables)
                 expanded_roi = compute_expanded_roi(
