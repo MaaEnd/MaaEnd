@@ -22,7 +22,25 @@
         ]
     },
     "AutoStockpileRegionUnavailable": {
-        "desc": "在这里处理没有解锁物资调度",
+        "desc": "检查物资调度是否解锁",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    885,
+                    300,
+                    135,
+                    143
+                ],
+                "template": [
+                    "AutoStockpile/AutoStockpileLocked.png"
+                ],
+                "green_mask": true,
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
