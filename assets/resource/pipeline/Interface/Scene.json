@@ -163,7 +163,7 @@
             ]
         },
         "next": [
-            "__SceneNoticeRewardsUpgrade",
+            "__ScenePrivateNoticeRewardsUpgrade",
             "__ScenePrivateNextTrue"
         ]
     },
