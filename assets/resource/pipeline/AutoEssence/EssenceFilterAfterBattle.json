@@ -1,0 +1,85 @@
+{
+    //要想调用识别战斗后基质的话，只需要把"[Jumpback]EssenceFilterAfterBattleStart"插入到战斗结束，出现战利品界面的那个时间点对应的节点的next里面
+    // ，任务跑完后会自动点击退出战利品界面（不需要额外做退出战利品界面的节点），然后Jumpback回来的时候识别失败跳过自身，继续下一个节点
+    //如果需要修改配置，那就在你的任务里面加上option来override掉"EssenceFilterAfterBattleInit"的"attach"部分即可
+    //各个配置对应的功能同EssenceFilter
+    "EssenceFilterAfterBattleStart": {
+        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面，要加Jumpback",
+        //有基质才开始任务，不然直接返回失败
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleInit"
+        ]
+    },
+    "EssenceFilterAfterBattleInit": {
+        "desc": "初始化：加载数据与预设[刷完基质版]",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleExit"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        },
+        //默认配置
+        "attach": {
+            //是否匹配6星武器
+            "rarity6_weapon": true,
+            //是否匹配5星武器
+            "rarity5_weapon": true,
+            //是否匹配4星武器
+            "rarity4_weapon": false,
+            //是否筛选金基质
+            "flawless_essence": true,
+            //是否筛选紫基质
+            "pure_essence": false,
+            //是否保留未来可期的基质
+            "keep_future_promising": false,
+            //“未来可期基质”最低要满足多少总词条
+            "future_promising_min_total": 6,
+            //是否锁上未来可期的基质
+            "lock_future_promising": false,
+            //是否保留高等级技能3的实用基质   
+            "keep_slot3_level3_practical": false,
+            //“高等级”对应多少技能等级
+            "slot3_min_level": 3,
+            //是否锁上高等级技能3的实用基质  
+            "lock_slot3_practical": false,
+            //是否丢弃不匹配的基质
+            "discard_unmatched": true,
+            //是否输出基质规划（这个分支任务暂时用不了）  
+            "export_calculator_script": false,
+            //是否跳过上锁基质（这个分支任务暂时用不了）  
+            "skip_locked_row": false
+        }
+    }
+}
