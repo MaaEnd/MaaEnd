@@ -341,6 +341,7 @@
         }
     },
     "AssistText": {
+        "desc": "识别生产助力标签文本",
         "recognition": {
             "type": "OCR",
             "param": {
