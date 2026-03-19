@@ -40,7 +40,7 @@
             "SceneWaitLoadingExit"
         ]
     },
-    "__SceneNoticeRewardsUpgrade": {
+    "__ScenePrivateNoticeRewardsUpgrade": {
         "desc": "检测到升级",
         "pre_delay": 0,
         "post_delay": 0,
@@ -59,10 +59,10 @@
             "권한 등급"
         ],
         "next": [
-            "__SceneNoticeRewardsUpgradeConfirm"
+            "__ScenePrivateNoticeRewardsUpgradeConfirm"
         ]
     },
-    "__SceneNoticeRewardsUpgradeConfirm": {
+    "__ScenePrivateNoticeRewardsUpgradeConfirm": {
         "desc": "升级奖励界面，点击确认",
         "pre_delay": 0,
         "post_delay": 0,
