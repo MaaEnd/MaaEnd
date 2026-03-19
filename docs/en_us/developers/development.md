@@ -79,14 +79,19 @@ This will fully set up the environment required for development.
 - The resource folder is in a linked state; modifying `assets` is equivalent to modifying the content in `install`, no additional copying is required. **However, `interface.json` is copied-if modified, you need to manually copy it back to `install` for UI testing (or run build_and_install.py, method as above).**
 - About OCR node `expected` i18n: developers do not need to maintain multilingual text manually. Just write `expected` in your own current language, and the `tools/i18n` program will automatically convert OCR `expected` in pipeline files to proper i18n entries.
 - Prefer writing the full expected sentence instead of a partial fragment. For example, write "This is a sample sentence" rather than only "sample sentence".
-- If you intentionally need partial text, or you do not want the i18n program to auto-process this OCR node, add the skip marker comment `// @i18n-skip` inside the corresponding `expected` array.
+- After automatic processing, English `expected` entries are written as case-insensitive regex patterns. To tolerate OCR occasionally dropping spaces between English words, the generated regex uses `\s*` only between words. For example, `Send Local Clues` becomes `(?i)^Send\s*Local\s*Clues$`.
+- For OCR nodes that are not skipped, the script may also add or adjust `roi_offset` based on the display-width difference between the original text and the longest translated text, so multilingual text can still fit inside the recognition area whenever possible. Nodes with `only_rec: true` are excluded from this ROI adjustment.
+- If you intentionally need partial text, handwritten regex, or do not want the i18n program to auto-process this OCR node, add the skip marker comment `// @i18n-skip` inside the corresponding `expected` array.
 - Example (recommended, auto i18n processing enabled):
+
     ```jsonc
     "expected": [
         "This is a sample sentence"
     ]
     ```
-- Example (skip auto i18n processing):
+
+- Example (skip auto i18n processing, suitable for partial matches or handwritten regex):
+
     ```jsonc
     "expected": [
         // @i18n-skip
