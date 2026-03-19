@@ -191,7 +191,6 @@
     },
     "StartRecoveryEmotion": {
         "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
-        "max_hit": 2,
         "recognition": {
             "type": "OCR",
             "param": {
