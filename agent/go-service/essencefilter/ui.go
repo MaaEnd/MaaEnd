@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -49,7 +50,7 @@ func escapeHTML(s string) string {
 }
 
 // formatWeaponNames - 将多把武器名格式化为展示字符串（UI 层负责拼接与本地化）
-func formatWeaponNames(weapons []WeaponData) string {
+func formatWeaponNames(weapons []matchapi.WeaponData) string {
 	if len(weapons) == 0 {
 		return ""
 	}
@@ -72,7 +73,7 @@ func logMatchSummary(ctx *maa.Context) {
 	summary := st.MatchedCombinationSummary
 	type viewItem struct {
 		Key string
-		*SkillCombinationSummary
+		*matchapi.SkillCombinationSummary
 	}
 	items := make([]viewItem, 0, len(summary))
 	for k, v := range summary {
@@ -103,7 +104,7 @@ func logMatchSummary(ctx *maa.Context) {
 	LogMXUHTML(ctx, b.String())
 }
 
-func formatWeaponNamesColoredHTML(weapons []WeaponData) string {
+func formatWeaponNamesColoredHTML(weapons []matchapi.WeaponData) string {
 	if len(weapons) == 0 {
 		return ""
 	}
@@ -117,17 +118,25 @@ func formatWeaponNamesColoredHTML(weapons []WeaponData) string {
 	return b.String()
 }
 
-func logSkillPools() {
+func logSkillPools(engine *matchapi.Engine) {
+	if engine == nil {
+		return
+	}
 	for _, entry := range []struct {
 		slot string
-		pool []SkillPool
+		pool []matchapi.SkillPool
 	}{
-		{"Slot1", weaponDB.SkillPools.Slot1},
-		{"Slot2", weaponDB.SkillPools.Slot2},
-		{"Slot3", weaponDB.SkillPools.Slot3},
+		{"Slot1", engine.SkillPools().Slot1},
+		{"Slot2", engine.SkillPools().Slot2},
+		{"Slot3", engine.SkillPools().Slot3},
 	} {
 		for _, s := range entry.pool {
-			log.Info().Str("slot", entry.slot).Int("id", s.ID).Str("skill", s.Chinese).Msg("<EssenceFilter> SkillPool")
+			log.Info().
+				Str("component", "EssenceFilter").
+				Str("slot", entry.slot).
+				Int("id", s.ID).
+				Str("skill", s.Chinese).
+				Msg("skill pool")
 		}
 	}
 }
@@ -137,17 +146,38 @@ func logFilteredSkillStats() {
 	if st == nil {
 		return
 	}
+	if st.MatchEngine == nil {
+		return
+	}
 	for slotIdx, stat := range st.FilteredSkillStats {
 		slot := slotIdx + 1
-		pool := GetPoolBySlot(slot)
+		var pool []matchapi.SkillPool
+		switch slot {
+		case 1:
+			pool = st.MatchEngine.SkillPools().Slot1
+		case 2:
+			pool = st.MatchEngine.SkillPools().Slot2
+		case 3:
+			pool = st.MatchEngine.SkillPools().Slot3
+		}
+		idToName := make(map[int]string, len(pool))
+		for _, s := range pool {
+			idToName[s.ID] = s.Chinese
+		}
 		ids := make([]int, 0, len(stat))
 		for id := range stat {
 			ids = append(ids, id)
 		}
 		sort.Ints(ids)
 		for _, id := range ids {
-			name := SkillNameByID(id, pool)
-			log.Info().Int("slot", slot).Int("skill_id", id).Str("skill", name).Int("count", stat[id]).Msg("<EssenceFilter> FilteredSkillStats")
+			name := idToName[id]
+			log.Info().
+				Str("component", "EssenceFilter").
+				Int("slot", slot).
+				Int("skill_id", id).
+				Str("skill", name).
+				Int("count", stat[id]).
+				Msg("filtered skill stats")
 		}
 	}
 }
@@ -159,8 +189,8 @@ type calcPlan struct {
 	fixedSlot  int
 	fixedID    int
 	fixedName  string
-	needs      []WeaponData
-	matched    []WeaponData
+	needs      []matchapi.WeaponData
+	matched    []matchapi.WeaponData
 }
 
 func spanColor(color, text string) string {
@@ -179,21 +209,21 @@ func planCardHTML(borderColor string, idx int, p calcPlan, fixedSlotLabel [4]str
 	)
 }
 
-type skillIndex map[int]map[int][]WeaponData
+type skillIndex map[int]map[int][]matchapi.WeaponData
 
-func buildSkillIndex(allTargets []SkillCombination, slotIdx int) skillIndex {
+func buildSkillIndex(allTargets []matchapi.SkillCombination, slotIdx int) skillIndex {
 	idx := make(skillIndex)
 	for _, combo := range allTargets {
 		s1, sN := combo.SkillIDs[0], combo.SkillIDs[slotIdx]
 		if idx[s1] == nil {
-			idx[s1] = make(map[int][]WeaponData)
+			idx[s1] = make(map[int][]matchapi.WeaponData)
 		}
 		idx[s1][sN] = append(idx[s1][sN], combo.Weapon)
 	}
 	return idx
 }
 
-func weaponListHTML(weapons []WeaponData) string {
+func weaponListHTML(weapons []matchapi.WeaponData) string {
 	if len(weapons) == 0 {
 		return "（无）"
 	}
@@ -205,21 +235,22 @@ func weaponListHTML(weapons []WeaponData) string {
 }
 
 func logCalculatorResult(ctx *maa.Context) {
-	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
-	selectedRarities := make(map[int]bool)
-	if opts != nil {
-		if opts.Rarity4Weapon {
-			selectedRarities[4] = true
-		}
-		if opts.Rarity5Weapon {
-			selectedRarities[5] = true
-		}
-		if opts.Rarity6Weapon {
-			selectedRarities[6] = true
-		}
-	}
 	st := getRunState()
 	if st == nil {
+		return
+	}
+	po := &st.PipelineOpts
+	selectedRarities := make(map[int]bool)
+	if po.Rarity4Weapon {
+		selectedRarities[4] = true
+	}
+	if po.Rarity5Weapon {
+		selectedRarities[5] = true
+	}
+	if po.Rarity6Weapon {
+		selectedRarities[6] = true
+	}
+	if st.MatchEngine == nil {
 		return
 	}
 	if len(st.TargetSkillCombinations) == 0 {
@@ -232,7 +263,7 @@ func logCalculatorResult(ctx *maa.Context) {
 			graduated[w.ChineseName] = true
 		}
 	}
-	var allTargets, ungraduated []SkillCombination
+	var allTargets, ungraduated []matchapi.SkillCombination
 	seenTarget := make(map[string]bool)
 	for _, combo := range st.TargetSkillCombinations {
 		if len(selectedRarities) > 0 && !selectedRarities[combo.Weapon.Rarity] {
@@ -253,16 +284,16 @@ func logCalculatorResult(ctx *maa.Context) {
 		return
 	}
 
-	slot1Pool := weaponDB.SkillPools.Slot1
-	slot2Pool := weaponDB.SkillPools.Slot2
-	slot3Pool := weaponDB.SkillPools.Slot3
+	slot1Pool := st.MatchEngine.SkillPools().Slot1
+	slot2Pool := st.MatchEngine.SkillPools().Slot2
+	slot3Pool := st.MatchEngine.SkillPools().Slot3
 	n1 := len(slot1Pool)
 	const maxPlansPerLocation = 2
 	fixedSlotLabel := [4]string{"", "", "附加属性", "技能属性"}
 	idx2 := buildSkillIndex(allTargets, 1)
 	idx3 := buildSkillIndex(allTargets, 2)
 
-	lookupWeapons := func(idx skillIndex, s1Set [3]int, fixedID int) (matched, needs []WeaponData) {
+	lookupWeapons := func(idx skillIndex, s1Set [3]int, fixedID int) (matched, needs []matchapi.WeaponData) {
 		for _, s1ID := range s1Set {
 			for _, w := range idx[s1ID][fixedID] {
 				matched = append(matched, w)
@@ -273,7 +304,7 @@ func logCalculatorResult(ctx *maa.Context) {
 		}
 		return
 	}
-	enumPlans := func(availSlot2, availSlot3 []SkillPool) []calcPlan {
+	enumPlans := func(availSlot2, availSlot3 []matchapi.SkillPool) []calcPlan {
 		var plans []calcPlan
 		for i := 0; i < n1-2; i++ {
 			for j := i + 1; j < n1-1; j++ {
@@ -306,8 +337,8 @@ func logCalculatorResult(ctx *maa.Context) {
 
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf(`<div style="color:#00bfff;font-weight:900;margin-top:8px;">预刻写方案推荐（%d 个未毕业需求）：</div>`, len(ungraduated)))
-	b.WriteString(weaponListHTML(func() []WeaponData {
-		ws := make([]WeaponData, 0, len(ungraduated))
+	b.WriteString(weaponListHTML(func() []matchapi.WeaponData {
+		ws := make([]matchapi.WeaponData, 0, len(ungraduated))
 		for _, c := range ungraduated {
 			ws = append(ws, c.Weapon)
 		}
@@ -315,8 +346,8 @@ func logCalculatorResult(ctx *maa.Context) {
 	}()))
 	b.WriteString(`<br>`)
 
-	if len(weaponDB.Locations) > 0 {
-		for _, loc := range weaponDB.Locations {
+	if len(st.MatchEngine.Locations()) > 0 {
+		for _, loc := range st.MatchEngine.Locations() {
 			slot2Set := make(map[int]bool)
 			for _, id := range loc.Slot2IDs {
 				slot2Set[id] = true
@@ -325,7 +356,7 @@ func logCalculatorResult(ctx *maa.Context) {
 			for _, id := range loc.Slot3IDs {
 				slot3Set[id] = true
 			}
-			var locSlot2, locSlot3 []SkillPool
+			var locSlot2, locSlot3 []matchapi.SkillPool
 			for _, s := range slot2Pool {
 				if slot2Set[s.ID] {
 					locSlot2 = append(locSlot2, s)

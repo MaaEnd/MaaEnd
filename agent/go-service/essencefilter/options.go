@@ -6,9 +6,29 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
+
+// matchOptsFromPipeline maps pipeline attach options to the match engine subset.
+func matchOptsFromPipeline(opts *EssenceFilterOptions) matchapi.EssenceFilterOptions {
+	if opts == nil {
+		return matchapi.EssenceFilterOptions{}
+	}
+	return matchapi.EssenceFilterOptions{
+		Rarity6Weapon:            opts.Rarity6Weapon,
+		Rarity5Weapon:            opts.Rarity5Weapon,
+		Rarity4Weapon:            opts.Rarity4Weapon,
+		KeepFuturePromising:      opts.KeepFuturePromising,
+		FuturePromisingMinTotal:  opts.FuturePromisingMinTotal,
+		LockFuturePromising:      opts.LockFuturePromising,
+		KeepSlot3Level3Practical: opts.KeepSlot3Level3Practical,
+		Slot3MinLevel:            opts.Slot3MinLevel,
+		LockSlot3Practical:       opts.LockSlot3Practical,
+		DiscardUnmatched:         opts.DiscardUnmatched,
+	}
+}
 
 func getOptionsFromAttach(ctx *maa.Context, nodeName string) (*EssenceFilterOptions, error) {
 	raw, err := ctx.GetNodeJSON(nodeName)
