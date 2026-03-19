@@ -1,4 +1,8 @@
 {
+    //这是一个调用EssenceFilter任务中战斗后识别基质节点的入口，内部节点在EssenceFilter文件夹中，包括以下3个
+    //EssenceFilterAfterBattleMain.json
+    //EssenceFilterAfterBattleCheckItem.json
+    //EssenceFilterAfterBattleLockDiscard.json
     //使用说明
     //   一句话版本：
     //脚本运行到弹出基质战利品界面后，在next里加上"[Jumpback]EssenceFilterAfterBattleStart"，下面直接跟下一个界面的任务即可（我这个任务会自动点退出战利品界面）
