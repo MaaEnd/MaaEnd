@@ -67,7 +67,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCloseDetail",
-            "EssenceFilterFinish"
+            "EssenceFilterAfterBattleExit"
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"

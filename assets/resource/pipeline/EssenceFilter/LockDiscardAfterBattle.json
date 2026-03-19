@@ -205,7 +205,7 @@
             "EssenceFindLockItem"
         ],
         "on_error": [
-            "EssenceFilterFinish"
+            "EssenceFilterAfterBattleExit"
         ]
     }
 }
