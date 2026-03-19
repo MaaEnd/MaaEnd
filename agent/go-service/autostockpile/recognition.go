@@ -345,18 +345,7 @@ func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[stri
 
 // TODO: 当前 ColorMatch 溢出识别不够准确，需要改进。
 func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
-	config := map[string]any{
-		overflowNodeName: map[string]any{
-			"recognition": "ColorMatch",
-			"roi":         []int{250, 135, 325, 30},
-			"method":      40,
-			"lower":       [][]int{{0, 200, 200}},
-			"upper":       [][]int{{20, 255, 255}},
-			"count":       100,
-		},
-	}
-
-	detail, err := ctx.RunRecognition(overflowNodeName, img, config)
+	detail, err := ctx.RunRecognition(overflowNodeName, img, nil)
 	if err != nil {
 		return false, err
 	}
@@ -370,15 +359,7 @@ func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
 }
 
 func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max int, plus int, ok bool) {
-	config := map[string]any{
-		overflowDetailNodeName: map[string]any{
-			"recognition": "OCR",
-			"roi":         []int{35, 125, 773, 47},
-			"expected":    []string{".*"},
-		},
-	}
-
-	detail, err := ctx.RunRecognition(overflowDetailNodeName, img, config)
+	detail, err := ctx.RunRecognition(overflowDetailNodeName, img, nil)
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -510,16 +491,28 @@ func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
 }
 
 func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string, goodsROI []int) (*maa.RecognitionDetail, error) {
-	config := map[string]any{
-		locateGoodsNodeName: map[string]any{
-			"recognition": "TemplateMatch",
-			"template":    templatePath,
-			"threshold":   0.8,
-			"roi":         goodsROI,
-		},
+	if err := overrideLocateGoodsRecognition(ctx, templatePath, goodsROI); err != nil {
+		return nil, err
 	}
 
-	return ctx.RunRecognition(locateGoodsNodeName, img, config)
+	return ctx.RunRecognition(locateGoodsNodeName, img, nil)
+}
+
+func overrideLocateGoodsRecognition(ctx *maa.Context, templatePath string, goodsROI []int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	return ctx.OverridePipeline(map[string]any{
+		locateGoodsNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"template": []string{templatePath},
+					"roi":      append([]int(nil), goodsROI...),
+				},
+			},
+		},
+	})
 }
 
 func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
@@ -702,15 +695,11 @@ func recognitionParamROI(node *maa.Node) ([]int, error) {
 }
 
 func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, error) {
-	config := map[string]any{
-		goodsPriceNodeName: map[string]any{
-			"recognition": "OCR",
-			"expected":    []string{".*"},
-			"roi":         goodsROI,
-		},
+	if err := overrideGoodsPriceROI(ctx, goodsROI); err != nil {
+		return nil, nil, err
 	}
 
-	detail, err := ctx.RunRecognition(goodsPriceNodeName, img, config)
+	detail, err := ctx.RunRecognition(goodsPriceNodeName, img, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -783,6 +772,22 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 	})
 
 	return prices, ocrNames, nil
+}
+
+func overrideGoodsPriceROI(ctx *maa.Context, goodsROI []int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	return ctx.OverridePipeline(map[string]any{
+		goodsPriceNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"roi": append([]int(nil), goodsROI...),
+				},
+			},
+		},
+	})
 }
 
 func bindPriceToGoods(goods goodsCandidate, prices []priceCandidate, used []bool) (int, bool) {

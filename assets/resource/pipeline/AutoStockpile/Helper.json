@@ -1,0 +1,116 @@
+{
+    "AutoStockpileCheckOverflow": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    250,
+                    135,
+                    325,
+                    30
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        200,
+                        200
+                    ]
+                ],
+                "upper": [
+                    [
+                        20,
+                        255,
+                        255
+                    ]
+                ],
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetOverflowDetail": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    35,
+                    125,
+                    773,
+                    47
+                ],
+                "expected": [
+                    ".*"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileFindMarketMark": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    50,
+                    126,
+                    83,
+                    575
+                ],
+                "template": [
+                    "AutoStockpile/MarketMark.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetGoodsPrice": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    63,
+                    162,
+                    1177,
+                    553
+                ],
+                "expected": [
+                    ".*"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileLocateGoods": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    63,
+                    162,
+                    1177,
+                    553
+                ],
+                "template": [
+                    "AutoStockpile/Goods/Wuling/WulingFrozenPears.Tier1.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
