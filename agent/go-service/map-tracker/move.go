@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -53,6 +54,29 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
+}
+
+const (
+	FINE_APPROACH_FINAL_TARGET = "FinalTarget"
+	FINE_APPROACH_ALL_TARGETS  = "AllTargets"
+	FINE_APPROACH_NEVER        = "Never"
+)
+
+var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
+	FineApproach:           FINE_APPROACH_FINAL_TARGET,
+	MapNameMatchRule:       "^%s(_tier_\\w+)?$",
+	ArrivalThreshold:       2.5,
+	ArrivalTimeout:         60000,
+	RotationLowerThreshold: 7.5,
+	RotationUpperThreshold: 60.0,
+	SprintThreshold:        20.0,
+	StuckThreshold:         2000,
+	StuckTimeout:           10000,
+}
+
+var mapTrackerInferParamForMove = MapTrackerInferParam{
+	Precision: 0.7,
+	Threshold: 0.3,
 }
 
 // PlayerMovement represents different movement state in the game
@@ -103,7 +127,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	aw := NewActionWrapper(ctx, ctrl)
+	aw := mt.NewActionWrapper(ctx, ctrl)
 	loopInterval := time.Duration(INFER_INTERVAL_MS) * time.Millisecond
 
 	if param.PathTrim && len(param.Path) > 1 {
@@ -152,7 +176,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			initRot = calcTargetRotation(initResult.X, initResult.Y, targetX, targetY)
 			if !param.NoPrint {
 				maafocus.NodeActionStarting(
-					aw.ctx,
+					aw.Ctx(),
 					a.buildNavigationMovingHTML(param, i, initResult.X, initResult.Y, targetX, targetY),
 				)
 			}
@@ -381,7 +405,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			finishedX, finishedY = finalInfer.X, finalInfer.Y
 		}
 		maafocus.NodeActionStarting(
-			aw.ctx,
+			aw.Ctx(),
 			a.buildNavigationFinishedHTML(param, finishedX, finishedY),
 		)
 	}
@@ -413,17 +437,17 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	if param.ArrivalThreshold < 0 {
 		return nil, fmt.Errorf("arrival_threshold must be non-negative")
 	} else if param.ArrivalThreshold == 0 {
-		param.ArrivalThreshold = DEFAULT_MOVING_PARAM.ArrivalThreshold
+		param.ArrivalThreshold = mapTrackerMoveDefaultParam.ArrivalThreshold
 	}
 
 	if param.ArrivalTimeout < 0 {
 		return nil, fmt.Errorf("arrival_timeout must be non-negative")
 	} else if param.ArrivalTimeout == 0 {
-		param.ArrivalTimeout = DEFAULT_MOVING_PARAM.ArrivalTimeout
+		param.ArrivalTimeout = mapTrackerMoveDefaultParam.ArrivalTimeout
 	}
 
 	if len(param.FineApproach) == 0 {
-		param.FineApproach = DEFAULT_MOVING_PARAM.FineApproach
+		param.FineApproach = mapTrackerMoveDefaultParam.FineApproach
 	}
 	switch param.FineApproach {
 	case FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER:
@@ -433,7 +457,7 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	}
 
 	if len(param.MapNameMatchRule) == 0 {
-		param.MapNameMatchRule = DEFAULT_MOVING_PARAM.MapNameMatchRule
+		param.MapNameMatchRule = mapTrackerMoveDefaultParam.MapNameMatchRule
 	}
 	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
 	if _, err := regexp.Compile(mapNameRegex); err != nil {
@@ -445,7 +469,7 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	} else if param.RotationLowerThreshold > 180 {
 		return nil, fmt.Errorf("rotation_lower_threshold must be between 0 and 180 degrees")
 	} else if param.RotationLowerThreshold == 0 {
-		param.RotationLowerThreshold = DEFAULT_MOVING_PARAM.RotationLowerThreshold
+		param.RotationLowerThreshold = mapTrackerMoveDefaultParam.RotationLowerThreshold
 	}
 
 	if param.RotationUpperThreshold < 0 {
@@ -453,37 +477,37 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 	} else if param.RotationUpperThreshold > 180 {
 		return nil, fmt.Errorf("rotation_upper_threshold must be between 0 and 180 degrees")
 	} else if param.RotationUpperThreshold == 0 {
-		param.RotationUpperThreshold = DEFAULT_MOVING_PARAM.RotationUpperThreshold
+		param.RotationUpperThreshold = mapTrackerMoveDefaultParam.RotationUpperThreshold
 	}
 
 	if param.SprintThreshold < 0 {
 		return nil, fmt.Errorf("sprint_threshold must be non-negative")
 	} else if param.SprintThreshold == 0 {
-		param.SprintThreshold = DEFAULT_MOVING_PARAM.SprintThreshold
+		param.SprintThreshold = mapTrackerMoveDefaultParam.SprintThreshold
 	}
 
 	if param.StuckThreshold < 0 {
 		return nil, fmt.Errorf("stuck_threshold must be non-negative")
 	} else if param.StuckThreshold == 0 {
-		param.StuckThreshold = DEFAULT_MOVING_PARAM.StuckThreshold
+		param.StuckThreshold = mapTrackerMoveDefaultParam.StuckThreshold
 	}
 
 	if param.StuckTimeout < 0 {
 		return nil, fmt.Errorf("stuck_timeout must be non-negative")
 	} else if param.StuckTimeout == 0 {
-		param.StuckTimeout = DEFAULT_MOVING_PARAM.StuckTimeout
+		param.StuckTimeout = mapTrackerMoveDefaultParam.StuckTimeout
 	}
 
 	return &param, nil
 }
 
-func doEmergencyStop(aw *ActionWrapper, noPrint bool) {
+func doEmergencyStop(aw *mt.ActionWrapper, noPrint bool) {
 	log.Warn().Msg("Emergency stop triggered")
 	if !noPrint {
-		maafocus.NodeActionStarting(aw.ctx, emergencyStopHTML)
+		maafocus.NodeActionStarting(aw.Ctx(), emergencyStopHTML)
 	}
 	aw.KeyUpSync(KEY_W, 100)
-	aw.ctx.GetTasker().PostStop()
+	aw.Ctx().GetTasker().PostStop()
 }
 
 func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam) (*MapTrackerInferResult, error) {
@@ -503,8 +527,8 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
 	inferConfig := map[string]any{
 		"map_name_regex": mapNameRegex,
-		"precision":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Precision,
-		"threshold":      DEFAULT_INFERENCE_PARAM_FOR_MOVE.Threshold,
+		"precision":      mapTrackerInferParamForMove.Precision,
+		"threshold":      mapTrackerInferParamForMove.Threshold,
 	}
 
 	inferConfigBytes, err := json.Marshal(inferConfig)

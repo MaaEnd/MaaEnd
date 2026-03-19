@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sync"
 
+	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -38,6 +39,16 @@ type MapTrackerBigMapPickParam struct {
 	AutoOpenMapScene bool `json:"auto_open_map_scene,omitempty"`
 	// NoZoom controls whether to disable auto zoom before picking.
 	NoZoom bool `json:"no_zoom,omitempty"`
+}
+
+const (
+	ON_FIND_CLICK      = "Click"
+	ON_FIND_TELEPORT   = "Teleport"
+	ON_FIND_DO_NOTHING = "DoNothing"
+)
+
+var mapTrackerBigMapPickDefaultParam = MapTrackerBigMapPickParam{
+	OnFind: ON_FIND_CLICK,
 }
 
 var _ maa.CustomActionRunner = &MapTrackerBigMapPick{}
@@ -73,7 +84,7 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	aw := NewActionWrapper(ctx, ctrl)
+	aw := mt.NewActionWrapper(ctx, ctrl)
 
 	if !param.NoZoom {
 		if err := a.doAutoZoom(ctx, ctrl, aw); err != nil {
@@ -154,10 +165,10 @@ func (a *MapTrackerBigMapPick) parseParam(paramStr string) (*MapTrackerBigMapPic
 		return nil, fmt.Errorf("map_name must be provided")
 	}
 	if param.OnFind == "" {
-		param.OnFind = "Click"
+		param.OnFind = mapTrackerBigMapPickDefaultParam.OnFind
 	}
-	if param.OnFind != "Click" && param.OnFind != "Teleport" && param.OnFind != "DoNothing" {
-		return nil, fmt.Errorf("on_find must be \"Click\", \"Teleport\", or \"DoNothing\"")
+	if param.OnFind != ON_FIND_CLICK && param.OnFind != ON_FIND_TELEPORT && param.OnFind != ON_FIND_DO_NOTHING {
+		return nil, fmt.Errorf("on_find must be one of: %s, %s, %s", ON_FIND_CLICK, ON_FIND_TELEPORT, ON_FIND_DO_NOTHING)
 	}
 	if math.IsNaN(param.Target[0]) || math.IsInf(param.Target[0], 0) || math.IsNaN(param.Target[1]) || math.IsInf(param.Target[1], 0) {
 		return nil, fmt.Errorf("target must contain finite numbers")
@@ -199,7 +210,7 @@ func (a *MapTrackerBigMapPick) getSceneManagerNode(mapName string) (string, bool
 	return item.SceneManagerNode, true, nil
 }
 
-func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, targetInViewY float64) error {
+func runBigMapTeleportNode(ctx *maa.Context, aw *mt.ActionWrapper, targetInViewX, targetInViewY float64) error {
 	aw.ClickSync(0, int(math.Round(targetInViewX)), int(math.Round(targetInViewY)), 100)
 
 	teleportNodeName := "__MapTrackerBigMapPickTeleport"
@@ -220,7 +231,7 @@ func runBigMapTeleportNode(ctx *maa.Context, aw *ActionWrapper, targetInViewX, t
 	return nil
 }
 
-func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, aw *ActionWrapper) error {
+func (a *MapTrackerBigMapPick) doAutoZoom(ctx *maa.Context, ctrl *maa.Controller, aw *mt.ActionWrapper) error {
 	zoomInTemplate, err := mapTrackerResource.zoomInTemplate.Get()
 	if err != nil {
 		return fmt.Errorf("failed to load zoom-in template: %w", err)
@@ -307,7 +318,7 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 
 	inferConfig := map[string]any{
 		"map_name_regex": "^" + regexp.QuoteMeta(mapName) + "$",
-		"threshold":      DEFAULT_BIG_MAP_INFERENCE_PARAM.Threshold,
+		"threshold":      mapTrackerBigMapInferDefaultParam.Threshold,
 	}
 	inferConfigBytes, err := json.Marshal(inferConfig)
 	if err != nil {
@@ -348,7 +359,7 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	return &result, nil
 }
 
-func doDragViewport(aw *ActionWrapper, viewport *BigMapViewport, deltaInViewX, deltaInViewY float64) bool {
+func doDragViewport(aw *mt.ActionWrapper, viewport *mt.BigMapViewport, deltaInViewX, deltaInViewY float64) bool {
 	left := int(math.Round(viewport.Left))
 	top := int(math.Round(viewport.Top))
 	right := int(math.Round(viewport.Right))

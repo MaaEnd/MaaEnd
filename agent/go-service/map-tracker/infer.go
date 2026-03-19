@@ -44,6 +44,12 @@ type MapTrackerInferParam struct {
 	Threshold float64 `json:"threshold,omitempty"`
 }
 
+var mapTrackerInferDefaultParam = MapTrackerInferParam{
+	MapNameRegex: "^map\\d+_lv\\d+$",
+	Precision:    0.5,
+	Threshold:    0.4,
+}
+
 // MapTrackerInfer is the custom recognition component for map tracking
 type MapTrackerInfer struct {
 	// Cache for scaled maps (recomputed per request scale)
@@ -73,6 +79,30 @@ const (
 	FULL_SEARCH_HIT InferLocationHitMode = "FullSearchHit"
 	FAST_SEARCH_HIT InferLocationHitMode = "FastSearchHit"
 	VIRTUAL_HIT     InferLocationHitMode = "VirtualHit"
+)
+
+// Location inference configuration
+const (
+	// Mini-map crop area
+	LOC_CENTER_X = 108
+	LOC_CENTER_Y = 111
+	LOC_RADIUS   = 40
+)
+
+// Rotation inference configuration
+const (
+	// Pointer crop area
+	ROT_CENTER_X = 108
+	ROT_CENTER_Y = 111
+	ROT_RADIUS   = 12
+)
+
+// Time-series empirical optimization configuration
+const (
+	PENDING_TAKEOVER_TIME_MS         = 1000
+	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
+	CONVINCED_DISTANCE_THRESHOLD     = 30
+	CONVINCED_VALID_TIME_MS          = 2000
 )
 
 type InferLocationRawResult struct {
@@ -305,7 +335,10 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
 	if param.Print {
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName))
+		maafocus.NodeActionStarting(
+			ctx,
+			fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName),
+		)
 	}
 
 	// Return as hit
@@ -320,17 +353,17 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 		var param MapTrackerInferParam
 		if err := json.Unmarshal([]byte(paramStr), &param); err == nil {
 			if param.MapNameRegex == "" {
-				param.MapNameRegex = DEFAULT_INFERENCE_PARAM.MapNameRegex
+				param.MapNameRegex = mapTrackerInferDefaultParam.MapNameRegex
 			}
 
 			if param.Precision == 0.0 {
-				param.Precision = DEFAULT_INFERENCE_PARAM.Precision
+				param.Precision = mapTrackerInferDefaultParam.Precision
 			} else if param.Precision < 0.0 || param.Precision > 1.0 {
 				return nil, fmt.Errorf("invalid precision value: %f", param.Precision)
 			}
 
 			if param.Threshold == 0.0 {
-				param.Threshold = DEFAULT_INFERENCE_PARAM.Threshold
+				param.Threshold = mapTrackerInferDefaultParam.Threshold
 			} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
 				return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
 			}
@@ -339,7 +372,7 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 		}
 		return &param, nil
 	} else {
-		return &DEFAULT_INFERENCE_PARAM, nil
+		return &mapTrackerInferDefaultParam, nil
 	}
 }
 

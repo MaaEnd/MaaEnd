@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -18,15 +19,20 @@ import (
 
 // MapTrackerBigMapInferResult represents the output of big map inference.
 type MapTrackerBigMapInferResult struct {
-	MapName     string         `json:"mapName"`
-	ViewPort    BigMapViewport `json:"viewPort"`
-	InferTimeMs int64          `json:"inferTimeMs"`
+	MapName     string            `json:"mapName"`
+	ViewPort    mt.BigMapViewport `json:"viewPort"`
+	InferTimeMs int64             `json:"inferTimeMs"`
 }
 
 // MapTrackerBigMapInferParam represents the custom_recognition_param for MapTrackerBigMapInfer.
 type MapTrackerBigMapInferParam struct {
 	MapNameRegex string  `json:"map_name_regex,omitempty"`
 	Threshold    float64 `json:"threshold,omitempty"`
+}
+
+var mapTrackerBigMapInferDefaultParam = MapTrackerBigMapInferParam{
+	MapNameRegex: "^map\\d+_lv\\d+$",
+	Threshold:    0.5,
 }
 
 // MapTrackerBigMapInfer is the custom recognition component for big-map location inference.
@@ -202,7 +208,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 	result := MapTrackerBigMapInferResult{
 		MapName: coarseBestMap.Name,
-		ViewPort: *NewBigMapViewport(
+		ViewPort: *mt.NewBigMapViewport(
 			viewOriginMapX,
 			viewOriginMapY,
 			viewScale,
@@ -235,7 +241,7 @@ func (r *MapTrackerBigMapInfer) Run(ctx *maa.Context, arg *maa.CustomRecognition
 
 func (r *MapTrackerBigMapInfer) parseParam(paramStr string) (*MapTrackerBigMapInferParam, error) {
 	if paramStr == "" {
-		return &DEFAULT_BIG_MAP_INFERENCE_PARAM, nil
+		return &mapTrackerBigMapInferDefaultParam, nil
 	}
 
 	var param MapTrackerBigMapInferParam
@@ -244,10 +250,10 @@ func (r *MapTrackerBigMapInfer) parseParam(paramStr string) (*MapTrackerBigMapIn
 	}
 
 	if param.MapNameRegex == "" {
-		param.MapNameRegex = DEFAULT_BIG_MAP_INFERENCE_PARAM.MapNameRegex
+		param.MapNameRegex = mapTrackerBigMapInferDefaultParam.MapNameRegex
 	}
 	if param.Threshold == 0.0 {
-		param.Threshold = DEFAULT_BIG_MAP_INFERENCE_PARAM.Threshold
+		param.Threshold = mapTrackerBigMapInferDefaultParam.Threshold
 	} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
 		return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
 	}
