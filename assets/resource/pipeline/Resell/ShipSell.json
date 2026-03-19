@@ -8,105 +8,35 @@
             "ResellEnterShip"
         ]
     },
-    "ResellShipWalkAS_KeyDownA": {
-        "desc": "按下A键（开始A+S走路撞墙）",
+    "ResellShipNavigation": {
+        "desc": "使用MapNavigator导航至物资调度终端附近",
         "recognition": {
             "type": "DirectHit"
         },
         "action": {
-            "type": "KeyDown",
+            "type": "Custom",
             "param": {
-                "key": 65
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAS_KeyDownS"
-        ]
-    },
-    "ResellShipWalkAS_KeyDownS": {
-        "desc": "按下S键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 83
-            }
-        },
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                640,
-                0,
-                640,
-                360
-            ],
-            "timeout": 15000
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAS_KeyUpA"
-        ]
-    },
-    "ResellShipWalkAS_KeyUpA": {
-        "desc": "松开A键（撞墙后停止）",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 65
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAS_KeyUpS"
-        ]
-    },
-    "ResellShipWalkAS_KeyUpS": {
-        "desc": "松开S键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 83
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAW_KeyDownA"
-        ]
-    },
-    "ResellShipWalkAW_KeyDownA": {
-        "desc": "按下A键（开始A+W走向终端）",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 65
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAW_KeyDownW"
-        ]
-    },
-    "ResellShipWalkAW_KeyDownW": {
-        "desc": "按下W键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 87
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
+                        [
+                            192.77,
+                            140.62
+                        ],
+                        [
+                            185,
+                            141
+                        ],
+                        [
+                            185,
+                            130.5
+                        ]
+                    ]
+                }
             }
         },
         "post_delay": 0,
@@ -131,69 +61,6 @@
         },
         "post_delay": 0,
         "timeout": 20000,
-        "next": [
-            "ResellShipWalkAW_KeyUpA"
-        ]
-    },
-    "ResellShipWalkAW_KeyUpA": {
-        "desc": "找到终端，松开A键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 65
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipWalkAW_KeyUpW"
-        ]
-    },
-    "ResellShipWalkAW_KeyUpW": {
-        "desc": "松开W键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 87
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "ResellShipInteract"
-        ]
-    },
-    "ResellShipWalkAW_KeyUpA_Timeout": {
-        "desc": "超时，松开A键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 65
-            }
-        },
-        "next": [
-            "ResellShipWalkAW_KeyUpW_Timeout"
-        ]
-    },
-    "ResellShipWalkAW_KeyUpW_Timeout": {
-        "desc": "超时，松开W键",
-        "recognition": {
-            "type": "DirectHit"
-        },
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 87
-            }
-        },
-        "post_delay": 0,
         "next": [
             "ResellShipInteract"
         ]
