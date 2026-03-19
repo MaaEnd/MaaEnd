@@ -32,6 +32,7 @@
         "next": [
             "GrowthChamber"
         ],
+        "timeout": 5000,
         "on_error": [
             "EntryGrowthChamber_OnError"
         ]
@@ -126,6 +127,7 @@
         "next": [
             "ClaimAllGrowRewardClose"
         ],
+        "timeout": 5000,
         "on_error": [
             "ClaimAllGrowReward_OnError"
         ]
@@ -181,6 +183,7 @@
             "ExitGrowthChamber",
             "ClaimAllGrowRewardClose"
         ],
+        "timeout": 5000,
         "on_error": [
             "ClaimAllGrowRewardClose_OnError"
         ]
@@ -245,6 +248,7 @@
         "next": [
             "InGrow"
         ],
+        "timeout": 5000,
         "on_error": [
             "Grow_OnError"
         ]
@@ -371,6 +375,7 @@
             "ExitGrow",
             "BackToGrowthChamber"
         ],
+        "timeout": 5000,
         "on_error": [
             "SelectGrow_OnError"
         ]
@@ -412,6 +417,7 @@
         "post_wait_freezes": {
             "time": 100
         },
+        "timeout": 5000,
         "on_error": [
             "ConfirmGrow_OnError"
         ]
@@ -531,6 +537,7 @@
             "ConfirmExtractSeed",
             "NoMaterials"
         ],
+        "timeout": 5000,
         "on_error": [
             "ExtractSeed_OnError"
         ]
@@ -588,6 +595,7 @@
             "ExtractSeedClose",
             "ConfirmExtractSeed"
         ],
+        "timeout": 5000,
         "on_error": [
             "ConfirmExtractSeed_OnError"
         ]
@@ -641,6 +649,7 @@
         "next": [
             "BackToGrow"
         ],
+        "timeout": 5000,
         "on_error": [
             "ExtractSeedClose_OnError"
         ]
@@ -681,6 +690,7 @@
         "action": {
             "type": "Click"
         },
+        "timeout": 5000,
         "on_error": [
             "BackToGrow_OnError"
         ]
@@ -727,6 +737,7 @@
         "next": [
             "FinishAllDijiangTask"
         ],
+        "timeout": 5000,
         "on_error": [
             "NoMaterials_OnError"
         ]
@@ -792,6 +803,7 @@
         "next": [
             "InGrow"
         ],
+        "timeout": 5000,
         "on_error": [
             "InSelectGrowSwipe_OnError"
         ]
@@ -869,6 +881,7 @@
             "ChooseSortBy",
             "[JumpBack]SwipeChooseSortBy"
         ],
+        "timeout": 5000,
         "on_error": [
             "SortBy_OnError"
         ]
@@ -945,6 +958,7 @@
         "next": [
             "InGrow"
         ],
+        "timeout": 5000,
         "on_error": [
             "ChooseSortBy_OnError"
         ]
@@ -1023,6 +1037,7 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        "timeout": 5000,
         "on_error": [
             "SwipeChooseSortBy_OnError"
         ]
@@ -1097,6 +1112,7 @@
         "next": [
             "InGrow"
         ],
+        "timeout": 5000,
         "on_error": [
             "SortOrder_OnError"
         ]
@@ -1163,6 +1179,7 @@
         "next": [
             "InDijiangControlNexus"
         ],
+        "timeout": 5000,
         "on_error": [
             "ExitGrowthChamber_OnError"
         ]

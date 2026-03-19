@@ -33,6 +33,7 @@
         "next": [
             "RecoveryEmotionAssistUseAssist"
         ],
+        "timeout": 5000,
         "on_error": [
             "RecoveryEmotion_OnError"
         ]

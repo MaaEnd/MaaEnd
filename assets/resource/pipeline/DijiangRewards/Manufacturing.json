@@ -26,6 +26,7 @@
         "next": [
             "EntryMFGCarbinSuccess"
         ],
+        "timeout": 5000,
         "on_error": [
             "MFG_ReceiveRewards_OnError"
         ]
@@ -131,6 +132,7 @@
         "next": [
             "MFGCarbinNeedReStockClose"
         ],
+        "timeout": 5000,
         "on_error": [
             "MFGCarbinNeedReStock_OnError"
         ]
@@ -345,6 +347,7 @@
         "next": [
             "MFGCarbinNeedAssistUseAssist"
         ],
+        "timeout": 5000,
         "on_error": [
             "MFGCarbinNeedAssist_OnError"
         ]
@@ -499,6 +502,7 @@
         "next": [
             "MFGCarbinNeedAssistClose"
         ],
+        "timeout": 5000,
         "on_error": [
             "MFGCarbinNeedAssistConfirm_OnError"
         ]
@@ -603,6 +607,7 @@
         "next": [
             "InDijiangControlNexus"
         ],
+        "timeout": 5000,
         "on_error": [
             "Exit_MFG_Cabin_OnError"
         ]

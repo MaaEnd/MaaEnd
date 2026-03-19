@@ -35,6 +35,7 @@
             "WaitEndExchange",
             "ReceptionRoom"
         ],
+        "timeout": 5000,
         "on_error": [
             "EntryReceptionRoom_OnError"
         ]
@@ -130,6 +131,7 @@
         "next": [
             "ReceptionRoom"
         ],
+        "timeout": 5000,
         "on_error": [
             "EndExchange_OnError"
         ]
@@ -164,6 +166,7 @@
             }
         },
         "action": "Click",
+        "timeout": 5000,
         "on_error": [
             "EndExchangeJBC_OnError"
         ]
@@ -233,6 +236,7 @@
         "next": [
             "CloseExchangeRewards"
         ],
+        "timeout": 5000,
         "on_error": [
             "StartExchange_OnError"
         ]
@@ -305,6 +309,7 @@
             "ReceiveAll",
             "EndExchange"
         ],
+        "timeout": 5000,
         "on_error": [
             "ReceptionRoomNeedReceiveClues_OnError"
         ]
@@ -403,6 +408,7 @@
             "Collect",
             "EndExchange"
         ],
+        "timeout": 5000,
         "on_error": [
             "ReceptionRoomNeedCollectClues_OnError"
         ]
@@ -955,6 +961,7 @@
             "ReadySetClues",
             "EndExchange"
         ],
+        "timeout": 5000,
         "on_error": [
             "ReceptionRoomSetClues_OnError"
         ]
@@ -1186,6 +1193,7 @@
         "next": [
             "ExitReceptionRoom"
         ],
+        "timeout": 5000,
         "on_error": [
             "ExitClueLibrary_OnError"
         ]
@@ -1255,6 +1263,7 @@
         "next": [
             "InDijiangControlNexus"
         ],
+        "timeout": 5000,
         "on_error": [
             "ExitReceptionRoom_OnError"
         ]
