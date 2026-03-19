@@ -10,17 +10,6 @@ func itoa(v int) string {
 	return strconv.Itoa(v)
 }
 
-func skillCombinationKey(ids []int) string {
-	if len(ids) == 0 {
-		return ""
-	}
-	parts := make([]string, len(ids))
-	for i, id := range ids {
-		parts[i] = strconv.Itoa(id)
-	}
-	return strings.Join(parts, "-")
-}
-
 func cleanChinese(text string) string {
 	// Only keep Han characters. Other characters are ignored to make OCR noise less harmful.
 	// This matches the existing EssenceFilter matcher approach.

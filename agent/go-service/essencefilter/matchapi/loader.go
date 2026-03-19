@@ -272,13 +272,6 @@ func loadLocations(dataDir string) ([]Location, error) {
 	return locs, nil
 }
 
-func normalizeSimilarConvert(cfg MatcherConfig, s string) string {
-	for old, val := range cfg.SimilarWordMap {
-		s = strings.ReplaceAll(s, old, val)
-	}
-	return s
-}
-
 func poolBySlot(pools SkillPools, slot int) []SkillPool {
 	switch slot {
 	case 1:
@@ -325,7 +318,7 @@ func cleanDisplayToCanonical(display string, slot int, locale string, cfg Matche
 		}
 	}
 
-	normCandidate := normalizeSimilarConvert(cfg, candidate)
+	normCandidate := normalizeSimilar(cfg, candidate)
 	if normCandidate != candidate {
 		candidates = append(candidates, normCandidate)
 		for _, suf := range stopwords {

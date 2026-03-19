@@ -117,16 +117,7 @@ func lastChar(s string) string {
 }
 
 func (e *Engine) poolBySlot(slot int) []SkillPool {
-	switch slot {
-	case 1:
-		return e.data.SkillPools.Slot1
-	case 2:
-		return e.data.SkillPools.Slot2
-	case 3:
-		return e.data.SkillPools.Slot3
-	default:
-		return nil
-	}
+	return poolBySlot(e.data.SkillPools, slot)
 }
 
 func (e *Engine) skillNameByID(id int, pool []SkillPool) string {
