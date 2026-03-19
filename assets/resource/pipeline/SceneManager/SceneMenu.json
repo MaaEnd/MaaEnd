@@ -266,15 +266,58 @@
             }
         },
         "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
         },
         "next": [
+            "__ScenePrivateValuablesItemsExpired",
             "__ScenePrivateAnyEnterMenuValuablesSuccess"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入贵重品库菜单失败"
         }
+    },
+    "__ScenePrivateValuablesItemsExpired": {
+        "desc": "贵重品库菜单有物品过期",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    370,
+                    240,
+                    500,
+                    150
+                ],
+                "expected": [
+                    "以下限时道具已过期",
+                    "以下限時道具已過期",
+                    "These limited-time items have expired",
+                    "以下の時限アイテムは有効期限が切れました",
+                    "다음 기간 한정 아이템이 만료되었습니다"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateAnyEnterMenuValuablesSuccess"
+        ]
     },
     "__ScenePrivateMenuListEnterMenuValuables": {
         "desc": "从菜单列表进入贵重品库菜单",

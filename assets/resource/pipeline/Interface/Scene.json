@@ -151,7 +151,21 @@
         },
         "action": {
             "type": "Click"
-        }
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 1000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "next": [
+            "__SceneNoticeRewardsUpgrade",
+            "__ScenePrivateNextTrue"
+        ]
     },
     "SceneWaitLoadingExit": {
         "desc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
