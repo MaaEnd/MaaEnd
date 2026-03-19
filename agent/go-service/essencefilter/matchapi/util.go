@@ -3,6 +3,7 @@ package matchapi
 import (
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func itoa(v int) string {
@@ -58,6 +59,6 @@ func normalizeSimilar(cfg MatcherConfig, s string) string {
 
 func runeCount(s string) int {
 	// Only need relative length comparisons; rune count is consistent with the previous matcher.
-	return len([]rune(s))
+	return utf8.RuneCountInString(s)
 }
 
