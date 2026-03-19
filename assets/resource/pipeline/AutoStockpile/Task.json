@@ -65,7 +65,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Starting": "该地区未解锁物资调度，跳过该地区"
+            "Node.Recognition.Succeeded": "该地区未解锁物资调度，跳过该地区"
         }
     },
     "AutoStockpileDecision": {
