@@ -53,6 +53,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
     - 任务入口、节点名、控制器限制先看 MaaEnd 仓库。
     - Pipeline 运行语义不确定时查 MaaFramework 文档。
     - MXU 行为或日志分层不确定时，先查 MXU README / 文档；只有文档不足或证据已指向实现层时才看源码。
+    - 输出给用户时，如果提到任务入口、任务说明、选项名、提示文案，先到 `assets/misc/locales/zh_cn.json` 查中文文案，不要直接把 `task id` / `option id` 当成最终展示文本。
 
 7. 只有在满足条件时才下钻第三方仓库。
 
@@ -276,6 +277,32 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 日志分层、GUI 角色、Tauri + React 架构：
     - `https://raw.githubusercontent.com/MistEO/MXU/main/README.md`
 
+## Localized Copy
+
+- 总结任务、选项、界面提示时，优先使用 `assets/misc/locales/zh_cn.json` 中的中文文案。
+- 常见查找顺序：
+    - 任务名：`task.<TaskId>.label`
+    - 任务描述：`task.<TaskId>.description`
+    - 通用选项名：`option.<OptionId>.label`
+    - 通用选项描述：`option.<OptionId>.description`
+    - 任务内选项：`task.<TaskId>.option.<OptionId>.label` / `.description`
+    - 任务运行提示或状态文案：优先按完整 key 查，例如 `task.<TaskId>.*`
+- 输出时优先写中文，必要时在括号里补原始 id，例如 `📅日常奖励领取（DailyRewards）`。
+- 如果 `zh_cn.json` 没有对应 key，再退回原始 id 或代码里的英文字符串，并明确说明“未在 `zh_cn.json` 找到对应文案”。
+
+## Linking Code Evidence
+
+- 如果要指向具体代码行，不要写本地路径加行号，也不要写绝对路径。
+- 统一给出对应仓库的远端 GitHub `blob` 行号链接。
+- MaaEnd 仓库链接格式：
+    - `https://github.com/MaaEnd/MaaEnd/blob/<commit>/<path>#L14-L20`
+- `<commit>` 必须是本次分析实际依据的代码版本：
+    - 默认使用当前检出的 `HEAD`
+    - 如果为了复核旧 issue 切到了某个 tag / commit，就使用那个版本解析后的 SHA
+- 例子：
+    - `https://github.com/MaaEnd/MaaEnd/blob/f2de4c61367ad03d4d8a13ce823139c6237f2a55/assets/resource/pipeline/Common/Button.json#L14-L20`
+- 如果引用的是 `MXU`、`MaaFramework` 或其他上游仓库，也用对应仓库的远端 `blob` 链接，而不是本地文件行号。
+
 ## Example Heuristic
 
 如果 issue 指向“拜访好友在 ADB 上卡死”，而日志里同时出现：
@@ -296,7 +323,8 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 ## Issue 概要
 
 - issue：`#1234`
-- 版本 / 控制器 / 任务：
+- 版本 / 控制器 / 任务：优先写 `zh_cn` 中文任务名，必要时补 task id
+- 任务描述 / 相关选项：优先写 `assets/misc/locales/zh_cn.json` 中的中文 `label` / `description`
 - 用户现象：
 
 ## 关键证据
@@ -306,6 +334,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - `mxu-tauri.log`：...
 - `mxu-web-*.log`：...
 - `mxu-agent.log` / `on_error`：...
+- 代码依据：如需指向具体实现，直接附远端 GitHub 行号链接
 
 ## 根因判断
 
@@ -358,5 +387,7 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 如果 issue 版本很旧，要明确区分“当时的根因”和“当前分支是否已修复”。
 - 如果用户日志与当前代码不一致，先按用户版本 tag 复核；若确认已修，再看修复是否已进入 tag / release：已发版建议升级，未发版建议等待 release。
 - 如果结论是“功能不支持”，必须给出代码级依据，例如任务控制器白名单、无效的 ADB pipeline、缺失的控制器分支或文档限制。
+- 如果回答里出现任务名、任务描述、选项名、提示文案，优先使用 `assets/misc/locales/zh_cn.json` 的中文文案；必要时才在括号里补原始 id。
+- 如果回答里引用了具体代码行，直接给远端 GitHub `blob` 行号链接，不要给本地路径加行号。
 - 如果日志和 issue 文字描述不一致，必须显式说明“证据未复现”还是“证据已复现但用户表述不精确”。
 - 如果证据表明问题已在新版本修复，明确建议用户升级；如果怀疑安装包、资源文件或配置损坏，明确建议重新下载或重建；如果判断为真实代码缺陷且暂无 workaround，明确建议等待开发者修复。
