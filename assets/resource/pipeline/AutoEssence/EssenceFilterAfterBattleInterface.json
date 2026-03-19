@@ -1,8 +1,13 @@
 {
-    //要想调用识别战斗后基质的话，只需要把"[Jumpback]EssenceFilterAfterBattleStart"插入到战斗结束，出现战利品界面的那个时间点对应的节点的next里面
-    // ，任务跑完后会自动点击退出战利品界面（不需要额外做退出战利品界面的节点），然后Jumpback回来的时候识别失败跳过自身，继续下一个节点
-    //如果需要修改配置，那就在你的任务里面加上option来override掉"EssenceFilterAfterBattleInit"的"attach"部分即可
-    //各个配置对应的功能同EssenceFilter
+    //使用说明
+    //   一句话版本：
+    //脚本运行到弹出基质战利品界面后，在next里加上"[Jumpback]EssenceFilterAfterBattleStart"，下面直接跟下一个界面的任务即可（我这个任务会自动点退出战利品界面）
+    //任务实现逻辑：
+    //1、这个任务开始是个识别节点，会先判断屏幕中是否有基质，有的话才开始，否则直接返回false跳过自身
+    //2、开始任务后会逐个识别屏幕中的基质，如果符合条件就上锁，不符合就弃置
+    //3、可以自定义设置来决定识别策略和上锁弃置策略，只要在自己的任务option里override"EssenceFilterAfterBattleInit"的"attach"部分即可，具体设置方法同EssenceFilter
+    //4、任务结束后会自己点击退出战利品界面（你就不用另外点击退出了），然后Jumpback回来
+    //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
     "EssenceFilterAfterBattleStart": {
         "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面，要加Jumpback",
         //有基质才开始任务，不然直接返回失败
