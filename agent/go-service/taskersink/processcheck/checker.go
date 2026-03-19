@@ -18,7 +18,7 @@ type blacklistEntry struct {
 	displayName string
 }
 
-// Keywords matched against process names via strings.Contains.
+// Keywords matched against process names via exact (case-sensitive) equality.
 var blacklist = []blacklistEntry{
 	{"RTSSHooksLoader64.exe", "RTSSHooksLoader64"},
 	{"RTSSHooksLoader.exe", "RTSSHooksLoader"},
