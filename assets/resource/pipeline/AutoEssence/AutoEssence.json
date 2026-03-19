@@ -100,8 +100,58 @@
     "AutoEssenceReadyToStart": {
         "next": [
             "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceLowSpBeforeStart",
             "AutoEssenceClickEssenceStartButton"
         ]
+    },
+    "AutoEssenceLowSpBeforeStart": {
+        "desc": "要是识别理智消耗数字是红色则结束任务，除非在设置里覆写掉",
+        "enabled": true,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    991,
+                    651,
+                    22,
+                    19
+                ],
+                "method": 40,
+                // 红色特点：高饱和度(>120)，高明度(>100)。H值跨越 [0, 10] 和 [160, 180]
+                "lower": [
+                    [
+                        0,
+                        120,
+                        100
+                    ],
+                    [
+                        160,
+                        120,
+                        100
+                    ]
+                ],
+                "upper": [
+                    [
+                        10,
+                        255,
+                        255
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "count": 20, // 至少要有 20 个符合条件的像素，防噪点
+                "connected": true
+            }
+        },
+        "action": {
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
+        }
     },
     "AutoEssenceClickEssenceStartButton": {
         "recognition": {
@@ -450,7 +500,6 @@
         },
         "post_delay": 1000,
         "next": [
-            "AutoEssenceLowSp",
             "AutoEssenceCloseObtainDialog"
         ],
         "focus": {
@@ -482,6 +531,7 @@
         }
     },
     "AutoEssenceLowSp": {
+        //这个现在不用了，改在战斗前识别了，如果不需要了可以删掉
         "recognition": {
             "type": "TemplateMatch",
             "param": {

@@ -11,9 +11,12 @@
             "option": [
                 "AutoEssenceDoObtain",
                 "AutoEssenceDoOverride",
+                "EssenceFilterAfterBattle",
                 "AutoEssenceRepeatCount"
             ],
-            "group": ["foreground"]
+            "group": [
+                "foreground"
+            ]
         }
     ],
     "option": {
@@ -30,6 +33,9 @@
                             "next": [
                                 "AutoEssenceClickObtainButton"
                             ]
+                        },
+                        "AutoEssenceLowSpBeforeStart": {
+                            "enabled": true
                         }
                     }
                 },
@@ -40,6 +46,9 @@
                             "next": [
                                 "AutoEssenceClickDiscardButton"
                             ]
+                        },
+                        "AutoEssenceLowSpBeforeStart": {
+                            "enabled": false
                         }
                     }
                 }
@@ -70,6 +79,35 @@
                         },
                         "AutoEssenceChooseOverrideOn": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattle": {
+            "type": "switch",
+            "label": "Use essencefilter after battle",
+            "description": "Use essenceFilter after battle",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoEssenceConfirmObtain": {
+                            "next": [
+                                "[JumpBack]EssenceFilterAfterBattleStart",
+                                "AutoEssenceOnSuccess"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoEssenceConfirmObtain": {
+                            "next": [
+                                "AutoEssenceCloseObtainDialog"
+                            ]
                         }
                     }
                 }

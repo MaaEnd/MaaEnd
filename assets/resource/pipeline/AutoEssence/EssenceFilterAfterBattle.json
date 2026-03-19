@@ -29,6 +29,9 @@
                 "threshold": 0.35
             }
         },
+        "focus": {
+            "Node.Recognition.Successed": "识别到基质，开始筛选并锁定有用的"
+        },
         "next": [
             "EssenceFilterAfterBattleInit"
         ]
