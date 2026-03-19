@@ -476,7 +476,10 @@ def parse_array_number_values(
 
         value_end = parser.parse_value_end(i)
         raw = parser.text[i:value_end].strip()
-        value = json.loads(raw)
+        try:
+            value = json.loads(raw)
+        except ValueError:
+            return None
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             return None
         values.append(value)
@@ -926,6 +929,10 @@ def process_pipeline_file(
                         )
                         if param_members is not None:
                             param_map = member_map(param_members)
+                            only_rec = only_rec or (
+                                get_bool_value(parser, param_map.get("only_rec"))
+                                is True
+                            )
                             expected_member = get_array_member_if_exists(
                                 parser, param_map, "expected"
                             )
@@ -944,7 +951,9 @@ def process_pipeline_file(
             expected_member = get_array_member_if_exists(parser, node_map, "expected")
         if roi_member is None:
             roi_member = node_map.get("roi")
-            roi_offset_member = get_array_member_if_exists(parser, node_map, "roi_offset")
+            roi_offset_member = get_array_member_if_exists(
+                parser, node_map, "roi_offset"
+            )
             if roi_member is not None:
                 roi_container_end = node_end
 
@@ -1014,7 +1023,10 @@ def process_pipeline_file(
                             roi_offset_values = parse_array_number_values(
                                 parser, roi_offset_member
                             )
-                            if roi_offset_values is not None and len(roi_offset_values) == 4:
+                            if (
+                                roi_offset_values is not None
+                                and len(roi_offset_values) == 4
+                            ):
                                 new_roi_offset = list(roi_offset_values)
                                 new_roi_offset[2] = float(new_roi_offset[2]) + delta_w
                                 replacements.append(
