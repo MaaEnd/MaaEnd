@@ -329,6 +329,8 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 ## 关键证据
 
+<details><summary>点击此处展开关键证据</summary>
+
 - `maa.log`：...
 - `go-service.log`：...
 - `mxu-tauri.log`：...
@@ -336,16 +338,12 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - `mxu-agent.log` / `on_error`：...
 - 代码依据：如需指向具体实现，直接附远端 GitHub 行号链接
 
+</details>
+
 ## 根因判断
 
 - 直接结论：
 - 证据链：
-
-## 修复方案
-
-1. 代码 / Pipeline / 配置层修复
-2. 需要补充的测试或日志
-3. 如问题本身属于不支持场景，给出应如何限制入口或改进提示
 
 ## 给用户的建议
 
@@ -354,9 +352,17 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 - 是否需要等待开发者修复：
 - 是否有临时绕过方案：
 
+## 修复方案
+
+1. 代码 / Pipeline / 配置层修复
+2. 需要补充的测试或日志
+3. 如问题本身属于不支持场景，给出应如何限制入口或改进提示
+
 ## 给 AI 的建议（可复制）
 
 给修复 AI 的指令，要求可直接执行。
+
+<details><summary>点击此处展开 AI 修复指令</summary>
 
 ~~~text
 已确认事实：
@@ -372,6 +378,8 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 4. 回归验证：...
 5. 如果暂时无法彻底修复，至少补上：...
 ~~~
+
+</details>
 
 ## 置信度
 
