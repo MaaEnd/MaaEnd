@@ -104,6 +104,17 @@ constexpr int MaxLostTrackingCount = 3;
 constexpr double MinMatchScore = 0.7;
 constexpr double MobileSearchRadius = 50.0;
 
+inline bool IsPathHeatmapZone(const std::string& zoneId)
+{
+    constexpr const char* kPathHeatmapZoneMarkers[] = { "OMVBase" };
+    for (const char* marker : kPathHeatmapZoneMarkers) {
+        if (zoneId.find(marker) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
 struct TrackingConfig
 {
     double maxNormalSpeed = 40.0;        // px/s
