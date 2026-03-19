@@ -191,16 +191,11 @@
         "desc": "从任意界面进入-景玉谷-水泽涧大世界",
         "pre_delay": 0,
         "anchor": {
-            "__ScenePrivateMapSwipeToStep0Anchor": "__ScenePrivateMapSwipeToStep0",
-            "__ScenePrivateMapSwipeToStep1Anchor": "__ScenePrivateMapSwipeToStep1BottomLeft",
-            "__ScenePrivateMapSwipeToStepFinishAnchor": "__ScenePrivateMapSwipeToStepFinishBottomLeft",
-            "__ScenePrivateMapUnknownEnterWorldAnchorTry1": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try1",
-            "__ScenePrivateMapUnknownEnterWorldAnchorTry2": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try2",
-            "__ScenePrivateMapUnknownEnterWorldAnchorTry3": "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley10Try3"
+            "__ScenePrivateMapMapTrackerBigMapPickAnchor": "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10Try0"
         },
         "post_delay": 0,
         "next": [
-            "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchor",
+            "__ScenePrivateMapWulingJingyuValleyEnterWorldAnchorWithPick",
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },

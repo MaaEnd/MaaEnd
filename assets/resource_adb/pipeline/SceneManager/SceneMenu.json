@@ -21,5 +21,15 @@
         "action": {
             "type": "Click"
         }
+    },
+    "__ScenePrivateWorldDijiangEnterMenuBackpackWithDepot": {
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__ScenePrivateWorldEnterMenuEntryValuables": {
+        "action": {
+            "type": "Click"
+        }
     }
 }

@@ -12,6 +12,7 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -27,9 +28,48 @@
             "time": 80,
             "timeout": 1000
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "StartRecoveryEmotion",
-            "[JumpBack]RecoveryEmotionAssistUseAssist"
+            "RecoveryEmotionAssistUseAssist"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
+        }
+    },
+    "RecoveryEmotion_OnError": {
+        "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭（出错重试）",
+        "max_hit": 2,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangControlNexus",
+                    "NeedAssistColor"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    10,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 80,
+            "timeout": 1000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RecoveryEmotionAssistUseAssist"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
@@ -47,9 +87,48 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
-        }
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "StartRecoveryEmotion"
+        ],
+        "on_error": [
+            "RecoveryEmotion_OnError"
+        ]
+    },
+    "StartRecoveryEmotion_OnError": {
+        "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员（出错重试）",
+        "max_hit": 2,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    370,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员",
+                    "選擇待恢復心情的幹員",
+                    "Select operator awaiting mood recovery",
+                    "対象オペレーターを選んでください"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EmotionFull",
+            "CouldNotAssistEmotion",
+            "SelectLowEmotion"
+        ]
     },
     "EmotionFull": {
         "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
@@ -76,8 +155,15 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "BackToControlNexus"
+        ],
+        "on_error": [
+            "StartRecoveryEmotion_OnError"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
@@ -103,10 +189,13 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EmotionFull",
             "CouldNotAssistEmotion",
-            "[JumpBack]SelectLowEmotion"
+            "SelectLowEmotion"
         ]
     },
     "SelectLowEmotion": {
@@ -123,6 +212,7 @@
                 "box_index": 2
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -133,7 +223,16 @@
                     0
                 ]
             }
-        }
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "StartRecoveryEmotion"
+        ],
+        "on_error": [
+            "StartRecoveryEmotion_OnError"
+        ]
     },
     "EmotionIcon": {
         "desc": "[恢复心情·状态] 心情图标位置",
@@ -233,6 +332,44 @@
                 ]
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "ConfirmRecoveryEmotion"
+        ],
+        "on_error": [
+            "StartRecoveryEmotion_OnError"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
+        }
+    },
+    "CouldNotAssistEmotion_OnError": {
+        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭（出错重试）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    432,
+                    74,
+                    428,
+                    92
+                ],
+                "expected": [
+                    "没有更多的心情激励点数，无法选择更多干员",
+                    "沒有更多的心情激勵點數，無法選擇更多幹員",
+                    "Cannot select more operators as all Mood Booster Points have been used up",
+                    "体力激励ポイントが足りないため、これ以上選択できません",
+                    "没有更多的心情激励点数",
+                    "沒有更多的心情激勵點數"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ConfirmRecoveryEmotion"
         ],
@@ -251,12 +388,54 @@
                 "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "CloseButtonType1"
+        ],
+        "on_error": [
+            "CouldNotAssistEmotion_OnError"
         ]
+    },
+    "EmotionFull_OnError": {
+        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入（出错重试）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    416,
+                    65,
+                    428,
+                    119
+                ],
+                "expected": [
+                    "干员心情已满，无法使用助力",
+                    "幹員心情已滿，無法使用助力",
+                    "Cannot assist as operator mood is maxed",
+                    "オペレーターは体力が十分なため、サポートできません",
+                    "Selected operator is at max mood",
+                    "No recovery required",
+                    "干员心情已满",
+                    "幹員心情已滿",
+                    "无法使用助力",
+                    "無法使用助力"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "BackToControlNexus"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+        }
     },
     "BackToControlNexus": {
         "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
@@ -274,11 +453,18 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
         "next": [
             "CloseButtonType1"
+        ],
+        "on_error": [
+            "EmotionFull_OnError"
         ]
     }
 }

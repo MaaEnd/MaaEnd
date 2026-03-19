@@ -13,6 +13,7 @@
         "post_delay": 0
     },
     "AutoCollectRoute1AssertLocation": {
+        "desc": "传送到收集地",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -32,12 +33,12 @@
                 }
             }
         },
-        "desc": "传送到收集地",
         "next": [
             "AutoCollectRoute1GotoFind1"
         ]
     },
     "AutoCollectRoute1GotoFind1": {
+        "desc": "前往收集地1",
         "action": {
             "type": "Custom",
             "param": {
@@ -165,12 +166,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind2"
         },
-        "desc": "前往收集地1",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind2": {
+        "desc": "前往收集地2",
         "action": {
             "type": "Custom",
             "param": {
@@ -194,12 +195,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind3"
         },
-        "desc": "前往收集地2",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind3": {
+        "desc": "前往收集地3",
         "action": {
             "type": "Custom",
             "param": {
@@ -223,12 +224,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind4"
         },
-        "desc": "前往收集地3",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind4": {
+        "desc": "前往收集地4",
         "action": {
             "type": "Custom",
             "param": {
@@ -252,12 +253,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind5"
         },
-        "desc": "前往收集地4",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind5": {
+        "desc": "前往收集地5",
         "action": {
             "type": "Custom",
             "param": {
@@ -281,12 +282,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind6"
         },
-        "desc": "前往收集地5",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind6": {
+        "desc": "前往收集地6",
         "action": {
             "type": "Custom",
             "param": {
@@ -310,12 +311,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind7"
         },
-        "desc": "前往收集地6",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind7": {
+        "desc": "前往收集地7",
         "action": {
             "type": "Custom",
             "param": {
@@ -339,12 +340,12 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1GotoFind8"
         },
-        "desc": "前往收集地7",
         "next": [
             "AutoCollectClickStart"
         ]
     },
     "AutoCollectRoute1GotoFind8": {
+        "desc": "前往收集地8",
         "action": {
             "type": "Custom",
             "param": {
@@ -368,7 +369,6 @@
         "anchor": {
             "AutoCollectClickAfter": "AutoCollectRoute1End"
         },
-        "desc": "前往收集地8",
         "next": [
             "AutoCollectClickStart"
         ]

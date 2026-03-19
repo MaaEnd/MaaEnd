@@ -1717,16 +1717,28 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         },
                         "ItemTransferClickOriginClicked": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         },
                         "ItemTransferClickOriginReturnClicked": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         }
                     }
                 },
@@ -1735,16 +1747,28 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickOrigin": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         },
                         "ItemTransferClickOriginClicked": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         },
                         "ItemTransferClickOriginReturn": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         },
                         "ItemTransferClickOriginReturnClicked": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         }
                     }
                 }
@@ -1761,10 +1785,16 @@
                     "label": "$global.region.ValleyIV",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         },
                         "ItemTransferClickDestinationClicked": {
-                            "expected": "四号谷地"
+                            "expected": [
+                                "四号谷地",
+                                "Valley IV"
+                            ]
                         }
                     }
                 },
@@ -1773,10 +1803,16 @@
                     "label": "$global.region.Wuling",
                     "pipeline_override": {
                         "ItemTransferClickDestination": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         },
                         "ItemTransferClickDestinationClicked": {
-                            "expected": "武陵"
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
                         }
                     }
                 }

@@ -114,10 +114,13 @@ Pass `custom_action_param` as a JSON object directly.
 
 `QuantityFilter` is an **optional enhancement**. If omitted, `QuantizedSliding` behaves exactly like the current version. If provided, OCR for `QuantizedSlidingGetQuantity` first applies color filtering and then reads the digits.
 
+Important: the current implementation first concatenates OCR fragments from the same pass in positional order, then extracts **all digit characters** from the combined text and converts them to an integer. If `QuantityBox` includes unrelated numbers, those digits may also be merged into the final parsed value. One main purpose of `QuantityFilter` is to keep only the actual quantity visible before OCR runs.
+
 It is a good fit when:
 
 - the digit color itself is stable;
 - the background, outline, shadow, or nearby numbers introduce OCR noise;
+- `QuantityBox` is already hard to tighten further, but color still separates the target digits from the interference;
 - `QuantityBox` is already correct, but OCR needs one more preprocessing step.
 
 Minimal example:
@@ -135,6 +138,8 @@ Constraints and limits:
 - `lower` and `upper` must both be present and must have the same length;
 - use the common `ColorMatch` methods already used in this repo: `4` (RGB), `40` (HSV), or `6` (GRAY);
 - only a **single** color range is supported for now; `[[...], [...]]` multi-range input is not supported;
+- you can treat it as an approximate color-based binarization step for the quantity area before OCR;
+- if the interfering digits use exactly the same color as the target digits, `QuantityFilter` cannot fundamentally separate them, so tightening `QuantityBox` is still the first choice;
 - `QuantityFilter` improves OCR preprocessing, but it is not a substitute for an inaccurate `QuantityBox`.
 
 ### `IncreaseButton` / `DecreaseButton` formats
@@ -245,6 +250,7 @@ That means:
 - If OCR frequently misreads digits as letters, the whole action will fail.
 
 So `QuantityBox` must not only “read digits,” but should also avoid including unrelated numeric groups whenever possible.
+If screen constraints make `QuantityBox` difficult to shrink further, but the target digits have a stable color, combine it with `QuantityFilter` to suppress the background or nearby interfering digits before OCR.
 
 ### 4. Choose how to locate the buttons
 

@@ -43,7 +43,7 @@ jobs:
         with:
           rebase: true
           branch: ${{ github.ref }}
-          message: "styles: auto format code
+          message: "style: auto format code
 
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 

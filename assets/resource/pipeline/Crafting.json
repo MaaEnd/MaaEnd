@@ -16,7 +16,7 @@
                 "roi": [
                     900,
                     100,
-                    250,
+                    349,
                     160
                 ],
                 "expected": [
@@ -112,14 +112,15 @@
         ]
     },
     "CraftingCloseProductPopup": {
+        "desc": "制作成功确认",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
                     590,
-                    590,
+                    573,
                     100,
-                    100
+                    117
                 ], //扩大识图区域，避免界面微调导致识别失败
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9

@@ -2,7 +2,7 @@
 {
     "_AutoEcoFarmMoveMouse": {
         "desc": "移动鼠标到左上角，配合jumpback使用，避免干扰识别",
-        "max_hit": 3, //默认为3，超过就不要再试了免得死循环
+        "max_hit": 20, //默认为20，超过就不要再试了免得死循环
         "action": {
             "type": "TouchMove",
             "param": {
@@ -56,7 +56,6 @@
             "AutoEcoFarmExit"
         ]
     },
-
     "_AutoEcoFarmSwipeToGround": {
         "desc": "移动视角到地面，配合jumpback使用",
         "max_hit": 3, //默认为3，超过就不要再试了免得死循环

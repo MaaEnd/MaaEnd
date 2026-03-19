@@ -114,6 +114,7 @@ Required parameters:
 Optional parameters:
 
 - `on_find`: Action to perform after the target point is found. Default is `"Click"`. Available values:
+
     - `"Click"`: Click the target point (default).
     - `"Teleport"`: Perform teleportation (requires the point to be a teleport anchor).
     - `"DoNothing"`: Perform no action.

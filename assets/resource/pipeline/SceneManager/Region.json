@@ -176,5 +176,44 @@
                 "threshold": 0.9
             }
         }
+    },
+    "InWorldFactory": {
+        "desc": "在大世界工厂模式界面",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryActive.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    500,
+                    0,
+                    300,
+                    100
+                ],
+                "expected": [
+                    "进入俯瞰",
+                    "進入俯瞰",
+                    "見下ろし視点ON",
+                    "탑뷰 모드로 전환",
+                    "Enter Top View",
+                    "退出俯瞰",
+                    "關閉俯瞰",
+                    "見下ろし視点OFF",
+                    "탑뷰 모드 나가기",
+                    "Exit Top View"
+                ]
+            }
+        ]
     }
 }

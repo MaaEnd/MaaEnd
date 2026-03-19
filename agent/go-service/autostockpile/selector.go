@@ -10,7 +10,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const swipeMaxNodeName = "AutoStockpileSwipeMax"
+const (
+	swipeMaxNodeName    = "AutoStockpileSwipeMax"
+	noCandidateNodeName = "AutoStockpileNoCandidate"
+)
 
 type candidateGoods struct {
 	goods     GoodsItem
@@ -80,6 +83,23 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Str("reason", selection.Reason).
 			Msg("no qualifying product selected")
 		maafocus.NodeActionStarting(ctx, fmt.Sprintf("未找到符合条件的物资 (原因: %s)", selection.Reason))
+		if err := ctx.OverridePipeline(buildNoCandidateResetOverride()); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("node", selectedGoodsClickNodeName+","+swipeMaxNodeName+","+swipeSpecificQuantityNodeName).
+				Msg("failed to reset no-candidate pipeline state")
+			return false
+		}
+		if err := ctx.OverrideNext(arg.CurrentTaskName, buildNoCandidateNextItems()); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("node", arg.CurrentTaskName).
+				Str("next", noCandidateNodeName).
+				Msg("failed to override next for no-candidate branch")
+			return false
+		}
 		return true
 	}
 
@@ -206,6 +226,24 @@ func resolveSwipeEnable(selection SelectionResult, result RecognitionResult, cfg
 		return true, false, true
 	}
 	return true, true, false
+}
+
+func buildNoCandidateResetOverride() map[string]any {
+	return map[string]any{
+		selectedGoodsClickNodeName: map[string]any{
+			"enabled": false,
+		},
+		swipeMaxNodeName: map[string]any{
+			"enabled": false,
+		},
+		swipeSpecificQuantityNodeName: map[string]any{
+			"enabled": false,
+		},
+	}
+}
+
+func buildNoCandidateNextItems() []maa.NextItem {
+	return []maa.NextItem{{Name: noCandidateNodeName}}
 }
 
 func formatSelectionMode(selection SelectionResult, result RecognitionResult, cfg SelectionConfig) string {

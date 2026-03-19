@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"image"
 	"math"
-	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -55,12 +53,6 @@ type ocrNameCandidate struct {
 	name string
 	tier string
 	box  maa.Rect
-}
-
-type goodsTemplate struct {
-	name         string
-	tier         string
-	templatePath string
 }
 
 // Run 执行 AutoStockpile 自定义识别，并返回包含商品与价格信息的结构化结果。
@@ -117,8 +109,21 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("region", region).
 		Msg("goods region resolved")
 
+	itemMap := GetItemMap()
+	if err := validateItemMap(itemMap); err != nil {
+		nameCount, idCount := itemMapCounts(itemMap)
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "load_item_map").
+			Int("name_count", nameCount).
+			Int("id_count", idCount).
+			Msg("item_map is unavailable")
+		return nil, false
+	}
+
 	goodsROI := resolveGoodsRecognitionROI(ctx, arg.Img)
-	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img, goodsROI)
+	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img, goodsROI, itemMap)
 	if err != nil {
 		log.Warn().
 			Err(err).
@@ -180,36 +185,24 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Int("bind_failed", pass1Failed).
 		Msg("goods-price binding finished")
 
-	templates, goodsDir, err := listGoodsTemplates(region)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Str("region", region).
-			Msg("failed to read goods templates")
-		return nil, false
-	}
+	candidateIDs := listUnboundRegionItemIDs(itemMap, region, boundIDs)
 	log.Info().
 		Str("component", autoStockpileComponent).
 		Str("region", region).
-		Str("goods_dir", goodsDir).
-		Int("template_count", len(templates)).
-		Msg("goods templates loaded")
+		Str("template_source", "item_map").
+		Int("template_count", len(candidateIDs)).
+		Msg("goods template candidates loaded")
 
-	itemMap := GetItemMap()
-	goods := make([]goodsCandidate, 0, len(templates))
-	for _, tpl := range templates {
-		id := BuildIDFromTemplatePath(tpl.templatePath)
-		if boundIDs[id] {
-			continue
-		}
+	goods := make([]goodsCandidate, 0, len(candidateIDs))
+	for _, id := range candidateIDs {
+		templatePath := BuildTemplatePath(id)
 
-		detail, recErr := runGoodsTemplateMatch(ctx, arg.Img, tpl.templatePath, goodsROI)
+		detail, recErr := runGoodsTemplateMatch(ctx, arg.Img, templatePath, goodsROI)
 		if recErr != nil {
 			log.Warn().
 				Err(recErr).
 				Str("component", autoStockpileComponent).
-				Str("template", tpl.templatePath).
+				Str("template", templatePath).
 				Msg("template match failed")
 			continue
 		}
@@ -219,15 +212,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			continue
 		}
 
-		itemName := tpl.name
-		if name, ok := itemMap.IDToName[id]; ok {
-			itemName = name
-		}
-
+		itemName := itemMap.IDToName[id]
 		tier := ParseTierFromID(id)
-		if tier == "" {
-			tier = tpl.tier
-		}
 
 		goods = append(goods, goodsCandidate{
 			item: GoodsItem{
@@ -313,7 +299,48 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
 		Detail: string(resultDetail),
-	}, len(resultGoods) > 0
+	}, true
+}
+
+func validateItemMap(itemMap *ItemMap) error {
+	if itemMap == nil {
+		return fmt.Errorf("item_map is nil")
+	}
+	if len(itemMap.NameToID) == 0 {
+		return fmt.Errorf("item_map name_to_id is empty")
+	}
+	if len(itemMap.IDToName) == 0 {
+		return fmt.Errorf("item_map id_to_name is empty")
+	}
+	return nil
+}
+
+func itemMapCounts(itemMap *ItemMap) (nameCount int, idCount int) {
+	if itemMap == nil {
+		return 0, 0
+	}
+	return len(itemMap.NameToID), len(itemMap.IDToName)
+}
+
+func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[string]bool) []string {
+	if itemMap == nil || len(itemMap.IDToName) == 0 {
+		return nil
+	}
+
+	prefix := region + "/"
+	ids := make([]string, 0, len(itemMap.IDToName))
+	for id := range itemMap.IDToName {
+		if !strings.HasPrefix(id, prefix) {
+			continue
+		}
+		if boundIDs[id] {
+			continue
+		}
+		ids = append(ids, id)
+	}
+
+	sort.Strings(ids)
+	return ids
 }
 
 // TODO: 当前 ColorMatch 溢出识别不够准确，需要改进。
@@ -480,78 +507,6 @@ func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
 			Msg("unexpected anchor value, fallback to Wuling")
 		return "Wuling", anchor
 	}
-}
-
-func listGoodsTemplates(region string) ([]goodsTemplate, string, error) {
-	baseParts := []string{"assets", "resource", "image", "AutoStockpile", "Goods", region}
-	pathCandidates := []string{
-		filepath.Join(baseParts...),
-		filepath.Join("..", "..", filepath.Join(baseParts...)),
-		filepath.Join("..", filepath.Join(baseParts...)),
-	}
-
-	var lastErr error
-	for _, goodsDir := range pathCandidates {
-		entries, err := os.ReadDir(goodsDir)
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		templates := make([]goodsTemplate, 0, len(entries))
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(strings.ToLower(entry.Name()), ".png") {
-				continue
-			}
-
-			name, tier, ok := parseGoodsFileName(entry.Name(), region)
-			if !ok {
-				log.Warn().
-					Str("component", autoStockpileComponent).
-					Str("filename", entry.Name()).
-					Msg("invalid goods filename format, skip")
-				continue
-			}
-
-			templates = append(templates, goodsTemplate{
-				name:         name,
-				tier:         tier,
-				templatePath: filepath.ToSlash(filepath.Join("AutoStockpile", "Goods", region, entry.Name())),
-			})
-		}
-
-		sort.Slice(templates, func(i, j int) bool {
-			return templates[i].templatePath < templates[j].templatePath
-		})
-
-		return templates, goodsDir, nil
-	}
-
-	if lastErr == nil {
-		lastErr = fmt.Errorf("no valid goods directory found for region %s", region)
-	}
-	return nil, "", lastErr
-}
-
-func parseGoodsFileName(filename, region string) (name string, tier string, ok bool) {
-	parts := strings.Split(filename, ".")
-	if len(parts) < 3 {
-		return "", "", false
-	}
-
-	name = parts[0]
-	tierPart := parts[1]
-	tierLevel := strings.TrimPrefix(tierPart, "Tier")
-	if tierLevel == "" || tierLevel == tierPart {
-		return "", "", false
-	}
-
-	if _, err := strconv.Atoi(tierLevel); err != nil {
-		return "", "", false
-	}
-
-	tier = region + "Tier" + tierLevel
-	return name, tier, true
 }
 
 func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string, goodsROI []int) (*maa.RecognitionDetail, error) {
@@ -746,7 +701,7 @@ func recognitionParamROI(node *maa.Node) ([]int, error) {
 	return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 }
 
-func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCandidate, []ocrNameCandidate, error) {
+func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, error) {
 	config := map[string]any{
 		goodsPriceNodeName: map[string]any{
 			"recognition": "OCR",
@@ -769,7 +724,6 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int) ([]priceCand
 	ocrNames := make([]ocrNameCandidate, 0, len(results))
 	seenPrice := make(map[string]struct{}, len(results))
 	seenName := make(map[string]struct{}, len(results))
-	itemMap := GetItemMap()
 	for _, result := range results {
 		ocrResult, ok := result.AsOCR()
 		if !ok {
@@ -933,13 +887,6 @@ func bindPriceToOCRGoods(goods ocrNameCandidate, prices []priceCandidate, used [
 		Msg("price bound to goods")
 
 	return prices[bestIdx].value, true
-}
-
-// BuildIDFromTemplatePath 根据模板路径构造商品 ID。
-func BuildIDFromTemplatePath(templatePath string) string {
-	trimmed := strings.TrimPrefix(templatePath, "AutoStockpile/Goods/")
-	trimmed = strings.TrimSuffix(trimmed, ".png")
-	return trimmed
 }
 
 func extractOCRTexts(detail *maa.RecognitionDetail) []string {

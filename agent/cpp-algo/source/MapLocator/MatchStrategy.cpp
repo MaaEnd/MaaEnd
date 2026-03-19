@@ -410,7 +410,7 @@ std::unique_ptr<IMatchStrategy> MatchStrategyFactory::create(
     MatchMode mode)
 {
     bool isBase = (zoneId.find("Base") != std::string::npos);
-    bool usePathHeatmap = (zoneId.find("OMVBase") != std::string::npos);
+    bool usePathHeatmap = IsPathHeatmapZone(zoneId);
 
     if (mode == MatchMode::ForcePathHeatmap) {
         usePathHeatmap = true;

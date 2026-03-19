@@ -140,6 +140,15 @@
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                230,
+                250,
+                800,
+                200
+            ]
+        },
         "action": {
             "type": "Click"
         }

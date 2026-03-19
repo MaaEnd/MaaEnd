@@ -3,6 +3,7 @@ package quantizedsliding
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -104,25 +105,13 @@ func extractOCRTextFromResults(results *maa.RecognitionResults) string {
 		return ""
 	}
 
-	for _, group := range [][]*maa.RecognitionResult{{results.Best}, results.Filtered, results.All} {
-		for _, result := range group {
-			if result == nil {
-				continue
-			}
-
-			ocrResult, ok := result.AsOCR()
-			if !ok {
-				continue
-			}
-
-			text := strings.TrimSpace(ocrResult.Text)
-			if text != "" {
-				return text
-			}
-		}
+	candidates := []ocrCandidate{
+		buildOCRCandidate([]*maa.RecognitionResult{results.Best}, 0),
+		buildOCRCandidate(results.Filtered, 1),
+		buildOCRCandidate(results.All, 2),
 	}
 
-	return ""
+	return selectOCRCandidate(candidates).text
 }
 
 func extractOCRTextFromDetailJSON(detailJSON string) string {
@@ -200,4 +189,150 @@ func extractOCRTextFromRawJSON(raw json.RawMessage) string {
 	}
 
 	return extractOCRTextFromDetailJSON(string(raw))
+}
+
+type ocrFragment struct {
+	text string
+	x    int
+	y    int
+	w    int
+	h    int
+}
+
+type ocrCandidate struct {
+	text          string
+	digitCount    int
+	fragmentCount int
+	priority      int
+}
+
+func buildOCRCandidate(results []*maa.RecognitionResult, priority int) ocrCandidate {
+	return buildOCRCandidateFromFragments(collectOCRFragments(results), priority)
+}
+
+func buildOCRCandidateFromFragments(fragments []ocrFragment, priority int) ocrCandidate {
+	uniqueFragments := uniqueOCRFragments(fragments)
+	text := joinOCRFragments(uniqueFragments)
+
+	return ocrCandidate{
+		text:          text,
+		digitCount:    countDigits(text),
+		fragmentCount: len(uniqueFragments),
+		priority:      priority,
+	}
+}
+
+func collectOCRFragments(results []*maa.RecognitionResult) []ocrFragment {
+	fragments := make([]ocrFragment, 0, len(results))
+	for _, result := range results {
+		if result == nil {
+			continue
+		}
+
+		ocrResult, ok := result.AsOCR()
+		if !ok {
+			continue
+		}
+
+		text := strings.TrimSpace(ocrResult.Text)
+		if text == "" {
+			continue
+		}
+
+		fragments = append(fragments, ocrFragment{
+			text: text,
+			x:    ocrResult.Box.X(),
+			y:    ocrResult.Box.Y(),
+			w:    ocrResult.Box.Width(),
+			h:    ocrResult.Box.Height(),
+		})
+	}
+
+	return fragments
+}
+
+func selectOCRCandidate(candidates []ocrCandidate) ocrCandidate {
+	best := ocrCandidate{}
+	found := false
+	for _, candidate := range candidates {
+		if candidate.text == "" {
+			continue
+		}
+		if !found || betterOCRCandidate(candidate, best) {
+			best = candidate
+			found = true
+		}
+	}
+
+	return best
+}
+
+func betterOCRCandidate(candidate ocrCandidate, current ocrCandidate) bool {
+	if candidate.digitCount != current.digitCount {
+		return candidate.digitCount > current.digitCount
+	}
+	if candidate.fragmentCount != current.fragmentCount {
+		return candidate.fragmentCount < current.fragmentCount
+	}
+
+	return candidate.priority < current.priority
+}
+
+func countDigits(text string) int {
+	count := 0
+	for _, r := range text {
+		if r >= '0' && r <= '9' {
+			count++
+		}
+	}
+
+	return count
+}
+
+func aggregateOCRFragments(fragments []ocrFragment) string {
+	return joinOCRFragments(uniqueOCRFragments(fragments))
+}
+
+func uniqueOCRFragments(fragments []ocrFragment) []ocrFragment {
+	if len(fragments) == 0 {
+		return nil
+	}
+
+	unique := make([]ocrFragment, 0, len(fragments))
+	seen := make(map[string]struct{}, len(fragments))
+	for _, fragment := range fragments {
+		fragment.text = strings.TrimSpace(fragment.text)
+		if fragment.text == "" {
+			continue
+		}
+
+		key := fmt.Sprintf("%d:%d:%d:%d:%s", fragment.x, fragment.y, fragment.w, fragment.h, fragment.text)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		unique = append(unique, fragment)
+	}
+
+	sort.SliceStable(unique, func(i, j int) bool {
+		if unique[i].y != unique[j].y {
+			return unique[i].y < unique[j].y
+		}
+		return unique[i].x < unique[j].x
+	})
+
+	return unique
+}
+
+func joinOCRFragments(fragments []ocrFragment) string {
+	if len(fragments) == 0 {
+		return ""
+	}
+
+	var builder strings.Builder
+	for _, fragment := range fragments {
+		builder.WriteString(fragment.text)
+	}
+
+	return builder.String()
 }

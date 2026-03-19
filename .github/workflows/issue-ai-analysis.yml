@@ -39,12 +39,11 @@ jobs:
           copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           bot-name: '@MaaEndBot'
           initial-comment-body: |
-            🤖 **MaaEndBot 已接手这份报告。**  
+            🤖 **MaaEndBot 正在分析该 Issue...**  
             
-            管理员，我会先核对 Issue 描述、评论和可用日志，再整理成结论回传，预计约 10 分钟。  
-            如果现有信息还不够，我也会在这里直接说明。先别急，还在可控范围内。
+            感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
           prompt-template: |
-            分析 GitHub Issue {{issue_number}}。把最终结论用“佩丽卡风格”写到 {{copilot_answer_file}}。
+            分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
 
       - name: Consume outputs
         env:

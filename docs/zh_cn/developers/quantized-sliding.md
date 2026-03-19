@@ -112,10 +112,13 @@ clickY = startY + (endY - startY) * numerator / denominator
 
 `QuantityFilter` 是一个**可选增强项**。不传时，`QuantizedSliding` 的行为与旧版本一致；传入后，会先对 `QuantizedSlidingGetQuantity` 的 OCR 结果做颜色过滤，再识别数字。
 
+需要注意：当前实现会先按位置顺序拼接同一轮 OCR 命中的文本片段，再从中提取**全部数字字符**转成整数。因此，如果 `QuantityBox` 里混入了其他数字，它们也可能被一起拼进最终结果。`QuantityFilter` 的一个核心用途，就是在 OCR 前尽量只保留目标数量本身。
+
 它适合这类场景：
 
 - 数字本身颜色稳定；
 - 背景、描边、阴影或其他数字干扰较多；
+- `QuantityBox` 已经不太方便继续缩小，但还能通过颜色把目标数字和干扰数字拉开；
 - `QuantityBox` 本身已经框准，只是 OCR 前缺少一层颜色筛选。
 
 最小示例：
@@ -133,6 +136,8 @@ clickY = startY + (endY - startY) * numerator / denominator
 - `lower` / `upper` 必须同时存在，且长度一致；
 - 当前建议使用仓库内已有的常见 `ColorMatch` 模式：`4`（RGB）、`40`（HSV）或 `6`（GRAY）；
 - 当前仅支持**单组**颜色阈值，不支持 `[[...], [...]]` 这种多段范围；
+- 可以把它理解为对数量区域先做一次按颜色的“近似二值化”，尽量只留下目标数字再交给 OCR；
+- 如果干扰数字和目标数字颜色完全一致，`QuantityFilter` 也无法从根本上区分，这时仍应优先收紧 `QuantityBox`；
 - `QuantityFilter` 只是增强 OCR 预处理，不是 `QuantityBox` 选区不准时的替代品。
 
 ### `IncreaseButton` / `DecreaseButton` 的写法
@@ -235,6 +240,7 @@ assets/resource/image/QuantizedSliding/SwipeButton.png
 - 如果 OCR 容易把数字识别成字母，整个动作就会失败。
 
 所以 `QuantityBox` 不仅要“能读到数字”，还要尽量避免把其他数字组一起框进去。
+如果画面限制导致 `QuantityBox` 无法再继续缩小，但目标数字颜色足够稳定，可以再配合 `QuantityFilter` 做颜色过滤，先压掉背景或旁边的干扰数字。
 
 ### 4. 选择按钮定位方式
 

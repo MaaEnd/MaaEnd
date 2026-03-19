@@ -82,13 +82,13 @@ commit_parsers = [
     { message = "^docs", group = "<!-- 4 -->📚 文档" },
     { message = "^perf", group = "<!-- 3 -->🚀 性能优化" },
     { message = "^(refactor|rft)", group = "<!-- 2 -->🚜 代码重构" },
-    { message = "^style", group = "<!-- 5 -->🎨 样式" },
+    { message = "^(style|styles)", group = "<!-- 5 -->🎨 样式" },
     { message = "^test", group = "<!-- 6 -->🧪 测试" },
     { message = "^chore\\(deps\\)", group = "📦 依赖更新" },
     { message = "^chore", group = "<!-- 8 -->🔧 日常维护" },
     { message = "^ci", group = "<!-- 7 -->⚙️ 持续集成" },
-    { body = ".*security", group = "<!-- 9 -->🔒 安全" },
     { message = "^revert", group = "<!-- 10 -->◀️ 撤销" },
+    { message = "^ai", group = "<!-- 9 -->🤖 人工智能" },
 ]
 
 # 忽略这些提交

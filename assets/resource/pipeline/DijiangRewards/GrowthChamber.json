@@ -181,10 +181,10 @@
             ]
         },
         "next": [
-            "[JumpBack]SortBy",
-            "[JumpBack]SortOrder",
+            "SortBy",
+            "SortOrder",
             "[JumpBack]SelectGrow",
-            "[JumpBack]InSelectGrowSwipe",
+            "InSelectGrowSwipe",
             "BackToGrowthChamber"
         ]
     },
@@ -476,7 +476,10 @@
                 ],
                 "dx": 120
             }
-        }
+        },
+        "next": [
+            "InGrow"
+        ]
     },
     "SortBy": {
         "desc": "排序,选择基础排序内容",
@@ -546,7 +549,10 @@
             "time": 80
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InGrow"
+        ]
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
@@ -614,7 +620,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InGrow"
+        ]
     },
     "ExitGrowthChamber": {
         "desc": "[培养舱·离开] 返回控制中枢",

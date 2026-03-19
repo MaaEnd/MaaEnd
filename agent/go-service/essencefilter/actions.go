@@ -83,9 +83,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
 	st.Reset()
-	if opts != nil && !opts.SkipLockedRow {
-		st.TryLastFirst = false
-	}
 	st.TargetSkillCombinations = ExtractSkillCombinations(filteredWeapons)
 	st.MatchedCombinationSummary = make(map[string]*SkillCombinationSummary)
 	st.EssenceTypes = essenceTypes
@@ -482,6 +479,14 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 		return false
 	}
 	st.RowBoxes = st.RowBoxes[:0]
+	st.PhysicalItemCount = len(results)
+
+	opts, _ := getOptionsFromAttach(ctx, "EssenceFilterInit")
+	skipMarked := false
+	if opts != nil {
+		skipMarked = opts.SkipLockedRow
+	}
+
 	for _, res := range results {
 		tm, ok := res.AsTemplateMatch()
 		if !ok {
@@ -495,38 +500,82 @@ func (a *EssenceFilterRowCollectAction) Run(ctx *maa.Context, arg *maa.CustomAct
 			continue
 		}
 		roi := maa.Rect{boxArr[0], boxArr[1] + 90, colorMatchROIW, colorMatchROIH}
+
+		colorMatched := false
 		for _, et := range st.EssenceTypes {
 			cDetail, err := ctx.RunRecognition("EssenceColorMatch", img, map[string]any{
+				// 直接传递 roi 切片
 				"EssenceColorMatch": map[string]any{"roi": roi, "lower": et.Range.Lower, "upper": et.Range.Upper},
 			})
 			if err != nil {
 				continue
 			}
 			if cDetail != nil && cDetail.Hit {
-				st.RowBoxes = append(st.RowBoxes, boxArr)
+				colorMatched = true
 				break
 			}
 		}
+
+		if colorMatched {
+			isMarked := false
+			if skipMarked {
+				margin := 10
+				bx1, by1 := boxArr[0]-margin, boxArr[1]-margin
+				if bx1 < 0 {
+					bx1 = 0
+				}
+				if by1 < 0 {
+					by1 = 0
+				}
+				bw, bh := boxArr[2]+margin*2, boxArr[3]+margin*2
+
+				roiX := bx1
+				roiY := by1 + int(float64(bh)*0.65)
+				roiW := int(float64(bw) * 0.30)
+				roiH := int(float64(bh) * 0.35)
+
+				thumbDetail, err := ctx.RunRecognition("EssenceThumbMarked", img, map[string]any{
+					"EssenceThumbMarked": map[string]any{
+						"roi": []int{roiX, roiY, roiW, roiH},
+					},
+				})
+				if err == nil && thumbDetail != nil && thumbDetail.Hit {
+					isMarked = true
+				}
+			}
+
+			if !isMarked {
+				st.RowBoxes = append(st.RowBoxes, boxArr)
+			}
+		}
 	}
+
 	sort.Slice(st.RowBoxes, func(i, j int) bool {
 		if st.RowBoxes[i][1] == st.RowBoxes[j][1] {
 			return st.RowBoxes[i][0] < st.RowBoxes[j][0]
 		}
 		return st.RowBoxes[i][1] < st.RowBoxes[j][1]
 	})
+
 	log.Info().Str("component", "EssenceFilter").Str("action", "RowCollect").Int("len_results", len(results)).Int("valid_boxes", len(st.RowBoxes)).Msg("color match done")
+
+	if skipMarked && len(st.RowBoxes) == 0 && st.PhysicalItemCount == st.MaxItemsPerRow {
+		LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("第 %d 行已全部标记，跳过", st.CurrentRow), "#11cf00")
+	}
+
 	isFallbackScan := arg.CurrentTaskName == "EssenceDetectFinal"
+	st.InFinalScan = isFallbackScan
 	if isFallbackScan && !st.FinalLargeScanUsed {
 		st.FinalLargeScanUsed = true
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
 		LogMXUSimpleHTMLWithColor(ctx, "尾扫完成，收集所有剩余基质格子", "#1a01fd")
 		return true
 	}
-	if (len(st.RowBoxes) > st.MaxItemsPerRow) && !isFallbackScan {
+	if (st.PhysicalItemCount > st.MaxItemsPerRow) && !isFallbackScan {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
 		return true
 	}
-	if len(st.RowBoxes) == 0 {
+	if st.PhysicalItemCount == 0 {
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
 		return true
 	}
@@ -545,13 +594,16 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 	}
 	if st.PendingFinalScan {
 		st.PendingFinalScan = false
+		// 尾扫后直接基于已收集的 RowBoxes 逐个处理，不再尝试 TryLastFirst/回 EssenceRowDetect
+		st.InFinalScan = true
+		st.TryLastFirst = false
 		log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Msg("补 swipe 完成，进入尾扫")
 		LogMXUSimpleHTML(ctx, "补 swipe 完成，进入尾扫")
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceDetectFinal"}})
 		return true
 	}
 	// Try-last-first: only when row is full (9). If total known and remaining this row < 9, skip and use normal logic.
-	if st.RowIndex == 0 && st.TryLastFirst && len(st.RowBoxes) > 0 {
+	if st.RowIndex == 0 && st.TryLastFirst && !st.InFinalScan && len(st.RowBoxes) > 0 {
 		remaining := st.TotalCount - st.MaxItemsPerRow*(st.CurrentRow-1)
 		if st.TotalCount > 0 && remaining < st.MaxItemsPerRow {
 			// partial row, do not try last first
@@ -594,7 +646,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		}
 	}
 	if st.RowIndex >= len(st.RowBoxes) {
-		if (len(st.RowBoxes) == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
+		if (st.PhysicalItemCount == st.MaxItemsPerRow) && !st.FinalLargeScanUsed {
 			const maxRemainingForFinalScan = 45
 			rowsDone := st.CurrentRow
 			remaining := st.TotalCount - st.MaxItemsPerRow*rowsDone
@@ -602,12 +654,20 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 				st.PendingFinalScan = true
 				LogMXUSimpleHTML(ctx, fmt.Sprintf("剩余 %d 个 ≤ %d，先补一次滑动再尾扫（总 %d，已 %d 行）", remaining, maxRemainingForFinalScan, st.TotalCount, rowsDone))
 			}
+			nextNode := "EssenceFilterSwipeNext"
 			if !st.FirstRowSwipeDone {
 				st.FirstRowSwipeDone = true
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeFirst"}})
-			} else {
-				ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterSwipeNext"}})
+				nextNode = "EssenceFilterSwipeFirst"
 			}
+			// 最后一次补滑（remaining <= 45）不走校准：避免 SwipeCalibrate 识别失败导致流程中断
+			if st.PendingFinalScan {
+				if nextNode == "EssenceFilterSwipeFirst" {
+					nextNode = "EssenceFilterSwipeFirstNoCalibrate"
+				} else {
+					nextNode = "EssenceFilterSwipeNextNoCalibrate"
+				}
+			}
+			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}})
 			LogMXUSimpleHTML(ctx, fmt.Sprintf("滑动到第 %d 行", st.CurrentRow+1))
 			st.CurrentRow++
 			return true
@@ -615,6 +675,7 @@ func (a *EssenceFilterRowNextItemAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterFinish"}})
 		return true
 	}
+
 	box := st.RowBoxes[st.RowIndex]
 	log.Info().Str("component", "EssenceFilter").Str("action", "RowNextItem").Ints("box", box[:]).Msg("click next box")
 	clickingBox := [4]int{box[0] + 10, box[1] + 10, box[2] - 20, box[3] - 20}

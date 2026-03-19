@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -47,35 +48,46 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		return
 	}
 
-	// Get the cached image
-	img, err := controller.CacheImage()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Failed to get cached image")
-		return
-	}
-	if img == nil {
-		log.Error().Msg("Failed to get cached image")
-		return
+	const maxRetries = 20
+	var width, height int32
+	var err error
+	for i := range maxRetries {
+		width, height, err = controller.GetResolution()
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get resolution")
+			return
+		}
+		if width > 100 && height > 100 {
+			break
+		}
+		log.Debug().
+			Int32("width", width).
+			Int32("height", height).
+			Int("attempt", i+1).
+			Msg("Resolution too small, window may not be ready yet, retrying...")
+		time.Sleep(time.Second)
+		controller.PostScreencap().Wait()
 	}
 
-	// Get image dimensions
-	bounds := img.Bounds()
-	width := bounds.Dx()
-	height := bounds.Dy()
+	if width <= 100 || height <= 100 {
+		log.Error().
+			Int32("width", width).
+			Int32("height", height).
+			Msg("Resolution still too small after max retries, skipping aspect ratio check")
+		return
+	}
 
 	log.Debug().
-		Int("width", width).
-		Int("height", height).
-		Msg("Got screenshot dimensions")
+		Int32("width", width).
+		Int32("height", height).
+		Msg("Got resolution")
 
 	// Check aspect ratio
-	if !isAspectRatio16x9(width, height) {
-		actualRatio := calculateAspectRatio(width, height)
+	if !isAspectRatio16x9(int(width), int(height)) {
+		actualRatio := calculateAspectRatio(int(width), int(height))
 		log.Error().
-			Int("width", width).
-			Int("height", height).
+			Int32("width", width).
+			Int32("height", height).
 			Float64("actual_ratio", actualRatio).
 			Float64("target_ratio", targetRatio).
 			Msg("Resolution is not 16:9! Task will be stopped.")
@@ -85,8 +97,8 @@ func (c *AspectRatioChecker) OnTaskerTask(tasker *maa.Tasker, event maa.EventSta
 		tasker.PostStop()
 	} else {
 		log.Debug().
-			Int("width", width).
-			Int("height", height).
+			Int32("width", width).
+			Int32("height", height).
 			Msg("Resolution check passed: 16:9")
 	}
 }

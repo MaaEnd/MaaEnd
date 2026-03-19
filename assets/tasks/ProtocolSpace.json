@@ -6,6 +6,7 @@
             "entry": "ProtocolSpaceEntry",
             "description": "$task.ProtocolSpace.description",
             "option": [
+                "ProtocolSpaceTeamChoose",
                 "ProtocolSpaceSuccessCount",
                 "ProtocolSpaceFailedCount",
                 "ProtocolSpaceUsePermit",
@@ -14,10 +15,83 @@
             "controller": [
                 "Win32-Front"
             ],
-            "group": ["foreground"]
+            "group": [
+                "foreground"
+            ]
         }
     ],
     "option": {
+        "ProtocolSpaceTeamChoose": {
+            "type": "select",
+            "label": "$option.ProtocolSpaceTeamChoose.label",
+            "default_case": "ProtocolSpaceTeamChooseDefault",
+            "cases": [
+                {
+                    "name": "ProtocolSpaceTeamChooseDefault",
+                    "label": "$option.ProtocolSpaceTeamChoose.case.ProtocolSpaceTeamChooseDefault.label",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChoose": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose01",
+                    "label": "01",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "01"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose02",
+                    "label": "02",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "02"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose03",
+                    "label": "03",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "03"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose04",
+                    "label": "04",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "04"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "ProtocolSpaceTeamChoose05",
+                    "label": "05",
+                    "pipeline_override": {
+                        "ProtocolSpaceTeamChooseTextRecognition": {
+                            "expected": [
+                                "05"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         "ProtocolSpaceSuccessCount": {
             "type": "select",
             "label": "$option.ProtocolSpaceSuccessCount.label",
