@@ -182,6 +182,22 @@
         "recognition": "Or",
         "any_of": [
             {
+                "recognition": "OCR",
+                "roi": [
+                    999,
+                    372,
+                    130,
+                    42
+                ],
+                "expected": [
+                    "装备制造",
+                    "裝備製造",
+                    "Gear Assembly",
+                    "装備製造",
+                    "장비 제작"
+                ]
+            },
+            {
                 "recognition": "TemplateMatch",
                 "roi": [
                     0,

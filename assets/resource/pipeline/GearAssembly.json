@@ -105,9 +105,9 @@
             "param": {
                 "roi": [
                     590,
-                    590,
+                    581,
                     100,
-                    100
+                    109
                 ], //扩大识图区域，避免界面微调导致识别失败
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9

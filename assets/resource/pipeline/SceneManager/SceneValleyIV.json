@@ -650,11 +650,11 @@
                         "recognition": {
                             "type": "TemplateMatch",
                             "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    0,
-                                    0
+                                "roi": [ //适当调整识别区域，避免误触查看当前区域信息
+                                    44,
+                                    191,
+                                    1151,
+                                    412
                                 ],
                                 "template": [
                                     "SceneManager/MapTeleport.png"

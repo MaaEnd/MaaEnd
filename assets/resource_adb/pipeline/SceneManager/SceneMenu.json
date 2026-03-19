@@ -31,5 +31,10 @@
         "action": {
             "type": "Click"
         }
+    },
+    "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
+        "action": {
+            "type": "Click"
+        }
     }
 }
