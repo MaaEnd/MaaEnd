@@ -8,7 +8,7 @@
             "ResellEnterShip"
         ]
     },
-    "ResellShipWalkAS_KeyDownA": {
+    "ResellShipNavigation": {
         "desc": "使用MapNavigator导航至物资调度终端附近",
         "recognition": {
             "type": "DirectHit"

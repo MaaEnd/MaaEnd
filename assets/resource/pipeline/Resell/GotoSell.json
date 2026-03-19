@@ -113,7 +113,7 @@
         "action": "DoNothing",
         "post_delay": 500,
         "next": [
-            "ResellShipWalkAS_KeyDownA"
+            "ResellShipNavigation"
         ]
     }
 }
