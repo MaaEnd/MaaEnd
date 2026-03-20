@@ -30,7 +30,8 @@
             117
         ],
         "expected": [
-            "Baker"
+            // @i18n-skip
+            "BAKER"
         ],
         "next": [
             "BakerCheckMsg", // Baker 会话信息
