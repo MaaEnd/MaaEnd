@@ -311,6 +311,9 @@
         },
         "next": [
             "ExitGrowthChamber"
+        ],
+        "on_error": [
+            "ConfirmGrowAgain_OnError"
         ]
     },
     "ConfirmGrowAgain_OnError": {
