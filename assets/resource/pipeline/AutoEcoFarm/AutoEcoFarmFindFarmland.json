@@ -98,7 +98,7 @@
                 ],
                 "expected": [
                     "清空",
-                    "Clear",
+                    "(?i)Clear",
                     "クリア"
                 ]
             }
@@ -398,7 +398,7 @@
                 ],
                 "expected": [
                     "取消",
-                    "Cancel",
+                    "(?i)Cancel",
                     "キャンセル"
                 ],
                 "threshold": 0.9
@@ -422,7 +422,7 @@
                 "expected": [
                     "追踪",
                     "追蹤",
-                    "Track",
+                    "(?i)Track",
                     "追跡"
                 ],
                 "threshold": 0.9

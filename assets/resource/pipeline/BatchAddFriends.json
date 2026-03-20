@@ -74,7 +74,7 @@
                 "expected": [
                     "搜索",
                     "搜尋",
-                    "Search",
+                    "(?i)Search",
                     "検索"
                 ],
                 "threshold": 0.7
@@ -104,7 +104,7 @@
                 "expected": [
                     "加载中",
                     "載入中",
-                    "Loading",
+                    "(?i)Loading",
                     "読み込み中"
                 ],
                 "threshold": 0.7
@@ -145,7 +145,7 @@
                 "expected": [
                     "添加好友",
                     "新增好友",
-                    "Add Friend",
+                    "(?i)Add\\s*Friend",
                     "フレンド追加"
                 ],
                 "threshold": 0.7
@@ -222,7 +222,7 @@
                 "expected": [
                     "添加好友",
                     "新增好友",
-                    "Add Friend",
+                    "(?i)Add\\s*Friend",
                     "フレンド追加"
                 ],
                 "threshold": 0.7
@@ -251,7 +251,7 @@
                 "expected": [
                     "添加好友",
                     "新增好友",
-                    "Add Friend",
+                    "(?i)Add\\s*Friend",
                     "フレンド追加"
                 ],
                 "threshold": 0.7
@@ -335,7 +335,7 @@
                 "expected": [
                     "搜索的UID不存在",
                     "搜尋的UID不存在",
-                    "Search has not found UID",
+                    "(?i)Search\\s*has\\s*not\\s*found\\s*UID",
                     "該当のUIDがありません"
                 ],
                 "threshold": 0.7
@@ -362,7 +362,7 @@
                 "expected": [
                     "未搜索到相关玩家",
                     "未搜尋到相關玩家",
-                    "No matching players found",
+                    "(?i)No\\s*matching\\s*players\\s*found",
                     "当該プレイヤーが見つかりませんでした"
                 ],
                 "threshold": 0.7
@@ -459,7 +459,7 @@
                 "expected": [
                     "输入名称搜索好友",
                     "輸入名稱搜尋好友",
-                    "Search friend by name",
+                    "(?i)Search\\s*friend\\s*by\\s*name",
                     "名前を入力して検索"
                 ],
                 "threshold": 0.7
@@ -487,7 +487,7 @@
                 "expected": [
                     "搜索玩家名称或UID添加好友",
                     "搜尋玩家名稱或UID新增好友",
-                    "Search player name or UID to find friends",
+                    "(?i)Search\\s*player\\s*name\\s*or\\s*UID\\s*to\\s*find\\s*friends",
                     "プレイヤーの名前またはUIDを入力してください"
                 ],
                 "threshold": 0.7
@@ -558,7 +558,7 @@
                 "expected": [
                     "换一批",
                     "換一批",
-                    "Refresh List",
+                    "(?i)Refresh\\s*List",
                     "リスト更新"
                 ],
                 "threshold": 0.7
@@ -599,7 +599,7 @@
                 "expected": [
                     "添加好友",
                     "新增好友",
-                    "Add Friend",
+                    "(?i)Add\\s*Friend",
                     "フレンド追加"
                 ],
                 "threshold": 0.7

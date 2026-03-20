@@ -75,9 +75,8 @@
         "expected": [
             "访客终端",
             "訪客終端",
-            "Guest Terminal",
+            "(?i)Guest\\s*Terminal",
             "訪問端末",
-            "GUEST TERMINAL",
             "방문자 단말기"
         ],
         "pre_wait_freezes": 400,

@@ -55,7 +55,7 @@
         "expected": [
             "源石研究园",
             "源石研究園",
-            "Originium Science Park",
+            "(?i)Originium\\s*Science\\s*Park",
             "源石研究パーク",
             "오리지늄 연구 구역"
         ],
@@ -75,7 +75,7 @@
         "expected": [
             "矿脉源区",
             "礦脈源區",
-            "Origin Lodespring",
+            "(?i)Origin\\s*Lodespring",
             "鉱山エリア",
             "광맥 구역"
         ],
@@ -94,7 +94,7 @@
         ],
         "expected": [
             "供能高地",
-            "Power Plateau",
+            "(?i)Power\\s*Plateau",
             "エネルギー高地",
             "에너지 공급 고지"
         ],
@@ -115,11 +115,11 @@
         "expected": [
             "查看报价",
             "查看報價",
-            "Check Bid",
+            "(?i)Check\\s*Bid",
             "希望価格確認",
             "货物装箱",
             "貨物裝箱",
-            "Pack Goods",
+            "(?i)Pack\\s*Goods",
             "パッキング",
             "화물 포장",
             "입찰 보기"
@@ -141,11 +141,11 @@
         "expected": [
             "查看报价",
             "查看報價",
-            "Check Bid",
+            "(?i)Check\\s*Bid",
             "希望価格確認",
             "货物装箱",
             "貨物裝箱",
-            "Pack Goods",
+            "(?i)Pack\\s*Goods",
             "パッキング",
             "화물 포장",
             "입찰 보기"
@@ -167,11 +167,11 @@
         "expected": [
             "查看报价",
             "查看報價",
-            "Check Bid",
+            "(?i)Check\\s*Bid",
             "希望価格確認",
             "货物装箱",
             "貨物裝箱",
-            "Pack Goods",
+            "(?i)Pack\\s*Goods",
             "パッキング",
             "화물 포장",
             "입찰 보기"

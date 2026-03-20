@@ -86,7 +86,7 @@
         "expected": [
             "据点",
             "據點",
-            "Outpost",
+            "(?i)Outpost",
             "拠点",
             "거점"
         ],
@@ -106,7 +106,7 @@
         "expected": [
             "本次交易份数",
             "本次交易份數",
-            "QTY in current trade",
+            "(?i)QTY\\s*in\\s*current\\s*trade",
             "取引予定数",
             "이번 거래 수량"
         ],
@@ -126,13 +126,12 @@
         "expected": [
             "据点管理",
             "據點管理",
-            "Outpost Management",
+            "(?i)Outpost\\s*Management",
             "拠点管理",
             "据点",
             "據點",
-            "Outpost",
+            "(?i)Outpost",
             "拠点",
-            "outpost",
             "거점 관리"
         ],
         "pre_delay": 0,

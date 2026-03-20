@@ -11,7 +11,7 @@
         "expected": [
             "地区建设",
             "地區建設",
-            "Regional Development",
+            "(?i)Regional\\s*Development",
             "地域建設",
             "지역 건설"
         ],
@@ -31,7 +31,7 @@
         "expected": [
             "四号谷地",
             "四號谷地",
-            "Valley IV",
+            "(?i)Valley\\s*IV",
             "4번 협곡",
             "Valley"
         ],
@@ -50,7 +50,7 @@
         ],
         "expected": [
             "武陵",
-            "Wuling",
+            "(?i)Wuling",
             "무릉"
         ],
         "pre_delay": 0,
@@ -69,7 +69,7 @@
         "expected": [
             "本地仓储节点",
             "本地區倉儲節點",
-            "Local Depot Node",
+            "(?i)Local\\s*Depot\\s*Node",
             "地域保管ボックス",
             "현재 지역 저장고 노드"
         ],
@@ -89,7 +89,7 @@
         "expected": [
             "运送人信息",
             "運送人資訊",
-            "Courier Info",
+            "(?i)Courier\\s*Info",
             "配達員詳細",
             "운송인 정보"
         ],
@@ -110,7 +110,7 @@
         "expected": [
             "是否切换查看选中地区的地区建设情况？",
             "是否切換查看選取的地區建設狀況？",
-            "Switch to view the development status of the selected region?",
+            "(?i)Switch\\s*to\\s*view\\s*the\\s*development\\s*status\\s*of\\s*the\\s*selected\\s*region\\s*\\?",
             "この地域の建設状況を確認しますか？",
             "Switch to view",
             "selected region",

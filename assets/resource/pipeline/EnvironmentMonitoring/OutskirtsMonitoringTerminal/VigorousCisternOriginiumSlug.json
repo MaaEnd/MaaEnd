@@ -26,7 +26,7 @@
         "expected": [
             "充满活力的蓄水源石虫",
             "充滿活力的蓄水源石蟲",
-            "Vigorous Cistern Originium Slug",
+            "(?i)Vigorous\\s*Cistern\\s*Originium\\s*Slug",
             "活発になっている貯水オリジムシ",
             "활기찬 저수 원석충"
         ]
@@ -44,11 +44,11 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -67,7 +67,7 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -85,7 +85,7 @@
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +102,7 @@
         "expected": [
             "充满活力的蓄水源石虫",
             "充滿活力的蓄水源石蟲",
-            "Vigorous Cistern Originium Slug",
+            "(?i)Vigorous\\s*Cistern\\s*Originium\\s*Slug",
             "活発になっている貯水オリジムシ",
             "활기찬 저수 원석충"
         ]

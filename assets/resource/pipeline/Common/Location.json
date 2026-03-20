@@ -81,7 +81,7 @@
         "expected": [
             "四号谷地",
             "四號谷地",
-            "Valley IV",
+            "(?i)Valley\\s*IV",
             "4번 협곡",
             "Valley"
         ],
@@ -104,7 +104,7 @@
         ],
         "expected": [
             "武陵",
-            "Wuling",
+            "(?i)Wuling",
             "무릉"
         ],
         "pre_delay": 0,

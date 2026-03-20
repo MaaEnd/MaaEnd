@@ -24,7 +24,7 @@
         "expected": [
             "货物装箱",
             "貨物裝箱",
-            "Pack Goods",
+            "(?i)Pack\\s*Goods",
             "パッキング",
             "화물 포장"
         ],
@@ -56,7 +56,7 @@
         "expected": [
             "调度申请",
             "調度申請",
-            "Redistribution Bid",
+            "(?i)Redistribution\\s*Bid",
             "取引申請",
             "관리 신청"
         ],
@@ -104,7 +104,7 @@
         "expected": [
             "本地仓储",
             "本地區倉儲",
-            "Local Depot",
+            "(?i)Local\\s*Depot",
             "地域在庫",
             "지역 저장고"
         ],
@@ -315,7 +315,7 @@
         "expected": [
             "请尽快送达",
             "請儘快送達",
-            "Deliver Quickly",
+            "(?i)Deliver\\s*Quickly",
             "早めに配達してください",
             "최대한 빨리 배달하세요."
         ],
@@ -339,7 +339,7 @@
         "expected": [
             "有待运送的货物，请先完成送货",
             "有待運送的貨物，請先完成送貨",
-            "Finish the ongoing delivery first",
+            "(?i)Finish\\s*the\\s*ongoing\\s*delivery\\s*first",
             "配達待ちの荷物を先に届けてください",
             "有待运送的货物",
             "有待運送的貨物",

@@ -12,11 +12,11 @@
                 "expected": [
                     "委托人信息",
                     "委託人資訊",
-                    "Client Info",
+                    "(?i)Client\\s*Info",
                     "依頼主詳細",
                     "委派任务",
                     "委派任務",
-                    "Commission",
+                    "(?i)Commission",
                     "協力任務"
                 ]
             }
@@ -44,7 +44,7 @@
                 "expected": [
                     "仓储节点",
                     "倉儲節點",
-                    "Depot Node",
+                    "(?i)Depot\\s*Node",
                     "保管ボックス"
                 ]
             }
@@ -131,7 +131,7 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "Accept Delivery Job",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
@@ -165,7 +165,7 @@
                 "expected": [
                     "运送委托列表",
                     "運送委託清單",
-                    "List of Delivery Jobs",
+                    "(?i)List\\s*of\\s*Delivery\\s*Jobs",
                     "配達依頼一覧"
                 ]
             }
@@ -307,7 +307,7 @@
                 "expected": [
                     "刷新",
                     "更新",
-                    "Refresh"
+                    "(?i)Refresh"
                 ]
             }
         },
@@ -334,7 +334,7 @@
                 "expected": [
                     "刷新",
                     "更新",
-                    "Refresh"
+                    "(?i)Refresh"
                 ]
             }
         },
@@ -361,11 +361,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "Accept Delivery Job",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "Delivery",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -394,11 +394,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "Accept Delivery Job",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "Delivery",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -422,11 +422,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "Accept Delivery Job",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "Delivery",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -585,7 +585,7 @@
                 "expected": [
                     "查看任务",
                     "查看任務",
-                    "View Mission",
+                    "(?i)View\\s*Mission",
                     "任務確認",
                     "임무 확인"
                 ]
@@ -649,7 +649,7 @@
                 "expected": [
                     "委托人信息",
                     "委託人資訊",
-                    "Client Info",
+                    "(?i)Client\\s*Info",
                     "依頼主詳細"
                 ]
             }
@@ -680,11 +680,11 @@
                 "expected": [
                     "请尽快送达",
                     "請儘快送達",
-                    "Deliver Quickly",
+                    "(?i)Deliver\\s*Quickly",
                     "早めに配達してください",
                     "已接取运送任务",
                     "已接取運送任務",
-                    "Delivery job already accepted",
+                    "(?i)Delivery\\s*job\\s*already\\s*accepted",
                     "配達任務を引き受けました",
                     "点击屏幕继续",
                     "按任意處繼續",

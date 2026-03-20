@@ -32,7 +32,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室"
                 ]
             }
@@ -52,7 +52,7 @@
                 "expected": [
                     "设施详情",
                     "設施詳情",
-                    "Facility Details",
+                    "(?i)Facility\\s*Details",
                     "船室詳細",
                     "等级提升"
                 ]

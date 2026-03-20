@@ -12,11 +12,11 @@
                 "expected": [
                     "邮件",
                     "信件",
-                    "Mail",
+                    "(?i)Mail",
                     "メール",
                     "收件箱",
                     "收件匣",
-                    "Inbox",
+                    "(?i)Inbox",
                     "受信箱"
                 ]
             }
@@ -145,7 +145,7 @@
                 "expected": [
                     "邮箱奖励",
                     "信箱獎勵",
-                    "Mail Rewards",
+                    "(?i)Mail\\s*Rewards",
                     "メール報酬"
                 ]
             }
@@ -175,7 +175,7 @@
                 "expected": [
                     "获得道具",
                     "獲得道具",
-                    "Items Acquired",
+                    "(?i)Items\\s*Acquired",
                     "アイテム入手"
                 ]
             }
@@ -244,7 +244,7 @@
                 ],
                 "expected": [
                     "全部收取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取"
                 ]
             }
@@ -271,7 +271,7 @@
                 "expected": [
                     "全部领取",
                     "全部領取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取"
                 ]
             }

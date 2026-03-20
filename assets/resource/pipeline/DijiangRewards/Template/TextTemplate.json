@@ -52,7 +52,7 @@
                 ],
                 "expected": [
                     "全部收取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取"
                 ]
             }
@@ -72,7 +72,7 @@
                 ],
                 "expected": [
                     "收取",
-                    "Take",
+                    "(?i)Take",
                     "受取"
                 ]
             }
@@ -93,7 +93,7 @@
                 "expected": [
                     "领取",
                     "領取",
-                    "Claim",
+                    "(?i)Claim",
                     "受取",
                     "[Cc]laim"
                 ],
@@ -135,7 +135,7 @@
                 ],
                 "expected": [
                     "全部接收",
-                    "Receive All",
+                    "(?i)Receive\\s*All",
                     "一括受取"
                 ]
             }
@@ -155,7 +155,7 @@
                 ],
                 "expected": [
                     "接收",
-                    "Receive",
+                    "(?i)Receive",
                     "受け取る"
                 ]
             }
@@ -213,7 +213,7 @@
                 "expected": [
                     "开展交流",
                     "開展交流",
-                    "Start Exchange",
+                    "(?i)Start\\s*Exchange",
                     "情報共有"
                 ]
             }
@@ -234,7 +234,7 @@
                 "expected": [
                     "确认提取",
                     "確定提取",
-                    "Extract",
+                    "(?i)Extract",
                     "抽出する"
                 ]
             }
@@ -254,7 +254,7 @@
                 ],
                 "expected": [
                     "取消",
-                    "Cancel",
+                    "(?i)Cancel",
                     "キャンセル"
                 ]
             }
@@ -274,7 +274,7 @@
                 "expected": [
                     "培养获得",
                     "培養獲得",
-                    "Materials Grown",
+                    "(?i)Materials\\s*Grown",
                     "培養報酬"
                 ]
             }
@@ -294,7 +294,7 @@
                 "expected": [
                     "提取获得",
                     "提取獲得",
-                    "Seeds Extracted",
+                    "(?i)Seeds\\s*Extracted",
                     "抽出物一覧"
                 ]
             }
@@ -314,7 +314,7 @@
                 "expected": [
                     "制造舱收集产出",
                     "製造艙收集產出",
-                    "Manufacturing Cabin Products Collected",
+                    "(?i)Manufacturing\\s*Cabin\\s*Products\\s*Collected",
                     "製造品一覧"
                 ]
             }
@@ -334,7 +334,7 @@
                 "expected": [
                     "获得奖励",
                     "獲得獎勵",
-                    "Rewards Acquired",
+                    "(?i)Rewards\\s*Acquired",
                     "報酬一覧"
                 ]
             }

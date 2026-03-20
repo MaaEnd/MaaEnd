@@ -26,7 +26,7 @@
         "expected": [
             "倒塌的天师桩",
             "倒塌的天師樁",
-            "Collapsed Tianshi Pillar",
+            "(?i)Collapsed\\s*Tianshi\\s*Pillar",
             "倒れた天師杭",
             "무너진 천사장"
         ]
@@ -44,11 +44,11 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -67,7 +67,7 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -85,7 +85,7 @@
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -102,7 +102,7 @@
         "expected": [
             "倒塌的天师桩",
             "倒塌的天師樁",
-            "Collapsed Tianshi Pillar",
+            "(?i)Collapsed\\s*Tianshi\\s*Pillar",
             "倒れた天師杭",
             "무너진 천사장"
         ]

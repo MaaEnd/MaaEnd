@@ -95,7 +95,7 @@
                 "expected": [
                     "探索等级",
                     "探索等級",
-                    "Exploration Level",
+                    "(?i)Exploration\\s*Level",
                     "探索レベル"
                 ]
             }

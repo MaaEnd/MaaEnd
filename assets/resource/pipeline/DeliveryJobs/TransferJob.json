@@ -13,7 +13,7 @@
         "expected": [
             "查看任务",
             "查看任務",
-            "Check Mission",
+            "(?i)Check\\s*Mission",
             "任務確認",
             "임무 확인"
         ],
@@ -37,9 +37,9 @@
         "expected": [
             "转交运送委托",
             "轉交運送委託",
-            "Transfer Delivery Job",
+            "(?i)Transfer\\s*Delivery\\s*Job",
             "外部委託",
-            "Transfer Job",
+            "(?i)Transfer\\s*Job",
             "운송 의뢰 위탁"
         ],
         "pre_delay": 0,
@@ -62,7 +62,7 @@
         "expected": [
             "是否确认将送货任务委托给他人派送?",
             "是否確定將送貨任務委託給他人運送？",
-            "Transfer delivery job to another courier?",
+            "(?i)Transfer\\s*delivery\\s*job\\s*to\\s*another\\s*courier\\s*\\?",
             "配達任務を他人に委託しますか？",
             "给他人派送",
             "給他人運送",

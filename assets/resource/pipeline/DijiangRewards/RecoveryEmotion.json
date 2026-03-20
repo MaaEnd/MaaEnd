@@ -142,7 +142,7 @@
                 "expected": [
                     "选择待恢复心情的干员",
                     "選擇待恢復心情的幹員",
-                    "Select operator awaiting mood recovery",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
                     "対象オペレーターを選んでください"
                 ]
             }
@@ -173,7 +173,7 @@
                 "expected": [
                     "干员心情已满，无法使用助力",
                     "幹員心情已滿，無法使用助力",
-                    "Cannot assist as operator mood is maxed",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
                     "オペレーターは体力が十分なため、サポートできません",
                     "Selected operator is at max mood",
                     "No recovery required",
@@ -209,7 +209,7 @@
                 "expected": [
                     "选择待恢复心情的干员",
                     "選擇待恢復心情的幹員",
-                    "Select operator awaiting mood recovery",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
                     "対象オペレーターを選んでください"
                 ]
             }
@@ -385,7 +385,7 @@
                 "expected": [
                     "没有更多的心情激励点数，无法选择更多干员",
                     "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "Cannot select more operators as all Mood Booster Points have been used up",
+                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
                     "体力激励ポイントが足りないため、これ以上選択できません",
                     "没有更多的心情激励点数",
                     "沒有更多的心情激勵點數"
@@ -417,7 +417,7 @@
                 "expected": [
                     "没有更多的心情激励点数，无法选择更多干员",
                     "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "Cannot select more operators as all Mood Booster Points have been used up",
+                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
                     "体力激励ポイントが足りないため、これ以上選択できません",
                     "没有更多的心情激励点数",
                     "沒有更多的心情激勵點數"
@@ -509,7 +509,7 @@
                 "expected": [
                     "干员心情已满，无法使用助力",
                     "幹員心情已滿，無法使用助力",
-                    "Cannot assist as operator mood is maxed",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
                     "オペレーターは体力が十分なため、サポートできません",
                     "Selected operator is at max mood",
                     "No recovery required",

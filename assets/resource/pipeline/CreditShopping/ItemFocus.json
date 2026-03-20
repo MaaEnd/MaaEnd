@@ -274,7 +274,7 @@
         ],
         "expected": [
             "嵌晶玉",
-            "Oroberyl",
+            "(?i)Oroberyl",
             "赤晶玉"
         ],
         "order_by": "Vertical"
@@ -291,7 +291,7 @@
         "expected": [
             "武库配额",
             "武庫配額",
-            "Arsenal Ticket",
+            "(?i)Arsenal\\s*Ticket",
             "武庫配給"
         ],
         "order_by": "Vertical"
@@ -307,7 +307,7 @@
         ],
         "expected": [
             "折金票",
-            "T-Creds",
+            "(?i)T\\s*-\\s*Creds",
             "折金券"
         ],
         "order_by": "Vertical"
@@ -324,7 +324,7 @@
         "expected": [
             "初级认知载体",
             "初級認知載體",
-            "Elementary Cognitive Carrier",
+            "(?i)Elementary\\s*Cognitive\\s*Carrier",
             "初級認識媒体"
         ],
         "order_by": "Vertical"
@@ -341,7 +341,7 @@
         "expected": [
             "初级作战记录",
             "初級作戰紀錄",
-            "Elementary Combat Record",
+            "(?i)Elementary\\s*Combat\\s*Record",
             "初級作戦記録",
             "초급 작전 기록"
         ],
@@ -359,7 +359,7 @@
         "expected": [
             "中级作战记录",
             "中級作戰紀錄",
-            "Intermediate Combat Record",
+            "(?i)Intermediate\\s*Combat\\s*Record",
             "中級作戦記録",
             "중급 작전 기록"
         ],
@@ -377,7 +377,7 @@
         "expected": [
             "强固模具",
             "強固模具",
-            "Cast Die",
+            "(?i)Cast\\s*Die",
             "硬質金型",
             "모형 틀"
         ],
@@ -395,7 +395,7 @@
         "expected": [
             "重型强固模具",
             "重型強固模具",
-            "Heavy Cast Die",
+            "(?i)Heavy\\s*Cast\\s*Die",
             "重硬質金型",
             "중형 모형 틀"
         ],
@@ -413,7 +413,7 @@
         "expected": [
             "武器检查单元",
             "武器檢查單元",
-            "Arms Inspector",
+            "(?i)Arms\\s*Inspector",
             "武器検査ユニット"
         ],
         "order_by": "Vertical"
@@ -430,7 +430,7 @@
         "expected": [
             "武器检查装置",
             "武器檢查裝置",
-            "Arms INSP Kit",
+            "(?i)Arms\\s*INSP\\s*Kit",
             "武器検査セット"
         ],
         "order_by": "Vertical"
@@ -447,7 +447,7 @@
         "expected": [
             "协议棱柱",
             "協議稜柱",
-            "Protoprism",
+            "(?i)Protoprism",
             "協約角柱"
         ],
         "order_by": "Vertical"
@@ -464,7 +464,7 @@
         "expected": [
             "协议棱柱组",
             "協議稜柱組",
-            "Protohedron",
+            "(?i)Protohedron",
             "協約角柱セット"
         ],
         "order_by": "Vertical"

@@ -250,7 +250,7 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "Refugee Camp",
+            "(?i)Refugee\\s*Camp",
             "仮設居住地",
             "유랑자 임시 거주지"
         ],
@@ -269,7 +269,7 @@
         ],
         "expected": [
             "基建前站",
-            "Infra-Station",
+            "(?i)Infra\\s*-\\s*Station",
             "建設基地",
             "기초 건설 주둔지"
         ],
@@ -289,7 +289,7 @@
         "expected": [
             "重建指挥部",
             "重建指揮部",
-            "Reconstruction HQ",
+            "(?i)Reconstruction\\s*HQ",
             "再建管理本部",
             "Reconstruction Hc",
             "재건 지휘부"
@@ -310,7 +310,7 @@
         "expected": [
             "难民暂居处",
             "難民暫居處",
-            "Refugee Camp",
+            "(?i)Refugee\\s*Camp",
             "仮設居住地",
             "유랑자 임시 거주지"
         ],
@@ -329,7 +329,7 @@
         ],
         "expected": [
             "基建前站",
-            "Infra-Station",
+            "(?i)Infra\\s*-\\s*Station",
             "建設基地",
             "기초 건설 주둔지"
         ],
@@ -349,7 +349,7 @@
         "expected": [
             "重建指挥部",
             "重建指揮部",
-            "Reconstruction HQ",
+            "(?i)Reconstruction\\s*HQ",
             "再建管理本部",
             "Reconstruction Hc",
             "재건 지휘부"

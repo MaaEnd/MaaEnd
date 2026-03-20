@@ -44,11 +44,11 @@
         "expected": [
             "肥料数量不足",
             "肥料數量不足",
-            "Insufficient",
+            "(?i)Insufficient",
             "肥料が足りません",
             "当前材料不足",
             "目前材料不足",
-            "Insufficient materials",
+            "(?i)Insufficient\\s*materials",
             "素材が不足しています",
             "Not enough"
         ]
@@ -65,7 +65,7 @@
         "expected": [
             "已充满",
             "已充滿",
-            "Full",
+            "(?i)Full",
             "FULL",
             "空间已满",
             "空間已滿",
@@ -141,7 +141,7 @@
         "expected": [
             "制作成功",
             "製作成功",
-            "Crafting Successful",
+            "(?i)Crafting\\s*Successful",
             "Success",
             "Crafted"
         ],
@@ -160,7 +160,7 @@
         "expected": [
             "制作成功",
             "製作成功",
-            "Crafting Successful",
+            "(?i)Crafting\\s*Successful",
             "Success",
             "Crafted"
         ],

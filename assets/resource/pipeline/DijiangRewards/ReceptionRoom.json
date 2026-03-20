@@ -79,7 +79,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -563,7 +563,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "Send",
+                    "(?i)Send",
                     "譲り渡す"
                 ]
             }
@@ -741,14 +741,39 @@
                 ],
                 "expected": [
                     "联盟工团的线索",
+                    "聯盟工團的線索",
+                    "(?i)UWST",
+                    "工業団連盟",
                     "环塔商会的线索",
+                    "環塔商會的線索",
+                    "(?i)TGCC",
+                    "環タロ商会",
                     "宏山科学院的线索",
+                    "宏山科學院的線索",
+                    "(?i)HAS",
+                    "宏山科学院",
                     "铁誓军的线索",
+                    "鐵誓軍的線索",
+                    "(?i)Order\\s*of\\s*Steel\\s*Oath",
+                    "鉄誓軍",
                     "寂语修会的线索",
+                    "寂語修會的線索",
+                    "(?i)Cabal\\s*of\\s*Tranquility",
+                    "静語伝道会",
+                    "塞什卡的线索",
+                    "塞什卡的線索",
+                    "(?i)Se[sš]?'?qa",
+                    "セシュカ",
                     "众生长地的线索",
-                    "塞什卡的线索"
+                    "(?i)Hannabit\\s*Circuit"
                 ],
-                "order_by": "Vertical"
+                "order_by": "Vertical",
+                "roi_offset": [
+                    0,
+                    0,
+                    19,
+                    0
+                ]
             }
         },
         "pre_delay": 0,
@@ -772,7 +797,7 @@
                 ],
                 "expected": [
                     "已填入",
-                    "Pegged",
+                    "(?i)Pegged",
                     "配置中"
                 ],
                 "order_by": "Vertical"

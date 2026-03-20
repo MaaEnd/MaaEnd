@@ -75,7 +75,7 @@
                 "expected": [
                     "通行证任务",
                     "通行證任務",
-                    "Pass Missions",
+                    "(?i)Pass\\s*Missions",
                     "通行証クエスト",
                     "통행증 임무"
                 ]
@@ -175,7 +175,7 @@
                 "expected": [
                     "一键领取",
                     "快速領取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取",
                     "일괄 획득"
                 ]
@@ -201,7 +201,7 @@
                 "expected": [
                     "通行证奖励",
                     "通行證獎勵",
-                    "Pass Rewards",
+                    "(?i)Pass\\s*Rewards",
                     "通行証報酬",
                     "통행증 보상"
                 ]
@@ -230,7 +230,7 @@
                 "expected": [
                     "一键领取",
                     "快速領取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取",
                     "일괄 획득"
                 ]

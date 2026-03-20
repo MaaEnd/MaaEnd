@@ -11,7 +11,7 @@
         "expected": [
             "协议传送点",
             "協議傳送點",
-            "TP Point",
+            "(?i)TP\\s*Point",
             "協約転送ポイント"
         ],
         "pre_delay": 0,
