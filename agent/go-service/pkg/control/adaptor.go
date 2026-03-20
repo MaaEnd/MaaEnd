@@ -2,7 +2,14 @@
 package control
 
 import (
+	"encoding/json"
+	"fmt"
+	"math"
+	"strings"
+	"time"
+
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 // ControlAdaptor defines an interface for abstracting control actions, allowing different implementations for different platforms.
@@ -38,13 +45,115 @@ type ControlAdaptor interface {
 	// with the given delta, duration and delay after the action.
 	RotateCamera(dx, dy int, durationMillis, delayMillis int)
 
-	// RotateCameraEliminateSideEffect eliminates the side effect of camera rotation with delay after the action.
+	// GetPlayerMovement returns the current player movement state.
+	GetPlayerMovement() PlayerMovement
+
+	// SetPlayerMovement sets the player movement state to the given value,
+	// and performs necessary control actions to achieve that state.
+	SetPlayerMovement(movement PlayerMovement)
+
+	// PlayerJump performs the player jump action once.
+	// This will not change the player movement state.
+	PlayerJump()
+
+	// PlayerSprint performs the player sprint action once.
+	// This will set the player movement state to at least sprint.
+	PlayerSprint()
+
+	// PlayerStop lets the player stop moving forward.
+	// This will set the player movement state to stop.
+	PlayerStop()
+
+	// AggressivelyResetCamera eliminates the side effect of camera rotation.
 	// Different implementations may have different ways to achieve this.
-	RotateCameraEliminateSideEffect(delayMillis int)
+	AggressivelyResetCamera()
+
+	// AggressivelyResetPlayerMovement provides an aggressive way to reset player movement state to stop
+	// for initialization purpose. Different implementations may have different ways to achieve this.
+	AggressivelyResetPlayerMovement()
 }
 
 // NewControlAdaptor creates a new ControlAdaptor instance.
-func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) ControlAdaptor {
-	// Currently only Windows is supported
-	return newWindowsControlAdaptor(ctx, ctrl, w, h)
+// The implementation type is determined by the controller info obtained from the Maa Controller.
+func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (ControlAdaptor, error) {
+	infoStr, err := ctrl.GetInfo()
+	if err != nil {
+		return nil, err
+	}
+	log.Info().Str("controllerInfo", infoStr).Msg("Fetched controller info")
+	if infoStr == "" {
+		return nil, fmt.Errorf("empty controller info")
+	}
+
+	const typeWindows = "win32"
+	const typeADB = "adb"
+
+	var info maaControllerInfo
+	if err := json.Unmarshal([]byte(infoStr), &info); err != nil || info.Type == "" {
+		log.Warn().Msg("Failed to parse controller info via JSON, now trying fallback parsing")
+		// Fallback
+		if strings.Contains(infoStr, typeWindows) {
+			return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+		}
+		if strings.Contains(infoStr, typeADB) {
+			// return newADBControlAdaptor(ctx, ctrl, w, h), nil
+		}
+		return nil, fmt.Errorf("failed to parse controller info via JSON: %w, and failed to using fallback", err)
+	}
+
+	if info.Type == typeWindows {
+		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+	}
+	if info.Type == typeADB {
+		// return newADBControlAdaptor(ctx, ctrl, w, h), nil
+	}
+	return nil, fmt.Errorf("unsupported controller type: %s", info.Type)
+}
+
+// PlayerMovement represents different movement state in the game
+type PlayerMovement struct {
+	speed         float64 // Movement speed (px/s)
+	rotationSpeed float64 // Rotation adjustment response speed (degrees/s)
+}
+
+// Equals checks if this PlayerMovement is approximately equal to another one.
+func (pm PlayerMovement) Equals(other PlayerMovement) bool {
+	return math.Abs(pm.speed-other.speed) <= 1e-6 && math.Abs(pm.rotationSpeed-other.rotationSpeed) <= 1e-6
+}
+
+// EtaOfDistance returns the minimal estimated time to cover the given distance at this movement speed.
+func (pm PlayerMovement) EtaOfDistance(dist float64) time.Duration {
+	if pm.speed <= 1e-6 {
+		return time.Duration(math.Inf(1))
+	}
+	return time.Duration(float64(time.Second) * dist / pm.speed)
+}
+
+// EtaOfRotation returns the minimal estimated time to adjust the given rotation at this rotation speed.
+func (pm PlayerMovement) EtaOfRotation(rot float64) time.Duration {
+	if pm.rotationSpeed <= 1e-6 {
+		return time.Duration(math.Inf(1))
+	}
+	return time.Duration(float64(time.Second) * math.Abs(rot) / pm.rotationSpeed)
+}
+
+// DistanceDuring returns the maximal distance that can be covered during the given duration at this movement speed.
+func (pm PlayerMovement) DistanceDuring(duration time.Duration) float64 {
+	return pm.speed * duration.Seconds()
+}
+
+// RotationDuring returns the maximal rotation adjustment that can be achieved during the given duration at this rotation speed.
+func (pm PlayerMovement) RotationDuring(duration time.Duration) float64 {
+	return pm.rotationSpeed * duration.Seconds()
+}
+
+var (
+	MovementStop   = PlayerMovement{0.0, 0.0}
+	MovementWalk   = PlayerMovement{2.0, 270.0}
+	MovementRun    = PlayerMovement{8.0, 540.0}
+	MovementSprint = PlayerMovement{12.0, 1080.0}
+)
+
+type maaControllerInfo struct {
+	Type string `json:"type"` // Possible values: "adb", "win32"
 }
