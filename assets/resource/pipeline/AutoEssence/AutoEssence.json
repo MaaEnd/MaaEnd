@@ -120,14 +120,10 @@
         "action": {
             "type": "Click"
         },
-        "anchor": {
-            "AutoEssenceAfterWalkAround": "AutoEssenceCheckOngoing"
-        },
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning1",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceClickEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
@@ -152,8 +148,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning2",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceClickEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
@@ -208,11 +203,54 @@
         },
         "post_delay": 1000,
         "next": [
+            "AutoEssenceClickEssenceChallengeEnter"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        }
+    },
+    "AutoEssenceClickEssenceChallengeEnter": {
+        "desc": "成功进入挑战场景",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    40,
+                    260,
+                    330
+                ],
+                "template": "AutoEssence/EssenceOngoing.png",
+                "green_mask": true
+            }
+        },
+        "next": [
+            "AutoEssenceClickEssenceChallengeUsingWalk",
+            "AutoEssenceClickEssenceChallengeUsingAutoFight"
+        ]
+    },
+    "AutoEssenceClickEssenceChallengeUsingWalk": {
+        "desc": "使用走路方式挑战，用于部署炮台方式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "[JumpBack]AutoEssenceLocationSetup",
             "[Anchor]AutoEssenceWalkAround"
         ],
         "focus": {
-            "Node.Action.Starting": "👷无视风险，继续刷取"
+            "Node.Recognition.Starting": "🚶正在使用走路方式挑战"
+        }
+    },
+    "AutoEssenceClickEssenceChallengeUsingAutoFight": {
+        "desc": "使用自动战斗方式挑战",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoFight",
+            "[JumpBack]AutoEssenceCheckOngoing"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "⚔️正在使用自动战斗方式挑战"
         }
     },
     "AutoEssenceCheckOngoing": {
