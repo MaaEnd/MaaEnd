@@ -76,7 +76,8 @@
             "GrowthChamber"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "进入培养舱失败,无法识别培养舱界面"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.growth_chamber_entry_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "GrowthChamber": {
@@ -108,7 +109,7 @@
             "ExitGrowthChamber"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "培养舱奖励或再次培养流程失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.growth_chamber_flow_failed"
         }
     },
     "ClaimAllGrowReward": {
@@ -165,7 +166,10 @@
         "rate_limit": 0,
         "next": [
             "ClaimAllGrowRewardClose"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ClaimAllGrowRewardClose": {
         "recognition": {
@@ -221,7 +225,10 @@
             "Grow",
             "ExitGrowthChamber",
             "ClaimAllGrowRewardClose"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "Grow": {
         "desc": "点击培养按钮",
@@ -295,7 +302,10 @@
         "rate_limit": 0,
         "next": [
             "InGrow"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "InGrow": {
         "recognition": {
@@ -422,7 +432,10 @@
             "ExtractSeed",
             "ExitGrow",
             "BackToGrowthChamber"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ConfirmGrow": {
         "recognition": {
@@ -462,6 +475,9 @@
         },
         "post_wait_freezes": {
             "time": 100
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "CheckGrowTargetEmpty": {
@@ -590,7 +606,10 @@
         "next": [
             "ConfirmExtractSeed",
             "NoMaterials"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ConfirmExtractSeed": {
         "desc": "确认提取基核",
@@ -650,7 +669,10 @@
         "next": [
             "ExtractSeedClose",
             "ConfirmExtractSeed"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExtractSeedClose": {
         "desc": "提取基核后关闭提示",
@@ -698,7 +720,10 @@
         },
         "next": [
             "BackToGrow"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "BackToGrow": {
         "desc": "提取基核后返回培养界面",
@@ -732,6 +757,9 @@
         },
         "action": {
             "type": "Click"
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "NoMaterials": {
@@ -830,7 +858,10 @@
         },
         "next": [
             "InGrow"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SortBy": {
         "desc": "排序,选择基础排序内容",
@@ -912,7 +943,10 @@
         "next": [
             "ChooseSortBy",
             "[JumpBack]SwipeChooseSortBy"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ChooseSortBy": {
         "desc": "选择具体排序方式",
@@ -980,7 +1014,10 @@
         "rate_limit": 0,
         "next": [
             "InGrow"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SwipeChooseSortBy": {
         "desc": "选择排序方式时候滚动一次",
@@ -1068,7 +1105,10 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SortOrder": {
         "desc": "排序,选择正序或者倒序",
@@ -1130,7 +1170,10 @@
         "rate_limit": 0,
         "next": [
             "InGrow"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExitGrowthChamber": {
         "desc": "[培养舱·离开] 返回控制中枢",
@@ -1202,6 +1245,9 @@
         },
         "next": [
             "InDijiangControlNexus"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     }
 }

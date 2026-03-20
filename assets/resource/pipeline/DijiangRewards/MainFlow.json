@@ -28,7 +28,7 @@
             "[JumpBack]EndExchangeJBC"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "未识别到指定舱室"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.control_nexus_target_unrecognized"
         }
     },
     "InMainWindow": {
