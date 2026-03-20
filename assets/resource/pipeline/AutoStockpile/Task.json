@@ -37,7 +37,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -131,7 +131,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -155,7 +155,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -217,7 +217,7 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -256,7 +256,7 @@
                 }
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
@@ -289,7 +289,7 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -319,7 +319,7 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -359,7 +359,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
@@ -395,7 +395,7 @@
             }
         },
         "repeat": 2,
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -427,7 +427,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -509,7 +509,7 @@
                 }
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
@@ -576,7 +576,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
