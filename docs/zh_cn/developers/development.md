@@ -79,7 +79,7 @@ python tools/setup_workspace.py
 - 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的，若有修改需手动复制回 `install` 再进行ui中的测试。（或运行 build_and_install.py ，运行方法同上）**。
 - 关于 OCR 节点 `expected` 的 i18n：开发者无需手动维护多语言，只需按自己当前语言写入预期文本，`tools/i18n` 程序会自动将 pipeline 中 OCR 的 `expected` 处理为正确 i18n。
 - `expected` 建议写完整文本，不要只写片段。例如应写“这是一段示例内容”，而不是只写“示例内容”。
-- 英文 `expected` 在自动处理后会被写成忽略大小写的正则；为兼容 OCR 可能吞掉单词间空格的情况，正则只会在单词之间使用 `\\s*`。例如 `Send Local Clues` 会生成 `(?i)^Send\\s*Local\\s*Clues$`。
+- 英文 `expected` 在自动处理后会被写成忽略大小写的正则；为兼容 OCR 可能吞掉单词间空格的情况，正则只会在单词之间使用 `\\s*`。例如 `Send Local Clues` 会生成 `(?i)Send\\s*Local\\s*Clues`。
 - 对于未跳过自动处理的 OCR 节点，脚本还会根据原始文本与翻译后最长文本的显示宽度差异，自动补充或调整 `roi_offset`，以尽量保证多语言文本仍能落在识别区域内；`only_rec: true` 的节点不会执行这一步。
 - 若你确实需要写片段、手写正则，或不希望该 OCR 节点被 i18n 程序自动处理，请在对应 `expected` 数组内添加跳过标记注释 `// @i18n-skip`。
 - 示例（会自动 i18n 处理，推荐）：
