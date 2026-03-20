@@ -113,6 +113,12 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
 - [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
 
+### About Task Maintenance
+
+The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
+
+- [AutoStockpile Maintenance Documentation](./auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
+
 ## Code Specifications
 
 ### Pipeline Low-Code Specifications

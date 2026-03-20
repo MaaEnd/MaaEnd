@@ -113,6 +113,12 @@ python tools/setup_workspace.py
 - [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。
 - [节点测试参考文档](./node-testing.md)：节点静态截图测试的目录约定、Schema 和编写建议。
 
+### 关于任务维护
+
+以下的这些任务具有维护文档，在写新功能和修改其他功能时无需查看，**但在您更改这些任务时，一定要阅读相关任务的维护文档**。参见：
+
+- [AutoStockpile 维护文档](./auto-stockpile-maintain.md)：该文档说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、价格阈值与地区扩展应如何维护。
+
 ## 代码规范
 
 ### Pipeline 低代码规范
