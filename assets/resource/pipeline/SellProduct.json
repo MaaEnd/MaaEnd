@@ -67,6 +67,7 @@
     },
     "SellProductValleyIV": {
         "desc": "四号谷地售卖流程入口",
+        "enabled": true,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -85,6 +86,7 @@
     },
     "SellProductWuling": {
         "desc": "武陵售卖流程入口",
+        "enabled": true,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",

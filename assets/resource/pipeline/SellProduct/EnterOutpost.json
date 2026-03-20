@@ -58,6 +58,7 @@
         "rate_limit": 0,
         "next": [
             "SellProductGoToOutpost"
+            
         ]
     },
     "SellProductGoToWulingOutpost": {
@@ -175,8 +176,10 @@
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
+        "max_hit": 5,        // 最多命中5次，超出后不再执行
         "next": [
-            "SellProductInValleyIVOutpost"
+            "SellProductInValleyIVOutpost",
+            "SellProductEnterValleyIVOutpost"
         ]
     },
     "SellProductEnterWulingOutpost": {
@@ -190,8 +193,11 @@
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
+        "max_hit": 5,        // 最多命中5次，超出后不再执行
         "next": [
-            "SellProductInWulingOutpost"
+            "SellProductInWulingOutpost",
+            "SellProductEnterWulingOutpost"
+            
         ]
     },
     "SellProductBackToRegionalConstruction": {

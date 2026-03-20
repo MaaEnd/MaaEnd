@@ -27,7 +27,7 @@
             "SellProductSellCustom",           
             "SellProductSellCheckCustom"      
         ]
-    },
+    },      
     "SellProductClickBarRightCustom": {
         "desc": "点击进度条最右侧",
         "recognition": "TemplateMatch",
@@ -80,19 +80,6 @@
             "Node.Action.Succeeded": "成功完成一次交易"
         }
     },
-
-    "SellProductCheckMoneyCustom": {
-        "desc": "检测调度券数量大于1000",
-        "recognition": "OCR",
-        "roi": [864, 190, 133, 27],
-        "expected": "^[1-9][0-9]{3,}$",
-        "only_rec": true,
-        "on_error": ["DoNothingHandler"]  
-    },  
-    "DoNothingHandler": {  
-        "action": "DoNothing"  
-    },
-
     "SellProductSelectNewGoodConfirmWithWait": {
         "recognition": "And",
         "all_of": [
@@ -101,38 +88,14 @@
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "SellProductZeroMoneyHandler": "SellProductZeroMoney"  
+        },
         "post_wait_freezes": 100,
         "post_delay": 0,
         "rate_limit": 0,
         "next": []
     },
-
-    // "SellProductChangeGoodsCustom": {
-    //     "desc": "自定义更换货品",
-    //     "recognition": "OCR",
-    //     "roi": [1162, 420, 85, 26],
-    //     "expected": [
-    //         "更换货品",
-    //         "更換貨品",
-    //         "Switch Goods"
-    //     ],
-    //     "action": "Click",
-    //     "post_wait_freezes": 100,
-    //     "next": []
-    // },
-
-    // "SellProductSelectNewGoodCustom": {
-    //     "desc": "随机选货（无next）",
-    //     "recognition": "And",
-    //     "all_of": [
-    //         "SellProductCheckNextGoodsText",
-    //         "SellProductCheckSelectGoodsText"
-    //     ],
-    //     "pre_delay": 0,
-    //     "action": "Click",
-    //     "post_delay": 0,
-    //     "rate_limit": 0
-    // },
 
     "SellProductRefugeeCampSellWithPriority": {
         "desc": "难民暂居处售卖（优先物品前置）",
@@ -147,13 +110,9 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "[JumpBack]SellProductCheckMoneyCustom",
                 "SellProductRefugeeCampTryItem1",
-                "[JumpBack]SellProductCheckMoneyCustom",
                 "SellProductRefugeeCampTryItem2",
-                "[JumpBack]SellProductCheckMoneyCustom",
                 "SellProductRefugeeCampTryItem3",
-                "[JumpBack]SellProductCheckMoneyCustom",
                 "SellProductRefugeeCampSell"
             ]
         }
@@ -171,7 +130,7 @@
         "custom_action_param": {
             "sub": [
                 "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsTextCostom",
+                "SellProductCheckSelectGoodsText",
                 "SellProductRefugeeCampSelectNewGoodItem1",
                 "SellProductSelectNewGoodConfirmWithWait",
                 "SellProductCheckStockCustom"
