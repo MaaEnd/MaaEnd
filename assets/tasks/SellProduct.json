@@ -42,7 +42,6 @@
         "ValleyIVRefugeeCamp": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVRefugeeCamp",
-            "description":"task.SellProduct.description1",
             "default_case": "Yes",
             "cases": [
                 {
@@ -125,7 +124,6 @@
         "ValleyIVInfrastructureOutpost": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVInfrastructureOutpost",
-            "description":"task.SellProduct.description1",
             "default_case": "Yes",
             "cases": [
                 {
@@ -202,7 +200,6 @@
         "ValleyIVReconstructionCommand": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVReconstructionCommand",
-            "description":"task.SellProduct.description1",
             "default_case": "Yes",
             "cases": [
                 {
@@ -297,7 +294,7 @@
         "WulingSkyKingFlats": {
             "type": "switch",
             "label": "$task.SellProduct.WulingSkyKingFlats",
-            "description":"task.SellProduct.description1",
+            "description":"$task.SellProduct.description1",
             "default_case": "Yes",
             "cases": [
                 {
