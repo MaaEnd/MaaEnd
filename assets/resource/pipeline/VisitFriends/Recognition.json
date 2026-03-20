@@ -3,9 +3,9 @@
         "desc": "识别进入好友船的按钮",
         "recognition": "TemplateMatch",
         "roi": [
-            -150,
+            -180,
             135,
-            150,
+            180,
             460
         ],
         "template": "VisitFriends/EnterButton.png",
@@ -18,7 +18,7 @@
             130,
             110,
             300,
-            35
+            66
         ],
         "expected": [
             ".*#.*"
