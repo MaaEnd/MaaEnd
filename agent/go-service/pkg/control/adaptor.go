@@ -76,39 +76,67 @@ type ControlAdaptor interface {
 // NewControlAdaptor creates a new ControlAdaptor instance.
 // The implementation type is determined by the controller info obtained from the Maa Controller.
 func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (ControlAdaptor, error) {
+	controlType, err := GetControlType(ctrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get control type: %w", err)
+	}
+
+	switch controlType {
+	case CONTROL_TYPE_WIN32:
+		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_ADB:
+		return newADBControlAdaptor(ctx, ctrl, w, h), nil
+	default:
+		return nil, fmt.Errorf("unsupported control type: %s", controlType)
+	}
+}
+
+func GetControlType(ctrl *maa.Controller) (string, error) {
 	infoStr, err := ctrl.GetInfo()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	log.Info().Str("controllerInfo", infoStr).Msg("Fetched controller info")
 	if infoStr == "" {
-		return nil, fmt.Errorf("empty controller info")
+		return "", fmt.Errorf("empty controller info")
 	}
 
-	const typeWindows = "win32"
-	const typeADB = "adb"
+	type maaControllerInfo struct {
+		Type string `json:"type"`
+	}
 
 	var info maaControllerInfo
 	if err := json.Unmarshal([]byte(infoStr), &info); err != nil || info.Type == "" {
 		log.Warn().Msg("Failed to parse controller info via JSON, now trying fallback parsing")
 		// Fallback
-		if strings.Contains(infoStr, typeWindows) {
-			return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
+			CachedControlType = CONTROL_TYPE_WIN32
+			return CONTROL_TYPE_WIN32, nil
 		}
-		if strings.Contains(infoStr, typeADB) {
-			// return newADBControlAdaptor(ctx, ctrl, w, h), nil
+		if strings.Contains(infoStr, CONTROL_TYPE_ADB) {
+			CachedControlType = CONTROL_TYPE_ADB
+			return CONTROL_TYPE_ADB, nil
 		}
-		return nil, fmt.Errorf("failed to parse controller info via JSON: %w, and failed to using fallback", err)
+		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and failed to using fallback", err)
 	}
 
-	if info.Type == typeWindows {
-		return newWindowsControlAdaptor(ctx, ctrl, w, h), nil
+	if info.Type == CONTROL_TYPE_WIN32 {
+		CachedControlType = CONTROL_TYPE_WIN32
+		return CONTROL_TYPE_WIN32, nil
 	}
-	if info.Type == typeADB {
-		// return newADBControlAdaptor(ctx, ctrl, w, h), nil
+	if info.Type == CONTROL_TYPE_ADB {
+		CachedControlType = CONTROL_TYPE_ADB
+		return CONTROL_TYPE_ADB, nil
 	}
-	return nil, fmt.Errorf("unsupported controller type: %s", info.Type)
+	return "", fmt.Errorf("unsupported controller type: %s", info.Type)
 }
+
+const (
+	CONTROL_TYPE_WIN32 = "win32"
+	CONTROL_TYPE_ADB   = "adb"
+)
+
+var CachedControlType string = ""
 
 // PlayerMovement represents different movement state in the game
 type PlayerMovement struct {
@@ -153,7 +181,3 @@ var (
 	MovementRun    = PlayerMovement{8.0, 540.0}
 	MovementSprint = PlayerMovement{12.0, 1080.0}
 )
-
-type maaControllerInfo struct {
-	Type string `json:"type"` // Possible values: "adb", "win32"
-}

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -82,22 +83,6 @@ const (
 	VIRTUAL_HIT     InferLocationHitMode = "VirtualHit"
 )
 
-// Location inference configuration
-const (
-	// Mini-map crop area
-	LOC_CENTER_X = 108
-	LOC_CENTER_Y = 111
-	LOC_RADIUS   = 40
-)
-
-// Rotation inference configuration
-const (
-	// Pointer crop area
-	ROT_CENTER_X = 108
-	ROT_CENTER_Y = 111
-	ROT_RADIUS   = 12
-)
-
 // Time-series empirical optimization configuration
 const (
 	PENDING_TAKEOVER_TIME_MS         = 1000
@@ -142,6 +127,11 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		return nil, false
 	}
 
+	ctrlType := control.CachedControlType
+	if ctrlType == "" {
+		ctrlType, _ = control.GetControlType(ctx.GetTasker().GetController())
+	}
+
 	// Compile regex
 	mapNameRegex, err := regexp.Compile(param.MapNameRegex)
 	if err != nil {
@@ -170,12 +160,12 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	go func() {
 		defer wg.Done()
-		loc = i.inferLocation(screenImg, mapNameRegex, param)
+		loc = i.inferLocation(control.CachedControlType, screenImg, mapNameRegex, param)
 	}()
 
 	go func() {
 		defer wg.Done()
-		rot = i.inferRotation(screenImg, rotStep)
+		rot = i.inferRotation(control.CachedControlType, screenImg, rotStep)
 	}()
 
 	wg.Wait()
@@ -394,7 +384,7 @@ func isMapNameCoreMatch(mapName1, mapName2 string) bool {
 
 // inferLocation infers the player's location on the map.
 // Returns a raw result with mapName, x/y (map coordinates), conf, source, and elapsedTimeMs.
-func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *regexp.Regexp, param *MapTrackerInferParam) *InferLocationRawResult {
+func (i *MapTrackerInfer) inferLocation(ctrlType string, screenImg *image.RGBA, mapNameRegex *regexp.Regexp, param *MapTrackerInferParam) *InferLocationRawResult {
 	t0 := time.Now()
 
 	// Use cached scaled maps
@@ -406,7 +396,15 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	}
 
 	// Crop and scale mini-map area from screen
-	miniMap := minicv.ImageCropSquareByRadius(screenImg, LOC_CENTER_X, LOC_CENTER_Y, LOC_RADIUS)
+	var miniMap *image.RGBA
+	switch ctrlType {
+	case control.CONTROL_TYPE_ADB:
+		miniMap = minicv.ImageCropSquareByRadius(screenImg, 134, 129, 50)
+		miniMap = minicv.ImageScale(miniMap, 0.8)
+	default: // Win32 and others
+		miniMap = minicv.ImageCropSquareByRadius(screenImg, 108, 111, 40)
+	}
+
 	miniMap = minicv.ImageScale(miniMap, scale)
 	miniMapBounds := miniMap.Bounds()
 	miniMapW, miniMapH := miniMapBounds.Dx(), miniMapBounds.Dy()
@@ -590,7 +588,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 
 // inferRotation infers the player's rotation angle
 // Returns (angle, confidence)
-func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
+func (i *MapTrackerInfer) inferRotation(ctrlType string, screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
 	t0 := time.Now()
 
 	pointerTemplate, err := mt.Resource.PointerTemplateLoader.Get()
@@ -600,7 +598,14 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 	}
 
 	// Crop pointer area from screen
-	patch := minicv.ImageCropSquareByRadius(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
+	var patch *image.RGBA
+	switch ctrlType {
+	case control.CONTROL_TYPE_ADB:
+		patch = minicv.ImageCropSquareByRadius(screenImg, 134, 129, 15)
+		patch = minicv.ImageScale(patch, 0.8)
+	default: // Win32 and others
+		patch = minicv.ImageCropSquareByRadius(screenImg, 108, 111, 12)
+	}
 
 	// Try all rotation angles in parallel
 	type result struct {
