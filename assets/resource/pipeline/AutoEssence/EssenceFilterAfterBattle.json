@@ -12,6 +12,7 @@
     //3、可以自定义设置来决定识别策略和上锁弃置策略，只要在自己的任务option里override"EssenceFilterAfterBattleInit"的"attach"部分即可，具体设置方法同EssenceFilter
     //4、任务结束后会自己点击退出战利品界面（你就不用另外点击退出了），然后Jumpback回来
     //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
+    //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
     "EssenceFilterAfterBattleStart": {
         "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面，要加Jumpback",
         //有基质才开始任务，不然直接返回失败
@@ -26,7 +27,8 @@
                 ],
                 "template": "EssenceFilter/EssenceGeneral.png",
                 "method": 5,
-                "threshold": 0.35
+                "threshold": 0.7,
+                "green_mask": true
             }
         },
         "focus": {
@@ -87,11 +89,35 @@
             //是否锁上高等级技能3的实用基质  
             "lock_slot3_practical": false,
             //是否丢弃不匹配的基质
-            "discard_unmatched": true,
+            "discard_unmatched": false,
             //是否输出基质规划（这个分支任务暂时用不了）  
             "export_calculator_script": false,
             //是否跳过上锁基质（这个分支任务暂时用不了）  
             "skip_locked_row": false
         }
+    },
+    //节点出口，如果想结束后不离开，那就不加jumpback，把这个出口节点的next接到你想要的下一个节点上
+    "EssenceFilterAfterBattleExit": {
+        "desc": "任务完成,点击离开",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    803,
+                    616,
+                    124,
+                    83
+                ],
+                "template": "Common/Button/CancelButtonType1.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "post_wait_freezes": 200
     }
 }
