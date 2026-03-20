@@ -969,17 +969,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    43,
+                    624,
                     0,
-                    165,
-                    64
+                    467,
+                    191
                 ],
                 "expected": [
-                    "会客室",
-                    "會客室",
-                    "(?i)^Reception\\s*Room$",
-                    "応接室",
-                    "Reception"
+                    "收集线索"
                 ]
             }
         },
@@ -994,13 +990,35 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
+            "ExitCollectsucceed"
+        ],
+        "on_error": [
+            "ExitCollect_OnError"
+        ]
+    },
+    "ExitCollectsucceed": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    0,
+                    160,
+                    379
+                ],
+                "expected": [
+                    "收集"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "ReceptionRoomNeedReceiveClues",
             "ReceptionRoomSetClues",
             "StartExchange",
             "ExitReceptionRoom"
-        ],
-        "on_error": [
-            "ExitCollect_OnError"
         ]
     },
     "ExitCollect_OnError": {
@@ -1009,17 +1027,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    43,
+                    624,
                     0,
-                    165,
-                    64
+                    467,
+                    191
                 ],
                 "expected": [
-                    "会客室",
-                    "會客室",
-                    "(?i)^Reception\\s*Room$",
-                    "応接室",
-                    "Reception"
+                    "收集线索"
                 ]
             }
         },
@@ -1030,10 +1044,7 @@
             }
         },
         "next": [
-            "ReceptionRoomNeedReceiveClues",
-            "ReceptionRoomSetClues",
-            "StartExchange",
-            "ExitReceptionRoom"
+            "ExitCollectsucceed"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
