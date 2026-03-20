@@ -13,7 +13,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "간편 제작"
                 ]
@@ -49,7 +49,7 @@
                 "expected": [
                     "简制手册",
                     "簡製手冊",
-                    "Crafting Manual",
+                    "(?i)Crafting\\s*Manual",
                     "製作手帳",
                     "簡制手冊"
                 ]
@@ -93,7 +93,7 @@
                 ],
                 "expected": [
                     "返回",
-                    "Return",
+                    "(?i)Return",
                     "戻る",
                     "Back"
                 ]
@@ -118,7 +118,7 @@
                 "expected": [
                     "奖励",
                     "獎勵",
-                    "Rewards",
+                    "(?i)Rewards",
                     "報酬",
                     "Reward"
                 ]
@@ -195,7 +195,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "Simple Craft",
                     "Quick Craft"
@@ -306,7 +306,7 @@
                 "expected": [
                     "探索等级",
                     "探索等級",
-                    "Exploration Level",
+                    "(?i)Exploration\\s*Level",
                     "探索レベル",
                     "Explore"
                 ]
@@ -331,11 +331,11 @@
                 ],
                 "expected": [
                     "背包",
-                    "Backpack",
+                    "(?i)Backpack",
                     "道具箱",
                     "库存",
                     "庫存",
-                    "Inventory",
+                    "(?i)Inventory",
                     "在庫"
                 ]
             }
@@ -408,7 +408,7 @@
                 "expected": [
                     "简制手册",
                     "簡製手冊",
-                    "Crafting Manual",
+                    "(?i)Crafting\\s*Manual",
                     "製作手帳",
                     "Manual"
                 ]
@@ -477,7 +477,7 @@
                 ],
                 "expected": [
                     "返回",
-                    "Return",
+                    "(?i)Return",
                     "戻る",
                     "Back"
                 ]
@@ -546,7 +546,7 @@
                 "expected": [
                     "一键领取",
                     "快速領取",
-                    "Claim All",
+                    "(?i)Claim\\s*All",
                     "一括受取",
                     "键领取",
                     "[Cc]laim"

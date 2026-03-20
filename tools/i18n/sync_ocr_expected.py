@@ -706,9 +706,9 @@ def split_english_text_tokens(text: str) -> List[str]:
 def build_english_ocr_regex(text: str) -> str:
     tokens = split_english_text_tokens(text)
     if not tokens:
-        return r"(?i)^\s*$"
+        return r"(?i)\s*"
     pieces = [escape_regex_literal(token) for token in tokens]
-    return rf"(?i)^{r'\s*'.join(pieces)}$"
+    return rf"(?i){r'\s*'.join(pieces)}"
 
 
 def normalize_english_for_match(text: str) -> str:

@@ -277,10 +277,10 @@
         ],
         "expected": [
             "朋友",
-            "Friend",
+            "(?i)Friend",
             "友人",
             "好友",
-            "Friends",
+            "(?i)Friends",
             "フレンド"
         ],
         "threshold": 0.8
@@ -383,7 +383,7 @@
         "expected": [
             "加载中",
             "載入中",
-            "Loading",
+            "(?i)Loading",
             "読み込み中"
         ],
         "threshold": 0.85,

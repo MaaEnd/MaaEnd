@@ -164,7 +164,7 @@
                 "expected": [
                     "品质",
                     "品質",
-                    "Quality"
+                    "(?i)Quality"
                 ]
             }
         },
@@ -191,7 +191,7 @@
                 "expected": [
                     "武器等级",
                     "武器等級",
-                    "Weapon Level",
+                    "(?i)Weapon\\s*Level",
                     "レベル"
                 ]
             }
@@ -214,7 +214,7 @@
                 ],
                 "expected": [
                     "降序",
-                    "DESC",
+                    "(?i)DESC",
                     "降順"
                 ]
             }

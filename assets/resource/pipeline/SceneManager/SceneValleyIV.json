@@ -110,7 +110,7 @@
                 "expected": [
                     "枢纽区",
                     "樞紐區",
-                    "The Hub",
+                    "(?i)The\\s*Hub",
                     "中枢エリア",
                     "거점 지역"
                 ]
@@ -132,7 +132,7 @@
                 ],
                 "expected": [
                     "谷地通道",
-                    "Valley Pass",
+                    "(?i)Valley\\s*Pass",
                     "谷地通路",
                     "협곡길"
                 ]
@@ -178,7 +178,7 @@
                 "expected": [
                     "阿伯莉采石场",
                     "阿伯莉採石場",
-                    "Aburrey Quarry",
+                    "(?i)Aburrey\\s*Quarry",
                     "アブリー採石場",
                     "아부레이 채석장"
                 ]
@@ -201,7 +201,7 @@
                 "expected": [
                     "矿脉源区",
                     "礦脈源區",
-                    "Origin Lodespring",
+                    "(?i)Origin\\s*Lodespring",
                     "鉱山エリア",
                     "광맥 구역"
                 ]
@@ -223,7 +223,7 @@
                 ],
                 "expected": [
                     "供能高地",
-                    "Power Plateau",
+                    "(?i)Power\\s*Plateau",
                     "エネルギー高地",
                     "에너지 공급 고지"
                 ]

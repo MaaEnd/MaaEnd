@@ -22,9 +22,8 @@
                 "expected": [
                     "活动中心",
                     "活動中心",
-                    "Event Center",
+                    "(?i)Event\\s*Center",
                     "イベント",
-                    "EVENT CENTER",
                     "이벤트 센터"
                 ]
             }

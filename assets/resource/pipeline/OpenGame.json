@@ -105,7 +105,7 @@
                 "expected": [
                     "重新挑战",
                     "重新挑戰",
-                    "Retry",
+                    "(?i)Retry",
                     "もう一度",
                     "登录失败",
                     "登入失敗",
@@ -156,7 +156,7 @@
                 "expected": [
                     "继续",
                     "繼續",
-                    "Continue",
+                    "(?i)Continue",
                     "続ける",
                     "点击",
                     "點按",
@@ -164,8 +164,7 @@
                     "位置",
                     "Click",
                     "Tap",
-                    "anywhere",
-                    "continue"
+                    "anywhere"
                 ]
             }
         },
@@ -198,9 +197,19 @@
                     45
                 ],
                 "expected": [
-                    "NOW",
+                    "截止当前",
+                    "截至目前",
+                    "(?i)Now",
+                    "現在",
                     "LOAD",
                     "ING"
+                ]
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    43,
+                    0
                 ]
             }
         }
@@ -226,12 +235,13 @@
                     159
                 ],
                 "expected": [
+                    "今日",
+                    "(?i)Today",
                     "点击确认今日",
                     "點按確認今日",
-                    "今日月卡奖励",
-                    "今日月卡獎勵",
                     "Monthly Card",
-                    "today"
+                    "今日月卡奖励",
+                    "今日月卡獎勵"
                 ]
             }
         },
@@ -252,7 +262,7 @@
                 "expected": [
                     "领取",
                     "領取",
-                    "Claim",
+                    "(?i)Claim",
                     "受取",
                     "[Cc]laim"
                 ]
@@ -279,7 +289,7 @@
                 "expected": [
                     "获得奖励",
                     "獲得獎勵",
-                    "Rewards Acquired",
+                    "(?i)Rewards\\s*Acquired",
                     "報酬一覧",
                     "Rewards"
                 ]

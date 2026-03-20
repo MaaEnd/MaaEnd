@@ -392,7 +392,7 @@
         "expected": [
             "理智消耗许可",
             "理智消耗許可",
-            "Sanity Usage Permit",
+            "(?i)Sanity\\s*Usage\\s*Permit",
             "理性消費許可証",
             "이성 소모 허가증"
         ],

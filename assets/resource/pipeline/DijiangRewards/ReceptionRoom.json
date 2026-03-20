@@ -224,7 +224,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -822,7 +822,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "Send",
+                    "(?i)Send",
                     "譲り渡す"
                 ]
             }
@@ -860,7 +860,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "Send",
+                    "(?i)Send",
                     "譲り渡す"
                 ]
             }
@@ -892,8 +892,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -920,8 +919,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -995,12 +993,12 @@
                     191
                 ],
                 "expected": [
-                    "收集线索",
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
-                    "Reception"
+                    "Reception",
+                    "收集线索"
                 ]
             }
         },
@@ -1058,12 +1056,12 @@
                     191
                 ],
                 "expected": [
-                    "收集线索",
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
-                    "Reception"
+                    "Reception",
+                    "收集线索"
                 ]
             }
         },
@@ -1159,14 +1157,39 @@
                 ],
                 "expected": [
                     "联盟工团的线索",
+                    "聯盟工團的線索",
+                    "(?i)Clue\\s*:\\s*UWST",
+                    "工業団連盟",
                     "环塔商会的线索",
+                    "環塔商會的線索",
+                    "(?i)Clue\\s*:\\s*TGCC",
+                    "環タロ商会",
                     "宏山科学院的线索",
+                    "宏山科學院的線索",
+                    "(?i)Clue\\s*:\\s*HAS",
+                    "宏山科学院",
                     "铁誓军的线索",
+                    "鐵誓軍的線索",
+                    "(?i)Clue\\s*:\\s*Order\\s*of\\s*Steel\\s*Oath",
+                    "鉄誓軍",
                     "寂语修会的线索",
-                    "众生长地的线索",
-                    "塞什卡的线索"
+                    "寂語修會的線索",
+                    "(?i)Clue\\s*:\\s*Cabal\\s*of\\s*Tranquility",
+                    "静語伝道会",
+                    "塞什卡的线索",
+                    "塞什卡的線索",
+                    "(?i)Clue\\s*:\\s*Se\\s*š'\\s*qa",
+                    "セシュカ",
+                    "众生长地的线索"
                 ],
                 "order_by": "Vertical"
+            ,
+                "roi_offset": [
+                    0,
+                    0,
+                    19,
+                    0
+                ]
             }
         },
         "pre_delay": 0,
@@ -1194,7 +1217,7 @@
                 ],
                 "expected": [
                     "已填入",
-                    "Pegged",
+                    "(?i)Pegged",
                     "配置中"
                 ],
                 "order_by": "Vertical"
@@ -1400,7 +1423,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -1447,7 +1470,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]

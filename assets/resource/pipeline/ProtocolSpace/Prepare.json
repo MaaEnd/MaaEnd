@@ -11,7 +11,7 @@
         "expected": [
             "协议空间",
             "協議空間",
-            "Protocol Space",
+            "(?i)Protocol\\s*Space",
             "協約空間"
         ],
         "pre_delay": 0,
@@ -33,7 +33,7 @@
         "expected": [
             "五级",
             "五級",
-            "Level 5",
+            "(?i)Level\\s*5",
             "Lv.5"
         ],
         "action": "Click",
@@ -59,7 +59,7 @@
         "expected": [
             "自选",
             "自選",
-            "Options",
+            "(?i)Options",
             "選択"
         ],
         "action": "Click",
@@ -152,7 +152,7 @@
         "expected": [
             "协议空间",
             "協議空間",
-            "Protocol Space",
+            "(?i)Protocol\\s*Space",
             "協約空間"
         ],
         "pre_delay": 0,

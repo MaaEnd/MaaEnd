@@ -61,7 +61,7 @@
         "expected": [
             "未读",
             "未讀",
-            "Unread",
+            "(?i)Unread",
             "未読"
         ],
         "action": "Click",

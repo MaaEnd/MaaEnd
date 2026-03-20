@@ -20,11 +20,11 @@
         "expected": [
             "套组装备",
             "套裝裝備",
-            "Set Gear",
+            "(?i)Set\\s*Gear",
             "セット装備",
             "装备",
             "裝備",
-            "Gear",
+            "(?i)Gear",
             "装備"
         ],
         "next": [
@@ -45,7 +45,7 @@
                 ],
                 "expected": [
                     "降序",
-                    "DESC",
+                    "(?i)DESC",
                     "降順"
                 ]
             }
@@ -67,7 +67,7 @@
         "expected": [
             "制作",
             "製作",
-            "Craft",
+            "(?i)Craft",
             "確定"
         ],
         "action": "Click",

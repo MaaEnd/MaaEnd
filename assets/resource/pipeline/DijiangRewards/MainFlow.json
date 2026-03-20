@@ -178,11 +178,11 @@
                 "expected": [
                     "生长",
                     "生長",
-                    "Growth",
+                    "(?i)Growth",
                     "成長",
                     "培养舱",
                     "培養艙",
-                    "Growth Chamber",
+                    "(?i)Growth\\s*Chamber",
                     "培養室"
                 ],
                 "only_rec": true
@@ -214,7 +214,7 @@
                 ],
                 "expected": [
                     "取消",
-                    "Cancel",
+                    "(?i)Cancel",
                     "キャンセル"
                 ]
             }

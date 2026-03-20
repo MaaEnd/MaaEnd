@@ -22,7 +22,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "간편 제작"
                 ]
@@ -58,7 +58,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作",
                     "간편 제작"
                 ]
@@ -80,7 +80,7 @@
         "expected": [
             "制作",
             "製作",
-            "Craft",
+            "(?i)Craft",
             "確定"
         ],
         "action": "Click",

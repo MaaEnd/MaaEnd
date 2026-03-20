@@ -13,7 +13,7 @@
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
+                    "(?i)Manufacturing",
                     "MFG ?CABIN",
                     "制造舱",
                     "製造艙"
@@ -45,7 +45,7 @@
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
+                    "(?i)Manufacturing",
                     "MFG ?CABIN",
                     "制造舱",
                     "製造艙"
@@ -619,7 +619,7 @@
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
+                    "(?i)Manufacturing",
                     "MFG ?CABIN",
                     "制造舱",
                     "製造艙"
@@ -661,7 +661,7 @@
                 "expected": [
                     "制造中",
                     "製造中",
-                    "Manufacturing",
+                    "(?i)Manufacturing",
                     "MFG ?CABIN",
                     "制造舱",
                     "製造艙"

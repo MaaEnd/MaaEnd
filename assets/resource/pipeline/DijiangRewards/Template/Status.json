@@ -208,7 +208,7 @@
                 "expected": [
                     "自有库存",
                     "自有庫存",
-                    "Local Library",
+                    "(?i)Local\\s*Library",
                     "捜索分"
                 ]
             }
@@ -228,11 +228,11 @@
                 "expected": [
                     "线索库存",
                     "線索庫存",
-                    "Clue Library",
+                    "(?i)Clue\\s*Library",
                     "在庫",
                     "接收线索",
                     "接收線索",
-                    "Receive Clue",
+                    "(?i)Receive\\s*Clue",
                     "受け取る",
                     "收集线索",
                     "收集線索"
