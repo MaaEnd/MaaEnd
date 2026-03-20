@@ -44,7 +44,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]

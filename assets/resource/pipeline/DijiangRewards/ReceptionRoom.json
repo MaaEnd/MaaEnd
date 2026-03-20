@@ -214,7 +214,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]
@@ -767,7 +767,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "Send",
+                    "(?i)^Send$",
                     "譲り渡す"
                 ]
             }
@@ -805,7 +805,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "Send",
+                    "(?i)^Send$",
                     "譲り渡す"
                 ]
             }
@@ -834,8 +834,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)^Send\\s*Local\\s*Clues$",
                     "譲り渡す"
                 ]
             }
@@ -859,8 +858,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "Send Local Clues",
-                    "SEND LOCAL CLUES",
+                    "(?i)^Send\\s*Local\\s*Clues$",
                     "譲り渡す"
                 ]
             }
@@ -933,7 +931,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]
@@ -973,7 +971,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]
@@ -1101,7 +1099,7 @@
                 ],
                 "expected": [
                     "已填入",
-                    "Pegged",
+                    "(?i)^Pegged$",
                     "配置中"
                 ],
                 "order_by": "Vertical"
@@ -1300,7 +1298,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]
@@ -1347,7 +1345,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)^Reception\\s*Room$",
                     "応接室",
                     "Reception"
                 ]
