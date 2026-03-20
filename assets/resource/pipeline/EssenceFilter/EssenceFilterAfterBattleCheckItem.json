@@ -1,4 +1,72 @@
 {
+    "EssenceFilterAfterBattleIsflawless": {
+        "desc": "判断是否为无瑕基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "无瑕",
+                    "無瑕",
+                    "Flawless",
+                    "純粋",
+                    "무결"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleCloseDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "是无暇基质"
+        }
+    },
+    "EssenceFilterAfterBattleIsPure": {
+        "desc": "判断是否为高纯基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "高纯",
+                    "高純",
+                    "Pure",
+                    "清浄",
+                    "순수"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleCloseDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "是高纯基质"
+        }
+    },
     "EssenceFilterAfterBattleCheckItemSlot1": {
         "desc": "OCR 识别技能槽 1",
         "recognition": {
@@ -235,7 +303,9 @@
             "type": "DoNothing"
         },
         "post_delay": 0,
-        "next": ["EssenceFilterAfterBattleRowNextItem"],
+        "next": [
+            "EssenceFilterAfterBattleCloseDetail"
+        ],
         "focus": {
             "Node.Action.Failed": "OCR 超时：跳过"
         }
@@ -250,6 +320,8 @@
             }
         },
         "post_delay": 0,
-        "next": ["EssenceFilterAfterBattleRowNextItem"]
+        "next": [
+            "EssenceFilterAfterBattleCloseDetail"
+        ]
     }
 }
