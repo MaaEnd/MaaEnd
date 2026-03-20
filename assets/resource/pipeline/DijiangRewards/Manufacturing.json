@@ -1,4 +1,53 @@
 {
+    "EntryCarbin": {
+        "desc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    759,
+                    463,
+                    521,
+                    117
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -100,
+                    20,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
+        },
+        "next": [
+            "MFG_ReceiveRewards",
+            "GrowthChamber"
+        ]
+    },
     "MFG_ReceiveRewards": {
         "desc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
         "recognition": {

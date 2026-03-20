@@ -1,49 +1,4 @@
 {
-    "ControlNexusClickTips": {
-        "desc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    759,
-                    463,
-                    521,
-                    117
-                ],
-                "method": 40,
-                "lower": [
-                    10,
-                    255,
-                    100
-                ],
-                "upper": [
-                    20,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 40
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -100,
-                    20,
-                    0,
-                    0
-                ]
-            }
-        },
-        "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000
-        },
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
-        }
-    },
     "InDijiangControlNexus": {
         "desc": "识别处于帝江号总控中枢界面",
         "recognition": {

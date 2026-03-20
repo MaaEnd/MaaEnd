@@ -19,12 +19,9 @@
         "next": [
             "[JumpBack]RecoveryEmotion",
             "[JumpBack]EntryReceptionRoom",
-            "[JumpBack]ControlNexusClickTips",
-            "[JumpBack]MFG_ReceiveRewards",
-            "[JumpBack]GrowthChamber",
+            "[JumpBack]EntryCarbin",
             "[JumpBack]EntryGrowthChamber",
             "InLastCarbin",
-            "[JumpBack]CarbinSwipe",
             "[JumpBack]EndExchangeJBC"
         ],
         "focus": {
@@ -211,40 +208,6 @@
         },
         "post_wait_freezes": {
             "time": 200,
-            "timeout": 2000
-        }
-    },
-    "CarbinSwipe": {
-        "desc": "[主流程·控制中枢] 在总控中枢界面向右滑动，以露出更多舱室(如培养舱)",
-        "max_hit": 3, //滑动次数过多直接判定失败，避免死循环
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    15,
-                    437,
-                    225,
-                    153
-                ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
-                ]
-            }
-        },
-        "action": {
-            "type": "Scroll",
-            "param": {
-                "target_offset": [
-                    600,
-                    20,
-                    0,
-                    0
-                ],
-                "dx": 180
-            }
-        },
-        "post_wait_freezes": {
-            "time": 500,
             "timeout": 2000
         }
     }
