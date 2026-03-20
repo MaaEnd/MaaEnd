@@ -50,10 +50,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    885,
-                    300,
-                    135,
-                    143
+                    900,
+                    325,
+                    100,
+                    100
                 ],
                 "template": [
                     "AutoStockpile/AutoStockpileLocked.png"
@@ -113,10 +113,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    885,
-                    300,
-                    135,
-                    143
+                    900,
+                    325,
+                    100,
+                    100
                 ],
                 "template": [
                     "AutoStockpile/StockRedistributionButton.png"
@@ -168,10 +168,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    54,
-                    58,
+                    50,
+                    55,
                     60,
-                    54
+                    70
                 ],
                 "template": [
                     "AutoStockpile/StapleGoodsButtonSelected.png"
@@ -192,10 +192,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    8,
-                    152,
-                    52,
-                    541
+                    15,
+                    140,
+                    40,
+                    500
                 ],
                 "template": [
                     "AutoStockpile/ElasticGoodsButtonSide.png"
@@ -282,10 +282,10 @@
             "type": "TouchMove",
             "param": {
                 "target": [
-                    891,
-                    71,
-                    24,
-                    16
+                    1100,
+                    70,
+                    10,
+                    10
                 ]
             }
         },
@@ -304,17 +304,17 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    646,
-                    498,
-                    13,
-                    12
+                    650,
+                    500,
+                    10,
+                    10
                 ],
                 "end": [
                     [
-                        696,
-                        499,
-                        15,
-                        11
+                        700,
+                        500,
+                        10,
+                        10
                     ]
                 ]
             }
@@ -440,10 +440,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    201,
-                    484,
+                    200,
+                    490,
                     880,
-                    79
+                    80
                 ],
                 "method": 40,
                 "lower": [
@@ -589,10 +589,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    338,
-                    57,
-                    69,
-                    62
+                    340,
+                    55,
+                    60,
+                    70
                 ],
                 "template": [
                     "AutoStockpile/ElasticGoodsButton.png",

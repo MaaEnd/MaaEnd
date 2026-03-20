@@ -1,24 +1,4 @@
 {
-    "AutoStockpileGetQuotaAddition": {
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    280,
-                    140,
-                    120,
-                    20
-                ],
-                "expected": [
-                    ".*"
-                ],
-                "only_rec": true
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileCheckOverflow": {
         "recognition": {
             "type": "ColorMatch",
@@ -77,10 +57,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    50,
-                    126,
-                    83,
-                    575
+                    60,
+                    175,
+                    30,
+                    500
                 ],
                 "template": [
                     "AutoStockpile/MarketMark.png"
@@ -99,10 +79,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    63,
-                    162,
-                    1177,
-                    553
+                    60,
+                    175,
+                    1170,
+                    500
                 ],
                 "expected": [
                     ".*"
@@ -120,10 +100,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    63,
-                    162,
-                    1177,
-                    553
+                    60,
+                    175,
+                    1170,
+                    500
                 ],
                 "template": [
                     "AutoStockpile/Goods/Wuling/WulingFrozenPears.Tier1.png"
@@ -159,6 +139,26 @@
                 ]
             }
         }
+    },
+    "AutoStockpileGetQuotaAddition": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    280,
+                    140,
+                    120,
+                    20
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoStockpileGetQuotaFilter": {
         "recognition": {
