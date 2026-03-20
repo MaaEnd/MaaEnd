@@ -166,7 +166,7 @@
         ]
     },
     "EndExchangeJBC": {
-        "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
+        "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束,JumpBack专用",
         "recognition": {
             "type": "And",
             "param": {

@@ -1,7 +1,6 @@
 {
     "RecoveryEmotion": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
-        "max_hit": 2,
         "recognition": {
             "type": "And",
             "param": {
@@ -444,11 +443,22 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
+            "RecoveryEmotionClose"
         ],
         "on_error": [
             "ConfirmRecoveryEmotion_OnError"
         ]
+    },
+    "RecoveryEmotionClose": {
+        "desc": "[恢复心情·收尾] 点击确认后界面关闭，返回控制中枢后进行其他步骤",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        }
     },
     "ConfirmRecoveryEmotion_OnError": {
         "recognition": {
@@ -468,7 +478,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
+            "RecoveryEmotionClose"
         ]
     },
     "EmotionFull_OnError": {
@@ -530,7 +540,7 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
+            "RecoveryEmotionAssistUseAssist"
         ],
         "on_error": [
             "BackToControlNexus_OnError"
