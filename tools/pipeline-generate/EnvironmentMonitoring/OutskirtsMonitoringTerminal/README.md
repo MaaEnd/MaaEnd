@@ -17,8 +17,7 @@ npx @joebao/maa-pipeline-generate \
 - `Name` — 任务中文名称（用于 desc 文本）
 - `ExpectedText` — 任务列表项 OCR 识别文本（多语言数组）
 - `InExpectedText` — 任务详情界面 OCR 识别文本（多数情况与 ExpectedText 相同）
-- `StartPosDesc` — `GoTo${Id}StartPos` 节点描述
-- `JumpBackNode` — 传送节点名称
+- `EnterMap` — 传送节点名称
 - `MapName` — 地图名称
 - `MapTarget` — 位置断言目标坐标 `[x, y, w, h]`
 - `MapPath` — 寻路路径点数组 `[[x, y], ...]`

@@ -145,14 +145,21 @@
         ]
     },
     "GoTo${Id}": {
-        "desc": "前往${Name}",
+        "desc": "前往${Name}，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoTo${Id}StartPos",
-            "${JumpBackNode}"
+            "GoTo${Id}NotAtStartPos"
         ]
     },
     "GoTo${Id}StartPos": {
-        "desc": "${StartPosDesc}",
+        "desc": "在${Name}任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -161,6 +168,19 @@
                     "map_name": "${MapName}",
                     "target": "${MapTarget}"
                 }
+            ]
+        },
+        "next": [
+            "GoTo${Id}MapTrackerMove"
+        ]
+    },
+    "GoTo${Id}NotAtStartPos": {
+        "desc": "不在${Name}任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "${EnterMap}"
             ]
         },
         "next": [

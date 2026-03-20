@@ -572,5 +572,7 @@
     "resource/image/SceneManager/ValuableEntry": "640f098bf5591754d9bd83bebb84580deade0b488c540e41b6eb2402abadd09f",
     "resource/image/Weapon/UpgradeMaterialsDelete": "fd9543437c65fa89990c3c09a90a48ddca3c197c5de4ebfbef1a48499d61884c",
     "resource/image/AutoStockpile/AutoStockpileKettle": "605e91bf825a5bbd7d31d0df350938fdf9c02c61d33d22a3b91c13d5894b1360",
-    "resource/image/AutoStockpile/AutoStockpileLocked": "b4f8403516785dcb171419ce0271ca23a27698e0d93639d20645ce21a41a4d13"
+    "resource/image/AutoStockpile/AutoStockpileLocked": "b4f8403516785dcb171419ce0271ca23a27698e0d93639d20645ce21a41a4d13",
+    "resource/image/SceneManager/NoticeRewardsIcon3": "994abde3377303188ddc42dea28ef7921ab634915b75edb44843a5825eba1a55",
+    "resource/image/SceneManager/NoticeRewardsIcon2": "485a262b36a49b06d153fa5eaddfc70c93ec1033aa9f734f4e5e5d1785e130ca"
 }

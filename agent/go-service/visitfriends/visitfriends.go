@@ -129,6 +129,14 @@ func getFriendItemsName(ctx *maa.Context, arg *maa.CustomRecognitionArg, itemRoi
 			Msg("run recognition failed")
 		return "", false
 	}
+	if detail.Results.Best == nil {
+		log.Error().
+			Str("component", "VisitFriends").
+			Str("step", "getFriendItemsName").
+			Str("recognition", "VisitFriendsRecognitionItemName").
+			Msg("no best result")
+		return "", false
+	}
 	name, ok := detail.Results.Best.AsOCR()
 	if !ok {
 		return "", false

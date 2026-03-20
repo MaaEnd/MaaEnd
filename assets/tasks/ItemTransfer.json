@@ -656,13 +656,16 @@
                             "template": "ItemTransfer/产物.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 107
+                            "expected": 107,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 107
+                            "expected": 107,
+                            "threshold": 0.6
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 107
+                            "expected": 107,
+                            "threshold": 0.6
                         }
                     }
                 },

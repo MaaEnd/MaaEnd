@@ -6,8 +6,7 @@
             "Name": "古树",
             "ExpectedText": ["古树", "古樹", "Ancient Tree", "古木", "고목"],
             "InExpectedText": ["古树", "古樹", "Ancient Tree", "古木", "고목"],
-            "StartPosDesc": "在古树最近的传送点附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley7",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley7",
             "MapName": "map02_lv001",
             "MapTarget": [280, 580, 15, 15],
             "MapPath": [
@@ -48,8 +47,7 @@
                 "侵蝕潮で壊れたビーコン",
                 "침식 조류로 인해 훼손된 신호기"
             ],
-            "StartPosDesc": "在侵蚀潮中损坏的信标任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingWulingCity0",
+            "EnterMap": "SceneEnterWorldWulingWulingCity0",
             "MapName": "map02_lv002",
             "MapTarget": [640, 255, 15, 15],
             "MapPath": [
@@ -72,8 +70,7 @@
             "Name": "蓄水源石虫",
             "ExpectedText": ["蓄水源石虫", "蓄水源石蟲", "Cistern Originium Slugs", "貯水オリジムシ", "저수 원석충"],
             "InExpectedText": ["蓄水源石虫", "蓄水源石蟲", "Cistern Originium Slugs", "貯水オリジムシ", "저수 원석충"],
-            "StartPosDesc": "在蓄水源石虫最近的传送点附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley7",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley7",
             "MapName": "map02_lv001",
             "MapTarget": [280, 580, 15, 15],
             "MapPath": [
@@ -90,8 +87,7 @@
             "Name": "漱玉",
             "ExpectedText": ["漱玉", "漱玉", "Cleansing Jade", "漱玉", "수옥"],
             "InExpectedText": ["漱玉", "漱玉", "Cleansing Jade", "漱玉", "수옥"],
-            "StartPosDesc": "在漱玉任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley4",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley4",
             "MapName": "map02_lv001_tier_277",
             "MapTarget": [255, 395, 15, 15],
             "MapPath": [[246, 394]],
@@ -114,8 +110,7 @@
                 "倒れた天師杭",
                 "무너진 천사장"
             ],
-            "StartPosDesc": "在倒塌的天师桩任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley8",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley8",
             "MapName": "map02_lv001",
             "MapTarget": [210, 635, 15, 15],
             "MapPath": [
@@ -143,8 +138,7 @@
                 "備蓄施設周辺の生態環境",
                 "보급소 주변의 생태 환경"
             ],
-            "StartPosDesc": "在储备站周围的生态环境任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingWulingCity8",
+            "EnterMap": "SceneEnterWorldWulingWulingCity8",
             "MapName": "map02_lv002",
             "MapTarget": [689.6, 917.3, 6.0, 5.5],
             "MapPath": [
@@ -168,8 +162,7 @@
             "Name": "栖霞驻影",
             "ExpectedText": ["栖霞驻影", "棲霞駐影", "Eternal Sunset", "棲霞留影", "노을의 그림자"],
             "InExpectedText": ["栖霞驻影", "棲霞駐影", "Eternal Sunset", "棲霞留影", "노을의 그림자"],
-            "StartPosDesc": "在栖霞驻影任务开始位置附近，聚宝窟外直接拍照",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley2",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley2",
             "MapName": "map02_lv001",
             "MapTarget": [315, 305, 15, 15],
             "MapPath": [
@@ -189,8 +182,7 @@
                 "室内栽培の作物",
                 "실내 재배하고 있는 작물을 촬영하기"
             ],
-            "StartPosDesc": "在室内作物任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingWulingCity4",
+            "EnterMap": "SceneEnterWorldWulingWulingCity4",
             "MapName": "map02_lv002",
             "MapTarget": [240, 695, 15, 15],
             "MapPath": [
@@ -222,8 +214,7 @@
                 "腹が膨らんで光る虫吐き長脚獣",
                 "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
             ],
-            "StartPosDesc": "在肚子鼓气后发光的吐虫长股兽任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley7",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley7",
             "MapName": "map02_lv001",
             "MapTarget": [280, 580, 15, 15],
             "MapPath": [
@@ -253,8 +244,7 @@
                 "キョロキョロする黒腹羽獣",
                 "두리번거리는 검은 배의 파울비스트"
             ],
-            "StartPosDesc": "在东张西望的黑腹雉羽兽任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley0",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley0",
             "MapName": "map02_lv001",
             "MapTarget": [342.2, 124.2, 4, 4],
             "MapPath": [
@@ -268,8 +258,7 @@
             "Name": "七彩鳞",
             "ExpectedText": ["七彩鳞", "七彩鱗", "Rainbow Fin", "七色鱗獣", "무지개 린수"],
             "InExpectedText": ["七彩鳞", "七彩鱗", "Rainbow Fin", "七色鱗獣", "무지개 린수"],
-            "StartPosDesc": "在七彩鳞任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingJingyuValley10",
+            "EnterMap": "SceneEnterWorldWulingJingyuValley10",
             "MapName": "map02_lv001",
             "MapTarget": [125, 815, 15, 15],
             "MapPath": [
@@ -301,8 +290,7 @@
                 "活発になっている貯水オリジムシ",
                 "활기찬 저수 원석충"
             ],
-            "StartPosDesc": "在充满活力的蓄水源石虫任务开始位置附近",
-            "JumpBackNode": "[JumpBack]SceneEnterWorldWulingWulingCity3",
+            "EnterMap": "SceneEnterWorldWulingWulingCity3",
             "MapName": "map02_lv002",
             "MapTarget": [422.0, 577.7, 4, 4],
             "MapPath": [

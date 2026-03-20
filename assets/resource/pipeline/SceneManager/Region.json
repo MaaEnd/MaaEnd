@@ -171,7 +171,9 @@
                     180
                 ],
                 "template": [
-                    "SceneManager/NoticeRewardsIcon.png"
+                    "SceneManager/NoticeRewardsIcon.png",
+                    "SceneManager/NoticeRewardsIcon2.png",
+                    "SceneManager/NoticeRewardsIcon3.png"
                 ],
                 "threshold": 0.9
             }
