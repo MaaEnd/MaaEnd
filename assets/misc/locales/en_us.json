@@ -148,7 +148,7 @@
     "option.SelectToGrow.description": "MAE will automatically plant the selected target.",
     "option.SelectToGrow.cases.DoNothing.label": "Do Nothing",
     "option.SelectToGrow.cases.Any.label": "Any",
-    "option.SelectToGrow.cases.GrowAgin.label": "Grow Again",
+    "option.SelectToGrow.cases.GrowAgain.label": "Grow Again",
     "option.SortBy.label": "Sort By",
     "option.SortBy.cases.Default.label": "Default",
     "option.SortBy.cases.AmountOwned.label": "Amount Owned",

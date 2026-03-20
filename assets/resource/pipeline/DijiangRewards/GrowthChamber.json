@@ -106,7 +106,7 @@
         "next": [
             "ClaimAllGrowReward",
             "Grow",
-            "GrowAgin",
+            "GrowAgain",
             "ExitGrowthChamber"
         ],
         "focus": {
@@ -231,7 +231,7 @@
             "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
-    "GrowAgin": {
+    "GrowAgain": {
         "desc": "再次种植,和Grow冲突",
         "enabled": false,
         "recognition": {
@@ -255,13 +255,13 @@
         "pre_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ConfirmGrowAgin"
+            "ConfirmGrowAgain"
         ],
         "on_error": [
-            "GrowAgin_OnError"
+            "GrowAgain_OnError"
         ]
     },
-    "GrowAgin_OnError": {
+    "GrowAgain_OnError": {
         "desc": "再次种植,和Grow冲突",
         "enabled": false,
         "recognition": {
@@ -285,13 +285,13 @@
             "type": "Click"
         },
         "next": [
-            "ConfirmGrowAgin"
+            "ConfirmGrowAgain"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
-    "ConfirmGrowAgin": {
+    "ConfirmGrowAgain": {
         "desc": "确认再次种植",
         "recognition": {
             "type": "And",
@@ -313,7 +313,7 @@
             "ExitGrowthChamber"
         ]
     },
-    "ConfirmGrowAgin_OnError": {
+    "ConfirmGrowAgain_OnError": {
         "desc": "确认再次种植（出错重试）",
         "recognition": {
             "type": "And",
@@ -336,7 +336,7 @@
         }
     },
     "Grow": {
-        "desc": "点击培养按钮,和GrowAgin冲突",
+        "desc": "点击培养按钮,和GrowAgain冲突",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",

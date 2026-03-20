@@ -148,7 +148,7 @@
     "option.SelectToGrow.description": "有効にすると、MAE が選択した対象を自動で栽培します。",
     "option.SelectToGrow.cases.DoNothing.label": "栽培しない",
     "option.SelectToGrow.cases.Any.label": "任意",
-    "option.SelectToGrow.cases.GrowAgin.label": "再度栽培",
+    "option.SelectToGrow.cases.GrowAgain.label": "再度栽培",
     "option.SortBy.label": "ソート方法",
     "option.SortBy.cases.Default.label": "デフォルト",
     "option.SortBy.cases.AmountOwned.label": "総在庫",
