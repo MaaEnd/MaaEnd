@@ -21,11 +21,27 @@
             "[JumpBack]EntryReceptionRoom",
             "[JumpBack]EntryCarbin",
             "[JumpBack]EntryGrowthChamber",
-            "InLastCarbin",
+            "FinishDijiangRewards",
             "[JumpBack]EndExchangeJBC"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.control_nexus_target_unrecognized"
+        }
+    },
+    "FinishDijiangRewards": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
         }
     },
     "InMainWindow": {
