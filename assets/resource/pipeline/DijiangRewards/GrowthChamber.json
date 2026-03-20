@@ -262,8 +262,7 @@
         ]
     },
     "GrowAgain_OnError": {
-        "desc": "再次种植,和Grow冲突",
-        "enabled": false,
+        "desc": "再次种植,和Grow冲突(出错重试)",
         "recognition": {
             "type": "OCR",
             "param": {
