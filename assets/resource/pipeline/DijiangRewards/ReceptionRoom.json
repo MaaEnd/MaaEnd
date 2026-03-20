@@ -83,7 +83,8 @@
             "ReceptionRoom"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "进入会客室识别"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_entry_recognition_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "WaitEndExchange": {
@@ -122,7 +123,10 @@
         },
         "next": [
             "CloseExchangeRewards"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EndExchange": {
         "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
@@ -163,10 +167,13 @@
         "action": "Click",
         "next": [
             "ReceptionRoom"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EndExchangeJBC": {
-        "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束",
+        "desc": "[会客室·线索] 情报交流结束弹窗出现时点击确认结束,JumpBack专用",
         "recognition": {
             "type": "And",
             "param": {
@@ -198,7 +205,10 @@
                 "box_index": 1
             }
         },
-        "action": "Click"
+        "action": "Click",
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ReceptionRoom": {
         "desc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
@@ -214,7 +224,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "(?i)^Reception\\s*Room$",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -233,11 +243,12 @@
             "EndExchange"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "进入会客室任务失败,未知界面"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_flow_failed"
         }
     },
     "StartExchange": {
         "desc": "[会客室·线索] 在会客室点击「开始线索交流」黄按钮",
+        "enabled": false,
         "recognition": {
             "type": "And",
             "param": {
@@ -281,12 +292,31 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSetClues",
-            "ExitClueLibrary",
-            "ExitReceptionRoom"
+            "CloseExchangeRewaresSucceed"
         ],
         "on_error": [
             "CloseExchangeRewards_OnError"
+        ]
+    },
+    "CloseExchangeRewaresSucceed": {
+        "desc": "返回会客室界面成功",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    0,
+                    160,
+                    379
+                ],
+                "expected": [
+                    "收集"
+                ]
+            }
+        },
+        "next": [
+            "ReceptionRoomSetClues",
+            "ExitReceptionRoom"
         ]
     },
     "CloseExchangeRewards_OnError": {
@@ -304,10 +334,11 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoomSetClues",
-            "ExitClueLibrary",
-            "ExitReceptionRoom"
-        ]
+            "CloseExchangeRewaresSucceed"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ReceptionRoomNeedReceiveClues": {
         "desc": "[会客室·线索] 识别是否有可领取的线索",
@@ -364,7 +395,10 @@
         "next": [
             "ReceiveAll",
             "EndExchange"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ReceiveAll": {
         "desc": "[会客室·线索] 领取界面点击「一键领取」按钮",
@@ -415,7 +449,10 @@
             "StartExchange",
             "ExitClueLibrary",
             "ExitReceptionRoom"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ReceptionRoomNeedCollectClues": {
         "desc": "[会客室·线索] 识别是否有可收集的线索",
@@ -466,7 +503,10 @@
             "SendClues",
             "Collect",
             "EndExchange"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SendClues": {
         "desc": "[会客室·线索] 线索库满时点击关闭弹窗，再进入赠予或滑动刷新",
@@ -529,7 +569,10 @@
         },
         "next": [
             "EntrySendClues"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SendCluesSwipe": {
         "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
@@ -593,7 +636,10 @@
         },
         "next": [
             "InSend"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "SendTheMostClues": {
         "desc": "[会客室·线索] 在赠予界面识别自有库存数量 3–20 的线索并点击，以便发送",
@@ -638,7 +684,10 @@
         },
         "next": [
             "Send"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "Send": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
@@ -691,7 +740,10 @@
         },
         "next": [
             "InSend"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExitSend": {
         "desc": "[会客室·线索] 发送完成后关闭赠予界面",
@@ -750,7 +802,10 @@
         },
         "next": [
             "ReceptionRoomNeedCollectClues"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EntrySendClues": {
         "desc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
@@ -767,7 +822,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "(?i)^Send$",
+                    "(?i)Send",
                     "譲り渡す"
                 ]
             }
@@ -805,7 +860,7 @@
                 "expected": [
                     "赠予",
                     "贈予",
-                    "(?i)^Send$",
+                    "(?i)Send",
                     "譲り渡す"
                 ]
             }
@@ -819,7 +874,10 @@
         },
         "next": [
             "InSend"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "InSend_OnError": {
         "recognition": {
@@ -834,7 +892,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "(?i)^Send\\s*Local\\s*Clues$",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -843,7 +901,10 @@
             "SendTheMostClues",
             "SendCluesSwipe",
             "ExitSend"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "InSend": {
         "recognition": {
@@ -858,7 +919,7 @@
                 "expected": [
                     "赠予自有线索",
                     "贈予自有線索",
-                    "(?i)^Send\\s*Local\\s*Clues$",
+                    "(?i)Send\\s*Local\\s*Clues",
                     "譲り渡す"
                 ]
             }
@@ -915,7 +976,10 @@
         },
         "next": [
             "ExitCollect"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExitCollect": {
         "desc": "[会客室·领奖] 领奖后点击左上会客室标题关闭收集界面",
@@ -923,17 +987,18 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    43,
+                    624,
                     0,
-                    165,
-                    64
+                    467,
+                    191
                 ],
                 "expected": [
                     "会客室",
                     "會客室",
-                    "(?i)^Reception\\s*Room$",
+                    "(?i)Reception\\s*Room",
                     "応接室",
-                    "Reception"
+                    "Reception",
+                    "收集线索"
                 ]
             }
         },
@@ -948,13 +1013,35 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
+            "ExitCollectsucceed"
+        ],
+        "on_error": [
+            "ExitCollect_OnError"
+        ]
+    },
+    "ExitCollectsucceed": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    0,
+                    160,
+                    379
+                ],
+                "expected": [
+                    "收集"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "ReceptionRoomNeedReceiveClues",
             "ReceptionRoomSetClues",
             "StartExchange",
             "ExitReceptionRoom"
-        ],
-        "on_error": [
-            "ExitCollect_OnError"
         ]
     },
     "ExitCollect_OnError": {
@@ -963,17 +1050,18 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    43,
+                    624,
                     0,
-                    165,
-                    64
+                    467,
+                    191
                 ],
                 "expected": [
                     "会客室",
                     "會客室",
-                    "(?i)^Reception\\s*Room$",
+                    "(?i)Reception\\s*Room",
                     "応接室",
-                    "Reception"
+                    "Reception",
+                    "收集线索"
                 ]
             }
         },
@@ -984,11 +1072,11 @@
             }
         },
         "next": [
-            "ReceptionRoomNeedReceiveClues",
-            "ReceptionRoomSetClues",
-            "StartExchange",
-            "ExitReceptionRoom"
-        ]
+            "ExitCollectsucceed"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ReceptionRoomSetClues": {
         "desc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
@@ -1052,7 +1140,8 @@
             "EndExchange"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "放置线索失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_set_clues_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "ReadySetClues": {
@@ -1066,10 +1155,39 @@
                     393,
                     130
                 ],
+                "roi_offset": [
+                    0,
+                    0,
+                    19,
+                    0
+                ],
                 "expected": [
-                    "线索",
-                    "線索",
-                    "Clue"
+                    "联盟工团的线索",
+                    "聯盟工團的線索",
+                    "(?i)UWST",
+                    "工業団連盟",
+                    "环塔商会的线索",
+                    "環塔商會的線索",
+                    "(?i)TGCC",
+                    "環タロ商会",
+                    "宏山科学院的线索",
+                    "宏山科學院的線索",
+                    "(?i)HAS",
+                    "宏山科学院",
+                    "铁誓军的线索",
+                    "鐵誓軍的線索",
+                    "(?i)Order\\s*of\\s*Steel\\s*Oath",
+                    "鉄誓軍",
+                    "寂语修会的线索",
+                    "寂語修會的線索",
+                    "(?i)Cabal\\s*of\\s*Tranquility",
+                    "静語伝道会",
+                    "塞什卡的线索",
+                    "塞什卡的線索",
+                    "(?i)Se[sš]?'?qa",
+                    "セシュカ",
+                    "众生长地的线索",
+                    "(?i)Hannabit\\s*Circuit"
                 ],
                 "order_by": "Vertical"
             }
@@ -1099,7 +1217,7 @@
                 ],
                 "expected": [
                     "已填入",
-                    "(?i)^Pegged$",
+                    "(?i)Pegged",
                     "配置中"
                 ],
                 "order_by": "Vertical"
@@ -1140,7 +1258,8 @@
             "SetClues"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "会客室线索区域状态识别失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_clue_area_recognition_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "SetClues": {
@@ -1223,7 +1342,10 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoom"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExitClueLibrary": {
         "desc": "[会客室·线索] 线索库界面点击左上会客室标题返回会客室主界面",
@@ -1282,7 +1404,10 @@
         },
         "next": [
             "ExitReceptionRoom"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "ExitReceptionRoom": {
         "desc": "[会客室·离开] 返回控制中枢",
@@ -1298,7 +1423,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "(?i)^Reception\\s*Room$",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -1345,7 +1470,7 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "(?i)^Reception\\s*Room$",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
@@ -1369,6 +1494,9 @@
         },
         "next": [
             "InDijiangControlNexus"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     }
 }

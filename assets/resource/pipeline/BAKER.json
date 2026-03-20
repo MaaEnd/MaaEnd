@@ -30,8 +30,7 @@
             117
         ],
         "expected": [
-            // @i18n-skip
-            "BAKER"
+            "Baker"
         ],
         "next": [
             "BakerCheckMsg", // Baker 会话信息
@@ -130,7 +129,7 @@
         "expected": [
             "全部显示",
             "全部顯示",
-            "(?i)^Show\\s*All$",
+            "(?i)Show\\s*All",
             "すべて",
             "篩選生效中",
             "筛选生效中"
@@ -191,7 +190,7 @@
         "expected": [
             "未读",
             "未讀",
-            "(?i)^Unread$",
+            "(?i)Unread",
             "未読"
         ],
         "action": "Click",
@@ -212,7 +211,7 @@
         "expected": [
             "保存",
             "儲存",
-            "(?i)^Save$"
+            "(?i)Save"
         ],
         "action": "Click",
         "post_wait_freezes": 1,
@@ -461,7 +460,7 @@
         "expected": [
             "暂无新话题",
             "尚無新話題",
-            "(?i)^No\\s*New\\s*Topics$",
+            "(?i)No\\s*New\\s*Topics",
             "新しいトピックはありません",
             "话题结束",
             "話題結束"
@@ -527,7 +526,7 @@
         "expected": [
             "全部显示",
             "全部顯示",
-            "(?i)^Show\\s*All$",
+            "(?i)Show\\s*All",
             "すべて",
             "篩選生效中",
             "筛选生效中"

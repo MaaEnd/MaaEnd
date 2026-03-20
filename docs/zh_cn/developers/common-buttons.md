@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD060 -->
-
 # 开发手册 - 通用按钮节点参考
 
 > **提示**：文档中涉及的按钮（无论是否有文字），**文字内容不影响识别结果**。识别仅依赖按钮背景色、图标形状与位置，同一类按钮即使文案不同也可复用对应节点。
@@ -173,5 +171,3 @@
 | `CloseRewardsButton`       | 奖励界面中下部的对号关闭按钮                               |
 | `CloseButtonType1`         | 仅关界面、无法关闭 ESC 菜单（ESC 下会卡死）的右上角 X      |
 | `CloseButtonType2`         | 关界面或关 ESC 的通用右上角 X（有 ESC 时用此节点避免卡死） |
-
-<!-- markdownlint-enable MD060 -->

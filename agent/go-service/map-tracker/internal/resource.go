@@ -17,18 +17,33 @@ import (
 )
 
 var (
-	resourcePath       atomic.Value // string
-	registerSinkOnce   sync.Once
-	mapTrackerResource = &MapTrackerResource{}
+	resourcePath     atomic.Value // string
+	registerSinkOnce sync.Once
+
+	Resource = &MapTrackerResource{
+		PointerTemplateLoader: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return FindResource("resource/image/MapTracker/pointer.png") },
+		),
+		ZoomInTemplate: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return FindResource("resource/image/MapTracker/BigMapZoomIn.png") },
+		),
+		ZoomOutTemplate: minicv.NewTemplateLoaderOfDynamicPath(
+			func() string { return FindResource("resource/image/MapTracker/BigMapZoomOut.png") },
+		),
+	}
 )
 
 // MapTrackerResource stores globally shared map resources for map-tracker.
 type MapTrackerResource struct {
-	rawMapsOnce sync.Once
-	rawMaps     []MapCache
-	rawMapsErr  error
+	RawMapsOnce sync.Once
+	RawMaps     []MapCache
+	RawMapsErr  error
 
-	integralCacheMu sync.Mutex
+	IntegralCacheMu sync.Mutex
+
+	PointerTemplateLoader *minicv.TemplateLoader
+	ZoomInTemplate        *minicv.TemplateLoader
+	ZoomOutTemplate       *minicv.TemplateLoader
 }
 
 // MapCache represents a preloaded map image.
@@ -41,10 +56,10 @@ type MapCache struct {
 	cachedIntegralArray *minicv.IntegralArray
 }
 
-// getIntegralArray lazily initializes integral array when first needed.
-func (m *MapCache) getIntegralArray() minicv.IntegralArray {
-	mapTrackerResource.integralCacheMu.Lock()
-	defer mapTrackerResource.integralCacheMu.Unlock()
+// GetIntegralArray lazily initializes integral array when first needed.
+func (m *MapCache) GetIntegralArray() minicv.IntegralArray {
+	Resource.IntegralCacheMu.Lock()
+	defer Resource.IntegralCacheMu.Unlock()
 
 	if m.cachedIntegralArray == nil {
 		integral := minicv.GetIntegralArray(m.Img)
@@ -53,8 +68,8 @@ func (m *MapCache) getIntegralArray() minicv.IntegralArray {
 	return *m.cachedIntegralArray
 }
 
-// ensureResourcePathSink ensures the resource path sink is registered
-func ensureResourcePathSink() {
+// EnsureResourcePathSink ensures the resource path sink is registered.
+func EnsureResourcePathSink() {
 	registerSinkOnce.Do(func() {
 		maa.AgentServerAddResourceSink(&resourcePathSink{})
 		log.Debug().Msg("Resource path sink registered for map-tracker")
@@ -63,7 +78,7 @@ func ensureResourcePathSink() {
 
 type resourcePathSink struct{}
 
-// OnResourceLoading captures the resource path when a resource is loaded
+// OnResourceLoading captures the resource path when a resource is loaded.
 func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.EventStatus, detail maa.ResourceLoadingDetail) {
 	if status != maa.EventStatusSucceeded || detail.Path == "" {
 		return
@@ -76,7 +91,7 @@ func (c *resourcePathSink) OnResourceLoading(resource *maa.Resource, status maa.
 	log.Debug().Str("resource_path", abs).Msg("Resource loaded; cached path for map-tracker")
 }
 
-// getResourceBase returns the cached resource path or common defaults as fallback
+// getResourceBase returns the cached resource path or common defaults as fallback.
 func getResourceBase() string {
 	if v := resourcePath.Load(); v != nil {
 		if s, ok := v.(string); ok && s != "" {
@@ -86,8 +101,8 @@ func getResourceBase() string {
 	return ""
 }
 
-// findResource tries to find a file in the cached resource path or standard fallbacks
-func findResource(relativePath string) string {
+// FindResource tries to find a file in the cached resource path or standard fallbacks.
+func FindResource(relativePath string) string {
 	rel := filepath.FromSlash(strings.TrimSpace(relativePath))
 	rel = strings.TrimPrefix(rel, string(filepath.Separator))
 	relNoResourcePrefix := strings.TrimPrefix(rel, "resource"+string(filepath.Separator))
@@ -104,7 +119,6 @@ func findResource(relativePath string) string {
 
 	candidates := make([]string, 0, 18)
 
-	// 1. Try cached path from sink
 	if base := getResourceBase(); base != "" {
 		base = filepath.Clean(base)
 		baseParent := filepath.Dir(base)
@@ -116,7 +130,6 @@ func findResource(relativePath string) string {
 		)
 	}
 
-	// 2. Try standard resource directories relative to CWD
 	cwd, _ := os.Getwd()
 	wd := filepath.Clean(cwd)
 	wdParent := filepath.Dir(wd)
@@ -150,30 +163,27 @@ func findResource(relativePath string) string {
 	return ""
 }
 
-// initRawMaps initializes global raw maps cache exactly once.
-func (r *MapTrackerResource) initRawMaps(ctx *maa.Context) {
-	r.rawMapsOnce.Do(func() {
-		r.rawMaps, r.rawMapsErr = r.loadMaps()
-		if r.rawMapsErr != nil {
-			log.Error().Err(r.rawMapsErr).Msg("Failed to load maps")
+// InitRawMaps initializes global raw maps cache exactly once.
+func (r *MapTrackerResource) InitRawMaps(ctx *maa.Context) {
+	r.RawMapsOnce.Do(func() {
+		r.RawMaps, r.RawMapsErr = r.LoadMaps()
+		if r.RawMapsErr != nil {
+			log.Error().Err(r.RawMapsErr).Msg("Failed to load maps")
 		} else {
-			log.Info().Int("mapsCount", len(r.rawMaps)).Msg("Map images loaded")
+			log.Info().Int("mapsCount", len(r.RawMaps)).Msg("Map images loaded")
 		}
 	})
 }
 
-// loadMaps loads all map images from the resource directory
-// and crops them when map bbox data exists.
-func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
-	// Find map directory using search strategy.
-	mapDir := findResource(MAP_DIR)
+// LoadMaps loads all map images from the resource directory and crops them when map bbox data exists.
+func (r *MapTrackerResource) LoadMaps() ([]MapCache, error) {
+	mapDir := FindResource(MAP_DIR)
 	if mapDir == "" {
 		return nil, fmt.Errorf("map directory not found (searched in cache and standard locations)")
 	}
 
-	// Read bbox data from configured resource path first.
 	rectList := make(map[string][]int)
-	rectPath := findResource(MAP_BBOX_DATA_PATH)
+	rectPath := FindResource(MAP_BBOX_DATA_PATH)
 	if rectPath != "" {
 		if data, err := os.ReadFile(rectPath); err == nil {
 			if err := json.Unmarshal(data, &rectList); err != nil {
@@ -186,13 +196,11 @@ func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
 		}
 	}
 
-	// Read directory entries.
 	entries, err := os.ReadDir(mapDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read map directory: %w", err)
 	}
 
-	// Collect PNG files first to keep deterministic output order.
 	type indexedFile struct {
 		idx      int
 		filename string
@@ -210,7 +218,6 @@ func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
 		files = append(files, indexedFile{idx: len(files), filename: filename})
 	}
 
-	// Load PNG files concurrently with bounded workers.
 	type result struct {
 		idx int
 		m   MapCache
@@ -251,9 +258,9 @@ func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
 			imgRGBA := fullRGBA
 			offsetX, offsetY := 0, 0
 
-			if r, ok := rectList[name]; ok && len(r) == 4 {
-				rect := image.Rect(r[0], r[1], r[2], r[3])
-				expand := LOC_RADIUS / 2
+			if bboxRect, ok := rectList[name]; ok && len(bboxRect) == 4 {
+				rect := image.Rect(bboxRect[0], bboxRect[1], bboxRect[2], bboxRect[3])
+				expand := RAW_MAP_BBOX_EXPAND_PX
 				rect = image.Rect(rect.Min.X-expand, rect.Min.Y-expand, rect.Max.X+expand, rect.Max.Y+expand)
 
 				clipped := rect.Intersect(fullRGBA.Bounds())
@@ -289,7 +296,6 @@ func (r *MapTrackerResource) loadMaps() ([]MapCache, error) {
 		okFlags[res.idx] = true
 	}
 
-	// Rebuild maps in original order and skip failed files.
 	maps := make([]MapCache, 0, len(files))
 	for idx := range results {
 		if okFlags[idx] {

@@ -13,7 +13,7 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "(?i)^Operational\\s*Manual$",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -36,7 +36,7 @@
         ],
         "expected": [
             "索引",
-            "(?i)^Index$",
+            "(?i)Index",
             "協約空間"
         ],
         "action": "Click",

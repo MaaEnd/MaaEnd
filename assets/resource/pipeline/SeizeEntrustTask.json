@@ -12,11 +12,11 @@
                 "expected": [
                     "委托人信息",
                     "委託人資訊",
-                    "(?i)^Client\\s*Info$",
+                    "(?i)Client\\s*Info",
                     "依頼主詳細",
                     "委派任务",
                     "委派任務",
-                    "(?i)^Commission$",
+                    "(?i)Commission",
                     "協力任務"
                 ]
             }
@@ -44,7 +44,7 @@
                 "expected": [
                     "仓储节点",
                     "倉儲節點",
-                    "(?i)^Depot\\s*Node$",
+                    "(?i)Depot\\s*Node",
                     "保管ボックス"
                 ]
             }
@@ -131,7 +131,7 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "(?i)^Accept\\s*Delivery\\s*Job$",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "輸送依頼を受注",
                     "輸送依頼を受ける"
@@ -165,7 +165,7 @@
                 "expected": [
                     "运送委托列表",
                     "運送委託清單",
-                    "(?i)^List\\s*of\\s*Delivery\\s*Jobs$",
+                    "(?i)List\\s*of\\s*Delivery\\s*Jobs",
                     "配達依頼一覧"
                 ]
             }
@@ -307,7 +307,7 @@
                 "expected": [
                     "刷新",
                     "更新",
-                    "(?i)^Refresh$"
+                    "(?i)Refresh"
                 ]
             }
         },
@@ -315,7 +315,15 @@
             "type": "Click",
             "param": {}
         },
-        "rate_limit": 1000,
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ]
+        },
         "next": [
             "SeizeEntrustTaskNewsStatus1"
         ]
@@ -334,7 +342,7 @@
                 "expected": [
                     "刷新",
                     "更新",
-                    "(?i)^Refresh$"
+                    "(?i)Refresh"
                 ]
             }
         },
@@ -361,11 +369,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "(?i)^Accept\\s*Delivery\\s*Job$",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "(?i)^Delivery$",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -374,7 +382,7 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTarget",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDwon",
+            "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeMiddle",
             "[JumpBack]SeizeEntrustTaskNews2"
@@ -394,11 +402,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "(?i)^Accept\\s*Delivery\\s*Job$",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "(?i)^Delivery$",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -422,11 +430,11 @@
                 "expected": [
                     "接取运送委托",
                     "接取運送委託",
-                    "(?i)^Accept\\s*Delivery\\s*Job$",
+                    "(?i)Accept\\s*Delivery\\s*Job",
                     "配達依頼を受ける",
                     "填充至起送",
                     "填充到起送",
-                    "(?i)^Delivery$",
+                    "(?i)Delivery",
                     "最低容量",
                     "Accept"
                 ]
@@ -463,7 +471,7 @@
             "Node.Recognition.Succeeded": "没有在运送委托列表界面哦"
         }
     },
-    "SeizeEntrustTaskSwipeDwon": {
+    "SeizeEntrustTaskSwipeDown": {
         "desc": "直接滑倒最底下",
         "recognition": {
             "type": "TemplateMatch",
@@ -491,6 +499,15 @@
                 ],
                 "dy": -240
             }
+        },
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ]
         }
     },
     "SeizeEntrustTaskWalkingToDepotNode": {
@@ -547,7 +564,7 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTarget",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDwon",
+            "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
             "[JumpBack]SeizeEntrustTaskNews"
         ]
@@ -585,7 +602,7 @@
                 "expected": [
                     "查看任务",
                     "查看任務",
-                    "(?i)^View\\s*Mission$",
+                    "(?i)View\\s*Mission",
                     "任務確認",
                     "임무 확인"
                 ]
@@ -649,7 +666,7 @@
                 "expected": [
                     "委托人信息",
                     "委託人資訊",
-                    "(?i)^Client\\s*Info$",
+                    "(?i)Client\\s*Info",
                     "依頼主詳細"
                 ]
             }
@@ -680,11 +697,11 @@
                 "expected": [
                     "请尽快送达",
                     "請儘快送達",
-                    "(?i)^Deliver\\s*Quickly$",
+                    "(?i)Deliver\\s*Quickly",
                     "早めに配達してください",
                     "已接取运送任务",
                     "已接取運送任務",
-                    "(?i)^Delivery\\s*job\\s*already\\s*accepted$",
+                    "(?i)Delivery\\s*job\\s*already\\s*accepted",
                     "配達任務を引き受けました",
                     "点击屏幕继续",
                     "按任意處繼續",

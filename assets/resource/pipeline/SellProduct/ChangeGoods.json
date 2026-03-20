@@ -11,7 +11,7 @@
         "expected": [
             "选择交易货品",
             "選擇交易貨品",
-            "(?i)^Select\\s*Goods\\s*to\\s*Trade$",
+            "(?i)Select\\s*Goods\\s*to\\s*Trade",
             "取引商品を選択",
             "거래할 상품 선택"
         ],
@@ -31,7 +31,7 @@
         "expected": [
             "本地仓储",
             "本地區倉儲",
-            "(?i)^Local\\s*Depot$",
+            "(?i)Local\\s*Depot",
             "地域在庫",
             "지역 저장고"
         ],
@@ -51,11 +51,11 @@
         "expected": [
             "更换货品",
             "更換貨品",
-            "(?i)^Switch\\s*Goods$",
+            "(?i)Switch\\s*Goods",
             "商品変更",
             "选择货品",
             "選擇貨品",
-            "(?i)^Select\\s*Goods$",
+            "(?i)Select\\s*Goods",
             "商品選択",
             "상품 교체",
             "상품 선택"

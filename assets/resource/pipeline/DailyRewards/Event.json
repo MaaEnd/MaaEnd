@@ -22,7 +22,7 @@
                 "expected": [
                     "活动中心",
                     "活動中心",
-                    "(?i)^Event\\s*Center$",
+                    "(?i)Event\\s*Center",
                     "イベント",
                     "이벤트 센터"
                 ]

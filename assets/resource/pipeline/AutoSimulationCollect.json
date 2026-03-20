@@ -22,7 +22,7 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "(?i)^Operational\\s*Manual$",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -48,7 +48,7 @@
                 "expected": [
                     "模拟",
                     "模擬",
-                    "(?i)^Simulation$"
+                    "(?i)Simulation"
                 ]
             }
         },
@@ -74,7 +74,7 @@
                 "expected": [
                     "四号谷地",
                     "四號谷地",
-                    "(?i)^Valley\\s*IV$"
+                    "(?i)Valley\\s*IV"
                 ]
             }
         },
@@ -106,7 +106,7 @@
         "expected": [
             "模拟",
             "模擬",
-            "(?i)^Simulation$",
+            "(?i)Simulation",
             "模拟空间",
             "模擬空間"
         ],
@@ -137,7 +137,7 @@
         "expected": [
             "筛选匹配",
             "篩選",
-            "(?i)^Sort$",
+            "(?i)Sort",
             "ソート",
             "筛选"
         ],
@@ -228,7 +228,7 @@
         "expected": [
             "确定",
             "確定",
-            "(?i)^Confirm$",
+            "(?i)Confirm",
             "保存"
         ],
         "action": {
@@ -255,7 +255,7 @@
         "expected": [
             "筛选匹配",
             "篩選",
-            "(?i)^Sort$",
+            "(?i)Sort",
             "ソート",
             "筛选"
         ],
@@ -345,10 +345,10 @@
         "expected": [
             "直接完成模拟",
             "直接完成模擬",
-            "(?i)^Complete\\s*Simulation$",
+            "(?i)Complete\\s*Simulation",
             "模擬完了",
             "掌握",
-            "(?i)^Fully\\s*Grasped$",
+            "(?i)Fully\\s*Grasped",
             "Content Mastered",
             "Complete SIM",
             "已掌握"

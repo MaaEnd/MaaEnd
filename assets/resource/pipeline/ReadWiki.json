@@ -16,7 +16,7 @@
         "expected": [
             "终末地百科",
             "終末地百科",
-            "(?i)^Endfield\\s*Database$",
+            "(?i)Endfield\\s*Database",
             "エンドフィールドWiki"
         ],
         "next": [

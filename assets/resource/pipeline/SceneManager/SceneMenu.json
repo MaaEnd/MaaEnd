@@ -88,7 +88,7 @@
                 "expected": [
                     "地区建设",
                     "地區建設",
-                    "(?i)^Regional\\s*Development$",
+                    "(?i)Regional\\s*Development",
                     "地域建設",
                     "지역 건설"
                 ]
@@ -173,7 +173,7 @@
                 "expected": [
                     "活动",
                     "活動",
-                    "(?i)^Events$",
+                    "(?i)Events",
                     "イベント",
                     "이벤트"
                 ]
@@ -209,7 +209,7 @@
                 "expected": [
                     "活动中心",
                     "活動中心",
-                    "(?i)^Event\\s*Center$",
+                    "(?i)Event\\s*Center",
                     "イベント",
                     "이벤트 센터"
                 ]
@@ -429,7 +429,7 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "(?i)^Operational\\s*Manual$",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -465,7 +465,7 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "(?i)^Operational\\s*Manual$",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -524,7 +524,7 @@
                 "expected": [
                     "通行证",
                     "通行證",
-                    "(?i)^Protocol\\s*Pass$",
+                    "(?i)Protocol\\s*Pass",
                     "通行証",
                     "프로토콜 패스"
                 ]
@@ -662,7 +662,7 @@
                 ],
                 "expected": [
                     "好友",
-                    "(?i)^Friends$",
+                    "(?i)Friends",
                     "フレンド",
                     "친구"
                 ]
@@ -708,7 +708,7 @@
                 ],
                 "expected": [
                     "百科",
-                    "(?i)^Database$",
+                    "(?i)Database",
                     "Wiki",
                     "백과"
                 ]
@@ -744,9 +744,9 @@
                 "expected": [
                     "终末地百科",
                     "終末地百科",
-                    "(?i)^Endfield\\s*Database$",
+                    "(?i)Endfield\\s*Database",
                     "エンドフィールドWiki",
-                    "(?i)^Endfield\\s*Database\\s*\\(\\s*EFDB\\s*\\)$",
+                    "(?i)Endfield\\s*Database\\s*\\(\\s*EFDB\\s*\\)",
                     "엔드필드 백과"
                 ]
             }
@@ -792,7 +792,7 @@
                 "expected": [
                     "装备加工",
                     "裝備加工",
-                    "(?i)^Gear\\s*Assembly$",
+                    "(?i)Gear\\s*Assembly",
                     "装備加工",
                     "장비 가공"
                 ]
@@ -885,7 +885,7 @@
                 "expected": [
                     "邮箱",
                     "信箱",
-                    "(?i)^Mail$",
+                    "(?i)Mail",
                     "メールボックス",
                     "메일함"
                 ]
@@ -1176,7 +1176,7 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "(?i)^Operational\\s*Manual$",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
                     "작전 매뉴얼"
                 ]
@@ -1211,7 +1211,7 @@
                 ],
                 "expected": [
                     "背包",
-                    "(?i)^Backpack$",
+                    "(?i)Backpack",
                     "道具箱",
                     "가방"
                 ]
@@ -1344,7 +1344,7 @@
                 "expected": [
                     "采购中心",
                     "採購中心",
-                    "(?i)^Acquisition\\s*Center$",
+                    "(?i)Acquisition\\s*Center",
                     "購買部",
                     "Acquisition",
                     "Center",

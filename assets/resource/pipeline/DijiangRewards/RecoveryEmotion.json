@@ -1,7 +1,6 @@
 {
     "RecoveryEmotion": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
-        "max_hit": 2,
         "recognition": {
             "type": "And",
             "param": {
@@ -73,7 +72,8 @@
             "RecoveryEmotionAssistUseAssist"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "进入恢复心情界面后失败,未知界面"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_entry_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "RecoveryEmotionAssistUseAssist": {
@@ -122,7 +122,10 @@
         "rate_limit": 0,
         "next": [
             "StartRecoveryEmotion"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "StartRecoveryEmotion_OnError": {
         "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员（出错重试）",
@@ -139,7 +142,7 @@
                 "expected": [
                     "选择待恢复心情的干员",
                     "選擇待恢復心情的幹員",
-                    "(?i)^Select\\s*operator\\s*awaiting\\s*mood\\s*recovery$",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
                     "対象オペレーターを選んでください"
                 ]
             }
@@ -151,7 +154,10 @@
             "EmotionFull",
             "CouldNotAssistEmotion",
             "SelectLowEmotion"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EmotionFull": {
         "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
@@ -167,7 +173,7 @@
                 "expected": [
                     "干员心情已满，无法使用助力",
                     "幹員心情已滿，無法使用助力",
-                    "(?i)^Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed$",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
                     "オペレーターは体力が十分なため、サポートできません",
                     "Selected operator is at max mood",
                     "No recovery required",
@@ -186,7 +192,7 @@
             "BackToControlNexus"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed"
         }
     },
     "StartRecoveryEmotion": {
@@ -203,7 +209,7 @@
                 "expected": [
                     "选择待恢复心情的干员",
                     "選擇待恢復心情的幹員",
-                    "(?i)^Select\\s*operator\\s*awaiting\\s*mood\\s*recovery$",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
                     "対象オペレーターを選んでください"
                 ]
             }
@@ -283,7 +289,10 @@
         "rate_limit": 0,
         "next": [
             "StartRecoveryEmotion"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EmotionIcon": {
         "desc": "[恢复心情·状态] 心情图标位置",
@@ -376,7 +385,7 @@
                 "expected": [
                     "没有更多的心情激励点数，无法选择更多干员",
                     "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "(?i)^Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up$",
+                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
                     "体力激励ポイントが足りないため、これ以上選択できません",
                     "没有更多的心情激励点数",
                     "沒有更多的心情激勵點數"
@@ -408,7 +417,7 @@
                 "expected": [
                     "没有更多的心情激励点数，无法选择更多干员",
                     "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "(?i)^Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up$",
+                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
                     "体力激励ポイントが足りないため、これ以上選択できません",
                     "没有更多的心情激励点数",
                     "沒有更多的心情激勵點數"
@@ -422,7 +431,8 @@
             "ConfirmRecoveryEmotion"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "没有更多心情激励点数提示处理失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_no_points_prompt_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "ConfirmRecoveryEmotion": {
@@ -444,11 +454,22 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
+            "RecoveryEmotionClose"
         ],
         "on_error": [
             "ConfirmRecoveryEmotion_OnError"
         ]
+    },
+    "RecoveryEmotionClose": {
+        "desc": "[恢复心情·收尾] 点击确认后界面关闭，返回控制中枢后进行其他步骤",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        }
     },
     "ConfirmRecoveryEmotion_OnError": {
         "recognition": {
@@ -468,8 +489,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
-        ]
+            "RecoveryEmotionClose"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     },
     "EmotionFull_OnError": {
         "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入（出错重试）",
@@ -485,7 +509,7 @@
                 "expected": [
                     "干员心情已满，无法使用助力",
                     "幹員心情已滿，無法使用助力",
-                    "(?i)^Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed$",
+                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
                     "オペレーターは体力が十分なため、サポートできません",
                     "Selected operator is at max mood",
                     "No recovery required",
@@ -503,7 +527,8 @@
             "BackToControlNexus"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "处理满心情或无法助力提示失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "BackToControlNexus": {
@@ -530,7 +555,7 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "CloseButtonType1"
+            "RecoveryEmotionAssistUseAssist"
         ],
         "on_error": [
             "BackToControlNexus_OnError"
@@ -560,6 +585,9 @@
         "rate_limit": 0,
         "next": [
             "CloseButtonType1"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
     }
 }

@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD060 -->
-
 # Development Guide - Custom Action Reference
 
 `Custom` is a generic node type in the Pipeline used to invoke **custom actions**.  
@@ -15,8 +13,6 @@ as long as it is registered during the resource loading stage, it can be called 
 - Do statistics, logging, or telemetry reporting.
 
 ---
-
-<!-- markdownlint-enable MD060 -->
 
 ## SubTask Action
 

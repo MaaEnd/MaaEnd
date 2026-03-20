@@ -8,11 +8,11 @@ import (
 	"image"
 	_ "image/png"
 	"math"
-	"os"
 	"regexp"
 	"sync"
 	"time"
 
+	mt "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker/internal"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
 	"github.com/MaaXYZ/maa-framework-go/v4"
@@ -45,16 +45,17 @@ type MapTrackerInferParam struct {
 	Threshold float64 `json:"threshold,omitempty"`
 }
 
+var mapTrackerInferDefaultParam = MapTrackerInferParam{
+	MapNameRegex: "^map\\d+_lv\\d+$",
+	Precision:    0.5,
+	Threshold:    0.4,
+}
+
 // MapTrackerInfer is the custom recognition component for map tracking
 type MapTrackerInfer struct {
-	// Cache for preloaded resources
-	pointerOnce sync.Once
-	pointer     *image.RGBA
-	pointerErr  error
-
 	// Cache for scaled maps (recomputed per request scale)
 	scaledMapsMu sync.Mutex
-	scaledMaps   []MapCache
+	scaledMaps   []mt.MapCache
 	scaledScale  float64
 }
 
@@ -79,6 +80,30 @@ const (
 	FULL_SEARCH_HIT InferLocationHitMode = "FullSearchHit"
 	FAST_SEARCH_HIT InferLocationHitMode = "FastSearchHit"
 	VIRTUAL_HIT     InferLocationHitMode = "VirtualHit"
+)
+
+// Location inference configuration
+const (
+	// Mini-map crop area
+	LOC_CENTER_X = 108
+	LOC_CENTER_Y = 111
+	LOC_RADIUS   = 40
+)
+
+// Rotation inference configuration
+const (
+	// Pointer crop area
+	ROT_CENTER_X = 108
+	ROT_CENTER_Y = 111
+	ROT_RADIUS   = 12
+)
+
+// Time-series empirical optimization configuration
+const (
+	PENDING_TAKEOVER_TIME_MS         = 1000
+	PENDING_TAKEOVER_COUNT_THRESHOLD = 3
+	CONVINCED_DISTANCE_THRESHOLD     = 30
+	CONVINCED_VALID_TIME_MS          = 2000
 )
 
 type InferLocationRawResult struct {
@@ -126,17 +151,10 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	rotStep := max(2, min(8, int(math.Round(8-param.Precision*6))))
 
-	// Initialize resources on first run
-	i.initMaps(ctx)
-	i.initPointer(ctx)
-
-	// Check for initialization errors
-	if mapTrackerResource.rawMapsErr != nil {
-		log.Error().Err(mapTrackerResource.rawMapsErr).Msg("Failed to initialize maps")
-		return nil, false
-	}
-	if i.pointerErr != nil {
-		log.Error().Err(i.pointerErr).Msg("Failed to initialize pointer")
+	// Initialize map resources
+	mt.Resource.InitRawMaps(ctx)
+	if mt.Resource.RawMapsErr != nil {
+		log.Error().Err(mt.Resource.RawMapsErr).Msg("Failed to initialize maps")
 		return nil, false
 	}
 
@@ -318,7 +336,10 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		Float64("RotConf", result.RotConf).
 		Msg("Map tracking inference completed")
 	if param.Print {
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName))
+		maafocus.NodeActionStarting(
+			ctx,
+			fmt.Sprintf(inferenceFinishedHTML, finalLoc.x, finalLoc.y, result.Rot, finalLoc.mapName),
+		)
 	}
 
 	// Return as hit
@@ -333,17 +354,17 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 		var param MapTrackerInferParam
 		if err := json.Unmarshal([]byte(paramStr), &param); err == nil {
 			if param.MapNameRegex == "" {
-				param.MapNameRegex = DEFAULT_INFERENCE_PARAM.MapNameRegex
+				param.MapNameRegex = mapTrackerInferDefaultParam.MapNameRegex
 			}
 
 			if param.Precision == 0.0 {
-				param.Precision = DEFAULT_INFERENCE_PARAM.Precision
+				param.Precision = mapTrackerInferDefaultParam.Precision
 			} else if param.Precision < 0.0 || param.Precision > 1.0 {
 				return nil, fmt.Errorf("invalid precision value: %f", param.Precision)
 			}
 
 			if param.Threshold == 0.0 {
-				param.Threshold = DEFAULT_INFERENCE_PARAM.Threshold
+				param.Threshold = mapTrackerInferDefaultParam.Threshold
 			} else if param.Threshold < 0.0 || param.Threshold > 1.0 {
 				return nil, fmt.Errorf("invalid threshold value: %f", param.Threshold)
 			}
@@ -352,7 +373,7 @@ func (r *MapTrackerInfer) parseParam(paramStr string) (*MapTrackerInferParam, er
 		}
 		return &param, nil
 	} else {
-		return &DEFAULT_INFERENCE_PARAM, nil
+		return &mapTrackerInferDefaultParam, nil
 	}
 }
 
@@ -369,47 +390,6 @@ func isMapNameCoreMatch(mapName1, mapName2 string) bool {
 		return false
 	}
 	return getMapCoreName(mapName1) == getMapCoreName(mapName2)
-}
-
-// initMaps initializes the map cache (thread-safe, runs once)
-func (i *MapTrackerInfer) initMaps(ctx *maa.Context) {
-	mapTrackerResource.initRawMaps(ctx)
-}
-
-// initPointer initializes the pointer template cache (thread-safe, runs once)
-func (i *MapTrackerInfer) initPointer(ctx *maa.Context) {
-	i.pointerOnce.Do(func() {
-		i.pointer, i.pointerErr = i.loadPointer(ctx)
-		if i.pointerErr != nil {
-			log.Error().Err(i.pointerErr).Msg("Failed to load pointer template")
-		} else {
-			log.Info().Msg("Pointer template image loaded")
-		}
-	})
-}
-
-// loadPointer loads the pointer template image
-func (i *MapTrackerInfer) loadPointer(ctx *maa.Context) (*image.RGBA, error) {
-	// Find pointer template using search strategy
-	pointerPath := findResource(POINTER_PATH)
-	if pointerPath == "" {
-		return nil, fmt.Errorf("pointer template not found (searched in cache and standard locations)")
-	}
-
-	// Load image
-	file, err := os.Open(pointerPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open pointer template: %w", err)
-	}
-	defer file.Close()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode pointer template: %w", err)
-	}
-
-	rgba := minicv.ImageConvertRGBA(img)
-	return rgba, nil
 }
 
 // inferLocation infers the player's location on the map.
@@ -486,7 +466,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 				searchRadius * 2,
 			}
 
-			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.getIntegralArray(), miniMap, miniStats, searchArea)
+			matchX, matchY, matchVal := minicv.MatchTemplateInArea(mapData.Img, mapData.GetIntegralArray(), miniMap, miniStats, searchArea)
 
 			if matchVal > fastBestVal {
 				fastBestVal = matchVal
@@ -531,7 +511,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	triedCount := 0
 
 	// Special case: if there's only one map to check, run it directly to avoid goroutine overhead
-	var singleMapToTry *MapCache
+	var singleMapToTry *mt.MapCache
 	for i := range scaledMaps {
 		if mapNameRegex.MatchString(scaledMaps[i].Name) {
 			triedCount++
@@ -545,7 +525,7 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 	}
 
 	if singleMapToTry != nil {
-		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.getIntegralArray(), miniMap, miniStats)
+		matchX, matchY, matchVal := minicv.MatchTemplate(singleMapToTry.Img, singleMapToTry.GetIntegralArray(), miniMap, miniStats)
 		bestVal = matchVal
 		bestX = roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(singleMapToTry.OffsetX))
 		bestY = roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(singleMapToTry.OffsetY))
@@ -561,9 +541,9 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 			}
 
 			wg.Add(1)
-			go func(m *MapCache) {
+			go func(m *mt.MapCache) {
 				defer wg.Done()
-				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.getIntegralArray(), miniMap, miniStats)
+				matchX, matchY, matchVal := minicv.MatchTemplate(m.Img, m.GetIntegralArray(), miniMap, miniStats)
 				mx := roundTo1Decimal((matchX+miniMapHalfW)/scale + float64(m.OffsetX))
 				my := roundTo1Decimal((matchY+miniMapHalfH)/scale + float64(m.OffsetY))
 				resChan <- mapResult{matchVal, mx, my, m.Name}
@@ -613,18 +593,14 @@ func (i *MapTrackerInfer) inferLocation(screenImg *image.RGBA, mapNameRegex *reg
 func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *InferRotationRawResult {
 	t0 := time.Now()
 
-	if i.pointer == nil {
+	pointerTemplate, err := mt.Resource.PointerTemplateLoader.Get()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to load pointer template image")
 		return nil
 	}
 
 	// Crop pointer area from screen
 	patch := minicv.ImageCropSquareByRadius(screenImg, ROT_CENTER_X, ROT_CENTER_Y, ROT_RADIUS)
-
-	// Precompute needle (pointer) statistics
-	pointerStats := minicv.GetImageStats(i.pointer)
-	if pointerStats.Std < 1e-6 {
-		return nil
-	}
 
 	// Try all rotation angles in parallel
 	type result struct {
@@ -644,7 +620,7 @@ func (i *MapTrackerInfer) inferRotation(screenImg *image.RGBA, rotStep int) *Inf
 
 			// Match against pointer template
 			integral := minicv.GetIntegralArray(rotatedRGBA)
-			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, i.pointer, pointerStats)
+			_, _, matchVal := minicv.MatchTemplate(rotatedRGBA, integral, pointerTemplate.Image, pointerTemplate.Stats)
 
 			resChan <- result{a, matchVal}
 		}(angle)
@@ -686,7 +662,7 @@ func roundTo1Decimal(value float64) float64 {
 }
 
 // getScaledMaps recomputes scaled map cache for the requested scale.
-func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
+func (i *MapTrackerInfer) getScaledMaps(scale float64) []mt.MapCache {
 	i.scaledMapsMu.Lock()
 	defer i.scaledMapsMu.Unlock()
 
@@ -694,10 +670,10 @@ func (i *MapTrackerInfer) getScaledMaps(scale float64) []MapCache {
 		return i.scaledMaps
 	}
 
-	newScaled := make([]MapCache, 0, len(mapTrackerResource.rawMaps))
-	for _, m := range mapTrackerResource.rawMaps {
+	newScaled := make([]mt.MapCache, 0, len(mt.Resource.RawMaps))
+	for _, m := range mt.Resource.RawMaps {
 		sImg := minicv.ImageScale(m.Img, scale)
-		newScaled = append(newScaled, MapCache{
+		newScaled = append(newScaled, mt.MapCache{
 			Name:    m.Name,
 			Img:     sImg,
 			OffsetX: m.OffsetX,

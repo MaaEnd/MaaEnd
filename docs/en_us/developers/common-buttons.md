@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD060 -->
-
 # Development Guide - Common Button Nodes Reference
 
 > **Tip**: For the buttons involved in the document (whether with text or not), the **text content does not affect the recognition result**. Recognition only relies on the button's background color, icon shape and position-buttons of the same type can be reused for the corresponding node even if the copy is different.
@@ -173,5 +171,3 @@
 | `CloseRewardsButton`       | Checkmark close button in the lower middle of the reward interface                                       |
 | `CloseButtonType1`         | Upper right X that only closes the interface (freezes under ESC)                                         |
 | `CloseButtonType2`         | Universal upper right X for closing the interface or ESC (use this to avoid freezes when ESC may appear) |
-
-<!-- markdownlint-enable MD060 -->

@@ -75,7 +75,7 @@
         "expected": [
             "访客终端",
             "訪客終端",
-            "(?i)^Guest\\s*Terminal$",
+            "(?i)Guest\\s*Terminal",
             "訪問端末",
             "방문자 단말기"
         ],

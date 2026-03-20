@@ -7,7 +7,7 @@
             "[JumpBack]SceneEnterMenuDijiangControlNexus"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "未能进入信用点联动流程"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_entry_failed"
         }
     },
     "DijiangRewards": {
@@ -17,7 +17,7 @@
             "[JumpBack]SceneEnterMenuDijiangControlNexus"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "未识别到进入基建入口"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.entry_unrecognized"
         }
     }
 }

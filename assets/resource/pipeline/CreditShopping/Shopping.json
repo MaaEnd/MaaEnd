@@ -139,10 +139,7 @@
             "AutoGetCreditsBuy"
         ],
         "next": [
-            "[JumpBack]NeedCredit",
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
+            "NeedCredit"
         ],
         "focus": {
             "Node.Action.Succeeded": "信用点不足,尝试从帝江号会客室获取"

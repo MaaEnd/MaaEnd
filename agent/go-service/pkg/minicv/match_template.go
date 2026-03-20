@@ -1,8 +1,86 @@
 package minicv
 
 import (
+	"fmt"
 	"image"
+	_ "image/png"
+	"os"
+	"sync"
 )
+
+// Template represents a preloaded template image along with its integral array and statistics for matching.
+type Template struct {
+	Image    *image.RGBA
+	Integral IntegralArray
+	Stats    StatsResult
+}
+
+// TemplateLoader provides lazy-loading of template objects.
+type TemplateLoader struct {
+	filePathProvider func() string
+	templateOnce     sync.Once
+	template         *Template
+	templateErr      error
+}
+
+// NewTemplateLoaderOfPath creates a new TemplateLoader using the given image file path.
+func NewTemplateLoaderOfPath(filePath string) *TemplateLoader {
+	return &TemplateLoader{filePathProvider: func() string { return filePath }}
+}
+
+// NewTemplateLoaderOfDynamicPath creates a new TemplateLoader using a dynamic file path provider function.
+// Note that the file path provider function will be called only once during the first Get() call,
+// and the result will be cached permanently for subsequent calls.
+func NewTemplateLoaderOfDynamicPath(filePathProvider func() string) *TemplateLoader {
+	return &TemplateLoader{filePathProvider: filePathProvider}
+}
+
+// Get returns the loaded template or an error if loading failed.
+func (i *TemplateLoader) Get() (*Template, error) {
+	i.templateOnce.Do(func() {
+		// Check file path validity
+		filePath := i.filePathProvider()
+		if filePath == "" {
+			i.templateErr = fmt.Errorf("given image file path is empty")
+			return
+		}
+		if _, err := os.Stat(filePath); err != nil {
+			i.templateErr = fmt.Errorf("given image file path is unavailable: %w", err)
+			return
+		}
+
+		// Open image file
+		f, err := os.Open(filePath)
+		if err != nil {
+			i.templateErr = err
+			return
+		}
+		defer f.Close()
+
+		// Read image to memory
+		img, _, err := image.Decode(f)
+		if err != nil {
+			i.templateErr = err
+			return
+		}
+
+		// Compute results
+		imgRGBA := ImageConvertRGBA(img)
+		integral := GetIntegralArray(imgRGBA)
+		stats := GetImageStats(imgRGBA)
+
+		// Validate sanity
+		if stats.Std < 1e-6 {
+			i.templateErr = fmt.Errorf("template image cannot have near-zero standard deviation")
+			return
+		}
+
+		i.template = &Template{imgRGBA, integral, stats}
+	})
+
+	// Return cached results
+	return i.template, i.templateErr
+}
 
 func subpixelOffset(neg, pos float64) float64 {
 	wn := max(0.0, neg)
