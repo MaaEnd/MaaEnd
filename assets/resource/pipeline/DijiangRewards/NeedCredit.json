@@ -23,15 +23,32 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "WhiteConfirmButtonType1",
+            "EndExchange_NeedCredit",
             "EntryReceptionRoom_NeedCredit"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "进入会客室失败"
         }
     },
+    "EndExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 情报交流结束弹窗出现时点击确认结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": "Click",
+        "next": [
+            "ReceptionRoom_NeedCredit"
+        ]
+    },
     "ReceptionRoom_NeedCredit": {
-        "desc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
+        "desc": "[信用点商店联动任务·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -51,38 +68,84 @@
             }
         },
         "next": [
-            "[JumpBack]ReceptionRoomSetClues",
-            "InControlNexus_NeedCredit",
-            "WhiteConfirmButtonType1",
-            "[JumpBack]StartExchange"
+            "EndExchange_NeedCredit",
+            "StartExchange_NeedCredit",
+            "CanNotStartExchange_NeedCredit"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "线索交流开启失败"
         }
     },
-    "InControlNexus_NeedCredit": {
-        "desc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
+    "CanNotStartExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    327,
+                    428,
+                    864,
+                    283
                 ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
+                "expected": [
+                    "情报交流中",
+                    "集齐所有线索可开展情报交流"
                 ]
             }
         },
+        "action": {
+            "type": "Click"
+        },
         "next": [
-            "InMainWindow",
-            "[JumpBack]CloseButtonType2",
-            "[JumpBack]CancelExit"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
-        }
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
+    },
+    "StartExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别开始线索交流的按钮，点击进入线索交流",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "StartExchangeText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "CloseExchangeRewards_NeedCredit"
+        ]
+    },
+    "CloseExchangeRewards_NeedCredit": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ]
     }
 }
