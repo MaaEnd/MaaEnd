@@ -291,12 +291,31 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomSetClues",
-            "ExitClueLibrary",
-            "ExitReceptionRoom"
+            "CloseExchangeRewaresSucceed"
         ],
         "on_error": [
             "CloseExchangeRewards_OnError"
+        ]
+    },
+    "CloseExchangeRewaresSucceed": {
+        "desc": "返回会客室界面成功",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1120,
+                    0,
+                    160,
+                    379
+                ],
+                "expected": [
+                    "收集"
+                ]
+            }
+        },
+        "next": [
+            "ReceptionRoomSetClues",
+            "ExitReceptionRoom"
         ]
     },
     "CloseExchangeRewards_OnError": {
@@ -314,9 +333,7 @@
             "type": "Click"
         },
         "next": [
-            "ReceptionRoomSetClues",
-            "ExitClueLibrary",
-            "ExitReceptionRoom"
+            "CloseExchangeRewaresSucceed"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
