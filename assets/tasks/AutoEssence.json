@@ -309,7 +309,10 @@
                         "EssenceFilterAfterBattleIsflawless": {
                             "next": [
                                 "EssenceFilterAfterBattleCheckItemSlot1"
-                            ]
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是无暇基质，开始识别"
+                            }
                         }
                     }
                 },
@@ -324,7 +327,10 @@
                         "EssenceFilterAfterBattleIsflawless": {
                             "next": [
                                 "EssenceFilterAfterBattleCloseDetail"
-                            ]
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是无暇基质,跳过"
+                            }
                         }
                     }
                 }
@@ -346,7 +352,10 @@
                         "EssenceFilterAfterBattleIsPure": {
                             "next": [
                                 "EssenceFilterAfterBattleCheckItemSlot1"
-                            ]
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是高纯基质，开始识别"
+                            }
                         }
                     }
                 },
@@ -361,7 +370,10 @@
                         "EssenceFilterAfterBattleIsPure": {
                             "next": [
                                 "EssenceFilterAfterBattleCloseDetail"
-                            ]
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是高纯基质,跳过"
+                            }
                         }
                     }
                 }
