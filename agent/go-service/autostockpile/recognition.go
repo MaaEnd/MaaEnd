@@ -26,7 +26,7 @@ const (
 	overflowNodeName              = "AutoStockpileCheckOverflow"
 	overflowDetailNodeName        = "AutoStockpileGetOverflowDetail"
 	locateGoodsNodeName           = "AutoStockpileLocateGoods"
-	goodsPriceNodeName            = "AutoStockpileGetGoodsPrice"
+	goodsPriceNodeName            = "AutoStockpileGetGoods"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
 	MAX_DISTANCE = 120
 )
@@ -34,7 +34,7 @@ const (
 var (
 	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)\s*/\s*(\d+)`)
 	overflowPlusRe       = regexp.MustCompile(`\+(\d+)`)
-	priceRe              = regexp.MustCompile(`^[^\d]?(\d{3,4})$`)
+	priceRe              = regexp.MustCompile(`^(\d{3,4})$`)
 )
 
 type goodsCandidate struct {
@@ -704,7 +704,7 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 		return nil, nil, err
 	}
 
-	results := recognitionResults(detail)
+	results := filteredOCRResults(detail)
 	if len(results) == 0 {
 		return nil, nil, nil
 	}
@@ -933,6 +933,18 @@ func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult 
 	}
 	if detail.Results.Best != nil {
 		return []*maa.RecognitionResult{detail.Results.Best}
+	}
+	return nil
+}
+
+// filteredOCRResults 仅返回 OCR filtered 结果，不进行任何回退。
+// 该函数专门用于商品 OCR 链路，确保只使用颜色过滤后的高置信度结果。
+func filteredOCRResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
+	if detail == nil || detail.Results == nil {
+		return nil
+	}
+	if len(detail.Results.Filtered) > 0 {
+		return detail.Results.Filtered
 	}
 	return nil
 }
