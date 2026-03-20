@@ -20,6 +20,12 @@ var dailyEventUnreadDetails []dailyEventUnreadDetail
 
 type DailyEventUnreadItemInitRecognition struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomRecognitionRunner = &DailyEventUnreadItemInitRecognition{}
+	_ maa.CustomActionRunner      = &DailyEventUnreadItemInitAction{}
+)
+
 func (r *DailyEventUnreadItemInitRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	var items []dailyEventUnreadItem
 

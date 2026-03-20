@@ -650,6 +650,20 @@ const calibrateSwipeMax = 40     //校准滑动最大值
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
 type EssenceFilterSwipeCalibrateAction struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
+	_ maa.CustomActionRunner = &OCREssenceInventoryNumberAction{}
+	_ maa.CustomActionRunner = &EssenceFilterTraceAction{}
+	_ maa.CustomActionRunner = &EssenceFilterCheckItemAction{}
+	_ maa.CustomActionRunner = &EssenceFilterCheckItemLevelAction{}
+	_ maa.CustomActionRunner = &EssenceFilterSkillDecisionAction{}
+	_ maa.CustomActionRunner = &EssenceFilterRowCollectAction{}
+	_ maa.CustomActionRunner = &EssenceFilterRowNextItemAction{}
+	_ maa.CustomActionRunner = &EssenceFilterFinishAction{}
+	_ maa.CustomActionRunner = &EssenceFilterSwipeCalibrateAction{}
+)
+
 func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	st := getRunState()
 	if st == nil {

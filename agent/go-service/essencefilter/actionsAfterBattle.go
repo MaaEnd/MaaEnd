@@ -8,6 +8,9 @@ import (
 
 type EssenceFilterAfterBattleSkillDecisionAction struct{}
 
+// Compile-time interface check
+var _ maa.CustomActionRunner = &EssenceFilterAfterBattleSkillDecisionAction{}
+
 func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 获取当前运行状态，如果状态为空则无法继续，直接返回
 	st := getRunState()

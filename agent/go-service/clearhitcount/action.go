@@ -14,6 +14,9 @@ type clearHitCountParam struct {
 
 type ClearHitCountAction struct{}
 
+// Compile-time interface check
+var _ maa.CustomActionRunner = &ClearHitCountAction{}
+
 func (a *ClearHitCountAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Msg("ClearHitCount got nil custom action arg")
