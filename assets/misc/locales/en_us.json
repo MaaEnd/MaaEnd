@@ -98,6 +98,8 @@
     "option.AutoEssenceRepeatCount.description": "If \"Obtain Rewards\" is also checked, please ensure sufficient stamina (otherwise the task will end early)",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "Max Loop Count",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "Set to 1 for no loop",
+    "option.EssenceFilterAfterBattle.label": "Essence Filter After Battle",
+    "option.EssenceFilterAfterBattle.description": "Automatically perform essence filtering after battle.",
     "option.AutoEssenceChallengeMode.label": "Challenge Mode",
     "option.AutoEssenceChallengeMode.description": "## TIPS:\n- Walk mode only relies on turrets for output. Please **place as many turrets as possible** at the accumulation point, but do not place them too close to the trigger point.\n- Walk mode does not involve automatic combat. Please switch the foreground character to **one with strong survivability** and configure sufficient **health recovery items**.\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "Walk",

@@ -98,6 +98,8 @@
     "option.AutoEssenceRepeatCount.description": "「報酬を受け取る」もチェックされている場合は、スタミナが十分であることを確認してください（不足している場合はタスクを早期終了します）",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "最大ループ回数",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "1に設定するとループしません",
+    "option.EssenceFilterAfterBattle.label": "Essence Filter After Battle",
+    "option.EssenceFilterAfterBattle.description": "Automatically perform essence filtering after battle.",
     "option.AutoEssenceChallengeMode.label": "挑戦方式",
     "option.AutoEssenceChallengeMode.description": "## ヒント：\n- 歩行モードは砲台の火力のみに依存します。蓄積ポイントには **可能な限り多くの砲台を配置** してください。ただし、起動ポイントに近すぎないようにしてください。\n- 歩行モードには自動戦闘は含まれません。使用キャラを **耐久力の高いキャラ** に切り替え、十分な **回復アイテム** を装備してください。\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "歩行",

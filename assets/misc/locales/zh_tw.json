@@ -98,6 +98,8 @@
     "option.AutoEssenceRepeatCount.description": "如果同時勾選了「領取獎勵」，請確保您的體力充足（不足則任務提前結束）",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "最大循環次數",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "設為 1 表示不循環",
+    "option.EssenceFilterAfterBattle.label": "戰後基質篩選",
+    "option.EssenceFilterAfterBattle.description": "戰鬥結束後自動執行基質篩選",
     "option.AutoEssenceChallengeMode.label": "挑戰方式",
     "option.AutoEssenceChallengeMode.description": "## 提示：\n- 走路模式僅依賴炮台進行輸出，請在淤積點 **放置儘可能多的炮台**，但不要放得太靠近激發點。\n- 走路模式不涉及自動戰鬥，請將前臺角色切換到 **抗傷能力較強的角色** 並配置足夠的 **生命恢復類道具**。\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "走路",

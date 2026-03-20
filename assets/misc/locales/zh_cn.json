@@ -98,6 +98,8 @@
     "option.AutoEssenceRepeatCount.description": "如果同时勾选了“领取奖励”，请确保您的体力充足（不足则任务提前结束）",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.label": "最大循环次数",
     "option.AutoEssenceRepeatCount.inputs.AutoEssenceRepeatCountValue.description": "设为 1 表示不循环",
+    "option.EssenceFilterAfterBattle.label": "战后基质筛选",
+    "option.EssenceFilterAfterBattle.description": "战斗结束后自动执行基质筛选",
     "option.AutoEssenceChallengeMode.label": "挑战方式",
     "option.AutoEssenceChallengeMode.description": "## 提示：\n- 走路模式仅依赖炮台进行输出，请在淤积点 **放置尽可能多的炮台**，但不要放得太靠近激发点。\n- 走路模式不涉及自动战斗，请将前台角色切换到 **抗伤能力较强的角色** 并配置足够的 **生命恢复类道具**。\n---",
     "option.AutoEssenceChallengeMode.cases.Walk.label": "走路",
