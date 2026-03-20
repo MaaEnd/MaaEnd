@@ -29,7 +29,6 @@
                 {
                     "name": "Walk",
                     "label": "$option.AutoEssenceChallengeMode.cases.Walk.label",
-                    "description": "aaa",
                     "pipeline_override": {
                         "AutoEssenceClickEssenceChallengeUsingWalk": {
                             "enabled": true

@@ -123,7 +123,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning1",
-            "AutoEssenceClickEssenceChallengeEnter"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
@@ -148,7 +148,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning2",
-            "AutoEssenceClickEssenceChallengeEnter"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
@@ -203,13 +203,13 @@
         },
         "post_delay": 1000,
         "next": [
-            "AutoEssenceClickEssenceChallengeEnter"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
         }
     },
-    "AutoEssenceClickEssenceChallengeEnter": {
+    "AutoEssenceChallengeEnter": {
         "desc": "成功进入挑战场景",
         "recognition": {
             "type": "TemplateMatch",
