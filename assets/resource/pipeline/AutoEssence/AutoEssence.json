@@ -537,6 +537,15 @@
             "type": "Click"
         },
         "post_delay": 1000,
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
         "next": [
             "AutoEssenceCloseObtainDialog"
         ],
