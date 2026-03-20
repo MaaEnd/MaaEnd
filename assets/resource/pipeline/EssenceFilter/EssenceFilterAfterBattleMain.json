@@ -1,26 +1,4 @@
 {
-    "EssenceFilterAfterBattleExit": {
-        "desc": "任务完成,点击离开",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    803,
-                    616,
-                    124,
-                    83
-                ],
-                "template": "Common/Button/CancelButtonType1.png",
-                "method": 5,
-                "threshold": 0.35
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0
-    },
     "EssenceFullScreenDetectAll": {
         "desc": "战利品全屏模板匹配：收集所有基质图标（不点击）,给custom调用",
         "recognition": {
@@ -44,7 +22,7 @@
         "post_delay": 0
     },
     "EssenceFindLockItem": {
-        "desc": "查找上锁的图标",
+        "desc": "查找上锁的图标，已上锁就跳过",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -65,7 +43,9 @@
         },
         "post_delay": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot1"
+            "EssenceFilterAfterBattleIsflawless",
+            "EssenceFilterAfterBattleIsPure",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "基质未锁定"
