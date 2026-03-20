@@ -152,7 +152,7 @@
         ]
     },
     "GoTo${Id}StartPos": {
-        "desc": "${StartPosDesc}",
+        "desc": "在${Name}任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {

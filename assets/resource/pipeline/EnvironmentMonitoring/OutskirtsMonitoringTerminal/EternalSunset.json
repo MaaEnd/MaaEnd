@@ -164,7 +164,7 @@
         ]
     },
     "GoToEternalSunsetStartPos": {
-        "desc": "在栖霞驻影任务开始位置附近，聚宝窟外直接拍照",
+        "desc": "在栖霞驻影任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {

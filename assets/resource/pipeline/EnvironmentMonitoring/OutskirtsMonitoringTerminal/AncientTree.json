@@ -164,7 +164,7 @@
         ]
     },
     "GoToAncientTreeStartPos": {
-        "desc": "在古树最近的传送点附近",
+        "desc": "在古树任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {

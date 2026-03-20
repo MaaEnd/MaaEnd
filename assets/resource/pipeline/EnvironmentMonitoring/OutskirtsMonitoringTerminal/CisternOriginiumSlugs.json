@@ -164,7 +164,7 @@
         ]
     },
     "GoToCisternOriginiumSlugsStartPos": {
-        "desc": "在蓄水源石虫最近的传送点附近",
+        "desc": "在蓄水源石虫任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
