@@ -43,7 +43,7 @@
             "EssenceFilterAfterBattleLockItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已锁定基质"
+            //"Node.Action.Succeeded": "已锁定基质"
         }
     },
     "EssenceFilterAfterBattleCheckLocked": {
@@ -71,7 +71,7 @@
             "EssenceFilterAfterBattleLockItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已确认上锁"
+            //"Node.Action.Succeeded": "已确认上锁"
         }
     },
     "EssenceFilterAfterBattleRecognitionLocked": {
@@ -137,7 +137,7 @@
             "EssenceFilterAfterBattleDiscardItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已废弃基质"
+            //"Node.Action.Succeeded": "已废弃基质"
         }
     },
     "EssenceFilterAfterBattleCheckDiscarded": {
@@ -165,7 +165,7 @@
             "EssenceFilterAfterBattleDiscardItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已确认废弃"
+            //"Node.Action.Succeeded": "已确认废弃"
         }
     },
     "EssenceFilterAfterBattleCloseDetail": {
