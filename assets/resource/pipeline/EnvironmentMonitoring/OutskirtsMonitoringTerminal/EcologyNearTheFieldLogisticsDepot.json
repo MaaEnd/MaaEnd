@@ -157,10 +157,17 @@
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepot": {
-        "desc": "前往储备站周围的生态环境",
+        "desc": "前往储备站周围的生态环境，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToEcologyNearTheFieldLogisticsDepotStartPos",
-            "[JumpBack]SceneEnterWorldWulingWulingCity8"
+            "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos"
         ]
     },
     "GoToEcologyNearTheFieldLogisticsDepotStartPos": {
@@ -178,6 +185,19 @@
                         5.5
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToEcologyNearTheFieldLogisticsDepotMapTrackerMove"
+        ]
+    },
+    "GoToEcologyNearTheFieldLogisticsDepotNotAtStartPos": {
+        "desc": "不在储备站周围的生态环境任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity8"
             ]
         },
         "next": [

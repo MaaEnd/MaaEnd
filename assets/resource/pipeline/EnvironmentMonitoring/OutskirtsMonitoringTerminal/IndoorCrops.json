@@ -157,10 +157,17 @@
         ]
     },
     "GoToIndoorCrops": {
-        "desc": "前往室内作物",
+        "desc": "前往室内作物，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToIndoorCropsStartPos",
-            "[JumpBack]SceneEnterWorldWulingWulingCity4"
+            "GoToIndoorCropsNotAtStartPos"
         ]
     },
     "GoToIndoorCropsStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsNotAtStartPos": {
+        "desc": "不在室内作物任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity4"
             ]
         },
         "next": [

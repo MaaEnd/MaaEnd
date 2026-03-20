@@ -157,10 +157,17 @@
         ]
     },
     "GoToCleansingJade": {
-        "desc": "前往漱玉",
+        "desc": "前往漱玉，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToCleansingJadeStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley4"
+            "GoToCleansingJadeNotAtStartPos"
         ]
     },
     "GoToCleansingJadeStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToCleansingJadeMapTrackerMove"
+        ]
+    },
+    "GoToCleansingJadeNotAtStartPos": {
+        "desc": "不在漱玉任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley4"
             ]
         },
         "next": [

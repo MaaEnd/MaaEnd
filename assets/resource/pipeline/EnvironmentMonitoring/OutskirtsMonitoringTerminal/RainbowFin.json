@@ -157,10 +157,17 @@
         ]
     },
     "GoToRainbowFin": {
-        "desc": "前往七彩鳞",
+        "desc": "前往七彩鳞，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToRainbowFinStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley10"
+            "GoToRainbowFinNotAtStartPos"
         ]
     },
     "GoToRainbowFinStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToRainbowFinMapTrackerMove"
+        ]
+    },
+    "GoToRainbowFinNotAtStartPos": {
+        "desc": "不在七彩鳞任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley10"
             ]
         },
         "next": [

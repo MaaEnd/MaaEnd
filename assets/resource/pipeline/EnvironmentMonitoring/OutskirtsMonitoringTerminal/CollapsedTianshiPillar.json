@@ -157,10 +157,17 @@
         ]
     },
     "GoToCollapsedTianshiPillar": {
-        "desc": "前往倒塌的天师桩",
+        "desc": "前往倒塌的天师桩，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToCollapsedTianshiPillarStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley8"
+            "GoToCollapsedTianshiPillarNotAtStartPos"
         ]
     },
     "GoToCollapsedTianshiPillarStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToCollapsedTianshiPillarMapTrackerMove"
+        ]
+    },
+    "GoToCollapsedTianshiPillarNotAtStartPos": {
+        "desc": "不在倒塌的天师桩任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley8"
             ]
         },
         "next": [

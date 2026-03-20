@@ -157,10 +157,17 @@
         ]
     },
     "GoToObservantSableChestedFowlbeast": {
-        "desc": "前往东张西望的黑腹雉羽兽",
+        "desc": "前往东张西望的黑腹雉羽兽，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToObservantSableChestedFowlbeastStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley0"
+            "GoToObservantSableChestedFowlbeastNotAtStartPos"
         ]
     },
     "GoToObservantSableChestedFowlbeastStartPos": {
@@ -178,6 +185,19 @@
                         4
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToObservantSableChestedFowlbeastMapTrackerMove"
+        ]
+    },
+    "GoToObservantSableChestedFowlbeastNotAtStartPos": {
+        "desc": "不在东张西望的黑腹雉羽兽任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley0"
             ]
         },
         "next": [

@@ -157,10 +157,17 @@
         ]
     },
     "GoToCisternOriginiumSlugs": {
-        "desc": "前往蓄水源石虫",
+        "desc": "前往蓄水源石虫，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToCisternOriginiumSlugsStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley7"
+            "GoToCisternOriginiumSlugsNotAtStartPos"
         ]
     },
     "GoToCisternOriginiumSlugsStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToCisternOriginiumSlugsMapTrackerMove"
+        ]
+    },
+    "GoToCisternOriginiumSlugsNotAtStartPos": {
+        "desc": "不在蓄水源石虫任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley7"
             ]
         },
         "next": [
