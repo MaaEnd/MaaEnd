@@ -147,10 +147,8 @@
                     "會客室",
                     "(?i)Reception\\s*Room",
                     "応接室",
-                    "(?i)^Reception\\s*Room$",
                     "Reception"
-                ]
-            ,
+                ],
                 "roi_offset": [
                     0,
                     0,
@@ -189,8 +187,7 @@
                     "集齊所有線索可開展情報交流",
                     "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
                     "手がかりをすべて集めると情報共有可能"
-                ]
-            ,
+                ],
                 "roi_offset": [
                     0,
                     0,
@@ -231,8 +228,7 @@
                     "集齊所有線索可開展情報交流",
                     "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
                     "手がかりをすべて集めると情報共有可能"
-                ]
-            ,
+                ],
                 "roi_offset": [
                     0,
                     0,
