@@ -17,12 +17,12 @@
             }
         },
         "next": [
+            "[JumpBack]RecoveryEmotion",
             "[JumpBack]EntryReceptionRoom",
-            "[JumpBack]EntryGrowthChamber",
             "[JumpBack]ControlNexusClickTips",
             "[JumpBack]MFG_ReceiveRewards",
             "[JumpBack]GrowthChamber",
-            "[JumpBack]RecoveryEmotion",
+            "[JumpBack]EntryGrowthChamber",
             "InLastCarbin",
             "[JumpBack]CarbinSwipe",
             "[JumpBack]EndExchangeJBC"
