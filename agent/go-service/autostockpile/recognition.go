@@ -24,7 +24,8 @@ const (
 	selectedGoodsClickResetY      = 180
 	findMarketMarkNodeName        = "AutoStockpileFindMarketMark"
 	overflowNodeName              = "AutoStockpileCheckOverflow"
-	overflowDetailNodeName        = "AutoStockpileGetOverflowDetail"
+	overflowQuotaNodeName         = "AutoStockpileGetQuota"
+	overflowQuotaAdditionNodeName = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName           = "AutoStockpileLocateGoods"
 	goodsPriceNodeName            = "AutoStockpileGetGoods"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
@@ -32,7 +33,7 @@ const (
 )
 
 var (
-	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)\s*/\s*(\d+)`)
+	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)/(\d+)`)
 	overflowPlusRe       = regexp.MustCompile(`\+(\d+)`)
 	priceRe              = regexp.MustCompile(`^(\d{3,4})$`)
 )
@@ -74,32 +75,33 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}
 
 	overflowAmount := 0
-	if overflowDetected {
-		if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
-			overflowAmount = cur + plus - max
-			log.Info().
-				Str("component", autoStockpileComponent).
-				Int("overflow_current", cur).
-				Int("overflow_max", max).
-				Int("overflow_plus", plus).
-				Int("overflow_amount", overflowAmount).
-				Msg("overflow detail parsed")
+	if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
+		overflowDetected, overflowAmount = resolveOverflow(cur, max, plus)
 
-			if overflowAmount <= 0 {
-				overflowDetected = false
-			}
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Int("overflow_current", cur).
+			Int("overflow_max", max).
+			Int("overflow_plus", plus).
+			Int("overflow_amount", overflowAmount).
+			Bool("overflow_detected", overflowDetected).
+			Msg("overflow detail parsed")
 
-			if overflowAmount > 0 {
-				if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
-					log.Warn().
-						Err(err).
-						Str("component", autoStockpileComponent).
-						Str("node", swipeSpecificQuantityNodeName).
-						Int("overflow_amount", overflowAmount).
-						Msg("failed to override swipe specific quantity target")
-				}
+		if overflowAmount > 0 {
+			if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
+				log.Warn().
+					Err(err).
+					Str("component", autoStockpileComponent).
+					Str("node", swipeSpecificQuantityNodeName).
+					Int("overflow_amount", overflowAmount).
+					Msg("failed to override swipe specific quantity target")
 			}
 		}
+	} else {
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Bool("overflow_fallback", overflowDetected).
+			Msg("overflow detail unavailable, using color match fallback")
 	}
 
 	region, anchor := resolveGoodsRegion(ctx)
@@ -359,38 +361,69 @@ func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
 }
 
 func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max int, plus int, ok bool) {
-	detail, err := ctx.RunRecognition(overflowDetailNodeName, img, nil)
+	detail, err := ctx.RunRecognition(overflowQuotaNodeName, img, nil)
 	if err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", autoStockpileComponent).
-			Str("step", "overflow_detail_ocr").
-			Msg("failed to run overflow detail ocr")
+			Str("step", "overflow_quota_ocr").
+			Msg("failed to run overflow quota ocr")
 		return 0, 0, 0, false
 	}
 
-	for _, text := range extractOCRTexts(detail) {
-		if current == 0 || max == 0 {
-			if match := overflowCurrentMaxRe.FindStringSubmatch(text); len(match) == 3 {
-				cur, curErr := strconv.Atoi(match[1])
-				maxValue, maxErr := strconv.Atoi(match[2])
-				if curErr == nil && maxErr == nil {
-					current = cur
-					max = maxValue
-				}
-			}
-		}
-		if plus == 0 {
-			if match := overflowPlusRe.FindStringSubmatch(text); len(match) == 2 {
-				plusValue, parseErr := strconv.Atoi(match[1])
-				if parseErr == nil {
-					plus = plusValue
-				}
+	current, max, ok = parseOverflowCurrentMax(extractOCRTexts(detail))
+	if !ok {
+		return 0, 0, 0, false
+	}
+
+	plus = runOverflowQuotaAdditionOCR(ctx, img)
+	return current, max, plus, true
+}
+
+func parseOverflowCurrentMax(texts []string) (current int, max int, ok bool) {
+	for _, text := range texts {
+		if match := overflowCurrentMaxRe.FindStringSubmatch(text); len(match) == 3 {
+			cur, curErr := strconv.Atoi(match[1])
+			maxValue, maxErr := strconv.Atoi(match[2])
+			if curErr == nil && maxErr == nil {
+				return cur, maxValue, true
 			}
 		}
 	}
 
-	return current, max, plus, current > 0 || max > 0 || plus > 0
+	return 0, 0, false
+}
+
+func runOverflowQuotaAdditionOCR(ctx *maa.Context, img image.Image) int {
+	detail, err := ctx.RunRecognition(overflowQuotaAdditionNodeName, img, nil)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "overflow_quota_addition_ocr").
+			Msg("failed to run overflow quota addition ocr")
+		return 0
+	}
+
+	return parseOverflowPlus(extractOCRTexts(detail))
+}
+
+func parseOverflowPlus(texts []string) int {
+	for _, text := range texts {
+		if match := overflowPlusRe.FindStringSubmatch(text); len(match) == 2 {
+			plusValue, parseErr := strconv.Atoi(match[1])
+			if parseErr == nil {
+				return plusValue
+			}
+		}
+	}
+
+	return 0
+}
+
+func resolveOverflow(current int, max int, plus int) (overflowDetected bool, overflowAmount int) {
+	overflowAmount = current + plus - max
+	return overflowAmount > 0, overflowAmount
 }
 
 func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) error {

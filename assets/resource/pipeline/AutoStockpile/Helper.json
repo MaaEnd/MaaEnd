@@ -1,4 +1,24 @@
 {
+    "AutoStockpileGetQuotaAddition": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    280,
+                    140,
+                    120,
+                    20
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoStockpileCheckOverflow": {
         "recognition": {
             "type": "ColorMatch",
@@ -31,19 +51,21 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoStockpileGetOverflowDetail": {
+    "AutoStockpileGetQuota": {
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    35,
-                    125,
-                    773,
-                    47
+                    120,
+                    140,
+                    160,
+                    20
                 ],
                 "expected": [
                     ".*"
-                ]
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockpileGetQuotaFilter"
             }
         },
         "pre_delay": 0,
@@ -137,5 +159,30 @@
                 ]
             }
         }
+    },
+    "AutoStockpileGetQuotaFilter": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        100
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        200
+                    ]
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
