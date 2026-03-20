@@ -278,6 +278,9 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
@@ -1219,10 +1222,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    246,
-                    500,
-                    191,
-                    130
+                    276,
+                    517,
+                    71,
+                    66
                 ],
                 "expected": [
                     "降序",
