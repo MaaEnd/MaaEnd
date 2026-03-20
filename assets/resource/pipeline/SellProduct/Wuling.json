@@ -1,6 +1,7 @@
 {
     "SellProductWulingSell": {
         "desc": "在武陵售卖",
+        "enabled": true,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -18,6 +19,7 @@
         ]
     },
     "SellProductSkyKingFlats": {
+        "enabled":true,
         "desc": "天王坪援建点售卖",
         "max_hit": 1,
         "recognition": "And",

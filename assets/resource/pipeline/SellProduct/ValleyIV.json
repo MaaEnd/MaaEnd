@@ -21,6 +21,7 @@
     },
     "SellProductRefugeeCamp": {
         "desc": "难民暂居处售卖",
+        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -30,12 +31,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductRefugeeCampSell",
+            "SellProductRefugeeCampSellWithPriority",
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
         ]
     },
     "SellProductInfrastructureOutpost": {
         "desc": "基建前站售卖",
+        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -45,12 +47,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductInfrastructureOutpostSell",
+            "SellProductInfrastructureOutpostSellWithPriority",
             "[JumpBack]SellProductGoToInfrastructureOutpost"
         ]
     },
     "SellProductReconstructionCommand": {
         "desc": "重建指挥部售卖",
+        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -60,7 +63,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductReconstructionCommandSell",
+            "SellProductReconstructionCommandSellWithPriority",
             "[JumpBack]SellProductGoToReconstructionCommandOutpost"
         ]
     },
