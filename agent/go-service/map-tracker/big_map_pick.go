@@ -401,7 +401,7 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 		return false
 	}
 
-	ca.Swipe(startX, startY, dragDx, dragDy, 100, 50)
+	ca.Swipe(0, startX, startY, dragDx, dragDy, 100, 50)
 	return true
 }
 

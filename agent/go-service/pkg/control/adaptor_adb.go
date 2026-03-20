@@ -44,14 +44,14 @@ func (aca *ADBControlAdaptor) TouchClick(contact, x, y int, durationMillis, dela
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (aca *ADBControlAdaptor) Swipe(x, y, dx, dy int, durationMillis, delayMillis int) {
-	aca.ctrl.PostSwipeV2(int32(x), int32(y), int32(x+dx), int32(y+dy), time.Duration(durationMillis)*time.Millisecond, 1, 1).Wait()
+func (aca *ADBControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	aca.ctrl.PostSwipeV2(int32(x), int32(y), int32(x+dx), int32(y+dy), time.Duration(durationMillis)*time.Millisecond, int32(contact), 1).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (aca *ADBControlAdaptor) SwipeHover(x, y, dx, dy int, durationMillis, delayMillis int) {
-	// ADB not supports only-hover swipe, fallback to normal swipe
-	aca.Swipe(x, y, dx, dy, durationMillis, delayMillis)
+func (aca *ADBControlAdaptor) SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	aca.ctrl.PostSwipeV2(int32(x), int32(y), int32(x+dx), int32(y+dy), time.Duration(durationMillis)*time.Millisecond, int32(contact), 0).Wait()
+	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
 func (aca *ADBControlAdaptor) KeyDown(keyCode int, delayMillis int) {
@@ -69,9 +69,9 @@ func (aca *ADBControlAdaptor) KeyType(keyCode int, delayMillis int) {
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (aca *ADBControlAdaptor) RotateCamera(dx, dy int, durationMillis, delayMillis int) {
+func (aca *ADBControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := aca.w/4*3, aca.h/2
-	aca.Swipe(cx, cy, dx, dy, durationMillis*4, 0)
+	aca.Swipe(cameraContact, cx, cy, dx, dy, defaultTouchActionDelayMillis*2, 0)
 }
 
 func (aca *ADBControlAdaptor) GetPlayerMovement() PlayerMovement {
@@ -83,23 +83,23 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 		return
 	}
 
-	// Important: Currently "sprint" is temporarily disabled in ADB
+	// Note: Currently "sprint" is temporarily disabled in ADB
 	if movement.speed >= MovementSprint.speed {
 		movement = MovementRun
 	}
 
 	if movement.speed <= MovementStop.speed {
 		// Stop moving forward
-		aca.TouchUp(0, defaultTouchActionDelayMillis)
+		aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
 	} else {
 		if aca.lastMotionIsWalk {
 			if movement.speed >= MovementSprint.speed {
 				// Set to "sprint"
-				aca.TouchClick(2, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
+				aca.TouchClick(sprintButtonContact, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
 				aca.lastMotionIsWalk = false
 			} else if movement.speed >= MovementRun.speed {
 				// Set to "run"
-				aca.TouchDown(0, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
 				aca.lastMotionIsWalk = false
 			} else {
 				// Already in "walk", do nothing
@@ -107,21 +107,21 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 		} else {
 			if movement.speed < MovementRun.speed {
 				// Set to "walk"
-				aca.TouchDown(0, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_WALK_DY, 0)
+				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_WALK_DY, 0)
 				aca.lastMotionIsWalk = true
 			} else if movement.speed < MovementSprint.speed {
 				if aca.pm.speed >= MovementSprint.speed {
 					// Set to "stop" temporarily to terminate the "sprint" state, then set to "run"
-					aca.TouchUp(0, defaultTouchActionDelayMillis)
-					aca.TouchDown(0, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+					aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
+					aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
 				} else {
 					// Already in "run", do nothing else
 				}
-				aca.TouchDown(0, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
 			} else {
 				// Set to "sprint"
-				aca.TouchClick(2, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
-				aca.TouchDown(0, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
+				aca.TouchClick(sprintButtonContact, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
+				aca.TouchDown(joystickContact, JOYSTICK_CENTER_X, JOYSTICK_CENTER_Y+JOYSTICK_RUN_DY, 0)
 			}
 		}
 	}
@@ -129,17 +129,17 @@ func (aca *ADBControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
 }
 
 func (aca *ADBControlAdaptor) PlayerJump() {
-	aca.TouchClick(3, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
+	aca.TouchClick(jumpButtonContact, JUMP_BUTTON_X, JUMP_BUTTON_Y, defaultTouchActionDelayMillis*4, 0)
 }
 
 func (aca *ADBControlAdaptor) PlayerSprint() {
-	aca.TouchClick(2, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
+	aca.TouchClick(sprintButtonContact, SPRINT_BUTTON_X, SPRINT_BUTTON_Y, defaultTouchActionDelayMillis, 0)
 	aca.pm = MovementSprint
 	aca.lastMotionIsWalk = false
 }
 
 func (aca *ADBControlAdaptor) PlayerStop() {
-	aca.TouchUp(0, defaultTouchActionDelayMillis)
+	aca.TouchUp(joystickContact, defaultTouchActionDelayMillis)
 	aca.pm = MovementStop
 }
 
@@ -164,4 +164,10 @@ const (
 	SPRINT_BUTTON_Y = 620
 )
 
-const defaultTouchActionDelayMillis = 50
+const (
+	joystickContact               = 0
+	cameraContact                 = 1
+	sprintButtonContact           = 2
+	jumpButtonContact             = 3
+	defaultTouchActionDelayMillis = 50
+)

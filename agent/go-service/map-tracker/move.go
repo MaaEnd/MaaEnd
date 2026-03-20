@@ -233,10 +233,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
-					// Pause slightly if next target is in a very different direction
+					// Foresee rotation adjustment
+					foreseeDeltaRot := float64(rawDeltaRot) / 2.0
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
-						ca.PlayerStop()
+						ca.SetPlayerMovement(control.MovementWalk)
 					}
+					ca.RotateCamera(int(foreseeDeltaRot*rotationSpeed), 0)
 				}
 			}
 			dist := math.Hypot(curX-targetX, curY-targetY)
@@ -335,11 +337,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					if absRawDeltaRot > param.RotationUpperThreshold {
 						// Rotation is very bad: forcibly set to 'walk' for better control
 						ca.SetPlayerMovement(control.MovementWalk)
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 50, 25)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 					} else if !fineApproachOngoing {
 						// Rotation is acceptable but can be improved: at least ensure 'run'
 						ca.SetPlayerMovement(control.MovementRun)
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 50, 25)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 					}
 
 					// Update adaptive rotation state

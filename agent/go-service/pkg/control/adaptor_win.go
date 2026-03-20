@@ -42,20 +42,20 @@ func (wca *WindowsControlAdaptor) TouchClick(contact, x, y int, durationMillis, 
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) Swipe(x, y, dx, dy int, durationMillis, delayMillis int) {
+func (wca *WindowsControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
 	stepDurationMillis := durationMillis / 2
-	wca.ctrl.PostTouchDown(0, int32(x), int32(y), 1).Wait()
+	wca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
 	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchMove(0, int32(x+dx), int32(y+dy), 1).Wait()
+	wca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 1).Wait()
 	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchUp(0).Wait()
+	wca.ctrl.PostTouchUp(int32(contact)).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) SwipeHover(x, y, dx, dy int, durationMillis, delayMillis int) {
-	wca.ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
+func (wca *WindowsControlAdaptor) SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	wca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 0).Wait()
 	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchMove(0, int32(x+dx), int32(y+dy), 0).Wait()
+	wca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 0).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
@@ -74,9 +74,9 @@ func (wca *WindowsControlAdaptor) KeyType(keyCode int, delayMillis int) {
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) RotateCamera(dx, dy int, durationMillis, delayMillis int) {
+func (wca *WindowsControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := wca.w/2, wca.h/2
-	wca.SwipeHover(cx, cy, dx, dy, durationMillis, delayMillis)
+	wca.SwipeHover(0, cx, cy, dx, dy, defaultKeyActionDelayMillis*2, defaultKeyActionDelayMillis)
 }
 
 func (wca *WindowsControlAdaptor) GetPlayerMovement() PlayerMovement {

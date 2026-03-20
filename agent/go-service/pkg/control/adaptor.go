@@ -27,10 +27,10 @@ type ControlAdaptor interface {
 	TouchClick(contact, x, y int, durationMillis, delayMillis int)
 
 	// Swipe performs an actual swipe from (x, y) to (x+dx, y+dy) with the given duration and delay after the action.
-	Swipe(x, y, dx, dy int, durationMillis, delayMillis int)
+	Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int)
 
 	// SwipeHover performs an only-hover swipe from (x, y) to (x+dx, y+dy) with the given duration and delay after the action.
-	SwipeHover(x, y, dx, dy int, durationMillis, delayMillis int)
+	SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int)
 
 	// KeyDown performs a key down of the given key code with delay after the action.
 	KeyDown(keyCode int, delayMillis int)
@@ -43,7 +43,7 @@ type ControlAdaptor interface {
 
 	// RotateCamera performs a camera rotation by only-hover swipe starting from the center of the screen
 	// with the given delta, duration and delay after the action.
-	RotateCamera(dx, dy int, durationMillis, delayMillis int)
+	RotateCamera(dx, dy int)
 
 	// GetPlayerMovement returns the current player movement state.
 	GetPlayerMovement() PlayerMovement
