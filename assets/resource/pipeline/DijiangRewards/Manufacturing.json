@@ -124,6 +124,7 @@
                     "ClaimDijiangRewards/Restock.png"
                 ],
                 "order_by": "Vertical",
+                "method": 10001,
                 "index": -1
             }
         },
