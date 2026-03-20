@@ -148,6 +148,7 @@
     "option.SelectToGrow.description": "MAE 會自動種植對應目標",
     "option.SelectToGrow.cases.DoNothing.label": "不種植",
     "option.SelectToGrow.cases.Any.label": "任意",
+    "$option.SelectToGrow.cases.GrowAgin.label": "再次種植",
     "option.SortBy.label": "排序方式",
     "option.SortBy.cases.Default.label": "預設",
     "option.SortBy.cases.AmountOwned.label": "持有數量",

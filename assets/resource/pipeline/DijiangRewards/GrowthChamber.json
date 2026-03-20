@@ -106,6 +106,7 @@
         "next": [
             "ClaimAllGrowReward",
             "Grow",
+            "GrowAgin",
             "ExitGrowthChamber"
         ],
         "focus": {
@@ -230,8 +231,109 @@
             "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
+    "GrowAgin": {
+        "desc": "再次种植,和Grow冲突",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "再次种植"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ConfirmGrowAgin"
+        ],
+        "on_error": [
+            "GrowAgin_OnError"
+        ]
+    },
+    "GrowAgin_OnError": {
+        "desc": "再次种植,和Grow冲突",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    484,
+                    213,
+                    726,
+                    283
+                ],
+                "expected": [
+                    "再次种植"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ConfirmGrowAgin"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
+    "ConfirmGrowAgin": {
+        "desc": "确认再次种植",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitGrowthChamber"
+        ]
+    },
+    "ConfirmGrowAgin_OnError": {
+        "desc": "确认再次种植（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ExitGrowthChamber"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
     "Grow": {
-        "desc": "点击培养按钮",
+        "desc": "点击培养按钮,和GrowAgin冲突",
         "max_hit": 1,
         "recognition": {
             "type": "OCR",

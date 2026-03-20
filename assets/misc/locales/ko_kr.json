@@ -148,6 +148,7 @@
     "option.SelectToGrow.description": "활성화 시 MAE가 선택한 대상을 자동으로 재배합니다.",
     "option.SelectToGrow.cases.DoNothing.label": "재배하지 않음",
     "option.SelectToGrow.cases.Any.label": "임의",
+    "$option.SelectToGrow.cases.GrowAgin.label": "다시 재배",
     "option.SortBy.label": "정렬 기준",
     "option.SortBy.cases.Default.label": "기본",
     "option.SortBy.cases.AmountOwned.label": "보유 수량",

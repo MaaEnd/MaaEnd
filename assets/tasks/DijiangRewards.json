@@ -150,6 +150,18 @@
                     }
                 },
                 {
+                    "name": "GrowAgin",
+                    "label": "$option.SelectToGrow.cases.GrowAgin.label",
+                    "pipeline_override": {
+                        "Grow": {
+                            "enabled": false
+                        },
+                        "GrowAgin": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
                     "name": "Any",
                     "label": "$option.SelectToGrow.cases.Any.label",
                     "pipeline_override": {

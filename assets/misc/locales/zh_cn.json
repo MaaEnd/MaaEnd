@@ -147,6 +147,7 @@
     "option.SelectToGrow.label": "种植目标",
     "option.SelectToGrow.description": "MAE 会自动种植对应目标",
     "option.SelectToGrow.cases.DoNothing.label": "不种植",
+    "$option.SelectToGrow.cases.GrowAgin.label": "再次种植",
     "option.SelectToGrow.cases.Any.label": "任意",
     "option.SortBy.label": "排序方式",
     "option.SortBy.cases.Default.label": "默认",
