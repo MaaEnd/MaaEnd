@@ -57,6 +57,35 @@
                         }
                     },
                     "option": [
+                        "ValleyIVRefugeeCampPrioritySwitch"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductRefugeeCamp": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVRefugeeCampPrioritySwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampSelectItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectItem2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVRefugeeCampItem1",
                         "ValleyIVRefugeeCampItem2"
                     ]
@@ -64,7 +93,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductRefugeeCamp": {
+                        "SellProductRefugeeCampSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductRefugeeCampSelectItem2": {
                             "enabled": false
                         }
                     }
@@ -356,6 +388,35 @@
                         }
                     },
                     "option": [
+                        "ValleyIVInfrastructureOutpostPrioritySwitch"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpost": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVInfrastructureOutpostPrioritySwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostSelectItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectItem2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVInfrastructureOutpostItem1",
                         "ValleyIVInfrastructureOutpostItem2"
                     ]
@@ -363,7 +424,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpost": {
+                        "SellProductInfrastructureOutpostSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": false
                         }
                     }
@@ -611,6 +675,35 @@
                         }
                     },
                     "option": [
+                        "ValleyIVReconstructionCommandPrioritySwitch"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommand": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "ValleyIVReconstructionCommandPrioritySwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandSelectItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectItem2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "ValleyIVReconstructionCommandItem1",
                         "ValleyIVReconstructionCommandItem2"
                     ]
@@ -618,7 +711,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductReconstructionCommand": {
+                        "SellProductReconstructionCommandSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductReconstructionCommandSelectItem2": {
                             "enabled": false
                         }
                     }
@@ -871,6 +967,35 @@
                         }
                     },
                     "option": [
+                        "WulingSkyKingFlatsPrioritySwitch"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlats": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlatsPrioritySwitch": {
+            "type": "switch",
+            "label": "$task.SellProduct.PriorityItemSwitch",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectItem2": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
                         "WulingSkyKingFlatsItem1",
                         "WulingSkyKingFlatsItem2"
                     ]
@@ -878,7 +1003,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductSkyKingFlats": {
+                        "SellProductSkyKingFlatsSelectItem1": {
+                            "enabled": false
+                        },
+                        "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": false
                         }
                     }
