@@ -485,6 +485,20 @@ func (a *VisitFriendsMenuClueExchangeFullAction) Run(ctx *maa.Context, arg *maa.
 
 type VisitFriendsMenuClueAssistFullAction struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomActionRunner      = &VisitFriendsMainAction{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanTargetFriendOpenRecognition{}
+	_ maa.CustomActionRunner      = &VisitFriendsMenuScanTargetFriendOpenAction{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanDetailSaveRecognition{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFinishRecognition{}
+	_ maa.CustomRecognitionRunner = &VisitFriendsMenuScanScrollFullRecognition{}
+	_ maa.CustomActionRunner      = &VisitFriendsMenuClueExchangeAction{}
+	_ maa.CustomActionRunner      = &VisitFriendsMenuClueAssistAction{}
+	_ maa.CustomActionRunner      = &VisitFriendsMenuClueExchangeFullAction{}
+	_ maa.CustomActionRunner      = &VisitFriendsMenuClueAssistFullAction{}
+)
+
 func (a *VisitFriendsMenuClueAssistFullAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	currentAssistCount = maxAssistCount
 	return true

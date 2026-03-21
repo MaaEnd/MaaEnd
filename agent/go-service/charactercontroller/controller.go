@@ -161,6 +161,15 @@ func (a *CharacterMoveToTargetAction) Run(ctx *maa.Context, arg *maa.CustomActio
 
 type CharacterMoveToTargetNotFoundAction struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomActionRunner = &CharacterControllerYawDeltaAction{}
+	_ maa.CustomActionRunner = &CharacterControllerPitchDeltaAction{}
+	_ maa.CustomActionRunner = &CharacterControllerForwardAxisAction{}
+	_ maa.CustomActionRunner = &CharacterMoveToTargetAction{}
+	_ maa.CustomActionRunner = &CharacterMoveToTargetNotFoundAction{}
+)
+
 func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	targetNotFoundCounter++
 	if targetNotFoundCounter > 15 {

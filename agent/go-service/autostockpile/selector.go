@@ -275,17 +275,3 @@ func extractRecoDetailJson(rd *maa.RecognitionDetail) string {
 
 	return rd.DetailJson
 }
-
-func resolveTierThreshold(tierID string, cfg SelectionConfig) int {
-	if threshold, ok := cfg.PriceLimits[tierID]; ok && threshold > 0 {
-		return threshold
-	}
-	return resolveFallbackThreshold(cfg.FallbackThreshold)
-}
-
-func resolveFallbackThreshold(raw int) int {
-	if raw > 0 {
-		return raw
-	}
-	return defaultFallbackBuyThreshold
-}

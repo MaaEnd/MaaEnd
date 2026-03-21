@@ -289,10 +289,6 @@ func countDigits(text string) int {
 	return count
 }
 
-func aggregateOCRFragments(fragments []ocrFragment) string {
-	return joinOCRFragments(uniqueOCRFragments(fragments))
-}
-
 func uniqueOCRFragments(fragments []ocrFragment) []ocrFragment {
 	if len(fragments) == 0 {
 		return nil

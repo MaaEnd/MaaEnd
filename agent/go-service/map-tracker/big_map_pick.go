@@ -85,7 +85,11 @@ func (a *MapTrackerBigMapPick) Run(ctx *maa.Context, arg *maa.CustomActionArg) b
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	ca := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	ca, err := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create control adaptor")
+		return false
+	}
 
 	if !param.NoZoom {
 		if err := a.doAutoZoom(ctx, ctrl, ca); err != nil {
@@ -397,7 +401,7 @@ func doDragViewport(ca control.ControlAdaptor, viewport *mt.BigMapViewport, delt
 		return false
 	}
 
-	ca.Swipe(startX, startY, dragDx, dragDy, 100, 50)
+	ca.Swipe(0, startX, startY, dragDx, dragDy, 100, 50)
 	return true
 }
 

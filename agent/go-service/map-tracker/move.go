@@ -80,18 +80,6 @@ var mapTrackerInferParamForMove = MapTrackerInferParam{
 	Threshold: 0.3,
 }
 
-// PlayerMovement represents different movement state in the game
-type PlayerMovement struct {
-	Speed         float64 // Movement speed (px/s)
-	RotationSpeed float64 // Rotation adjustment response speed (degrees/s)
-}
-
-var (
-	MovementWalk   = PlayerMovement{2.0, 270.0}
-	MovementRun    = PlayerMovement{8.0, 540.0}
-	MovementSprint = PlayerMovement{12.0, 1080.0}
-)
-
 // PlayerRotationAdjustmentState keeps track of one rotation adjustment
 type PlayerRotationAdjustmentState struct {
 	fromPos         [2]float64    // Last position where rotation adjustment started to apply
@@ -128,7 +116,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	ca := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	ca, err := control.NewControlAdaptor(ctx, ctrl, mt.WORK_W, mt.WORK_H)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create control adaptor")
+		return false
+	}
+
 	loopInterval := time.Duration(mt.INFER_INTERVAL_MS) * time.Millisecond
 
 	if param.PathTrim && len(param.Path) > 1 {
@@ -153,12 +146,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().Str("map", param.MapName).Int("targetsCount", len(param.Path)).Msg("Starting navigation to targets")
 
-	// Reset player movement type by sprint once
-	ca.KeyDown(control.KEY_S, 50)
-	ca.KeyType(control.KEY_SHIFT, 50)
-	ca.KeyUp(control.KEY_S, 50)
-	ca.KeyType(control.KEY_W, 50)
-	movement := &MovementRun
+	// Reset player movement state
+	ca.AggressivelyResetPlayerMovement()
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := mt.ROTATION_DEFAULT_SPEED
@@ -206,7 +195,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check stopping signal
 			if ctx.GetTasker().Stopping() {
 				log.Warn().Msg("Task is stopping, exiting navigation loop")
-				ca.KeyUp(control.KEY_W, 25)
+				ca.PlayerStop()
 				return false
 			}
 
@@ -227,7 +216,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			result, err := doInfer(ctx, ctrl, param)
 			if err != nil {
 				log.Error().Err(err).Msg("Inference failed during navigation")
-				ca.KeyUp(control.KEY_W, 25)
+				ca.PlayerStop()
 				continue
 			}
 			curX, curY := result.X, result.Y
@@ -244,10 +233,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
-					// Pause slightly if next target is in a very different direction
+					// Foresee rotation adjustment
+					foreseeDeltaRot := float64(rawDeltaRot) / 2.0
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
-						ca.KeyUp(control.KEY_W, 25)
+						ca.SetPlayerMovement(control.MovementWalk)
 					}
+					ca.RotateCamera(int(foreseeDeltaRot*rotationSpeed), 0)
 				}
 			}
 			dist := math.Hypot(curX-targetX, curY-targetY)
@@ -261,13 +252,9 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if dist < param.ArrivalThreshold {
 					if enableFineApproach {
 						fineApproachOngoing = true
-						fineApproachExpectedElapsed := time.Duration(float64(time.Second) * (dist / MovementWalk.Speed))
+						fineApproachExpectedElapsed := control.MovementWalk.EtaOfDistance(dist)
 						fineApproachExpectedEndTime = loopStartTime.Add(fineApproachExpectedElapsed)
-						if movement.Speed > MovementWalk.Speed {
-							ca.KeyType(control.KEY_CTRL, 25)
-							movement = &MovementWalk
-						}
-						ca.KeyDown(control.KEY_W, 25)
+						ca.SetPlayerMovement(control.MovementWalk)
 						log.Info().Int("index", i).Float64("dist", dist).Dur("expectedElapsed", fineApproachExpectedElapsed).Msg("Entering fine approach")
 					} else {
 						log.Info().Int("index", i).Float64("x", curX).Float64("y", curY).Msg("Target point reached (ordinary approach)")
@@ -293,7 +280,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				}
 				if deltaLocationMs > param.StuckThreshold {
 					log.Info().Msg("Stuck detected, jumping...")
-					ca.KeyType(control.KEY_SPACE, 100)
+					ca.PlayerJump()
 				}
 			} else {
 				prevLocation = &[2]float64{curX, curY}
@@ -306,7 +293,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				if loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
 					// Check if player is moving and rotating sufficiently to trust rotation measurement
 					distTravel := math.Hypot(curX-rotAdjState.fromPos[0], curY-rotAdjState.fromPos[1])
-					if distTravel > rotAdjState.expectedElapsed.Seconds()*MovementWalk.Speed {
+					if distTravel > control.MovementWalk.DistanceDuring(rotAdjState.expectedElapsed) {
 						// Check if rotation difference is sufficient to consider adjusting rotation speed
 						actualDeltaRot := calcDeltaRotation(rotAdjState.fromRot, rot)
 						if math.Abs(float64(actualDeltaRot))+math.Abs(rotAdjState.deltaRot) > param.RotationLowerThreshold {
@@ -331,24 +318,14 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				// Check if rotation is not good enough to sprint
 				if absRawDeltaRot > param.RotationLowerThreshold {
 					// Ensure no sprinting: forcibly set to 'walk'
-					if movement.Speed > MovementRun.Speed {
-						ca.KeyType(control.KEY_CTRL, 25)
-						movement = &MovementWalk
-					}
+					ca.SetPlayerMovement(control.MovementWalk)
 				} else if !fineApproachOngoing {
 					// Rotation is good: at least set to 'run'
-					if movement.Speed < MovementRun.Speed {
-						ca.KeyType(control.KEY_CTRL, 25)
-						movement = &MovementRun
-					}
-					ca.KeyDown(control.KEY_W, 5)
+					ca.SetPlayerMovement(control.MovementRun)
 
 					if dist > param.SprintThreshold {
 						// Target is far enough: enable 'sprint'
-						if movement.Speed < MovementSprint.Speed {
-							ca.KeyType(control.KEY_SHIFT, 100)
-							movement = &MovementSprint
-						}
+						ca.SetPlayerMovement(control.MovementSprint)
 					}
 				}
 
@@ -359,20 +336,12 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					// Select appropriate rotation method based on how bad the rotation is
 					if absRawDeltaRot > param.RotationUpperThreshold {
 						// Rotation is very bad: forcibly set to 'walk' for better control
-						if movement.Speed > MovementWalk.Speed {
-							ca.KeyType(control.KEY_CTRL, 25)
-							movement = &MovementWalk
-						}
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 75, 25)
-						ca.KeyDown(control.KEY_W, 25)
+						ca.SetPlayerMovement(control.MovementWalk)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 					} else if !fineApproachOngoing {
 						// Rotation is acceptable but can be improved: at least ensure 'run'
-						if movement.Speed < MovementRun.Speed {
-							ca.KeyType(control.KEY_CTRL, 25)
-							movement = &MovementRun
-						}
-						ca.KeyDown(control.KEY_W, 25)
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0, 75, 25)
+						ca.SetPlayerMovement(control.MovementRun)
+						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 					}
 
 					// Update adaptive rotation state
@@ -381,20 +350,21 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						fromRot:         rot,
 						deltaRot:        finalDeltaRot,
 						startTime:       time.Now(),
-						expectedElapsed: time.Duration(float64(time.Second) * math.Abs(finalDeltaRot) / movement.RotationSpeed),
+						expectedElapsed: ca.GetPlayerMovement().EtaOfRotation(math.Abs(finalDeltaRot)),
 					}
-					ca.RotateCameraEliminateSideEffect(25)
+					ca.AggressivelyResetCamera()
 				}
 			}
+			loopEndTime := time.Now()
+			loopTotalElapsed := loopEndTime.Sub(loopStartTime)
+			log.Info().Int("index", i).Dur("elapsed", loopElapsed).Float64("FPS", 1.0/loopTotalElapsed.Seconds()).Msg("Finished navigating to target point")
 		}
 		// End of loop, one target reached
 	}
 
-	// End of all targets reached, stop movement and reset to running mode
-	ca.KeyUp(control.KEY_W, 25)
-	if movement.Speed < MovementRun.Speed {
-		ca.KeyType(control.KEY_CTRL, 25)
-	}
+	// End of all targets reached, reset to running mode and stop movement
+	ca.SetPlayerMovement(control.MovementRun)
+	ca.PlayerStop()
 
 	// Show finished UI summary
 	if !param.NoPrint {
@@ -507,7 +477,7 @@ func doEmergencyStop(ca control.ControlAdaptor, noPrint bool) {
 	if !noPrint {
 		maafocus.NodeActionStarting(ca.Ctx(), emergencyStopHTML)
 	}
-	ca.KeyUp(control.KEY_W, 100)
+	ca.PlayerStop()
 	ca.Ctx().GetTasker().PostStop()
 }
 

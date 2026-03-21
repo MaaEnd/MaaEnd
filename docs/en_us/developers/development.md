@@ -2,11 +2,11 @@
 
 **MaaEnd** is developed based on [MaaFramework](https://github.com/MaaXYZ/MaaFramework), adopting [Solution 2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) (JSON + Custom Logic Extension Recommendation).
 Our main workflow uses [Pipeline JSON Low-Code](/assets/resource/pipeline), and complex logic is implemented via coding in [go-service](/agent/go-service).
-If you intend to join the development of MaaEnd, you can first read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated-please refer to the documentation as the primary source~
+If you intend to join the development of MaaEnd, you can first read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated, so please refer to the documentation as the primary source.
 
 ## Local Deployment
 
-We provide an automated **workspace initialization script**-simply execute:
+We provide an automated **workspace initialization script**. Simply execute:
 
 ```bash
 python tools/setup_workspace.py
@@ -66,7 +66,7 @@ This will fully set up the environment required for development.
 
 ### About Development Experience
 
-- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, etc.-please make good use of them. The working directory can be set to the **project root directory** folder.
+- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, and related tasks. Please make good use of them. The working directory can be set to the project root directory.
 - After modifying the Pipeline each time, you only need to reload the resources in the development tool; however, after modifying go-service each time, you need to execute `python tools/build_and_install.py` to recompile.
 - You can use tools like VS Code to set breakpoints or run go-service step by step (start go-service with debug on your own, or attach via vscode). Dude, are you debugging code just by reading logs?
 - MXU is a GUI for end users-we do not recommend using it for development and debugging. The aforementioned MaaFramework development tools can greatly improve development efficiency. Seriously, are you just trial-and-erroring blindly?
@@ -113,6 +113,12 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 - [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
 - [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
 
+### About Task Maintenance
+
+The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
+
+- [AutoStockpile Maintenance Documentation](./auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
+
 ## Code Specifications
 
 ### Pipeline Low-Code Specifications
@@ -139,4 +145,4 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 
 ## Communication
 
-Developer QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Working group-welcome to join development, but user issues are not handled here)
+Developer QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Developer group. You are welcome to join development discussions, but user issues are not handled here.)

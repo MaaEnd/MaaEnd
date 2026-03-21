@@ -297,7 +297,7 @@
         "post_delay": 0,
         "next": [
             "[JumpBack]AutoFight",
-            "[JumpBack]AutoEssenceCheckOngoing"
+            "AutoEssenceCheckOngoing"
         ],
         "focus": {
             "Node.Recognition.Starting": "⚔️正在使用自动战斗方式挑战"

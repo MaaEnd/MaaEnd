@@ -12,10 +12,13 @@ type WindowsControlAdaptor struct {
 	ctrl *maa.Controller
 	w    int
 	h    int
+
+	pm               PlayerMovement
+	lastMotionIsWalk bool
 }
 
 func newWindowsControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) *WindowsControlAdaptor {
-	return &WindowsControlAdaptor{ctx, ctrl, w, h}
+	return &WindowsControlAdaptor{ctx, ctrl, w, h, MovementStop, false}
 }
 
 func (wca *WindowsControlAdaptor) Ctx() *maa.Context {
@@ -39,20 +42,20 @@ func (wca *WindowsControlAdaptor) TouchClick(contact, x, y int, durationMillis, 
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) Swipe(x, y, dx, dy int, durationMillis, delayMillis int) {
+func (wca *WindowsControlAdaptor) Swipe(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
 	stepDurationMillis := durationMillis / 2
-	wca.ctrl.PostTouchDown(0, int32(x), int32(y), 1).Wait()
+	wca.ctrl.PostTouchDown(int32(contact), int32(x), int32(y), 1).Wait()
 	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchMove(0, int32(x+dx), int32(y+dy), 1).Wait()
+	wca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 1).Wait()
 	time.Sleep(time.Duration(stepDurationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchUp(0).Wait()
+	wca.ctrl.PostTouchUp(int32(contact)).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) SwipeHover(x, y, dx, dy int, durationMillis, delayMillis int) {
-	wca.ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
+func (wca *WindowsControlAdaptor) SwipeHover(contact, x, y, dx, dy int, durationMillis, delayMillis int) {
+	wca.ctrl.PostTouchMove(int32(contact), int32(x), int32(y), 0).Wait()
 	time.Sleep(time.Duration(durationMillis) * time.Millisecond)
-	wca.ctrl.PostTouchMove(0, int32(x+dx), int32(y+dy), 0).Wait()
+	wca.ctrl.PostTouchMove(int32(contact), int32(x+dx), int32(y+dy), 0).Wait()
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
@@ -71,17 +74,91 @@ func (wca *WindowsControlAdaptor) KeyType(keyCode int, delayMillis int) {
 	time.Sleep(time.Duration(delayMillis) * time.Millisecond)
 }
 
-func (wca *WindowsControlAdaptor) RotateCamera(dx, dy int, durationMillis, delayMillis int) {
+func (wca *WindowsControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := wca.w/2, wca.h/2
-	wca.SwipeHover(cx, cy, dx, dy, durationMillis, delayMillis)
+	wca.SwipeHover(0, cx, cy, dx, dy, defaultKeyActionDelayMillis*2, defaultKeyActionDelayMillis)
 }
 
-func (wca *WindowsControlAdaptor) RotateCameraEliminateSideEffect(delayMillis int) {
+func (wca *WindowsControlAdaptor) GetPlayerMovement() PlayerMovement {
+	return wca.pm
+}
+
+func (wca *WindowsControlAdaptor) SetPlayerMovement(movement PlayerMovement) {
+	if movement.Equals(wca.pm) {
+		return
+	}
+
+	if movement.speed <= MovementStop.speed {
+		// Stop moving forward
+		wca.KeyUp(KEY_W, defaultKeyActionDelayMillis)
+	} else {
+		if wca.lastMotionIsWalk {
+			if movement.speed >= MovementSprint.speed {
+				// Set to "sprint"
+				wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis)
+				wca.lastMotionIsWalk = false
+			} else if movement.speed >= MovementRun.speed {
+				// Set to "run"
+				wca.KeyType(KEY_CTRL, defaultKeyActionDelayMillis)
+				wca.lastMotionIsWalk = false
+			} else {
+				// Already in "walk", do nothing
+			}
+		} else {
+			if movement.speed < MovementRun.speed {
+				// Set to "walk"
+				wca.KeyType(KEY_CTRL, defaultKeyActionDelayMillis)
+				wca.lastMotionIsWalk = true
+			} else if movement.speed < MovementSprint.speed {
+				if wca.pm.speed >= MovementSprint.speed {
+					// Set to "walk" temporarily to terminate the "sprint" state, then set to "run"
+					wca.KeyType(KEY_CTRL, defaultKeyActionDelayMillis)
+					wca.KeyType(KEY_CTRL, defaultKeyActionDelayMillis)
+				} else {
+					// Already in "run", do nothing
+				}
+			} else {
+				// Set to "sprint"
+				wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis)
+			}
+		}
+		// Ensure moving forward
+		wca.KeyDown(KEY_W, defaultKeyActionDelayMillis/4)
+	}
+	wca.pm = movement
+}
+
+func (wca *WindowsControlAdaptor) PlayerJump() {
+	wca.KeyType(KEY_SPACE, defaultKeyActionDelayMillis*4)
+}
+
+func (wca *WindowsControlAdaptor) PlayerSprint() {
+	wca.KeyDown(KEY_SHIFT, defaultKeyActionDelayMillis)
+	wca.pm = MovementSprint
+	wca.lastMotionIsWalk = false
+}
+
+func (wca *WindowsControlAdaptor) PlayerStop() {
+	wca.KeyUp(KEY_W, defaultKeyActionDelayMillis)
+	wca.pm = MovementStop
+}
+
+func (wca *WindowsControlAdaptor) AggressivelyResetCamera() {
+	// Policy: use ALT key to release mouse cursor and reset its position using a click, then release ALT key
 	cx, cy := wca.w/2, wca.h/2
-	stepDelayMillis := delayMillis / 3
+	stepDelayMillis := defaultKeyActionDelayMillis / 3
 	wca.KeyDown(KEY_ALT, stepDelayMillis)
 	wca.TouchClick(0, cx, cy, stepDelayMillis, 0)
 	wca.KeyUp(KEY_ALT, stepDelayMillis)
+}
+
+func (wca *WindowsControlAdaptor) AggressivelyResetPlayerMovement() {
+	// Policy: sprint backward and immediately move forward to ensure the initial motional state is "run"
+	wca.KeyDown(KEY_S, defaultKeyActionDelayMillis*2)
+	wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis*2)
+	wca.KeyUp(KEY_S, defaultKeyActionDelayMillis*2)
+	wca.KeyType(KEY_W, defaultKeyActionDelayMillis*2)
+	wca.pm = MovementRun
 }
 
 const (
@@ -94,3 +171,5 @@ const (
 	KEY_ALT   = 0x12
 	KEY_SPACE = 0x20
 )
+
+const defaultKeyActionDelayMillis = 25

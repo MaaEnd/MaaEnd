@@ -113,6 +113,12 @@ python tools/setup_workspace.py
 - [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。
 - [节点测试参考文档](./node-testing.md)：节点静态截图测试的目录约定、Schema 和编写建议。
 
+### 关于任务维护
+
+以下的这些任务具有维护文档，在写新功能和修改其他功能时无需查看，**但在您更改这些任务时，一定要阅读相关任务的维护文档**。参见：
+
+- [AutoStockpile 维护文档](./auto-stockpile-maintain.md)：该文档说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、价格阈值与地区扩展应如何维护。
+
 ## 代码规范
 
 ### Pipeline 低代码规范
@@ -122,7 +128,7 @@ python tools/setup_workspace.py
 - 尽可能保证 next 第一轮即命中（即一次截图），同样通过增加中间状态识别节点来达到此目的。即尽可能扩充 next 列表，保证任何游戏画面都处于预期中。
 - 每一步操作都需要基于识别进行，请勿 “整体识别一次 -> 点击 A -> 点击 B -> 点击 C”，而是 “识别 A -> 点击 A -> 识别 B -> 点击 B”。  
   _你没法保证点完 A 之后画面是否还和之前一样，极端情况下此时游戏弹出新池子公告，直接点击 B 有没有可能点到抽卡里去乱操作了？_
-- 应通过 pre_wait_freezes、post_wait_freezes 等待画面禁止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
+- 应通过 pre_wait_freezes、post_wait_freezes 等待画面静止，或增加中间节点，在确认按钮可点击时再执行点击。避免对同一按钮重复点击——第二次点击可能已经作用于下一界面的其他元素，造成逻辑错误。详见 [Issue #816](https://github.com/MaaEnd/MaaEnd/issues/816)。
 - 工具推荐：[MAA-pipeline-generate](https://github.com/Joe-Bao/MAA-pipeline-generate) —— 可以适用于大批量制作、仅有细微差异的 Pipeline 场景，支持模板化批量生成。
 
 > [!NOTE]

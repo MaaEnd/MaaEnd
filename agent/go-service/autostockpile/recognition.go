@@ -24,17 +24,18 @@ const (
 	selectedGoodsClickResetY      = 180
 	findMarketMarkNodeName        = "AutoStockpileFindMarketMark"
 	overflowNodeName              = "AutoStockpileCheckOverflow"
-	overflowDetailNodeName        = "AutoStockpileGetOverflowDetail"
+	overflowQuotaNodeName         = "AutoStockpileGetQuota"
+	overflowQuotaAdditionNodeName = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName           = "AutoStockpileLocateGoods"
-	goodsPriceNodeName            = "AutoStockpileGetGoodsPrice"
+	goodsPriceNodeName            = "AutoStockpileGetGoods"
 	// MAX_DISTANCE 表示商品与价格框可接受的最大匹配距离。
 	MAX_DISTANCE = 120
 )
 
 var (
-	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)\s*/\s*(\d+)`)
+	overflowCurrentMaxRe = regexp.MustCompile(`(\d+)/(\d+)`)
 	overflowPlusRe       = regexp.MustCompile(`\+(\d+)`)
-	priceRe              = regexp.MustCompile(`^[^\d]?(\d{3,4})$`)
+	priceRe              = regexp.MustCompile(`^(\d{3,4})$`)
 )
 
 type goodsCandidate struct {
@@ -74,32 +75,33 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}
 
 	overflowAmount := 0
-	if overflowDetected {
-		if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
-			overflowAmount = cur + plus - max
-			log.Info().
-				Str("component", autoStockpileComponent).
-				Int("overflow_current", cur).
-				Int("overflow_max", max).
-				Int("overflow_plus", plus).
-				Int("overflow_amount", overflowAmount).
-				Msg("overflow detail parsed")
+	if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
+		overflowDetected, overflowAmount = resolveOverflow(cur, max, plus)
 
-			if overflowAmount <= 0 {
-				overflowDetected = false
-			}
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Int("overflow_current", cur).
+			Int("overflow_max", max).
+			Int("overflow_plus", plus).
+			Int("overflow_amount", overflowAmount).
+			Bool("overflow_detected", overflowDetected).
+			Msg("overflow detail parsed")
 
-			if overflowAmount > 0 {
-				if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
-					log.Warn().
-						Err(err).
-						Str("component", autoStockpileComponent).
-						Str("node", swipeSpecificQuantityNodeName).
-						Int("overflow_amount", overflowAmount).
-						Msg("failed to override swipe specific quantity target")
-				}
+		if overflowAmount > 0 {
+			if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
+				log.Warn().
+					Err(err).
+					Str("component", autoStockpileComponent).
+					Str("node", swipeSpecificQuantityNodeName).
+					Int("overflow_amount", overflowAmount).
+					Msg("failed to override swipe specific quantity target")
 			}
 		}
+	} else {
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Bool("overflow_fallback", overflowDetected).
+			Msg("overflow detail unavailable, using color match fallback")
 	}
 
 	region, anchor := resolveGoodsRegion(ctx)
@@ -345,18 +347,7 @@ func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[stri
 
 // TODO: 当前 ColorMatch 溢出识别不够准确，需要改进。
 func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
-	config := map[string]any{
-		overflowNodeName: map[string]any{
-			"recognition": "ColorMatch",
-			"roi":         []int{250, 135, 325, 30},
-			"method":      40,
-			"lower":       [][]int{{0, 200, 200}},
-			"upper":       [][]int{{20, 255, 255}},
-			"count":       100,
-		},
-	}
-
-	detail, err := ctx.RunRecognition(overflowNodeName, img, config)
+	detail, err := ctx.RunRecognition(overflowNodeName, img, nil)
 	if err != nil {
 		return false, err
 	}
@@ -370,46 +361,69 @@ func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
 }
 
 func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max int, plus int, ok bool) {
-	config := map[string]any{
-		overflowDetailNodeName: map[string]any{
-			"recognition": "OCR",
-			"roi":         []int{35, 125, 773, 47},
-			"expected":    []string{".*"},
-		},
-	}
-
-	detail, err := ctx.RunRecognition(overflowDetailNodeName, img, config)
+	detail, err := ctx.RunRecognition(overflowQuotaNodeName, img, nil)
 	if err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", autoStockpileComponent).
-			Str("step", "overflow_detail_ocr").
-			Msg("failed to run overflow detail ocr")
+			Str("step", "overflow_quota_ocr").
+			Msg("failed to run overflow quota ocr")
 		return 0, 0, 0, false
 	}
 
-	for _, text := range extractOCRTexts(detail) {
-		if current == 0 || max == 0 {
-			if match := overflowCurrentMaxRe.FindStringSubmatch(text); len(match) == 3 {
-				cur, curErr := strconv.Atoi(match[1])
-				maxValue, maxErr := strconv.Atoi(match[2])
-				if curErr == nil && maxErr == nil {
-					current = cur
-					max = maxValue
-				}
-			}
-		}
-		if plus == 0 {
-			if match := overflowPlusRe.FindStringSubmatch(text); len(match) == 2 {
-				plusValue, parseErr := strconv.Atoi(match[1])
-				if parseErr == nil {
-					plus = plusValue
-				}
+	current, max, ok = parseOverflowCurrentMax(extractOCRTexts(detail))
+	if !ok {
+		return 0, 0, 0, false
+	}
+
+	plus = runOverflowQuotaAdditionOCR(ctx, img)
+	return current, max, plus, true
+}
+
+func parseOverflowCurrentMax(texts []string) (current int, max int, ok bool) {
+	for _, text := range texts {
+		if match := overflowCurrentMaxRe.FindStringSubmatch(text); len(match) == 3 {
+			cur, curErr := strconv.Atoi(match[1])
+			maxValue, maxErr := strconv.Atoi(match[2])
+			if curErr == nil && maxErr == nil {
+				return cur, maxValue, true
 			}
 		}
 	}
 
-	return current, max, plus, current > 0 || max > 0 || plus > 0
+	return 0, 0, false
+}
+
+func runOverflowQuotaAdditionOCR(ctx *maa.Context, img image.Image) int {
+	detail, err := ctx.RunRecognition(overflowQuotaAdditionNodeName, img, nil)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "overflow_quota_addition_ocr").
+			Msg("failed to run overflow quota addition ocr")
+		return 0
+	}
+
+	return parseOverflowPlus(extractOCRTexts(detail))
+}
+
+func parseOverflowPlus(texts []string) int {
+	for _, text := range texts {
+		if match := overflowPlusRe.FindStringSubmatch(text); len(match) == 2 {
+			plusValue, parseErr := strconv.Atoi(match[1])
+			if parseErr == nil {
+				return plusValue
+			}
+		}
+	}
+
+	return 0
+}
+
+func resolveOverflow(current int, max int, plus int) (overflowDetected bool, overflowAmount int) {
+	overflowAmount = current + plus - max
+	return overflowAmount > 0, overflowAmount
 }
 
 func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) error {
@@ -510,19 +524,37 @@ func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
 }
 
 func runGoodsTemplateMatch(ctx *maa.Context, img image.Image, templatePath string, goodsROI []int) (*maa.RecognitionDetail, error) {
-	config := map[string]any{
-		locateGoodsNodeName: map[string]any{
-			"recognition": "TemplateMatch",
-			"template":    templatePath,
-			"threshold":   0.8,
-			"roi":         goodsROI,
-		},
+	if err := overrideLocateGoodsRecognition(ctx, templatePath, goodsROI); err != nil {
+		return nil, err
 	}
 
-	return ctx.RunRecognition(locateGoodsNodeName, img, config)
+	return ctx.RunRecognition(locateGoodsNodeName, img, nil)
+}
+
+func overrideLocateGoodsRecognition(ctx *maa.Context, templatePath string, goodsROI []int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	return ctx.OverridePipeline(map[string]any{
+		locateGoodsNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"template": []string{templatePath},
+					"roi":      append([]int(nil), goodsROI...),
+				},
+			},
+		},
+	})
 }
 
 func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	return pickTemplateHit(detail, func(candidate maa.Rect, current maa.Rect) bool {
+		return candidate.Y() > current.Y()
+	})
+}
+
+func pickTemplateHit(detail *maa.RecognitionDetail, shouldReplace func(candidate maa.Rect, current maa.Rect) bool) (maa.Rect, bool) {
 	results := recognitionResults(detail)
 	if len(results) == 0 {
 		return maa.Rect{}, false
@@ -536,7 +568,7 @@ func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
 			continue
 		}
 
-		if !hit || tm.Box.Y() > selected.Y() {
+		if !hit || shouldReplace(tm.Box, selected) {
 			selected = tm.Box
 			hit = true
 		}
@@ -583,27 +615,13 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 		return maa.Rect{}, false, err
 	}
 	if detail == nil || !detail.Hit {
-		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
-			log.Warn().
-				Err(overrideErr).
-				Str("component", autoStockpileComponent).
-				Str("node", selectedGoodsClickNodeName).
-				Int("roi_y", selectedGoodsClickResetY).
-				Msg("failed to reset selected goods click roi y")
-		}
+		resetSelectedGoodsClickROIY(ctx)
 		return maa.Rect{}, false, nil
 	}
 
 	box, hit := pickTopmostTemplateHit(detail)
 	if !hit {
-		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
-			log.Warn().
-				Err(overrideErr).
-				Str("component", autoStockpileComponent).
-				Str("node", selectedGoodsClickNodeName).
-				Int("roi_y", selectedGoodsClickResetY).
-				Msg("failed to reset selected goods click roi y")
-		}
+		resetSelectedGoodsClickROIY(ctx)
 		return maa.Rect{}, false, nil
 	}
 	if overrideErr := overrideSelectedGoodsClickROIY(ctx, box.Y()); overrideErr != nil {
@@ -618,26 +636,20 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 }
 
 func pickTopmostTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
-	results := recognitionResults(detail)
-	if len(results) == 0 {
-		return maa.Rect{}, false
+	return pickTemplateHit(detail, func(candidate maa.Rect, current maa.Rect) bool {
+		return candidate.Y() < current.Y()
+	})
+}
+
+func resetSelectedGoodsClickROIY(ctx *maa.Context) {
+	if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
+		log.Warn().
+			Err(overrideErr).
+			Str("component", autoStockpileComponent).
+			Str("node", selectedGoodsClickNodeName).
+			Int("roi_y", selectedGoodsClickResetY).
+			Msg("failed to reset selected goods click roi y")
 	}
-
-	hit := false
-	var selected maa.Rect
-	for _, result := range results {
-		tm, ok := result.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-
-		if !hit || tm.Box.Y() < selected.Y() {
-			selected = tm.Box
-			hit = true
-		}
-	}
-
-	return selected, hit
 }
 
 func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
@@ -702,20 +714,16 @@ func recognitionParamROI(node *maa.Node) ([]int, error) {
 }
 
 func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, error) {
-	config := map[string]any{
-		goodsPriceNodeName: map[string]any{
-			"recognition": "OCR",
-			"expected":    []string{".*"},
-			"roi":         goodsROI,
-		},
+	if err := overrideGoodsPriceROI(ctx, goodsROI); err != nil {
+		return nil, nil, err
 	}
 
-	detail, err := ctx.RunRecognition(goodsPriceNodeName, img, config)
+	detail, err := ctx.RunRecognition(goodsPriceNodeName, img, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	results := recognitionResults(detail)
+	results := filteredOCRResults(detail)
 	if len(results) == 0 {
 		return nil, nil, nil
 	}
@@ -785,41 +793,46 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 	return prices, ocrNames, nil
 }
 
+func overrideGoodsPriceROI(ctx *maa.Context, goodsROI []int) error {
+	if ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	return ctx.OverridePipeline(map[string]any{
+		goodsPriceNodeName: map[string]any{
+			"recognition": map[string]any{
+				"param": map[string]any{
+					"roi": append([]int(nil), goodsROI...),
+				},
+			},
+		},
+	})
+}
+
 func bindPriceToGoods(goods goodsCandidate, prices []priceCandidate, used []bool) (int, bool) {
-	bestIdx := -1
-	bestDistance := 0
 	goodsBottomY := goods.box.Y() + goods.box.Height()
 
-	for i, price := range prices {
-		if i < len(used) && used[i] {
-			continue
-		}
+	bestIdx, bestDistance, ok := findBestPriceCandidate(prices, used, func(price priceCandidate) (int, bool) {
 		if price.box.Y() <= goods.box.Y() {
-			continue
+			return 0, false
 		}
 		if price.box.X() <= (goods.box.X() - 50) {
-			continue
+			return 0, false
 		}
 
 		distanceY := absInt(goodsBottomY - price.box.Y())
 		distanceX := price.box.X() - goods.box.X()
 		distance := int(math.Hypot(float64(distanceY), float64(distanceX)))
 		if distance > MAX_DISTANCE {
-			continue
+			return 0, false
 		}
 
-		if bestIdx < 0 || distance < bestDistance {
-			bestIdx = i
-			bestDistance = distance
-		}
-	}
-
-	if bestIdx < 0 {
+		return distance, true
+	})
+	if !ok {
 		return 0, false
 	}
-	if bestIdx < len(used) {
-		used[bestIdx] = true
-	}
+	markPriceCandidateUsed(used, bestIdx)
 
 	log.Info().
 		Str("component", autoStockpileComponent).
@@ -837,42 +850,30 @@ func bindPriceToGoods(goods goodsCandidate, prices []priceCandidate, used []bool
 }
 
 func bindPriceToOCRGoods(goods ocrNameCandidate, prices []priceCandidate, used []bool) (int, bool) {
-	bestIdx := -1
-	bestDistance := 0
-
-	for i, price := range prices {
-		if i < len(used) && used[i] {
-			continue
-		}
+	bestIdx, bestDistance, ok := findBestPriceCandidate(prices, used, func(price priceCandidate) (int, bool) {
 		// 当前界面中，Y 轴从上到下依次是“商品图片 -> 商品价格 -> 商品名称”。
 		// 这里的 goods.box 来自 OCR 识别到的商品名称区域，因此价格框应当位于名称框上方，
 		// 即 price.box.Y() 必须小于 goods.box.Y()；否则说明不是该商品对应的价格。
 		if price.box.Y() >= goods.box.Y() {
-			continue
+			return 0, false
 		}
 		if price.box.X() <= goods.box.X() {
-			continue
+			return 0, false
 		}
 
 		distanceY := absInt(goods.box.Y() - price.box.Y())
 		distanceX := price.box.X() - goods.box.X()
 		distance := int(math.Hypot(float64(distanceY), float64(distanceX)))
 		if distance > MAX_DISTANCE {
-			continue
+			return 0, false
 		}
 
-		if bestIdx < 0 || distance < bestDistance {
-			bestIdx = i
-			bestDistance = distance
-		}
-	}
-
-	if bestIdx < 0 {
+		return distance, true
+	})
+	if !ok {
 		return 0, false
 	}
-	if bestIdx < len(used) {
-		used[bestIdx] = true
-	}
+	markPriceCandidateUsed(used, bestIdx)
 
 	log.Info().
 		Str("component", autoStockpileComponent).
@@ -887,6 +888,39 @@ func bindPriceToOCRGoods(goods ocrNameCandidate, prices []priceCandidate, used [
 		Msg("price bound to goods")
 
 	return prices[bestIdx].value, true
+}
+
+func findBestPriceCandidate(prices []priceCandidate, used []bool, candidateDistance func(price priceCandidate) (int, bool)) (int, int, bool) {
+	bestIdx := -1
+	bestDistance := 0
+
+	for i, price := range prices {
+		if i < len(used) && used[i] {
+			continue
+		}
+
+		distance, ok := candidateDistance(price)
+		if !ok {
+			continue
+		}
+
+		if bestIdx < 0 || distance < bestDistance {
+			bestIdx = i
+			bestDistance = distance
+		}
+	}
+
+	if bestIdx < 0 {
+		return 0, 0, false
+	}
+
+	return bestIdx, bestDistance, true
+}
+
+func markPriceCandidateUsed(used []bool, idx int) {
+	if idx < len(used) {
+		used[idx] = true
+	}
 }
 
 func extractOCRTexts(detail *maa.RecognitionDetail) []string {
@@ -928,6 +962,18 @@ func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult 
 	}
 	if detail.Results.Best != nil {
 		return []*maa.RecognitionResult{detail.Results.Best}
+	}
+	return nil
+}
+
+// filteredOCRResults 仅返回 OCR filtered 结果，不进行任何回退。
+// 该函数专门用于商品 OCR 链路，确保只使用颜色过滤后的高置信度结果。
+func filteredOCRResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult {
+	if detail == nil || detail.Results == nil {
+		return nil
+	}
+	if len(detail.Results.Filtered) > 0 {
+		return detail.Results.Filtered
 	}
 	return nil
 }

@@ -38,7 +38,7 @@ Retrieves the large map zone name (ZoneID or mapName) where the player is curren
 **Required Parameters**: **None**
 
 **Optional Parameters (`custom_recognition_param`)**:
-Supports passing advanced parameter settings in JSON string format to override defaults and specifically fine-tune the locator for extreme or specialized scenarios.
+Supports passing advanced parameter settings in JSON object format to override defaults and specifically fine-tune the locator for extreme or specialized scenarios.
 
 - `loc_threshold`: A floating-point number in the range $[0, 1]$, default is `0.55`. Controls the most lenient primary score threshold for image matching features. If the environment is exceedingly complex and causes frequent unexpected tracking losses, you can appropriately lower this (e.g., `0.45`); in normal situations, it's recommended to keep the default or increase it slightly to guarantee precision.
 - `yolo_threshold`: A floating-point number in the range $[0, 1]$, default is `0.70`. The minimum confidence threshold for YOLO to judge map UI categories. A value too low may misidentify UIs similar to mini-maps (like circular menus).

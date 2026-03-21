@@ -61,6 +61,13 @@ func (a *ImportBluePrintsFinishAction) Run(ctx *maa.Context, arg *maa.CustomActi
 
 type ImportBluePrintsEnterCodeAction struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomActionRunner = &ImportBluePrintsInitTextAction{}
+	_ maa.CustomActionRunner = &ImportBluePrintsFinishAction{}
+	_ maa.CustomActionRunner = &ImportBluePrintsEnterCodeAction{}
+)
+
 func (a *ImportBluePrintsEnterCodeAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if len(blueprintCodes) == 0 {
 		log.Warn().Msg("No more blueprint codes to process")

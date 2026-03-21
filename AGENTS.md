@@ -16,7 +16,7 @@
 - [`assets/resource/image/`](assets/resource/image/): 识别所需的图片资源（基准分辨率 720p）。
 - [`agent/go-service/`](agent/go-service/): 自定义 Go Service 源码。
 - [`assets/misc/locales/`](assets/misc/locales/): 国际化本地化文件（任务名称、UI 文本等）。
-- [`docs/en_us/developers/development.md`](docs/en_us/developers/development.md:1): 核心开发手册，包含环境配置与规范。
+- [`docs/en_us/developers/development.md`](docs/en_us/developers/development.md): 核心开发手册，包含环境配置与规范。
 
 ## 编码规范
 

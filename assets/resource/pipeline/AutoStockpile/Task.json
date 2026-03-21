@@ -1,5 +1,5 @@
 {
-    "AutoStockpileKettle": {
+    "AutoStockpileEnsureFrameStable": {
         "desc": "希望+3（确认稳定标识，画面未稳定会是黑边）",
         "recognition": {
             "type": "TemplateMatch",
@@ -17,7 +17,10 @@
                     0.8
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoStockpileBuy": {
         "desc": "进行购买操作",
@@ -34,7 +37,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -47,10 +50,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    885,
-                    300,
-                    135,
-                    143
+                    900,
+                    325,
+                    100,
+                    100
                 ],
                 "template": [
                     "AutoStockpile/AutoStockpileLocked.png"
@@ -65,7 +68,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
-            "Node.Recognition.Starting": "该地区未解锁物资调度，跳过该地区"
+            "Node.Recognition.Succeeded": "该地区未解锁物资调度，跳过该地区"
         }
     },
     "AutoStockpileDecision": {
@@ -110,10 +113,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    885,
-                    300,
-                    135,
-                    143
+                    900,
+                    325,
+                    100,
+                    100
                 ],
                 "template": [
                     "AutoStockpile/StockRedistributionButton.png"
@@ -128,11 +131,11 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockpileGotoElasticGoods",
+            "AutoStockpileElasticGoodsButton",
             "AutoStockpileCheckInStore"
         ]
     },
@@ -143,23 +146,16 @@
             "param": {
                 "all_of": [
                     "AutoStockpileElasticGoodsButton",
-                    "AutoStockpileKettle"
+                    "AutoStockpileEnsureFrameStable"
                 ]
             }
         },
         "pre_delay": 0,
         "action": {
             "type": "Click",
-            "param": {
-                "target_offset": [
-                    0,
-                    10,
-                    0,
-                    0
-                ]
-            }
+            "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -172,10 +168,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    54,
-                    58,
+                    50,
+                    55,
                     60,
-                    54
+                    70
                 ],
                 "template": [
                     "AutoStockpile/StapleGoodsButtonSelected.png"
@@ -196,10 +192,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    8,
-                    152,
-                    52,
-                    541
+                    15,
+                    140,
+                    40,
+                    500
                 ],
                 "template": [
                     "AutoStockpile/ElasticGoodsButtonSide.png"
@@ -221,7 +217,7 @@
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -260,7 +256,7 @@
                 }
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -286,14 +282,14 @@
             "type": "TouchMove",
             "param": {
                 "target": [
-                    891,
-                    71,
-                    24,
-                    16
+                    1100,
+                    70,
+                    10,
+                    10
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -308,22 +304,22 @@
             "type": "Swipe",
             "param": {
                 "begin": [
-                    646,
-                    498,
-                    13,
-                    12
+                    650,
+                    500,
+                    10,
+                    10
                 ],
                 "end": [
                     [
-                        696,
-                        499,
-                        15,
-                        11
+                        700,
+                        500,
+                        10,
+                        10
                     ]
                 ]
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -363,7 +359,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -399,7 +395,7 @@
             }
         },
         "repeat": 2,
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -431,7 +427,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -444,10 +440,10 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    201,
-                    484,
+                    200,
+                    490,
                     880,
-                    79
+                    80
                 ],
                 "method": 40,
                 "lower": [
@@ -513,7 +509,7 @@
                 }
             }
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -535,7 +531,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 1000,
+        "rate_limit": 0,
         "next": [
             "AutoStockpileDevSkipSwipe",
             "AutoStockpileSwipeSpecificQuantity",
@@ -558,9 +554,12 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 400,
+        "post_wait_freezes": 80,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileEnsureBack"
+        ]
     },
     "AutoStockpileCancelBuy": {
         "desc": "退出购买页面",
@@ -577,7 +576,7 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
+        "post_wait_freezes": 80,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -590,10 +589,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    338,
-                    57,
-                    69,
-                    62
+                    340,
+                    55,
+                    60,
+                    70
                 ],
                 "template": [
                     "AutoStockpile/ElasticGoodsButton.png",
@@ -603,6 +602,26 @@
                     0.8
                 ]
             }
-        }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockpileGotoElasticGoods"
+        ]
+    },
+    "AutoStockpileEnsureBack": {
+        "desc": "确保已回到地区建设界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockpileEnterStore"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

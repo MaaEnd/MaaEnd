@@ -2,24 +2,25 @@
 
 本文说明 `AutoStockpile`（自动囤货）的商品模板、商品映射、价格阈值与地区扩展应如何维护。
 
-当前实现由两部分组成：
+当前实现由两部分协作组成：
 
-- Pipeline 负责进入界面、切换地区、执行购买流程。
-- `agent/go-service/autostockpile/` 负责识别商品、读取配置并决定买什么。
+- `assets/resource/pipeline/AutoStockpile/` 负责进入界面、切换地区、执行购买流程，并在 `Helper.json` 中维护识别节点默认参数。
+- `agent/go-service/autostockpile/` 负责运行时覆盖识别节点参数、解析识别结果并决定买什么。
 
 ## 概览
 
 AutoStockpile 的核心维护点如下：
 
-| 模块                | 路径                                               | 作用                           |
-| ------------------- | -------------------------------------------------- | ------------------------------ |
-| 商品名称映射        | `agent/go-service/autostockpile/item_map.json`     | 将 OCR 商品名映射到内部商品 ID |
-| 商品模板图          | `assets/resource/image/AutoStockpile/Goods/`       | 商品详情页模板匹配用图         |
-| 地区与价格选项      | `assets/tasks/AutoStockpile.json`                  | 用户可配置的地区开关与价格阈值 |
-| 地区入口 Pipeline   | `assets/resource/pipeline/AutoStockpile/Main.json` | 定义各地区子任务入口           |
-| 囤货主流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Task.json` | 执行识别、点击、购买等流程     |
-| Go 识别/决策逻辑    | `agent/go-service/autostockpile/`                  | 读取模板、识别商品、应用阈值   |
-| 多语言文案          | `assets/misc/locales/*.json`                       | AutoStockpile 任务与选项文案   |
+| 模块                | 路径                                                 | 作用                                             |
+| ------------------- | ---------------------------------------------------- | ------------------------------------------------ |
+| 商品名称映射        | `agent/go-service/autostockpile/item_map.json`       | 将 OCR 商品名映射到内部商品 ID                   |
+| 商品模板图          | `assets/resource/image/AutoStockpile/Goods/`         | 商品详情页模板匹配用图                           |
+| 地区与价格选项      | `assets/tasks/AutoStockpile.json`                    | 用户可配置的地区开关与价格阈值                   |
+| 地区入口 Pipeline   | `assets/resource/pipeline/AutoStockpile/Main.json`   | 定义各地区子任务入口                             |
+| 囤货主流程 Pipeline | `assets/resource/pipeline/AutoStockpile/Task.json`   | 执行识别、点击、购买等流程                       |
+| 识别节点默认配置    | `assets/resource/pipeline/AutoStockpile/Helper.json` | 溢出检测、商品 OCR、模板匹配等识别节点的默认参数 |
+| Go 识别/决策逻辑    | `agent/go-service/autostockpile/`                    | 运行时覆盖识别节点、解析结果、应用阈值           |
+| 多语言文案          | `assets/misc/locales/*.json`                         | AutoStockpile 任务与选项文案                     |
 
 ## 命名规则
 
@@ -141,8 +142,9 @@ assets/resource/image/AutoStockpile/Goods/ValleyIV/OriginiumSaplings.Tier3.png
 
 原因是：
 
-- Go 会自动扫描 `assets/resource/image/AutoStockpile/Goods/{Region}/` 下的模板。
-- 选择商品时会根据商品 ID 动态覆盖 `AutoStockpileSelectedGoodsClick` 等节点的模板路径。
+- Go 会遍历 `item_map.json` 中属于该地区的商品 ID，并通过 `BuildTemplatePath` 拼出对应模板路径。
+- 识别阶段 Go 会覆盖 `AutoStockpileLocateGoods` 的模板与 ROI 来定位商品；选择阶段 Go 会覆盖 `AutoStockpileSelectedGoodsClick` 的模板来点击所选商品。
+- `Helper.json` 中已定义了各识别节点的默认参数（ROI、阈值等），Go 在运行时会按需覆盖。
 
 也就是说，只要商品映射和模板图正确，已有流程就能识别并点击新商品。
 
