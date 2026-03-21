@@ -11,7 +11,7 @@
                     84
                 ],
                 "template": [
-                    "AutoStockpile/AutoStockpileKettle.png"
+                    "AutoStockpile/StockRedistributionKettle.png"
                 ],
                 "threshold": [
                     0.8
@@ -56,7 +56,7 @@
                     100
                 ],
                 "template": [
-                    "AutoStockpile/AutoStockpileLocked.png"
+                    "AutoStockpile/RegionalDevelopmentFunctionLocked.png"
                 ],
                 "green_mask": true,
                 "threshold": [
