@@ -1,14 +1,14 @@
 {
     "EssenceFullScreenDetectAll": {
-        "desc": "战利品全屏模板匹配：收集所有基质图标（不点击）,给custom调用",
+        "desc": "在战利品界面模板匹配：收集所有基质图标（不点击）,给custom调用",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
+                    34,
+                    87,
+                    1210,
+                    522
                 ],
                 "template": "EssenceFilter/EssenceGeneral.png",
                 "method": 5,
