@@ -549,6 +549,12 @@ func overrideLocateGoodsRecognition(ctx *maa.Context, templatePath string, goods
 }
 
 func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	return pickTemplateHit(detail, func(candidate maa.Rect, current maa.Rect) bool {
+		return candidate.Y() > current.Y()
+	})
+}
+
+func pickTemplateHit(detail *maa.RecognitionDetail, shouldReplace func(candidate maa.Rect, current maa.Rect) bool) (maa.Rect, bool) {
 	results := recognitionResults(detail)
 	if len(results) == 0 {
 		return maa.Rect{}, false
@@ -562,7 +568,7 @@ func pickLowestTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
 			continue
 		}
 
-		if !hit || tm.Box.Y() > selected.Y() {
+		if !hit || shouldReplace(tm.Box, selected) {
 			selected = tm.Box
 			hit = true
 		}
@@ -609,27 +615,13 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 		return maa.Rect{}, false, err
 	}
 	if detail == nil || !detail.Hit {
-		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
-			log.Warn().
-				Err(overrideErr).
-				Str("component", autoStockpileComponent).
-				Str("node", selectedGoodsClickNodeName).
-				Int("roi_y", selectedGoodsClickResetY).
-				Msg("failed to reset selected goods click roi y")
-		}
+		resetSelectedGoodsClickROIY(ctx)
 		return maa.Rect{}, false, nil
 	}
 
 	box, hit := pickTopmostTemplateHit(detail)
 	if !hit {
-		if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
-			log.Warn().
-				Err(overrideErr).
-				Str("component", autoStockpileComponent).
-				Str("node", selectedGoodsClickNodeName).
-				Int("roi_y", selectedGoodsClickResetY).
-				Msg("failed to reset selected goods click roi y")
-		}
+		resetSelectedGoodsClickROIY(ctx)
 		return maa.Rect{}, false, nil
 	}
 	if overrideErr := overrideSelectedGoodsClickROIY(ctx, box.Y()); overrideErr != nil {
@@ -644,26 +636,20 @@ func runFindMarketMark(ctx *maa.Context, img image.Image) (maa.Rect, bool, error
 }
 
 func pickTopmostTemplateHit(detail *maa.RecognitionDetail) (maa.Rect, bool) {
-	results := recognitionResults(detail)
-	if len(results) == 0 {
-		return maa.Rect{}, false
+	return pickTemplateHit(detail, func(candidate maa.Rect, current maa.Rect) bool {
+		return candidate.Y() < current.Y()
+	})
+}
+
+func resetSelectedGoodsClickROIY(ctx *maa.Context) {
+	if overrideErr := overrideSelectedGoodsClickROIY(ctx, selectedGoodsClickResetY); overrideErr != nil {
+		log.Warn().
+			Err(overrideErr).
+			Str("component", autoStockpileComponent).
+			Str("node", selectedGoodsClickNodeName).
+			Int("roi_y", selectedGoodsClickResetY).
+			Msg("failed to reset selected goods click roi y")
 	}
-
-	hit := false
-	var selected maa.Rect
-	for _, result := range results {
-		tm, ok := result.AsTemplateMatch()
-		if !ok {
-			continue
-		}
-
-		if !hit || tm.Box.Y() < selected.Y() {
-			selected = tm.Box
-			hit = true
-		}
-	}
-
-	return selected, hit
 }
 
 func overrideSelectedGoodsClickROIY(ctx *maa.Context, y int) error {
@@ -824,40 +810,29 @@ func overrideGoodsPriceROI(ctx *maa.Context, goodsROI []int) error {
 }
 
 func bindPriceToGoods(goods goodsCandidate, prices []priceCandidate, used []bool) (int, bool) {
-	bestIdx := -1
-	bestDistance := 0
 	goodsBottomY := goods.box.Y() + goods.box.Height()
 
-	for i, price := range prices {
-		if i < len(used) && used[i] {
-			continue
-		}
+	bestIdx, bestDistance, ok := findBestPriceCandidate(prices, used, func(price priceCandidate) (int, bool) {
 		if price.box.Y() <= goods.box.Y() {
-			continue
+			return 0, false
 		}
 		if price.box.X() <= (goods.box.X() - 50) {
-			continue
+			return 0, false
 		}
 
 		distanceY := absInt(goodsBottomY - price.box.Y())
 		distanceX := price.box.X() - goods.box.X()
 		distance := int(math.Hypot(float64(distanceY), float64(distanceX)))
 		if distance > MAX_DISTANCE {
-			continue
+			return 0, false
 		}
 
-		if bestIdx < 0 || distance < bestDistance {
-			bestIdx = i
-			bestDistance = distance
-		}
-	}
-
-	if bestIdx < 0 {
+		return distance, true
+	})
+	if !ok {
 		return 0, false
 	}
-	if bestIdx < len(used) {
-		used[bestIdx] = true
-	}
+	markPriceCandidateUsed(used, bestIdx)
 
 	log.Info().
 		Str("component", autoStockpileComponent).
@@ -875,42 +850,30 @@ func bindPriceToGoods(goods goodsCandidate, prices []priceCandidate, used []bool
 }
 
 func bindPriceToOCRGoods(goods ocrNameCandidate, prices []priceCandidate, used []bool) (int, bool) {
-	bestIdx := -1
-	bestDistance := 0
-
-	for i, price := range prices {
-		if i < len(used) && used[i] {
-			continue
-		}
+	bestIdx, bestDistance, ok := findBestPriceCandidate(prices, used, func(price priceCandidate) (int, bool) {
 		// 当前界面中，Y 轴从上到下依次是“商品图片 -> 商品价格 -> 商品名称”。
 		// 这里的 goods.box 来自 OCR 识别到的商品名称区域，因此价格框应当位于名称框上方，
 		// 即 price.box.Y() 必须小于 goods.box.Y()；否则说明不是该商品对应的价格。
 		if price.box.Y() >= goods.box.Y() {
-			continue
+			return 0, false
 		}
 		if price.box.X() <= goods.box.X() {
-			continue
+			return 0, false
 		}
 
 		distanceY := absInt(goods.box.Y() - price.box.Y())
 		distanceX := price.box.X() - goods.box.X()
 		distance := int(math.Hypot(float64(distanceY), float64(distanceX)))
 		if distance > MAX_DISTANCE {
-			continue
+			return 0, false
 		}
 
-		if bestIdx < 0 || distance < bestDistance {
-			bestIdx = i
-			bestDistance = distance
-		}
-	}
-
-	if bestIdx < 0 {
+		return distance, true
+	})
+	if !ok {
 		return 0, false
 	}
-	if bestIdx < len(used) {
-		used[bestIdx] = true
-	}
+	markPriceCandidateUsed(used, bestIdx)
 
 	log.Info().
 		Str("component", autoStockpileComponent).
@@ -925,6 +888,39 @@ func bindPriceToOCRGoods(goods ocrNameCandidate, prices []priceCandidate, used [
 		Msg("price bound to goods")
 
 	return prices[bestIdx].value, true
+}
+
+func findBestPriceCandidate(prices []priceCandidate, used []bool, candidateDistance func(price priceCandidate) (int, bool)) (int, int, bool) {
+	bestIdx := -1
+	bestDistance := 0
+
+	for i, price := range prices {
+		if i < len(used) && used[i] {
+			continue
+		}
+
+		distance, ok := candidateDistance(price)
+		if !ok {
+			continue
+		}
+
+		if bestIdx < 0 || distance < bestDistance {
+			bestIdx = i
+			bestDistance = distance
+		}
+	}
+
+	if bestIdx < 0 {
+		return 0, 0, false
+	}
+
+	return bestIdx, bestDistance, true
+}
+
+func markPriceCandidateUsed(used []bool, idx int) {
+	if idx < len(used) {
+		used[idx] = true
+	}
 }
 
 func extractOCRTexts(detail *maa.RecognitionDetail) []string {

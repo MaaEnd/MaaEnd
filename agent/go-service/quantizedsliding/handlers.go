@@ -1,9 +1,8 @@
 package quantizedsliding
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"strings"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -17,88 +16,20 @@ func (a *QuantizedSlidingAction) Run(ctx *maa.Context, arg *maa.CustomActionArg)
 		return false
 	}
 
-	a.logger = log.With().
-		Str("component", "QuantizedSliding").
-		Str("task", arg.CurrentTaskName).
-		Logger()
+	a.initLogger(arg.CurrentTaskName)
 
 	if !isQuantizedSlidingActionNode(arg.CurrentTaskName) {
 		return a.runInternalPipeline(ctx, arg)
 	}
 
-	var params quantizedSlidingParam
-	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
-		a.logger.Error().
-			Err(err).
-			Str("param", arg.CustomActionParam).
-			Msg("failed to parse custom_action_param")
+	if !a.loadActionParams(arg.CustomActionParam) {
 		return false
 	}
 
-	if params.Target <= 0 {
-		a.logger.Error().
-			Int("target", params.Target).
-			Msg("invalid target, must be greater than 0")
-		return false
-	}
+	return a.dispatchActionNode(ctx, arg)
+}
 
-	increaseButton, err := normalizeButtonParam(params.IncreaseButton)
-	if err != nil {
-		a.logger.Error().
-			Err(err).
-			Msg("failed to normalize increase button")
-		return false
-	}
-
-	decreaseButton, err := normalizeButtonParam(params.DecreaseButton)
-	if err != nil {
-		a.logger.Error().
-			Err(err).
-			Msg("failed to normalize decrease button")
-		return false
-	}
-
-	centerPointOffset, err := normalizeCenterPointOffset(params.CenterPointOffset)
-	if err != nil {
-		a.logger.Error().
-			Err(err).
-			Msg("failed to normalize center point offset")
-		return false
-	}
-
-	quantityFilter, err := normalizeQuantityFilter(params.QuantityFilter)
-	if err != nil {
-		a.logger.Error().
-			Err(err).
-			Msg("failed to normalize quantity filter")
-		return false
-	}
-
-	a.Target = params.Target
-	a.QuantityBox = append([]int(nil), params.QuantityBox...)
-	a.QuantityFilter = quantityFilter
-	a.Direction = strings.ToLower(strings.TrimSpace(params.Direction))
-	a.IncreaseButton = increaseButton
-	a.DecreaseButton = decreaseButton
-	a.CenterPointOffset = centerPointOffset
-
-	parseLog := a.logger.Info().
-		Int("target", a.Target).
-		Ints("quantity_box", a.QuantityBox).
-		Str("direction", a.Direction).
-		Interface("increase_button", a.IncreaseButton.logValue()).
-		Interface("decrease_button", a.DecreaseButton.logValue()).
-		Bool("quantity_filter_enabled", a.QuantityFilter != nil).
-		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]})
-
-	if a.QuantityFilter != nil {
-		parseLog = parseLog.
-			Int("quantity_filter_method", a.QuantityFilter.Method).
-			Ints("quantity_filter_lower", a.QuantityFilter.Lower).
-			Ints("quantity_filter_upper", a.QuantityFilter.Upper)
-	}
-
-	parseLog.Msg("parsed custom action parameters")
+func (a *QuantizedSlidingAction) dispatchActionNode(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	switch arg.CurrentTaskName {
 	case "QuantizedSlidingMain":
@@ -210,22 +141,17 @@ func (a *QuantizedSlidingAction) handleGetMaxQuantity(ctx *maa.Context, arg *maa
 		return false
 	}
 	if nextNode != "" {
-		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, buttonTarget{}, 0)); err != nil {
-			a.logger.Error().
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
+			logEvent := a.logger.Error().
 				Err(err).
 				Int("max_quantity", a.maxQuantity).
 				Int("target", a.Target).
-				Str("next", nextNode).
-				Msg("failed to override direct-done branch")
-			return false
-		}
-		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nextNode}}); err != nil {
-			a.logger.Error().
-				Err(err).
-				Int("max_quantity", a.maxQuantity).
-				Int("target", a.Target).
-				Str("next", nextNode).
-				Msg("failed to override next for direct-done branch")
+				Str("next", nextNode)
+			if errors.Is(err, errCheckQuantityBranchNextOverride) {
+				logEvent.Msg("failed to override next for direct-done branch")
+			} else {
+				logEvent.Msg("failed to override direct-done branch")
+			}
 			return false
 		}
 
@@ -338,12 +264,16 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 
 	switch {
 	case currentQuantity == a.Target:
-		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride("QuantizedSlidingDone", buttonTarget{}, 0)); err != nil {
-			a.logger.Error().
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingDone", buttonTarget{}, 0); err != nil {
+			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
-				Int("target", a.Target).
-				Msg("failed to override done node")
+				Int("target", a.Target)
+			if errors.Is(err, errCheckQuantityBranchNextOverride) {
+				logEvent.Msg("failed to override next to done")
+			} else {
+				logEvent.Msg("failed to override done node")
+			}
 			return false
 		}
 
@@ -352,23 +282,23 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Int("target", a.Target).
 			Str("next", "QuantizedSlidingDone").
 			Msg("quantity matched target")
-		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "QuantizedSlidingDone"}}); err != nil {
-			a.logger.Error().Err(err).Msg("failed to override next to done")
-			return false
-		}
 		return true
 	case currentQuantity < a.Target:
 		diff := a.Target - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride("QuantizedSlidingIncreaseQuantity", a.IncreaseButton, repeat)); err != nil {
-			a.logger.Error().
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingIncreaseQuantity", a.IncreaseButton, repeat); err != nil {
+			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
 				Int("target", a.Target).
 				Int("diff", diff).
 				Int("repeat", repeat).
-				Interface("increase_button", a.IncreaseButton.logValue()).
-				Msg("failed to override increase quantity node")
+				Interface("increase_button", a.IncreaseButton.logValue())
+			if errors.Is(err, errCheckQuantityBranchNextOverride) {
+				logEvent.Msg("failed to override next to increase quantity")
+			} else {
+				logEvent.Msg("failed to override increase quantity node")
+			}
 			return false
 		}
 
@@ -380,23 +310,23 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Interface("button", a.IncreaseButton.logValue()).
 			Str("next", "QuantizedSlidingIncreaseQuantity").
 			Msg("quantity below target, branch to increase")
-		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "QuantizedSlidingIncreaseQuantity"}}); err != nil {
-			a.logger.Error().Err(err).Msg("failed to override next to increase quantity")
-			return false
-		}
 		return true
 	default:
 		diff := currentQuantity - a.Target
 		repeat := clampClickRepeat(diff)
-		if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride("QuantizedSlidingDecreaseQuantity", a.DecreaseButton, repeat)); err != nil {
-			a.logger.Error().
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, "QuantizedSlidingDecreaseQuantity", a.DecreaseButton, repeat); err != nil {
+			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
 				Int("target", a.Target).
 				Int("diff", diff).
 				Int("repeat", repeat).
-				Interface("decrease_button", a.DecreaseButton.logValue()).
-				Msg("failed to override decrease quantity node")
+				Interface("decrease_button", a.DecreaseButton.logValue())
+			if errors.Is(err, errCheckQuantityBranchNextOverride) {
+				logEvent.Msg("failed to override next to decrease quantity")
+			} else {
+				logEvent.Msg("failed to override decrease quantity node")
+			}
 			return false
 		}
 
@@ -408,10 +338,6 @@ func (a *QuantizedSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.
 			Interface("button", a.DecreaseButton.logValue()).
 			Str("next", "QuantizedSlidingDecreaseQuantity").
 			Msg("quantity above target, branch to decrease")
-		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "QuantizedSlidingDecreaseQuantity"}}); err != nil {
-			a.logger.Error().Err(err).Msg("failed to override next to decrease quantity")
-			return false
-		}
 		return true
 	}
 }

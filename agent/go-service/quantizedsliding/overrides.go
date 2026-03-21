@@ -2,7 +2,15 @@ package quantizedsliding
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+)
+
+var (
+	errCheckQuantityBranchPipelineOverride = errors.New("check quantity branch pipeline override failed")
+	errCheckQuantityBranchNextOverride     = errors.New("check quantity branch next override failed")
 )
 
 func buildSwipeEnd(direction string) ([]int, error) {
@@ -96,6 +104,17 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	}
 
 	return override
+}
+
+func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
+	if err := ctx.OverridePipeline(buildCheckQuantityBranchOverride(nextNode, target, repeat)); err != nil {
+		return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
+	}
+	if err := ctx.OverrideNext(currentNode, []maa.NextItem{{Name: nextNode}}); err != nil {
+		return fmt.Errorf("%w: %w", errCheckQuantityBranchNextOverride, err)
+	}
+
+	return nil
 }
 
 func buildTemplateMatchButtonOverride(template string, repeat int) map[string]any {
