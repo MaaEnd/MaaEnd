@@ -1,5 +1,5 @@
 {
-    "RecoveryEmotion": {
+    "RecoveryEmotionMain": {
         "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭",
         "recognition": {
             "type": "And",
@@ -23,58 +23,96 @@
                 ]
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
-        },
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionAssistUseAssist"
-        ],
-        "on_error": [
-            "RecoveryEmotion_OnError"
+            "RecoveryEmotionAssistWindowOpen"
         ]
     },
-    "RecoveryEmotion_OnError": {
-        "desc": "[控制中枢·恢复心情] 在总控中枢点击恢复心情红点，进入选择干员或关闭（出错重试）",
-        "max_hit": 2,
+    "RecoveryEmotionAssistWindowTitle": {
+        "desc": "[恢复心情·助力] 助力界面标题",
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    "InDijiangControlNexus",
-                    "NeedAssistColor"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -60,
-                    10,
+                "roi": [
                     0,
-                    0
+                    0,
+                    400,
+                    200
+                ],
+                "expected": [
+                    "生产助力",
+                    "生產助力",
+                    "Production Assist",
+                    "生産サポート",
+                    "생산 지원"
                 ]
             }
-        },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 1000
+        }
+    },
+    "RecoveryEmotionAssistView1Label": {
+        "desc": "[恢复心情·助力] 第一层界面标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    370,
+                    154
+                ],
+                "expected": [
+                    "今日助力好友",
+                    "Assists Today",
+                    "本日のサポート記録",
+                    "オペレーターは体力が十分なため、サポートできません",
+                    "오늘 지원한 친구"
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionAssistView2Label": {
+        "desc": "[恢复心情·助力] 第二层界面标签",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    464,
+                    138,
+                    370,
+                    154
+                ],
+                "expected": [
+                    "选择待恢复心情的干员",
+                    "選擇待恢復心情的幹員",
+                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
+                    "対象オペレーターを選んでください"
+                ]
+            }
+        }
+    },
+    "RecoveryEmotionAssistWindowOpen": {
+        "desc": "[恢复心情·助力] 打开助力界面",
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistWindowTitle"
+        ],
+        "pre_delay": 0,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": "RecoveryEmotionAssistWindowTitle",
+            "target_offset": [
+                0,
+                0,
+                200,
+                250
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "RecoveryEmotionAssistUseAssist"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_entry_failed",
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
+        ]
     },
     "RecoveryEmotionAssistUseAssist": {
         "desc": "[恢复心情·需要助力] 点击使用助力",
@@ -93,74 +131,13 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "StartRecoveryEmotion"
-        ],
-        "on_error": [
-            "RecoveryEmotionAssistUseAssist_OnError"
+            "RecoveryEmotionView2In"
         ]
     },
-    "RecoveryEmotionAssistUseAssist_OnError": {
-        "desc": "[恢复心情·需要助力] 点击使用助力（出错重试）",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "YellowConfirmButtonType1",
-                    "UseAssistText"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StartRecoveryEmotion"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
-    },
-    "StartRecoveryEmotion_OnError": {
-        "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员（出错重试）",
-        "max_hit": 2,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    464,
-                    138,
-                    370,
-                    154
-                ],
-                "expected": [
-                    "选择待恢复心情的干员",
-                    "選擇待恢復心情的幹員",
-                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
-                    "対象オペレーターを選んでください"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EmotionFull",
-            "CouldNotAssistEmotion",
-            "SelectLowEmotion"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
-    },
-    "EmotionFull": {
-        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入",
+    "RecoveryEmotionFull": {
+        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -186,53 +163,46 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "BackToControlNexus"
+            "RecoveryEmotionExitView2ToView1"
         ],
         "focus": {
             "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed"
         }
     },
-    "StartRecoveryEmotion": {
+    "RecoveryEmotionView2In": {
         "desc": "[恢复心情·状态] 已打开「选择待恢复心情的干员」界面，开始选择待恢复心情的干员",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    464,
-                    138,
-                    370,
-                    154
-                ],
-                "expected": [
-                    "选择待恢复心情的干员",
-                    "選擇待恢復心情的幹員",
-                    "(?i)Select\\s*operator\\s*awaiting\\s*mood\\s*recovery",
-                    "対象オペレーターを選んでください"
-                ]
-            }
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistView2Label"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target_offset": [
+                -300,
+                0,
+                0,
+                150
+            ]
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EmotionFull",
-            "CouldNotAssistEmotion",
-            "SelectLowEmotion"
+            "RecoveryEmotionSelectLowEmotion"
         ]
     },
-    "SelectLowEmotion": {
+    "RecoveryEmotionSelectLowEmotion": {
         "desc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击",
         "max_hit": 6,
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "EmotionIcon",
-                    "EmotionBar",
-                    "EmotionEmpty"
+                    "RecoveryEmotionIcon",
+                    "RecoveryEmotionBar",
+                    "RecoveryEmotionEmpty"
                 ],
                 "box_index": 2
             }
@@ -249,52 +219,16 @@
                 ]
             }
         },
-        "post_delay": 0,
-        "timeout": 5000,
+        "post_delay": 400, // 上方tips出现需要时间，可能显示也可能不显示，避免连续点击不同干员导致覆盖提示判断错误
         "rate_limit": 0,
         "next": [
-            "StartRecoveryEmotion"
-        ],
-        "on_error": [
-            "SelectLowEmotion_OnError"
+            "RecoveryEmotionFull",
+            "RecoveryEmotionCouldNotAssist",
+            "RecoveryEmotionSelectLowEmotion",
+            "RecoveryEmotionExitView2ToView1"
         ]
     },
-    "SelectLowEmotion_OnError": {
-        "desc": "[恢复心情·操作] 在列表中识别心情条有空缺的干员并点击（出错重试）",
-        "max_hit": 6,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "EmotionIcon",
-                    "EmotionBar",
-                    "EmotionEmpty"
-                ],
-                "box_index": 2
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -5,
-                    -70,
-                    -5,
-                    0
-                ]
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StartRecoveryEmotion"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
-    },
-    "EmotionIcon": {
+    "RecoveryEmotionIcon": {
         "desc": "[恢复心情·状态] 心情图标位置",
         "recognition": {
             "type": "TemplateMatch",
@@ -317,12 +251,12 @@
             }
         }
     },
-    "EmotionBar": {
+    "RecoveryEmotionBar": {
         "desc": "[恢复心情·状态] 心情条位置",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "EmotionIcon",
+                "roi": "RecoveryEmotionIcon",
                 "roi_offset": [
                     19,
                     7,
@@ -343,12 +277,12 @@
             }
         }
     },
-    "EmotionEmpty": {
+    "RecoveryEmotionEmpty": {
         "desc": "[恢复心情·状态] 识别心情条空缺的干员",
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "EmotionBar",
+                "roi": "RecoveryEmotionBar",
                 "roi_offset": [
                     0,
                     0,
@@ -371,40 +305,8 @@
             }
         }
     },
-    "CouldNotAssistEmotion": {
-        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    432,
-                    74,
-                    428,
-                    92
-                ],
-                "expected": [
-                    "没有更多的心情激励点数，无法选择更多干员",
-                    "沒有更多的心情激勵點數，無法選擇更多幹員",
-                    "(?i)Cannot\\s*select\\s*more\\s*operators\\s*as\\s*all\\s*Mood\\s*Booster\\s*Points\\s*have\\s*been\\s*used\\s*up",
-                    "体力激励ポイントが足りないため、これ以上選択できません",
-                    "没有更多的心情激励点数",
-                    "沒有更多的心情激勵點數"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "timeout": 5000,
-        "rate_limit": 0,
-        "next": [
-            "ConfirmRecoveryEmotion"
-        ],
-        "on_error": [
-            "CouldNotAssistEmotion_OnError"
-        ]
-    },
-    "CouldNotAssistEmotion_OnError": {
-        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，返回控制中枢或关闭（出错重试）",
+    "RecoveryEmotionCouldNotAssist": {
+        "desc": "[恢复心情·收尾] 没有更多心情激励点数时的提示，点击确认",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -428,50 +330,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ConfirmRecoveryEmotion"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_no_points_prompt_failed",
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
-    },
-    "ConfirmRecoveryEmotion": {
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "YellowConfirmButtonType1",
-                    "YellowButtonConfirmText"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "timeout": 5000,
-        "rate_limit": 0,
-        "next": [
-            "RecoveryEmotionClose"
-        ],
-        "on_error": [
-            "ConfirmRecoveryEmotion_OnError"
+            "RecoveryEmotionConfirm"
         ]
     },
-    "RecoveryEmotionClose": {
-        "desc": "[恢复心情·收尾] 点击确认后界面关闭，返回控制中枢后进行其他步骤",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "CloseButtonType1"
-                ]
-            }
-        }
-    },
-    "ConfirmRecoveryEmotion_OnError": {
+    "RecoveryEmotionConfirm": {
         "recognition": {
             "type": "And",
             "param": {
@@ -489,49 +351,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionClose"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
+            "RecoveryEmotionExitView1ToControlNexus"
+        ]
     },
-    "EmotionFull_OnError": {
-        "desc": "[恢复心情·意外] 点击了满心情/无法助力干员时的提示，返回控制中枢重新进入（出错重试）",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    416,
-                    65,
-                    428,
-                    119
-                ],
-                "expected": [
-                    "干员心情已满，无法使用助力",
-                    "幹員心情已滿，無法使用助力",
-                    "(?i)Cannot\\s*assist\\s*as\\s*operator\\s*mood\\s*is\\s*maxed",
-                    "オペレーターは体力が十分なため、サポートできません",
-                    "Selected operator is at max mood",
-                    "No recovery required",
-                    "干员心情已满",
-                    "幹員心情已滿",
-                    "无法使用助力",
-                    "無法使用助力"
-                ]
-            }
+    "RecoveryEmotionExitView1ToControlNexus": {
+        "desc": "[恢复心情·收尾] 返回控制中枢后进行其他步骤",
+        "recognition": "And",
+        "all_of": [
+            "RecoveryEmotionAssistView1Label",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": {
+            "type": "Click"
         },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "BackToControlNexus"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.recovery_emotion_full_prompt_failed",
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
         }
     },
-    "BackToControlNexus": {
+    "RecoveryEmotionExitView2ToView1": {
         "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",
         "recognition": {
             "type": "TemplateMatch",
@@ -552,42 +397,9 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "RecoveryEmotionAssistUseAssist"
-        ],
-        "on_error": [
-            "BackToControlNexus_OnError"
+            "RecoveryEmotionExitView1ToControlNexus"
         ]
-    },
-    "BackToControlNexus_OnError": {
-        "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢（出错重试）",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    980,
-                    102,
-                    187,
-                    82
-                ],
-                "template": [
-                    "Resell/back.png"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "CloseButtonType1"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
-        }
     }
 }

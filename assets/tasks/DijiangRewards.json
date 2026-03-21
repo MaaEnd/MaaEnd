@@ -50,7 +50,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "RecoveryEmotion": {
+                        "RecoveryEmotionMain": {
                             "enabled": false
                         }
                     }
@@ -58,7 +58,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "RecoveryEmotion": {
+                        "RecoveryEmotionMain": {
                             "enabled": true
                         }
                     }
