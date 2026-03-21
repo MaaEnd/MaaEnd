@@ -17,7 +17,7 @@
             }
         },
         "next": [
-            "[JumpBack]RecoveryEmotion",
+            "[JumpBack]RecoveryEmotionMain",
             "[JumpBack]ReceptionRoomMain",
             "[JumpBack]EntryCarbin",
             "[JumpBack]EntryGrowthChamber",
