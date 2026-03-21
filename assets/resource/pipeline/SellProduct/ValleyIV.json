@@ -29,7 +29,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SellProductRefugeeCampSellWithPriority",
+            "SellProductRefugeeCampSell",
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
         ]
     },
@@ -44,7 +44,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SellProductInfrastructureOutpostSellWithPriority",
+            "SellProductInfrastructureOutpostSell",
             "[JumpBack]SellProductGoToInfrastructureOutpost"
         ]
     },
@@ -59,7 +59,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SellProductReconstructionCommandSellWithPriority",
+            "SellProductReconstructionCommandSell",
             "[JumpBack]SellProductGoToReconstructionCommandOutpost"
         ]
     },
@@ -72,7 +72,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
-            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectNewGood1": "SellProductRefugeeCampSelectItem1",
+            "SellProductSelectNewGood2": "SellProductRefugeeCampSelectItem2",
+            "SellProductSelectNewGood3": "SellProductRefugeeCampSelectItem3"
         },
         "post_delay": 0,
         "next": [
@@ -88,7 +91,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
-            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectNewGood1": "SellProductInfrastructureOutpostSelectItem1",
+            "SellProductSelectNewGood2": "SellProductInfrastructureOutpostSelectItem2",
+            "SellProductSelectNewGood3": "SellProductInfrastructureOutpostSelectItem3"
         },
         "post_delay": 0,
         "next": [
@@ -104,7 +110,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
-            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectNewGood1": "SellProductReconstructionCommandSelectItem1",
+            "SellProductSelectNewGood2": "SellProductReconstructionCommandSelectItem2",
+            "SellProductSelectNewGood3": "SellProductReconstructionCommandSelectItem3"
         },
         "post_delay": 0,
         "next": [
@@ -348,22 +357,56 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductRefugeeCampTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInRefugeeCamp"
+    "SellProductRefugeeCampSelectItem1": {
+        "desc": "难民暂居处售卖优先物品1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
         ],
-        "pre_delay": 0,
-        "post_delay": 0,
+        "expected": [],
         "anchor": {
-            "SellProductSelectNewGoodItem1": "SellProductRefugeeCampSelectNewGoodItem1"
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2"
         },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem1"
+            "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductRefugeeCampSelectNewGoodItem1": {
+    "SellProductRefugeeCampSelectItem2": {
+        "desc": "难民暂居处售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3"
+        },
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductRefugeeCampSelectItem3": {
+        "desc": "难民暂居处售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -374,24 +417,62 @@
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductRefugeeCampTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInRefugeeCamp"
-        ],
-        "pre_delay": 0,
         "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem2": "SellProductRefugeeCampSelectNewGoodItem2"
-        },
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem2"
+            "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductRefugeeCampSelectNewGoodItem2": {
+    "SellProductInfrastructureOutpostSelectItem1": {
+        "desc": "基建前站售卖优先物品1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectItem2": {
+        "desc": "基建前站售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3"
+        },
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectItem3": {
+        "desc": "基建前站售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -402,24 +483,62 @@
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductRefugeeCampTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInRefugeeCamp"
-        ],
-        "pre_delay": 0,
         "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem3": "SellProductRefugeeCampSelectNewGoodItem3"
-        },
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem3"
+            "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductRefugeeCampSelectNewGoodItem3": {
+    "SellProductReconstructionCommandSelectItem1": {
+        "desc": "重建指挥部售卖优先物品1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionCommandSelectItem2": {
+        "desc": "重建指挥部售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3"
+        },
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductReconstructionCommandSelectItem3": {
+        "desc": "重建指挥部售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -430,174 +549,10 @@
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductInfrastructureOutpostTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInInfrastructureOutpost"
-        ],
-        "pre_delay": 0,
         "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem1": "SellProductInfrastructureOutpostSelectNewGoodItem1"
-        },
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem1"
+            "SellProductSelectNewGoodConfirm"
         ]
-    },
-    "SellProductInfrastructureOutpostSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductInfrastructureOutpostTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInInfrastructureOutpost"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem2": "SellProductInfrastructureOutpostSelectNewGoodItem2"
-        },
-        "next": [
-            "SellProductTryItem2"
-        ]
-    },
-    "SellProductInfrastructureOutpostSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductInfrastructureOutpostTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInInfrastructureOutpost"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem3": "SellProductInfrastructureOutpostSelectNewGoodItem3"
-        },
-        "next": [
-            "SellProductTryItem3"
-        ]
-    },
-    "SellProductInfrastructureOutpostSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductReconstructionCommandTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInReconstructionCommand"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem1": "SellProductReconstructionCommandSelectNewGoodItem1"
-        },
-        "next": [
-            "SellProductTryItem1"
-        ]
-    },
-    "SellProductReconstructionCommandSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductReconstructionCommandTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInReconstructionCommand"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem2": "SellProductReconstructionCommandSelectNewGoodItem2"
-        },
-        "next": [
-            "SellProductTryItem2"
-        ]
-    },
-    "SellProductReconstructionCommandSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductReconstructionCommandTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInReconstructionCommand"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem3": "SellProductReconstructionCommandSelectNewGoodItem3"
-        },
-        "next": [
-            "SellProductTryItem3"
-        ]
-    },
-    "SellProductReconstructionCommandSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
     }
 }

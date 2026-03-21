@@ -28,7 +28,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SellProductSkyKingFlatsSellWithPriority",
+            "SellProductSkyKingFlatsSell",
             "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
         ]
     },
@@ -41,7 +41,10 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductSkyKingFlatsZeroProductTryChangeGoods",
-            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
+            "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductSelectNewGood1": "SellProductSkyKingFlatsSelectItem1",
+            "SellProductSelectNewGood2": "SellProductSkyKingFlatsSelectItem2",
+            "SellProductSelectNewGood3": "SellProductSkyKingFlatsSelectItem3"
         },
         "post_delay": 0,
         "next": [
@@ -129,22 +132,56 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "SellProductSkyKingFlatsTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInSkyKingFlats"
+    "SellProductSkyKingFlatsSelectItem1": {
+        "desc": "天王坪援建点售卖优先物品1",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
         ],
-        "pre_delay": 0,
-        "post_delay": 0,
+        "expected": [],
         "anchor": {
-            "SellProductSelectNewGoodItem1": "SellProductSkyKingFlatsSelectNewGoodItem1"
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem2"
         },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem1"
+            "SellProductSelectNewGoodConfirm"
         ]
     },
-    "SellProductSkyKingFlatsSelectNewGoodItem1": {
+    "SellProductSkyKingFlatsSelectItem2": {
+        "desc": "天王坪援建点售卖优先物品2",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSkyKingFlatsSelectItem3"
+        },
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectItem3": {
+        "desc": "天王坪援建点售卖优先物品3",
+        "enabled": false,
+        "max_hit": 1,
         "recognition": "OCR",
         "roi": [
             145,
@@ -155,62 +192,10 @@
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductSkyKingFlatsTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInSkyKingFlats"
-        ],
-        "pre_delay": 0,
         "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem2": "SellProductSkyKingFlatsSelectNewGoodItem2"
-        },
+        "rate_limit": 0,
         "next": [
-            "SellProductTryItem2"
+            "SellProductSelectNewGoodConfirm"
         ]
-    },
-    "SellProductSkyKingFlatsSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
-    },
-    "SellProductSkyKingFlatsTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": [
-            "SellProductInSkyKingFlats"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "anchor": {
-            "SellProductSelectNewGoodItem3": "SellProductSkyKingFlatsSelectNewGoodItem3"
-        },
-        "next": [
-            "SellProductTryItem3"
-        ]
-    },
-    "SellProductSkyKingFlatsSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [
-            145,
-            103,
-            998,
-            518
-        ],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0
     }
 }

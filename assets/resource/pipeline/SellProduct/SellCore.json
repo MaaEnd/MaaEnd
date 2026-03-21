@@ -120,6 +120,9 @@
             "取引用の商品を選択してください",
             "거래할 상품 선택 필요"
         ],
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductSelectNextGood"
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
