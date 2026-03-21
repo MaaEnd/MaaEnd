@@ -9,12 +9,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "SellProductChangeGoodsAtBeginning",
             "[Anchor]SellProductZeroProductTryChangeGoodsHandler",
             "SellProductZeroProductAfterChangeStillEmpty",
             "[Anchor]SellProductZeroMoneyHandler",
             "SellProductNeedSelectGoodsTryChangeGoods",
             "SellProductClickBarRight",
             "SellProductDragBar"
+        ]
+    },
+    "SellProductChangeGoodsAtBeginning": {
+        "desc": "在售卖开始时更换货品。这是为了确保货物按优先级售卖。",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoods"
         ]
     },
     "SellProductZeroProductColorMatch": {
