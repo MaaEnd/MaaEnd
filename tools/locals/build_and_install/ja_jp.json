@@ -20,7 +20,7 @@
     "target_platform": "ターゲットプラットフォーム",
     "output_path": "出力パス",
     "go_mod_tidy_failed": "go mod tidy が失敗しました",
-    "go_mod_files_out_of_sync": "go.mod または go.sum が同期されていません。先にローカルで go mod tidy を実行し、変更をコミットしてください。",
+    "go_mod_files_out_of_sync": "go.mod または go.sum が同期されていません。先にローカルで go mod tidy を実行するか、build_and_install.py を一度実行して同期し、go.mod / go.sum の変更をコミットしてください。",
     "go_mod_tidy_stderr": "go mod tidy の標準エラー出力",
     "build_mode": "ビルドモード",
     "build_mode_ci": "CI (Release with debug info)",
