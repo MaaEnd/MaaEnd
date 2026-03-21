@@ -112,7 +112,7 @@ python tools/setup_workspace.py
 
 #### 可复用 Custom 节点
 
-以下是基于 Custom 的可复用节点，具有高业务化的特点，在需要调用时可以酌情使用，但**根据 [Go Service 代码规范](#go-service-代码规范) 和 [Cpp Algo 代码规范](#cpp-algo-代码规范) 您不应该在非必要情况使用以下这些节点**，具体原因已在这两部分文档指出。
+以下是基于 Custom 的可复用节点，具有高业务化的特点，在需要调用时可以酌情使用，但**根据 [Go Service 代码规范](#go-service-代码规范) 和 [Cpp Algo 代码规范](#cpp-algo-代码规范) 您不应该在非必要情况下使用以下这些节点**，具体原因已在这两部分文档指出。
 
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [MapNavigator 参考文档](./map-navigator.md)：路径录制工具与 `MapNavigateAction` 自动导航节点。
