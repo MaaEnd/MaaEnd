@@ -40,7 +40,7 @@
         "rate_limit": 0
     },
     "SellProductChangeGoods": {
-        "desc": "识别更换货品并点击，进入更换界面，按照优先级更换货品",
+        "desc": "识别更换货品并点击，进入更换界面，优先选择配置的货品，否则选择下一个货品",
         "recognition": "OCR",
         "roi": [
             1115,
@@ -67,12 +67,11 @@
         "next": [
             "[Anchor]SellProductSelectNewGood1",
             "[Anchor]SellProductSelectNewGood2",
-            "[Anchor]SellProductSelectNewGood3",
             "SellProductSelectNextGood"
         ]
     },
     "SellProductSelectNextGood": {
-        "desc": "在更换界面中识别下一个货品并点击",
+        "desc": "在更换界面中识别下一个货品并点击，作为默认选择",
         "recognition": "And",
         "all_of": [
             "SellProductCheckNextGoodsText",
