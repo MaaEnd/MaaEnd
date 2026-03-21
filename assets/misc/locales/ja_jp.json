@@ -277,7 +277,7 @@
     "option.ClaimSimulationArea.label": "エリア",
     "task.SellProduct.label": "🛒 製品販売",
     "task.SellProduct.description": "各拠点で製品を使用し、対応する調達券と交換します。\nタスクオプションで、特定の地域における販売機能を有効または無効にすることができます。",
-    "task.SellProduct.description1": "優先的に売却する2つのアイテムを選択できます。デフォルトでは次の商品を選んで売却します 0w0 。",
+    "task.SellProduct.regionToggleDescription": "優先的に売却する2つのアイテムを選択できます。デフォルトでは次の商品を選んで売却します 0w0 。",
     "task.SellProduct.ValleyIVRefugeeCamp": "仮設居住地",
     "task.SellProduct.ValleyIVInfrastructureOutpost": "建設基地",
     "task.SellProduct.ValleyIVReconstructionCommand": "再建管理本部",

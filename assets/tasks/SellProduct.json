@@ -17,8 +17,8 @@
     "option": {
         "ValleyIVSell": {
             "type": "switch",
-            "description": "$task.SellProduct.description1",
             "label": "$global.region.ValleyIV",
+            "description": "$task.SellProduct.regionToggleDescription",
             "default_case": "Yes",
             "cases": [
                 {
@@ -834,7 +834,7 @@
         "WulingSell": {
             "type": "switch",
             "label": "$global.region.Wuling",
-            "description": "$task.SellProduct.description1",
+            "description": "$task.SellProduct.regionToggleDescription",
             "default_case": "Yes",
             "cases": [
                 {
