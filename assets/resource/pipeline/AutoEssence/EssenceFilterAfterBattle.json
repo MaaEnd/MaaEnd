@@ -110,7 +110,7 @@
                 ],
                 "template": "Common/Button/CancelButtonType1.png",
                 "method": 5,
-                "threshold": 0.35
+                "threshold": 0.7
             }
         },
         "pre_delay": 0,
