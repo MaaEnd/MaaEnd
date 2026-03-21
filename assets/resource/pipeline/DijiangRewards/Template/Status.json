@@ -107,6 +107,33 @@
             }
         }
     },
+    "MFGCarbinTips": {
+        "desc": "[制造舱·入口] 识别制造舱入口的红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    759,
+                    463,
+                    521,
+                    117
+                ],
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
+            }
+        }
+    },
     "EndExchangeCountDown": {
         "desc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
         "recognition": {
