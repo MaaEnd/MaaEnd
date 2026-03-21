@@ -41,11 +41,11 @@
         "action": {
             "type": "DoNothing"
         },
-        "post_delay": 300,
+        "post_wait_freezes": 300,
         "next": [
             "EssenceFilterAfterBattleIsflawless",
             "EssenceFilterAfterBattleIsPure",
-            "EssenceFilterAfterBattleRowNextItem"
+            "EssenceFilterAfterBattleCloseDetail"
         ],
         "focus": {
             "Node.Action.Succeeded": "基质未锁定"
