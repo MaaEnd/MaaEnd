@@ -21,6 +21,7 @@
     "output_path": "输出路径",
     "go_mod_tidy_failed": "go mod tidy 失败",
     "go_mod_files_out_of_sync": "go.sum 或 go.mod 未同步，请先在本地执行 go mod tidy 并提交变更。",
+    "go_mod_tidy_stderr": "go mod tidy 错误输出",
     "build_mode": "构建模式",
     "build_mode_ci": "CI (Release with debug info)",
     "build_mode_dev": "Dev",

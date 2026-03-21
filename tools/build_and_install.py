@@ -203,6 +203,14 @@ def build_go_agent(
     if tidy_result.returncode != 0:
         if ci_mode:
             print(f"  {Console.err(t('error'))} {t('go_mod_files_out_of_sync')}")
+            if tidy_result.stderr:
+                max_stderr_chars = 8 * 1024
+                stderr_snippet = tidy_result.stderr.rstrip()
+                if len(stderr_snippet) > max_stderr_chars:
+                    stderr_snippet = stderr_snippet[-max_stderr_chars:]
+                print(
+                    f"  {Console.err(t('error'))} {t('go_mod_tidy_stderr')}:\n{stderr_snippet}"
+                )
         else:
             print(
                 f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {tidy_result.stderr}"

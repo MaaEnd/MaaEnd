@@ -21,6 +21,7 @@
     "output_path": "Output path",
     "go_mod_tidy_failed": "go mod tidy failed",
     "go_mod_files_out_of_sync": "go.mod or go.sum is out of sync. Please run go mod tidy locally and commit the changes first.",
+    "go_mod_tidy_stderr": "go mod tidy stderr",
     "build_mode": "Build mode",
     "build_mode_ci": "CI (Release with debug info)",
     "build_mode_dev": "Dev",
