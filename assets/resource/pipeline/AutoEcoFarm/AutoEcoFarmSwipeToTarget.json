@@ -110,8 +110,6 @@
             "param": {
                 "custom_recognition": "autoEcoFarmCalculateSwipeTarget",
                 "custom_recognition_param": {
-                    //传入一个原始的识别结果
-                    //"node_name": "_AutoEcoFarmTargeRecognition",
                     //将视角拉向目标多少比例
                     "xStepRatio": 0.5,
                     "yStepRatio": 1
@@ -161,8 +159,10 @@
         "desc": "[武陵版]控制循环次数节点",
         "max_hit": 20,
         "next": [
+            "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
+            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -224,7 +224,9 @@
                     360
                 ],
                 "end": [
-                    1000,
+                    320,
+                    180,
+                    640,
                     360
                 ],
                 "only_hover": true,
