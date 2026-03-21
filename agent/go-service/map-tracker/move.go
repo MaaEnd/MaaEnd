@@ -535,10 +535,6 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, err
 	}
-	if result.MapName == "None" {
-		log.Error().Msg("Map not recognized in inference result")
-		return nil, fmt.Errorf("map not recognized in inference result")
-	}
 
 	return &result, nil
 }
