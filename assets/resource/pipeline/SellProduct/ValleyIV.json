@@ -11,7 +11,6 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfrastructureOutpost",
@@ -29,7 +28,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductRefugeeCampSellWithPriority",
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
@@ -45,7 +43,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductInfrastructureOutpostSellWithPriority",
             "[JumpBack]SellProductGoToInfrastructureOutpost"
@@ -61,7 +58,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductReconstructionCommandSellWithPriority",
             "[JumpBack]SellProductGoToReconstructionCommandOutpost"
@@ -79,7 +75,6 @@
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -96,7 +91,6 @@
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -113,7 +107,6 @@
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -127,7 +120,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -141,7 +133,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -155,7 +146,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -204,7 +194,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductInRefugeeCamp"
         ]
@@ -220,7 +209,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductInInfrastructureOutpost"
         ]
@@ -236,7 +224,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductInReconstructionCommand"
         ]
@@ -360,5 +347,257 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "SellProductRefugeeCampTryItem1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem1": "SellProductRefugeeCampSelectNewGoodItem1"
+        },
+        "next": [
+            "SellProductTryItem1"
+        ]
+    },
+    "SellProductRefugeeCampSelectNewGoodItem1": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductRefugeeCampTryItem2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem2": "SellProductRefugeeCampSelectNewGoodItem2"
+        },
+        "next": [
+            "SellProductTryItem2"
+        ]
+    },
+    "SellProductRefugeeCampSelectNewGoodItem2": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductRefugeeCampTryItem3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInRefugeeCamp"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem3": "SellProductRefugeeCampSelectNewGoodItem3"
+        },
+        "next": [
+            "SellProductTryItem3"
+        ]
+    },
+    "SellProductRefugeeCampSelectNewGoodItem3": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductInfrastructureOutpostTryItem1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem1": "SellProductInfrastructureOutpostSelectNewGoodItem1"
+        },
+        "next": [
+            "SellProductTryItem1"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductInfrastructureOutpostTryItem2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem2": "SellProductInfrastructureOutpostSelectNewGoodItem2"
+        },
+        "next": [
+            "SellProductTryItem2"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductInfrastructureOutpostTryItem3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInInfrastructureOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem3": "SellProductInfrastructureOutpostSelectNewGoodItem3"
+        },
+        "next": [
+            "SellProductTryItem3"
+        ]
+    },
+    "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductReconstructionCommandTryItem1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem1": "SellProductReconstructionCommandSelectNewGoodItem1"
+        },
+        "next": [
+            "SellProductTryItem1"
+        ]
+    },
+    "SellProductReconstructionCommandSelectNewGoodItem1": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductReconstructionCommandTryItem2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem2": "SellProductReconstructionCommandSelectNewGoodItem2"
+        },
+        "next": [
+            "SellProductTryItem2"
+        ]
+    },
+    "SellProductReconstructionCommandSelectNewGoodItem2": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductReconstructionCommandTryItem3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInReconstructionCommand"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem3": "SellProductReconstructionCommandSelectNewGoodItem3"
+        },
+        "next": [
+            "SellProductTryItem3"
+        ]
+    },
+    "SellProductReconstructionCommandSelectNewGoodItem3": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
     }
 }

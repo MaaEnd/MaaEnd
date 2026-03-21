@@ -12,14 +12,13 @@
             ]
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductSkyKingFlats",
             "SellProductBackToRegionalConstruction"
         ]
     },
     "SellProductSkyKingFlats": {
-        "enabled":true,
+        "enabled": true,
         "desc": "天王坪援建点售卖",
         "max_hit": 1,
         "recognition": "And",
@@ -28,7 +27,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductSkyKingFlatsSellWithPriority",
             "[JumpBack]SellProductGoToSkyKingFlatsOutpost"
@@ -46,7 +44,6 @@
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip"
         },
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -60,7 +57,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -87,7 +83,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
         "next": [
             "SellProductInSkyKingFlats"
         ]
@@ -133,5 +128,89 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "SellProductSkyKingFlatsTryItem1": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem1": "SellProductSkyKingFlatsSelectNewGoodItem1"
+        },
+        "next": [
+            "SellProductTryItem1"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectNewGoodItem1": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductSkyKingFlatsTryItem2": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem2": "SellProductSkyKingFlatsSelectNewGoodItem2"
+        },
+        "next": [
+            "SellProductTryItem2"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectNewGoodItem2": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "SellProductSkyKingFlatsTryItem3": {
+        "enabled": true,
+        "recognition": "And",
+        "all_of": [
+            "SellProductInSkyKingFlats"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "anchor": {
+            "SellProductSelectNewGoodItem3": "SellProductSkyKingFlatsSelectNewGoodItem3"
+        },
+        "next": [
+            "SellProductTryItem3"
+        ]
+    },
+    "SellProductSkyKingFlatsSelectNewGoodItem3": {
+        "recognition": "OCR",
+        "roi": [
+            145,
+            103,
+            998,
+            518
+        ],
+        "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
     }
 }

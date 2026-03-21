@@ -2,7 +2,12 @@
     "SellProductChangeGoodsCustom": {
         "desc": "自定义识别  更换货品",
         "recognition": "OCR",
-        "roi": [1162, 420, 85, 26],
+        "roi": [
+            1162,
+            420,
+            85,
+            26
+        ],
         "expected": [
             "更换货品",
             "更換貨品",
@@ -15,40 +20,64 @@
         "post_wait_freezes": 100,
         "next": []
     },
-
     "SellProductCheckStockCustom": {
-        "desc": "检测圆圈+高亮（有货）才继续，有货则执行交易",
+        "desc": "检测圆圈+高亮（有货）才继续",
         "recognition": "TemplateMatch",
-        "roi": [1216, 560, 33, 31],
-        "template": ["SellProduct/SellProductAddButton.png"],
+        "roi": [
+            1216,
+            560,
+            33,
+            31
+        ],
+        "template": [
+            "SellProduct/SellProductAddButton.png"
+        ],
         "method": 10001,
         "timeout": 1000,
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SellProductClickBarRightCustom",  
-            "SellProductSellCustom",           
-            "SellProductSellCheckCustom"      
+            "SellProductClickBarRightCustom",
+            "SellProductSellCustom",
+            "SellProductSellCheckCustom"
         ]
-    },      
+    },
     "SellProductClickBarRightCustom": {
         "desc": "点击进度条最右侧",
         "recognition": "TemplateMatch",
-        "roi": [1115, 507, 88, 103],
-        "template": ["SellProduct/SellProductBarRight.png"],
+        "roi": [
+            1115,
+            507,
+            88,
+            103
+        ],
+        "template": [
+            "SellProduct/SellProductBarRight.png"
+        ],
         "method": 10001,
         "pre_delay": 0,
         "action": "Click",
-        "target_offset": [40, 21, -30, -43],
+        "target_offset": [
+            40,
+            21,
+            -30,
+            -43
+        ],
         "post_wait_freezes": 80,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductSellCustom"]
+        "next": [
+            "SellProductSellCustom"
+        ]
     },
     "SellProductSellCustom": {
         "desc": "交易",
         "recognition": "OCR",
-        "roi": [1000, 640, 250, 100],
+        "roi": [
+            1000,
+            640,
+            250,
+            100
+        ],
         "expected": [
             "交易",
             "Trade",
@@ -59,8 +88,9 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": ["SellProductSellCheckCustom"]
+        "next": [
+            "SellProductSellCheckCustom"
+        ]
     },
     "SellProductSellCheckCustom": {
         "desc": "交易后确认",
@@ -69,16 +99,22 @@
             "CloseRewardsButton",
             {
                 "recognition": "TemplateMatch",
-                "roi": [577, 10, 138, 118],
-                "template": ["SellProduct/SellProductCheckHeader.png"]
+                "roi": [
+                    577,
+                    10,
+                    138,
+                    118
+                ],
+                "template": [
+                    "SellProduct/SellProductCheckHeader.png"
+                ]
             }
         ],
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [],  
+        "next": [],
         "focus": {
             "Node.Action.Succeeded": "成功完成一次交易"
         }
@@ -92,14 +128,61 @@
         "pre_delay": 0,
         "action": "Click",
         "anchor": {
-            "SellProductZeroMoneyHandler": "SellProductZeroMoney"  
+            "SellProductZeroMoneyHandler": "SellProductZeroMoney"
         },
         "post_wait_freezes": 100,
         "post_delay": 0,
-        "rate_limit": 0,
         "next": []
     },
-
+    // 通用 TryItem 模板，用 anchor 占位
+    "SellProductTryItem1": {
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductChangeGoodsCustom",
+                "SellProductCheckSelectGoodsText",
+                "[Anchor]SellProductSelectNewGoodItem1",
+                "SellProductSelectNewGoodConfirmWithWait",
+                "SellProductCheckStockCustom"
+            ]
+        }
+    },
+    "SellProductTryItem2": {
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductChangeGoodsCustom",
+                "SellProductCheckSelectGoodsText",
+                "[Anchor]SellProductSelectNewGoodItem2",
+                "SellProductSelectNewGoodConfirmWithWait",
+                "SellProductCheckStockCustom"
+            ]
+        }
+    },
+    "SellProductTryItem3": {
+        "enabled": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SellProductChangeGoodsCustom",
+                "SellProductCheckSelectGoodsText",
+                "[Anchor]SellProductSelectNewGoodItem3",
+                "SellProductSelectNewGoodConfirmWithWait",
+                "SellProductCheckStockCustom"
+            ]
+        }
+    },
     "SellProductRefugeeCampSellWithPriority": {
         "desc": "难民暂居处售卖（优先物品前置）",
         "recognition": "And",
@@ -108,7 +191,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -122,97 +204,6 @@
             "strict": false
         }
     },
-
-    "SellProductRefugeeCampTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInRefugeeCamp"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductRefugeeCampSelectNewGoodItem1",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductRefugeeCampSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductRefugeeCampTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInRefugeeCamp"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductRefugeeCampSelectNewGoodItem2",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductRefugeeCampSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductRefugeeCampTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInRefugeeCamp"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductRefugeeCampSelectNewGoodItem3",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductRefugeeCampSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
     "SellProductInfrastructureOutpostSellWithPriority": {
         "desc": "基建前站售卖（优先物品前置）",
         "recognition": "And",
@@ -221,7 +212,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -235,98 +225,6 @@
             "strict": false
         }
     },
-
-    "SellProductInfrastructureOutpostTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInInfrastructureOutpost"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductInfrastructureOutpostSelectNewGoodItem1",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductInfrastructureOutpostSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductInfrastructureOutpostTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInInfrastructureOutpost"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductInfrastructureOutpostSelectNewGoodItem2",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductInfrastructureOutpostSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductInfrastructureOutpostTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInInfrastructureOutpost"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductInfrastructureOutpostSelectNewGoodItem3",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductInfrastructureOutpostSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-
     "SellProductReconstructionCommandSellWithPriority": {
         "desc": "重建指挥部售卖（优先物品前置）",
         "recognition": "And",
@@ -335,7 +233,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -349,98 +246,6 @@
             "strict": false
         }
     },
-
-    "SellProductReconstructionCommandTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInReconstructionCommand"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductReconstructionCommandSelectNewGoodItem1",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductReconstructionCommandSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductReconstructionCommandTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInReconstructionCommand"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductReconstructionCommandSelectNewGoodItem2",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductReconstructionCommandSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductReconstructionCommandTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInReconstructionCommand"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductReconstructionCommandSelectNewGoodItem3",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductReconstructionCommandSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    
     "SellProductSkyKingFlatsSellWithPriority": {
         "desc": "天王坪援建点售卖（优先物品前置）",
         "recognition": "And",
@@ -449,7 +254,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -462,95 +266,5 @@
             "continue": true,
             "strict": false
         }
-    },
-
-    "SellProductSkyKingFlatsTryItem1": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInSkyKingFlats"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductSkyKingFlatsSelectNewGoodItem1",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductSkyKingFlatsSelectNewGoodItem1": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductSkyKingFlatsTryItem2": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInSkyKingFlats"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductSkyKingFlatsSelectNewGoodItem2",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductSkyKingFlatsSelectNewGoodItem2": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-
-    "SellProductSkyKingFlatsTryItem3": {
-        "enabled": true,
-        "recognition": "And",
-        "all_of": ["SellProductInSkyKingFlats"],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SellProductChangeGoodsCustom",
-                "SellProductCheckSelectGoodsText",
-                "SellProductSkyKingFlatsSelectNewGoodItem3",
-                "SellProductSelectNewGoodConfirmWithWait",
-                "SellProductCheckStockCustom"
-            ]
-        }
-    },
-
-    "SellProductSkyKingFlatsSelectNewGoodItem3": {
-        "recognition": "OCR",
-        "roi": [145, 103, 998, 518],
-        "expected": [],
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
