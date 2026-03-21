@@ -72,6 +72,7 @@
         ],
         "pre_delay": 0,
         "anchor": {
+            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductRefugeeCampZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductRefugeeCampSelectItem1",
@@ -91,6 +92,7 @@
         ],
         "pre_delay": 0,
         "anchor": {
+            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductInfrastructureOutpostZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductInfrastructureOutpostSelectItem1",
@@ -110,6 +112,7 @@
         ],
         "pre_delay": 0,
         "anchor": {
+            "SellProductChangeGoodsAtBeginning": "SellProductChangeGoodsAtBeginning",
             "SellProductZeroProductTryChangeGoodsHandler": "SellProductReconstructionCommandZeroProductTryChangeGoods",
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
             "SellProductSelectNewGood1": "SellProductReconstructionCommandSelectItem1",
