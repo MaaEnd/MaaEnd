@@ -122,10 +122,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -133,10 +138,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -144,10 +154,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -155,10 +170,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -166,10 +186,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -177,10 +202,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "荞愈胶囊",
@@ -188,10 +218,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "荞愈胶囊"
+                                "蕎癒膠囊",
+                                "荞愈胶囊",
+                                "蕎花カプセルⅠ",
+                                "메밀꽃 치유 캡슐",
+                                "Buck Capsule [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleC"
                 },
                 {
                     "name": "柑实罐头",
@@ -199,10 +234,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "紫晶质瓶",
@@ -210,10 +250,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "紫晶质瓶"
+                                "紫晶質瓶",
+                                "紫晶质瓶",
+                                "紫晶製ボトル",
+                                "자수정 병",
+                                "Amethyst Bottle"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.AmethystBottle"
                 },
                 {
                     "name": "晶体外壳",
@@ -221,10 +266,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "晶体外壳"
+                                "晶體外殼",
+                                "晶体外壳",
+                                "結晶外殻",
+                                "오리고 크러스트",
+                                "Origocrust"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.Origocrust"
                 },
                 {
                     "name": "紫晶零件",
@@ -232,10 +282,15 @@
                         "SellProductRefugeeCampSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "紫晶零件"
+                                "紫晶零件",
+                                "紫晶零件",
+                                "紫晶部品",
+                                "자수정 부품",
+                                "Amethyst Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.AmethystPart"
                 }
             ]
         },
@@ -258,10 +313,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -269,10 +329,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -280,10 +345,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -291,10 +361,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -302,10 +377,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -313,10 +393,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "荞愈胶囊",
@@ -324,10 +409,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "荞愈胶囊"
+                                "蕎癒膠囊",
+                                "荞愈胶囊",
+                                "蕎花カプセルⅠ",
+                                "메밀꽃 치유 캡슐",
+                                "Buck Capsule [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleC"
                 },
                 {
                     "name": "柑实罐头",
@@ -335,10 +425,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "紫晶质瓶",
@@ -346,10 +441,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "紫晶质瓶"
+                                "紫晶質瓶",
+                                "紫晶质瓶",
+                                "紫晶製ボトル",
+                                "자수정 병",
+                                "Amethyst Bottle"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.AmethystBottle"
                 },
                 {
                     "name": "晶体外壳",
@@ -357,10 +457,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "晶体外壳"
+                                "晶體外殼",
+                                "晶体外壳",
+                                "結晶外殻",
+                                "오리고 크러스트",
+                                "Origocrust"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.Origocrust"
                 },
                 {
                     "name": "紫晶零件",
@@ -368,10 +473,15 @@
                         "SellProductRefugeeCampSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "紫晶零件"
+                                "紫晶零件",
+                                "紫晶零件",
+                                "紫晶部品",
+                                "자수정 부품",
+                                "Amethyst Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.AmethystPart"
                 }
             ]
         },
@@ -453,10 +563,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -464,10 +579,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -475,10 +595,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -486,10 +611,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -497,10 +627,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -508,10 +643,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "低容谷地电池",
@@ -519,10 +659,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "低容谷地电池"
+                                "低容量谷地電池",
+                                "低容谷地电池",
+                                "小容量谷地バッテリー",
+                                "저용량 협곡 배터리",
+                                "LC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.LCValleyBattery"
                 },
                 {
                     "name": "柑实罐头",
@@ -530,10 +675,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "铁制零件",
@@ -541,10 +691,15 @@
                         "SellProductInfrastructureOutpostSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "铁制零件"
+                                "鐵製零件",
+                                "铁制零件",
+                                "鉄製部品",
+                                "페리움 부품",
+                                "Ferrium Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.FerriumPart"
                 }
             ]
         },
@@ -567,10 +722,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -578,10 +738,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -589,10 +754,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -600,10 +770,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -611,10 +786,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -622,10 +802,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "低容谷地电池",
@@ -633,10 +818,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "低容谷地电池"
+                                "低容量谷地電池",
+                                "低容谷地电池",
+                                "小容量谷地バッテリー",
+                                "저용량 협곡 배터리",
+                                "LC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.LCValleyBattery"
                 },
                 {
                     "name": "柑实罐头",
@@ -644,10 +834,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "铁制零件",
@@ -655,10 +850,15 @@
                         "SellProductInfrastructureOutpostSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "铁制零件"
+                                "鐵製零件",
+                                "铁制零件",
+                                "鉄製部品",
+                                "페리움 부품",
+                                "Ferrium Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.FerriumPart"
                 }
             ]
         },
@@ -740,10 +940,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -751,10 +956,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -762,10 +972,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -773,10 +988,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -784,10 +1004,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -795,10 +1020,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "柑实罐头",
@@ -806,10 +1036,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "铁制零件",
@@ -817,10 +1052,15 @@
                         "SellProductReconstructionCommandSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "铁制零件"
+                                "鐵製零件",
+                                "铁制零件",
+                                "鉄製部品",
+                                "페리움 부품",
+                                "Ferrium Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.FerriumPart"
                 }
             ]
         },
@@ -843,10 +1083,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选荞愈胶囊"
+                                "精選蕎癒膠囊",
+                                "精选荞愈胶囊",
+                                "蕎花カプセルⅢ",
+                                "메밀꽃 치유 캡슐(대)",
+                                "Buck Capsule [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleA"
                 },
                 {
                     "name": "高容谷地电池",
@@ -854,10 +1099,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "高容谷地电池"
+                                "高容量谷地電池",
+                                "高容谷地电池",
+                                "大容量谷地バッテリー",
+                                "대용량 협곡 배터리",
+                                "HC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.HCValleyBattery"
                 },
                 {
                     "name": "精选柑实罐头",
@@ -865,10 +1115,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "精选柑实罐头"
+                                "精選柑實罐頭",
+                                "精选柑实罐头",
+                                "シトロームの缶詰Ⅲ",
+                                "시트론 통조림(대)",
+                                "Canned Citrome [A]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeA"
                 },
                 {
                     "name": "中容谷地电池",
@@ -876,10 +1131,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "中容谷地电池"
+                                "中容量谷地電池",
+                                "中容谷地电池",
+                                "中容量谷地バッテリー",
+                                "중용량 협곡 배터리",
+                                "SC Valley Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCValleyBattery"
                 },
                 {
                     "name": "优质柑实罐头",
@@ -887,10 +1147,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质柑实罐头"
+                                "優質柑實罐頭",
+                                "优质柑实罐头",
+                                "シトロームの缶詰Ⅱ",
+                                "시트론 통조림(중)",
+                                "Canned Citrome [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeB"
                 },
                 {
                     "name": "优质荞愈胶囊",
@@ -898,10 +1163,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质荞愈胶囊"
+                                "優質蕎癒膠囊",
+                                "优质荞愈胶囊",
+                                "蕎花カプセルⅡ",
+                                "메밀꽃 치유 캡슐(중)",
+                                "Buck Capsule [B]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.BuckCapsuleB"
                 },
                 {
                     "name": "柑实罐头",
@@ -909,10 +1179,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "柑实罐头"
+                                "柑實罐頭",
+                                "柑实罐头",
+                                "シトロームの缶詰Ⅰ",
+                                "시트론 통조림",
+                                "Canned Citrome [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CannedCitromeC"
                 },
                 {
                     "name": "铁制零件",
@@ -920,10 +1195,15 @@
                         "SellProductReconstructionCommandSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "铁制零件"
+                                "鐵製零件",
+                                "铁制零件",
+                                "鉄製部品",
+                                "페리움 부품",
+                                "Ferrium Part"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.FerriumPart"
                 }
             ]
         },
@@ -1032,10 +1312,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "中容武陵电池"
+                                "中容武陵电池",
+                                "中容量武陵電池",
+                                "SC Wuling Battery",
+                                "中容量武陵バッテリー",
+                                "중용량 무릉 배터리"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCWulingBattery"
                 },
                 {
                     "name": "优质芽针针剂",
@@ -1043,10 +1328,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "优质芽针针剂"
+                                "优质芽针针剂",
+                                "優質芽針針劑",
+                                "Yazhen Syringe [A]",
+                                "芽針注射剤Ⅱ",
+                                "고급 야침 주사약"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.YazhenSyringeB"
                 },
                 {
                     "name": "低容武陵电池",
@@ -1054,10 +1344,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "低容武陵电池"
+                                "低容量武陵電池",
+                                "低容武陵电池",
+                                "低容量武陵電池",
+                                "저용량 무릉 배터리",
+                                "LC Wuling Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.LCWulingBattery"
                 },
                 {
                     "name": "芽针针剂",
@@ -1065,10 +1360,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "芽针针剂"
+                                "芽針針劑",
+                                "芽针针剂",
+                                "芽針注射剤Ⅰ",
+                                "야침 주사약",
+                                "Yazhen Syringe [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.YazhenSyringe"
                 },
                 {
                     "name": "锦草软饮",
@@ -1076,10 +1376,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "锦草软饮"
+                                "錦草飲料",
+                                "锦草软饮",
+                                "錦草ソーダⅠ",
+                                "금초 청량음료",
+                                "Jincao Drink"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.JincaoDrink"
                 },
                 {
                     "name": "赤铜零件",
@@ -1087,10 +1392,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "赤铜零件"
+                                "赤铜零件",
+                                "赤銅零件",
+                                "Cuprium Part",
+                                "赤銅部品",
+                                "적동 부품"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CuprumPart"
                 },
                 {
                     "name": "息壤",
@@ -1098,10 +1408,15 @@
                         "SellProductSkyKingFlatsSelectItem1": {
                             "enabled": true,
                             "expected": [
-                                "息壤"
+                                "息壤",
+                                "息壤",
+                                "息壤",
+                                "식양",
+                                "Xiranite"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.Xiranite"
                 }
             ]
         },
@@ -1124,10 +1439,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "中容武陵电池"
+                                "中容武陵电池",
+                                "中容量武陵電池",
+                                "SC Wuling Battery",
+                                "中容量武陵バッテリー",
+                                "중용량 무릉 배터리"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.SCWulingBattery"
                 },
                 {
                     "name": "优质芽针针剂",
@@ -1135,10 +1455,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "优质芽针针剂"
+                                "优质芽针针剂",
+                                "優質芽針針劑",
+                                "Yazhen Syringe [A]",
+                                "芽針注射剤Ⅱ",
+                                "고급 야침 주사약"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.YazhenSyringeB"
                 },
                 {
                     "name": "低容武陵电池",
@@ -1146,10 +1471,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "低容武陵电池"
+                                "低容量武陵電池",
+                                "低容武陵电池",
+                                "低容量武陵電池",
+                                "저용량 무릉 배터리",
+                                "LC Wuling Battery"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.LCWulingBattery"
                 },
                 {
                     "name": "芽针针剂",
@@ -1157,10 +1487,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "芽针针剂"
+                                "芽針針劑",
+                                "芽针针剂",
+                                "芽針注射剤Ⅰ",
+                                "야침 주사약",
+                                "Yazhen Syringe [C]"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.YazhenSyringe"
                 },
                 {
                     "name": "锦草软饮",
@@ -1168,10 +1503,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "锦草软饮"
+                                "錦草飲料",
+                                "锦草软饮",
+                                "錦草ソーダⅠ",
+                                "금초 청량음료",
+                                "Jincao Drink"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.JincaoDrink"
                 },
                 {
                     "name": "赤铜零件",
@@ -1179,10 +1519,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "赤铜零件"
+                                "赤铜零件",
+                                "赤銅零件",
+                                "Cuprium Part",
+                                "赤銅部品",
+                                "적동 부품"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.CuprumPart"
                 },
                 {
                     "name": "息壤",
@@ -1190,10 +1535,15 @@
                         "SellProductSkyKingFlatsSelectItem2": {
                             "enabled": true,
                             "expected": [
-                                "息壤"
+                                "息壤",
+                                "息壤",
+                                "息壤",
+                                "식양",
+                                "Xiranite"
                             ]
                         }
-                    }
+                    },
+                    "label": "$item.Xiranite"
                 }
             ]
         }
