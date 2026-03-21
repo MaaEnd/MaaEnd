@@ -112,7 +112,7 @@ The following are reusable nodes based on Pipeline. You can call them directly t
 
 #### Reusable Custom Nodes
 
-The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However,**according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
+The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However, **according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
