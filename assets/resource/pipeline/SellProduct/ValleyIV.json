@@ -11,6 +11,7 @@
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]SellProductRefugeeCamp",
             "[JumpBack]SellProductInfrastructureOutpost",
@@ -28,6 +29,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductRefugeeCampSell",
             "[JumpBack]SellProductGoToRefugeeCampOutpost"
@@ -43,6 +45,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInfrastructureOutpostSell",
             "[JumpBack]SellProductGoToInfrastructureOutpost"
@@ -58,6 +61,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductReconstructionCommandSell",
             "[JumpBack]SellProductGoToReconstructionCommandOutpost"
@@ -78,6 +82,7 @@
             "SellProductSelectNewGood3": "SellProductRefugeeCampSelectItem3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -97,6 +102,7 @@
             "SellProductSelectNewGood3": "SellProductInfrastructureOutpostSelectItem3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -116,6 +122,7 @@
             "SellProductSelectNewGood3": "SellProductReconstructionCommandSelectItem3"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductAtSell"
         ]
@@ -129,6 +136,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -142,6 +150,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -155,6 +164,7 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductChangeGoods"
         ]
@@ -203,6 +213,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInRefugeeCamp"
         ]
@@ -218,6 +229,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInInfrastructureOutpost"
         ]
@@ -233,6 +245,7 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SellProductInReconstructionCommand"
         ]
@@ -369,11 +382,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem2"
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -391,12 +404,12 @@
             998,
             518
         ],
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3"
-        },
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductRefugeeCampSelectItem3"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -435,11 +448,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem2"
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -457,12 +470,12 @@
             998,
             518
         ],
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3"
-        },
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductInfrastructureOutpostSelectItem3"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -501,11 +514,11 @@
             518
         ],
         "expected": [],
+        "pre_delay": 0,
+        "action": "Click",
         "anchor": {
             "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem2"
         },
-        "pre_delay": 0,
-        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -523,12 +536,12 @@
             998,
             518
         ],
-        "anchor": {
-            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3"
-        },
         "expected": [],
         "pre_delay": 0,
         "action": "Click",
+        "anchor": {
+            "SellProductSelectNewGood": "SellProductReconstructionCommandSelectItem3"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
