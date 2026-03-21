@@ -61,8 +61,28 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("component", "autostockpile").
 		Bool("overflow", result.Overflow).
 		Bool("sunday", result.Sunday).
+		Int("abort_reason", int(result.AbortReason)).
 		Int("goods_count", len(result.Goods)).
 		Msg("recognition result parsed")
+
+	if shouldShortCircuitNoCandidate(result.AbortReason) {
+		log.Info().
+			Str("component", "autostockpile").
+			Int("abort_reason", int(result.AbortReason)).
+			Msg("recognition requested no-candidate short-circuit")
+			// TODO 整体优化无候选商品提示
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别阶段提前终止，跳过本次购买 (AbortReason=%d)", int(result.AbortReason)))
+		if err := overrideNoCandidateBranch(ctx, arg.CurrentTaskName); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("node", arg.CurrentTaskName).
+				Str("next", noCandidateNodeName).
+				Msg("failed to short-circuit abort path to no-candidate branch")
+			return false
+		}
+		return true
+	}
 
 	// OverflowMode intentionally shares the same threshold-bypass path as SundayMode.
 	// Although the option key is named AutoStockpileOverflowBuyLowPriceGoods,
@@ -83,21 +103,13 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Str("reason", selection.Reason).
 			Msg("no qualifying product selected")
 		maafocus.NodeActionStarting(ctx, fmt.Sprintf("未找到符合条件的物资 (原因: %s)", selection.Reason))
-		if err := ctx.OverridePipeline(buildNoCandidateResetOverride()); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "autostockpile").
-				Str("node", selectedGoodsClickNodeName+","+swipeMaxNodeName+","+swipeSpecificQuantityNodeName).
-				Msg("failed to reset no-candidate pipeline state")
-			return false
-		}
-		if err := ctx.OverrideNext(arg.CurrentTaskName, buildNoCandidateNextItems()); err != nil {
+		if err := overrideNoCandidateBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
 				Err(err).
 				Str("component", "autostockpile").
 				Str("node", arg.CurrentTaskName).
 				Str("next", noCandidateNodeName).
-				Msg("failed to override next for no-candidate branch")
+				Msg("failed to short-circuit to no-candidate branch")
 			return false
 		}
 		return true
@@ -226,6 +238,22 @@ func resolveSwipeEnable(selection SelectionResult, result RecognitionResult, cfg
 		return true, false, true
 	}
 	return true, true, false
+}
+
+func shouldShortCircuitNoCandidate(reason AbortReason) bool {
+	return reason != AbortReasonNone
+}
+
+func overrideNoCandidateBranch(ctx *maa.Context, currentTaskName string) error {
+	if err := ctx.OverridePipeline(buildNoCandidateResetOverride()); err != nil {
+		return fmt.Errorf("reset no-candidate pipeline state: %w", err)
+	}
+
+	if err := ctx.OverrideNext(currentTaskName, buildNoCandidateNextItems()); err != nil {
+		return fmt.Errorf("override next for no-candidate branch: %w", err)
+	}
+
+	return nil
 }
 
 func buildNoCandidateResetOverride() map[string]any {

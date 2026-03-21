@@ -65,6 +65,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
+	sunday := time.Now().Weekday() == time.Sunday
+
 	overflowDetected, err := runOverflowColorMatch(ctx, arg.Img)
 	if err != nil {
 		log.Warn().
@@ -86,6 +88,32 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Int("overflow_amount", overflowAmount).
 			Bool("overflow_detected", overflowDetected).
 			Msg("overflow detail parsed")
+
+		if abortReason := resolveAbortReasonFromOverflowCurrent(cur); abortReason != AbortReasonNone {
+			resultPayload := RecognitionResult{
+				Overflow:       overflowDetected,
+				OverflowAmount: overflowAmount,
+				Sunday:         sunday,
+				AbortReason:    abortReason,
+			}
+
+			result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
+			if buildErr != nil {
+				log.Error().
+					Err(buildErr).
+					Str("component", autoStockpileComponent).
+					Msg("failed to marshal aborted recognition result")
+				return nil, false
+			}
+
+			log.Info().
+				Str("component", autoStockpileComponent).
+				Int("overflow_current", cur).
+				Int("abort_reason", int(abortReason)).
+				Msg("quota exhausted, aborting recognition before goods scan")
+
+			return result, true
+		}
 
 		if overflowAmount > 0 {
 			if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
@@ -278,11 +306,12 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	resultPayload := RecognitionResult{
 		Overflow:       overflowDetected,
 		OverflowAmount: overflowAmount,
-		Sunday:         time.Now().Weekday() == time.Sunday,
+		Sunday:         sunday,
+		AbortReason:    AbortReasonNone,
 		Goods:          resultGoods,
 	}
 
-	resultDetail, err := json.Marshal(resultPayload)
+	result, err := buildCustomRecognitionResult(arg, resultPayload)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -295,13 +324,11 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Str("component", autoStockpileComponent).
 		Bool("overflow", resultPayload.Overflow).
 		Bool("sunday", resultPayload.Sunday).
+		Int("abort_reason", int(resultPayload.AbortReason)).
 		Int("goods_count", len(resultPayload.Goods)).
 		Msg("custom recognition finished")
 
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(resultDetail),
-	}, true
+	return result, true
 }
 
 func validateItemMap(itemMap *ItemMap) error {
@@ -424,6 +451,26 @@ func parseOverflowPlus(texts []string) int {
 func resolveOverflow(current int, max int, plus int) (overflowDetected bool, overflowAmount int) {
 	overflowAmount = current + plus - max
 	return overflowAmount > 0, overflowAmount
+}
+
+func resolveAbortReasonFromOverflowCurrent(current int) AbortReason {
+	if current == 0 {
+		return AbortReasonQuotaZero
+	}
+
+	return AbortReasonNone
+}
+
+func buildCustomRecognitionResult(arg *maa.CustomRecognitionArg, payload RecognitionResult) (*maa.CustomRecognitionResult, error) {
+	resultDetail, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: string(resultDetail),
+	}, nil
 }
 
 func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) error {

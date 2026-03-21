@@ -19,11 +19,19 @@ type SelectItemAction struct{}
 // ItemValueChangeRecognition 负责识别商品及其价格信息。
 type ItemValueChangeRecognition struct{}
 
+type AbortReason int
+
+const (
+	AbortReasonNone AbortReason = iota
+	AbortReasonQuotaZero
+)
+
 // RecognitionResult 表示识别阶段输出的结构化结果。
 type RecognitionResult struct {
 	Overflow       bool        `json:"overflow"`
 	OverflowAmount int         `json:"overflow_amount"`
 	Sunday         bool        `json:"sunday"`
+	AbortReason    AbortReason `json:"abort_reason"`
 	Goods          []GoodsItem `json:"Goods"`
 }
 
