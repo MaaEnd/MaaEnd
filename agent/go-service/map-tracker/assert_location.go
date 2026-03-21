@@ -80,7 +80,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		return nil, false
 	}
 
-	resultJson, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerInfer",
@@ -93,14 +93,14 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		log.Info().Msg("Location assertion not satisfied, inference not hit")
 		return nil, false
 	}
-	if resultJson == nil || resultJson.Detail == "" {
+	if resultWrapper == nil || resultWrapper.Detail == "" {
 		log.Info().Msg("Location assertion not satisfied, inference returned no result")
 		return nil, false
 	}
 
 	// Extract result
 	var result MapTrackerInferResult
-	if err := json.Unmarshal([]byte(resultJson.Detail), &result); err != nil {
+	if err := json.Unmarshal([]byte(resultWrapper.Detail), &result); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, false
 	}
@@ -116,7 +116,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 
 				return &maa.CustomRecognitionResult{
 					Box:    arg.Roi,
-					Detail: resultJson.Detail,
+					Detail: resultWrapper.Detail,
 				}, true
 			}
 		}

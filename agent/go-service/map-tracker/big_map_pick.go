@@ -335,7 +335,7 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 		return nil, fmt.Errorf("failed to get task detail: %w", err)
 	}
 
-	res, hit := mapTrackerBigMapInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := mapTrackerBigMapInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerBigMapInfer",
@@ -346,12 +346,12 @@ func doBigMapInferForMap(ctx *maa.Context, ctrl *maa.Controller, mapName string)
 	if !hit {
 		return nil, fmt.Errorf("big-map inference not hit")
 	}
-	if res == nil || res.Detail == "" {
+	if resultWrapper == nil || resultWrapper.Detail == "" {
 		return nil, fmt.Errorf("big-map inference result is empty")
 	}
 
 	var result MapTrackerBigMapInferResult
-	if err := json.Unmarshal([]byte(res.Detail), &result); err != nil {
+	if err := json.Unmarshal([]byte(resultWrapper.Detail), &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal big-map inference result: %w", err)
 	}
 	if result.MapName != mapName {

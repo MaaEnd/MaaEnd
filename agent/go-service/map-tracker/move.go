@@ -511,7 +511,7 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		return nil, err
 	}
 
-	resultJson, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+	resultWrapper, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
 		TaskID:                 taskDetail.ID,
 		CurrentTaskName:        taskDetail.Entry,
 		CustomRecognitionName:  "MapTrackerInfer",
@@ -524,14 +524,14 @@ func doInfer(ctx *maa.Context, ctrl *maa.Controller, param *MapTrackerMoveParam)
 		log.Error().Msg("Location inference not hit")
 		return nil, fmt.Errorf("location inference not hit")
 	}
-	if resultJson == nil || resultJson.Detail == "" {
+	if resultWrapper == nil || resultWrapper.Detail == "" {
 		log.Error().Msg("Location inference result is empty")
 		return nil, fmt.Errorf("location inference result is empty")
 	}
 
 	// Extract result
 	var result MapTrackerInferResult
-	if err := json.Unmarshal([]byte(resultJson.Detail), &result); err != nil {
+	if err := json.Unmarshal([]byte(resultWrapper.Detail), &result); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, err
 	}

@@ -154,7 +154,7 @@ func (pm PlayerMovement) Equals(other PlayerMovement) bool {
 // EtaOfDistance returns the minimal estimated time to cover the given distance at this movement speed.
 func (pm PlayerMovement) EtaOfDistance(dist float64) time.Duration {
 	if pm.speed <= 1e-6 {
-		return math.MaxInt
+		return time.Duration(math.MaxInt64)
 	}
 	return time.Duration(float64(time.Second) * dist / pm.speed)
 }
@@ -162,7 +162,7 @@ func (pm PlayerMovement) EtaOfDistance(dist float64) time.Duration {
 // EtaOfRotation returns the minimal estimated time to adjust the given rotation at this rotation speed.
 func (pm PlayerMovement) EtaOfRotation(rot float64) time.Duration {
 	if pm.rotationSpeed <= 1e-6 {
-		return math.MaxInt
+		return time.Duration(math.MaxInt64)
 	}
 	return time.Duration(float64(time.Second) * math.Abs(rot) / pm.rotationSpeed)
 }
