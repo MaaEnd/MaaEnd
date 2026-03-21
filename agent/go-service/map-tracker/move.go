@@ -71,7 +71,7 @@ var mapTrackerMoveDefaultParam = MapTrackerMoveParam{
 	RotationLowerThreshold: 7.5,
 	RotationUpperThreshold: 60.0,
 	SprintThreshold:        20.0,
-	StuckThreshold:         2000,
+	StuckThreshold:         2500,
 	StuckTimeout:           10000,
 }
 
@@ -270,8 +270,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			log.Debug().Float64("curX", curX).Float64("curY", curY).Int("curRot", rot).Float64("dist", dist).Int("targetRot", targetRot).Msg("Navigating to target")
 
-			// Check Stuck
-			if prevLocation != nil && math.Hypot(prevLocation[0]-curX, prevLocation[1]-curY) < 1.0 {
+			// Check stuck
+			if prevLocation != nil && math.Hypot(prevLocation[0]-curX, prevLocation[1]-curY) < 2.0 {
 				deltaLocationMs := loopStartTime.Sub(prevLocationTime).Milliseconds()
 				if deltaLocationMs > param.StuckTimeout {
 					log.Error().Msg("Stuck for too long, stopping task")
