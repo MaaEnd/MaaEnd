@@ -9,10 +9,12 @@
                 "ValleyIVSell",
                 "WulingSell"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
-        "option": {
+    "option": {
         "ValleyIVSell": {
             "type": "switch",
             "description": "$task.SellProduct.description1",
@@ -22,7 +24,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductValleyIV": { "enabled": true }
+                        "SellProductValleyIV": {
+                            "enabled": true
+                        }
                     },
                     "option": [
                         "ValleyIVRefugeeCamp",
@@ -33,12 +37,13 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductValleyIV": { "enabled": false }
+                        "SellProductValleyIV": {
+                            "enabled": false
+                        }
                     }
                 }
             ]
         },
-
         "ValleyIVRefugeeCamp": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVRefugeeCamp",
@@ -47,7 +52,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductRefugeeCamp": { "enabled": true }
+                        "SellProductRefugeeCamp": {
+                            "enabled": true
+                        }
                     },
                     "option": [
                         "ValleyIVRefugeeCampItem1",
@@ -58,7 +65,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductRefugeeCamp": { "enabled": false }
+                        "SellProductRefugeeCamp": {
+                            "enabled": false
+                        }
                     }
                 }
             ]
@@ -68,18 +77,157 @@
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["柑实罐头"] } } },
-                { "name": "紫晶质瓶", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["紫晶质瓶"] } } },
-                { "name": "晶体外壳", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["晶体外壳"] } } },
-                { "name": "紫晶零件", "pipeline_override": { "SellProductRefugeeCampTryItem1": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem1": { "expected": ["紫晶零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "紫晶质瓶"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "晶体外壳"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem1": {
+                            "expected": [
+                                "紫晶零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVRefugeeCampItem2": {
@@ -87,18 +235,157 @@
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["柑实罐头"] } } },
-                { "name": "紫晶质瓶", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["紫晶质瓶"] } } },
-                { "name": "晶体外壳", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["晶体外壳"] } } },
-                { "name": "紫晶零件", "pipeline_override": { "SellProductRefugeeCampTryItem2": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem2": { "expected": ["紫晶零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "紫晶质瓶"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "晶体外壳"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem2": {
+                            "expected": [
+                                "紫晶零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVRefugeeCampItem3": {
@@ -106,21 +393,159 @@
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "荞愈胶囊", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["柑实罐头"] } } },
-                { "name": "紫晶质瓶", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["紫晶质瓶"] } } },
-                { "name": "晶体外壳", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["晶体外壳"] } } },
-                { "name": "紫晶零件", "pipeline_override": { "SellProductRefugeeCampTryItem3": { "enabled": true }, "SellProductRefugeeCampSelectNewGoodItem3": { "expected": ["紫晶零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "紫晶质瓶"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "晶体外壳"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "pipeline_override": {
+                        "SellProductRefugeeCampTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductRefugeeCampSelectNewGoodItem3": {
+                            "expected": [
+                                "紫晶零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
-
         "ValleyIVInfrastructureOutpost": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVInfrastructureOutpost",
@@ -129,7 +554,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpost": { "enabled": true }
+                        "SellProductInfrastructureOutpost": {
+                            "enabled": true
+                        }
                     },
                     "option": [
                         "ValleyIVInfrastructureOutpostItem1",
@@ -140,7 +567,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductInfrastructureOutpost": { "enabled": false }
+                        "SellProductInfrastructureOutpost": {
+                            "enabled": false
+                        }
                     }
                 }
             ]
@@ -150,16 +579,131 @@
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "低容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["低容谷地电池"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductInfrastructureOutpostTryItem1": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem1": { "expected": ["铁制零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "低容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem1": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVInfrastructureOutpostItem2": {
@@ -167,16 +711,131 @@
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "低容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["低容谷地电池"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductInfrastructureOutpostTryItem2": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem2": { "expected": ["铁制零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "低容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem2": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVInfrastructureOutpostItem3": {
@@ -184,19 +843,133 @@
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "低容谷地电池", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["低容谷地电池"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductInfrastructureOutpostTryItem3": { "enabled": true }, "SellProductInfrastructureOutpostSelectNewGoodItem3": { "expected": ["铁制零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "低容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductInfrastructureOutpostTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductInfrastructureOutpostSelectNewGoodItem3": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
-
         "ValleyIVReconstructionCommand": {
             "type": "switch",
             "label": "$task.SellProduct.ValleyIVReconstructionCommand",
@@ -205,7 +978,9 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductReconstructionCommand": { "enabled": true }
+                        "SellProductReconstructionCommand": {
+                            "enabled": true
+                        }
                     },
                     "option": [
                         "ValleyIVReconstructionCommandItem1",
@@ -216,7 +991,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductReconstructionCommand": { "enabled": false }
+                        "SellProductReconstructionCommand": {
+                            "enabled": false
+                        }
                     }
                 }
             ]
@@ -226,15 +1003,118 @@
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductReconstructionCommandTryItem1": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem1": { "expected": ["铁制零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem1": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVReconstructionCommandItem2": {
@@ -242,15 +1122,118 @@
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductReconstructionCommandTryItem2": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem2": { "expected": ["铁制零件"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem2": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "ValleyIVReconstructionCommandItem3": {
@@ -258,49 +1241,158 @@
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": false } } },
-                { "name": "精选荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["精选荞愈胶囊"] } } },
-                { "name": "高容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["高容谷地电池"] } } },
-                { "name": "精选柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["精选柑实罐头"] } } },
-                { "name": "中容谷地电池", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["中容谷地电池"] } } },
-                { "name": "优质柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["优质柑实罐头"] } } },
-                { "name": "优质荞愈胶囊", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["优质荞愈胶囊"] } } },
-                { "name": "柑实罐头", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["柑实罐头"] } } },
-                { "name": "铁制零件", "pipeline_override": { "SellProductReconstructionCommandTryItem3": { "enabled": true }, "SellProductReconstructionCommandSelectNewGoodItem3": { "expected": ["铁制零件"] } } }
-            ]
-        },
-
-        "WulingSell": {
-            "type": "switch",
-            "label": "$global.region.Wuling",
-            "default_case": "Yes",
-            "cases": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": { 
-                        "SellProductWuling": { "enabled": true }  
-                    },
-                    "option": [ "WulingSkyKingFlats" ]
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": false
+                        }
+                    }
                 },
                 {
-                    "name": "No",
-                    "pipeline_override": { 
-                        "SellProductWuling": { "enabled": false } 
+                    "name": "精选荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "精选荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "高容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "精选柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "中容谷地电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "优质柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "优质荞愈胶囊"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "柑实罐头"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "pipeline_override": {
+                        "SellProductReconstructionCommandTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductReconstructionCommandSelectNewGoodItem3": {
+                            "expected": [
+                                "铁制零件"
+                            ]
+                        }
                     }
                 }
             ]
         },
-
-        "WulingSkyKingFlats": {
+        "WulingSell": {
             "type": "switch",
-            "label": "$task.SellProduct.WulingSkyKingFlats",
-            "description":"$task.SellProduct.description1",
+            "label": "$global.region.Wuling",
+            "description": "$task.SellProduct.description1",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SellProductSkyKingFlats": { "enabled": true }
+                        "SellProductWuling": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "WulingSkyKingFlats"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SellProductWuling": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "WulingSkyKingFlats": {
+            "type": "switch",
+            "label": "$task.SellProduct.WulingSkyKingFlats",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlats": {
+                            "enabled": true
+                        }
                     },
                     "option": [
                         "WulingSkyKingFlatsItem1",
@@ -311,7 +1403,9 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SellProductSkyKingFlats": { "enabled": false }
+                        "SellProductSkyKingFlats": {
+                            "enabled": false
+                        }
                     }
                 }
             ]
@@ -321,14 +1415,105 @@
             "label": "$task.SellProduct.PriorityItem1",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": false } } },
-                { "name": "中容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["中容武陵电池"] } } },
-                { "name": "优质芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["优质芽针针剂"] } } },
-                { "name": "低容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["低容武陵电池"] } } },
-                { "name": "芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["芽针针剂"] } } },
-                { "name": "锦草软饮", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["锦草软饮"] } } },
-                { "name": "赤铜零件", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["赤铜零件"] } } },
-                { "name": "息壤", "pipeline_override": { "SellProductSkyKingFlatsTryItem1": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem1": { "expected": ["息壤"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "中容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "优质芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "低容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "锦草软饮"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "赤铜零件"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem1": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem1": {
+                            "expected": [
+                                "息壤"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "WulingSkyKingFlatsItem2": {
@@ -336,14 +1521,105 @@
             "label": "$task.SellProduct.PriorityItem2",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": false } } },
-                { "name": "中容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["中容武陵电池"] } } },
-                { "name": "优质芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["优质芽针针剂"] } } },
-                { "name": "低容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["低容武陵电池"] } } },
-                { "name": "芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["芽针针剂"] } } },
-                { "name": "锦草软饮", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["锦草软饮"] } } },
-                { "name": "赤铜零件", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["赤铜零件"] } } },
-                { "name": "息壤", "pipeline_override": { "SellProductSkyKingFlatsTryItem2": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem2": { "expected": ["息壤"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "中容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "优质芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "低容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "锦草软饮"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "赤铜零件"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem2": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem2": {
+                            "expected": [
+                                "息壤"
+                            ]
+                        }
+                    }
+                }
             ]
         },
         "WulingSkyKingFlatsItem3": {
@@ -351,14 +1627,105 @@
             "label": "$task.SellProduct.PriorityItem3",
             "default_case": "无",
             "cases": [
-                { "name": "无", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": false } } },
-                { "name": "中容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["中容武陵电池"] } } },
-                { "name": "优质芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["优质芽针针剂"] } } },
-                { "name": "低容武陵电池", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["低容武陵电池"] } } },
-                { "name": "芽针针剂", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["芽针针剂"] } } },
-                { "name": "锦草软饮", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["锦草软饮"] } } },
-                { "name": "赤铜零件", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["赤铜零件"] } } },
-                { "name": "息壤", "pipeline_override": { "SellProductSkyKingFlatsTryItem3": { "enabled": true }, "SellProductSkyKingFlatsSelectNewGoodItem3": { "expected": ["息壤"] } } }
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "中容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "优质芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "低容武陵电池"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "芽针针剂"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "锦草软饮"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "赤铜零件"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "息壤",
+                    "pipeline_override": {
+                        "SellProductSkyKingFlatsTryItem3": {
+                            "enabled": true
+                        },
+                        "SellProductSkyKingFlatsSelectNewGoodItem3": {
+                            "expected": [
+                                "息壤"
+                            ]
+                        }
+                    }
+                }
             ]
         }
     }
