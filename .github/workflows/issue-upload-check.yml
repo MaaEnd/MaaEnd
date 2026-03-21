@@ -50,14 +50,22 @@ jobs:
 
             if (shouldRemoveLabel) {
               if (hasMissingInfoLabel) {
-                await github.rest.issues.removeLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  name: missingInfoLabel
-                });
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: missingInfoLabel
+                  });
 
-                console.log('已为 issue #' + issue.number + ' 移除标签: ' + missingInfoLabel);
+                  console.log('已为 issue #' + issue.number + ' 移除标签: ' + missingInfoLabel);
+                } catch (error) {
+                  if (error.status === 404) {
+                    console.log('Issue #' + issue.number + ' 的标签已被移除，跳过');
+                  } else {
+                    throw error;
+                  }
+                }
               } else {
                 console.log('Issue 已包含日志文件，且无需移除标签');
               }
