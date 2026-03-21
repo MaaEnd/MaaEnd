@@ -152,11 +152,8 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoEssenceConfirmObtain": {
-                            "next": [
-                                "[JumpBack]EssenceFilterAfterBattleStart",
-                                "AutoEssenceOnSuccess"
-                            ]
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": true
                         }
                     },
                     "option": [
@@ -168,10 +165,8 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoEssenceConfirmObtain": {
-                            "next": [
-                                "AutoEssenceCloseObtainDialog"
-                            ]
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": false
                         }
                     }
                 }

@@ -547,6 +547,10 @@
             ]
         },
         "next": [
+            "AutoEssenceLowSp",
+            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
+            "EssenceFilterAfterBattleStart",
+            //基质筛选未开启或进入失败时直接关闭战利品界面
             "AutoEssenceCloseObtainDialog"
         ],
         "focus": {
@@ -578,7 +582,7 @@
         }
     },
     "AutoEssenceLowSp": {
-        //这个现在不用了，改在战斗前识别了，如果不需要了可以删掉
+        "desc": "判断有无理智不足的对话框，有的话结束任务",
         "recognition": {
             "type": "TemplateMatch",
             "param": {

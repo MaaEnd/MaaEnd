@@ -14,7 +14,8 @@
     //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
     //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
     "EssenceFilterAfterBattleStart": {
-        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面，要加Jumpback",
+        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
+        "enabled": false,
         //有基质才开始任务，不然直接返回失败
         "recognition": {
             "type": "TemplateMatch",
@@ -95,7 +96,7 @@
             "skip_locked_row": false
         }
     },
-    //节点出口，如果想结束后不离开，那就不加jumpback，把这个出口节点的next接到你想要的下一个节点上
+    //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上
     "EssenceFilterAfterBattleExit": {
         "desc": "任务完成,点击离开",
         "recognition": {
@@ -117,6 +118,9 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "post_wait_freezes": 200
+        "post_wait_freezes": 200,
+        "next": [
+            "AutoEssenceOnSuccess"
+        ]
     }
 }
