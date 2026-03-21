@@ -23,7 +23,6 @@ const (
 	swipeSpecificQuantityNodeName = "AutoStockpileSwipeSpecificQuantity"
 	selectedGoodsClickResetY      = 180
 	findMarketMarkNodeName        = "AutoStockpileFindMarketMark"
-	overflowNodeName              = "AutoStockpileCheckOverflow"
 	overflowQuotaNodeName         = "AutoStockpileGetQuota"
 	overflowQuotaAdditionNodeName = "AutoStockpileGetQuotaAddition"
 	locateGoodsNodeName           = "AutoStockpileLocateGoods"
@@ -67,15 +66,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 
 	sunday := time.Now().Weekday() == time.Sunday
 
-	overflowDetected, err := runOverflowColorMatch(ctx, arg.Img)
-	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Str("step", "overflow_color_match").
-			Msg("failed to run overflow color match")
-	}
-
+	overflowDetected := false
 	overflowAmount := 0
 	if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
 		overflowDetected, overflowAmount = resolveOverflow(cur, max, plus)
@@ -126,10 +117,9 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			}
 		}
 	} else {
-		log.Info().
+		log.Warn().
 			Str("component", autoStockpileComponent).
-			Bool("overflow_fallback", overflowDetected).
-			Msg("overflow detail unavailable, using color match fallback")
+			Msg("overflow detail unavailable")
 	}
 
 	region, anchor := resolveGoodsRegion(ctx)
@@ -370,21 +360,6 @@ func listUnboundRegionItemIDs(itemMap *ItemMap, region string, boundIDs map[stri
 
 	sort.Strings(ids)
 	return ids
-}
-
-// TODO: 当前 ColorMatch 溢出识别不够准确，需要改进。
-func runOverflowColorMatch(ctx *maa.Context, img image.Image) (bool, error) {
-	detail, err := ctx.RunRecognition(overflowNodeName, img, nil)
-	if err != nil {
-		return false, err
-	}
-
-	hit := detail != nil && detail.Hit
-	log.Info().
-		Str("component", autoStockpileComponent).
-		Bool("overflow_hit", hit).
-		Msg("overflow color match completed")
-	return hit, nil
 }
 
 func runOverflowDetailOCR(ctx *maa.Context, img image.Image) (current int, max int, plus int, ok bool) {

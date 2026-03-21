@@ -1,37 +1,4 @@
 {
-    "AutoStockpileCheckOverflow": {
-        "desc": "通过颜色初步判断是否溢出",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    250,
-                    135,
-                    325,
-                    30
-                ],
-                "method": 40,
-                "lower": [
-                    [
-                        0,
-                        200,
-                        200
-                    ]
-                ],
-                "upper": [
-                    [
-                        20,
-                        255,
-                        255
-                    ]
-                ],
-                "count": 100
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockpileGetGoods": {
         "desc": "对购买区域进行OCR",
         "recognition": {
