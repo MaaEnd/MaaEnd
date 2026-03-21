@@ -49,7 +49,8 @@
                         26
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [
@@ -124,7 +125,8 @@
                         55
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [
