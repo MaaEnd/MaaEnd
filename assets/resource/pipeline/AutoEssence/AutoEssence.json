@@ -634,6 +634,7 @@
     "AutoEssenceOnComplete": {
         "focus": {
             "Node.Action.Starting": "🎉**已完成所规定次数的基质刷取**"
-        }
+        },
+        "action": "StopTask"
     }
 }
