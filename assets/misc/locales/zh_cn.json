@@ -385,7 +385,7 @@
     "option.BatchAddFriends.inputs.MaxCount.label": "最大添加数量",
     "option.BatchAddFriends.inputs.MaxCount.description": "达到数量后自动停止",
     "task.SellProduct.label": "🛒售卖产品",
-    "task.SellProduct.description": "使用产品在各个据点兑换对应调度券,可选择在哪些地区售卖",
+    "task.SellProduct.description": "使用产品在各个据点兑换对应调度券\n您可以在任务选项中启用或停用特定地区的销售功能。",
     "task.SellProduct.description1": "可选择优先售卖的三种物品，默认全都可以卖 0w0",
     "task.SellProduct.TaskEnd": "售卖任务已完成",
     "task.SellProduct.ValleyIVRefugeeCamp": "难民暂居处",
