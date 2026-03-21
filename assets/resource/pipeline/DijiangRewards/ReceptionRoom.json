@@ -61,7 +61,9 @@
         },
         "pre_delay": 0,
         "pre_wait_freezes": 200,
-        "action": "Click",
+        "action": {
+            "type": "Click"
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -115,7 +117,9 @@
                 "box_index": 2
             }
         },
-        "action": "Click",
+        "action": {
+            "type": "Click"
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
