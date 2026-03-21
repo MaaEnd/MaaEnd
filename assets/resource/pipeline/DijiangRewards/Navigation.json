@@ -25,6 +25,7 @@
                 "count": 40
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
@@ -41,18 +42,17 @@
             "timeout": 1000
         },
         "post_delay": 0,
-        "pre_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
-        },
         "next": [
             "MFG_ReceiveRewards",
             "GrowthChamber"
         ],
         "on_error": [
             "EntryCarbin_OnError"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
+        }
     },
     "EntryCarbin_OnError": {
         "desc": "[控制中枢·红点] 在总控中枢点击某舱室的任务提示红点（出错重试）",
@@ -95,13 +95,13 @@
             "time": 100,
             "timeout": 1000
         },
-        "focus": {
-            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
-        },
         "next": [
             "MFG_ReceiveRewards",
             "GrowthChamber"
-        ]
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.cabin_entry_env_unrecognized"
+        }
     },
     "InDijiangControlNexus": {
         "desc": "识别处于帝江号总控中枢界面",

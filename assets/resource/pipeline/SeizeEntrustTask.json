@@ -315,7 +315,15 @@
             "type": "Click",
             "param": {}
         },
-        "rate_limit": 1000,
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ]
+        },
         "next": [
             "SeizeEntrustTaskNewsStatus1"
         ]
@@ -374,7 +382,7 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTarget",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDwon",
+            "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInUpSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeMiddle",
             "[JumpBack]SeizeEntrustTaskNews2"
@@ -463,7 +471,7 @@
             "Node.Recognition.Succeeded": "没有在运送委托列表界面哦"
         }
     },
-    "SeizeEntrustTaskSwipeDwon": {
+    "SeizeEntrustTaskSwipeDown": {
         "desc": "直接滑倒最底下",
         "recognition": {
             "type": "TemplateMatch",
@@ -491,6 +499,15 @@
                 ],
                 "dy": -240
             }
+        },
+        "post_wait_freezes": {
+            "time": 2000,
+            "target": [
+                29,
+                166,
+                1222,
+                481
+            ]
         }
     },
     "SeizeEntrustTaskWalkingToDepotNode": {
@@ -547,7 +564,7 @@
         "next": [
             "[JumpBack]SeizeEntrustTaskFindTarget",
             "[JumpBack]SeizeEntrustTaskErrorTaskStop",
-            "[JumpBack]SeizeEntrustTaskSwipeDwon",
+            "[JumpBack]SeizeEntrustTaskSwipeDown",
             "[JumpBack]SeizeEntrustTaskInDownSwipeUp",
             "[JumpBack]SeizeEntrustTaskNews"
         ]

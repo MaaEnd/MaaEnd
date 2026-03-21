@@ -248,11 +248,11 @@
                 ]
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_delay": 0,
-        "pre_delay": 0,
         "rate_limit": 0,
         "next": [
             "ConfirmGrowAgain"
@@ -277,12 +277,12 @@
                 ]
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ConfirmGrowAgain"
         ],
@@ -302,12 +302,12 @@
                 "box_index": 1
             }
         },
-        "post_delay": 0,
         "pre_delay": 0,
-        "rate_limit": 0,
         "action": {
             "type": "Click"
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "ExitGrowthChamber"
         ],
@@ -1066,17 +1066,17 @@
                     395,
                     291
                 ],
-                "expected": [
-                    "拥有数量",
-                    "持有數量",
-                    "(?i)Amount\\s*owned",
-                    "総在庫"
-                ],
                 "roi_offset": [
                     0,
                     0,
                     149,
                     0
+                ],
+                "expected": [
+                    "拥有数量",
+                    "持有數量",
+                    "(?i)Amount\\s*owned",
+                    "総在庫"
                 ]
             }
         },

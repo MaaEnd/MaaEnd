@@ -360,8 +360,6 @@ description: 分析 MaaEnd 上游仓库公开 Issue（`https://github.com/MaaEnd
 
 ## 给 AI 的建议（可复制）
 
-给修复 AI 的指令，要求可直接执行。
-
 <details><summary>点击此处展开</summary>
 
 ~~~text
