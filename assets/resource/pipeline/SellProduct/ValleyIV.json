@@ -21,7 +21,6 @@
     },
     "SellProductRefugeeCamp": {
         "desc": "难民暂居处售卖",
-        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -37,7 +36,6 @@
     },
     "SellProductInfrastructureOutpost": {
         "desc": "基建前站售卖",
-        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
@@ -53,7 +51,6 @@
     },
     "SellProductReconstructionCommand": {
         "desc": "重建指挥部售卖",
-        "enabled": true,
         "max_hit": 1,
         "recognition": "And",
         "all_of": [
