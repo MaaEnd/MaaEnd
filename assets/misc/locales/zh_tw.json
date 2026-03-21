@@ -276,7 +276,7 @@
     "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",
     "option.ClaimSimulationArea.label": "地區",
     "task.SellProduct.label": "🛒售賣產品",
-    "task.SellProduct.description": "使用產品在各個據點兌換對應調度券",
+    "task.SellProduct.description": "使用產品在各個據點兌換對應調度券\n您可以在任務選項中啟用或停用特定地區的銷售功能。",
     "task.SellProduct.description1":"可選擇優先販售的三種物品，預設全部都可以販售 0w0",
     "task.SellProduct.TaskEnd": "售賣任務已完成",
     "task.SellProduct.ValleyIVRefugeeCamp": "難民暫居處",

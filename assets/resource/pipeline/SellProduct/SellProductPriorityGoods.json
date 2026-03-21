@@ -6,7 +6,10 @@
         "expected": [
             "更换货品",
             "更換貨品",
-            "Switch Goods"
+            "Switch Goods",
+            "商品変更",
+            "상품 교체",
+            "상품 선택"
         ],
         "action": "Click",
         "post_wait_freezes": 100,
@@ -114,7 +117,9 @@
                 "SellProductRefugeeCampTryItem2",
                 "SellProductRefugeeCampTryItem3",
                 "SellProductRefugeeCampSell"
-            ]
+            ],
+            "continue": true,
+            "strict": false
         }
     },
 
@@ -225,7 +230,9 @@
                 "SellProductInfrastructureOutpostTryItem2",
                 "SellProductInfrastructureOutpostTryItem3",
                 "SellProductInfrastructureOutpostSell"
-            ]
+            ],
+            "continue": true,
+            "strict": false
         }
     },
 
@@ -337,7 +344,9 @@
                 "SellProductReconstructionCommandTryItem2",
                 "SellProductReconstructionCommandTryItem3",
                 "SellProductReconstructionCommandSell"
-            ]
+            ],
+            "continue": true,
+            "strict": false
         }
     },
 
@@ -447,8 +456,11 @@
             "sub": [
                 "SellProductSkyKingFlatsTryItem1",
                 "SellProductSkyKingFlatsTryItem2",
-                "SellProductSkyKingFlatsTryItem3"
-            ]
+                "SellProductSkyKingFlatsTryItem3",
+                "SellProductSkyKingFlatsSell"
+            ],
+            "continue": true,
+            "strict": false
         }
     },
 

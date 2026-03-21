@@ -58,7 +58,6 @@
         "rate_limit": 0,
         "next": [
             "SellProductGoToOutpost"
-            
         ]
     },
     "SellProductGoToWulingOutpost": {
@@ -193,7 +192,6 @@
         "rate_limit": 0,
         "next": [
             "SellProductInWulingOutpost"
-            
         ]
     },
     "SellProductBackToRegionalConstruction": {

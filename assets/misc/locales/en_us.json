@@ -424,7 +424,7 @@
     "option.BatchAddFriends.inputs.MaxCount.label": "Max add count",
     "option.BatchAddFriends.inputs.MaxCount.description": "Stop after reaching the count.",
     "task.SellProduct.label": "🛒 Sell Products",
-    "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers.",
+    "task.SellProduct.description": "Use products at various outposts to exchange for corresponding procurement vouchers.\nTask options allow you to enable or disable sales features in specific regions.",
     "task.SellProduct.description1": "You can select three items to prioritize for selling. By default, all items can be sold 0w0 .",
     "task.SellProduct.TaskEnd": "Sell task completed",
     "task.SellProduct.ValleyIVRefugeeCamp": "Refugee Camp",
