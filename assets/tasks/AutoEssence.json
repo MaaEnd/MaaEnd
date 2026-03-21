@@ -326,7 +326,8 @@
                         },
                         "EssenceFilterAfterBattleIsflawless": {
                             "next": [
-                                "EssenceFilterAfterBattleCloseDetail"
+                                "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+                                "EssenceFilterAfterBattleRowNextItem"
                             ],
                             "focus": {
                                 "Node.Recognition.Succeeded": "是无暇基质,跳过"
@@ -369,7 +370,8 @@
                         },
                         "EssenceFilterAfterBattleIsPure": {
                             "next": [
-                                "EssenceFilterAfterBattleCloseDetail"
+                                "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+                                "EssenceFilterAfterBattleRowNextItem"
                             ],
                             "focus": {
                                 "Node.Recognition.Succeeded": "是高纯基质,跳过"

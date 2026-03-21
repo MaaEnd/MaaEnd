@@ -65,7 +65,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
             "EssenceFilterAfterBattleLockItem"
@@ -159,7 +160,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
             "EssenceFilterAfterBattleDiscardItem"
@@ -169,7 +171,27 @@
         }
     },
     "EssenceFilterAfterBattleCloseDetail": {
-        "desc": "点击左上角，关闭基质详情，防遮挡",
+        "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
         "action": {
             "type": "Click",
             "param": {
@@ -180,8 +202,7 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleExit"
+            //无next，用来触发Jumpback
         ]
     },
     "EssenceFilterAfterBattleRowNextItem": {

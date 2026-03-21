@@ -1,4 +1,58 @@
 {
+    "EssenceFullScreenDetectAll": {
+        "desc": "在战利品界面模板匹配：收集所有基质图标（不点击）,给custom调用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    34,
+                    87,
+                    1210,
+                    522
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0
+    },
+    "EssenceFindLockItem": {
+        "desc": "查找上锁的图标，已上锁就跳过",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                //偏移方案会因为超过边界而到另一边，目前只能固定识别范围先凑合一下
+                "roi": [
+                    276,
+                    87,
+                    972,
+                    486
+                ],
+                "template": "EssenceFilter/LockButton.png",
+                "threshold": 0.9,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_wait_freezes": 300,
+        "next": [
+            "EssenceFilterAfterBattleIsflawless",
+            "EssenceFilterAfterBattleIsPure",
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "基质未锁定"
+        }
+    },
     "EssenceFilterAfterBattleIsflawless": {
         "desc": "判断是否为无瑕基质",
         "recognition": {
@@ -27,7 +81,8 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是无暇基质"
@@ -61,7 +116,8 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "是高纯基质"
@@ -304,7 +360,8 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Action.Failed": "OCR 超时：跳过"
@@ -321,7 +378,8 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleRowNextItem"
         ]
     }
 }
