@@ -326,7 +326,6 @@
                         },
                         "EssenceFilterAfterBattleIsflawless": {
                             "next": [
-                                "[JumpBack]EssenceFilterAfterBattleCloseDetail",
                                 "EssenceFilterAfterBattleRowNextItem"
                             ],
                             "focus": {
@@ -370,7 +369,6 @@
                         },
                         "EssenceFilterAfterBattleIsPure": {
                             "next": [
-                                "[JumpBack]EssenceFilterAfterBattleCloseDetail",
                                 "EssenceFilterAfterBattleRowNextItem"
                             ],
                             "focus": {

@@ -65,7 +65,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
@@ -160,7 +159,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
@@ -206,7 +204,15 @@
         ]
     },
     "EssenceFilterAfterBattleRowNextItem": {
-        "desc": "处理下一个命中的格子，或滑动/结束",
+        "desc": "处理下一个命中的格子，识别不到则退出任务",
+        "next": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleNthRecognition",
+            "EssenceFilterAfterBattleExit"
+        ]
+    },
+    "EssenceFilterAfterBattleNthRecognition": {
+        "desc": "按顺序返回识别结果，每次调用时index++",
         "recognition": {
             "type": "Custom",
             "param": {

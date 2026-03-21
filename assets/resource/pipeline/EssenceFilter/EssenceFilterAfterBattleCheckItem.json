@@ -46,7 +46,6 @@
         "next": [
             "EssenceFilterAfterBattleIsflawless",
             "EssenceFilterAfterBattleIsPure",
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
@@ -81,7 +80,6 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
@@ -116,7 +114,6 @@
             "EssenceFilterAfterBattleCheckItemSlot1"
         ],
         "on_error": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
@@ -360,7 +357,6 @@
         },
         "post_delay": 0,
         "next": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
@@ -378,7 +374,6 @@
         },
         "post_delay": 0,
         "next": [
-            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
             "EssenceFilterAfterBattleRowNextItem"
         ]
     }

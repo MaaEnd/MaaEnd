@@ -58,8 +58,7 @@
         },
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleExit"
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "初始化完成"
