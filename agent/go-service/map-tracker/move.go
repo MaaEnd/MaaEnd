@@ -233,11 +233,11 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
-					// Foresee rotation adjustment
-					foreseeDeltaRot := float64(rawDeltaRot) / 2.0
+					// Foresee rotation adjustment for the next target
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
 						ca.SetPlayerMovement(control.MovementWalk)
 					}
+					foreseeDeltaRot := float64(nextDeltaRot) * 0.382
 					ca.RotateCamera(int(foreseeDeltaRot*rotationSpeed), 0)
 				}
 			}
@@ -355,9 +355,6 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					ca.AggressivelyResetCamera()
 				}
 			}
-			loopEndTime := time.Now()
-			loopTotalElapsed := loopEndTime.Sub(loopStartTime)
-			log.Info().Int("index", i).Dur("elapsed", loopElapsed).Float64("FPS", 1.0/loopTotalElapsed.Seconds()).Msg("Finished navigating to target point")
 		}
 		// End of loop, one target reached
 	}

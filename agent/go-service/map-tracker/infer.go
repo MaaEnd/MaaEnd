@@ -160,12 +160,12 @@ func (i *MapTrackerInfer) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 
 	go func() {
 		defer wg.Done()
-		loc = i.inferLocation(control.CachedControlType, screenImg, mapNameRegex, param)
+		loc = i.inferLocation(ctrlType, screenImg, mapNameRegex, param)
 	}()
 
 	go func() {
 		defer wg.Done()
-		rot = i.inferRotation(control.CachedControlType, screenImg, rotStep)
+		rot = i.inferRotation(ctrlType, screenImg, rotStep)
 	}()
 
 	wg.Wait()

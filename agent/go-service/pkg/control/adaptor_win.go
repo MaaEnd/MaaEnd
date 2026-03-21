@@ -133,7 +133,7 @@ func (wca *WindowsControlAdaptor) PlayerJump() {
 }
 
 func (wca *WindowsControlAdaptor) PlayerSprint() {
-	wca.KeyDown(KEY_SHIFT, defaultKeyActionDelayMillis)
+	wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis)
 	wca.pm = MovementSprint
 	wca.lastMotionIsWalk = false
 }

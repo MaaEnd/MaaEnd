@@ -41,8 +41,8 @@ type ControlAdaptor interface {
 	// KeyType performs a key type of the given key code with delay after the action.
 	KeyType(keyCode int, delayMillis int)
 
-	// RotateCamera performs a camera rotation by only-hover swipe starting from the center of the screen
-	// with the given delta, duration and delay after the action.
+	// RotateCamera performs a camera rotation by only-hover swipe starting from
+	// the center of the screen with the given delta.
 	RotateCamera(dx, dy int)
 
 	// GetPlayerMovement returns the current player movement state.
@@ -68,8 +68,8 @@ type ControlAdaptor interface {
 	// Different implementations may have different ways to achieve this.
 	AggressivelyResetCamera()
 
-	// AggressivelyResetPlayerMovement provides an aggressive way to reset player movement state to stop
-	// for initialization purpose. Different implementations may have different ways to achieve this.
+	// AggressivelyResetPlayerMovement provides an aggressive way to reset player movement for initialization purpose.
+	// Different implementations may have different ways to achieve this.
 	AggressivelyResetPlayerMovement()
 }
 
@@ -106,8 +106,7 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 	}
 
 	var info maaControllerInfo
-	if err := json.Unmarshal([]byte(infoStr), &info); err != nil || info.Type == "" {
-		log.Warn().Msg("Failed to parse controller info via JSON, now trying fallback parsing")
+	if err := json.Unmarshal([]byte(infoStr), &info); err != nil {
 		// Fallback
 		if strings.Contains(infoStr, CONTROL_TYPE_WIN32) {
 			CachedControlType = CONTROL_TYPE_WIN32
@@ -117,7 +116,10 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 			CachedControlType = CONTROL_TYPE_ADB
 			return CONTROL_TYPE_ADB, nil
 		}
-		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and failed to using fallback", err)
+		return "", fmt.Errorf("failed to parse controller info via JSON: %w, and fallback parsing also failed", err)
+	}
+	if info.Type == "" {
+		return "", fmt.Errorf("controller type is empty in parsed info")
 	}
 
 	if info.Type == CONTROL_TYPE_WIN32 {
@@ -152,7 +154,7 @@ func (pm PlayerMovement) Equals(other PlayerMovement) bool {
 // EtaOfDistance returns the minimal estimated time to cover the given distance at this movement speed.
 func (pm PlayerMovement) EtaOfDistance(dist float64) time.Duration {
 	if pm.speed <= 1e-6 {
-		return time.Duration(math.Inf(1))
+		return math.MaxInt
 	}
 	return time.Duration(float64(time.Second) * dist / pm.speed)
 }
@@ -160,7 +162,7 @@ func (pm PlayerMovement) EtaOfDistance(dist float64) time.Duration {
 // EtaOfRotation returns the minimal estimated time to adjust the given rotation at this rotation speed.
 func (pm PlayerMovement) EtaOfRotation(rot float64) time.Duration {
 	if pm.rotationSpeed <= 1e-6 {
-		return time.Duration(math.Inf(1))
+		return math.MaxInt
 	}
 	return time.Duration(float64(time.Second) * math.Abs(rot) / pm.rotationSpeed)
 }
