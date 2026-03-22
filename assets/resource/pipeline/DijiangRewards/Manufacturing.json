@@ -67,7 +67,11 @@
                 ],
                 "method": 10001,
                 "order_by": "Vertical",
-                "index": -1
+                "index": -1,
+                "green_mask": true,
+                "threshold": [
+                    0.9
+                ]
             }
         },
         "pre_delay": 0,
@@ -287,7 +291,11 @@
                 "template": [
                     "ClaimDijiangRewards/ItemMaxButton.png"
                 ],
-                "method": 10001
+                "method": 10001,
+                "green_mask": true,
+                "threshold": [
+                    0.9
+                ]
             }
         },
         "pre_delay": 0,
