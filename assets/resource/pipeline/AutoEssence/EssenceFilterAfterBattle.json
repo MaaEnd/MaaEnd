@@ -66,6 +66,8 @@
         },
         //默认配置
         "attach": {
+            // 游戏语言：CN|TC|EN|JP|KR（与技能名数据一致）
+            "input_language": "CN",
             //是否匹配6星武器
             "rarity6_weapon": true,
             //是否匹配5星武器

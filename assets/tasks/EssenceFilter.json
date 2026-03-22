@@ -6,6 +6,7 @@
             "entry": "EssenceFilterMain",
             "description": "$task.EssenceFilter.description",
             "option": [
+                "SelectInputLanguage",
                 "SelectWeaponRarity",
                 "SelectEssence",
                 "SelectExtraRules",
@@ -20,6 +21,69 @@
         }
     ],
     "option": {
+        "SelectInputLanguage": {
+            "type": "select",
+            "label": "$option.SelectInputLanguage.label",
+            "description": "$option.SelectInputLanguage.description",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.SelectInputLanguage.cases.CN.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "input_language": "CN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TC",
+                    "label": "$option.SelectInputLanguage.cases.TC.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "input_language": "TC"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EN",
+                    "label": "$option.SelectInputLanguage.cases.EN.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "input_language": "EN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "JP",
+                    "label": "$option.SelectInputLanguage.cases.JP.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "input_language": "JP"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KR",
+                    "label": "$option.SelectInputLanguage.cases.KR.label",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "input_language": "KR"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "SelectWeaponRarity": {
             "type": "switch",
             "label": "$option.SelectWeaponRarity.label",

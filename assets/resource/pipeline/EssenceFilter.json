@@ -11,18 +11,18 @@
         "on_error": "EssenceFilterMainFailed"
     },
     "EssenceFilterInitNormalize": {
-        "desc": "初始化：若在基质栏位则先切武器库再切回基质页，否则直接切基质页",
+        "desc": "初始化：若在基质栏位则先切武器库再切回基质页，否则直接切基质页（已选中武器基质页签）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    20,
-                    46,
-                    74,
-                    30
+                    435,
+                    3,
+                    150,
+                    49
                 ],
-                "template": "EssenceFilter/EssenceSlot.png",
-                "threshold": 0.8
+                "template": "EssenceFilter/EssenceTabChoose.png",
+                "threshold": 0.9
             }
         },
         "pre_delay": 0,

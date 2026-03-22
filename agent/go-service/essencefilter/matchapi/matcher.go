@@ -1,7 +1,10 @@
 package matchapi
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 type skillEntry struct {
@@ -55,12 +58,11 @@ func (e *Engine) buildSlotIndices() {
 		}
 
 		for _, s := range pool {
-			rawFull := cleanChinese(s.Chinese)
-			rawCore := trimStopSuffix(e.cfg, rawFull)
+			rawFull := normalizeForMatch(s.Chinese, e.locale)
+			rawCore := trimStopSuffix(e.cfg, rawFull, e.locale)
 
-			// Skill pool is not normalized by similar-word replacement.
-			normFull := rawFull
-			normCore := rawCore
+			normFull := normalizeSimilarIfLocale(e.cfg, rawFull, e.locale)
+			normCore := trimStopSuffix(e.cfg, normFull, e.locale)
 
 			ent := skillEntry{
 				ID:            s.ID,
@@ -236,27 +238,31 @@ func (e *Engine) matchSlot3Level3Practical(ocrSkills [3]string, levels [3]int, m
 func (e *Engine) matchSkillIDEnhanced(slot int, ocrText string) (int, bool) {
 	idx := e.slotIdx[slot-1]
 
-	cleanedRaw := cleanChinese(ocrText)
+	cleanedRaw := normalizeForMatch(ocrText, e.locale)
 	if cleanedRaw == "" {
+		e.traceMatch(slot, ocrText, "", "", "", "empty")
 		return 0, false
 	}
-	coreRaw := trimStopSuffix(e.cfg, cleanedRaw)
+	coreRaw := trimStopSuffix(e.cfg, cleanedRaw, e.locale)
 
-	if id, ok := attemptMatch(e, "raw", cleanedRaw, coreRaw, idx); ok {
+	if id, stage, ok := attemptMatch(e, "raw", cleanedRaw, coreRaw, idx); ok {
+		e.traceMatch(slot, ocrText, cleanedRaw, coreRaw, stage, "ok")
 		return id, true
 	}
 
-	cleanedNorm := normalizeSimilar(e.cfg, cleanedRaw)
-	coreNorm := trimStopSuffix(e.cfg, cleanedNorm)
+	cleanedNorm := normalizeSimilarIfLocale(e.cfg, cleanedRaw, e.locale)
+	coreNorm := trimStopSuffix(e.cfg, cleanedNorm, e.locale)
 
-	if id, ok := attemptMatch(e, "norm", cleanedNorm, coreNorm, idx); ok {
+	if id, stage, ok := attemptMatch(e, "norm", cleanedNorm, coreNorm, idx); ok {
+		e.traceMatch(slot, ocrText, cleanedNorm, coreNorm, stage, "ok")
 		return id, true
 	}
 
+	e.traceMatch(slot, ocrText, cleanedNorm, coreNorm, "none", "miss")
 	return 0, false
 }
 
-func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slotIndex) (int, bool) {
+func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slotIndex) (int, string, bool) {
 	useNorm := phase == "norm"
 
 	var fullIndex, coreIndex map[string][]int
@@ -271,16 +277,17 @@ func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slot
 
 	cLen := runeCount(cleaned)
 	coreLen := runeCount(core)
+	lenDeltaLimit := fuzzyLenDeltaLimit(e.locale)
 
 	// 1) Full exact.
 	if ids, ok := fullIndex[cleaned]; ok && len(ids) > 0 {
-		return ids[0], true
+		return ids[0], phase + ":full_exact", true
 	}
 	// 2) Core exact.
 	if ids, ok := coreIndex[core]; ok && len(ids) > 0 {
-		return ids[0], true
+		return ids[0], phase + ":core_exact", true
 	}
-	// 3) Full substring (len diff <= 2).
+	// 3) Full substring bidirectional.
 	for _, ent := range idx.entries {
 		tFull := ent.RawFull
 		tLen := ent.RawLen
@@ -288,14 +295,14 @@ func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slot
 			tFull = ent.NormFull
 			tLen = ent.NormLen
 		}
-		if abs(tLen-cLen) > 2 {
+		if abs(tLen-cLen) > lenDeltaLimit {
 			continue
 		}
-		if strings.Contains(tFull, cleaned) {
-			return ent.ID, true
+		if strings.Contains(tFull, cleaned) || strings.Contains(cleaned, tFull) {
+			return ent.ID, phase + ":full_substr", true
 		}
 	}
-	// 4) Core substring (len diff <= 2).
+	// 4) Core substring bidirectional.
 	if core != "" {
 		for _, ent := range idx.entries {
 			tCore := ent.RawCore
@@ -304,32 +311,50 @@ func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slot
 				tCore = ent.NormCore
 				tLen = ent.NormLen
 			}
-			if abs(tLen-coreLen) > 2 {
+			if abs(tLen-coreLen) > lenDeltaLimit {
 				continue
 			}
-			if strings.Contains(tCore, core) {
-				return ent.ID, true
+			if strings.Contains(tCore, core) || strings.Contains(core, tCore) {
+				return ent.ID, phase + ":core_substr", true
 			}
 		}
 	}
 
-	// 5) Single-char fallback (only when cleaned length == 1).
-	if cLen == 1 {
-		if ids := firstChar[cleaned]; len(ids) == 1 {
-			return ids[0], true
+	// 5) EN token-prefix fallback with high confidence.
+	if NormalizeInputLocale(e.locale) == LocaleEN && cleaned != "" {
+		bestID := 0
+		bestScore := 0
+		for _, ent := range idx.entries {
+			target := ent.RawFull
+			if useNorm {
+				target = ent.NormFull
+			}
+			if score, ok := englishTokenPrefixScore(cleaned, target); ok {
+				if score > bestScore {
+					bestScore = score
+					bestID = ent.ID
+				}
+			}
 		}
-		if ids := lastChar[cleaned]; len(ids) == 1 {
-			return ids[0], true
+		if bestID != 0 && bestScore >= 2 {
+			return bestID, phase + ":en_token_prefix", true
 		}
 	}
 
-	// 6) Edit distance fallback.
+	// 6) Single-char fallback (only when cleaned length == 1).
+	if cLen == 1 {
+		if ids := firstChar[cleaned]; len(ids) == 1 {
+			return ids[0], phase + ":single_char_head", true
+		}
+		if ids := lastChar[cleaned]; len(ids) == 1 {
+			return ids[0], phase + ":single_char_tail", true
+		}
+	}
+
+	// 7) Edit distance fallback.
 	// If matched by stop-suffix trimming (core != cleaned), prefer core distance.
 	if core != "" && core != cleaned {
-		maxEdCore := 1
-		if coreLen >= 4 {
-			maxEdCore = 2
-		}
+		maxEdCore := maxEditDistanceForLocale(e.locale, coreLen)
 		bestID := 0
 		bestDist := maxEdCore + 1
 		for _, ent := range idx.entries {
@@ -343,16 +368,13 @@ func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slot
 			}
 		}
 		if bestID != 0 {
-			return bestID, true
+			return bestID, fmt.Sprintf("%s:core_ed%d", phase, bestDist), true
 		}
-		return 0, false
+		return 0, phase + ":core_ed_miss", false
 	}
 
 	// Core didn't change; use full string edit distance.
-	maxEd := 1
-	if cLen >= 4 {
-		maxEd = 2
-	}
+	maxEd := maxEditDistanceForLocale(e.locale, cLen)
 	bestID := 0
 	bestDist := maxEd + 1
 	for _, ent := range idx.entries {
@@ -366,9 +388,78 @@ func attemptMatch(e *Engine, phase string, cleaned string, core string, idx slot
 		}
 	}
 	if bestID != 0 {
-		return bestID, true
+		return bestID, fmt.Sprintf("%s:full_ed%d", phase, bestDist), true
 	}
-	return 0, false
+	return 0, phase + ":full_ed_miss", false
+}
+
+func maxEditDistanceForLocale(locale string, l int) int {
+	switch NormalizeInputLocale(locale) {
+	case LocaleEN:
+		switch {
+		case l >= 12:
+			return 3
+		case l >= 6:
+			return 2
+		default:
+			return 1
+		}
+	default:
+		if l >= 4 {
+			return 2
+		}
+		return 1
+	}
+}
+
+func fuzzyLenDeltaLimit(locale string) int {
+	if NormalizeInputLocale(locale) == LocaleEN {
+		return 5
+	}
+	return 2
+}
+
+func englishTokenPrefixScore(a string, b string) (int, bool) {
+	at := strings.Fields(a)
+	bt := strings.Fields(b)
+	if len(at) == 0 || len(bt) == 0 {
+		return 0, false
+	}
+	// Require first token to be close (prefix in either direction).
+	a0, b0 := at[0], bt[0]
+	if len(a0) < 3 || len(b0) < 3 {
+		return 0, false
+	}
+	if !(strings.HasPrefix(a0, b0) || strings.HasPrefix(b0, a0)) {
+		return 0, false
+	}
+	score := 1
+	minLen := len(at)
+	if len(bt) < minLen {
+		minLen = len(bt)
+	}
+	for i := 1; i < minLen; i++ {
+		if at[i] == bt[i] || strings.HasPrefix(at[i], bt[i]) || strings.HasPrefix(bt[i], at[i]) {
+			score++
+		}
+	}
+	return score, true
+}
+
+func (e *Engine) traceMatch(slot int, ocrRaw string, cleaned string, core string, stage string, result string) {
+	if e == nil || !e.matchTraceEnabled {
+		return
+	}
+	log.Debug().
+		Str("component", "EssenceFilterMatch").
+		Str("locale", e.locale).
+		Int("slot", slot).
+		Str("ocr", ocrRaw).
+		Str("cleaned", cleaned).
+		Str("core", core).
+		Str("stage", stage).
+		Str("result", result).
+		Msg("skill match trace")
 }
 
 // Damerau-Levenshtein with early stop by max.

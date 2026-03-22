@@ -54,6 +54,9 @@ type RunState struct {
 
 	// PipelineOpts is a copy of EssenceFilterInit attach JSON; filled in Init for the run (avoids re-parsing).
 	PipelineOpts EssenceFilterOptions
+
+	// InputLanguage is normalized match locale (CN|TC|EN|JP|KR), copied from PipelineOpts at Init.
+	InputLanguage string
 }
 
 // Reset zeroes all fields for a new run. Call from Init after loading options.
@@ -83,6 +86,7 @@ func (s *RunState) Reset() {
 	s.RowIndex = 0
 	s.PhysicalItemCount = 0
 	s.PipelineOpts = EssenceFilterOptions{}
+	s.InputLanguage = ""
 	// EssenceTypes is set by Init from options, not cleared here
 }
 

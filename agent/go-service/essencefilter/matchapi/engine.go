@@ -2,21 +2,36 @@ package matchapi
 
 import (
 	"errors"
+	"os"
+	"strings"
 	"sync"
 )
 
 // Engine is a pure matching engine: OCR -> skill-id -> exact/extension match.
 // It does not know anything about UI/actions.
 type Engine struct {
-	cfg     MatcherConfig
-	data    EngineData
+	locale string
+	cfg    MatcherConfig
+	data   EngineData
 	slotIdx [3]slotIndex
+	matchTraceEnabled bool
 
 	slotIndicesOnce sync.Once
 
 	// Cache exact targets by rarity selection.
 	targetsCacheMu sync.Mutex
 	targetsCache   map[string][]SkillCombination
+}
+
+// Locale returns the input language used to load pool/weapon display strings (CN|TC|EN|JP|KR).
+func (e *Engine) Locale() string {
+	if e == nil {
+		return defaultLoadLocale
+	}
+	if e.locale != "" {
+		return e.locale
+	}
+	return defaultLoadLocale
 }
 
 // DataVersion returns matcher data version string.
@@ -53,21 +68,27 @@ func NewDefaultEngine() (*Engine, error) {
 }
 
 // NewEngineFromDir loads matcher_config.json + skill_pools.json + weapons_output.json + locations.json
-// from the given directory.
+// from the given directory using default locale CN.
 func NewEngineFromDir(dataDir string) (*Engine, error) {
+	return NewEngineFromDirWithLocale(dataDir, defaultLoadLocale)
+}
+
+// NewEngineFromDirWithLocale loads EssenceFilter data using the given input language (CN|TC|EN|JP|KR).
+func NewEngineFromDirWithLocale(dataDir string, locale string) (*Engine, error) {
 	if dataDir == "" {
 		return nil, errors.New("dataDir is empty")
 	}
+	loc := NormalizeInputLocale(locale)
 
-	cfg, err := loadMatcherConfig(dataDir)
+	cfg, err := loadMatcherConfig(dataDir, loc)
 	if err != nil {
 		return nil, err
 	}
-	pools, err := loadSkillPools(dataDir)
+	pools, err := loadSkillPools(dataDir, loc)
 	if err != nil {
 		return nil, err
 	}
-	weapons, err := loadWeaponsOutputAndConvert(dataDir, cfg, pools)
+	weapons, err := loadWeaponsOutputAndConvert(dataDir, cfg, pools, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -77,14 +98,21 @@ func NewEngineFromDir(dataDir string) (*Engine, error) {
 	}
 
 	return &Engine{
-		cfg: cfg,
+		locale: loc,
+		cfg:    cfg,
 		data: EngineData{
 			SkillPools: pools,
 			Weapons:    weapons,
 			Locations:  locations,
 		},
+		matchTraceEnabled: isMatchTraceEnabled(),
 		targetsCache: make(map[string][]SkillCombination),
 	}, nil
+}
+
+func isMatchTraceEnabled() bool {
+	v := strings.TrimSpace(strings.ToLower(os.Getenv("MAAEND_ESSENCEFILTER_MATCH_TRACE")))
+	return v == "1" || v == "true" || v == "on" || v == "yes"
 }
 
 // MatchOCR matches one OCR result and returns a unified MatchResult.
@@ -113,7 +141,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 			SkillIDs:      exact.SkillIDs,
 			SkillsChinese: exact.SkillsChinese,
 			Weapons:       exact.Weapons,
-			Reason:        exactMatchReason(exact.Weapons),
+			Reason:        exactMatchReason(e.locale, exact.Weapons),
 			ShouldLock:    true,
 			ShouldDiscard: false,
 		}, nil
@@ -128,7 +156,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      []int{0, 0, 0},
 				SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 				Weapons:       []WeaponData{},
-				Reason:        "未来可期：总等级 " + itoa(sum) + " ≥ " + itoa(opts.FuturePromisingMinTotal),
+				Reason:        reasonFuturePromising(e.locale, sum, opts.FuturePromisingMinTotal),
 				ShouldLock:    opts.LockFuturePromising,
 				ShouldDiscard: false,
 			}, nil
@@ -148,7 +176,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 				SkillIDs:      match.SkillIDs,
 				SkillsChinese: match.SkillsChinese,
 				Weapons:       match.Weapons,
-				Reason:        "实用基质：词条3(" + match.SkillsChinese[2] + ")等级 " + itoa(slot3Lv) + " ≥ " + itoa(minLv),
+				Reason:        reasonSlot3Practical(e.locale, match.SkillsChinese[2], slot3Lv, minLv),
 				ShouldLock:    opts.LockSlot3Practical,
 				ShouldDiscard: false,
 			}, nil
@@ -161,7 +189,7 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		SkillIDs:      []int{},
 		SkillsChinese: []string{ocrSkills[0], ocrSkills[1], ocrSkills[2]},
 		Weapons:       []WeaponData{},
-		Reason:        "未匹配",
+		Reason:        reasonNoMatch(e.locale),
 		ShouldLock:    false,
 		ShouldDiscard: opts.DiscardUnmatched,
 	}, nil
@@ -214,14 +242,14 @@ func (e *Engine) reorderByPoolAssignmentIfPossible(inSkills [3]string, inLevels 
 // assignSlotForOCRText returns which slot pool the given OCR skill text belongs to.
 // It prefers strict exact (full/core) matches; if those are not unique, it falls back to fuzzy matching.
 func (e *Engine) assignSlotForOCRText(text string) (int, bool) {
-	cleanedRaw := cleanChinese(text)
+	cleanedRaw := normalizeForMatch(text, e.locale)
 	if cleanedRaw == "" {
 		return 0, false
 	}
 
-	coreRaw := trimStopSuffix(e.cfg, cleanedRaw)
-	cleanedNorm := normalizeSimilar(e.cfg, cleanedRaw)
-	coreNorm := trimStopSuffix(e.cfg, cleanedNorm)
+	coreRaw := trimStopSuffix(e.cfg, cleanedRaw, e.locale)
+	cleanedNorm := normalizeSimilarIfLocale(e.cfg, cleanedRaw, e.locale)
+	coreNorm := trimStopSuffix(e.cfg, cleanedNorm, e.locale)
 
 	exactFullSlots := make([]int, 0, 3)
 	exactCoreSlots := make([]int, 0, 3)

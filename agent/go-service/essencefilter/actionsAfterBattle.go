@@ -1,6 +1,8 @@
 package essencefilter
 
 import (
+	"fmt"
+
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -31,6 +33,7 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		def := defaultEssenceFilterOptions()
 		attachs = &def
 	}
+	locale := matchapi.NormalizeInputLocale(attachs.InputLanguage)
 
 	opts := matchapi.EssenceFilterOptions{
 		// exact 精确匹配只在你选择了稀有度时才启用
@@ -42,10 +45,12 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		DiscardUnmatched: attachs.DiscardUnmatched,
 	}
 
-	//调用通用api接口识别
-	engine, err := matchapi.NewDefaultEngine()
+	dataDir, err := matchapi.FindDefaultDataDir()
 	if err != nil {
-		// 例如无法定位 assets/data/EssenceFilter
+		panic(fmt.Errorf("essencefilter data dir: %w", err))
+	}
+	engine, err := matchapi.NewEngineFromDirWithLocale(dataDir, locale)
+	if err != nil {
 		panic(err)
 	}
 

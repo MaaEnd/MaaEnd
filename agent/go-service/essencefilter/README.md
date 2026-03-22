@@ -8,7 +8,7 @@
 
 | 文件               | 职责                                                                                                                               |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `types.go`         | 数据类型与常量（运行选项、基质颜色等）；匹配所需数据结构由 `matchapi` 提供                                                         |
+| `types.go`         | 数据类型与常量（运行选项、`input_language`、基质颜色等）；匹配所需数据结构由 `matchapi` 提供                                         |
 | `state.go`         | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()`；持有 `matchapi.Engine` 与统计结果                               |
 | `filter.go`        | 小工具：`skillCombinationKey`（用于 UI 统计聚合）                                                                                  |
 | `ui.go`            | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（结果来自 `matchapi`）                                             |
@@ -20,7 +20,7 @@
 
 ## 数据流概要
 
-1. **Init**：读资源路径 → 创建 `matchapi.Engine`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState` 并 `setRunState`。
+1. **Init**：读资源路径 → 按 `attach.input_language`（CN|TC|EN|JP|KR，默认 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
 2. **运行中**：Pipeline 依次调用 RowCollect（收集本行格子并 ColorMatch；若开启 `skip_locked_row` 则对缩略图跑 `EssenceThumbMarked`，已标记格不进入本行列表）→ RowNextItem（点击下一格）→ CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。
 3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案 → `setRunState(nil)`。
 

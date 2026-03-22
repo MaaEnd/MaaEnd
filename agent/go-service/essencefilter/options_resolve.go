@@ -25,7 +25,8 @@ type EssenceFilterOptionsPatch struct {
 
 	DiscardUnmatched       *bool `json:"discard_unmatched"`
 	ExportCalculatorScript *bool `json:"export_calculator_script"`
-	SkipLockedRow          *bool `json:"skip_locked_row"`
+	SkipLockedRow          *bool   `json:"skip_locked_row"`
+	InputLanguage          *string `json:"input_language"`
 }
 
 func defaultEssenceFilterOptions() EssenceFilterOptions {
@@ -44,6 +45,7 @@ func defaultEssenceFilterOptions() EssenceFilterOptions {
 		DiscardUnmatched:         false,
 		ExportCalculatorScript:   false,
 		SkipLockedRow:            true,
+		InputLanguage:            "CN",
 	}
 }
 
@@ -170,6 +172,9 @@ func applyOptionsPatch(dst *EssenceFilterOptions, patch EssenceFilterOptionsPatc
 	}
 	if patch.SkipLockedRow != nil {
 		dst.SkipLockedRow = *patch.SkipLockedRow
+	}
+	if patch.InputLanguage != nil {
+		dst.InputLanguage = *patch.InputLanguage
 	}
 }
 

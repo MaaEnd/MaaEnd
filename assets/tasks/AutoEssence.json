@@ -157,6 +157,7 @@
                         }
                     },
                     "option": [
+                        "EssenceFilterAfterBattleSelectInputLanguage",
                         "EssenceFilterAfterBattleSelectWeaponRarity",
                         "EssenceFilterAfterBattleSelectEssence",
                         "EssenceFilterAfterBattleSelectExtraRules"
@@ -167,6 +168,69 @@
                     "pipeline_override": {
                         "EssenceFilterAfterBattleStart": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectInputLanguage": {
+            "type": "select",
+            "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.label",
+            "description": "$option.EssenceFilterAfterBattleSelectInputLanguage.description",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.CN.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "CN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TC",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.TC.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "TC"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "EN",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.EN.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "EN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "JP",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.JP.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "JP"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "KR",
+                    "label": "$option.EssenceFilterAfterBattleSelectInputLanguage.cases.KR.label",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "input_language": "KR"
+                            }
                         }
                     }
                 }

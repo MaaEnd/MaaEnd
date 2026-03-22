@@ -25,6 +25,9 @@ type EssenceFilterOptions struct {
 	ExportCalculatorScript bool `json:"export_calculator_script"`
 	// 收集每行时对缩略图做已锁定/已废弃标记识别，命中则从本行待处理列表排除（见 RowCollect + EssenceThumbMarked）
 	SkipLockedRow bool `json:"skip_locked_row"`
+
+	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR (default CN).
+	InputLanguage string `json:"input_language"`
 }
 
 type ColorRange struct {

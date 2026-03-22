@@ -14,18 +14,18 @@
         }
     },
     "EssenceFilterCheckInInventory": {
-        "desc": "检查是否在背包Essence页",
+        "desc": "检查是否在背包Essence页（已选中武器基质页签）",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    20,
-                    46,
-                    74,
-                    30
+                    435,
+                    3,
+                    150,
+                    49
                 ],
-                "template": "EssenceFilter/EssenceSlot.png",
-                "threshold": 0.8
+                "template": "EssenceFilter/EssenceTabChoose.png",
+                "threshold": 0.9
             }
         },
         "pre_delay": 0,

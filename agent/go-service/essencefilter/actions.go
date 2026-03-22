@@ -31,19 +31,21 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		base = "data"
 	}
 	gameDataDir := filepath.Join(base, "EssenceFilter")
-	engine, err := matchapi.NewEngineFromDir(gameDataDir)
-	if err != nil {
-		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
-		return false
-	}
-	LogMXUSimpleHTML(ctx, "武器数据加载完成")
-	logSkillPools(engine)
 
 	opts, err := getOptionsFromAttach(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadOptions").Msg("load options failed")
 		return false
 	}
+	inputLocale := matchapi.NormalizeInputLocale(opts.InputLanguage)
+	engine, err := matchapi.NewEngineFromDirWithLocale(gameDataDir, inputLocale)
+	if err != nil {
+		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
+		return false
+	}
+	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
+	LogMXUSimpleHTML(ctx, "武器数据加载完成")
+	logSkillPools(engine)
 	var weaponRarity []int
 	if opts.Rarity6Weapon {
 		weaponRarity = append(weaponRarity, 6)
@@ -77,6 +79,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st := &RunState{MaxItemsPerRow: 9, EssenceTypes: essenceTypes}
 	st.Reset()
 	st.PipelineOpts = *opts
+	st.InputLanguage = inputLocale
 	st.MatchEngine = engine
 
 	matchOpts := matchOptsFromPipeline(opts)
@@ -272,7 +275,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		log.Error().Str("component", "EssenceFilter").Msg("OCR detail missing from pipeline")
 		return false
 	}
-	text := cleanChinese(rawText)
+	text := matchapi.NormalizeInputForMatch(rawText, st.InputLanguage)
 	if text == "" {
 		log.Error().Str("component", "EssenceFilter").Int("slot", params.Slot).Str("raw", rawText).Msg("OCR empty")
 		return false
@@ -411,11 +414,21 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 
 	case matchapi.MatchNone:
 		if matchResult.ShouldDiscard {
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Msg("not matched, discard item")
+			log.Info().
+				Str("component", "EssenceFilter").
+				Str("locale", st.MatchEngine.Locale()).
+				Str("reason", matchResult.Reason).
+				Strs("skills", skills).
+				Msg("not matched, discard item")
 			LogMXUHTML(ctx, `<div style="color: #ff6b6b; font-weight: 900;">🗑️ 未匹配到目标技能组合，废弃该物品</div>`)
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterDiscardItemLog"}})
 		} else {
-			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Msg("not matched, skip to next item")
+			log.Info().
+				Str("component", "EssenceFilter").
+				Str("locale", st.MatchEngine.Locale()).
+				Str("reason", matchResult.Reason).
+				Strs("skills", skills).
+				Msg("not matched, skip to next item")
 			LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
 		}
@@ -650,6 +663,13 @@ const calibrateSwipeMax = 40     //校准滑动最大值
 // EssenceFilterSwipeCalibrateAction - 根据首个 box 的 Y 校准到基准 firstRowTargetY
 type EssenceFilterSwipeCalibrateAction struct{}
 
+func intAbs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
@@ -704,7 +724,7 @@ func (a *EssenceFilterSwipeCalibrateAction) Run(ctx *maa.Context, arg *maa.Custo
 		return true
 	}
 	delta := firstBoxY - firstRowTargetY
-	swipeDist := int(float64(abs(delta)) * calibrateScrollRatio)
+	swipeDist := int(float64(intAbs(delta)) * calibrateScrollRatio)
 	if swipeDist < calibrateSwipeMin {
 		swipeDist = calibrateSwipeMin
 	}

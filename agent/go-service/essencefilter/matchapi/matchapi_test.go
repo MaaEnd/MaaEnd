@@ -5,6 +5,82 @@ import (
 	"testing"
 )
 
+func newEngineForTestLocale(t *testing.T, locale string) *Engine {
+	t.Helper()
+	dataDir, err := FindDefaultDataDir()
+	if err != nil {
+		t.Fatalf("FindDefaultDataDir: %v", err)
+	}
+	engine, err := NewEngineFromDirWithLocale(dataDir, locale)
+	if err != nil {
+		t.Fatalf("NewEngineFromDirWithLocale(%s): %v", locale, err)
+	}
+	return engine
+}
+
+func firstWeaponByRarity(weapons []WeaponData, rarity int) *WeaponData {
+	for i := range weapons {
+		if weapons[i].Rarity == rarity {
+			return &weapons[i]
+		}
+	}
+	return nil
+}
+
+func TestMatchOCR_EN_ExactMatch(t *testing.T) {
+	dataDir, err := FindDefaultDataDir()
+	if err != nil {
+		t.Fatalf("FindDefaultDataDir: %v", err)
+	}
+	engine, err := NewEngineFromDirWithLocale(dataDir, LocaleEN)
+	if err != nil {
+		t.Fatalf("NewEngineFromDirWithLocale EN: %v", err)
+	}
+
+	var weapon *WeaponData
+	for i := range engine.Weapons() {
+		w := &engine.Weapons()[i]
+		if w.Rarity == 6 {
+			weapon = w
+			break
+		}
+	}
+	if weapon == nil {
+		t.Fatalf("no rarity-6 weapon found in dataset")
+	}
+
+	ocr := OCRInput{
+		Skills: [3]string{weapon.SkillsChinese[0], weapon.SkillsChinese[1], weapon.SkillsChinese[2]},
+		Levels: [3]int{1, 1, 1},
+	}
+	opts := EssenceFilterOptions{
+		Rarity6Weapon:            true,
+		Rarity5Weapon:            false,
+		Rarity4Weapon:            false,
+		KeepFuturePromising:      false,
+		FuturePromisingMinTotal:  0,
+		LockFuturePromising:      false,
+		KeepSlot3Level3Practical: false,
+		Slot3MinLevel:            0,
+		LockSlot3Practical:       false,
+		DiscardUnmatched:         false,
+	}
+
+	res, err := engine.MatchOCR(ocr, opts)
+	if err != nil {
+		t.Fatalf("MatchOCR: %v", err)
+	}
+	if res == nil {
+		t.Fatalf("MatchOCR returned nil result")
+	}
+	if res.Kind != MatchExact {
+		t.Fatalf("expected Kind=MatchExact, got %v", res.Kind)
+	}
+	if !strings.HasPrefix(res.Reason, "Exact match") {
+		t.Fatalf("expected English exact-match reason prefix, got %q", res.Reason)
+	}
+}
+
 func TestMatchOCR_ExactMatch(t *testing.T) {
 	engine, err := NewDefaultEngine()
 	if err != nil {
@@ -323,4 +399,97 @@ func TestMatchOCR_MatchNoneReason(t *testing.T) {
 			t.Fatalf("expected ShouldDiscard=false")
 		}
 	})
+}
+
+func TestNormalizeInputForMatch_ENAliases(t *testing.T) {
+	got := NormalizeInputForMatch("heat dmg boos", LocaleEN)
+	want := "heat damage boost"
+	if got != want {
+		t.Fatalf("NormalizeInputForMatch EN mismatch, got %q want %q", got, want)
+	}
+}
+
+func TestMatchOCR_MultilingualFuzzyExact(t *testing.T) {
+	tests := []struct {
+		name   string
+		locale string
+		mutate func(skills [3]string) [3]string
+	}{
+		{
+			name:   "CN with suffix",
+			locale: LocaleCN,
+			mutate: func(skills [3]string) [3]string {
+				out := skills
+				out[0] = out[0] + "提升"
+				out[1] = out[1] + "伤害"
+				return out
+			},
+		},
+		{
+			name:   "TC with suffix",
+			locale: LocaleTC,
+			mutate: func(skills [3]string) [3]string {
+				out := skills
+				out[0] = out[0] + "提升"
+				out[1] = out[1] + "傷害"
+				return out
+			},
+		},
+		{
+			name:   "EN with noisy suffix",
+			locale: LocaleEN,
+			mutate: func(skills [3]string) [3]string {
+				out := skills
+				out[0] = out[0] + " boost"
+				out[1] = out[1] + " dmg boos"
+				return out
+			},
+		},
+		{
+			name:   "JP with suffix",
+			locale: LocaleJP,
+			mutate: func(skills [3]string) [3]string {
+				out := skills
+				out[0] = out[0] + "アップ"
+				return out
+			},
+		},
+		{
+			name:   "KR with suffix",
+			locale: LocaleKR,
+			mutate: func(skills [3]string) [3]string {
+				out := skills
+				out[0] = out[0] + " 증가"
+				return out
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			engine := newEngineForTestLocale(t, tt.locale)
+			weapon := firstWeaponByRarity(engine.Weapons(), 6)
+			if weapon == nil {
+				t.Fatalf("no rarity-6 weapon found for locale %s", tt.locale)
+			}
+			base := [3]string{weapon.SkillsChinese[0], weapon.SkillsChinese[1], weapon.SkillsChinese[2]}
+			ocrSkills := tt.mutate(base)
+
+			res, err := engine.MatchOCR(OCRInput{
+				Skills: ocrSkills,
+				Levels: [3]int{1, 1, 1},
+			}, EssenceFilterOptions{
+				Rarity6Weapon: true,
+			})
+			if err != nil {
+				t.Fatalf("MatchOCR(%s): %v", tt.locale, err)
+			}
+			if res == nil {
+				t.Fatalf("MatchOCR(%s) nil result", tt.locale)
+			}
+			if res.Kind != MatchExact {
+				t.Fatalf("expected MatchExact for locale %s, got %v, reason=%q, ocr=%v", tt.locale, res.Kind, res.Reason, ocrSkills)
+			}
+		})
+	}
 }

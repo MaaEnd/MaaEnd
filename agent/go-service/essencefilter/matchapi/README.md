@@ -18,6 +18,8 @@ import "github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 
 `MAAEND_ESSENCEFILTER_DATA_DIR=/path/to/assets/data/EssenceFilter`
 
+按游戏语言加载技能池与武器显示名时，使用 `NewEngineFromDirWithLocale(dir, locale)`，`locale` 为 `CN` / `TC` / `EN` / `JP` / `KR`（与 `attach.input_language` 一致）。`NewDefaultEngine` / `NewEngineFromDir` 等价于 `locale=CN`。
+
 ## 最简单用法：只调用匹配
 
 ```go

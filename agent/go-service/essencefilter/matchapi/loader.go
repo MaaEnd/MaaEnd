@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const defaultLoadLocale = "CN"
+const defaultLoadLocale = LocaleCN
 
 var weaponTypeToID = map[string]int{
 	"Sword":      1,
@@ -66,6 +66,11 @@ func findDefaultDataDir() (string, error) {
 	return "", errors.New("cannot resolve default EssenceFilter data dir; set MAAEND_ESSENCEFILTER_DATA_DIR")
 }
 
+// FindDefaultDataDir resolves the EssenceFilter data directory (same rules as NewDefaultEngine).
+func FindDefaultDataDir() (string, error) {
+	return findDefaultDataDir()
+}
+
 func hasEssenceFilterFiles(dir string) bool {
 	return fileExists(filepath.Join(dir, "matcher_config.json")) &&
 		fileExists(filepath.Join(dir, "skill_pools.json")) &&
@@ -78,7 +83,7 @@ func fileExists(p string) bool {
 	return err == nil
 }
 
-func loadMatcherConfig(dataDir string) (MatcherConfig, error) {
+func loadMatcherConfig(dataDir string, locale string) (MatcherConfig, error) {
 	b, err := os.ReadFile(filepath.Join(dataDir, "matcher_config.json"))
 	if err != nil {
 		return MatcherConfig{}, err
@@ -104,21 +109,14 @@ func loadMatcherConfig(dataDir string) (MatcherConfig, error) {
 		cfg.SimilarWordMap = make(map[string]string)
 	}
 
+	loc := NormalizeInputLocale(locale)
+
 	// Try to parse suffixStopwords as map first.
 	var stopMap map[string][]string
 	if err := json.Unmarshal(withRaw.SuffixStopwords, &stopMap); err == nil && len(stopMap) > 0 {
 		cfg.SuffixStopwordsMap = stopMap
-		if cn, ok := stopMap[defaultLoadLocale]; ok && len(cn) > 0 {
-			cfg.SuffixStopwords = cn
-		} else {
-			// Fallback: take the first non-empty value.
-			for _, v := range stopMap {
-				if len(v) > 0 {
-					cfg.SuffixStopwords = v
-					break
-				}
-			}
-		}
+		cfg.SuffixStopwords = pickSuffixStopwords(stopMap, loc)
+		cfg.SuffixStopwords = normalizeStopwordsForLocale(cfg.SuffixStopwords, loc)
 		return cfg, nil
 	}
 
@@ -127,8 +125,42 @@ func loadMatcherConfig(dataDir string) (MatcherConfig, error) {
 	if err := json.Unmarshal(withRaw.SuffixStopwords, &stopArr); err != nil {
 		return MatcherConfig{}, err
 	}
-	cfg.SuffixStopwords = stopArr
+	cfg.SuffixStopwords = normalizeStopwordsForLocale(stopArr, loc)
 	return cfg, nil
+}
+
+func normalizeStopwordsForLocale(in []string, locale string) []string {
+	if len(in) == 0 {
+		return in
+	}
+	loc := NormalizeInputLocale(locale)
+	out := make([]string, 0, len(in))
+	for _, s := range in {
+		s = strings.TrimSpace(s)
+		if s == "" {
+			continue
+		}
+		if loc == LocaleEN {
+			s = normalizeENToken(strings.ToLower(s))
+		}
+		out = append(out, s)
+	}
+	return out
+}
+
+func pickSuffixStopwords(stopMap map[string][]string, locale string) []string {
+	if w, ok := stopMap[locale]; ok && len(w) > 0 {
+		return w
+	}
+	if w, ok := stopMap[LocaleCN]; ok && len(w) > 0 {
+		return w
+	}
+	for _, v := range stopMap {
+		if len(v) > 0 {
+			return v
+		}
+	}
+	return nil
 }
 
 type skillPoolJSON struct {
@@ -138,9 +170,84 @@ type skillPoolJSON struct {
 	CN      string `json:"cn"`
 	TC      string `json:"tc"`
 	EN      string `json:"en"`
+	JP      string `json:"jp"`
+	KR      string `json:"kr"`
 }
 
-func loadSkillPools(dataDir string) (SkillPools, error) {
+func pickSkillPoolDisplayName(s skillPoolJSON, locale string) string {
+	loc := NormalizeInputLocale(locale)
+	switch loc {
+	case LocaleCN:
+		if s.CN != "" {
+			return s.CN
+		}
+		if s.Chinese != "" {
+			return s.Chinese
+		}
+		if s.TC != "" {
+			return s.TC
+		}
+	case LocaleTC:
+		if s.TC != "" {
+			return s.TC
+		}
+		if s.CN != "" {
+			return s.CN
+		}
+		if s.Chinese != "" {
+			return s.Chinese
+		}
+	case LocaleEN:
+		if s.EN != "" {
+			return s.EN
+		}
+		if s.English != "" {
+			return s.English
+		}
+		if s.CN != "" {
+			return s.CN
+		}
+	case LocaleJP:
+		if s.JP != "" {
+			return s.JP
+		}
+		if s.CN != "" {
+			return s.CN
+		}
+		if s.EN != "" {
+			return s.EN
+		}
+	case LocaleKR:
+		if s.KR != "" {
+			return s.KR
+		}
+		if s.CN != "" {
+			return s.CN
+		}
+		if s.EN != "" {
+			return s.EN
+		}
+	}
+	if s.CN != "" {
+		return s.CN
+	}
+	if s.Chinese != "" {
+		return s.Chinese
+	}
+	return s.EN
+}
+
+func pickSkillPoolEnglish(s skillPoolJSON) string {
+	if s.EN != "" {
+		return s.EN
+	}
+	if s.English != "" {
+		return s.English
+	}
+	return ""
+}
+
+func loadSkillPools(dataDir string, locale string) (SkillPools, error) {
 	b, err := os.ReadFile(filepath.Join(dataDir, "skill_pools.json"))
 	if err != nil {
 		return SkillPools{}, err
@@ -158,22 +265,12 @@ func loadSkillPools(dataDir string) (SkillPools, error) {
 	toPool := func(in []skillPoolJSON) []SkillPool {
 		out := make([]SkillPool, 0, len(in))
 		for _, s := range in {
-			ch := s.Chinese
-			if ch == "" {
-				ch = s.CN
-			}
-			if ch == "" {
-				ch = s.TC
-			}
-
-			en := s.English
-			if en == "" {
-				en = s.EN
-			}
+			display := pickSkillPoolDisplayName(s, locale)
+			en := pickSkillPoolEnglish(s)
 			out = append(out, SkillPool{
 				ID:      s.ID,
 				English: en,
-				Chinese: ch,
+				Chinese: display, // locale display string used for matching (field name kept for JSON compat)
 			})
 		}
 		return out
@@ -196,7 +293,55 @@ type WeaponOutputEntry struct {
 
 type WeaponsOutputRaw map[string]WeaponOutputEntry
 
-func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillPools) ([]WeaponData, error) {
+func pickLocalizedString(m map[string]string, locale string) string {
+	if len(m) == 0 {
+		return ""
+	}
+	loc := NormalizeInputLocale(locale)
+	order := []string{loc, LocaleCN, LocaleEN, LocaleTC, LocaleJP, LocaleKR}
+	seen := map[string]bool{}
+	for _, k := range order {
+		if seen[k] {
+			continue
+		}
+		seen[k] = true
+		if v := strings.TrimSpace(m[k]); v != "" {
+			return v
+		}
+	}
+	for _, v := range m {
+		if strings.TrimSpace(v) != "" {
+			return v
+		}
+	}
+	return ""
+}
+
+func pickLocalizedSkillSlice(m map[string][]string, locale string) []string {
+	if len(m) == 0 {
+		return nil
+	}
+	loc := NormalizeInputLocale(locale)
+	order := []string{loc, LocaleCN, LocaleEN, LocaleTC, LocaleJP, LocaleKR}
+	seen := map[string]bool{}
+	for _, k := range order {
+		if seen[k] {
+			continue
+		}
+		seen[k] = true
+		if s := m[k]; len(s) == 3 {
+			return s
+		}
+	}
+	for _, s := range m {
+		if len(s) == 3 {
+			return s
+		}
+	}
+	return nil
+}
+
+func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillPools, locale string) ([]WeaponData, error) {
 	b, err := os.ReadFile(filepath.Join(dataDir, "weapons_output.json"))
 	if err != nil {
 		return nil, err
@@ -208,17 +353,11 @@ func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillP
 	}
 
 	weapons := make([]WeaponData, 0, len(raw))
-	locale := defaultLoadLocale
+	loc := NormalizeInputLocale(locale)
 	for _, entry := range raw {
-		name := entry.Names[locale]
-		if name == "" {
-			name = entry.Names["CN"]
-		}
+		name := pickLocalizedString(entry.Names, loc)
 
-		skillStrs := entry.Skills[locale]
-		if len(skillStrs) == 0 {
-			skillStrs = entry.Skills["CN"]
-		}
+		skillStrs := pickLocalizedSkillSlice(entry.Skills, loc)
 		if len(skillStrs) != 3 {
 			continue
 		}
@@ -230,7 +369,7 @@ func loadWeaponsOutputAndConvert(dataDir string, cfg MatcherConfig, pools SkillP
 			canonical, id, ok := cleanDisplayToCanonical(
 				skillStrs[i],
 				i+1,
-				locale,
+				loc,
 				cfg,
 				pools,
 			)
@@ -288,10 +427,8 @@ func poolBySlot(pools SkillPools, slot int) []SkillPool {
 // cleanDisplayToCanonical normalizes a display skill name to pool canonical name.
 // It returns (canonical, poolID, ok).
 func cleanDisplayToCanonical(display string, slot int, locale string, cfg MatcherConfig, pools SkillPools) (canonical string, id int, ok bool) {
-	candidate := display
-	if idx := strings.Index(display, "·"); idx >= 0 {
-		candidate = strings.TrimSpace(display[:idx])
-	}
+	loc := NormalizeInputLocale(locale)
+	candidate := skillCoreCandidate(display, loc)
 	if candidate == "" {
 		return "", 0, false
 	}
@@ -303,44 +440,53 @@ func cleanDisplayToCanonical(display string, slot int, locale string, cfg Matche
 
 	stopwords := cfg.SuffixStopwords
 	if cfg.SuffixStopwordsMap != nil {
-		if w, has := cfg.SuffixStopwordsMap[locale]; has && len(w) > 0 {
-			stopwords = w
+		if w, has := cfg.SuffixStopwordsMap[loc]; has && len(w) > 0 {
+			stopwords = normalizeStopwordsForLocale(w, loc)
 		}
 	}
 
-	candidates := []string{candidate}
-	for _, suf := range stopwords {
-		if strings.HasSuffix(candidate, suf) && runeCount(candidate) > runeCount(suf) {
-			trimmed := strings.TrimSuffix(candidate, suf)
-			if trimmed != "" {
+	candidates := []string{candidate, trimStopSuffix(cfg, candidate, loc)}
+
+	normCandidate := candidate
+	if loc == LocaleCN || loc == LocaleTC {
+		normCandidate = normalizeSimilar(cfg, candidate)
+	}
+	if normCandidate != candidate {
+		candidates = append(candidates, normCandidate)
+		candidates = append(candidates, trimStopSuffix(cfg, normCandidate, loc))
+	}
+	// Extra EN candidate: remove lightweight suffix token directly from OCR tail.
+	if loc == LocaleEN {
+		for _, suf := range stopwords {
+			if suf == "" {
+				continue
+			}
+			trimmed := strings.TrimSpace(strings.TrimSuffix(strings.ToLower(candidate), " "+suf))
+			if trimmed != "" && trimmed != candidate {
 				candidates = append(candidates, trimmed)
 			}
 		}
 	}
 
-	normCandidate := normalizeSimilar(cfg, candidate)
-	if normCandidate != candidate {
-		candidates = append(candidates, normCandidate)
-		for _, suf := range stopwords {
-			if strings.HasSuffix(normCandidate, suf) && runeCount(normCandidate) > runeCount(suf) {
-				trimmed := strings.TrimSuffix(normCandidate, suf)
-				if trimmed != "" {
-					candidates = append(candidates, trimmed)
-				}
-			}
-		}
+	matchOne := func(a, b string) bool {
+		return normalizeForMatch(a, loc) == normalizeForMatch(b, loc)
+	}
+	prefixOK := func(c, poolName string) bool {
+		nc := normalizeForMatch(c, loc)
+		np := normalizeForMatch(poolName, loc)
+		return np != "" && strings.HasPrefix(nc, np)
 	}
 
 	// Full match inside pool.
 	for _, c := range candidates {
 		for _, e := range pool {
-			if e.Chinese == c {
+			if matchOne(e.Chinese, c) {
 				return e.Chinese, e.ID, true
 			}
 		}
 	}
 
-	// Longest prefix match fallback.
+	// Longest prefix match fallback (rune length for CJK / mixed scripts).
 	var best struct {
 		chinese string
 		id      int
@@ -348,10 +494,17 @@ func cleanDisplayToCanonical(display string, slot int, locale string, cfg Matche
 	}
 	for _, c := range candidates {
 		for _, e := range pool {
-			if e.Chinese != "" && strings.HasPrefix(c, e.Chinese) && len(e.Chinese) > best.length {
+			if e.Chinese == "" {
+				continue
+			}
+			if !prefixOK(c, e.Chinese) {
+				continue
+			}
+			plen := runeCount(normalizeForMatch(e.Chinese, loc))
+			if plen > best.length {
 				best.chinese = e.Chinese
 				best.id = e.ID
-				best.length = len(e.Chinese)
+				best.length = plen
 			}
 		}
 	}
