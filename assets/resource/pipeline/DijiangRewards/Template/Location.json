@@ -58,6 +58,26 @@
             }
         }
     },
+    "InDijiangControlNexus": {
+        "desc": "识别处于帝江号总控中枢界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "FacilityDetails": {
         "desc": "[设施详情] 识别设施详情标题",
         "recognition": {
