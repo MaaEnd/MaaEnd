@@ -80,21 +80,13 @@
     "ReceptionRoomViewIn": {
         "desc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "InReceptionRoom",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "会客室",
-                    "會客室",
-                    "(?i)Reception\\s*Room",
-                    "応接室",
-                    "Reception"
-                ]
+                "box_index": 1
             }
         },
         "pre_wait_freezes": 200,
