@@ -262,7 +262,11 @@ func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, 
 		Msg("tooltip OCR result")
 
 	moveMouseSafe(ctrl)
-	return strings.TrimSpace(text)
+	text = strings.TrimSpace(text)
+	if strings.Contains(text, "已盛装") {
+		return ""
+	}
+	return text
 }
 
 func computeTooltipROI(hoverX, hoverY int) []int {
