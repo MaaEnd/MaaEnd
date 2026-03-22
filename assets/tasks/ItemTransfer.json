@@ -2125,18 +2125,9 @@
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 59
                         },
-                        "ItemTransferRepoToBag": {
-                            "next": [
-                                "ItemTransferClickSortDescending",
-                                "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
-                                "ItemTransferScrollDownwardRepo"
-                            ]
-                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 59,
-                                "descending": true
+                                "target_class": 59
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
