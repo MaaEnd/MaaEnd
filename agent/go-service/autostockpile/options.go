@@ -82,12 +82,19 @@ func applyRegionScopedConfig(attach map[string]json.RawMessage, region string, c
 	if err != nil {
 		return err
 	}
-	if len(priceLimits) == 0 {
-		return nil
+	if len(priceLimits) > 0 {
+		cfg.PriceLimits = priceLimits
+		cfg.FallbackThreshold = minPositiveThreshold(priceLimits)
 	}
 
-	cfg.PriceLimits = priceLimits
-	cfg.FallbackThreshold = minPositiveThreshold(priceLimits)
+	reserveStockBill, found, err := collectRegionReserveStockBill(attach, region)
+	if err != nil {
+		return err
+	}
+	if found {
+		cfg.ReserveStockBill = reserveStockBill
+	}
+
 	return nil
 }
 
@@ -115,4 +122,28 @@ func collectRegionPriceLimits(attach map[string]json.RawMessage, region string) 
 	}
 
 	return priceLimits, nil
+}
+
+// collectRegionReserveStockBill 从扁平 attach 中提取当前地区的库存账单保留配置。
+// 查找形如 reserve_stock_bill_ValleyIV 的 key，将其值乘以 10000 转换为实际数值。
+func collectRegionReserveStockBill(attach map[string]json.RawMessage, region string) (value int, found bool, err error) {
+	key := fmt.Sprintf("reserve_stock_bill_%s", region)
+	rawValue, exists := attach[key]
+	if !exists {
+		return 0, false, nil
+	}
+
+	// 使用 parsePriceLimitValue 解析 int 或 string 格式
+	parsedValue, err := parsePriceLimitValue(rawValue)
+	if err != nil {
+		return 0, true, fmt.Errorf("%s: %w", key, err)
+	}
+
+	// 如果值 ≤ 0，返回 0
+	if parsedValue <= 0 {
+		return 0, true, nil
+	}
+
+	// 将用户输入（"万"单位）转换为实际数值，乘以 10000
+	return parsedValue * 10000, true, nil
 }

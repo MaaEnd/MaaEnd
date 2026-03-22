@@ -185,5 +185,23 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "AutoStockpileGetStockBill": {
+        "desc": "获取调度券数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1050,
+                    15,
+                    160,
+                    25
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true
+            }
+        }
     }
 }

@@ -19,20 +19,39 @@ type SelectItemAction struct{}
 // ItemValueChangeRecognition 负责识别商品及其价格信息。
 type ItemValueChangeRecognition struct{}
 
-type AbortReason int
+// AbortReason 表示识别阶段提前终止的稳定原因键。
+type AbortReason string
 
 const (
-	AbortReasonNone AbortReason = iota
-	AbortReasonQuotaZero
+	AbortReasonNone              AbortReason = "None"
+	AbortReasonQuotaZero         AbortReason = "QuotaZero"
+	AbortReasonInsufficientFunds AbortReason = "InsufficientFunds"
 )
 
-// RecognitionResult 表示识别阶段输出的结构化结果。
+var knownAbortReasons = []AbortReason{
+	AbortReasonNone,
+	AbortReasonQuotaZero,
+	AbortReasonInsufficientFunds,
+}
+
+// RecognitionResult 表示识别阶段输出的最终传输契约。
 type RecognitionResult struct {
-	Overflow       bool        `json:"overflow"`
-	OverflowAmount int         `json:"overflow_amount"`
-	Sunday         bool        `json:"sunday"`
-	AbortReason    AbortReason `json:"abort_reason"`
-	Goods          []GoodsItem `json:"Goods"`
+	Data        *RecognitionData `json:"Data"`
+	AbortReason AbortReason      `json:"AbortReason"`
+}
+
+// RecognitionData 表示识别成功时传递给消费端的原始数据。
+type RecognitionData struct {
+	Quota           QuotaInfo   `json:"Quota"`
+	Sunday          bool        `json:"Sunday"`
+	StockBillAmount int         `json:"StockBillAmount"`
+	Goods           []GoodsItem `json:"Goods"`
+}
+
+// QuotaInfo 表示额度识别结果。
+type QuotaInfo struct {
+	Current  int `json:"Current"`
+	Overflow int `json:"Overflow"`
 }
 
 // GoodsItem 表示一次识别得到的单个商品信息。
@@ -61,6 +80,7 @@ type SelectionConfig struct {
 	OverflowMode      bool             `json:"overflow_mode"`
 	SundayMode        bool             `json:"sunday_mode"`
 	FallbackThreshold int              `json:"fallback_threshold"`
+	ReserveStockBill  int              `json:"reserve_stock_bill"`
 	PriceLimits       PriceLimitConfig `json:"price_limits"`
 }
 
@@ -124,6 +144,40 @@ type ItemMatchResult struct {
 	EditDistance  int
 	Threshold     int
 	Matched       bool
+}
+
+// Validate 校验 RecognitionResult 是否满足新契约约束。
+func (r RecognitionResult) Validate() error {
+	if !isKnownAbortReason(r.AbortReason) {
+		return fmt.Errorf("unknown abort reason %q", r.AbortReason)
+	}
+
+	if r.AbortReason == AbortReasonNone {
+		if r.Data == nil {
+			return fmt.Errorf("data must not be nil when abort reason is %q", AbortReasonNone)
+		}
+		return nil
+	}
+
+	if r.Data != nil {
+		return fmt.Errorf("data must be nil when abort reason is %q", r.AbortReason)
+	}
+
+	return nil
+}
+
+func (r RecognitionResult) hasOverflow() bool {
+	return r.Data != nil && r.Data.Quota.Overflow > 0
+}
+
+func isKnownAbortReason(reason AbortReason) bool {
+	for _, candidate := range knownAbortReasons {
+		if reason == candidate {
+			return true
+		}
+	}
+
+	return false
 }
 
 func absInt(v int) int {

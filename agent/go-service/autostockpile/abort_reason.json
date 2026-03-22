@@ -1,0 +1,7 @@
+{
+    "zh_cn": {
+        "None": "无",
+        "InsufficientFunds": "调度券低于指定数量",
+        "QuotaZero": "无可用购买额度"
+    }
+}

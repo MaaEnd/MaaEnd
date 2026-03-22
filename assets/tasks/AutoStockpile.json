@@ -10,7 +10,9 @@
                 "Win32-Window-Background",
                 "Win32-Front"
             ],
-            "group": ["daily"],
+            "group": [
+                "daily"
+            ],
             "option": [
                 "AutoStockpileOverflowBuyLowPriceGoods",
                 "AutoStockpileBuyAllGoodsOnSunday",
@@ -68,7 +70,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoStockpileValleyIVPriceLimits"
+                        "AutoStockpileValleyIVPriceLimits",
+                        "AutoStockpileValleyIVReserveStockBill"
                     ],
                     "pipeline_override": {
                         "AutoStockpileValleyIV": {
@@ -118,6 +121,43 @@
                 }
             }
         },
+        "AutoStockpileValleyIVReserveStockBill": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileValleyIVReserveStockBill.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileValleyIVReserveStockBill.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockpileValleyIVReserveStockBillAmount"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileValleyIVReserveStockBillAmount": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileValleyIVReserveStockBillAmount.label",
+            "inputs": [
+                {
+                    "name": "ValleyIVReserveStockBillAmount",
+                    "label": "$task.AutoStockpile.option.AutoStockpileValleyIVReserveStockBillAmount.inputs.ValleyIVReserveStockBillAmount.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "60"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileDecision": {
+                    "attach": {
+                        "reserve_stock_bill_ValleyIV": "{ValleyIVReserveStockBillAmount}"
+                    }
+                }
+            }
+        },
         "AutoStockpileWuling": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileWuling.label",
@@ -126,7 +166,8 @@
                 {
                     "name": "Yes",
                     "option": [
-                        "AutoStockpileWulingPriceLimits"
+                        "AutoStockpileWulingPriceLimits",
+                        "AutoStockpileWulingReserveStockBill"
                     ],
                     "pipeline_override": {
                         "AutoStockpileWuling": {
@@ -164,6 +205,43 @@
                     "attach": {
                         "price_limits_Wuling.Tier1": "{WulingTier1PriceLimit}",
                         "price_limits_Wuling.Tier2": "{WulingTier2PriceLimit}"
+                    }
+                }
+            }
+        },
+        "AutoStockpileWulingReserveStockBill": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileWulingReserveStockBill.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileWulingReserveStockBill.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockpileWulingReserveStockBillAmount"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileWulingReserveStockBillAmount": {
+            "type": "input",
+            "label": "$task.AutoStockpile.option.AutoStockpileWulingReserveStockBillAmount.label",
+            "inputs": [
+                {
+                    "name": "WulingReserveStockBillAmount",
+                    "label": "$task.AutoStockpile.option.AutoStockpileWulingReserveStockBillAmount.inputs.WulingReserveStockBillAmount.label",
+                    "pipeline_type": "int",
+                    "verify": "^(\\d+)?$",
+                    "default": "60"
+                }
+            ],
+            "pipeline_override": {
+                "AutoStockpileDecision": {
+                    "attach": {
+                        "reserve_stock_bill_Wuling": "{WulingReserveStockBillAmount}"
                     }
                 }
             }

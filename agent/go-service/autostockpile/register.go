@@ -14,6 +14,13 @@ func Register() {
 			Msg("failed to init item map during registration, OCR name matching may be disabled")
 	}
 
+	if err := InitAbortReasonCatalog(); err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Msg("failed to init abort reason catalog during registration, abort reason message lookup may fail")
+	}
+
 	maa.AgentServerRegisterCustomAction("AutoStockpile.SelectItem", &SelectItemAction{})
 	maa.AgentServerRegisterCustomRecognition("AutoStockpile.Recognition", &ItemValueChangeRecognition{})
 }

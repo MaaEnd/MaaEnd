@@ -64,11 +64,24 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
+	cfg, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("node", arg.CurrentTaskName).
+			Msg("failed to load selection config for recognition, using defaults")
+		cfg = SelectionConfig{}
+	}
+
 	sunday := time.Now().Weekday() == time.Sunday
 
 	overflowDetected := false
 	overflowAmount := 0
+	overflowCurrent := 0
+	overflowAbortReason := AbortReasonNone
 	if cur, max, plus, ok := runOverflowDetailOCR(ctx, arg.Img); ok {
+		overflowCurrent = cur
 		overflowDetected, overflowAmount = resolveOverflow(cur, max, plus)
 
 		log.Info().
@@ -80,46 +93,75 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Bool("overflow_detected", overflowDetected).
 			Msg("overflow detail parsed")
 
-		if abortReason := resolveAbortReasonFromOverflowCurrent(cur); abortReason != AbortReasonNone {
-			resultPayload := RecognitionResult{
-				Overflow:       overflowDetected,
-				OverflowAmount: overflowAmount,
-				Sunday:         sunday,
-				AbortReason:    abortReason,
-			}
-
-			result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
-			if buildErr != nil {
-				log.Error().
-					Err(buildErr).
-					Str("component", autoStockpileComponent).
-					Msg("failed to marshal aborted recognition result")
-				return nil, false
-			}
-
-			log.Info().
-				Str("component", autoStockpileComponent).
-				Int("overflow_current", cur).
-				Int("abort_reason", int(abortReason)).
-				Msg("quota exhausted, aborting recognition before goods scan")
-
-			return result, true
-		}
-
-		if overflowAmount > 0 {
-			if err := overrideSwipeSpecificQuantityTarget(ctx, overflowAmount); err != nil {
-				log.Warn().
-					Err(err).
-					Str("component", autoStockpileComponent).
-					Str("node", swipeSpecificQuantityNodeName).
-					Int("overflow_amount", overflowAmount).
-					Msg("failed to override swipe specific quantity target")
-			}
-		}
+		overflowAbortReason = resolveAbortReasonFromOverflowCurrent(cur)
 	} else {
 		log.Warn().
 			Str("component", autoStockpileComponent).
 			Msg("overflow detail unavailable")
+	}
+
+	stockBillAmount := 0
+	stockBillOK := false
+	if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
+		stockBillAmount = amount
+		stockBillOK = true
+	} else {
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("step", "stock_bill_ocr").
+			Msg("stock bill ocr unavailable, stock_bill_amount will be 0")
+	}
+
+	if overflowAbortReason != AbortReasonNone {
+		resultPayload := RecognitionResult{
+			Data:        nil,
+			AbortReason: overflowAbortReason,
+		}
+
+		result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
+		if buildErr != nil {
+			log.Error().
+				Err(buildErr).
+				Str("component", autoStockpileComponent).
+				Msg("failed to marshal aborted recognition result")
+			return nil, false
+		}
+
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Int("overflow_current", overflowCurrent).
+			Int("overflow_amount", overflowAmount).
+			Int("stock_bill_amount", stockBillAmount).
+			Str("abort_reason", string(overflowAbortReason)).
+			Msg("quota exhausted, aborting recognition before goods scan")
+
+		return result, true
+	}
+
+	if shouldAbortForInsufficientFunds(stockBillOK, stockBillAmount, cfg.ReserveStockBill) {
+		resultPayload := RecognitionResult{
+			Data:        nil,
+			AbortReason: AbortReasonInsufficientFunds,
+		}
+
+		result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
+		if buildErr != nil {
+			log.Error().
+				Err(buildErr).
+				Str("component", autoStockpileComponent).
+				Msg("failed to marshal aborted recognition result")
+			return nil, false
+		}
+
+		log.Info().
+			Str("component", autoStockpileComponent).
+			Int("overflow_amount", overflowAmount).
+			Int("stock_bill_amount", stockBillAmount).
+			Int("reserve_stock_bill", cfg.ReserveStockBill).
+			Str("abort_reason", string(AbortReasonInsufficientFunds)).
+			Msg("stock bill below reserve threshold, aborting recognition before goods scan")
+
+		return result, true
 	}
 
 	region, anchor := resolveGoodsRegion(ctx)
@@ -294,11 +336,16 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Msg("goods-price binding finished")
 
 	resultPayload := RecognitionResult{
-		Overflow:       overflowDetected,
-		OverflowAmount: overflowAmount,
-		Sunday:         sunday,
-		AbortReason:    AbortReasonNone,
-		Goods:          resultGoods,
+		Data: &RecognitionData{
+			Quota: QuotaInfo{
+				Current:  overflowCurrent,
+				Overflow: overflowAmount,
+			},
+			Sunday:          sunday,
+			StockBillAmount: stockBillAmount,
+			Goods:           resultGoods,
+		},
+		AbortReason: AbortReasonNone,
 	}
 
 	result, err := buildCustomRecognitionResult(arg, resultPayload)
@@ -312,10 +359,13 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 
 	log.Info().
 		Str("component", autoStockpileComponent).
-		Bool("overflow", resultPayload.Overflow).
-		Bool("sunday", resultPayload.Sunday).
-		Int("abort_reason", int(resultPayload.AbortReason)).
-		Int("goods_count", len(resultPayload.Goods)).
+		Int("quota_current", resultPayload.Data.Quota.Current).
+		Int("quota_overflow", resultPayload.Data.Quota.Overflow).
+		Bool("overflow", resultPayload.hasOverflow()).
+		Bool("sunday", resultPayload.Data.Sunday).
+		Int("stock_bill_amount", resultPayload.Data.StockBillAmount).
+		Str("abort_reason", string(resultPayload.AbortReason)).
+		Int("goods_count", len(resultPayload.Data.Goods)).
 		Msg("custom recognition finished")
 
 	return result, true
@@ -446,74 +496,6 @@ func buildCustomRecognitionResult(arg *maa.CustomRecognitionArg, payload Recogni
 		Box:    arg.Roi,
 		Detail: string(resultDetail),
 	}, nil
-}
-
-func overrideSwipeSpecificQuantityTarget(ctx *maa.Context, overflowAmount int) error {
-	if ctx == nil {
-		return fmt.Errorf("context is nil")
-	}
-
-	customActionParam, err := loadSwipeSpecificQuantityCustomActionParam(ctx)
-	if err != nil {
-		return err
-	}
-
-	return ctx.OverridePipeline(map[string]any{
-		swipeSpecificQuantityNodeName: buildSwipeSpecificQuantityTargetOverride(customActionParam, overflowAmount),
-	})
-}
-
-func loadSwipeSpecificQuantityCustomActionParam(ctx *maa.Context) (map[string]any, error) {
-	node, err := ctx.GetNode(swipeSpecificQuantityNodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	if node.Action == nil {
-		return nil, fmt.Errorf("node %s missing action", swipeSpecificQuantityNodeName)
-	}
-
-	param, ok := node.Action.Param.(*maa.CustomActionParam)
-	if !ok || param == nil {
-		return nil, fmt.Errorf("node %s action param type %T is not *maa.CustomActionParam", swipeSpecificQuantityNodeName, node.Action.Param)
-	}
-
-	return normalizeCustomActionParam(param.CustomActionParam)
-}
-
-func buildSwipeSpecificQuantityTargetOverride(customActionParam map[string]any, overflowAmount int) map[string]any {
-	clonedParam := make(map[string]any, len(customActionParam))
-	for key, item := range customActionParam {
-		clonedParam[key] = item
-	}
-	clonedParam["Target"] = overflowAmount
-
-	return map[string]any{
-		"action": map[string]any{
-			"param": map[string]any{
-				"custom_action_param": clonedParam,
-			},
-		},
-	}
-}
-
-func normalizeCustomActionParam(raw any) (map[string]any, error) {
-	switch value := raw.(type) {
-	case map[string]any:
-		cloned := make(map[string]any, len(value))
-		for key, item := range value {
-			cloned[key] = item
-		}
-		return cloned, nil
-	case string:
-		var nested any
-		if err := json.Unmarshal([]byte(value), &nested); err != nil {
-			return nil, err
-		}
-		return normalizeCustomActionParam(nested)
-	default:
-		return nil, fmt.Errorf("unsupported custom_action_param type %T", raw)
-	}
 }
 
 func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
