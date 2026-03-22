@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -74,7 +73,7 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		cfg = SelectionConfig{}
 	}
 
-	sunday := time.Now().Weekday() == time.Sunday
+	sunday := isServerSundayNow()
 
 	overflowDetected := false
 	overflowAmount := 0
