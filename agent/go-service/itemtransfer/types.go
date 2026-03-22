@@ -2,7 +2,7 @@ package itemtransfer
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -82,10 +82,14 @@ func loadItemOrderData() (*ItemOrderData, error) {
 }
 
 func findDataDir() (string, error) {
+	var tried []string
+
 	if v := strings.TrimSpace(os.Getenv("MAAEND_ITEMTRANSFER_DATA_DIR")); v != "" {
-		if fileExists(filepath.Join(v, "item_order.json")) {
+		p := filepath.Join(v, "item_order.json")
+		if fileExists(p) {
 			return v, nil
 		}
+		tried = append(tried, v)
 	}
 
 	wd, err := os.Getwd()
@@ -96,6 +100,7 @@ func findDataDir() (string, error) {
 			if fileExists(filepath.Join(cand, "item_order.json")) {
 				return cand, nil
 			}
+			tried = append(tried, cand)
 			parent := filepath.Dir(base)
 			if parent == base {
 				break
@@ -111,6 +116,7 @@ func findDataDir() (string, error) {
 			if fileExists(filepath.Join(cand, "item_order.json")) {
 				return cand, nil
 			}
+			tried = append(tried, cand)
 			parent := filepath.Dir(base)
 			if parent == base {
 				break
@@ -119,7 +125,7 @@ func findDataDir() (string, error) {
 		}
 	}
 
-	return "", errors.New("cannot resolve ItemTransfer data dir; set MAAEND_ITEMTRANSFER_DATA_DIR")
+	return "", fmt.Errorf("cannot find item_order.json in any of %d candidate paths: %v; set MAAEND_ITEMTRANSFER_DATA_DIR", len(tried), tried)
 }
 
 func fileExists(p string) bool {
