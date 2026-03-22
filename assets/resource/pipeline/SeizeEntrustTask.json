@@ -30,36 +30,6 @@
             "Node.Action.Starting": "用户退出委托列表"
         }
     },
-    "SeizeEntrustTaskFoundDepotNodeButton": {
-        "desc": "进入仓储节点",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    1002,
-                    329,
-                    236,
-                    89
-                ],
-                "expected": [
-                    "仓储节点",
-                    "倉儲節點",
-                    "(?i)Depot\\s*Node",
-                    "保管ボックス"
-                ]
-            }
-        },
-        "action": {
-            "type": "Click",
-            "param": {}
-        },
-        "next": [
-            "SeizeEntrustTaskFoundListOfDeliveryJobsButton"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "进入仓储节点"
-        }
-    },
     "SeizeEntrustTaskFindTarget": {
         "recognition": {
             "type": "And",
@@ -114,24 +84,19 @@
             "Node.Recognition.Succeeded": "找到武陵城7.98万订单！"
         }
     },
-    "SeizeEntrustTaskFoundTarget": {
+    "SeizeEntrustTaskFoundChangeButton": {
+        "desc": "查找更换地区按钮并点击",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "SeizeEntrustTaskFindTarget",
-                "roi_offset": [
-                    215,
-                    -6,
-                    93,
-                    15
+                "roi": [
+                    21,
+                    250,
+                    222,
+                    95
                 ],
                 "expected": [
-                    "接取运送委托",
-                    "接取運送委託",
-                    "(?i)Accept\\s*Delivery\\s*Job",
-                    "配達依頼を受ける",
-                    "輸送依頼を受注",
-                    "輸送依頼を受ける"
+                    "更换"
                 ]
             }
         },
@@ -139,14 +104,59 @@
             "type": "Click",
             "param": {}
         },
-        "post_wait_freezes": 200,
         "next": [
-            "isSeizeEntrustTaskSuccessful",
-            "SeizeEntrustTaskNews"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "点击抢单~"
-        }
+            "SeizeEntrustTaskisUnlockWulingCity"
+        ]
+    },
+    "SeizeEntrustTaskFoundDepotNodeButton": {
+        "desc": "判断是否在仓储节点页面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1002,
+                    329,
+                    236,
+                    89
+                ],
+                "expected": [
+                    "仓储节点",
+                    "倉儲節點",
+                    "(?i)Depot\\s*Node",
+                    "保管ボックス"
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskFoundChangeButton"
+        ]
+    },
+    "SeizeEntrustTaskFoundDepotNodeButton2": {
+        "desc": "判断是否在仓储节点页面并进入",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1002,
+                    329,
+                    236,
+                    89
+                ],
+                "expected": [
+                    "仓储节点",
+                    "倉儲節點",
+                    "(?i)Depot\\s*Node",
+                    "保管ボックス"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskFoundListOfDeliveryJobsButton"
+        ]
     },
     "SeizeEntrustTaskFoundListOfDeliveryJobsButton": {
         "desc": "进入运送委托列表",
@@ -176,6 +186,65 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "进入运送委托列表"
+        }
+    },
+    "SeizeEntrustTaskFoundOKButton": {
+        "desc": "点击确认进入武陵城地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    627,
+                    378,
+                    243,
+                    106
+                ],
+                "expected": [
+                    "确认"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskFoundDepotNodeButton2"
+        ]
+    },
+    "SeizeEntrustTaskFoundTarget": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "SeizeEntrustTaskFindTarget",
+                "roi_offset": [
+                    215,
+                    -6,
+                    93,
+                    15
+                ],
+                "expected": [
+                    "接取运送委托",
+                    "接取運送委託",
+                    "(?i)Accept\\s*Delivery\\s*Job",
+                    "配達依頼を受ける",
+                    "輸送依頼を受注",
+                    "輸送依頼を受ける"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "post_wait_freezes": 200,
+        "next": [
+            "isSeizeEntrustTaskSuccessful",
+            "isSeizeEntrustTaskNoSuccessful",
+            "SeizeEntrustTaskNews"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "点击抢单~"
         }
     },
     "SeizeEntrustTaskGoDepotNode": {
@@ -279,6 +348,15 @@
             }
         }
     },
+    "SeizeEntrustTaskLockWulingCityStopTask": {
+        "action": {
+            "type": "StopTask",
+            "param": {}
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "您还没有解锁武陵城哦"
+        }
+    },
     "SeizeEntrustTaskMain": {
         "recognition": {
             "type": "OCR",
@@ -286,7 +364,6 @@
         },
         "next": [
             "SeizeEntrustTaskFoundDepotNodeButton",
-            "SeizeEntrustTaskFoundListOfDeliveryJobsButton",
             "[JumpBack]SceneEnterMenuRegionalDevelopment"
         ]
     },
@@ -313,13 +390,13 @@
             "param": {}
         },
         "post_wait_freezes": {
-            "time": 2000,
             "target": [
                 29,
                 166,
                 1222,
                 481
-            ]
+            ],
+            "time": 2000
         },
         "next": [
             "SeizeEntrustTaskNewsStatus1"
@@ -498,13 +575,13 @@
             }
         },
         "post_wait_freezes": {
-            "time": 1000,
             "target": [
                 29,
                 166,
                 1222,
                 481
-            ]
+            ],
+            "time": 1000
         }
     },
     "SeizeEntrustTaskWalkingToDepotNode": {
@@ -556,6 +633,33 @@
         "focus": {
             "Node.Recognition.Succeeded": "现在准备走到仓储节点"
         }
+    },
+    "SeizeEntrustTaskisUnlockWulingCity": {
+        "desc": "判断是否已经解锁武陵城地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    429,
+                    37,
+                    414,
+                    238
+                ],
+                "expected": [
+                    "武陵"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "SeizeEntrustTaskFoundOKButton"
+        ],
+        "on_error": [
+            "SeizeEntrustTaskLockWulingCityStopTask"
+        ]
     },
     "isSeizeEntrustTaskDestinationWulingCity": {
         "next": [
@@ -647,6 +751,30 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已传送到锚点"
+        }
+    },
+    "isSeizeEntrustTaskNoSuccessful": {
+        "desc": "还有订单没有完成，直接结束抢单",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    500,
+                    108,
+                    273,
+                    29
+                ],
+                "expected": [
+                    "当前已有其他送货任务",
+                    "请完成后再接取"
+                ]
+            }
+        },
+        "next": [
+            "SeizeEntrustTaskStopTask"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "当前已有其他送货任务，请完成后再接取"
         }
     },
     "isSeizeEntrustTaskReady": {
