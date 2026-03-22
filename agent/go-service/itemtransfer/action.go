@@ -12,10 +12,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// ItemTransferFallbackAction is a custom action that searches for a target item
+// on the current visible page using hover + OCR + binary search when NND fails.
 type ItemTransferFallbackAction struct{}
 
+var _ maa.CustomActionRunner = &ItemTransferFallbackAction{}
+
 func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	var params FallbackParams
+	var params fallbackParams
 	if err := json.Unmarshal([]byte(arg.CustomActionParam), &params); err != nil {
 		log.Error().Err(err).Str("component", componentName).Msg("failed to parse custom action param")
 		return false

@@ -692,16 +692,6 @@
             ".*"
         ]
     },
-    "__ItemTransferFallbackScroll": {
-        "desc": "兜底滚动辅助节点",
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": -180,
-        "post_wait_freezes": 400
-    },
     "ItemTransferFindItemFallback": {
         "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
         "action": "Custom",

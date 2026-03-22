@@ -11,35 +11,35 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type ItemOrderData struct {
-	Items         map[string]ItemInfo `json:"items"`
+type itemOrderData struct {
+	Items         map[string]itemInfo `json:"items"`
 	CategoryOrder map[string][]string `json:"category_order"`
 }
 
-type ItemInfo struct {
+type itemInfo struct {
 	Name     string `json:"name"`
 	Category string `json:"category"`
 }
 
-type FallbackParams struct {
-	TargetClass int  `json:"target_class"`
-	Descending  bool `json:"descending"`
-	Side        string `json:"side"` // "repo" or "bag"; defaults to "repo"
+type fallbackParams struct {
+	TargetClass int    `json:"target_class"`
+	Descending  bool   `json:"descending"`
+	Side        string `json:"side"`
 }
 
 type gridItem struct {
-	Box      [4]int
-	ClassID  uint64
-	Score    float64
-	CenterX  int
-	CenterY  int
+	Box     [4]int
+	ClassID uint64
+	Score   float64
+	CenterX int
+	CenterY int
 }
 
 const (
 	componentName = "itemtransfer"
 
-	repoNNDNode = "ItemTransferDetectAllItems"
-	bagNNDNode  = "ItemTransferDetectAllItemsBag"
+	repoNNDNode    = "ItemTransferDetectAllItems"
+	bagNNDNode     = "ItemTransferDetectAllItemsBag"
 	tooltipOCRNode = "ItemTransferTooltipOCR"
 
 	tooltipOffsetX = 15
@@ -49,12 +49,12 @@ const (
 )
 
 var (
-	cachedData     *ItemOrderData
+	cachedData     *itemOrderData
 	cachedDataOnce sync.Once
 	cachedDataErr  error
 )
 
-func loadItemOrderData() (*ItemOrderData, error) {
+func loadItemOrderData() (*itemOrderData, error) {
 	cachedDataOnce.Do(func() {
 		dir, err := findDataDir()
 		if err != nil {
@@ -66,7 +66,7 @@ func loadItemOrderData() (*ItemOrderData, error) {
 			cachedDataErr = err
 			return
 		}
-		var data ItemOrderData
+		var data itemOrderData
 		if err := json.Unmarshal(b, &data); err != nil {
 			cachedDataErr = err
 			return
