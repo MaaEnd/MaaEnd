@@ -9,16 +9,26 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func getSelectionConfigFromNode(ctx *maa.Context, nodeName string) (SelectionConfig, error) {
-	region, _ := resolveGoodsRegion(ctx)
+func getSelectionConfigFromNode(ctx *maa.Context, nodeName string, region string) (SelectionConfig, AbortReason, error) {
+	if region == "" {
+		return SelectionConfig{}, AbortReasonSelectionConfigInvalidFatal, fmt.Errorf("region is empty")
+	}
 
 	node, err := ctx.GetNode(nodeName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "autostockpile").Str("node", nodeName).Msg("failed to get node")
-		return SelectionConfig{}, err
+		return SelectionConfig{}, AbortReasonSelectionConfigInvalidFatal, err
 	}
 
-	return parseSelectionConfigFromAttach(node.Attach, region)
+	cfg, err := parseSelectionConfigFromAttach(node.Attach, region)
+	if err != nil {
+		if isThresholdConfigError(err) {
+			return SelectionConfig{}, AbortReasonThresholdConfigInvalidFatal, err
+		}
+		return SelectionConfig{}, AbortReasonSelectionConfigInvalidFatal, err
+	}
+
+	return cfg, AbortReasonNone, nil
 }
 
 func parseSelectionConfigFromAttach(attach map[string]any, region string) (SelectionConfig, error) {

@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -63,14 +64,32 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		return nil, false
 	}
 
-	cfg, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName)
+	region, anchor, err := resolveGoodsRegion(ctx)
 	if err != nil {
-		log.Warn().
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("step", "resolve_goods_region").
+			Str("abort_reason", string(AbortReasonRegionResolveFailedFatal)).
+			Msg("failed to resolve goods region")
+		return buildAbortedRecognitionResult(arg, AbortReasonRegionResolveFailedFatal)
+	}
+	log.Info().
+		Str("component", autoStockpileComponent).
+		Str("anchor", anchor).
+		Str("region", region).
+		Msg("goods region resolved")
+
+	cfg, abortReason, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName, region)
+	if err != nil {
+		log.Error().
 			Err(err).
 			Str("component", autoStockpileComponent).
 			Str("node", arg.CurrentTaskName).
-			Msg("failed to load selection config for recognition, using defaults")
-		cfg = SelectionConfig{}
+			Str("region", region).
+			Str("abort_reason", string(abortReason)).
+			Msg("failed to load selection config for recognition")
+		return buildAbortedRecognitionResult(arg, abortReason)
 	}
 
 	sunday := isServerSundayNow()
@@ -99,59 +118,32 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Msg("overflow detail unavailable")
 	}
 
-	stockBillAmount := 0
-	stockBillOK := false
-	if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
-		stockBillAmount = amount
-		stockBillOK = true
-	} else {
-		log.Warn().
-			Str("component", autoStockpileComponent).
-			Str("step", "stock_bill_ocr").
-			Msg("stock bill ocr unavailable, stock_bill_amount will be 0")
-	}
-
 	if overflowAbortReason != AbortReasonNone {
-		resultPayload := RecognitionResult{
-			Data:        nil,
-			AbortReason: overflowAbortReason,
-		}
-
-		result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
-		if buildErr != nil {
-			log.Error().
-				Err(buildErr).
-				Str("component", autoStockpileComponent).
-				Msg("failed to marshal aborted recognition result")
-			return nil, false
-		}
-
 		log.Info().
 			Str("component", autoStockpileComponent).
 			Int("overflow_current", overflowCurrent).
 			Int("overflow_amount", overflowAmount).
-			Int("stock_bill_amount", stockBillAmount).
 			Str("abort_reason", string(overflowAbortReason)).
 			Msg("quota exhausted, aborting recognition before goods scan")
 
-		return result, true
+		return buildAbortedRecognitionResult(arg, overflowAbortReason)
 	}
 
-	if shouldAbortForInsufficientFunds(stockBillOK, stockBillAmount, cfg.ReserveStockBill) {
-		resultPayload := RecognitionResult{
-			Data:        nil,
-			AbortReason: AbortReasonInsufficientFunds,
-		}
+	stockBillAmount := 0
+	stockBillAvailable := false
+	if amount, ok := runStockBillOCR(ctx, arg.Img); ok {
+		stockBillAmount = amount
+		stockBillAvailable = true
+	} else {
+		log.Warn().
+			Str("component", autoStockpileComponent).
+			Str("step", "stock_bill_ocr").
+			Str("abort_reason", string(AbortReasonStockBillUnavailableWarn)).
+			Msg("stock bill ocr unavailable")
+		return buildAbortedRecognitionResult(arg, AbortReasonStockBillUnavailableWarn)
+	}
 
-		result, buildErr := buildCustomRecognitionResult(arg, resultPayload)
-		if buildErr != nil {
-			log.Error().
-				Err(buildErr).
-				Str("component", autoStockpileComponent).
-				Msg("failed to marshal aborted recognition result")
-			return nil, false
-		}
-
+	if shouldAbortForInsufficientFunds(stockBillAvailable, stockBillAmount, cfg.ReserveStockBill) {
 		log.Info().
 			Str("component", autoStockpileComponent).
 			Int("overflow_amount", overflowAmount).
@@ -160,15 +152,8 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 			Str("abort_reason", string(AbortReasonInsufficientFunds)).
 			Msg("stock bill below reserve threshold, aborting recognition before goods scan")
 
-		return result, true
+		return buildAbortedRecognitionResult(arg, AbortReasonInsufficientFunds)
 	}
-
-	region, anchor := resolveGoodsRegion(ctx)
-	log.Info().
-		Str("component", autoStockpileComponent).
-		Str("anchor", anchor).
-		Str("region", region).
-		Msg("goods region resolved")
 
 	itemMap := GetItemMap()
 	if err := validateItemMap(itemMap); err != nil {
@@ -184,15 +169,15 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 	}
 
 	goodsROI := resolveGoodsRecognitionROI(ctx, arg.Img)
-	prices, ocrNames, err := runGoodsOCR(ctx, arg.Img, goodsROI, itemMap)
-	if err != nil {
+	prices, ocrNames, goodsOCRAbortReason, goodsOCRErr := runGoodsOCR(ctx, arg.Img, goodsROI, itemMap)
+	if goodsOCRAbortReason != AbortReasonNone {
 		log.Warn().
-			Err(err).
+			Err(goodsOCRErr).
 			Str("component", autoStockpileComponent).
 			Str("step", "goods_ocr").
-			Msg("failed to run goods ocr")
-		prices = nil
-		ocrNames = nil
+			Str("abort_reason", string(goodsOCRAbortReason)).
+			Msg("goods ocr unavailable")
+		return buildAbortedRecognitionResult(arg, goodsOCRAbortReason)
 	}
 	log.Info().
 		Str("component", autoStockpileComponent).
@@ -334,15 +319,25 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Int("bind_failed", bindingFailed).
 		Msg("goods-price binding finished")
 
+	if err := validateRecognizedGoodsTiers(resultGoods); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("abort_reason", string(AbortReasonGoodsTierInvalidFatal)).
+			Msg("recognized goods contains invalid tier")
+		return buildAbortedRecognitionResult(arg, AbortReasonGoodsTierInvalidFatal)
+	}
+
 	resultPayload := RecognitionResult{
 		Data: &RecognitionData{
 			Quota: QuotaInfo{
 				Current:  overflowCurrent,
 				Overflow: overflowAmount,
 			},
-			Sunday:          sunday,
-			StockBillAmount: stockBillAmount,
-			Goods:           resultGoods,
+			Sunday:             sunday,
+			StockBillAmount:    stockBillAmount,
+			StockBillAvailable: stockBillAvailable,
+			Goods:              resultGoods,
 		},
 		AbortReason: AbortReasonNone,
 	}
@@ -363,9 +358,30 @@ func (r *ItemValueChangeRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogn
 		Bool("overflow", resultPayload.hasOverflow()).
 		Bool("sunday", resultPayload.Data.Sunday).
 		Int("stock_bill_amount", resultPayload.Data.StockBillAmount).
+		Bool("stock_bill_available", resultPayload.Data.StockBillAvailable).
 		Str("abort_reason", string(resultPayload.AbortReason)).
 		Int("goods_count", len(resultPayload.Data.Goods)).
 		Msg("custom recognition finished")
+	maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别完成，共识别到 %d 个商品", len(resultPayload.Data.Goods)))
+
+	return result, true
+}
+
+func buildAbortedRecognitionResult(arg *maa.CustomRecognitionArg, reason AbortReason) (*maa.CustomRecognitionResult, bool) {
+	resultPayload := RecognitionResult{
+		Data:        nil,
+		AbortReason: reason,
+	}
+
+	result, err := buildCustomRecognitionResult(arg, resultPayload)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Str("abort_reason", string(reason)).
+			Msg("failed to marshal aborted recognition result")
+		return nil, false
+	}
 
 	return result, true
 }
@@ -497,32 +513,23 @@ func buildCustomRecognitionResult(arg *maa.CustomRecognitionArg, payload Recogni
 	}, nil
 }
 
-func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string) {
+func resolveGoodsRegion(ctx *maa.Context) (region string, anchor string, err error) {
 	if ctx == nil {
-		return "Wuling", ""
+		return "", "", fmt.Errorf("context is nil")
 	}
 
-	anchor, err := ctx.GetAnchor(anchorTargetRegionName)
+	anchor, err = ctx.GetAnchor(anchorTargetRegionName)
 	if err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", autoStockpileComponent).
-			Str("anchor_name", anchorTargetRegionName).
-			Msg("failed to get anchor, fallback to Wuling")
-		return "Wuling", ""
+		return "", "", fmt.Errorf("get anchor %s: %w", anchorTargetRegionName, err)
 	}
 
 	switch anchor {
 	case "GoToValleyIV":
-		return "ValleyIV", anchor
+		return "ValleyIV", anchor, nil
 	case "GoToWuling":
-		return "Wuling", anchor
+		return "Wuling", anchor, nil
 	default:
-		log.Warn().
-			Str("component", autoStockpileComponent).
-			Str("anchor", anchor).
-			Msg("unexpected anchor value, fallback to Wuling")
-		return "Wuling", anchor
+		return "", anchor, fmt.Errorf("unexpected anchor value %q", anchor)
 	}
 }
 
@@ -716,19 +723,19 @@ func recognitionParamROI(node *maa.Node) ([]int, error) {
 	return []int{rect[0], rect[1], rect[2], rect[3]}, nil
 }
 
-func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, error) {
+func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *ItemMap) ([]priceCandidate, []ocrNameCandidate, AbortReason, error) {
 	if err := overrideGoodsPriceROI(ctx, goodsROI); err != nil {
-		return nil, nil, err
+		return nil, nil, AbortReasonGoodsOCRUnavailableWarn, err
 	}
 
 	detail, err := ctx.RunRecognition(goodsPriceNodeName, img, nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, AbortReasonGoodsOCRUnavailableWarn, err
 	}
 
 	results := filteredOCRResults(detail)
 	if len(results) == 0 {
-		return nil, nil, nil
+		return nil, nil, AbortReasonGoodsOCRUnavailableWarn, nil
 	}
 
 	prices := make([]priceCandidate, 0, len(results))
@@ -793,7 +800,17 @@ func runGoodsOCR(ctx *maa.Context, img image.Image, goodsROI []int, itemMap *Ite
 		return prices[i].box.Y() < prices[j].box.Y()
 	})
 
-	return prices, ocrNames, nil
+	return prices, ocrNames, AbortReasonNone, nil
+}
+
+func validateRecognizedGoodsTiers(goods []GoodsItem) error {
+	for _, item := range goods {
+		if item.Tier == "" {
+			return fmt.Errorf("goods %s (%s) has empty tier", item.Name, item.ID)
+		}
+	}
+
+	return nil
 }
 
 func overrideGoodsPriceROI(ctx *maa.Context, goodsROI []int) error {

@@ -1,6 +1,7 @@
 package autostockpile
 
 import (
+	"fmt"
 	"image"
 	"math"
 	"regexp"
@@ -87,16 +88,20 @@ func shouldAbortForInsufficientFunds(stockBillOK bool, stockBillAmount, reserveS
 	return stockBillOK && reserveStockBill > 0 && stockBillAmount <= reserveStockBill
 }
 
-func resolveQuantityUpperBound(stockBillAmount, reserveStockBill, price, quotaCurrent int) quantityUpperBound {
+func resolveQuantityUpperBound(stockBillAvailable bool, stockBillAmount, reserveStockBill, price, quotaCurrent int) (quantityUpperBound, error) {
 	if quotaCurrent < 0 {
 		quotaCurrent = 0
 	}
 
-	if reserveStockBill <= 0 || stockBillAmount <= 0 {
+	if reserveStockBill <= 0 {
 		return quantityUpperBound{
 			MaxBuy:         0,
 			CappedQuantity: quotaCurrent,
-		}
+		}, nil
+	}
+
+	if !stockBillAvailable {
+		return quantityUpperBound{}, fmt.Errorf("stock bill is unavailable while reserve_stock_bill=%d", reserveStockBill)
 	}
 
 	maxBuy := resolveMaxBuy(stockBillAmount, reserveStockBill, price)
@@ -110,5 +115,5 @@ func resolveQuantityUpperBound(stockBillAmount, reserveStockBill, price, quotaCu
 		CappedQuantity:    cappedQuantity,
 		ConstraintApplied: true,
 		Limited:           cappedQuantity < quotaCurrent,
-	}
+	}, nil
 }

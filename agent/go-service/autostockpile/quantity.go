@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 type quantityMode string
@@ -23,18 +24,29 @@ type quantityDecision struct {
 	Reason string
 }
 
-func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) quantityDecision {
-	upperBound := resolveQuantityUpperBound(data.StockBillAmount, cfg.ReserveStockBill, selection.CurrentPrice, data.Quota.Current)
+func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) (quantityDecision, error) {
+	upperBound, err := resolveQuantityUpperBound(data.StockBillAvailable, data.StockBillAmount, cfg.ReserveStockBill, selection.CurrentPrice, data.Quota.Current)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", autoStockpileComponent).
+			Bool("stock_bill_available", data.StockBillAvailable).
+			Int("stock_bill_amount", data.StockBillAmount).
+			Int("reserve_stock_bill", cfg.ReserveStockBill).
+			Int("price", selection.CurrentPrice).
+			Msg("failed to resolve quantity decision")
+		return quantityDecision{}, err
+	}
 
 	switch {
 	case selection.CurrentPrice < selection.Threshold:
-		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current)
+		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
 	case cfg.SundayMode && data.Sunday:
-		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current)
+		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
 	case cfg.OverflowMode && data.Quota.Overflow > 0:
-		return resolveOverflowQuantityDecision(upperBound, data.Quota)
+		return resolveOverflowQuantityDecision(upperBound, data.Quota), nil
 	default:
-		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current)
+		return resolveThresholdQuantityDecision(upperBound, data.Quota.Current), nil
 	}
 }
 
@@ -43,7 +55,7 @@ func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurren
 		return quantityDecision{
 			Mode:   quantityModeSwipeMax,
 			MaxBuy: upperBound.MaxBuy,
-			Reason: "未启用保留调度券或未识别到调度券数量",
+			Reason: "未启用保留调度券",
 		}
 	}
 

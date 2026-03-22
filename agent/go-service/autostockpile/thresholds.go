@@ -55,24 +55,11 @@ func normalizePriceLimitThreshold(tierID string, threshold int) int {
 }
 
 func parsePriceLimitOverrideValue(key string, data json.RawMessage) (int, error) {
-	tierID, err := priceLimitTierIDFromAttachKey(key)
-	if err != nil {
+	if _, err := priceLimitTierIDFromAttachKey(key); err != nil {
 		return 0, err
 	}
 
-	var stringValue string
-	if err := json.Unmarshal(data, &stringValue); err == nil {
-		if strings.TrimSpace(stringValue) == "" {
-			return requireDefaultPriceLimitForTier(tierID)
-		}
-	}
-
-	threshold, err := parsePriceLimitValue(data)
-	if err != nil {
-		return 0, err
-	}
-
-	return normalizePriceLimitThreshold(tierID, threshold), nil
+	return parsePositiveThresholdValue(key, data)
 }
 
 func minPositiveThreshold(priceLimits PriceLimitConfig) int {

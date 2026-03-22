@@ -30,16 +30,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	cfg, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", "autostockpile").
-			Str("step", "load_selection_config").
-			Msg("invalid selection config")
-		return false
-	}
-
 	detailJSON := extractRecoDetailJson(arg.RecognitionDetail)
 	if detailJSON == "" {
 		log.Error().
@@ -66,10 +56,12 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	goodsCount := 0
 	stockBillAmount := 0
+	stockBillAvailable := false
 	sunday := false
 	if result.Data != nil {
 		goodsCount = len(result.Data.Goods)
 		stockBillAmount = result.Data.StockBillAmount
+		stockBillAvailable = result.Data.StockBillAvailable
 		sunday = result.Data.Sunday
 	}
 
@@ -79,39 +71,32 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Bool("sunday", sunday).
 		Str("abort_reason", string(result.AbortReason)).
 		Int("stock_bill_amount", stockBillAmount).
+		Bool("stock_bill_available", stockBillAvailable).
 		Int("goods_count", goodsCount).
 		Msg("recognition result parsed")
 
-	if shouldShortCircuitNoCandidate(result.AbortReason) {
-		reasonText, err := LookupAbortReasonZHCN(result.AbortReason)
-		if err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "autostockpile").
-				Str("abort_reason", string(result.AbortReason)).
-				Msg("failed to resolve abort reason message")
-			return false
-		}
-
-		log.Info().
-			Str("component", "autostockpile").
-			Str("abort_reason", string(result.AbortReason)).
-			Str("abort_reason_text", reasonText).
-			Msg("recognition requested no-candidate short-circuit")
-		maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别阶段提前终止，跳过本次购买（%s）", reasonText))
-		if err := overrideNoCandidateBranch(ctx, arg.CurrentTaskName); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "autostockpile").
-				Str("node", arg.CurrentTaskName).
-				Str("next", noCandidateNodeName).
-				Msg("failed to short-circuit abort path to no-candidate branch")
-			return false
-		}
-		return true
+	if shouldStopTask(result.AbortReason) {
+		return stopTaskWithFocus(ctx, result.AbortReason, nil)
+	}
+	if shouldRouteNoCandidate(result.AbortReason) {
+		return routeNoCandidateWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, "识别阶段提前终止，跳过本次购买")
 	}
 
 	data := result.Data
+	region, anchor, err := resolveGoodsRegion(ctx)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonRegionResolveFailedFatal, err)
+	}
+	log.Info().
+		Str("component", "autostockpile").
+		Str("anchor", anchor).
+		Str("region", region).
+		Msg("selector region resolved")
+
+	cfg, abortReason, err := getSelectionConfigFromNode(ctx, arg.CurrentTaskName, region)
+	if err != nil {
+		return stopTaskWithFocus(ctx, abortReason, err)
+	}
 
 	// OverflowMode intentionally shares the same threshold-bypass path as SundayMode.
 	// Although the option key is named AutoStockpileOverflowBuyLowPriceGoods,
@@ -144,7 +129,10 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	quantityDecision := resolveQuantityDecision(selection, *data, cfg)
+	quantityDecision, err := resolveQuantityDecision(selection, *data, cfg)
+	if err != nil {
+		return routeNoCandidateWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, "已命中商品，但最终跳过购买")
+	}
 	if quantityDecision.Mode == quantityModeNoCandidate {
 		log.Info().
 			Str("component", "autostockpile").
@@ -274,8 +262,96 @@ func SelectBestProduct(data RecognitionData, cfg SelectionConfig, bypassThreshol
 	}
 }
 
-func shouldShortCircuitNoCandidate(reason AbortReason) bool {
-	return reason != AbortReasonNone
+func shouldRouteNoCandidate(reason AbortReason) bool {
+	switch reason {
+	case AbortReasonQuotaZero,
+		AbortReasonInsufficientFunds,
+		AbortReasonStockBillUnavailableWarn,
+		AbortReasonGoodsOCRUnavailableWarn:
+		return true
+	default:
+		return false
+	}
+}
+
+func shouldStopTask(reason AbortReason) bool {
+	switch reason {
+	case AbortReasonRegionResolveFailedFatal,
+		AbortReasonSelectionConfigInvalidFatal,
+		AbortReasonThresholdConfigInvalidFatal,
+		AbortReasonGoodsTierInvalidFatal:
+		return true
+	default:
+		return false
+	}
+}
+
+func lookupAbortReasonText(reason AbortReason) string {
+	reasonText, err := LookupAbortReasonZHCN(reason)
+	if err != nil {
+		log.Warn().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("abort_reason", string(reason)).
+			Msg("failed to resolve abort reason message, fallback to reason key")
+		return string(reason)
+	}
+
+	return reasonText
+}
+
+func routeNoCandidateWithAbortReason(ctx *maa.Context, currentTaskName string, reason AbortReason, err error, focusPrefix string) bool {
+	reasonText := lookupAbortReasonText(reason)
+
+	logEvent := log.Info()
+	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
+		logEvent = log.Warn()
+	}
+	logEvent = logEvent.
+		Str("component", "autostockpile").
+		Str("abort_reason", string(reason)).
+		Str("abort_reason_text", reasonText)
+	if err != nil {
+		logEvent = logEvent.Err(err)
+	}
+	logEvent.Msg("routing current cycle to no-candidate branch")
+
+	maafocus.NodeActionStarting(ctx, fmt.Sprintf("%s（%s）", focusPrefix, reasonText))
+	if err := overrideNoCandidateBranch(ctx, currentTaskName); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "autostockpile").
+			Str("node", currentTaskName).
+			Str("next", noCandidateNodeName).
+			Msg("failed to route abort path to no-candidate branch")
+		return false
+	}
+
+	return true
+}
+
+func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
+	reasonText := lookupAbortReasonText(reason)
+
+	logEvent := log.Error().
+		Str("component", "autostockpile").
+		Str("abort_reason", string(reason)).
+		Str("abort_reason_text", reasonText)
+	if err != nil {
+		logEvent = logEvent.Err(err)
+	}
+	logEvent.Msg("stopping task due to fatal abort reason")
+
+	maafocus.NodeActionStarting(ctx, fmt.Sprintf("识别阶段发生严重错误，已停止任务（%s）", reasonText))
+	if ctx == nil || ctx.GetTasker() == nil {
+		log.Error().
+			Str("component", "autostockpile").
+			Str("abort_reason", string(reason)).
+			Msg("tasker is unavailable for fatal stop")
+		return false
+	}
+	ctx.GetTasker().PostStop()
+	return false
 }
 
 func overrideNoCandidateBranch(ctx *maa.Context, currentTaskName string) error {
