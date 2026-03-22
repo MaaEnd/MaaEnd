@@ -153,7 +153,7 @@ func (wca *WindowsControlAdaptor) AggressivelyResetCamera() {
 }
 
 func (wca *WindowsControlAdaptor) AggressivelyResetPlayerMovement() {
-	// Policy: sprint backward and immediately move forward to ensure the initial motional state is "run"
+	// Policy: sprint backward and immediately move forward to ensure the initial motional state is not walk
 	wca.KeyDown(KEY_S, defaultKeyActionDelayMillis*2)
 	wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis*2)
 	wca.KeyUp(KEY_S, defaultKeyActionDelayMillis*2)

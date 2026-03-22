@@ -64,8 +64,8 @@ Optional parameters:
 
 - `stuck_timeout`: Positive integer, default `10000`. The time threshold for judging failure to get out of the stuck state, in milliseconds. If the stuck state is not escaped after this time, pathfinding fails immediately.
 
-- `map_name_match_rule`: String, default `"^%s(_tier_\\w+)$"`. Allows maps that satisfy this expression to be used for pathfinding. The `%s` will be replaced by the `map_name` parameter (and automatically regex-escaped). Typical values are:
-    - `^%s(_tier_\\w+)$` (default): Allows the map and all its tiered maps to participate in pathfinding.
+- `map_name_match_rule`: String, default `"^%s(_tier_\\w+)?$"`. Allows maps that satisfy this expression to be used for pathfinding. The `%s` will be replaced by the `map_name` parameter (and automatically regex-escaped). Typical values are:
+    - `^%s(_tier_\\w+)?$` (default): Allows the map itself and all its tiered maps to participate in pathfinding.
     - `^%s$`: Only allows the map itself to participate in pathfinding.
 
 </details>
