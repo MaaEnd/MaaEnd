@@ -1,4 +1,20 @@
 {
+    "GrowthChamberGrowBack": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "GrowthChamberBackExtract": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
     "GrowthChamberExit": {
         "action": {
             "type": "ClickKey",
@@ -7,7 +23,7 @@
             }
         }
     },
-    "GrowthChamberTargetSwipe": {
+    "GrowthChamberTargetNotFound": {
         "action": {
             "type": "Swipe",
             "param": {
@@ -27,14 +43,6 @@
                 ],
                 "end_hold": 200,
                 "duration": 100
-            }
-        }
-    },
-    "GrowthChamberNoMaterials": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
             }
         }
     },
@@ -86,8 +94,5 @@
                 ]
             }
         }
-    },
-    "GrowthChamberGrowBack": {
-        "action": "Click"
     }
 }
