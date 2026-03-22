@@ -357,19 +357,13 @@
     "MFGCabinExit": {
         "desc": "[制造舱·退出] 点击左上制造舱标题返回控制中枢",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "InMFGCarbin",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "(?i)MFG\\sCABIN",
-                    "制造舱",
-                    "製造艙"
-                ]
+                "box_index": 1
             }
         },
         "pre_delay": 0,
