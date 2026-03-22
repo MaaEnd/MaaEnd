@@ -144,7 +144,7 @@
                     "name": "DoNothing",
                     "label": "$option.SelectToGrow.cases.DoNothing.label",
                     "pipeline_override": {
-                        "Grow": {
+                        "GrowthChamberGrow": {
                             "enabled": false
                         }
                     }
@@ -153,10 +153,10 @@
                     "name": "GrowAgain",
                     "label": "$option.SelectToGrow.cases.GrowAgain.label",
                     "pipeline_override": {
-                        "Grow": {
+                        "GrowthChamberGrow": {
                             "enabled": false
                         },
-                        "GrowAgain": {
+                        "GrowthChamberGrowAgain": {
                             "enabled": true
                         }
                     }
@@ -165,7 +165,7 @@
                     "name": "Any",
                     "label": "$option.SelectToGrow.cases.Any.label",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "武陵石",
                                 "燎石",
@@ -233,7 +233,7 @@
                     "name": "Wulingstone",
                     "label": "$item.Wulingstone",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "武陵石",
                                 "Wulingstone"
@@ -248,7 +248,7 @@
                     "name": "Igneosite",
                     "label": "$item.Igneosite",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "燎石",
                                 "Igneosite"
@@ -263,7 +263,7 @@
                     "name": "FalseAggela",
                     "label": "$item.FalseAggela",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "岩天使叶",
                                 "False Aggela",
@@ -280,7 +280,7 @@
                     "name": "BlightedJadeleaf",
                     "label": "$item.BlightedJadeleaf",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "受蚀玉化叶",
                                 "Blighted Jadeleaf",
@@ -297,7 +297,7 @@
                     "name": "Cosmagaric",
                     "label": "$item.Cosmagaric",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "星门菌",
                                 "Cosmagaric",
@@ -314,7 +314,7 @@
                     "name": "Bloodcap",
                     "label": "$item.Bloodcap",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "血菌",
                                 "Bloodcap",
@@ -330,7 +330,7 @@
                     "name": "Umbronyx",
                     "label": "$item.Umbronyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "重黯石",
                                 "Umbronyx",
@@ -346,7 +346,7 @@
                     "name": "Auronyx",
                     "label": "$item.Auronyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "中黯石",
                                 "Auronyx",
@@ -362,7 +362,7 @@
                     "name": "Kalkonyx",
                     "label": "$item.Kalkonyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "轻黯石",
                                 "Kalkonyx",
@@ -379,7 +379,7 @@
                     "name": "Vitrodendra",
                     "label": "$item.Vitrodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "至晶多齿叶",
                                 "Vitrodendra",
@@ -396,7 +396,7 @@
                     "name": "Chrysodendra",
                     "label": "$item.Chrysodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "纯晶多齿叶",
                                 "Chrysodendra",
@@ -413,7 +413,7 @@
                     "name": "Kalkodendra",
                     "label": "$item.Kalkodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "晶化多齿叶",
                                 "Kalkodendra",
@@ -430,7 +430,7 @@
                     "name": "RubyBolete",
                     "label": "$item.RubyBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "重红柱状菌",
                                 "Ruby Bolete",
@@ -447,7 +447,7 @@
                     "name": "RedBolete",
                     "label": "$item.RedBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "中红柱状菌",
                                 "Red Bolete",
@@ -464,7 +464,7 @@
                     "name": "PinkBolete",
                     "label": "$item.PinkBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "轻红柱状菌",
                                 "Pink Bolete",
@@ -487,26 +487,41 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "GrowthChamberSeedExtract": {
+                            "enabled": true
+                        },
+                        "GrowthChamberGrowExit": {
+                            "enabled": false
+                        }
+                    }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SelectGrow": {
+                        "GrowthChamberCheckTargetEmpty": {
                             "recognition": {
-                                "type": "And",
+                                "type": "ColorMatch",
                                 "param": {
-                                    "all_of": [
-                                        "SelectGrowTarget",
-                                        "CheckGrowTargetEmpty"
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
                                     ],
-                                    "box_index": 1
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
                                 }
                             }
                         },
-                        "ExtractSeed": {
-                            "action": "DoNothing",
-                            "next": []
+                        "GrowthChamberSeedExtract": {
+                            "enabled": false
+                        },
+                        "GrowthChamberGrowExit": {
+                            "enabled": true
                         }
                     }
                 }
@@ -525,7 +540,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "ExtractSeed": {
+                        "GrowthChamberSeedExtract": {
                             "enabled": false
                         }
                     }
@@ -541,7 +556,7 @@
                     "name": "Default",
                     "label": "$option.SortBy.cases.Default.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "拥有数量",
@@ -558,7 +573,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "默认",
                                 "預設",
@@ -566,7 +581,7 @@
                                 "デフォルト"
                             ]
                         },
-                        "SwipeChooseSortBy": {
+                        "GrowthChamberSortBySwipe": {
                             "enabled": false
                         }
                     }
@@ -575,7 +590,7 @@
                     "name": "AmountOwned",
                     "label": "$option.SortBy.cases.AmountOwned.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -592,7 +607,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "拥有数量",
                                 "持有數量",
@@ -606,7 +621,7 @@
                     "name": "AmountOfSeeds",
                     "label": "$option.SortBy.cases.AmountOfSeeds.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -623,7 +638,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "基核数量",
                                 "基核數量",
@@ -637,7 +652,7 @@
                     "name": "Quality",
                     "label": "$option.SortBy.cases.Quality.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -654,7 +669,7 @@
                                 "Amount of Seeds"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "品质",
                                 "品質",
@@ -675,7 +690,7 @@
                     "name": "ASC",
                     "label": "$option.SortOrder.cases.Ascending.label",
                     "pipeline_override": {
-                        "SortOrder": {
+                        "GrowthChamberSortOrder": {
                             "enabled": true,
                             "expected": [
                                 "降序",
@@ -690,7 +705,7 @@
                     "name": "DESC",
                     "label": "$option.SortOrder.cases.Descending.label",
                     "pipeline_override": {
-                        "SortOrder": {
+                        "GrowthChamberSortOrder": {
                             "enabled": true,
                             "expected": [
                                 "升序",

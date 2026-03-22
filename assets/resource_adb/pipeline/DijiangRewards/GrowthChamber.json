@@ -1,5 +1,5 @@
 {
-    "ExitGrowthChamber": {
+    "GrowthChamberExit": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -7,7 +7,7 @@
             }
         }
     },
-    "InSelectGrowSwipe": {
+    "GrowthChamberTargetSwipe": {
         "action": {
             "type": "Swipe",
             "param": {
@@ -30,7 +30,7 @@
             }
         }
     },
-    "NoMaterials": {
+    "GrowthChamberNoMaterials": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -38,7 +38,7 @@
             }
         }
     },
-    "SwipeChooseSortBy": {
+    "GrowthChamberSortBySwipe": {
         "recognition": {
             "param": {
                 "roi": [
@@ -63,7 +63,7 @@
             }
         }
     },
-    "SortBy": {
+    "GrowthChamberSortBy": {
         "recognition": {
             "param": {
                 "roi": [
@@ -75,7 +75,7 @@
             }
         }
     },
-    "SortOrder": {
+    "GrowthChamberSortOrder": {
         "recognition": {
             "param": {
                 "roi": [

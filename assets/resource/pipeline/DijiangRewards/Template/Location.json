@@ -38,6 +38,26 @@
             }
         }
     },
+    "InGrowthChamber": {
+        "desc": "[培养舱] 在培养舱界面，识别培养舱标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    167,
+                    64
+                ],
+                "expected": [
+                    "培养舱",
+                    "培養艙",
+                    "(?i)Growth\\s*Chamber",
+                    "培養室"
+                ]
+            }
+        }
+    },
     "FacilityDetails": {
         "desc": "[设施详情] 识别设施详情标题",
         "recognition": {
