@@ -1927,18 +1927,9 @@
                             "expected": 169,
                             "threshold": 0.7
                         },
-                        "ItemTransferRepoToBag": {
-                            "next": [
-                                "ItemTransferClickSortDescending",
-                                "ItemTransferClickItemCategory",
-                                "ItemTransferFindItemInRepo",
-                                "ItemTransferScrollDownwardRepo"
-                            ]
-                        },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
-                                "target_class": 169,
-                                "descending": true
+                                "target_class": 169
                             }
                         },
                         "ItemTransferFindItemFallbackBag": {
