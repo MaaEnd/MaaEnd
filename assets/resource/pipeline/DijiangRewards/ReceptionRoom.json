@@ -92,7 +92,6 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomSendClues",
             "[JumpBack]ReceptionRoomCollectClues",
             "[JumpBack]ReceptionRoomReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
@@ -103,9 +102,8 @@
             "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_flow_failed"
         }
     },
-    "ReceptionRoomSendClues": {
+    "ReceptionRoomCollectClues": {
         "desc": "[会客室·赠送线索] 识别需要赠予线索的奖励",
-        "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
@@ -166,25 +164,25 @@
     },
     "ReceptionRoomSendCluesClueCollectionClose": {
         "desc": "[会客室·赠送线索] 收集线索没满，关闭线索收集侧边栏",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1"
-        ],
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    "ReceptionRoomCollectCluesText"
+                ],
+                "box_index": 1
+            }
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomCollectCluesExit"
+        ]
     },
     "ReceptionRoomSendCluesClueCollectionFull": {
         "desc": "[会客室·赠送线索] 收集线索满了",
@@ -368,66 +366,6 @@
         },
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "ReceptionRoomCollectClues": {
-        "desc": "[会客室·线索] 识别是否有可收集的线索",
-        "max_hit": 1,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InReceptionRoom",
-                    "ReceptionRoomNeedCollectCluesColor",
-                    "ReceptionRoomNeedCollectCluesText"
-                ],
-                "box_index": 2
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomCollectCluesOpen"
-        ]
-    },
-    "ReceptionRoomCollectCluesOpen": {
-        "desc": "[会客室·线索] 点击领取线索后打开收集界面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -600,
-                    0,
-                    600,
-                    150
-                ],
-                "expected": [
-                    "收集线索",
-                    "收集線索",
-                    "Collect Clue",
-                    "手がかり捜索",
-                    "단서 수집"
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomCollectCluesCollect"
-        ]
     },
     "ReceptionRoomSendCluesSwipe": {
         "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
