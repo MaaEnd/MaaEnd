@@ -357,7 +357,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	if matchResult.Kind != matchapi.MatchNone {
 		MatchedMessageColor = "#064d7c"
 	}
-	LogMXUSimpleHTMLWithColor(ctx, fmt.Sprintf("OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)", skills[0], st.CurrentSkillLevels[0], skills[1], st.CurrentSkillLevels[1], skills[2], st.CurrentSkillLevels[2]), MatchedMessageColor)
+	LogMXUSimpleHTMLWithColor(ctx, efMsgOCRSkills(st.InputLanguage, skills, st.CurrentSkillLevels), MatchedMessageColor)
 
 	switch matchResult.Kind {
 	case matchapi.MatchExact:
@@ -374,7 +374,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 			}
 			weaponsHTML.WriteString(fmt.Sprintf(`<span style="color: %s;">%s</span>`, getColorForRarity(w.Rarity), escapeHTML(w.ChineseName)))
 		}
-		LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">匹配到武器：%s</div>`, weaponsHTML.String()))
+		LogMXUHTML(ctx, efMsgMatchedWeapons(st.InputLanguage, weaponsHTML.String()))
 
 		key := skillCombinationKey(matchResult.SkillIDs)
 		if key != "" {
@@ -404,11 +404,11 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		if matchResult.ShouldLock {
 			st.MatchedCount++
 			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Int("matched_count", st.MatchedCount).Msg("extended rule hit, lock next")
-			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #064d7c; font-weight: 900;">🔒 扩展规则命中并锁定：%s</div>`, escapeHTML(extendedReason)))
+			LogMXUHTML(ctx, efMsgExtRuleLock(st.InputLanguage, extendedReason))
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterLockItemLog"}})
 		} else {
 			log.Info().Str("component", "EssenceFilter").Strs("skills", skills).Str("reason", extendedReason).Msg("extended rule hit, no operation")
-			LogMXUHTML(ctx, fmt.Sprintf(`<div style="color: #d18b00; font-weight: 900;">🗂️ 扩展规则命中（不操作）：%s</div>`, escapeHTML(extendedReason)))
+			LogMXUHTML(ctx, efMsgExtRuleNoop(st.InputLanguage, extendedReason))
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
 		}
 
@@ -420,7 +420,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 				Str("reason", matchResult.Reason).
 				Strs("skills", skills).
 				Msg("not matched, discard item")
-			LogMXUHTML(ctx, `<div style="color: #ff6b6b; font-weight: 900;">🗑️ 未匹配到目标技能组合，废弃该物品</div>`)
+			LogMXUHTML(ctx, efMsgNoMatchDiscard(st.InputLanguage))
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterDiscardItemLog"}})
 		} else {
 			log.Info().
@@ -429,7 +429,7 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 				Str("reason", matchResult.Reason).
 				Strs("skills", skills).
 				Msg("not matched, skip to next item")
-			LogMXUSimpleHTML(ctx, "未匹配到目标技能组合，跳过该物品")
+			LogMXUSimpleHTML(ctx, efMsgNoMatchSkip(st.InputLanguage))
 			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: "EssenceFilterRowNextItem"}})
 		}
 	}
