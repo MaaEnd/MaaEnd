@@ -434,14 +434,15 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    1106,
-                    102,
-                    87,
-                    81
+                    967,
+                    0,
+                    313,
+                    720
                 ],
                 "template": [
                     "ClaimDijiangRewards/Send.png"
-                ]
+                ],
+                "order_by": "Random"
             }
         },
         "pre_delay": 0,
