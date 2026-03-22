@@ -309,7 +309,22 @@ func matchesTarget(ocrName, targetName string) bool {
 		return false
 	}
 	ocrName = strings.TrimSpace(ocrName)
-	return ocrName == targetName || strings.Contains(ocrName, targetName) || strings.Contains(targetName, ocrName)
+	if ocrName == targetName {
+		return true
+	}
+	cleaned := cleanOCRNoise(ocrName)
+	return cleaned != "" && cleaned == targetName
+}
+
+func cleanOCRNoise(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		if r == ' ' || r == '·' || r == '.' || r == ',' || r == '、' {
+			continue
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
 }
 
 // binarySearchOnPage searches among visible grid cells.
