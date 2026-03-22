@@ -8,8 +8,18 @@
         "desc": "这块代码是用来前往四号谷地农场的",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
-            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+            "_AutoEcoFarmInOriginiumSciencePark2",
+            "[JumpBack]_AutoEcoFarmValleyIV_TeleportRetryOnce",
+            "_AutoEcoFarmGotoValleyIVEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmValleyIV_TeleportRetryOnce": {
+        "desc": "万能跳转兜底至多2次（JumpBack 回到 Start 后 max_hit 用尽即跳过，避免死循环）",
+        "max_hit": 2,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark2"
         ]
     },
     "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
@@ -23,8 +33,18 @@
         "desc": "这块代码是用来前往武陵农场的",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmInWulingCityCore", //检测是否传送成功
-            "[JumpBack]SceneEnterWorldWulingWulingCityCore" //传送到谷地源石园区山道缓坡
+            "_AutoEcoFarmInWulingCityCore",
+            "[JumpBack]_AutoEcoFarmWuling_TeleportRetryOnce",
+            "_AutoEcoFarmGotoWulinEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmWuling_TeleportRetryOnce": {
+        "desc": "万能跳转兜底至多2次（JumpBack 回到 Start 后 max_hit 用尽即跳过，避免死循环）",
+        "max_hit": 2,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "SceneEnterWorldWulingWulingCityCore"
         ]
     },
     "_AutoEcoFarmGotoWulinEcoFarmExit": {
@@ -49,7 +69,8 @@
                         26
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [
@@ -124,7 +145,8 @@
                         55
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [

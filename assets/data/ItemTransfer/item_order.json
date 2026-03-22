@@ -1,0 +1,458 @@
+{
+    "items": {
+        "0": {
+            "name": "中容谷地电池",
+            "category": "Product"
+        },
+        "5": {
+            "name": "优质柑实罐头",
+            "category": "Usable"
+        },
+        "6": {
+            "name": "优质荞愈胶囊",
+            "category": "Usable"
+        },
+        "7": {
+            "name": "低容武陵电池",
+            "category": "Product"
+        },
+        "8": {
+            "name": "低容谷地电池",
+            "category": "Product"
+        },
+        "14": {
+            "name": "原木",
+            "category": "Plant"
+        },
+        "19": {
+            "name": "基础航天建材",
+            "category": "Product"
+        },
+        "28": {
+            "name": "密制晶体",
+            "category": "Product"
+        },
+        "36": {
+            "name": "工业爆炸物",
+            "category": "Usable"
+        },
+        "41": {
+            "name": "息壤",
+            "category": "Product"
+        },
+        "42": {
+            "name": "息壤装备原件",
+            "category": "Product"
+        },
+        "51": {
+            "name": "映火荞花",
+            "category": "Plant"
+        },
+        "52": {
+            "name": "晶体外壳",
+            "category": "Product"
+        },
+        "53": {
+            "name": "晶体外壳粉末",
+            "category": "Product"
+        },
+        "56": {
+            "name": "柑实",
+            "category": "Plant"
+        },
+        "58": {
+            "name": "柑实种子",
+            "category": "Plant"
+        },
+        "59": {
+            "name": "柑实粉末",
+            "category": "Usable"
+        },
+        "60": {
+            "name": "柑实罐头",
+            "category": "Usable"
+        },
+        "73": {
+            "name": "源石粉末",
+            "category": "Product"
+        },
+        "74": {
+            "name": "源矿",
+            "category": "Ore"
+        },
+        "75": {
+            "name": "灰芦麦",
+            "category": "Plant"
+        },
+        "76": {
+            "name": "灰芦麦种子",
+            "category": "Plant"
+        },
+        "85": {
+            "name": "琼叶参",
+            "category": "Plant"
+        },
+        "86": {
+            "name": "琼叶参种子",
+            "category": "Plant"
+        },
+        "88": {
+            "name": "砂叶",
+            "category": "Plant"
+        },
+        "89": {
+            "name": "砂叶种子",
+            "category": "Plant"
+        },
+        "90": {
+            "name": "砂叶粉末",
+            "category": "Product"
+        },
+        "92": {
+            "name": "碳块",
+            "category": "Product"
+        },
+        "93": {
+            "name": "碳粉末",
+            "category": "Product"
+        },
+        "96": {
+            "name": "稳定碳块",
+            "category": "Product"
+        },
+        "100": {
+            "name": "精选柑实罐头",
+            "category": "Usable"
+        },
+        "102": {
+            "name": "精选荞愈胶囊",
+            "category": "Usable"
+        },
+        "103": {
+            "name": "紫晶矿",
+            "category": "Ore"
+        },
+        "104": {
+            "name": "紫晶粉末",
+            "category": "Product"
+        },
+        "105": {
+            "name": "紫晶纤维",
+            "category": "Product"
+        },
+        "106": {
+            "name": "紫晶装备原件",
+            "category": "Product"
+        },
+        "107": {
+            "name": "紫晶质瓶",
+            "category": "Product"
+        },
+        "108": {
+            "name": "紫晶零件",
+            "category": "Product"
+        },
+        "111": {
+            "name": "细磨柑实粉末",
+            "category": "Product"
+        },
+        "112": {
+            "name": "细磨荞花粉末",
+            "category": "Product"
+        },
+        "115": {
+            "name": "致密晶体粉末",
+            "category": "Product"
+        },
+        "116": {
+            "name": "致密源石粉末",
+            "category": "Product"
+        },
+        "117": {
+            "name": "致密碳粉末",
+            "category": "Product"
+        },
+        "118": {
+            "name": "致密蓝铁粉末",
+            "category": "Product"
+        },
+        "119": {
+            "name": "芽针",
+            "category": "Plant"
+        },
+        "122": {
+            "name": "芽针种子",
+            "category": "Plant"
+        },
+        "123": {
+            "name": "芽针粉末",
+            "category": "Usable"
+        },
+        "124": {
+            "name": "芽针针剂",
+            "category": "Usable"
+        },
+        "125": {
+            "name": "苦叶椒",
+            "category": "Plant"
+        },
+        "126": {
+            "name": "苦叶椒种子",
+            "category": "Plant"
+        },
+        "128": {
+            "name": "荆刺芽针",
+            "category": "Plant"
+        },
+        "129": {
+            "name": "荆刺芽针粉末",
+            "category": "Usable"
+        },
+        "131": {
+            "name": "荞愈胶囊",
+            "category": "Usable"
+        },
+        "133": {
+            "name": "荞花",
+            "category": "Plant"
+        },
+        "134": {
+            "name": "荞花种子",
+            "category": "Plant"
+        },
+        "135": {
+            "name": "荞花粉末",
+            "category": "Usable"
+        },
+        "137": {
+            "name": "蓝铁块",
+            "category": "Product"
+        },
+        "138": {
+            "name": "蓝铁瓶",
+            "category": "Product"
+        },
+        "141": {
+            "name": "蓝铁矿",
+            "category": "Ore"
+        },
+        "142": {
+            "name": "蓝铁粉末",
+            "category": "Product"
+        },
+        "143": {
+            "name": "蓝铁装备原件",
+            "category": "Product"
+        },
+        "144": {
+            "name": "蓬茸锦草",
+            "category": "Plant"
+        },
+        "145": {
+            "name": "蓬茸锦草粉末",
+            "category": "Usable"
+        },
+        "160": {
+            "name": "酮化树种",
+            "category": "Plant"
+        },
+        "161": {
+            "name": "酮化灌木",
+            "category": "Plant"
+        },
+        "162": {
+            "name": "酮化灌木粉末",
+            "category": "Product"
+        },
+        "165": {
+            "name": "金石稻",
+            "category": "Plant"
+        },
+        "166": {
+            "name": "金石稻种子",
+            "category": "Plant"
+        },
+        "167": {
+            "name": "钢制零件",
+            "category": "Product"
+        },
+        "168": {
+            "name": "钢块",
+            "category": "Product"
+        },
+        "169": {
+            "name": "钢质瓶",
+            "category": "Product"
+        },
+        "170": {
+            "name": "铁制零件",
+            "category": "Product"
+        },
+        "172": {
+            "name": "锦草",
+            "category": "Plant"
+        },
+        "175": {
+            "name": "锦草种子",
+            "category": "Plant"
+        },
+        "176": {
+            "name": "锦草粉末",
+            "category": "Usable"
+        },
+        "177": {
+            "name": "锦草软饮",
+            "category": "Usable"
+        },
+        "183": {
+            "name": "高容谷地电池",
+            "category": "Product"
+        },
+        "184": {
+            "name": "高晶粉末",
+            "category": "Product"
+        },
+        "185": {
+            "name": "高晶纤维",
+            "category": "Product"
+        },
+        "186": {
+            "name": "高晶装备原件",
+            "category": "Product"
+        },
+        "187": {
+            "name": "高晶质瓶",
+            "category": "Product"
+        },
+        "188": {
+            "name": "高晶零件",
+            "category": "Product"
+        },
+        "191": {
+            "name": "黯银柑实",
+            "category": "Plant"
+        }
+    },
+    "category_order": {
+        "Ore": [
+            "赤铜矿",
+            "蓝铁矿",
+            "紫晶矿",
+            "源矿"
+        ],
+        "Plant": [
+            "原木",
+            "金石稻种子",
+            "琼叶参种子",
+            "金石稻",
+            "琼叶参",
+            "苦叶椒",
+            "灰芦麦",
+            "荆刺芽针",
+            "蓬茸锦草",
+            "芽针种子",
+            "芽针",
+            "锦草种子",
+            "锦草",
+            "酮化树种",
+            "酮化灌木",
+            "砂叶种子",
+            "砂叶",
+            "黯银柑实",
+            "柑实种子",
+            "柑实",
+            "映火荞花",
+            "荞花种子",
+            "荞花"
+        ],
+        "Product": [
+            "高级航天建材",
+            "基础航天建材",
+            "壤晶",
+            "息壤",
+            "赤铜瓶",
+            "钢质瓶",
+            "蓝铁瓶",
+            "高晶质瓶",
+            "紫晶质瓶",
+            "钢块",
+            "高晶纤维",
+            "密制晶体",
+            "稳定碳块",
+            "细磨柑实粉末",
+            "细磨荞花粉末",
+            "致密蓝铁粉末",
+            "高晶粉末",
+            "致密晶体粉末",
+            "致密碳粉末",
+            "致密源石粉末",
+            "酮化灌木粉末",
+            "砂叶粉末",
+            "蓝铁粉末",
+            "紫晶粉末",
+            "晶体外壳粉末",
+            "碳粉末",
+            "源石粉末",
+            "赤铜块",
+            "蓝铁块",
+            "紫晶纤维",
+            "晶体外壳",
+            "碳块",
+            "赤铜装备原件",
+            "息壤装备原件",
+            "高晶装备原件",
+            "蓝铁装备原件",
+            "紫晶装备原件",
+            "赤铜零件",
+            "钢制零件",
+            "铁制零件",
+            "高晶零件",
+            "紫晶零件",
+            "中容武陵电池",
+            "低容武陵电池",
+            "高容谷地电池"
+        ],
+        "Usable": [
+            "芽针粉末",
+            "锦草粉末",
+            "柑实粉末",
+            "荞花粉末",
+            "工业爆炸物",
+            "武陵炒饭",
+            "清炖兽排参须汤",
+            "辣炒肉丁",
+            "谷地馅饼",
+            "锦素炒饭",
+            "正本补元汤剂",
+            "手撕虫肉",
+            "爆辣腌渍水果",
+            "雅各布的遗产",
+            "附术铁瓶",
+            "小糖画",
+            "神秘气泡饮料",
+            "爆辣焗烤源石虫",
+            "星融果冻",
+            "约翰老爹汉堡",
+            "雾火之花",
+            "可食用巢雕",
+            "软骨饼干",
+            "刻术瓶",
+            "小蜜虫布丁",
+            "炖肉会议",
+            "塞什卡风肉排",
+            "手工怪味酸糖",
+            "大瓶芽针喷剂",
+            "精选柑实冲剂",
+            "大瓶柑实冲剂",
+            "小瓶柑实冲剂",
+            "精选荞复锭剂",
+            "大瓶荞复锭剂",
+            "小瓶荞复锭剂",
+            "优质芽针针剂",
+            "精选荞愈胶囊",
+            "荞愈胶囊",
+            "精选柑实罐头",
+            "柑实罐头"
+        ]
+    }
+}

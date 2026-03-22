@@ -18,15 +18,9 @@ class Ansi:
 
 LANG_MAP = {
     "Chinese (Simplified)_China": "zh_cn",
-    "Chinese (Traditional)_Taiwan": "zh_tw",
-    "English_United States": "en_us",
-    "Japanese_Japan": "ja_jp",
-    "Korean_Korea": "ko_kr",
+    "Chinese (Traditional)_Taiwan": "zh_cn",
     "zh_cn": "zh_cn",
-    "zh_tw": "zh_tw",
-    "en_us": "en_us",
-    "ja_jp": "ja_jp",
-    "ko_kr": "ko_kr",
+    "zh_tw": "zh_cn",
 }
 
 def _enable_windows_virtual_terminal() -> bool:

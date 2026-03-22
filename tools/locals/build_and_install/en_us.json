@@ -20,6 +20,8 @@
     "target_platform": "Target platform",
     "output_path": "Output path",
     "go_mod_tidy_failed": "go mod tidy failed",
+    "go_mod_files_out_of_sync": "go.mod or go.sum is out of sync. Run go mod tidy locally, or run build_and_install.py once to sync them, then commit the go.mod / go.sum changes.",
+    "go_mod_tidy_stderr": "go mod tidy stderr",
     "build_mode": "Build mode",
     "build_mode_ci": "CI (Release with debug info)",
     "build_mode_dev": "Dev",

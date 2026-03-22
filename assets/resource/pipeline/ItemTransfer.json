@@ -212,7 +212,7 @@
             531,
             35
         ],
-        "template": "ItemTransfer/全部.png",
+        "template": "ItemTransfer/All.png",
         "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",
@@ -262,6 +262,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemFallback",
             "ItemTransferItemNotFound"
         ]
     },
@@ -434,7 +435,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag"
+            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemFallbackBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -623,7 +625,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn"
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemFallbackBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -649,5 +652,82 @@
     },
     "ItemTransferStop": {
         "action": "StopTask"
+    },
+    "ItemTransferDetectAllItems": {
+        "desc": "NND 识别仓库区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferDetectAllItemsBag": {
+        "desc": "NND 识别背包区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferTooltipOCR": {
+        "desc": "悬停后物品名称 OCR（ROI 由 Go 代码在运行时覆盖）",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "expected": [
+            ".*"
+        ]
+    },
+    "ItemTransferFindItemFallback": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "repo"
+        },
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferFindItemFallbackBag": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag"
+        },
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferFindItemFallbackBagReturn": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包返还侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag"
+        },
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
     }
 }

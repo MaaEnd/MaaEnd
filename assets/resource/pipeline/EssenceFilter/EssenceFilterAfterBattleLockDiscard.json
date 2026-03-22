@@ -43,7 +43,7 @@
             "EssenceFilterAfterBattleLockItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已锁定基质"
+            //"Node.Action.Succeeded": "已锁定基质"
         }
     },
     "EssenceFilterAfterBattleCheckLocked": {
@@ -65,13 +65,13 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
             "EssenceFilterAfterBattleLockItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已确认上锁"
+            //"Node.Action.Succeeded": "已确认上锁"
         }
     },
     "EssenceFilterAfterBattleRecognitionLocked": {
@@ -137,7 +137,7 @@
             "EssenceFilterAfterBattleDiscardItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已废弃基质"
+            //"Node.Action.Succeeded": "已废弃基质"
         }
     },
     "EssenceFilterAfterBattleCheckDiscarded": {
@@ -159,17 +159,37 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCloseDetail"
+            "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
             "EssenceFilterAfterBattleDiscardItem"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已确认废弃"
+            //"Node.Action.Succeeded": "已确认废弃"
         }
     },
     "EssenceFilterAfterBattleCloseDetail": {
-        "desc": "点击左上角，关闭基质详情，防遮挡",
+        "desc": "如果基质详情页还在，则点击左上角，关闭基质详情，防遮挡",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "基质",
+                    "基質",
+                    "Essence",
+                    "基質",
+                    "기질"
+                ],
+                "threshold": 0.8
+            }
+        },
         "action": {
             "type": "Click",
             "param": {
@@ -180,12 +200,19 @@
             }
         },
         "next": [
-            "EssenceFilterAfterBattleRowNextItem",
-            "EssenceFilterAfterBattleExit"
+            //无next，用来触发Jumpback
         ]
     },
     "EssenceFilterAfterBattleRowNextItem": {
-        "desc": "处理下一个命中的格子，或滑动/结束",
+        "desc": "处理下一个命中的格子，识别不到则退出任务",
+        "next": [
+            "[JumpBack]EssenceFilterAfterBattleCloseDetail",
+            "EssenceFilterAfterBattleNthRecognition",
+            "EssenceFilterAfterBattleExit"
+        ]
+    },
+    "EssenceFilterAfterBattleNthRecognition": {
+        "desc": "按顺序返回识别结果，每次调用时index++",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -205,7 +232,7 @@
             "EssenceFindLockItem"
         ],
         "on_error": [
-            "EssenceFilterFinish"
+            "EssenceFilterAfterBattleExit"
         ]
     }
 }

@@ -45,7 +45,8 @@ jobs:
           prompt-template: |
             分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
 
-      - name: Consume outputs
+      - name: 查看完整输入输出
+        if: always()
         env:
           ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
           ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}

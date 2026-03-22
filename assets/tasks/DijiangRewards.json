@@ -26,7 +26,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "StartExchange": {
+                        "ReceptionRoomStartExchange": {
                             "enabled": true
                         }
                     }
@@ -34,7 +34,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "StartExchange": {
+                        "ReceptionRoomStartExchange": {
                             "enabled": false
                         }
                     }
@@ -50,7 +50,7 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "RecoveryEmotion": {
+                        "RecoveryEmotionMain": {
                             "enabled": false
                         }
                     }
@@ -58,7 +58,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "RecoveryEmotion": {
+                        "RecoveryEmotionMain": {
                             "enabled": true
                         }
                     }
@@ -81,7 +81,7 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "SendTheMostClues": {
+                        "ReceptionRoomSendCluesSelectClues": {
                             "max_hit": 3
                         },
                         "ClueItemCount": {
@@ -103,7 +103,7 @@
                 }
             ],
             "pipeline_override": {
-                "SendTheMostClues": {
+                "ReceptionRoomSendCluesSelectClues": {
                     "max_hit": "{MaxClueSend}"
                 }
             }

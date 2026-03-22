@@ -99,7 +99,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "_AutoEcoFarmSwipeTargetToFront"
+            "_AutoEcoFarmTurnAround1"
         ]
     },
     //这里会调用一个Custom节点，计算要将视角拉近目标多少比例所需要的swipe的end坐标
@@ -110,8 +110,6 @@
             "param": {
                 "custom_recognition": "autoEcoFarmCalculateSwipeTarget",
                 "custom_recognition_param": {
-                    //传入一个原始的识别结果
-                    //"node_name": "_AutoEcoFarmTargeRecognition",
                     //将视角拉向目标多少比例
                     "xStepRatio": 0.5,
                     "yStepRatio": 1
@@ -137,7 +135,10 @@
                 ],
                 "expected": [
                     "探索|工业",
-                    "探索|工業"
+                    "探索|工業",
+                    "Explore|Factory",
+                    "探索|工業",
+                    "탐색|공업"
                 ],
                 "threshold": 0.7
             }
@@ -161,8 +162,10 @@
         "desc": "[武陵版]控制循环次数节点",
         "max_hit": 20,
         "next": [
+            "_AutoEcoFarmTargeInBack",
             "_AutoEcoFarmTargeRecognition",
             "[JumpBack]_AutoEcoFarmSwipeToGround",
+            "[JumpBack]_AutoEcoFarmSwipeTargetToFrontWithErr",
             "_AutoEcoFarmMoveToTargetErrFindTarget"
         ]
     },
@@ -188,25 +191,29 @@
             "_AutoEcoFarmAltDown"
         ]
     },
-    "_AutoEcoFarmSwipeTargetToFront": {
-        "desc": "将标记拉到前面",
+    "_AutoEcoFarmTurnAround1": {
+        "desc": "长按 S 0.1 秒，转身",
         "action": {
-            "type": "Swipe",
+            "type": "LongPressKey",
             "param": {
-                "begin": [
-                    640,
-                    360
-                ],
-                "end": [
-                    1000,
-                    360
-                ],
-                "only_hover": true,
-                "duration": 1000
+                "duration": 100,
+                "key": 83
             }
         },
         "next": [
-            "_AutoEcoFarmAltDown"
+            "_AutoEcoFarmTurnAround2"
+        ]
+    },
+    "_AutoEcoFarmTurnAround2": {
+        "desc": "按一下鼠标中键",
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 2
+            }
+        },
+        "next": [
+            "_AutoEcoFarmAltUp"
         ]
     },
     "_AutoEcoFarmSwipeTargetToFrontWithErr": {
@@ -220,7 +227,9 @@
                     360
                 ],
                 "end": [
-                    1000,
+                    320,
+                    180,
+                    640,
                     360
                 ],
                 "only_hover": true,
@@ -231,7 +240,7 @@
             "_AutoEcoFarmAltDown"
         ],
         "focus": {
-            "Node.Recognition.Failed": "识别不到标记，随便转转视角尝试解决问题"
+            "Node.Action.Starting": "识别不到标记，随便转转视角尝试解决问题"
         }
     },
     "_AutoEcoFarmAltDown": {

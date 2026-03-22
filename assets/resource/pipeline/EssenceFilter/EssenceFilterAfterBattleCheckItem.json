@@ -1,4 +1,125 @@
 {
+    "EssenceFullScreenDetectAll": {
+        "desc": "在战利品界面模板匹配：收集所有基质图标（不点击）,给custom调用",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    34,
+                    87,
+                    1210,
+                    522
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "method": 5,
+                "threshold": 0.35
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0
+    },
+    "EssenceFindLockItem": {
+        "desc": "查找上锁的图标，已上锁就跳过",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                //偏移方案会因为超过边界而到另一边，目前只能固定识别范围先凑合一下
+                "roi": [
+                    276,
+                    87,
+                    972,
+                    486
+                ],
+                "template": "EssenceFilter/LockButton.png",
+                "threshold": 0.9,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_wait_freezes": 300,
+        "next": [
+            "EssenceFilterAfterBattleIsflawless",
+            "EssenceFilterAfterBattleIsPure",
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "基质未锁定"
+        }
+    },
+    "EssenceFilterAfterBattleIsflawless": {
+        "desc": "判断是否为无瑕基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "无瑕",
+                    "無瑕",
+                    "Flawless",
+                    "純粋",
+                    "무결"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "是无暇基质"
+        }
+    },
+    "EssenceFilterAfterBattleIsPure": {
+        "desc": "判断是否为高纯基质",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -253,
+                    -127,
+                    157,
+                    20
+                ],
+                "expected": [
+                    "高纯",
+                    "高純",
+                    "Pure",
+                    "清浄",
+                    "순수"
+                ],
+                "threshold": 0.8
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "是高纯基质"
+        }
+    },
     "EssenceFilterAfterBattleCheckItemSlot1": {
         "desc": "OCR 识别技能槽 1",
         "recognition": {
@@ -235,7 +356,9 @@
             "type": "DoNothing"
         },
         "post_delay": 0,
-        "next": ["EssenceFilterAfterBattleRowNextItem"],
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
         "focus": {
             "Node.Action.Failed": "OCR 超时：跳过"
         }
@@ -250,6 +373,8 @@
             }
         },
         "post_delay": 0,
-        "next": ["EssenceFilterAfterBattleRowNextItem"]
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ]
     }
 }

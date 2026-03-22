@@ -99,19 +99,31 @@ python tools/setup_workspace.py
     ]
     ```
 
-### 关于秦始皇节点（可复用节点或 Custom ）
+### 关于秦始皇节点（Custom 或 Pipeline 可复用节点）
 
 某些具有高可复用性的节点已经予以封装，并撰写了详细文档，以避免重复造轮子。参见：
 
+#### 可复用节点
+
+以下是基于 Pipeline 的可复用节点，可以调用这些节点来实现逻辑，具体可以看对应的文档：
+
+- [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
+- [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
+
+#### 可复用 Custom 节点
+
+以下是基于 Custom 的可复用节点，具有高业务化的特点，在需要调用时可以酌情使用，但**根据 [Go Service 代码规范](#go-service-代码规范) 和 [Cpp Algo 代码规范](#cpp-algo-代码规范) 您不应该在非必要情况下使用以下这些节点**，具体原因已在这两部分文档指出。
+
 - [MapTracker 参考文档](./map-tracker.md)：小地图定位和自动寻路相关节点。
 - [MapNavigator 参考文档](./map-navigator.md)：路径录制工具与 `MapNavigateAction` 自动导航节点。
-- [通用按钮 参考文档](./common-buttons.md)：通用按钮节点。
 - [Custom 自定义动作参考文档](./custom-action.md)：通过 `Custom` 节点调用 go-service 中的自定义逻辑。
 - [自动战斗 参考文档](./auto-fight.md)：战斗内自动操作模块，在用户已进入游戏战斗场景后，自动完成战斗直至战斗结束退出。
-- [SceneManager 参考文档](./scene-manager.md)：万能跳转和场景导航相关接口。
 - [CharacterController 参考文档](./character-controller.md)：角色视角旋转、移动及朝向目标自动移动等控制节点。
 - [QuantizedSliding 参考文档](./quantized-sliding.md)：用于按目标值调节离散数量滑条的公共自定义动作。
-- [节点测试参考文档](./node-testing.md)：节点静态截图测试的目录约定、Schema 和编写建议。
+
+### 关于测试
+
+MaaEnd 采用 maa-tools 来提供节点测试，验证识别是否能正确命中游戏中相应的位置，具体使用请参考 [节点测试参考文档](./node-testing.md) 相关文档，当您编写需要识别的节点时尽量添加对应的测试用例，这可以为以后的任务维护和逻辑重构打下地基。
 
 ### 关于任务维护
 
