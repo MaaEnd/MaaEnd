@@ -11,25 +11,24 @@ const (
 	LocaleKR = "KR"
 )
 
-// NormalizeInputLocale maps UI / attach strings to a canonical locale code (CN|TC|EN|JP|KR).
-// Unknown or empty values default to CN for backward compatibility.
+// NormalizeInputLocale accepts only canonical locale codes (CN|TC|EN|JP|KR).
+// Unknown or empty values default to CN.
 func NormalizeInputLocale(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return LocaleCN
 	}
 	u := strings.ToUpper(s)
-	u = strings.ReplaceAll(u, "-", "_")
 	switch u {
-	case "CN", "ZH_CN", "ZHS", "CHS":
+	case LocaleCN:
 		return LocaleCN
-	case "TC", "ZH_TW", "ZH_HK", "ZHT", "CHT":
+	case LocaleTC:
 		return LocaleTC
-	case "EN", "EN_US", "ENG":
+	case LocaleEN:
 		return LocaleEN
-	case "JP", "JA", "JA_JP", "JPN":
+	case LocaleJP:
 		return LocaleJP
-	case "KR", "KO", "KO_KR", "KOR":
+	case LocaleKR:
 		return LocaleKR
 	default:
 		return LocaleCN

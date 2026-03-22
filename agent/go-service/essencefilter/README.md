@@ -20,7 +20,7 @@
 
 ## 数据流概要
 
-1. **Init**：读资源路径 → 按 `attach.input_language`（CN|TC|EN|JP|KR，默认 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
+1. **Init**：读资源路径 → 按 `attach.input_language`（仅 `CN|TC|EN|JP|KR`，非法值回退 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
 2. **运行中**：Pipeline 依次调用 RowCollect（收集本行格子并 ColorMatch；若开启 `skip_locked_row` 则对缩略图跑 `EssenceThumbMarked`，已标记格不进入本行列表）→ RowNextItem（点击下一格）→ CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。
 3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案 → `setRunState(nil)`。
 
