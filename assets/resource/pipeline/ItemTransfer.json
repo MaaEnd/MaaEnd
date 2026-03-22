@@ -212,7 +212,7 @@
             531,
             35
         ],
-        "template": "ItemTransfer/全部.png",
+        "template": "ItemTransfer/All.png",
         "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",

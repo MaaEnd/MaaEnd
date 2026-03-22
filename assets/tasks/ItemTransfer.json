@@ -56,7 +56,7 @@
                     "label": "$item.FerriumOre",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/矿物.png"
+                            "template": "ItemTransfer/Ore.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 141
@@ -89,7 +89,7 @@
                     "label": "$item.HCValleyBattery",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 183
@@ -131,7 +131,7 @@
                     "label": "$item.LCWulingBattery",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 7
@@ -173,7 +173,7 @@
                     "label": "$item.OriginiumOre",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/矿物.png"
+                            "template": "ItemTransfer/Ore.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 74
@@ -215,7 +215,7 @@
                     "label": "$item.AmethystOre",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/矿物.png"
+                            "template": "ItemTransfer/Ore.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 103
@@ -248,7 +248,7 @@
                     "label": "$item.Yazhen",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 119
@@ -281,7 +281,7 @@
                     "label": "$item.YazhenSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 122
@@ -314,7 +314,7 @@
                     "label": "$item.Jincao",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 172
@@ -347,7 +347,7 @@
                     "label": "$item.JincaoSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 175
@@ -380,7 +380,7 @@
                     "label": "$item.Sandleaf",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 88
@@ -413,7 +413,7 @@
                     "label": "$item.Citrome",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 56
@@ -446,7 +446,7 @@
                     "label": "$item.Buckflower",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 133
@@ -479,7 +479,7 @@
                     "label": "$item.Aketine",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 161
@@ -512,7 +512,7 @@
                     "label": "$item.RawWood",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 14
@@ -545,7 +545,7 @@
                     "label": "$item.Firebuckle",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 51
@@ -578,7 +578,7 @@
                     "label": "$item.CitromeSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 58
@@ -611,7 +611,7 @@
                     "label": "$item.ReedRye",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 75
@@ -644,7 +644,7 @@
                     "label": "$item.RedjadeGinseng",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 85
@@ -677,7 +677,7 @@
                     "label": "$item.SandleafSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 89
@@ -710,7 +710,7 @@
                     "label": "$item.Tartpepper",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 125
@@ -743,7 +743,7 @@
                     "label": "$item.ThornyYazhen",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 128
@@ -776,7 +776,7 @@
                     "label": "$item.BuckflowerSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 134,
@@ -812,7 +812,7 @@
                     "label": "$item.FluffedJincao",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 144
@@ -845,7 +845,7 @@
                     "label": "$item.AketineSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 160
@@ -878,7 +878,7 @@
                     "label": "$item.AmberRice",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 165
@@ -911,7 +911,7 @@
                     "label": "$item.Umbraline",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 191
@@ -944,7 +944,7 @@
                     "label": "$item.SteelPart",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 167
@@ -986,7 +986,7 @@
                     "label": "$item.FerriumPart",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 170
@@ -1028,7 +1028,7 @@
                     "label": "$item.CrystonPart",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 188
@@ -1070,7 +1070,7 @@
                     "label": "$item.AmethystPart",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 108
@@ -1112,7 +1112,7 @@
                     "label": "$item.AmethystBottle",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 107,
@@ -1148,7 +1148,7 @@
                     "label": "$item.FerriumBottle",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 138,
@@ -1184,7 +1184,7 @@
                     "label": "$item.Xiranite",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 41
@@ -1217,7 +1217,7 @@
                     "label": "$item.Origocrust",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 52
@@ -1259,7 +1259,7 @@
                     "label": "$item.StabilizedCarbon",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 96
@@ -1301,7 +1301,7 @@
                     "label": "$item.DenseOriginiumPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 116
@@ -1334,7 +1334,7 @@
                     "label": "$item.DenseCarbonPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 117
@@ -1367,7 +1367,7 @@
                     "label": "$item.PackedOrigocrust",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 28
@@ -1400,7 +1400,7 @@
                     "label": "$item.DenseOrigocrustPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 115
@@ -1433,7 +1433,7 @@
                     "label": "$item.CrystonFiber",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 185
@@ -1466,7 +1466,7 @@
                     "label": "$item.GroundCitromePowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 111
@@ -1499,7 +1499,7 @@
                     "label": "$item.GroundBuckflowerPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 112
@@ -1532,7 +1532,7 @@
                     "label": "$item.OrigocrustPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 53
@@ -1565,7 +1565,7 @@
                     "label": "$item.OriginiumPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 73
@@ -1598,7 +1598,7 @@
                     "label": "$item.SandleafPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 90
@@ -1631,7 +1631,7 @@
                     "label": "$item.Carbon",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 92
@@ -1673,7 +1673,7 @@
                     "label": "$item.CarbonPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 93
@@ -1715,7 +1715,7 @@
                     "label": "$item.AmethystPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 104
@@ -1748,7 +1748,7 @@
                     "label": "$item.AmethystFiber",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 105
@@ -1781,7 +1781,7 @@
                     "label": "$item.DenseFerriumPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 118
@@ -1814,7 +1814,7 @@
                     "label": "$item.Ferrium",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 137
@@ -1847,7 +1847,7 @@
                     "label": "$item.FerriumPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 142
@@ -1880,7 +1880,7 @@
                     "label": "$item.AketinePowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 162
@@ -1913,7 +1913,7 @@
                     "label": "$item.SteelBottle",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 169,
@@ -1958,7 +1958,7 @@
                     "label": "$item.Steel",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 168
@@ -1991,7 +1991,7 @@
                     "label": "$item.CrystonPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 184
@@ -2024,7 +2024,7 @@
                     "label": "$item.CrystonBottle",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 187
@@ -2057,7 +2057,7 @@
                     "label": "$item.YazhenPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 123
@@ -2090,7 +2090,7 @@
                     "label": "$item.JincaoPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 176
@@ -2123,7 +2123,7 @@
                     "label": "$item.CitromePowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 59
@@ -2165,7 +2165,7 @@
                     "label": "$item.BuckflowerPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 135
@@ -2198,7 +2198,7 @@
                     "label": "$item.YazhenSyringe",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 124
@@ -2231,7 +2231,7 @@
                     "label": "$item.SCValleyBattery",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 0
@@ -2264,7 +2264,7 @@
                     "label": "$item.LCValleyBattery",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 8
@@ -2297,7 +2297,7 @@
                     "label": "$item.AerospaceMaterialI",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 19
@@ -2330,7 +2330,7 @@
                     "label": "$item.IndustrialExplosive",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 36
@@ -2363,7 +2363,7 @@
                     "label": "$item.XiraniteComponent",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 42
@@ -2396,7 +2396,7 @@
                     "label": "$item.CannedCitromeC",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 60
@@ -2438,7 +2438,7 @@
                     "label": "$item.CannedCitromeB",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 5
@@ -2471,7 +2471,7 @@
                     "label": "$item.CannedCitromeA",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 100
@@ -2504,7 +2504,7 @@
                     "label": "$item.RedjadeGinsengSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 86
@@ -2537,7 +2537,7 @@
                     "label": "$item.ReedRyeSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 76
@@ -2570,7 +2570,7 @@
                     "label": "$item.BuckCapsuleC",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 131
@@ -2603,7 +2603,7 @@
                     "label": "$item.BuckCapsuleB",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 6
@@ -2636,7 +2636,7 @@
                     "label": "$item.BuckCapsuleA",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 102
@@ -2669,7 +2669,7 @@
                     "label": "$item.AmethystComponent",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 106
@@ -2702,7 +2702,7 @@
                     "label": "$item.TartpepperSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 126
@@ -2735,7 +2735,7 @@
                     "label": "$item.ThornyYazhenPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 129
@@ -2768,7 +2768,7 @@
                     "label": "$item.FerriumComponent",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 143
@@ -2801,7 +2801,7 @@
                     "label": "$item.FluffedJincaoPowder",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 145
@@ -2834,7 +2834,7 @@
                     "label": "$item.AmberRiceSeed",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/植物.png"
+                            "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 166
@@ -2867,7 +2867,7 @@
                     "label": "$item.JincaoDrink",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/可用道具.png"
+                            "template": "ItemTransfer/Usable.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 177
@@ -2900,7 +2900,7 @@
                     "label": "$item.CrystonComponent",
                     "pipeline_override": {
                         "ItemTransferClickItemCategory": {
-                            "template": "ItemTransfer/产物.png"
+                            "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 186
