@@ -344,7 +344,12 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 
 		name := hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
 		if name == "" {
-			lo = mid + 1
+			estimatedGridPos := len(items) * targetIdx / max(len(categoryOrder), 1)
+			if estimatedGridPos <= mid {
+				hi = mid - 1
+			} else {
+				lo = mid + 1
+			}
 			continue
 		}
 
@@ -362,11 +367,18 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 			ocrIdx = fuzzyIndexOf(categoryOrder, name)
 		}
 		if ocrIdx < 0 {
+			estimatedGridPos := len(items) * targetIdx / max(len(categoryOrder), 1)
+			if estimatedGridPos <= mid {
+				hi = mid - 1
+			} else {
+				lo = mid + 1
+			}
 			log.Warn().
 				Str("component", componentName).
 				Str("ocr_name", name).
-				Msg("OCR'd item not in category order, skipping cell")
-			lo = mid + 1
+				Int("mid", mid).
+				Int("estimated_pos", estimatedGridPos).
+				Msg("OCR'd item not in category order, biasing toward target")
 			continue
 		}
 
