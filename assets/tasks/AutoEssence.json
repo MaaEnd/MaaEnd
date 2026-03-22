@@ -12,6 +12,7 @@
                 "AutoEssenceChallengeMode",
                 "AutoEssenceDoObtain",
                 "AutoEssenceDoOverride",
+                "EssenceFilterAfterBattle",
                 "AutoEssenceRepeatCount"
             ],
             "group": [
@@ -65,6 +66,9 @@
                             "next": [
                                 "AutoEssenceClickObtainButton"
                             ]
+                        },
+                        "AutoEssenceLowSpBeforeStart": {
+                            "enabled": true
                         }
                     }
                 },
@@ -75,6 +79,9 @@
                             "next": [
                                 "AutoEssenceClickDiscardButton"
                             ]
+                        },
+                        "AutoEssenceLowSpBeforeStart": {
+                            "enabled": false
                         }
                     }
                 }
@@ -135,6 +142,447 @@
                     ]
                 }
             }
+        },
+        "EssenceFilterAfterBattle": {
+            "type": "switch",
+            "label": "$option.EssenceFilterAfterBattle.label",
+            "description": "$option.EssenceFilterAfterBattle.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "EssenceFilterAfterBattleSelectWeaponRarity",
+                        "EssenceFilterAfterBattleSelectEssence",
+                        "EssenceFilterAfterBattleSelectExtraRules"
+                    ]
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleStart": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectWeaponRarity": {
+            "type": "switch",
+            "label": "$option.SelectWeaponRarity.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleRarity6Weapon",
+                        "EssenceFilterAfterBattleRarity5Weapon",
+                        "EssenceFilterAfterBattleRarity4Weapon"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity6Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity6Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity6_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity6_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity5Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity5Weapon.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity5_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity5_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleRarity4Weapon": {
+            "type": "switch",
+            "label": "$option.Rarity4Weapon.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity4_weapon": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "rarity4_weapon": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectEssence": {
+            "type": "switch",
+            "label": "$option.SelectEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleFlawlessEssence",
+                        "EssenceFilterAfterBattlePureEssence"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleFlawlessEssence": {
+            "type": "switch",
+            "label": "$option.FlawlessEssence.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "flawless_essence": true
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsflawless": {
+                            "next": [
+                                "EssenceFilterAfterBattleCheckItemSlot1"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是无暇基质，开始识别"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "flawless_essence": false
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsflawless": {
+                            "next": [
+                                "EssenceFilterAfterBattleRowNextItem"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是无暇基质,跳过"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattlePureEssence": {
+            "type": "switch",
+            "label": "$option.PureEssence.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "pure_essence": true
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsPure": {
+                            "next": [
+                                "EssenceFilterAfterBattleCheckItemSlot1"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是高纯基质，开始识别"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "pure_essence": false
+                            }
+                        },
+                        "EssenceFilterAfterBattleIsPure": {
+                            "next": [
+                                "EssenceFilterAfterBattleRowNextItem"
+                            ],
+                            "focus": {
+                                "Node.Recognition.Succeeded": "是高纯基质,跳过"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSelectExtraRules": {
+            "type": "switch",
+            "label": "$option.SelectExtraRules.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleKeepFuturePromising",
+                        "EssenceFilterAfterBattleKeepSlot3Level3Practical",
+                        "EssenceFilterAfterBattleDiscardUnmatched"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleKeepFuturePromising": {
+            "type": "switch",
+            "label": "$option.KeepFuturePromising.label",
+            "description": "$option.KeepFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleFuturePromisingMinTotal",
+                        "EssenceFilterAfterBattleLockFuturePromising"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleLockFuturePromising": {
+            "type": "switch",
+            "label": "$option.LockFuturePromising.label",
+            "description": "$option.LockFuturePromising.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_future_promising": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_future_promising": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleFuturePromisingMinTotal": {
+            "type": "input",
+            "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+            "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+            "inputs": [
+                {
+                    "name": "EssenceFilterAfterBattleFuturePromisingMinTotal",
+                    "label": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.label",
+                    "description": "$option.KeepFuturePromising.inputs.FuturePromisingMinTotal.description",
+                    "pipeline_type": "int",
+                    "verify": "^[3-9]$|^1[0-5]$",
+                    "default": "6"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterAfterBattleInit": {
+                    "attach": {
+                        "future_promising_min_total": "{EssenceFilterAfterBattleFuturePromisingMinTotal}"
+                    }
+                }
+            }
+        },
+        "EssenceFilterAfterBattleKeepSlot3Level3Practical": {
+            "type": "switch",
+            "label": "$option.KeepSlot3Level3Practical.label",
+            "description": "$option.KeepSlot3Level3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "EssenceFilterAfterBattleSlot3MinLevel",
+                        "EssenceFilterAfterBattleLockSlot3Practical"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "keep_slot3_level3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleLockSlot3Practical": {
+            "type": "switch",
+            "label": "$option.LockSlot3Practical.label",
+            "description": "$option.LockSlot3Practical.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_slot3_practical": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "lock_slot3_practical": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "EssenceFilterAfterBattleSlot3MinLevel": {
+            "type": "input",
+            "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+            "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+            "inputs": [
+                {
+                    "name": "EssenceFilterAfterBattleSlot3MinLevel",
+                    "label": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.label",
+                    "description": "$option.KeepSlot3Level3Practical.inputs.Slot3MinLevel.description",
+                    "pipeline_type": "int",
+                    "verify": "^[1-3]$",
+                    "default": "3"
+                }
+            ],
+            "pipeline_override": {
+                "EssenceFilterAfterBattleInit": {
+                    "attach": {
+                        "slot3_min_level": "{EssenceFilterAfterBattleSlot3MinLevel}"
+                    }
+                }
+            }
+        },
+        "EssenceFilterAfterBattleDiscardUnmatched": {
+            "type": "switch",
+            "label": "$option.DiscardUnmatched.label",
+            "description": "$option.DiscardUnmatched.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "EssenceFilterAfterBattleInit": {
+                            "attach": {
+                                "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
         }
     }
 }

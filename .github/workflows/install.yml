@@ -116,6 +116,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: "agent/go-service/go.mod"
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
 
       - name: Cache MaaDeps
         id: cache-maadeps

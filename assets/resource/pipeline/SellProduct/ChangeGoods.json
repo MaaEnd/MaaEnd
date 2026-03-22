@@ -40,7 +40,7 @@
         "rate_limit": 0
     },
     "SellProductChangeGoods": {
-        "desc": "识别更换货品并点击，进入更换界面",
+        "desc": "识别更换货品并点击，进入更换界面，优先选择配置的货品，否则选择下一个货品",
         "recognition": "OCR",
         "roi": [
             1115,
@@ -65,11 +65,90 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SellProductSelectNewGood"
+            "SellProductChangeGoodsRelayDefault"
         ]
     },
-    "SellProductSelectNewGood": {
-        "desc": "在更换界面中识别新货品并点击",
+    "SellProductChangeGoodsAtBeginningAction": {
+        "desc": "仅开局使用的更换货品流程，优先选择配置货品，否则点击第一个货品",
+        "recognition": "OCR",
+        "roi": [
+            1115,
+            344,
+            172,
+            149
+        ],
+        "expected": [
+            "更换货品",
+            "更換貨品",
+            "(?i)Switch\\s*Goods",
+            "商品変更",
+            "选择货品",
+            "選擇貨品",
+            "(?i)Select\\s*Goods",
+            "商品選択",
+            "상품 교체",
+            "상품 선택"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductChangeGoodsRelayBeginning"
+        ]
+    },
+    "SellProductChangeGoodsRelayDefault": {
+        "desc": "通用换货中继：确认已进入选择货品界面后再执行后续选择",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSelectGoodsText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductSelectNewGood1",
+            "[Anchor]SellProductSelectNewGood2",
+            "SellProductSelectNextGood"
+        ]
+    },
+    "SellProductChangeGoodsRelayBeginning": {
+        "desc": "开局换货中继：确认已进入选择货品界面后再执行后续选择",
+        "recognition": "And",
+        "all_of": [
+            "SellProductCheckSelectGoodsText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SellProductSelectNewGood1",
+            "[Anchor]SellProductSelectNewGood2",
+            "SellProductSelectFirstGood"
+        ]
+    },
+    "SellProductSelectFirstGood": {
+        "desc": "在更换界面中点击第一个货品，作为默认选择",
+        "recognition": "OCR",
+        "roi": [
+            179,
+            171,
+            299,
+            102
+        ],
+        "expected": [
+            "^.{1,}$"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductSelectNewGoodConfirm"
+        ]
+    },
+    "SellProductSelectNextGood": {
+        "desc": "在更换界面中识别下一个货品并点击，作为默认选择",
         "recognition": "And",
         "all_of": [
             "SellProductCheckNextGoodsText",

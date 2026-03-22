@@ -99,19 +99,31 @@ This will fully set up the environment required for development.
     ]
     ```
 
-### About Reusable Nodes (Common Nodes)
+### About Qin Shi Huang Nodes (Custom or Reusable Pipeline Nodes)
 
-Some highly reusable nodes have been encapsulated with detailed documentation to avoid reinventing the wheel. See:
+Some highly reusable nodes have already been encapsulated and documented in detail to avoid reinventing the wheel. See:
+
+#### Reusable Nodes
+
+The following are reusable nodes based on Pipeline. You can call them directly to implement related logic; see the corresponding documents for details:
+
+- [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
+- [SceneManager Reference Document](./scene-manager.md): Interfaces related to universal jumps and scene navigation.
+
+#### Reusable Custom Nodes
+
+The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However, **according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
-- [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
 - [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
-- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
-- [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
-- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
+- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.
+- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a target.
 - [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
-- [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
+
+### About Testing
+
+MaaEnd uses `maa-tools` to provide node testing, which is used to verify whether recognition can correctly match the corresponding position in the game. For details, see the [Node Testing Reference Document](./node-testing.md). When you create nodes that rely on recognition, try to add corresponding test cases whenever possible. This helps with future task maintenance and logic refactoring.
 
 ### About Task Maintenance
 

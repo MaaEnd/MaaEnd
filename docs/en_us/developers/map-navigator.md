@@ -88,6 +88,7 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 - `INTERACT`: Interact upon arrival.
 - `TRANSFER`: Reach the point precisely, then wait for an external mechanism to relocate the character to the next reachable segment.
 - `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
+- `HEADING`: Turn the camera to the specified heading, then tap `W` once.
 
 **3. Strict-arrival point**
 
@@ -112,6 +113,17 @@ The trailing `true` means strict arrival is enabled for that point. For certain 
 ```
 
 This is a **positionless control node** used to declare which zone the following path should belong to. It does not move the character by itself, but it provides zone-validation context for the subsequent path points.
+
+**5. Heading control node `HEADING`**
+
+```json
+{
+    "action": "HEADING",
+    "angle": 90
+}
+```
+
+A positionless node. It turns the camera to the specified heading, then taps `W` once.
 
 #### Return Behavior
 

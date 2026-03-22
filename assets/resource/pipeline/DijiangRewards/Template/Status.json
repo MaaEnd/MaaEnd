@@ -157,7 +157,7 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "ReadySetClues",
+                "roi": "ReceptionRoomSetCluesItem",
                 "roi_offset": [
                     -200,
                     71,
@@ -199,7 +199,7 @@
         "recognition": {
             "type": "ColorMatch",
             "param": {
-                "roi": "ReadySetClues",
+                "roi": "ReceptionRoomSetCluesItem",
                 "roi_offset": [
                     0,
                     -19,

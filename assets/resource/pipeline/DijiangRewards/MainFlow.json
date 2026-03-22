@@ -17,8 +17,8 @@
             }
         },
         "next": [
-            "[JumpBack]RecoveryEmotion",
-            "[JumpBack]EntryReceptionRoom",
+            "[JumpBack]RecoveryEmotionMain",
+            "[JumpBack]ReceptionRoomMain",
             "[JumpBack]MFGCarbinMain",
             "[JumpBack]EntryGrowthChamber",
             "FinishDijiangRewards"

@@ -39,11 +39,11 @@ Optional parameters:
 
 - `fine_approach`: String, default `"FinalTarget"`. It controls when fine-approach will be enabled to ensure a super precise arrival. Valid values are:
 
-    | Option Value   | Meaning                                                | Recommended Scenario                                                      |
-    | -------------- | ------------------------------------------------------ | ------------------------------------------------------------------------- |
-    | `"FinalTarget"` | Enable fine-approach only for the final target point (default) | Most scenarios                                                            |
-    | `"AllTargets"`  | Enable fine-approach for every target point          | When waypoint precision is critical (e.g., passing through narrow bridges) |
-    | `"Never"`       | Disable fine-approach                                | When you have explicit camera-orientation requirements after arrival      |
+    | Option Value    | Meaning                                                        | Recommended Scenario                                                       |
+    | --------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+    | `"FinalTarget"` | Enable fine-approach only for the final target point (default) | Most scenarios                                                             |
+    | `"AllTargets"`  | Enable fine-approach for every target point                    | When waypoint precision is critical (e.g., passing through narrow bridges) |
+    | `"Never"`       | Disable fine-approach                                          | When you have explicit camera-orientation requirements after arrival       |
 
 <details>
 <summary>Advanced Optional Parameters (Expand)</summary>

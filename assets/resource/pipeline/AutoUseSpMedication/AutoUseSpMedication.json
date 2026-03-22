@@ -28,7 +28,8 @@
                 ],
                 "template": "Valuables/EmergencySpBooster.png",
                 "green_mask": true,
-                "threshold": 0.92
+                "threshold": 0.84,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -53,7 +54,8 @@
                 ],
                 "template": "Valuables/EmergencySpBoosterExpireSoon.png",
                 "green_mask": true,
-                "threshold": 0.92
+                "threshold": 0.84,
+                "order_by": "Score"
             }
         },
         "action": "Click",
@@ -195,7 +197,7 @@
         }
     },
     "AutoUseSpMedicationAdd": {
-        "desc": "",
+        "desc": "点击添加按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -205,8 +207,14 @@
                     37,
                     37
                 ],
-                "template": "Valuables/AddButton.png",
-                "threshold": 0.8
+                "template": [
+                    "Valuables/AddButton.png",
+                    "Valuables/AddButtonHover.png"
+                ],
+                "threshold": [
+                    0.8,
+                    0.9
+                ]
             }
         },
         "action": "Click",
@@ -216,7 +224,7 @@
         ]
     },
     "AutoUseSpMedicationCantAdd": {
-        "desc": "",
+        "desc": "无法添加",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
