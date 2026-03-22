@@ -117,7 +117,7 @@
         "rate_limit": 0
     },
     "GrowthChamberGrowAgain": {
-        "desc": "[培养舱·再培养] 识别“再次种植”按钮并点击",
+        "desc": "[培养舱·再培养] 识别“再次种植”按钮并点击,和培养冲突",
         "enabled": false,
         "recognition": {
             "type": "OCR",
@@ -160,14 +160,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GrowthChamberExit"
-        ]
+        "rate_limit": 0
     },
     "GrowthChamberGrow": {
-        "desc": "[培养舱·培养] 识别“培养”按钮并点击进入培养流程",
-        "max_hit": 1,
+        "desc": "[培养舱·培养] 识别“培养”按钮并点击进入培养流程,和再次种植冲突",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -188,7 +184,15 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    0,
+                    -20,
+                    0,
+                    0
+                ]
+            }
         },
         "post_wait_freezes": {
             "time": 150,
@@ -238,7 +242,7 @@
         "next": [
             "[JumpBack]GrowthChamberSortBy",
             "[JumpBack]GrowthChamberSortOrder",
-            "[JumpBack]GrowthChamberFindTarget",
+            "GrowthChamberFindTarget",
             "[JumpBack]GrowthChamberTargetNotFound",
             "GrowthChamberReturn"
         ]
@@ -322,7 +326,7 @@
         }
     },
     "GrowthChamberCheckTargetEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象数量是否为空",
+        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -334,7 +338,7 @@
                     0
                 ],
                 "expected": [
-                    "^([1-9][0-9]*)([/|\\]]).*$"
+                    "^[^0].*$"
                 ],
                 "only_rec": true
             }
@@ -380,11 +384,7 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "GrowthChamberExit",
-            "InDijiangControlNexus"
-        ]
+        "rate_limit": 0
     },
     "GrowthChamberGrowExit": {
         "desc": "[培养舱·培养] 无需提取基核时直接返回上一界面,和提取基核分支互斥",
@@ -406,11 +406,14 @@
         },
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "GrowThchamberBackToMain"
+        ]
     },
     "GrowthChamberSeedExtract": {
         "desc": "[培养舱·基核] 点击前往提取基核,和不提取基核互斥",
-        "enabled": false,
+        //"enabled": false,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -448,7 +451,7 @@
             }
         },
         "pre_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "timeout": 2000
         },
         "action": {
@@ -459,8 +462,7 @@
             "timeout": 2000
         },
         "next": [
-            "GrowthChamberSeedExtractClose",
-            "GrowthChamberSeedExtractConfirm"
+            "GrowthChamberSeedExtractClose"
         ]
     },
     "GrowthChamberSeedExtractClose": {
@@ -491,14 +493,19 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "GrayCancelButton",
-                    "GrayButtonCancelText"
+                    "GrowthChamberBackButton"
                 ]
             }
         },
         "action": {
-            "type": "Click"
-        }
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "next": [
+            "GrowthChamberGrowViewIn"
+        ]
     },
     "GrowthChamberNoMaterials": {
         "desc": "[培养舱·基核] 原料不足时停止任务",
@@ -518,13 +525,68 @@
                 ]
             }
         },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "GrowthChamberBackExtract"
+        ]
+    },
+    "GrowthChamberBackExtract": {
+        "desc": "[培养舱·基核] 在提取界面点击返回按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberBackButton"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "pre_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": true
+        },
         "action": {
-            "type": "StopTask"
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "next": [
+            "GrowThchamberBackToMain"
+        ]
+    },
+    "GrowThchamberBackToMain": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberBackButton"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "pre_wait_freezes": {
+            "time": 200,
+            "timeout": 1000,
+            "target": true
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
         }
     },
     "GrowthChamberTargetNotFound": {
         "desc": "[培养舱·培养] 在选择对象界面横向滑动查找目标",
-        "max_hit": 50,
+        "max_hit": 12,
         "recognition": {
             "type": "OCR",
             "param": {
@@ -740,5 +802,32 @@
         "next": [
             "InDijiangControlNexus"
         ]
+    },
+    "GrowthChamberBackButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1146,
+                    0,
+                    134,
+                    112
+                ],
+                "template": [
+                    "ClaimDijiangRewards/BackButton.png"
+                ],
+                "green_mask": true,
+                "method": 10001,
+                "threshold": [
+                    0.9
+                ]
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        }
     }
 }

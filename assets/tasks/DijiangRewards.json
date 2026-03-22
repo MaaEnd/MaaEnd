@@ -224,7 +224,7 @@
                         }
                     },
                     "option": [
-                        "AutoExtractSeedAny",
+                        "AutoExtractSeed",
                         "SortBy",
                         "SortOrder"
                     ]
@@ -238,10 +238,28 @@
                                 "武陵石",
                                 "Wulingstone"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -253,10 +271,28 @@
                                 "燎石",
                                 "Igneosite"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -270,10 +306,28 @@
                                 "岩アンゲロス葉",
                                 "岩天使葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -287,10 +341,28 @@
                                 "侵蝕玉化葉",
                                 "受蝕玉化葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -304,10 +376,28 @@
                                 "星門茸",
                                 "星門菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -320,10 +410,28 @@
                                 "Bloodcap",
                                 "血潮茸"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -336,10 +444,28 @@
                                 "Umbronyx",
                                 "重闇石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -352,10 +478,28 @@
                                 "Auronyx",
                                 "中闇石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -369,10 +513,28 @@
                                 "軽闇石",
                                 "輕黯石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -386,10 +548,28 @@
                                 "至晶鋭葉",
                                 "至晶多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -403,10 +583,28 @@
                                 "純晶鋭葉",
                                 "純晶多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -420,10 +618,28 @@
                                 "晶華鋭葉",
                                 "晶華多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -437,10 +653,28 @@
                                 "深紅茸",
                                 "重紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -454,10 +688,28 @@
                                 "紅色茸",
                                 "中紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
@@ -471,33 +723,39 @@
                                 "薄紅茸",
                                 "輕紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ]
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 }
             ]
         },
-        "AutoExtractSeedAny": {
-            // 适用于选择作物任务中任意选项的是否自动提取基核的选项
+        "AutoExtractSeed": {
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {
-                        "GrowthChamberSeedExtract": {
-                            "enabled": true
-                        },
-                        "GrowthChamberGrowExit": {
-                            "enabled": false
-                        }
-                    }
-                },
-                {
-                    "name": "No",
                     "pipeline_override": {
                         "GrowthChamberCheckTargetEmpty": {
                             "recognition": {
@@ -518,30 +776,21 @@
                             }
                         },
                         "GrowthChamberSeedExtract": {
-                            "enabled": false
+                            "enabled": true
                         },
                         "GrowthChamberGrowExit": {
-                            "enabled": true
+                            "enabled": false
                         }
                     }
-                }
-            ]
-        },
-        "AutoExtractSeedOther": {
-            // 适用于除选择作物任务以外的其他任务中是否自动提取基核的选项
-            "type": "switch",
-            "label": "$option.AutoExtrachSeed.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {}
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "GrowthChamberSeedExtract": {
                             "enabled": false
+                        },
+                        "GrowthChamberGrowExit": {
+                            "enabled": true
                         }
                     }
                 }
