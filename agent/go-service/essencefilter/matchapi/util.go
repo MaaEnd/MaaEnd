@@ -147,19 +147,28 @@ func runeCount(s string) int {
 
 // skillCoreCandidate strips game UI suffix after a separator (e.g. rank/size) for matching.
 func skillCoreCandidate(display string, locale string) string {
-	display = strings.TrimSpace(normalizePunctuation(display))
+	// 先在原始字符串上按 "·"/"・" 截断，再对核心部分做标点规范化与英文冒号分割。
+	raw := strings.TrimSpace(display)
+
+	core := raw
 	for _, sep := range []string{"·", "・"} {
-		if idx := strings.Index(display, sep); idx >= 0 {
-			return strings.TrimSpace(display[:idx])
+		if idx := strings.Index(core, sep); idx >= 0 {
+			core = strings.TrimSpace(core[:idx])
+			break
 		}
 	}
+
+	// 对截断后的核心部分做标点归一，保持与其他调用点一致。
+	core = strings.TrimSpace(normalizePunctuation(core))
+
 	loc := NormalizeInputLocale(locale)
 	if loc == LocaleEN {
-		if idx := strings.Index(display, ":"); idx >= 0 {
-			return strings.TrimSpace(display[:idx])
+		if idx := strings.Index(core, ":"); idx >= 0 {
+			core = strings.TrimSpace(core[:idx])
 		}
 	}
-	return display
+
+	return core
 }
 
 func normalizePunctuation(s string) string {
