@@ -105,7 +105,7 @@
         }
     },
     "ReceptionRoomCollectClues": {
-        "desc": "[会客室·赠送线索] 识别需要赠予线索的奖励",
+        "desc": "[会客室·收集线索] 识别需要收集线索的奖励",
         "recognition": {
             "type": "And",
             "param": {
@@ -128,7 +128,7 @@
         ]
     },
     "ReceptionRoomSendCluesClueCollectionOpen": {
-        "desc": "[会客室·赠送线索] 打开线索收集侧边栏",
+        "desc": "[会客室·收集线索] 打开线索收集侧边栏",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -165,7 +165,7 @@
         ]
     },
     "ReceptionRoomSendCluesClueCollectionClose": {
-        "desc": "[会客室·赠送线索] 收集线索没满，关闭线索收集侧边栏",
+        "desc": "[会客室·收集线索] 收集线索没满，开始收集线索",
         "recognition": {
             "type": "And",
             "param": {
