@@ -4,23 +4,25 @@
 
 ## 触发时机
 
-Fallback 仅在 Pipeline 的上下滚动循环全部完成、NND 仍未找到物品时触发，位于 `ItemTransferScrollUpwardRepo` 的 `next` 链中、`ItemTransferItemNotFound` 之前。
+Fallback **不参与** Pipeline 的正常滚动循环。它仅挂载在各 `ScrollUpward` 节点的 `next` 链末尾（`ItemNotFound` / 链尾之前），只在 NND 上下翻页全部失败后才触发一次。
 
 ```
 Pipeline 滚动循环（现有逻辑）
   NND 尝试 → 滚动下翻 → NND 尝试 → 触底 → 滚动上翻 → NND 尝试
-  └── 全部失败 → Go 兜底（当前页面）→ 格子耗尽 → ItemNotFound
+  └── 全部失败 → Go 兜底（仅当前页面）→ 格子耗尽 → ItemNotFound
 ```
+
+Go 兜底 action 本身不做滚动，只在当前可见页面的格子上搜索。
 
 ## 工作流程
 
 ```
-1. 以低阈值（0.3）运行 NND，不过滤 class，获取当前页面所有物品的 box
-2. 按网格位置排序：先按 Y 聚类分行（行间距 > 20px），再行内按 X 排序
-   得到从左到右、从上到下的一维格子序列
+1. 截图，以低阈值（0.3）运行 NND（不过滤 class），获取当前页面所有物品的 box
+2. 按网格位置排序：先按 Y 聚类分行（相邻 Y 差距 > 20px 视为换行），
+   再行内按 X 排序，得到从左到右、从上到下的一维格子序列
 
 3. Case 2.1 —— 目标 class 被检测到但得分低于阈值：
-   悬停在该物品中心 → 等待 1s → OCR tooltip → 名称匹配 → Ctrl+Click
+   悬停在该物品中心 → 等待 1s → OCR tooltip → 精确匹配名称 → Ctrl+Click
 
 4. Case 2.2 —— 目标 class 未检测到：
    4a. 若 category_order 数据可用 → 二分法搜索当前页面可见格子
@@ -34,13 +36,23 @@ Pipeline 滚动循环（现有逻辑）
 依赖 `item_order.json` 中 `category_order` 提供的物品排序（按游戏内升序排列）。
 
 1. 将当前页面所有格子排成一维序列（从左到右、从上到下）
-2. 取中间格子，悬停并 OCR 物品名
+2. 取中间格子，悬停 1s 后 OCR tooltip 物品名
 3. 在 `category_order` 中查找 OCR 结果的索引 `ocrIdx` 和目标物品的索引 `targetIdx`
-4. `ocrIdx < targetIdx` → 搜索右半区（物品在后面）
-5. `ocrIdx > targetIdx` → 搜索左半区（物品在前面）
+4. `ocrIdx < targetIdx` → 搜索右半区（`lo = mid + 1`）
+5. `ocrIdx > targetIdx` → 搜索左半区（`hi = mid - 1`）
 6. `lo > hi` → 没有格子可查，返回失败
 
-若物品选项中配置了 `"descending": true`（降序排列），Go 代码会在运行时反转 `category_order`。
+### OCR 失败时的方向决策
+
+当 OCR 结果为空、包含 "已盛装"、或物品名不在 `category_order` 中时，无法用 `ocrIdx` 判断方向。此时根据 `targetIdx` 在 `categoryOrder` 中的比例估算目标在格子中的大致位置 `estimatedGridPos`，向该位置方向收敛。
+
+### 降序处理
+
+若物品选项中配置了 `"descending": true`（降序排列），Go 代码在运行时反转 `category_order`，使逻辑统一为"索引小 = 格子上方"。
+
+### 名称匹配
+
+`matchesTarget` 使用精确匹配（非子串匹配），仅在清除 OCR 噪声字符（空格、`·`、`.`、`,`、`、`）后再比较一次，避免 "芽针" 误匹配 "芽针种子" 等情况。
 
 ## 文件结构
 
@@ -62,11 +74,9 @@ assets/data/ItemTransfer/
 | `ItemTransferDetectAllItems` | NND 低阈值检测仓库区域所有物品 |
 | `ItemTransferDetectAllItemsBag` | NND 低阈值检测背包区域所有物品 |
 | `ItemTransferTooltipOCR` | OCR 辅助节点，ROI 由 Go 代码运行时覆盖 |
-| `ItemTransferFindItemFallback` | 仓库侧兜底入口 |
-| `ItemTransferFindItemFallbackBag` | 背包侧兜底入口 |
-| `ItemTransferFindItemFallbackBagReturn` | 背包返还侧兜底入口 |
-
-Fallback 节点仅出现在各 `ScrollUpward` 节点的 `next` 链末尾（`ItemNotFound` / 链尾之前），不参与正常的滚动循环。
+| `ItemTransferFindItemFallback` | 仓库侧兜底入口（在 `ScrollUpwardRepo` → `ItemNotFound` 之间） |
+| `ItemTransferFindItemFallbackBag` | 背包侧兜底入口（在 `ScrollUpwardBag` 链尾） |
+| `ItemTransferFindItemFallbackBagReturn` | 背包返还侧兜底入口（在 `ScrollUpwardBagReturn` 链尾） |
 
 ## `custom_action_param` 参数
 
@@ -102,8 +112,8 @@ Fallback 节点仅出现在各 `ScrollUpward` 节点的 `next` 链末尾（`Item
 }
 ```
 
-- `items`：NND class ID（字符串）→ 物品名称 + 所属类别
-- `category_order`：每个类别下所有物品的**游戏内升序排列名称**（中文），用于二分法定位。需手动填写。
+- `items`：NND class ID（字符串）→ 物品名称 + 所属类别。仅包含 NND 模型支持的物品。
+- `category_order`：每个类别下所有物品的**游戏内升序排列名称**（中文），用于二分法定位。可以包含不在 `items` 中的物品（如非 NND 识别的物品），只要排序正确即可。需手动填写。
 
 ## 关键常量
 
