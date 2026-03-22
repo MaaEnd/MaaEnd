@@ -89,7 +89,15 @@
                 "box_index": 1
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -224,15 +232,6 @@
                 "contact": 1
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -357,17 +356,11 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomSendCluesSwipe": {
         "desc": "[会客室·线索] 赠予界面内滑动列表以刷新可选线索数量",
@@ -547,17 +540,11 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomSendCluesEntry": {
         "desc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
@@ -578,12 +565,20 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -300,
+                0,
+                300,
+                150
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesViewIn"
@@ -644,6 +639,7 @@
             "type": "Click"
         },
         "post_delay": 0,
+        "post_wait_freezes": 200,
         "rate_limit": 0,
         "next": [
             "ReceptionRoomCollectCluesExit"
@@ -662,17 +658,11 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -200,
-                0,
-                200,
-                80
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomSetClues": {
         "desc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
@@ -869,17 +859,11 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomExit": {
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
@@ -891,16 +875,10 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
     }
 }
