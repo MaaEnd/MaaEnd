@@ -2060,16 +2060,13 @@
                             "template": "ItemTransfer/可用道具.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 123,
-                            "threshold": 0.8
+                            "expected": 123
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 123,
-                            "threshold": 0.8
+                            "expected": 123
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 123,
-                            "threshold": 0.8
+                            "expected": 123
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
