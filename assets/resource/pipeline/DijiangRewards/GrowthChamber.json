@@ -311,24 +311,6 @@
             "time": 100
         }
     },
-    "t": {
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": "GrowthChamberSelectTarget",
-                "lower": [
-                    0,
-                    0,
-                    0
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
-        }
-    },
     "GrowthChamberReturn": {
         "desc": "[培养舱·返回] 识别已回到培养舱界面",
         "recognition": {
