@@ -779,16 +779,13 @@
                             "template": "ItemTransfer/Plant.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 134,
-                            "threshold": 0.6
+                            "expected": 134
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 134,
-                            "threshold": 0.6
+                            "expected": 134
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 134,
-                            "threshold": 0.6
+                            "expected": 134
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
@@ -1115,16 +1112,13 @@
                             "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 107,
-                            "threshold": 0.6
+                            "expected": 107
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 107,
-                            "threshold": 0.6
+                            "expected": 107
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 107,
-                            "threshold": 0.6
+                            "expected": 107
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
@@ -1151,16 +1145,13 @@
                             "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 138,
-                            "threshold": 0.7
+                            "expected": 138
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 138,
-                            "threshold": 0.7
+                            "expected": 138
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 138,
-                            "threshold": 0.7
+                            "expected": 138
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
@@ -1916,16 +1907,13 @@
                             "template": "ItemTransfer/Product.png"
                         },
                         "ItemTransferFindItemInRepo": {
-                            "expected": 169,
-                            "threshold": 0.7
+                            "expected": 169
                         },
                         "ItemTransferFindItemInBag": {
-                            "expected": 169,
-                            "threshold": 0.7
+                            "expected": 169
                         },
                         "ItemTransferFindItemInBagReturn": {
-                            "expected": 169,
-                            "threshold": 0.7
+                            "expected": 169
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
