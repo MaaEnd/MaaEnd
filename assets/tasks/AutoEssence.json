@@ -6,6 +6,7 @@
             "entry": "AutoEssenceMain",
             "description": "$task.AutoEssence.description",
             "controller": [
+                "ADB",
                 "Win32-Front"
             ],
             "option": [
