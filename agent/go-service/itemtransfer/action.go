@@ -57,10 +57,8 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	}
 
 	nndNode := repoNNDNode
-	scrollX, scrollY := repoScrollTargetX, repoScrollTargetY
 	if side == "bag" {
 		nndNode = bagNNDNode
-		scrollX, scrollY = bagScrollTargetX, bagScrollTargetY
 	}
 
 	log.Info().
@@ -71,71 +69,66 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		Str("category", itemInfo.Category).
 		Str("side", side).
 		Bool("descending", params.Descending).
-		Msg("starting fallback search")
+		Msg("starting fallback search on current page")
 
-	ctrl := ctx.GetTasker().GetController()
+	tasker := ctx.GetTasker()
+	ctrl := tasker.GetController()
 
-	for scroll := 0; scroll < maxScrollAttempts; scroll++ {
-		ctrl.PostScreencap().Wait()
-		img, err := ctrl.CacheImage()
-		if err != nil {
-			log.Error().Err(err).Str("component", componentName).Msg("failed to cache image")
-			return false
-		}
-
-		items := detectAllItems(ctx, img, nndNode)
-		if len(items) == 0 {
-			log.Warn().Str("component", componentName).Int("scroll", scroll).Msg("no items detected, scrolling down")
-			doScroll(ctx, scrollX, scrollY, scrollDY)
-			continue
-		}
-
-		sortByGridPosition(items)
-
-		if found := findByLowScoreTarget(items, params.TargetClass); found != nil {
-			log.Info().
-				Str("component", componentName).
-				Float64("score", found.Score).
-				Msg("target class found with low score, verifying via OCR")
-
-			name := hoverAndOCR(ctx, ctrl, found.CenterX, found.CenterY)
-			if matchesTarget(name, itemInfo.Name) {
-				log.Info().Str("component", componentName).Str("ocr_name", name).Msg("OCR verified target, performing Ctrl+Click")
-				return ctrlClick(ctrl, found.CenterX, found.CenterY)
-			}
-			log.Info().
-				Str("component", componentName).
-				Str("ocr_name", name).
-				Str("expected", itemInfo.Name).
-				Msg("OCR name mismatch, proceeding to binary search")
-		}
-
-		if targetIdx >= 0 && len(categoryOrder) > 0 {
-			result := binarySearchOnPage(ctx, ctrl, items, categoryOrder, targetIdx, itemInfo.Name)
-			if result != nil {
-				return ctrlClick(ctrl, result.CenterX, result.CenterY)
-			}
-
-			direction := determineScrollDirection(ctx, ctrl, items, categoryOrder, targetIdx)
-			if direction == 0 {
-				log.Info().Str("component", componentName).Msg("cannot determine scroll direction, item likely not present")
-				return false
-			}
-			dy := scrollDY
-			if direction < 0 {
-				dy = -scrollDY
-			}
-			doScroll(ctx, scrollX, scrollY, dy)
-		} else {
-			result := linearScanOnPage(ctx, ctrl, items, itemInfo.Name)
-			if result != nil {
-				return ctrlClick(ctrl, result.CenterX, result.CenterY)
-			}
-			doScroll(ctx, scrollX, scrollY, scrollDY)
-		}
+	if tasker.Stopping() {
+		return false
 	}
 
-	log.Warn().Str("component", componentName).Msg("fallback search exhausted all scroll attempts")
+	ctrl.PostScreencap().Wait()
+	img, err := ctrl.CacheImage()
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Msg("failed to cache image")
+		return false
+	}
+
+	items := detectAllItems(ctx, img, nndNode)
+	if len(items) == 0 {
+		log.Warn().Str("component", componentName).Msg("no items detected on current page")
+		return false
+	}
+
+	sortByGridPosition(items)
+
+	// Case 2.1: target class detected with low score → hover to verify
+	if found := findByLowScoreTarget(items, params.TargetClass); found != nil {
+		log.Info().
+			Str("component", componentName).
+			Float64("score", found.Score).
+			Msg("target class found with low score, verifying via OCR")
+
+		name := hoverAndOCR(ctx, tasker, ctrl, found.CenterX, found.CenterY)
+		if matchesTarget(name, itemInfo.Name) {
+			log.Info().Str("component", componentName).Str("ocr_name", name).Msg("OCR verified target")
+			return ctrlClick(ctrl, found.CenterX, found.CenterY)
+		}
+		log.Info().
+			Str("component", componentName).
+			Str("ocr_name", name).
+			Str("expected", itemInfo.Name).
+			Msg("OCR name mismatch, proceeding to binary search")
+	}
+
+	// Case 2.2 + Step 3: binary search among visible grid cells
+	if targetIdx >= 0 && len(categoryOrder) > 0 {
+		result := binarySearchOnPage(ctx, tasker, ctrl, items, categoryOrder, targetIdx, itemInfo.Name)
+		if result != nil {
+			return ctrlClick(ctrl, result.CenterX, result.CenterY)
+		}
+		log.Info().Str("component", componentName).Msg("binary search exhausted all grid cells, item not found")
+		return false
+	}
+
+	// No category_order data: linear scan
+	result := linearScanOnPage(ctx, tasker, ctrl, items, itemInfo.Name)
+	if result != nil {
+		return ctrlClick(ctrl, result.CenterX, result.CenterY)
+	}
+
+	log.Info().Str("component", componentName).Msg("linear scan found nothing, item not found")
 	return false
 }
 
@@ -181,16 +174,30 @@ func recognitionResults(detail *maa.RecognitionDetail) []*maa.RecognitionResult 
 }
 
 func sortByGridPosition(items []gridItem) {
+	if len(items) <= 1 {
+		return
+	}
 	sort.Slice(items, func(i, j int) bool {
-		dy := items[i].CenterY - items[j].CenterY
-		if dy < -20 {
-			return true
-		}
-		if dy > 20 {
-			return false
-		}
-		return items[i].CenterX < items[j].CenterX
+		return items[i].CenterY < items[j].CenterY
 	})
+	const rowGap = 20
+	rowStarts := []int{0}
+	for i := 1; i < len(items); i++ {
+		if items[i].CenterY-items[i-1].CenterY > rowGap {
+			rowStarts = append(rowStarts, i)
+		}
+	}
+	for r := 0; r < len(rowStarts); r++ {
+		start := rowStarts[r]
+		end := len(items)
+		if r+1 < len(rowStarts) {
+			end = rowStarts[r+1]
+		}
+		row := items[start:end]
+		sort.Slice(row, func(i, j int) bool {
+			return row[i].CenterX < row[j].CenterX
+		})
+	}
 }
 
 func findByLowScoreTarget(items []gridItem, targetClass int) *gridItem {
@@ -205,9 +212,17 @@ func findByLowScoreTarget(items []gridItem, targetClass int) *gridItem {
 	return best
 }
 
-func hoverAndOCR(ctx *maa.Context, ctrl *maa.Controller, x, y int) string {
+func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) string {
+	if tasker.Stopping() {
+		return ""
+	}
+
 	ctrl.PostTouchMove(0, int32(x), int32(y), 0).Wait()
 	time.Sleep(1 * time.Second)
+
+	if tasker.Stopping() {
+		return ""
+	}
 
 	ctrl.PostScreencap().Wait()
 	newImg, err := ctrl.CacheImage()
@@ -293,16 +308,22 @@ func matchesTarget(ocrName, targetName string) bool {
 	return ocrName == targetName || strings.Contains(ocrName, targetName) || strings.Contains(targetName, ocrName)
 }
 
-func binarySearchOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string) *gridItem {
+// binarySearchOnPage searches among visible grid cells.
+// OCRs the middle cell, checks its position in categoryOrder vs target position,
+// then narrows the grid cell range accordingly.
+// Returns the target item if found, or nil when no more cells to check (lo > hi).
+func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int, targetName string) *gridItem {
 	lo, hi := 0, len(items)-1
-	attempts := 0
 
-	for lo <= hi && attempts < maxBinaryRetries {
+	for lo <= hi {
+		if tasker.Stopping() {
+			return nil
+		}
+
 		mid := (lo + hi) / 2
 		item := &items[mid]
-		attempts++
 
-		name := hoverAndOCR(ctx, ctrl, item.CenterX, item.CenterY)
+		name := hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
 		if name == "" {
 			lo = mid + 1
 			continue
@@ -312,7 +333,7 @@ func binarySearchOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem
 			log.Info().
 				Str("component", componentName).
 				Str("ocr_name", name).
-				Int("mid", mid).
+				Int("grid_idx", mid).
 				Msg("binary search found target")
 			return item
 		}
@@ -325,7 +346,7 @@ func binarySearchOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem
 			log.Warn().
 				Str("component", componentName).
 				Str("ocr_name", name).
-				Msg("OCR'd item not found in category order, skipping")
+				Msg("OCR'd item not in category order, skipping cell")
 			lo = mid + 1
 			continue
 		}
@@ -338,7 +359,7 @@ func binarySearchOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem
 			Int("lo", lo).
 			Int("hi", hi).
 			Int("mid", mid).
-			Msg("binary search narrowing")
+			Msg("binary search narrowing grid range")
 
 		if ocrIdx < targetIdx {
 			lo = mid + 1
@@ -347,42 +368,19 @@ func binarySearchOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem
 		}
 	}
 
+	log.Info().
+		Str("component", componentName).
+		Int("target_idx", targetIdx).
+		Msg("no adjacent grid cells remaining, binary search exhausted")
 	return nil
 }
 
-func determineScrollDirection(ctx *maa.Context, ctrl *maa.Controller, items []gridItem, categoryOrder []string, targetIdx int) int {
-	if len(items) == 0 {
-		return 1
-	}
-
-	first := &items[0]
-	last := &items[len(items)-1]
-
-	firstName := hoverAndOCR(ctx, ctrl, first.CenterX, first.CenterY)
-	firstIdx := indexOf(categoryOrder, firstName)
-	if firstIdx < 0 {
-		firstIdx = fuzzyIndexOf(categoryOrder, firstName)
-	}
-
-	lastName := hoverAndOCR(ctx, ctrl, last.CenterX, last.CenterY)
-	lastIdx := indexOf(categoryOrder, lastName)
-	if lastIdx < 0 {
-		lastIdx = fuzzyIndexOf(categoryOrder, lastName)
-	}
-
-	if firstIdx >= 0 && targetIdx < firstIdx {
-		return -1 // scroll up
-	}
-	if lastIdx >= 0 && targetIdx > lastIdx {
-		return 1 // scroll down
-	}
-
-	return 0
-}
-
-func linearScanOnPage(ctx *maa.Context, ctrl *maa.Controller, items []gridItem, targetName string) *gridItem {
+func linearScanOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, targetName string) *gridItem {
 	for i := range items {
-		name := hoverAndOCR(ctx, ctrl, items[i].CenterX, items[i].CenterY)
+		if tasker.Stopping() {
+			return nil
+		}
+		name := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
 		if matchesTarget(name, targetName) {
 			return &items[i]
 		}
@@ -407,20 +405,6 @@ func ctrlClick(ctrl *maa.Controller, x, y int) bool {
 		Int("y", y).
 		Msg("Ctrl+Click performed")
 	return true
-}
-
-func doScroll(ctx *maa.Context, targetX, targetY, dy int) {
-	override := map[string]any{
-		"__ItemTransferFallbackScroll": map[string]any{
-			"target": []int{targetX, targetY},
-			"dy":     dy,
-		},
-	}
-	ctx.RunAction(
-		"__ItemTransferFallbackScroll",
-		maa.Rect{0, 0, 0, 0}, "", override,
-	)
-	time.Sleep(500 * time.Millisecond)
 }
 
 func moveMouseSafe(ctrl *maa.Controller) {

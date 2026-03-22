@@ -105,7 +105,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -148,7 +147,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -191,7 +189,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -963,7 +960,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1006,7 +1002,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1049,7 +1044,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1092,7 +1086,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1240,7 +1233,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1283,7 +1275,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1656,7 +1647,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1699,7 +1689,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -1943,7 +1932,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -2073,15 +2061,15 @@
                         },
                         "ItemTransferFindItemInRepo": {
                             "expected": 123,
-                            "threshold": 0.3
+                            "threshold": 0.8
                         },
                         "ItemTransferFindItemInBag": {
                             "expected": 123,
-                            "threshold": 0.3
+                            "threshold": 0.8
                         },
                         "ItemTransferFindItemInBagReturn": {
                             "expected": 123,
-                            "threshold": 0.3
+                            "threshold": 0.8
                         },
                         "ItemTransferFindItemFallback": {
                             "custom_action_param": {
@@ -2154,7 +2142,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },
@@ -2428,7 +2415,6 @@
                                 "ItemTransferClickSortDescending",
                                 "ItemTransferClickItemCategory",
                                 "ItemTransferFindItemInRepo",
-                                "ItemTransferFindItemFallback",
                                 "ItemTransferScrollDownwardRepo"
                             ]
                         },

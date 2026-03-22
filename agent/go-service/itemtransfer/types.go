@@ -46,15 +46,6 @@ const (
 	tooltipOffsetY = 0
 	tooltipWidth   = 155
 	tooltipHeight  = 70
-
-	repoScrollTargetX = 640
-	repoScrollTargetY = 350
-	bagScrollTargetX  = 837
-	bagScrollTargetY  = 350
-	scrollDY          = -180
-
-	maxScrollAttempts = 20
-	maxBinaryRetries  = 30
 )
 
 var (

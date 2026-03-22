@@ -159,7 +159,6 @@
             "ItemTransferClickSortAscending",
             "ItemTransferClickItemCategory",
             "ItemTransferFindItemInRepo",
-            "ItemTransferFindItemFallback",
             "ItemTransferScrollDownwardRepo"
         ]
     },
@@ -263,6 +262,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemFallback",
             "ItemTransferItemNotFound"
         ]
     },
@@ -393,7 +393,6 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBag",
-            "ItemTransferFindItemFallbackBag",
             "ItemTransferScrollDownwardBag"
         ]
     },
@@ -436,7 +435,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag"
+            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemFallbackBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -583,7 +583,6 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInBagReturn",
-            "ItemTransferFindItemFallbackBagReturn",
             "ItemTransferScrollDownwardBagReturn"
         ]
     },
@@ -626,7 +625,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn"
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemFallbackBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
