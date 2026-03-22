@@ -701,10 +701,6 @@
                 "contact": 1
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "timeout": 2000
-        },
         "next": [
             "InDijiangControlNexus"
         ]
