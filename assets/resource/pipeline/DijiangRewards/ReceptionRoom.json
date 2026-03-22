@@ -440,6 +440,83 @@
     },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
+        "pre_delay": 0,
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "ReceptionRoomSendCluesSelectFriend",
+                    "ReceptionRoomSendCluesSendButton"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesSelectFriend": {
+        "desc": "[会客室·线索] 先识别缺失线索的好友",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSendCluesFindColor",
+                    "ReceptionRoomSendCluesColorSendButton"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ReceptionRoomSendCluesFindColor": {
+        "desc": "[会客室·线索] 识别缺少线索的颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    967,
+                    0,
+                    313,
+                    720
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    200,
+                    255
+                ],
+                "upper": [
+                    28,
+                    200,
+                    255
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
+    },
+    "ReceptionRoomSendCluesColorSendButton": {
+        "desc": "[会客室·线索] 根据缺失的颜色寻找对应的发送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "ReceptionRoomSendCluesFindColor",
+                "roi_offset": [
+                    76,
+                    -46,
+                    253,
+                    79
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSendButton": {
+        "desc": "[会客室·线索] 识别赠予界面内的发送按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -451,17 +528,9 @@
                 ],
                 "template": [
                     "ClaimDijiangRewards/Send.png"
-                ],
-                "order_by": "Random"
+                ]
             }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
-        "post_wait_freezes": 200,
-        "post_delay": 0,
-        "rate_limit": 0
+        }
     },
     "ReceptionRoomSendExit": {
         "desc": "[会客室·线索] 发送完成后关闭赠予界面",
