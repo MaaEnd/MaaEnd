@@ -1,5 +1,5 @@
 {
-    "InMFGCarbin": {
+    "InMFGCabin": {
         "desc": "[制造舱] 在制造舱界面，识别制造舱标题",
         "recognition": {
             "type": "OCR",

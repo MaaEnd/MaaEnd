@@ -58,7 +58,7 @@
             }
         }
     },
-    "MFGCarbinNeedTakeText": {
+    "MFGCabinNeedTakeText": {
         "desc": "[制造舱·需要领取] 识别领取按钮",
         "recognition": {
             "type": "OCR",
@@ -300,7 +300,7 @@
             }
         }
     },
-    "MFGCarbinNeedTakeCloseText": {
+    "MFGCabinNeedTakeCloseText": {
         "desc": "制造舱领取产出完成界面关闭/确认文本识别",
         "recognition": {
             "type": "OCR",
@@ -357,12 +357,12 @@
             }
         }
     },
-    "MFGCarbinText": {
+    "MFGCabinText": {
         "desc": "[制造舱·入口] 识别制造舱入口的文本",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "MFGCarbinTips",
+                "roi": "MFGCabinTips",
                 "roi_offset": [
                     -193,
                     -31,

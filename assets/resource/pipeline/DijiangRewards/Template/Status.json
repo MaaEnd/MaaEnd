@@ -107,7 +107,7 @@
             }
         }
     },
-    "MFGCarbinTips": {
+    "MFGCabinTips": {
         "desc": "[制造舱·入口] 识别制造舱入口的红点",
         "recognition": {
             "type": "ColorMatch",

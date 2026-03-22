@@ -1,12 +1,12 @@
 {
-    "MFGCarbinMain": {
+    "MFGCabinMain": {
         "desc": "[制造舱·主界面] 在控制中枢中识别制造舱主界面特征，进入制造舱主界面",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "MFGCarbinTips",
-                    "MFGCarbinText"
+                    "MFGCabinTips",
+                    "MFGCabinText"
                 ],
                 "box_index": 1
             }
@@ -31,7 +31,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InMFGCarbin",
+                    "InMFGCabin",
                     "FacilityDetails"
                 ],
                 "box_index": 1
@@ -128,7 +128,7 @@
             "param": {
                 "all_of": [
                     "YellowConfirmButtonType1",
-                    "MFGCarbinNeedTakeText"
+                    "MFGCabinNeedTakeText"
                 ],
                 "box_index": 1
             }
@@ -154,7 +154,7 @@
             "param": {
                 "all_of": [
                     "CloseRewardsButton",
-                    "MFGCarbinNeedTakeCloseText"
+                    "MFGCabinNeedTakeCloseText"
                 ]
             }
         },
@@ -185,7 +185,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InMFGCarbin",
+                    "InMFGCabin",
                     "NeedAssistColor",
                     "AssistText"
                 ],
@@ -251,10 +251,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinStartAssist"
+            "MFGCabinStartAssist"
         ]
     },
-    "MFGCarbinStartAssist": {
+    "MFGCabinStartAssist": {
         "recognition": {
             "type": "OCR",
             "param": {
@@ -368,7 +368,7 @@
             "type": "And",
             "param": {
                 "all_of": [
-                    "InMFGCarbin",
+                    "InMFGCabin",
                     "FacilityDetails"
                 ],
                 "box_index": 1
