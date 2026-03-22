@@ -374,5 +374,24 @@
                 ]
             }
         }
+    },
+    "GrowthChamberExtractSeedText": {
+        "desc": "[培养舱·入口] 识别培养舱提取基核的文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核",
+                    "(?i)Extract\\s*Seed",
+                    "基核抽出へ"
+                ]
+            }
+        }
     }
 }

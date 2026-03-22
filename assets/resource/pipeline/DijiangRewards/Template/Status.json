@@ -266,5 +266,25 @@
                 ]
             }
         }
+    },
+    "GrowthChamberCheckTargetEmpty": {
+        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrowthChamberSelectTarget",
+                "roi_offset": [
+                    31,
+                    41,
+                    23,
+                    0
+                ],
+                "expected": [
+                    "^[^0].*$"
+                ],
+                "order_by": "Vertical",
+                "only_rec": true
+            }
+        }
     }
 }

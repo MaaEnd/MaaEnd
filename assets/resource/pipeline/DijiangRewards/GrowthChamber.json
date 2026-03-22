@@ -176,9 +176,7 @@
                 "expected": [
                     "培养",
                     "培養",
-                    "(?i)Grow",
-                    "^培养$",
-                    "^培養$"
+                    "(?i)Grow"
                 ]
             }
         },
@@ -207,16 +205,10 @@
     "GrowthChamberGrowViewIn": {
         "desc": "[培养舱·培养] 确认已进入培养素材与对象选择界面",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    46,
-                    156,
-                    123,
-                    102
-                ],
-                "expected": [
-                    "全部"
+                "all_of": [
+                    "GrowthChamberInSelectTarget"
                 ]
             }
         },
@@ -319,26 +311,6 @@
             "time": 100
         }
     },
-    "GrowthChamberCheckTargetEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "GrowthChamberSelectTarget",
-                "roi_offset": [
-                    31,
-                    41,
-                    23,
-                    0
-                ],
-                "expected": [
-                    "^[^0].*$"
-                ],
-                "order_by": "Vertical",
-                "only_rec": true
-            }
-        }
-    },
     "t": {
         "recognition": {
             "type": "ColorMatch",
@@ -376,18 +348,10 @@
     "GrowthChamberGrowExit": {
         "desc": "[培养舱·培养] 无需提取基核时直接返回上一界面,和提取基核分支互斥",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    747,
-                    481,
-                    350,
-                    205
-                ],
-                "expected": [
-                    "前往提取基核",
-                    "(?i)Extract\\s*Seed",
-                    "基核抽出へ"
+                "all_of": [
+                    "GrowthChamberExtractSeedText"
                 ]
             }
         },
@@ -402,18 +366,10 @@
         "desc": "[培养舱·基核] 点击前往提取基核,和不提取基核互斥",
         "enabled": false,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    747,
-                    481,
-                    350,
-                    205
-                ],
-                "expected": [
-                    "前往提取基核",
-                    "(?i)Extract\\s*Seed",
-                    "基核抽出へ"
+                "all_of": [
+                    "GrowthChamberExtractSeedText"
                 ]
             }
         },
@@ -572,24 +528,13 @@
         }
     },
     "GrowthChamberTargetNotFound": {
-        "desc": "[培养舱·培养] 在选择对象界面横向滑动查找目标",
+        "desc": "[培养舱·培养] 在选择对象界面滑动查找目标",
         "max_hit": 12,
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    296,
-                    111
-                ],
-                "expected": [
-                    "素材",
-                    "材料",
-                    "(?i)Materials",
-                    "选择培养对象",
-                    "選擇培養對象",
-                    "Select"
+                "all_of": [
+                    "GrowthChamberInSelectTarget"
                 ]
             }
         },
@@ -759,21 +704,13 @@
     "GrowthChamberExit": {
         "desc": "[培养舱·退出] 点击左上标题返回控制中枢",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "InGrowthChamber",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "培养舱",
-                    "培養艙",
-                    "(?i)Growth\\s*Chamber",
-                    "培養室",
-                    "GROWTH ?CHAMBER"
-                ]
+                "box_index": 1
             }
         },
         "action": {

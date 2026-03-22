@@ -78,5 +78,22 @@
                 ]
             }
         }
+    },
+    "GrowthChamberInSelectTarget": {
+        "desc": "[培养舱·培养] 在选择对象界面识别选择对象标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    46,
+                    156,
+                    123,
+                    102
+                ],
+                "expected": [
+                    "全部"
+                ]
+            }
+        }
     }
 }
