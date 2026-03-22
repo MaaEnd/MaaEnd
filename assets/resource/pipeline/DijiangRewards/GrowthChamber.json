@@ -210,19 +210,13 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    850,
-                    111
+                    46,
+                    156,
+                    123,
+                    102
                 ],
                 "expected": [
-                    "选择素材",
-                    "選擇材料",
-                    "(?i)Select\\s*Materials",
-                    "数量調整",
-                    "选择培养对象",
-                    "選擇培養對象",
-                    "TO GROW"
+                    "全部"
                 ]
             }
         },
@@ -288,7 +282,7 @@
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckTargetEmpty" //这个任务只有在选择不提取基核时才会启用,其他情况下直接命中
+                    "GrowthChamberCheckTargetEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
                 ],
                 "box_index": 1
             }
@@ -340,6 +334,7 @@
                 "expected": [
                     "^[^0].*$"
                 ],
+                "order_by": "Vertical",
                 "only_rec": true
             }
         }
@@ -365,21 +360,13 @@
     "GrowthChamberReturn": {
         "desc": "[培养舱·返回] 识别已回到培养舱界面",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    941,
-                    0,
-                    339,
-                    113
+                "all_of": [
+                    "InGrowthChamber",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "生产助力",
-                    "生產助力",
-                    "(?i)Assist",
-                    "生産サポート",
-                    "Production"
-                ]
+                "box_index": 1
             }
         },
         "pre_delay": 0,
@@ -413,7 +400,7 @@
     },
     "GrowthChamberSeedExtract": {
         "desc": "[培养舱·基核] 点击前往提取基核,和不提取基核互斥",
-        //"enabled": false,
+        "enabled": false,
         "recognition": {
             "type": "OCR",
             "param": {
