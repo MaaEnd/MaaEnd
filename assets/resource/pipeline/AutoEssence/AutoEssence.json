@@ -23,10 +23,17 @@
             "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
             "WLWulingCityLocationAssertion",
-            "WLQingboStockadeLocationAssertion"
+            "WLQingboStockadeLocationAssertion",
+            "[JumpBack]AutoEssenceLocationSetupFailed"
         ],
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
+        }
+    },
+    "AutoEssenceLocationSetupFailed": {
+        "desc": "未能识别附近的淤积点所属的地区",
+        "focus": {
+            "Node.Action.Starting": "❓未能识别附近的淤积点所属的地区\n请确保当前**处于淤积点附近**，并且未遮挡小地图！"
         }
     },
     "AutoEssenceAltKeyUp": {
@@ -111,6 +118,38 @@
             "AutoEssenceLowSpBeforeStart",
             "AutoEssenceClickEssenceStartButton"
         ]
+    },
+    "AutoEssenceMistakeFactoryDevice": {
+        "desc": "识别是否误入工业设备界面，并将其关闭",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "template": "AutoEssence/FactoryDeviceDialog.png"
+            }
+        },
+        "action": {
+            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
+            "param": {
+                "target_offset": [
+                    50,
+                    0,
+                    -50,
+                    0
+                ]
+            }
+        },
+        "next": [
+            "AutoEssenceClickTriggerButtonFailed"
+        ],
+        "focus": {
+            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
+        }
     },
     "AutoEssenceLowSpBeforeStart": {
         "desc": "识别理智消耗数字是否是红色，识别到之后结束任务（除非在设置里覆写掉）",
@@ -212,38 +251,6 @@
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
-        }
-    },
-    "AutoEssenceMistakeFactoryDevice": {
-        "desc": "识别是否误入工业设备界面，并将其关闭",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    950,
-                    30,
-                    270,
-                    230
-                ],
-                "template": "AutoEssence/FactoryDeviceDialog.png"
-            }
-        },
-        "action": {
-            "type": "Click", // 此处点击的是工业设备界面的关闭按钮
-            "param": {
-                "target_offset": [
-                    -50,
-                    0,
-                    -50,
-                    0
-                ]
-            }
-        },
-        "next": [
-            "AutoEssenceClickTriggerButtonFailed"
-        ],
-        "focus": {
-            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
         }
     },
     "AutoEssenceDismissWarning2": {
