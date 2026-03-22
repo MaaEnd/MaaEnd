@@ -1,5 +1,6 @@
 {
     "AutoEssenceMain": {
+        "desc": "自动基质刷取的主入口",
         "anchor": {
             "AutoEssenceAfterMoveToTriggerPoint": "AutoEssenceClickTriggerButtonPre"
         },
@@ -13,6 +14,7 @@
         }
     },
     "AutoEssenceLocationSetup": {
+        "desc": "识别和确定附近的淤积点所属的地区",
         "max_hit": 1,
         "rate_limit": 1000,
         "next": [
@@ -28,6 +30,7 @@
         }
     },
     "AutoEssenceAltKeyUp": {
+        "desc": "释放键盘 Alt 键（通过覆写 AutoEssenceAfterAltKeyUp 锚点即可设置该节点执行完毕后的下一个节点）",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -39,6 +42,7 @@
         ]
     },
     "AutoEssenceClickTriggerButtonPre": {
+        "desc": "准备点击激发的大世界按钮，先按下 Alt 键",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -54,6 +58,7 @@
         ]
     },
     "AutoEssenceClickTriggerButton": {
+        "desc": "正式识别并点击激发的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -81,6 +86,7 @@
         }
     },
     "AutoEssenceClickTriggerButtonFailedPre": {
+        "desc": "未能识别到激发的大世界按钮，先释放 Alt 键",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -92,12 +98,14 @@
         ]
     },
     "AutoEssenceClickTriggerButtonFailed": {
+        "desc": "未能识别到激发的大世界按钮、且释放了 Alt 键之后的守卫节点",
         "max_hit": 8,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
     "AutoEssenceReadyToStart": {
+        "desc": "点击了激发的大世界按钮之后的守卫节点",
         "next": [
             "AutoEssenceMistakeFactoryDevice",
             "AutoEssenceLowSpBeforeStart",
@@ -105,7 +113,7 @@
         ]
     },
     "AutoEssenceLowSpBeforeStart": {
-        "desc": "要是识别理智消耗数字是红色则结束任务，除非在设置里覆写掉",
+        "desc": "识别理智消耗数字是否是红色，识别到之后结束任务（除非在设置里覆写掉）",
         "enabled": true,
         "recognition": {
             "type": "ColorMatch",
@@ -154,6 +162,7 @@
         }
     },
     "AutoEssenceClickEssenceStartButton": {
+        "desc": "识别并点击开始界面中的开始挑战按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -180,6 +189,7 @@
         }
     },
     "AutoEssenceDismissWarning1": {
+        "desc": "识别并关闭开始挑战时的第一个警告弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -205,6 +215,7 @@
         }
     },
     "AutoEssenceMistakeFactoryDevice": {
+        "desc": "识别是否误入工业设备界面，并将其关闭",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -236,6 +247,7 @@
         }
     },
     "AutoEssenceDismissWarning2": {
+        "desc": "识别并关闭开始挑战时的第二个警告弹窗",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -260,7 +272,7 @@
         }
     },
     "AutoEssenceChallengeEnter": {
-        "desc": "成功进入挑战场景",
+        "desc": "识别是否成功进入挑战",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -280,7 +292,7 @@
         ]
     },
     "AutoEssenceClickEssenceChallengeUsingWalk": {
-        "desc": "使用走路方式挑战，用于部署炮台方式",
+        "desc": "使用走路方式挑战（利用玩家的炮台进行攻击）",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
@@ -304,6 +316,7 @@
         }
     },
     "AutoEssenceCheckOngoing": {
+        "desc": "检查挑战是否仍在进行中",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -330,6 +343,7 @@
         }
     },
     "AutoEssenceClickObtainButtonPre": {
+        "desc": "准备识别并点击领取奖励（或放弃奖励）的大世界按钮，按下 Alt 键",
         "action": {
             "type": "KeyDown",
             "param": {
@@ -345,6 +359,7 @@
         ]
     },
     "AutoEssenceClickObtainButton": {
+        "desc": "正式识别并点击领取奖励的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -382,6 +397,7 @@
         }
     },
     "AutoEssenceClickObtainButtonFailedPre": {
+        "desc": "未能识别到领取奖励的大世界按钮，先释放 Alt 键",
         "action": {
             "type": "KeyUp",
             "param": {
@@ -396,12 +412,14 @@
         }
     },
     "AutoEssenceClickObtainButtonFailed": {
+        "desc": "未能识别到领取奖励的大世界按钮、且释放了 Alt 键之后的守卫节点",
         "max_hit": 8,
         "next": [
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ]
     },
     "AutoEssenceClickDiscardButton": {
+        "desc": "正式识别并点击放弃奖励的大世界按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -439,6 +457,7 @@
         }
     },
     "AutoEssenceChooseScalingPre": {
+        "desc": "准备选择领取倍数的守卫节点",
         "pre_wait_freezes": 1000,
         "next": [
             "AutoEssenceChooseScaling1",
@@ -446,6 +465,7 @@
         ]
     },
     "AutoEssenceChooseScaling1": {
+        "desc": "识别并点击单倍领取的选项",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -470,6 +490,7 @@
         }
     },
     "AutoEssenceAfterChooseScaling": {
+        "desc": "选择了领取倍数之后的守卫节点",
         "next": [
             "[JumpBack]AutoEssenceChooseOverrideOff",
             "[JumpBack]AutoEssenceChooseOverrideOn",
@@ -477,6 +498,7 @@
         ]
     },
     "AutoEssenceChooseOverrideOff": {
+        "desc": "识别刻写选项是否已打开，识别到之后，点击它来关闭刻写",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
@@ -499,6 +521,7 @@
         }
     },
     "AutoEssenceChooseOverrideOn": {
+        "desc": "识别刻写选项是否已关闭，识别到之后，点击它来开启刻写",
         "enabled": false,
         "recognition": {
             "type": "TemplateMatch",
@@ -521,6 +544,7 @@
         }
     },
     "AutoEssenceConfirmObtain": {
+        "desc": "识别并点击确认领取奖励的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -558,6 +582,7 @@
         }
     },
     "AutoEssenceConfirmDiscard": {
+        "desc": "识别并点击确认放弃奖励的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -582,7 +607,7 @@
         }
     },
     "AutoEssenceLowSp": {
-        "desc": "判断有无理智不足的对话框，有的话结束任务",
+        "desc": "识别理智不足的弹窗，识别到之后结束任务",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -603,6 +628,7 @@
         }
     },
     "AutoEssenceCloseObtainDialog": {
+        "desc": "识别并点击关闭战利品界面的按钮",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -628,7 +654,9 @@
         }
     },
     "AutoEssenceOnSuccess": {
+        "desc": "成功完成一次基质刷取后的守卫节点",
         "next": [
+            // 可以在此添加 "AutoEssenceMain" 来实现循环刷取
             "AutoEssenceOnComplete"
         ],
         "focus": {
@@ -636,6 +664,7 @@
         }
     },
     "AutoEssenceOnComplete": {
+        "desc": "成功完成了所有基质刷取，安全结束任务",
         "action": "StopTask",
         "focus": {
             "Node.Action.Starting": "🎉**已完成所规定次数的基质刷取**"
