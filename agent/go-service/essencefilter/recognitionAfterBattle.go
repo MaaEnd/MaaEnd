@@ -12,6 +12,9 @@ type essenceAfterBattleNthParams struct {
 	RecognitionNodeName string `json:"recognitionNodeName"`
 }
 
+// EssenceFilterAfterBattleNthRecognition 在战斗结算后按行序依次返回精英识别结果中的第 N 个框。
+// 该识别器会在运行状态中缓存全屏识别节点的结果（RowBoxes），通过递增 RowIndex 逐个吐出框；
+// 若缓存已消费完，则重新调用指定的 RecognitionNodeName 进行识别并刷新缓存。
 type EssenceFilterAfterBattleNthRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &EssenceFilterAfterBattleNthRecognition{}
