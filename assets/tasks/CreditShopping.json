@@ -13,7 +13,9 @@
                 "CreditShoppingReserve",
                 "CreditShoppingOtherItems"
             ],
-            "group": ["daily"]
+            "group": [
+                "daily"
+            ]
         }
     ],
     "option": {
@@ -130,6 +132,58 @@
                     }
                 },
                 {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
@@ -150,6 +204,58 @@
                                     "武器檢查單元",
                                     "Arms Inspector",
                                     "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
                                 ]
                             }
                         }
@@ -182,6 +288,32 @@
                     }
                 },
                 {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "pipeline_override": {
@@ -202,6 +334,32 @@
                                     "協議稜柱",
                                     "Protoprism",
                                     "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
                                 ]
                             }
                         }
@@ -305,6 +463,38 @@
                     }
                 },
                 {
+                    "name": "ElementaryCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.ElementaryCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "elementary_combat_record": [
+                                    "初级作战记录",
+                                    "初級作戰紀錄",
+                                    "Elementary Combat Record",
+                                    "初級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "IntermediateCombatRecord",
+                    "label": "$option.CreditShoppingItems.cases.IntermediateCombatRecord.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "intermediate_combat_record": [
+                                    "中级作战记录",
+                                    "中級作戰紀錄",
+                                    "Intermediate Combat Record",
+                                    "中級作戦記録"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "ArmsInspector",
                     "label": "$option.CreditShoppingItems.cases.ArmsInspector.label",
                     "pipeline_override": {
@@ -315,6 +505,38 @@
                                     "武器檢查單元",
                                     "Arms Inspector",
                                     "武器検査ユニット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "CastDie",
+                    "label": "$option.CreditShoppingItems.cases.CastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "cast_die": [
+                                    "强固模具",
+                                    "強固模具",
+                                    "Cast Die",
+                                    "硬質金型"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HeavyCastDie",
+                    "label": "$option.CreditShoppingItems.cases.HeavyCastDie.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "heavy_cast_die": [
+                                    "重型强固模具",
+                                    "重型強固模具",
+                                    "Heavy Cast Die",
+                                    "重硬質金型"
                                 ]
                             }
                         }
@@ -337,6 +559,22 @@
                     }
                 },
                 {
+                    "name": "Protodisk",
+                    "label": "$option.CreditShoppingItems.cases.Protodisk.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "protodisk": [
+                                    "协议圆盘",
+                                    "協議圓盤",
+                                    "Protodisk",
+                                    "協約ディスク"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "Protoprism",
                     "label": "$option.CreditShoppingItems.cases.Protoprism.label",
                     "pipeline_override": {
@@ -347,6 +585,22 @@
                                     "協議稜柱",
                                     "Protoprism",
                                     "協約角柱"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoset",
+                    "label": "$option.CreditShoppingItems.cases.Protoset.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "protoset": [
+                                    "协议圆盘组",
+                                    "協議圓盤組",
+                                    "Protoset",
+                                    "協約ディスクセット"
                                 ]
                             }
                         }
