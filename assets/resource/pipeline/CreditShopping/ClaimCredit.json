@@ -10,7 +10,7 @@
         ],
         "expected": [
             "收取信用",
-            "(?i)Collect\\s*Credits",
+            "Collect Credits",
             "FP受取"
         ],
         "action": "Click",
@@ -31,7 +31,7 @@
         "expected": [
             "无待领取信用",
             "無待領取信用",
-            "(?i)No\\s*credits\\s*to\\s*claim",
+            "No credits to claim",
             "FP未獲得"
         ],
         "action": "DoNothing",

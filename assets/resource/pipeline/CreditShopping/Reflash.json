@@ -12,7 +12,7 @@
                 "expected": [
                     "立即刷新",
                     "立即更新",
-                    "(?i)Refresh\\s*Now",
+                    "Refresh Now",
                     "更新"
                 ]
             }
