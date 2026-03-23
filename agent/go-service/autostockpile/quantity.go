@@ -18,10 +18,11 @@ const (
 )
 
 type quantityDecision struct {
-	Mode   quantityMode
-	Target int
-	MaxBuy int
-	Reason string
+	Mode              quantityMode
+	Target            int
+	MaxBuy            int
+	ConstraintApplied bool
+	Reason            string
 }
 
 func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cfg SelectionConfig) (quantityDecision, error) {
@@ -53,33 +54,37 @@ func resolveQuantityDecision(selection SelectionResult, data RecognitionData, cf
 func resolveThresholdQuantityDecision(upperBound quantityUpperBound, quotaCurrent int) quantityDecision {
 	if !upperBound.ConstraintApplied {
 		return quantityDecision{
-			Mode:   quantityModeSwipeMax,
-			MaxBuy: upperBound.MaxBuy,
-			Reason: "未启用保留调度券",
+			Mode:              quantityModeSwipeMax,
+			MaxBuy:            upperBound.MaxBuy,
+			ConstraintApplied: upperBound.ConstraintApplied,
+			Reason:            "未启用保留调度券",
 		}
 	}
 
 	if upperBound.CappedQuantity <= 0 {
 		return quantityDecision{
-			Mode:   quantityModeSkip,
-			MaxBuy: upperBound.MaxBuy,
-			Reason: "保留调度券限制后可购买数量为 0",
+			Mode:              quantityModeSkip,
+			MaxBuy:            upperBound.MaxBuy,
+			ConstraintApplied: upperBound.ConstraintApplied,
+			Reason:            "保留调度券限制后可购买数量为 0",
 		}
 	}
 
 	if upperBound.CappedQuantity == quotaCurrent {
 		return quantityDecision{
-			Mode:   quantityModeSwipeMax,
-			MaxBuy: upperBound.MaxBuy,
-			Reason: "保留调度券约束允许全量购买",
+			Mode:              quantityModeSwipeMax,
+			MaxBuy:            upperBound.MaxBuy,
+			ConstraintApplied: upperBound.ConstraintApplied,
+			Reason:            "保留调度券约束允许全量购买",
 		}
 	}
 
 	return quantityDecision{
-		Mode:   quantityModeSwipeSpecificQuantity,
-		Target: upperBound.CappedQuantity,
-		MaxBuy: upperBound.MaxBuy,
-		Reason: "保留调度券限制购买数量",
+		Mode:              quantityModeSwipeSpecificQuantity,
+		Target:            upperBound.CappedQuantity,
+		MaxBuy:            upperBound.MaxBuy,
+		ConstraintApplied: upperBound.ConstraintApplied,
+		Reason:            "保留调度券限制购买数量",
 	}
 }
 
@@ -92,26 +97,29 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 	if !upperBound.ConstraintApplied {
 		if overflowTarget <= 0 {
 			return quantityDecision{
-				Mode:   quantityModeSkip,
-				MaxBuy: upperBound.MaxBuy,
-				Reason: "防溢出目标数量无效",
+				Mode:              quantityModeSkip,
+				MaxBuy:            upperBound.MaxBuy,
+				ConstraintApplied: upperBound.ConstraintApplied,
+				Reason:            "防溢出目标数量无效",
 			}
 		}
 
 		return quantityDecision{
-			Mode:   quantityModeSwipeSpecificQuantity,
-			Target: overflowTarget,
-			MaxBuy: upperBound.MaxBuy,
-			Reason: "按防溢出数量购买",
+			Mode:              quantityModeSwipeSpecificQuantity,
+			Target:            overflowTarget,
+			MaxBuy:            upperBound.MaxBuy,
+			ConstraintApplied: upperBound.ConstraintApplied,
+			Reason:            "按防溢出数量购买",
 		}
 	}
 
 	target := min(overflowTarget, upperBound.CappedQuantity)
 	if target <= 0 {
 		return quantityDecision{
-			Mode:   quantityModeSkip,
-			MaxBuy: upperBound.MaxBuy,
-			Reason: "保留调度券限制后防溢出购买数量为 0",
+			Mode:              quantityModeSkip,
+			MaxBuy:            upperBound.MaxBuy,
+			ConstraintApplied: upperBound.ConstraintApplied,
+			Reason:            "保留调度券限制后防溢出购买数量为 0",
 		}
 	}
 
@@ -121,10 +129,11 @@ func resolveOverflowQuantityDecision(upperBound quantityUpperBound, quota QuotaI
 	}
 
 	return quantityDecision{
-		Mode:   quantityModeSwipeSpecificQuantity,
-		Target: target,
-		MaxBuy: upperBound.MaxBuy,
-		Reason: reason,
+		Mode:              quantityModeSwipeSpecificQuantity,
+		Target:            target,
+		MaxBuy:            upperBound.MaxBuy,
+		ConstraintApplied: upperBound.ConstraintApplied,
+		Reason:            reason,
 	}
 }
 

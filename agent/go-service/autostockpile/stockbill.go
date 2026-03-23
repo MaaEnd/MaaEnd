@@ -94,9 +94,12 @@ func resolveQuantityUpperBound(stockBillAvailable bool, stockBillAmount, reserve
 	}
 
 	if reserveStockBill <= 0 {
+		// reserve_stock_bill 未启用时，不施加调度券约束；此时 MaxBuy 仅为占位值，
+		// 日志/展示层必须以 ConstraintApplied 判断 max_buy 是否有业务语义。
 		return quantityUpperBound{
-			MaxBuy:         0,
-			CappedQuantity: quotaCurrent,
+			MaxBuy:            0,
+			CappedQuantity:    quotaCurrent,
+			ConstraintApplied: false,
 		}, nil
 	}
 

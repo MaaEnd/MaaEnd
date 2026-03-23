@@ -16,7 +16,7 @@ func getSelectionConfigFromNode(ctx *maa.Context, nodeName string, region string
 
 	node, err := ctx.GetNode(nodeName)
 	if err != nil {
-		log.Error().Err(err).Str("component", "autostockpile").Str("node", nodeName).Msg("failed to get node")
+		log.Error().Err(err).Str("component", autoStockpileComponent).Str("node", nodeName).Msg("failed to get node")
 		return SelectionConfig{}, AbortReasonSelectionConfigInvalidFatal, err
 	}
 
@@ -57,9 +57,9 @@ func parseSelectionConfigFromAttach(attach map[string]any, region string) (Selec
 
 	effectiveJSON, err := json.Marshal(cfg)
 	if err != nil {
-		log.Warn().Err(err).Str("component", "autostockpile").Str("region", region).Msg("failed to marshal effective config")
+		log.Warn().Err(err).Str("component", autoStockpileComponent).Str("region", region).Msg("failed to marshal effective config")
 	} else {
-		log.Info().Str("component", "autostockpile").Str("region", region).Str("attach", string(attachJSON)).Str("effective_config", string(effectiveJSON)).Msg("attach config loaded")
+		log.Info().Str("component", autoStockpileComponent).Str("region", region).Str("attach", string(attachJSON)).Str("effective_config", string(effectiveJSON)).Msg("attach config loaded")
 	}
 
 	return cfg, nil

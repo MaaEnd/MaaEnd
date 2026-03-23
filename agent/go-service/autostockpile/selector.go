@@ -134,16 +134,19 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, AbortReasonStockBillUnavailableWarn, err, "已命中商品，但最终跳过购买")
 	}
 	if quantityDecision.Mode == quantityModeSkip {
-		log.Info().
+		quantitySkipLog := log.Info().
 			Str("component", "autostockpile").
 			Str("selection_mode", formatSelectionMode(selection, *data, cfg)).
 			Str("quantity_mode", string(quantityDecision.Mode)).
 			Str("quantity_reason", quantityDecision.Reason).
-			Int("max_buy", quantityDecision.MaxBuy).
+			Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 			Int("quota_current", data.Quota.Current).
 			Int("quota_overflow", data.Quota.Overflow).
-			Int("reserve_stock_bill", cfg.ReserveStockBill).
-			Msg("quantity decision requested skip short-circuit")
+			Int("reserve_stock_bill", cfg.ReserveStockBill)
+		if quantityDecision.ConstraintApplied {
+			quantitySkipLog = quantitySkipLog.Int("max_buy", quantityDecision.MaxBuy)
+		}
+		quantitySkipLog.Msg("quantity decision requested skip short-circuit")
 		maafocus.NodeActionStarting(ctx, fmt.Sprintf("已命中商品，但最终不购买（%s）", quantityDecision.Reason))
 		if err := overrideSkipBranch(ctx, arg.CurrentTaskName); err != nil {
 			log.Error().
@@ -184,7 +187,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("threshold", selection.Threshold).
 		Int("price", selection.CurrentPrice).
 		Int("score", selection.Score).
-		Int("max_buy", quantityDecision.MaxBuy).
+		Bool("reserve_constraint_applied", quantityDecision.ConstraintApplied).
 		Int("quota_current", data.Quota.Current).
 		Int("quota_overflow", data.Quota.Overflow).
 		Int("reserve_stock_bill", cfg.ReserveStockBill).
@@ -192,6 +195,9 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("quantity_reason", quantityDecision.Reason).
 		Bool("swipe_max_enabled", quantityDecision.Mode == quantityModeSwipeMax).
 		Bool("swipe_specific_quantity_enabled", quantityDecision.Mode == quantityModeSwipeSpecificQuantity)
+	if quantityDecision.ConstraintApplied {
+		quantityLog = quantityLog.Int("max_buy", quantityDecision.MaxBuy)
+	}
 	if quantityDecision.Mode == quantityModeSwipeSpecificQuantity {
 		quantityLog = quantityLog.Int("quantity_target", quantityDecision.Target)
 	}
@@ -317,7 +323,7 @@ func routeSkipWithAbortReason(ctx *maa.Context, currentTaskName string, reason A
 	logEvent.Msg("routing current cycle to skip branch")
 
 	if reason == AbortReasonStockBillUnavailableWarn || reason == AbortReasonGoodsOCRUnavailableWarn {
-		fmt.Printf("<span style=\"color:orange\">⚠️%s（%s）</span>\n", focusPrefix, reasonText)
+		maafocus.NodeActionStarting(ctx, fmt.Sprintf("<span style=\"color:orange\">⚠️%s（%s）</span>\n", focusPrefix, reasonText))
 	} else {
 		maafocus.NodeActionStarting(ctx, fmt.Sprintf("%s（%s）", focusPrefix, reasonText))
 	}
@@ -346,8 +352,7 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	}
 	logEvent.Msg("stopping task due to fatal abort reason")
 
-	fmt.Printf("<span style=\"color:red\">🚨发生严重错误，已停止任务（%s）</span>\n", reasonText)
-
+	maafocus.NodeActionStarting(ctx, fmt.Sprintf("<span style=\"color:red\">🚨发生严重错误，已停止任务（%s）</span>\n", reasonText))
 	if ctx == nil || ctx.GetTasker() == nil {
 		log.Error().
 			Str("component", "autostockpile").
