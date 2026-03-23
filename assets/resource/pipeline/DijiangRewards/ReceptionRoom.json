@@ -26,7 +26,7 @@
         "rate_limit": 0,
         "next": [
             "ReceptionRoomClueExchangeWait",
-            "ReceptionRoomViewWait",
+            "ReceptionRoomViewWait"
         ]
     },
     "ReceptionRoomClueExchangeWait": {
