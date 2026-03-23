@@ -256,7 +256,7 @@
                 "expected": [
                     "收获|育苗|浇水",
                     "收穫|育苗|澆水",
-                    "Harvest|Germinate|Water",
+                    "(?i)Harvest|Germinate|Water",
                     "収穫|栽培|水やり",
                     "수확|육묘|물 주기"
                 ],

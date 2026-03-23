@@ -136,8 +136,7 @@
                 "expected": [
                     "探索|工业",
                     "探索|工業",
-                    "Explore|Factory",
-                    "探索|工業",
+                    "(?i)Explore|Factory",
                     "탐색|공업"
                 ],
                 "threshold": 0.7

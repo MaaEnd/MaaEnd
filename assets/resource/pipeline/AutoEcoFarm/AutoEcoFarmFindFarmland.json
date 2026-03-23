@@ -53,12 +53,13 @@
                     48
                 ],
                 "expected": [
-                    "标记显示管理",
-                    "標記顯示管理",
-                    "Marker Tags",
-                    "ソート",
-                    "표식 관리"
-                ]
+                    "[标记显示管理].*?[标记显示管理]",
+                    "[標記顯示管理].*?[標記顯示管理]",
+                    "(?i)(Marker|Tags)",
+                    "[ソート]{2,}",
+                    "[표식관리].*?[표식관리]"
+                ],
+                "threshold": 0.9
             }
         },
         "next": [
@@ -81,10 +82,11 @@
                 "expected": [
                     "标记显示管理",
                     "標記顯示管理",
-                    "Marker Tags",
+                    "(?i)Marker Tags",
                     "ソート",
                     "표식 관리"
-                ]
+                ],
+                "threshold": 0.9
             }
         },
         "action": "Click",
@@ -106,10 +108,11 @@
                 "expected": [
                     "清空选中",
                     "清除選取",
-                    "Clear All",
+                    "(?i)Clear All",
                     "一括解除",
                     "선택 초기화"
-                ]
+                ],
+                "threshold": 0.9
             }
         },
         "action": "Click",
@@ -150,8 +153,7 @@
                 "expected": [
                     "工业设备",
                     "工業設備",
-                    "Factory",
-                    "工業設備",
+                    "(?i)Factory",
                     "공업 설비"
                 ],
                 "threshold": 0.9
@@ -186,11 +188,12 @@
                     458
                 ],
                 "expected": [
-                    "生|态|种|植|",
-                    "生|態|種|植|",
-                    "Eco|Farm",
-                    "栽|培",
-                    "생태|재배"
+                    "生态种植",
+                    "[生态种植].*?[生态种植]",
+                    "[生態種植].*?[生態種植]",
+                    "(?i)Eco\\s*Farm",
+                    "栽培",
+                    "[생태재배].*?[생태재배]"
                 ],
                 "threshold": 0.7
             }
@@ -214,46 +217,6 @@
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
-    "_AutoEcoFarmFindWulinEcoFarm": {
-        "desc": "寻找武陵城的“实验作物试点”这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    222,
-                    17,
-                    812,
-                    620
-                ],
-                "expected": [
-                    "作|物|试|点",
-                    "作|物|測|試",
-                    "Agricultural|Test",
-                    "実|験|栽|培|試|行",
-                    "실험|작물|시범"
-                ],
-                "threshold": 0.7
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Scroll",
-            "param": {
-                "target": true,
-                "dy": 240
-            }
-        },
-        "post_wait_freezes": 10,
-        "post_delay": 0,
-        "next": [
-            //找到农田就下一步，没找到再拉缩放
-            "_AutoEcoFarmFindFarmlandCustom",
-            //通过一个自循环来做到多次识别→拉近
-            "_AutoEcoFarmPullWulinEcoFarmToCenter",
-            //要是一直失败就先移动鼠标避免干扰再找
-            "[JumpBack]_AutoEcoFarmMoveMouse"
-        ]
-    },
     "_AutoEcoFarmPullValleyIVEcoFarmToCenter": {
         "desc": "将生态园拉到屏幕中间",
         "max_hit": 10,
@@ -267,11 +230,12 @@
                     458
                 ],
                 "expected": [
-                    "生|态|种|植|",
-                    "生|態|種|植|",
-                    "Eco|Farm",
-                    "栽|培",
-                    "생태|재배"
+                    "生态种植",
+                    "[生态种植].*?[生态种植]",
+                    "[生態種植].*?[生態種植]",
+                    "(?i)Eco\\s*Farm",
+                    "栽培",
+                    "[생태재배].*?[생태재배]"
                 ],
                 "threshold": 0.7
             }
@@ -297,21 +261,46 @@
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
     },
-    "_AutoEcoFarmFindFarmland": {
-        "desc": "给custom调用的识别节点，全屏识别农田",
+    "_AutoEcoFarmFindWulinEcoFarm": {
+        "desc": "寻找武陵城的“实验作物试点”这几个字,找到后将鼠标移到目标位置并滚动视角直到最大",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    0,
-                    0,
-                    1280,
-                    720
+                    222,
+                    17,
+                    812,
+                    620
                 ],
-                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
-                "order_by": "Horizontal"
+                "expected": [
+                    "作物试点",
+                    "[作物试点].*?[作物试点]",
+                    "[作物測試].*?[作物測試]",
+                    "(?i)Agricultural\\s*Test",
+                    "[実験栽培試行].*?[実験栽培試行]",
+                    "[실험작물시범].*?[실험작물시범]"
+                ],
+                "threshold": 0.7
             }
-        }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": true,
+                "dy": 240
+            }
+        },
+        "post_wait_freezes": 10,
+        "post_delay": 0,
+        "next": [
+            //找到农田就下一步，没找到再拉缩放
+            "_AutoEcoFarmFindFarmlandCustom",
+            //通过一个自循环来做到多次识别→拉近
+            "_AutoEcoFarmPullWulinEcoFarmToCenter",
+            //要是一直失败就先移动鼠标避免干扰再找
+            "[JumpBack]_AutoEcoFarmMoveMouse"
+        ]
     },
     "_AutoEcoFarmPullWulinEcoFarmToCenter": {
         "desc": "将“实验作物试点”拉到屏幕中间",
@@ -326,11 +315,12 @@
                     620
                 ],
                 "expected": [
-                    "作|物|试|点",
-                    "作|物|測|試",
-                    "Agricultural|Test",
-                    "実|験|栽|培|試|行",
-                    "실험|작물|시범"
+                    "作物试点",
+                    "[作物试点].*?[作物试点]",
+                    "[作物測試].*?[作物測試]",
+                    "(?i)Agricultural\\s*Test",
+                    "[実験栽培試行].*?[実験栽培試行]",
+                    "[실험작물시범].*?[실험작물시범]"
                 ],
                 "threshold": 0.7
             }
@@ -355,6 +345,22 @@
             //要是一直失败就先移动鼠标避免干扰再找
             "[JumpBack]_AutoEcoFarmMoveMouse"
         ]
+    },
+    "_AutoEcoFarmFindFarmland": {
+        "desc": "给custom调用的识别节点，全屏识别农田",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmFarmland.png",
+                "order_by": "Horizontal"
+            }
+        }
     },
     "_AutoEcoFarmFindFarmlandCustom": {
         "desc": "全屏寻找农田,并点击离特定点最近的农田",
@@ -427,7 +433,7 @@
                 "expected": [
                     "取消",
                     "取消",
-                    "Cancel",
+                    "(?i)Cancel",
                     "キャンセル",
                     "취소"
                 ],
@@ -452,7 +458,7 @@
                 "expected": [
                     "追踪",
                     "追蹤",
-                    "Track",
+                    "(?i)Track",
                     "追跡",
                     "추적하기"
                 ],
@@ -481,10 +487,12 @@
                 "expected": [
                     "田块",
                     "田塊",
-                    "Plot",
+                    "(?i)Plot",
                     "畑",
                     "논배미"
-                ]
+                ],
+                "threshold": 0.9,
+                "order_by": "Vertical"
             }
         },
         "action": {
