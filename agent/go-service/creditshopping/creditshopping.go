@@ -114,7 +114,7 @@ func (a *CreditShoppingParseParams) Run(ctx *maa.Context, arg *maa.CustomActionA
 
 	buildWhitelistRegex := func(keywords []string) string {
 		if len(keywords) == 0 {
-			return "^$"
+			return "a^"
 		}
 		escaped := make([]string, 0, len(keywords))
 		for _, keyword := range keywords {
