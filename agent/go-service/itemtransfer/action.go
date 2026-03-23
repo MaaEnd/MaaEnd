@@ -12,6 +12,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	// genericLabels are category labels that should be ignored when selecting OCR text
+	genericLabels = map[string]bool{
+		"材料":   true,
+		"战术物品": true,
+		"消耗品":  true,
+		"普通设备": true,
+		"功能设备": true,
+	}
+)
+
 // ItemTransferFallbackAction is a custom action that searches for a target item
 // on the current visible page using hover + OCR + binary search when NND fails.
 type ItemTransferFallbackAction struct{}
@@ -107,7 +118,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 			Int("grid_x", gx).Int("grid_y", gy).
 			Msg("target class found with low score, verifying via OCR")
 
-		name := hoverAndOCR(ctx, tasker, ctrl, gx, gy)
+		name := hoverAndOCR(ctx, tasker, ctrl, gx, gy, itemInfo.Name, categoryOrder)
 		if matchesTarget(name, itemInfo.Name) {
 			log.Info().Str("component", componentName).Str("ocr_name", name).Msg("OCR verified target")
 			return ctrlClick(ctrl, gx, gy)
@@ -131,7 +142,7 @@ func (a *ItemTransferFallbackAction) Run(ctx *maa.Context, arg *maa.CustomAction
 	}
 
 	// No category_order data: linear scan
-	result := linearScanOnPage(ctx, tasker, ctrl, items, itemInfo.Name)
+	result := linearScanOnPage(ctx, tasker, ctrl, items, itemInfo.Name, categoryOrder)
 	if result != nil {
 		return ctrlClick(ctrl, result.CenterX, result.CenterY)
 	}
@@ -228,7 +239,7 @@ func findByLowScoreTarget(items []gridItem, targetClass int) *gridItem {
 	return best
 }
 
-func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int) string {
+func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, y int, targetName string, categoryOrder []string) string {
 	if tasker.Stopping() {
 		return ""
 	}
@@ -265,7 +276,7 @@ func hoverAndOCR(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, x, 
 		return ""
 	}
 
-	text := extractOCRText(detail)
+	text := extractBestOCRText(detail, targetName, categoryOrder)
 	log.Info().
 		Str("component", componentName).
 		Str("ocr_text", text).
@@ -298,10 +309,19 @@ func computeTooltipROI(hoverX, hoverY int) []int {
 	return []int{roiX, roiY, tooltipWidth, tooltipHeight}
 }
 
-func extractOCRText(detail *maa.RecognitionDetail) string {
+// extractBestOCRText returns the best matching OCR text from the recognition detail.
+// It prioritizes:
+// 1. Exact match with targetName
+// 2. Any item name present in categoryOrder
+// 3. Any text that is not a generic label (e.g., "材料", "产物")
+// 4. The first non‑empty OCR result (as fallback)
+// If no suitable text is found, returns an empty string.
+func extractBestOCRText(detail *maa.RecognitionDetail, targetName string, categoryOrder []string) string {
 	if detail == nil || detail.Results == nil {
 		return ""
 	}
+	// Collect all OCR candidates
+	var candidates []string
 	for _, results := range [][]*maa.RecognitionResult{
 		{detail.Results.Best},
 		detail.Results.Filtered,
@@ -312,10 +332,50 @@ func extractOCRText(detail *maa.RecognitionDetail) string {
 				continue
 			}
 			if ocrResult, ok := r.AsOCR(); ok && ocrResult.Text != "" {
-				return ocrResult.Text
+				candidates = append(candidates, ocrResult.Text)
 			}
 		}
 	}
+	if len(candidates) == 0 {
+		log.Debug().Str("component", componentName).Msg("no OCR candidates found")
+		return ""
+	}
+	log.Debug().
+		Str("component", componentName).
+		Str("candidates", strings.Join(candidates, ";")).
+		Str("target", targetName).
+		Msg("OCR candidates")
+	// Build a set of valid item names for quick lookup
+	validItemSet := make(map[string]bool)
+	for _, name := range categoryOrder {
+		validItemSet[name] = true
+	}
+	// Priority 1: exact match with targetName
+	for _, text := range candidates {
+		if text == targetName {
+			log.Debug().Str("component", componentName).Str("selected", text).Msg("exact match with target")
+			return text
+		}
+	}
+	// Priority 2: any valid item name
+	for _, text := range candidates {
+		if validItemSet[text] {
+			log.Debug().Str("component", componentName).Str("selected", text).Msg("valid item name match")
+			return text
+		}
+	}
+	// Priority 3: ignore generic labels
+	for _, text := range candidates {
+		if !genericLabels[text] {
+			log.Debug().Str("component", componentName).Str("selected", text).Msg("non‑generic label")
+			return text
+		}
+	}
+	// All candidates are generic labels, return empty string
+	log.Warn().
+		Str("component", componentName).
+		Str("candidates", strings.Join(candidates, ";")).
+		Msg("all OCR candidates are generic labels, discarding")
 	return ""
 }
 
@@ -359,7 +419,7 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 	consecutiveMisses := 0
 
 	first := &items[0]
-	name := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY)
+	name := hoverAndOCR(ctx, tasker, ctrl, first.CenterX, first.CenterY, targetName, categoryOrder)
 
 	if matchesTarget(name, targetName) {
 		log.Info().Str("component", componentName).Str("ocr_name", name).Int("grid_idx", 0).Msg("found target at first cell")
@@ -392,7 +452,7 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 		mid := (lo + hi) / 2
 		item := &items[mid]
 
-		name = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY)
+		name = hoverAndOCR(ctx, tasker, ctrl, item.CenterX, item.CenterY, targetName, categoryOrder)
 		if name == "" {
 			lo = mid + 1
 			continue
@@ -444,12 +504,12 @@ func binarySearchOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controll
 	return nil
 }
 
-func linearScanOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, targetName string) *gridItem {
+func linearScanOnPage(ctx *maa.Context, tasker *maa.Tasker, ctrl *maa.Controller, items []gridItem, targetName string, categoryOrder []string) *gridItem {
 	for i := range items {
 		if tasker.Stopping() {
 			return nil
 		}
-		name := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY)
+		name := hoverAndOCR(ctx, tasker, ctrl, items[i].CenterX, items[i].CenterY, targetName, categoryOrder)
 		if matchesTarget(name, targetName) {
 			return &items[i]
 		}

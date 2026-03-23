@@ -125,7 +125,7 @@ func (a *ItemTransferOCRAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		return ctrlClick(ctrl, result.CenterX, result.CenterY)
 	}
 
-	result = linearScanOnPage(ctx, tasker, ctrl, items, params.ItemName)
+	result = linearScanOnPage(ctx, tasker, ctrl, items, params.ItemName, categoryOrder)
 	if result != nil {
 		return ctrlClick(ctrl, result.CenterX, result.CenterY)
 	}
