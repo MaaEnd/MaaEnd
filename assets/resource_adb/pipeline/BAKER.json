@@ -80,7 +80,7 @@
             645
         ],
         "template": "Baker/Expend.png",
-        "threshold": 0.95,
+        "threshold": 0.9,
         "action": "Click",
         "next": [
             "BakerTalkWith",
