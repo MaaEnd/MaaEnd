@@ -155,6 +155,13 @@ func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionAr
 type EssenceFilterCheckItemAction struct{}
 
 func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	var params struct {
+		Slot   int  `json:"slot"`
+		IsLast bool `json:"is_last"`
+	}
+	if arg.CustomActionParam != "" {
+		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
+	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("start")
 	st := getRunState()
 	if st == nil {
@@ -164,13 +171,6 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 	if !st.StatsLogged {
 		logFilteredSkillStats()
 		st.StatsLogged = true
-	}
-	var params struct {
-		Slot   int  `json:"slot"`
-		IsLast bool `json:"is_last"`
-	}
-	if arg.CustomActionParam != "" {
-		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
 	}
 	if params.Slot < 1 || params.Slot > 3 {
 		log.Error().Str("component", "EssenceFilter").Int("slot", params.Slot).Msg("invalid slot param")

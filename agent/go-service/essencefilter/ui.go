@@ -9,7 +9,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter/matchapi"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
-	"github.com/rs/zerolog/log"
 )
 
 func LogMXUHTML(ctx *maa.Context, htmlText string) {
@@ -119,26 +118,7 @@ func formatWeaponNamesColoredHTML(weapons []matchapi.WeaponData) string {
 }
 
 func logSkillPools(engine *matchapi.Engine) {
-	if engine == nil {
-		return
-	}
-	for _, entry := range []struct {
-		slot string
-		pool []matchapi.SkillPool
-	}{
-		{"Slot1", engine.SkillPools().Slot1},
-		{"Slot2", engine.SkillPools().Slot2},
-		{"Slot3", engine.SkillPools().Slot3},
-	} {
-		for _, s := range entry.pool {
-			log.Info().
-				Str("component", "EssenceFilter").
-				Str("slot", entry.slot).
-				Int("id", s.ID).
-				Str("skill", s.Chinese).
-				Msg("skill pool")
-		}
-	}
+	return
 }
 
 func logFilteredSkillStats() {
@@ -148,37 +128,6 @@ func logFilteredSkillStats() {
 	}
 	if st.MatchEngine == nil {
 		return
-	}
-	for slotIdx, stat := range st.FilteredSkillStats {
-		slot := slotIdx + 1
-		var pool []matchapi.SkillPool
-		switch slot {
-		case 1:
-			pool = st.MatchEngine.SkillPools().Slot1
-		case 2:
-			pool = st.MatchEngine.SkillPools().Slot2
-		case 3:
-			pool = st.MatchEngine.SkillPools().Slot3
-		}
-		idToName := make(map[int]string, len(pool))
-		for _, s := range pool {
-			idToName[s.ID] = s.Chinese
-		}
-		ids := make([]int, 0, len(stat))
-		for id := range stat {
-			ids = append(ids, id)
-		}
-		sort.Ints(ids)
-		for _, id := range ids {
-			name := idToName[id]
-			log.Info().
-				Str("component", "EssenceFilter").
-				Int("slot", slot).
-				Int("skill_id", id).
-				Str("skill", name).
-				Int("count", stat[id]).
-				Msg("filtered skill stats")
-		}
 	}
 }
 

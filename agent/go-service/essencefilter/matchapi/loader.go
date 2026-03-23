@@ -69,11 +69,6 @@ func FindDefaultDataDir() (string, error) {
 	return findDefaultDataDir()
 }
 
-// FindDefaultDataDir resolves the EssenceFilter data directory (same rules as NewDefaultEngine).
-func FindDefaultDataDir() (string, error) {
-	return findDefaultDataDir()
-}
-
 func hasEssenceFilterFiles(dir string) bool {
 	return fileExists(filepath.Join(dir, "matcher_config.json")) &&
 		fileExists(filepath.Join(dir, "skill_pools.json")) &&
