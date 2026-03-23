@@ -202,9 +202,6 @@
         },
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
-        ],
-        "on_error": [
-            "EssenceFilterAfterBattleRowNextItem"
         ]
     },
     "EssenceFilterAfterBattleCloseDetailJumpback": {
