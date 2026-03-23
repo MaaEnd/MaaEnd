@@ -36,13 +36,13 @@
         "template": "CreditShopping/CreditShoppingTabSelected.png",
         "threshold": 0.7,
         "next": [
+            "CreditShoppingReserveCredit",
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
