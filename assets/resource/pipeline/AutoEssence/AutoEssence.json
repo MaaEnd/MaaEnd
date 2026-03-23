@@ -575,10 +575,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    440,
-                    200,
-                    160,
-                    160
+                    420,
+                    220,
+                    180,
+                    180
                 ],
                 "template": "AutoEssence/SpDialog.png"
             }
