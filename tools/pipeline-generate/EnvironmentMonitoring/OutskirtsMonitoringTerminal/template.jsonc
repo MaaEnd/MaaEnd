@@ -115,9 +115,10 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}Job"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoTo${Id}Mission"
@@ -128,9 +129,10 @@
         "recognition": "And",
         "all_of": [
             "Check${Id}Text",
+            "Check${Id}Icon",
             "Check${Id}GoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "${Id}TrackOrGoTo"

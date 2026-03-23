@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
+            "CheckInflatedAndGlowingBugspittingLankybeastIcon",
             "CheckInflatedAndGlowingBugspittingLankybeastJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToInflatedAndGlowingBugspittingLankybeastMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckInflatedAndGlowingBugspittingLankybeastText",
+            "CheckInflatedAndGlowingBugspittingLankybeastIcon",
             "CheckInflatedAndGlowingBugspittingLankybeastGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "InflatedAndGlowingBugspittingLankybeastTrackOrGoTo"

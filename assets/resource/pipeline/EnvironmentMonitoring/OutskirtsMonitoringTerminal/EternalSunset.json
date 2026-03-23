@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
             "CheckEternalSunsetJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToEternalSunsetMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckEternalSunsetText",
+            "CheckEternalSunsetIcon",
             "CheckEternalSunsetGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "EternalSunsetTrackOrGoTo"

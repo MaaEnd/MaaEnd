@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
             "CheckCisternOriginiumSlugsJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToCisternOriginiumSlugsMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCisternOriginiumSlugsText",
+            "CheckCisternOriginiumSlugsIcon",
             "CheckCisternOriginiumSlugsGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "CisternOriginiumSlugsTrackOrGoTo"

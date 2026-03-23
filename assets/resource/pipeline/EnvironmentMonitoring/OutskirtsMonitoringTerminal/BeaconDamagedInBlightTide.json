@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToBeaconDamagedInBlightTideMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckBeaconDamagedInBlightTideText",
+            "CheckBeaconDamagedInBlightTideIcon",
             "CheckBeaconDamagedInBlightTideGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "BeaconDamagedInBlightTideTrackOrGoTo"

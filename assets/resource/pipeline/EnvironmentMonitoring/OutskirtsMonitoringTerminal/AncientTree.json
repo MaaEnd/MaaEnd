@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckAncientTreeText",
+            "CheckAncientTreeIcon",
             "CheckAncientTreeJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToAncientTreeMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckAncientTreeText",
+            "CheckAncientTreeIcon",
             "CheckAncientTreeGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "AncientTreeTrackOrGoTo"

@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToRainbowFinMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckRainbowFinText",
+            "CheckRainbowFinIcon",
             "CheckRainbowFinGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "RainbowFinTrackOrGoTo"

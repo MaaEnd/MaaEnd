@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
             "CheckObservantSableChestedFowlbeastJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToObservantSableChestedFowlbeastMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckObservantSableChestedFowlbeastText",
+            "CheckObservantSableChestedFowlbeastIcon",
             "CheckObservantSableChestedFowlbeastGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "ObservantSableChestedFowlbeastTrackOrGoTo"

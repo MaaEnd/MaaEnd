@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToCleansingJadeMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckCleansingJadeText",
+            "CheckCleansingJadeIcon",
             "CheckCleansingJadeGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "CleansingJadeTrackOrGoTo"

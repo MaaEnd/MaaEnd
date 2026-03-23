@@ -127,9 +127,10 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsJob"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "GoToIndoorCropsMission"
@@ -140,9 +141,10 @@
         "recognition": "And",
         "all_of": [
             "CheckIndoorCropsText",
+            "CheckIndoorCropsIcon",
             "CheckIndoorCropsGoToMissionText"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "action": "Click",
         "next": [
             "IndoorCropsTrackOrGoTo"
