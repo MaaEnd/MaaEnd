@@ -16,7 +16,7 @@
     "AutoEssenceLocationSetup": {
         "desc": "识别和确定附近的淤积点所属的地区",
         "max_hit": 1,
-        "rate_limit": 1000,
+        "rate_limit": 2000,
         "next": [
             "VFTheHubLocationAssertion",
             "VFOriginiumScienceParkLocationAssertion",

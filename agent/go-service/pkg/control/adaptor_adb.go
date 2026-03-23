@@ -71,7 +71,7 @@ func (aca *ADBControlAdaptor) KeyType(keyCode int, delayMillis int) {
 
 func (aca *ADBControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := aca.w/4*3, aca.h/2
-	aca.Swipe(cameraContact, cx, cy, dx, dy, defaultTouchActionDelayMillis/2*5, 0)
+	aca.Swipe(cameraContact, cx, cy, dx, dy, defaultTouchActionDelayMillis*5/2, 0)
 }
 
 func (aca *ADBControlAdaptor) GetPlayerMovement() PlayerMovement {
