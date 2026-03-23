@@ -210,7 +210,6 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv001_tier_277",
-            "fine_approach": "Never",
             "path": [
                 [
                     246,

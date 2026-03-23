@@ -10,6 +10,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dailyrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	maptracker "github.com/MaaXYZ/MaaEnd/agent/go-service/map-tracker"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/quantizedsliding"
@@ -46,6 +47,7 @@ func registerAll() {
 	autofight.Register()
 	visitfriends.Register()
 	autostockpile.Register()
+	itemtransfer.Register()
 	log.Info().
 		Msg("All custom components and sinks registered successfully")
 }

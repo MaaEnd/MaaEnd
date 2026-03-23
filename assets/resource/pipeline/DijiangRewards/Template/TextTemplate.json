@@ -58,7 +58,7 @@
             }
         }
     },
-    "MFGCarbinNeedTakeText": {
+    "MFGCabinNeedTakeText": {
         "desc": "[制造舱·需要领取] 识别领取按钮",
         "recognition": {
             "type": "OCR",
@@ -300,7 +300,7 @@
             }
         }
     },
-    "MFGCarbinNeedTakeCloseText": {
+    "MFGCabinNeedTakeCloseText": {
         "desc": "制造舱领取产出完成界面关闭/确认文本识别",
         "recognition": {
             "type": "OCR",
@@ -353,6 +353,43 @@
                 ],
                 "expected": [
                     "生产助力"
+                ]
+            }
+        }
+    },
+    "MFGCabinText": {
+        "desc": "[制造舱·入口] 识别制造舱入口的文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "MFGCabinTips",
+                "roi_offset": [
+                    -193,
+                    -31,
+                    111,
+                    93
+                ],
+                "expected": [
+                    "制造舱"
+                ]
+            }
+        }
+    },
+    "GrowthChamberExtractSeedText": {
+        "desc": "[培养舱·入口] 识别培养舱提取基核的文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    747,
+                    481,
+                    350,
+                    205
+                ],
+                "expected": [
+                    "前往提取基核",
+                    "(?i)Extract\\s*Seed",
+                    "基核抽出へ"
                 ]
             }
         }

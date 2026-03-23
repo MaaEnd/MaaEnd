@@ -33,14 +33,14 @@ type MapTrackerMoveParam struct {
 	MapName string `json:"map_name"`
 	// Path is a sequence of [x, y] coordinate points to follow (required).
 	Path [][2]float64 `json:"path"`
-	// PathTrim trims the path to start from the nearest point to the current location when enabled.
-	PathTrim bool `json:"path_trim,omitempty"`
 	// NoPrint controls whether to suppress printing navigation status to the GUI.
 	NoPrint bool `json:"no_print,omitempty"`
+	// PathTrim trims the path to start from the nearest point to the current location when enabled.
+	PathTrim bool `json:"path_trim,omitempty"`
 	// FineApproach controls when to enable fine approaching behavior. Valid values: "FinalTarget", "AllTargets", "Never".
 	FineApproach string `json:"fine_approach,omitempty"`
-	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
-	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
+	// NoEnsureFinalOrientation controls whether to skip the final camera orientation adjustment when reaching the final target.
+	NoEnsureFinalOrientation bool `json:"no_ensure_final_orientation,omitempty"`
 	// ArrivalThreshold is the minimum distance to consider a target reached.
 	ArrivalThreshold float64 `json:"arrival_threshold,omitempty"`
 	// ArrivalTimeout is the maximum allowed time in milliseconds to reach each target point.
@@ -55,6 +55,8 @@ type MapTrackerMoveParam struct {
 	StuckThreshold int64 `json:"stuck_threshold,omitempty"`
 	// StuckTimeout is the maximum time in milliseconds to tolerate being stuck.
 	StuckTimeout int64 `json:"stuck_timeout,omitempty"`
+	// MapNameMatchRule is the regex template used to match recognized map names. Use %s as map_name placeholder.
+	MapNameMatchRule string `json:"map_name_match_rule,omitempty"`
 }
 
 const (
@@ -230,21 +232,37 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			// Check arrival
 			finishCurrentTarget := func(curX, curY float64, rot int) {
 				if i < len(param.Path)-1 {
+					// Foresee rotation adjustment for the next but not final target
 					nextX, nextY := param.Path[i+1][0], param.Path[i+1][1]
 					nextTargetRot := calcTargetRotation(curX, curY, nextX, nextY)
 					nextDeltaRot := calcDeltaRotation(rot, nextTargetRot)
-					// Foresee rotation adjustment for the next target
 					if math.Abs(float64(nextDeltaRot)) > param.RotationUpperThreshold {
 						ca.SetPlayerMovement(control.MovementWalk)
 					}
-					foreseeDeltaRot := float64(nextDeltaRot) * 0.382
-					ca.RotateCamera(int(foreseeDeltaRot*rotationSpeed), 0)
+					log.Debug().Float64("nextDeltaRot", float64(nextDeltaRot)).Msg("Finishing target, foreseeing rotation adjustment for next target")
+					augNextDeltaRot := float64(nextDeltaRot) * 0.618
+					ca.RotateCamera(int(augNextDeltaRot*rotationSpeed), 0)
+					ca.AggressivelyResetCamera()
+				} else if !param.NoEnsureFinalOrientation && i == len(param.Path)-1 && len(param.Path) >= 2 {
+					// Ensure camera orientation when reached the final target
+					finalTarget := param.Path[len(param.Path)-1]
+					prevTarget := param.Path[len(param.Path)-2]
+					orientTargetRot := calcTargetRotation(prevTarget[0], prevTarget[1], finalTarget[0], finalTarget[1])
+					orientDeltaRot := calcDeltaRotation(rot, orientTargetRot)
+					log.Debug().Float64("orientDeltaRot", float64(orientDeltaRot)).Msg("Finishing target, ensuring final camera orientation")
+					ca.RotateCamera(int(float64(orientDeltaRot)*rotationSpeed), 0)
+					ca.AggressivelyResetCamera()
 				}
 			}
+
 			dist := math.Hypot(curX-targetX, curY-targetY)
 			if fineApproachOngoing {
 				if loopStartTime.After(fineApproachExpectedEndTime) || dist < mt.FINE_APPROACH_COMPLETE_THRESHOLD {
 					log.Info().Int("index", i).Float64("dist", dist).Msg("Target point reached (fine approach)")
+					finishCurrentTarget(curX, curY, rot)
+					break
+				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
+					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (fine approach, guessed by rotation)")
 					finishCurrentTarget(curX, curY, rot)
 					break
 				}
@@ -262,7 +280,7 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 						break
 					}
 				} else if math.Abs(float64(calcDeltaRotation(targetRot, initRot))) > 90.0 {
-					log.Info().Int("targetRot", targetRot).Int("initRot", initRot).Int("index", i).Msg("Target point reached (guessed by rotation)")
+					log.Info().Int("index", i).Float64("dist", dist).Int("targetRot", targetRot).Int("initRot", initRot).Msg("Target point reached (ordinary approach, guessed by rotation)")
 					finishCurrentTarget(curX, curY, rot)
 					break
 				}
@@ -315,34 +333,39 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 			// Check if no active rotation adjustment
 			if rotAdjState == nil || loopStartTime.Sub(rotAdjState.startTime) > rotAdjState.expectedElapsed {
-				// Check if rotation is not good enough to sprint
-				if absRawDeltaRot > param.RotationLowerThreshold {
-					// Ensure no sprinting: forcibly set to 'walk'
-					ca.SetPlayerMovement(control.MovementWalk)
-				} else if !fineApproachOngoing {
-					// Rotation is good: at least set to 'run'
-					ca.SetPlayerMovement(control.MovementRun)
-
-					if dist > param.SprintThreshold {
-						// Target is far enough: enable 'sprint'
-						ca.SetPlayerMovement(control.MovementSprint)
+				// Check if rotation is not good enough to sprint now
+				if ca.GetPlayerMovement().Equals(control.MovementSprint) {
+					if absRawDeltaRot > param.RotationLowerThreshold {
+						// Ensure no sprinting: forcibly set to 'walk'
+						ca.SetPlayerMovement(control.MovementWalk)
 					}
 				}
 
-				// Start a new rotation adjustment
-				if absRawDeltaRot > 1.0 {
-					finalDeltaRot := float64(rawDeltaRot)
-
-					// Select appropriate rotation method based on how bad the rotation is
+				// Reselect movement speed
+				if !fineApproachOngoing {
 					if absRawDeltaRot > param.RotationUpperThreshold {
-						// Rotation is very bad: forcibly set to 'walk' for better control
+						// Rotation is bad: set to 'walk'
 						ca.SetPlayerMovement(control.MovementWalk)
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
-					} else if !fineApproachOngoing {
-						// Rotation is acceptable but can be improved: at least ensure 'run'
+					} else if absRawDeltaRot > param.RotationLowerThreshold {
+						// Rotation is good: at least set to 'run'
 						ca.SetPlayerMovement(control.MovementRun)
-						ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
+					} else {
+						// Rotation is very good: can try 'sprint' if target is far enough
+						if dist > param.SprintThreshold {
+							ca.SetPlayerMovement(control.MovementSprint)
+						} else {
+							ca.SetPlayerMovement(control.MovementRun)
+						}
 					}
+				} else {
+					// During fine approach: always use 'walk'
+					ca.SetPlayerMovement(control.MovementWalk)
+				}
+
+				// Start a new rotation adjustment
+				if absRawDeltaRot > 1.0 && (!fineApproachOngoing || absRawDeltaRot > param.RotationLowerThreshold) {
+					finalDeltaRot := float64(rawDeltaRot)
+					ca.RotateCamera(int(finalDeltaRot*rotationSpeed), 0)
 
 					// Update adaptive rotation state
 					rotAdjState = &PlayerRotationAdjustmentState{
@@ -424,14 +447,6 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("fine_approach must be one of %q, %q, %q", FINE_APPROACH_FINAL_TARGET, FINE_APPROACH_ALL_TARGETS, FINE_APPROACH_NEVER)
 	}
 
-	if len(param.MapNameMatchRule) == 0 {
-		param.MapNameMatchRule = mapTrackerMoveDefaultParam.MapNameMatchRule
-	}
-	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
-	if _, err := regexp.Compile(mapNameRegex); err != nil {
-		return nil, fmt.Errorf("map_name_match_rule produced invalid regex %q: %w", mapNameRegex, err)
-	}
-
 	if param.RotationLowerThreshold < 0 {
 		return nil, fmt.Errorf("rotation_lower_threshold must be non-negative")
 	} else if param.RotationLowerThreshold > 180 {
@@ -464,6 +479,14 @@ func (a *MapTrackerMove) parseParam(paramStr string) (*MapTrackerMoveParam, erro
 		return nil, fmt.Errorf("stuck_timeout must be non-negative")
 	} else if param.StuckTimeout == 0 {
 		param.StuckTimeout = mapTrackerMoveDefaultParam.StuckTimeout
+	}
+
+	if len(param.MapNameMatchRule) == 0 {
+		param.MapNameMatchRule = mapTrackerMoveDefaultParam.MapNameMatchRule
+	}
+	mapNameRegex := buildMapNameRegex(param.MapNameMatchRule, param.MapName)
+	if _, err := regexp.Compile(mapNameRegex); err != nil {
+		return nil, fmt.Errorf("map_name_match_rule produced invalid regex %q: %w", mapNameRegex, err)
 	}
 
 	return &param, nil

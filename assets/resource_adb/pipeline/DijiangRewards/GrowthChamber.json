@@ -1,5 +1,5 @@
 {
-    "ExitGrowthChamber": {
+    "GrowthChamberGrowBack": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -7,7 +7,23 @@
             }
         }
     },
-    "InSelectGrowSwipe": {
+    "GrowthChamberBackExtract": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "GrowthChamberExit": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "GrowthChamberTargetNotFound": {
         "action": {
             "type": "Swipe",
             "param": {
@@ -30,15 +46,7 @@
             }
         }
     },
-    "NoMaterials": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 4
-            }
-        }
-    },
-    "SwipeChooseSortBy": {
+    "GrowthChamberSortBySwipe": {
         "recognition": {
             "param": {
                 "roi": [
@@ -63,7 +71,7 @@
             }
         }
     },
-    "SortBy": {
+    "GrowthChamberSortBy": {
         "recognition": {
             "param": {
                 "roi": [
@@ -75,7 +83,7 @@
             }
         }
     },
-    "SortOrder": {
+    "GrowthChamberSortOrder": {
         "recognition": {
             "param": {
                 "roi": [

@@ -74,7 +74,10 @@
                     1008,
                     116
                 ],
-                "template": "ReadWiki/WikiUnreadBadge.png"
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiUnreadBadgeWithDarkBG.png" // 因为鼠标焦点，可能会再次选中部分项目导致其红点背景变成黑色
+                ]
             }
         },
         "action": {
@@ -137,7 +140,10 @@
                     160,
                     585
                 ],
-                "template": "ReadWiki/WikiUnreadBadge.png"
+                "template": [
+                    "ReadWiki/WikiUnreadBadge.png",
+                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
+                ]
             }
         },
         "action": {
@@ -180,7 +186,8 @@
                 ],
                 "template": [
                     "ReadWiki/WikiUnreadBadge.png",
-                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png"
+                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png",
+                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
                 ]
             }
         },

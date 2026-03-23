@@ -90,7 +90,7 @@
     "DailyTaskClaimActivityRewards": {
         "desc": "领取活跃度奖励",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     160,
@@ -98,8 +98,18 @@
                     180,
                     350
                 ],
-                "template": "DailyRewards/ActivityReward.png",
-                "threshold": 0.9
+                "lower": [
+                    240,
+                    100,
+                    0
+                ],
+                "upper": [
+                    255,
+                    130,
+                    15
+                ],
+                "connected": true,
+                "count": 20
             }
         },
         "action": {
@@ -108,8 +118,8 @@
                 "target_offset": [
                     -5,
                     20,
-                    -5,
-                    -5
+                    0,
+                    0
                 ]
             }
         },

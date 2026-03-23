@@ -144,7 +144,7 @@
                     "name": "DoNothing",
                     "label": "$option.SelectToGrow.cases.DoNothing.label",
                     "pipeline_override": {
-                        "Grow": {
+                        "GrowthChamberGrow": {
                             "enabled": false
                         }
                     }
@@ -153,10 +153,10 @@
                     "name": "GrowAgain",
                     "label": "$option.SelectToGrow.cases.GrowAgain.label",
                     "pipeline_override": {
-                        "Grow": {
+                        "GrowthChamberGrow": {
                             "enabled": false
                         },
-                        "GrowAgain": {
+                        "GrowthChamberGrowAgain": {
                             "enabled": true
                         }
                     }
@@ -165,7 +165,7 @@
                     "name": "Any",
                     "label": "$option.SelectToGrow.cases.Any.label",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "武陵石",
                                 "燎石",
@@ -224,7 +224,7 @@
                         }
                     },
                     "option": [
-                        "AutoExtractSeedAny",
+                        "AutoExtractSeed",
                         "SortBy",
                         "SortOrder"
                     ]
@@ -233,300 +233,580 @@
                     "name": "Wulingstone",
                     "label": "$item.Wulingstone",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "武陵石",
                                 "Wulingstone"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Igneosite",
                     "label": "$item.Igneosite",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "燎石",
                                 "Igneosite"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "FalseAggela",
                     "label": "$item.FalseAggela",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "岩天使叶",
                                 "False Aggela",
                                 "岩アンゲロス葉",
                                 "岩天使葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "BlightedJadeleaf",
                     "label": "$item.BlightedJadeleaf",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "受蚀玉化叶",
                                 "Blighted Jadeleaf",
                                 "侵蝕玉化葉",
                                 "受蝕玉化葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Cosmagaric",
                     "label": "$item.Cosmagaric",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "星门菌",
                                 "Cosmagaric",
                                 "星門茸",
                                 "星門菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Bloodcap",
                     "label": "$item.Bloodcap",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "血菌",
                                 "Bloodcap",
                                 "血潮茸"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Umbronyx",
                     "label": "$item.Umbronyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "重黯石",
                                 "Umbronyx",
                                 "重闇石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Auronyx",
                     "label": "$item.Auronyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "中黯石",
                                 "Auronyx",
                                 "中闇石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Kalkonyx",
                     "label": "$item.Kalkonyx",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "轻黯石",
                                 "Kalkonyx",
                                 "軽闇石",
                                 "輕黯石"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Vitrodendra",
                     "label": "$item.Vitrodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "至晶多齿叶",
                                 "Vitrodendra",
                                 "至晶鋭葉",
                                 "至晶多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Chrysodendra",
                     "label": "$item.Chrysodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "纯晶多齿叶",
                                 "Chrysodendra",
                                 "純晶鋭葉",
                                 "純晶多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "Kalkodendra",
                     "label": "$item.Kalkodendra",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "晶化多齿叶",
                                 "Kalkodendra",
                                 "晶華鋭葉",
                                 "晶華多齒葉"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "RubyBolete",
                     "label": "$item.RubyBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "重红柱状菌",
                                 "Ruby Bolete",
                                 "深紅茸",
                                 "重紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "RedBolete",
                     "label": "$item.RedBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "中红柱状菌",
                                 "Red Bolete",
                                 "紅色茸",
                                 "中紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 },
                 {
                     "name": "PinkBolete",
                     "label": "$item.PinkBolete",
                     "pipeline_override": {
-                        "SelectGrowTarget": {
+                        "GrowthChamberSelectTarget": {
                             "expected": [
                                 "轻红柱状菌",
                                 "Pink Bolete",
                                 "薄紅茸",
                                 "輕紅柱狀菌"
                             ]
+                        },
+                        "GrowthChamberCheckTargetEmpty": {
+                            "recognition": {
+                                "type": "ColorMatch",
+                                "param": {
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
+                                    ],
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
+                                }
+                            }
                         }
                     },
                     "option": [
-                        "AutoExtractSeedOther"
+                        "AutoExtractSeed"
                     ]
                 }
             ]
         },
-        "AutoExtractSeedAny": {
-            // 适用于选择作物任务中任意选项的是否自动提取基核的选项
+        "AutoExtractSeed": {
             "type": "switch",
             "label": "$option.AutoExtrachSeed.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
-                    "pipeline_override": {}
-                },
-                {
-                    "name": "No",
                     "pipeline_override": {
-                        "SelectGrow": {
+                        "GrowthChamberCheckTargetEmpty": {
                             "recognition": {
-                                "type": "And",
+                                "type": "ColorMatch",
                                 "param": {
-                                    "all_of": [
-                                        "SelectGrowTarget",
-                                        "CheckGrowTargetEmpty"
+                                    "roi": "GrowthChamberSelectTarget",
+                                    "lower": [
+                                        0,
+                                        0,
+                                        0
                                     ],
-                                    "box_index": 1
+                                    "upper": [
+                                        255,
+                                        255,
+                                        255
+                                    ],
+                                    "order_by": "Vertical"
                                 }
                             }
                         },
-                        "ExtractSeed": {
-                            "action": "DoNothing",
-                            "next": []
+                        "GrowthChamberSeedExtract": {
+                            "enabled": true
+                        },
+                        "GrowthChamberGrowExit": {
+                            "enabled": false
                         }
                     }
-                }
-            ]
-        },
-        "AutoExtractSeedOther": {
-            // 适用于除选择作物任务以外的其他任务中是否自动提取基核的选项
-            "type": "switch",
-            "label": "$option.AutoExtrachSeed.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {}
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "ExtractSeed": {
+                        "GrowthChamberSeedExtract": {
                             "enabled": false
+                        },
+                        "GrowthChamberGrowExit": {
+                            "enabled": true
                         }
                     }
                 }
@@ -541,7 +821,7 @@
                     "name": "Default",
                     "label": "$option.SortBy.cases.Default.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "拥有数量",
@@ -558,7 +838,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "默认",
                                 "預設",
@@ -566,7 +846,7 @@
                                 "デフォルト"
                             ]
                         },
-                        "SwipeChooseSortBy": {
+                        "GrowthChamberSortBySwipe": {
                             "enabled": false
                         }
                     }
@@ -575,7 +855,7 @@
                     "name": "AmountOwned",
                     "label": "$option.SortBy.cases.AmountOwned.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -592,7 +872,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "拥有数量",
                                 "持有數量",
@@ -606,7 +886,7 @@
                     "name": "AmountOfSeeds",
                     "label": "$option.SortBy.cases.AmountOfSeeds.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -623,7 +903,7 @@
                                 "Quality"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "基核数量",
                                 "基核數量",
@@ -637,7 +917,7 @@
                     "name": "Quality",
                     "label": "$option.SortBy.cases.Quality.label",
                     "pipeline_override": {
-                        "SortBy": {
+                        "GrowthChamberSortBy": {
                             "enabled": true,
                             "expected": [
                                 "默认",
@@ -654,7 +934,7 @@
                                 "Amount of Seeds"
                             ]
                         },
-                        "ChooseSortBy": {
+                        "GrowthChamberSortByChoose": {
                             "expected": [
                                 "品质",
                                 "品質",
@@ -675,7 +955,7 @@
                     "name": "ASC",
                     "label": "$option.SortOrder.cases.Ascending.label",
                     "pipeline_override": {
-                        "SortOrder": {
+                        "GrowthChamberSortOrder": {
                             "enabled": true,
                             "expected": [
                                 "降序",
@@ -690,7 +970,7 @@
                     "name": "DESC",
                     "label": "$option.SortOrder.cases.Descending.label",
                     "pipeline_override": {
-                        "SortOrder": {
+                        "GrowthChamberSortOrder": {
                             "enabled": true,
                             "expected": [
                                 "升序",

@@ -362,19 +362,16 @@
             "CloseButtonType1"
         ],
         "box_index": 1,
+        "pre_delay": 0,
         "pre_wait_freezes": 100,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
-        }
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
     },
     "RecoveryEmotionExitView2ToView1": {
         "desc": "[恢复心情·离开] 在恢复心情/助力等子界面点击左上返回按钮回到控制中枢",

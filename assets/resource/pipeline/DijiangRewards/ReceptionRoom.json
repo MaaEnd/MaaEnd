@@ -25,21 +25,31 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomClueExchangeWait",
-            "ReceptionRoomViewIn"
+            "ReceptionRoomClueExchangeWait",
+            "ReceptionRoomViewWait"
         ]
     },
     "ReceptionRoomClueExchangeWait": {
         "desc": "等待情报交流结束",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    "ReceptionRoomClueExchangeConfirm",
-                    "EndExchangeCountDown"
+                "roi": [
+                    400,
+                    0,
+                    500,
+                    250
+                ],
+                "expected": [
+                    "情报交流结束",
+                    "情報交流結束",
+                    "Clue Exchange Ended",
+                    "共有会終了",
+                    "정보 교류 종료"
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -65,34 +75,68 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomViewIn"
+        ]
+    },
+    "ReceptionRoomViewWait": {
+        "desc": "[会客室·状态] 确认已进入会客室界面，等若干时间确定没有弹窗干扰",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "FacilityDetails"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 1500, // 等待可能出现的情报交流结束弹窗
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomClueExchangeWait",
+            "ReceptionRoomViewIn"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_flow_failed"
+        }
     },
     "ReceptionRoomViewIn": {
         "desc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "InReceptionRoom",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "会客室",
-                    "會客室",
-                    "(?i)Reception\\s*Room",
-                    "応接室",
-                    "Reception"
-                ]
+                "box_index": 1
             }
         },
-        "pre_wait_freezes": 200,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomSendClues",
             "[JumpBack]ReceptionRoomCollectClues",
             "[JumpBack]ReceptionRoomReceiveClues",
             "[JumpBack]ReceptionRoomSetClues",
@@ -103,9 +147,8 @@
             "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_flow_failed"
         }
     },
-    "ReceptionRoomSendClues": {
-        "desc": "[会客室·赠送线索] 识别需要赠予线索的奖励",
-        "max_hit": 1,
+    "ReceptionRoomCollectClues": {
+        "desc": "[会客室·收集线索] 识别需要收集线索的奖励",
         "recognition": {
             "type": "And",
             "param": {
@@ -128,7 +171,7 @@
         ]
     },
     "ReceptionRoomSendCluesClueCollectionOpen": {
-        "desc": "[会客室·赠送线索] 打开线索收集侧边栏",
+        "desc": "[会客室·收集线索] 打开线索收集侧边栏",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -165,26 +208,26 @@
         ]
     },
     "ReceptionRoomSendCluesClueCollectionClose": {
-        "desc": "[会客室·赠送线索] 收集线索没满，关闭线索收集侧边栏",
-        "recognition": "And",
-        "all_of": [
-            "CloseButtonType1"
-        ],
+        "desc": "[会客室·收集线索] 收集线索没满，开始收集线索",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2",
+                    "ReceptionRoomCollectCluesText"
+                ],
+                "box_index": 1
+            }
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomCollectCluesExit"
+        ]
     },
     "ReceptionRoomSendCluesClueCollectionFull": {
         "desc": "[会客室·赠送线索] 收集线索满了",
@@ -223,15 +266,6 @@
             "param": {
                 "contact": 1
             }
-        },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -357,76 +391,10 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "ReceptionRoomCollectClues": {
-        "desc": "[会客室·线索] 识别是否有可收集的线索",
-        "max_hit": 1,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InReceptionRoom",
-                    "ReceptionRoomNeedCollectCluesColor",
-                    "ReceptionRoomNeedCollectCluesText"
-                ],
-                "box_index": 2
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "Click"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ReceptionRoomCollectCluesOpen"
-        ]
-    },
-    "ReceptionRoomCollectCluesOpen": {
-        "desc": "[会客室·线索] 点击领取线索后打开收集界面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    -600,
-                    0,
-                    600,
-                    150
-                ],
-                "expected": [
-                    "收集线索",
-                    "收集線索",
-                    "Collect Clue",
-                    "手がかり捜索",
-                    "단서 수집"
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "ReceptionRoomCollectCluesCollect"
+            "InReceptionRoom"
         ]
     },
     "ReceptionRoomSendCluesSwipe": {
@@ -492,27 +460,97 @@
     },
     "ReceptionRoomSendCluesClickSend": {
         "desc": "[会客室·线索] 在赠予界面点击发送按钮确认发送",
+        "pre_delay": 0,
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "Or",
             "param": {
-                "roi": [
-                    1106,
-                    102,
-                    87,
-                    81
-                ],
-                "template": [
-                    "ClaimDijiangRewards/Send.png"
+                "any_of": [
+                    "ReceptionRoomSendCluesSelectFriend",
+                    "ReceptionRoomSendCluesSendButton"
                 ]
             }
         },
-        "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesSelectFriend": {
+        "desc": "[会客室·线索] 先识别缺失线索的好友",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSendCluesFindColor",
+                    "ReceptionRoomSendCluesColorSendButton"
+                ],
+                "box_index": 1
+            }
+        }
+    },
+    "ReceptionRoomSendCluesFindColor": {
+        "desc": "[会客室·线索] 识别缺少线索的颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    967,
+                    0,
+                    313,
+                    720
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    200,
+                    255
+                ],
+                "upper": [
+                    28,
+                    200,
+                    255
+                ],
+                "count": 10,
+                "connected": true
+            }
+        }
+    },
+    "ReceptionRoomSendCluesColorSendButton": {
+        "desc": "[会客室·线索] 根据缺失的颜色寻找对应的发送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "ReceptionRoomSendCluesFindColor",
+                "roi_offset": [
+                    76,
+                    -46,
+                    253,
+                    79
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSendButton": {
+        "desc": "[会客室·线索] 识别赠予界面内的发送按钮",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    967,
+                    0,
+                    313,
+                    720
+                ],
+                "template": [
+                    "ClaimDijiangRewards/Send.png"
+                ]
+            }
+        }
     },
     "ReceptionRoomSendExit": {
         "desc": "[会客室·线索] 发送完成后关闭赠予界面",
@@ -537,17 +575,11 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomSendCluesEntry": {
         "desc": "[会客室·线索] 在会客室点击「赠予」进入发送线索界面",
@@ -568,12 +600,20 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -300,
+                0,
+                300,
+                150
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
         "post_delay": 0,
-        "timeout": 5000,
         "rate_limit": 0,
         "next": [
             "ReceptionRoomSendCluesViewIn"
@@ -634,6 +674,7 @@
             "type": "Click"
         },
         "post_delay": 0,
+        "post_wait_freezes": 200,
         "rate_limit": 0,
         "next": [
             "ReceptionRoomCollectCluesExit"
@@ -652,17 +693,11 @@
                 "contact": 0
             }
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -200,
-                0,
-                200,
-                80
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomSetClues": {
         "desc": "[会客室·线索] 点击会客室内的任务红点，放置线索",
@@ -859,17 +894,11 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                -300,
-                0,
-                300,
-                150
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InReceptionRoom"
+        ]
     },
     "ReceptionRoomExit": {
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
@@ -881,16 +910,10 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 200,
-            "target": [
-                0,
-                0,
-                300,
-                100
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
     }
 }

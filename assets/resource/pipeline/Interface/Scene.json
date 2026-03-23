@@ -6,6 +6,7 @@
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
             "[JumpBack]SceneDialogConfirm",
+            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateEndVisitConfirm",
             "[JumpBack]SceneWaitLoadingExit",
             "[JumpBack]__ScenePrivateAnyExit"

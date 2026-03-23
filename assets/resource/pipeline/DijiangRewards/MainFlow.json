@@ -19,8 +19,8 @@
         "next": [
             "[JumpBack]RecoveryEmotionMain",
             "[JumpBack]ReceptionRoomMain",
-            "[JumpBack]EntryCarbin",
-            "[JumpBack]EntryGrowthChamber",
+            "[JumpBack]MFGCabinMain",
+            "[JumpBack]GrowthChamberMain",
             "FinishDijiangRewards"
         ],
         "focus": {

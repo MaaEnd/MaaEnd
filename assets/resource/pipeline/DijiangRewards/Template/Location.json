@@ -1,5 +1,5 @@
 {
-    "InMFGCarbin": {
+    "InMFGCabin": {
         "desc": "[制造舱] 在制造舱界面，识别制造舱标题",
         "recognition": {
             "type": "OCR",
@@ -16,13 +16,26 @@
                     "MFG ?CABIN"
                 ]
             }
-        }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "InReceptionRoom": {
-        "desc": "[会客室] 在会客室界面，识别会客室标题",
-        "recognition": {
-            "type": "OCR",
-            "param": {
+        "desc": "[会客室] 在会客室主界面，没有窗口干扰",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
                 "roi": [
                     43,
                     0,
@@ -35,8 +48,96 @@
                     "(?i)Reception\\s*Room",
                     "応接室"
                 ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予",
+                    "贈予",
+                    "(?i)Send",
+                    "譲り渡す"
+                ]
             }
-        }
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                -300,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InGrowthChamber": {
+        "desc": "[培养舱] 在培养舱界面，识别培养舱标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    0,
+                    167,
+                    64
+                ],
+                "expected": [
+                    "培养舱",
+                    "培養艙",
+                    "(?i)Growth\\s*Chamber",
+                    "培養室"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangControlNexus": {
+        "desc": "识别处于帝江号总控中枢界面",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    15,
+                    437,
+                    225,
+                    153
+                ],
+                "template": [
+                    "ClaimDijiangRewards/InControlNexus.png"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "FacilityDetails": {
         "desc": "[设施详情] 识别设施详情标题",
@@ -55,6 +156,23 @@
                     "(?i)Facility\\s*Details",
                     "船室詳細",
                     "等级提升"
+                ]
+            }
+        }
+    },
+    "GrowthChamberInSelectTarget": {
+        "desc": "[培养舱·培养] 在选择对象界面识别选择对象标题",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    47,
+                    44,
+                    189,
+                    215
+                ],
+                "expected": [
+                    "全部"
                 ]
             }
         }

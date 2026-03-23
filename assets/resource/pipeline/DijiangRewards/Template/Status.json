@@ -107,21 +107,30 @@
             }
         }
     },
-    "EndExchangeCountDown": {
-        "desc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
+    "MFGCabinTips": {
+        "desc": "[制造舱·入口] 识别制造舱入口的红点",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
-                    631,
-                    506,
-                    379,
-                    189
+                    759,
+                    463,
+                    521,
+                    117
                 ],
-                "expected": [
-                    "00:00:00",
-                    "0:00:00"
-                ]
+                "method": 40,
+                "lower": [
+                    10,
+                    255,
+                    100
+                ],
+                "upper": [
+                    20,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 40
             }
         }
     },
@@ -237,6 +246,26 @@
                     "收集线索",
                     "收集線索"
                 ]
+            }
+        }
+    },
+    "GrowthChamberCheckTargetEmpty": {
+        "desc": "[培养舱·培养] 检查当前培养对象数量是否足够",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrowthChamberSelectTarget",
+                "roi_offset": [
+                    31,
+                    41,
+                    23,
+                    0
+                ],
+                "expected": [
+                    "^[^0].*$"
+                ],
+                "order_by": "Vertical",
+                "only_rec": true
             }
         }
     }

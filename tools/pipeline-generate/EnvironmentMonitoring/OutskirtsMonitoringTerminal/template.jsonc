@@ -193,7 +193,6 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "${MapName}",
-            "fine_approach": "Never",
             "path": "${MapPath}"
         },
         "anchor": {

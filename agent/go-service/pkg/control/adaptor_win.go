@@ -76,7 +76,7 @@ func (wca *WindowsControlAdaptor) KeyType(keyCode int, delayMillis int) {
 
 func (wca *WindowsControlAdaptor) RotateCamera(dx, dy int) {
 	cx, cy := wca.w/2, wca.h/2
-	wca.SwipeHover(0, cx, cy, dx, dy, defaultKeyActionDelayMillis*2, defaultKeyActionDelayMillis)
+	wca.SwipeHover(0, cx, cy, dx, dy, defaultKeyActionDelayMillis*3, defaultKeyActionDelayMillis)
 }
 
 func (wca *WindowsControlAdaptor) GetPlayerMovement() PlayerMovement {
@@ -153,12 +153,13 @@ func (wca *WindowsControlAdaptor) AggressivelyResetCamera() {
 }
 
 func (wca *WindowsControlAdaptor) AggressivelyResetPlayerMovement() {
-	// Policy: sprint backward and immediately move forward to ensure the initial motional state is "run"
+	// Policy: sprint backward and immediately move forward to ensure the initial motional state is not walk
 	wca.KeyDown(KEY_S, defaultKeyActionDelayMillis*2)
 	wca.KeyType(KEY_SHIFT, defaultKeyActionDelayMillis*2)
 	wca.KeyUp(KEY_S, defaultKeyActionDelayMillis*2)
 	wca.KeyType(KEY_W, defaultKeyActionDelayMillis*2)
-	wca.pm = MovementRun
+	wca.pm = MovementStop
+	wca.lastMotionIsWalk = false
 }
 
 const (

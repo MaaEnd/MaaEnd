@@ -169,7 +169,7 @@
             "WhiteConfirmButtonType2",
             "SellProductCheckSelectGoodsText"
         ],
-        "pre_delay": 0,
+        "pre_delay": 80,
         "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,

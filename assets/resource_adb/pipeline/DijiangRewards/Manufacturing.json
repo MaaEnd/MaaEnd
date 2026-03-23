@@ -1,5 +1,5 @@
 {
-    "Exit_MFG_Cabin": {
+    "MFGCabinExit": {
         "action": {
             "type": "ClickKey",
             "param": {
