@@ -36,7 +36,7 @@
             "EssenceFilterAfterBattleInit"
         ],
         "focus": {
-            "Node.Recognition.Successed": "$task.AutoEssence.focus.essence_filter_after_battle_start"
+            "Node.Recognition.Succeeded": "$task.AutoEssence.focus.essence_filter_after_battle_start"
         }
     },
     "EssenceFilterAfterBattleInit": {
