@@ -2,7 +2,9 @@ package visitfriends
 
 import (
 	"encoding/json"
+	"fmt"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -255,42 +257,84 @@ func (r *VisitFriendsMenuScanTargetFriendOpenRecognition) Run(ctx *maa.Context, 
 		}
 
 		item, ok := getFriendItem(index)
+		missControlNexusAssist := false
+		missMFGCabinAssist := false
+		missGrowthChamberAssist := false
+		missClueExchange := false
 		switch params.AssistMode {
 		case "only_growth_chamber":
-			if item.GrowthChamberAssist && currentAssistCount < maxAssistCount {
-				result.GrowthChamberAssist = true
-				result.HasTarget = true
+			if currentAssistCount < maxAssistCount {
+				if item.GrowthChamberAssist {
+					result.GrowthChamberAssist = true
+					result.HasTarget = true
+				} else {
+					missGrowthChamberAssist = true
+				}
 			}
 		case "without_control_nexus":
-			if item.MFGCabinAssist && currentAssistCount < maxAssistCount {
-				result.MFGCabinAssist = true
-				result.HasTarget = true
-			}
-			if item.GrowthChamberAssist && currentAssistCount < maxAssistCount {
-				result.GrowthChamberAssist = true
-				result.HasTarget = true
+			if currentAssistCount < maxAssistCount {
+				if item.MFGCabinAssist {
+					result.MFGCabinAssist = true
+					result.HasTarget = true
+				} else {
+					missMFGCabinAssist = true
+				}
+				if item.GrowthChamberAssist {
+					result.GrowthChamberAssist = true
+					result.HasTarget = true
+				} else {
+					missGrowthChamberAssist = true
+				}
 			}
 		default:
-			if item.ControlNexusAssist && currentAssistCount < maxAssistCount {
-				result.ControlNexusAssist = true
-				result.HasTarget = true
-			}
-			if item.MFGCabinAssist && currentAssistCount < maxAssistCount {
-				result.MFGCabinAssist = true
-				result.HasTarget = true
-			}
-			if item.GrowthChamberAssist && currentAssistCount < maxAssistCount {
-				result.GrowthChamberAssist = true
-				result.HasTarget = true
+			if currentAssistCount < maxAssistCount {
+				if item.ControlNexusAssist {
+					result.ControlNexusAssist = true
+					result.HasTarget = true
+				} else {
+					missControlNexusAssist = true
+				}
+				if item.MFGCabinAssist {
+					result.MFGCabinAssist = true
+					result.HasTarget = true
+				} else {
+					missMFGCabinAssist = true
+				}
+				if item.GrowthChamberAssist {
+					result.GrowthChamberAssist = true
+					result.HasTarget = true
+				} else {
+					missGrowthChamberAssist = true
+				}
 			}
 		}
-		if item.ClueExchange && currentClueExchangeCount < maxClueExchangeCount {
-			result.ClueExchange = true
-			result.HasTarget = true
+		if currentClueExchangeCount < maxClueExchangeCount {
+			if item.ClueExchange {
+				result.ClueExchange = true
+				result.HasTarget = true
+			} else {
+				missClueExchange = true
+			}
 		}
 		if result.HasTarget {
 			break
 		}
+
+		message := "该好友不满足条件，缺少"
+		if missClueExchange {
+			message += "线索交换 "
+		}
+		if missControlNexusAssist {
+			message += "助力总控中枢 "
+		}
+		if missMFGCabinAssist {
+			message += "助力制造舱 "
+		}
+		if missGrowthChamberAssist {
+			message += "助力生长舱 "
+		}
+
+		maafocus.NodeActionStarting(ctx, message)
 	}
 
 	if !result.HasTarget {
@@ -330,6 +374,22 @@ func (a *VisitFriendsMenuScanTargetFriendOpenAction) Run(ctx *maa.Context, arg *
 		log.Error().Err(err).Msg("VisitFriendsMenuScanTargetFriendOpenAction: failed to parse recognition detail")
 		return false
 	}
+
+	message := "找到目标好友"
+	if result.ClueExchange {
+		message += "，可以线索交换"
+	}
+	if result.ControlNexusAssist {
+		message += "，可以助力总控中枢"
+	}
+	if result.MFGCabinAssist {
+		message += "，可以助力制造舱"
+	}
+	if result.GrowthChamberAssist {
+		message += "，可以助力生长舱"
+	}
+	maafocus.NodeActionStarting(ctx, message)
+
 	override := map[string]any{
 		"VisitFriendsEnterShip": map[string]any{
 			"roi": result.Roi,
@@ -440,18 +500,25 @@ func (r *VisitFriendsMenuScanScrollFinishRecognition) Run(ctx *maa.Context, arg 
 type VisitFriendsMenuScanScrollFullRecognition struct{}
 
 func (r *VisitFriendsMenuScanScrollFullRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	result := true
 	if currentAssistCount < maxAssistCount {
 		log.Info().
 			Int("currentAssistCount", currentAssistCount).
 			Int("maxAssistCount", maxAssistCount).
 			Msg("assist count not reach max, scroll not full")
-		return nil, false
+		result = false
 	}
 	if currentClueExchangeCount < maxClueExchangeCount {
 		log.Info().
 			Int("currentClueExchangeCount", currentClueExchangeCount).
 			Int("maxClueExchangeCount", maxClueExchangeCount).
 			Msg("clue exchange count not reach max, scroll not full")
+		result = false
+	}
+
+	if !result {
+		message := fmt.Sprintf("当前助力次数：%d，线索交换次数：%d", currentAssistCount, currentClueExchangeCount)
+		maafocus.NodeActionStarting(ctx, message)
 		return nil, false
 	}
 	return &maa.CustomRecognitionResult{

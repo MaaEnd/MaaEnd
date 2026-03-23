@@ -80,10 +80,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanDetailSave"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "打开好友详情"
-        }
+        ]
     },
     "VisitFriendsMenuScanDetailSave": {
         "desc": "保存好友船详情",
@@ -96,10 +93,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuScanDetailClose"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "读取好友详情"
-        }
+        ]
     },
     "VisitFriendsMenuScanDetailClose": {
         "desc": "关闭好友船详情",
@@ -110,9 +104,6 @@
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": 400,
-        "post_delay": 0,
-        "focus": {
-            "Node.Action.Succeeded": "关闭好友详情"
-        }
+        "post_delay": 0
     }
 }

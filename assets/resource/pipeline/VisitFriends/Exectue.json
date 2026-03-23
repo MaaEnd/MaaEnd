@@ -36,10 +36,7 @@
         "next": [
             "[JumpBack]SceneWaitLoadingExit",
             "VisitFriendsEnterShipSuccess"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "进入好友飞船"
-        }
+        ]
     },
     "VisitFriendsEnterShipSuccess": {
         "desc": "进入好友船成功的标志",
@@ -58,10 +55,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsEnterMenuTerminalSuccess"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "打开菜单"
-        }
+        ]
     },
     "VisitFriendsEnterMenuTerminalSuccess": {
         "desc": "进入好友菜单成功的标志",
@@ -97,10 +91,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsMenuTerminalExitToWorldShip"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "完成助力"
-        }
+        ]
     },
     "VisitFriendsFakeTrue": {
         "pre_delay": 0,
@@ -185,10 +176,7 @@
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueExchangeAction",
         "post_wait_freezes": 200,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "进行线索交换"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuClueExchangeFull": {
         "desc": "线索交换不可助力",
@@ -228,10 +216,7 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueExchangeFullAction",
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "线索交换已满"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuAssistFull": {
         "desc": "助力已满",
@@ -270,10 +255,7 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistFullAction",
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "助力已满"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuAssistControlNexus": {
         "desc": "执行控制中枢协助",
@@ -309,10 +291,7 @@
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
         "post_wait_freezes": 200,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "助力控制中枢"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuAssistMFGCabin1": {
         "desc": "执行制造舱1协助",
@@ -348,10 +327,7 @@
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
         "post_wait_freezes": 200,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "助力制造舱1"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuAssistMFGCabin2": {
         "desc": "执行制造舱2协助",
@@ -387,10 +363,7 @@
         "action": "Custom",
         "custom_action": "VisitFriendsMenuClueAssistAction",
         "post_wait_freezes": 200,
-        "post_delay": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "助力制造舱2"
-        }
+        "post_delay": 0
     },
     "VisitFriendsMenuAssistGrowthChamberSwipe": {
         "desc": "执行生长舱协助",
@@ -457,10 +430,7 @@
         "post_delay": 0,
         "next": [
             "SceneNoticeRewardsConfirm"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "助力生长舱"
-        }
+        ]
     },
     "VisitFriendsMenuTerminalExitToWorldShip": {
         "desc": "从好友菜单返回世界界面",
@@ -492,10 +462,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsWorldShipExitToMenuFriends"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "返回好友世界"
-        }
+        ]
     },
     "VisitFriendsWorldShipExitToMenuFriends": {
         "desc": "从世界界面返回好友菜单",
@@ -514,10 +481,7 @@
         "post_delay": 0,
         "next": [
             "VisitFriendsEnterFriendsListSuccess"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "返回好友列表"
-        }
+        ]
     },
     "VisitFriendsEnterFriendsListSuccess": {
         "desc": "进入好友列表成功的标志",
