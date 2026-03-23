@@ -17,10 +17,11 @@
         ],
         "expected": [
             "好友",
-            "Friends",
+            "(?i)Friends",
             "フレンド",
             "Visit",
-            "拜访好友"
+            "拜访好友",
+            "拜訪好友"
         ],
         "next": [
             "ItemTransferStartMoveCamera"
@@ -66,7 +67,7 @@
         "expected": [
             "仓库切换",
             "倉庫切換",
-            "Switch Depot",
+            "(?i)Switch\\s*Depot",
             "倉庫切替",
             "Switch",
             "Depot"
@@ -117,6 +118,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",
@@ -136,7 +138,7 @@
         "expected": [
             "已连接",
             "已連接",
-            "Connected",
+            "(?i)Connected",
             "接続済み"
         ],
         "next": [
@@ -170,9 +172,8 @@
         ],
         "expected": [
             "降序",
-            "DESC",
-            "降順",
-            "Desc"
+            "(?i)DESC",
+            "降順"
         ],
         "action": "Click",
         "post_wait_freezes": 400,
@@ -192,9 +193,8 @@
         ],
         "expected": [
             "升序",
-            "ASC",
-            "昇順",
-            "Asc"
+            "(?i)ASC",
+            "昇順"
         ],
         "action": "Click",
         "post_wait_freezes": 400,
@@ -212,7 +212,7 @@
             531,
             35
         ],
-        "template": "ItemTransfer/全部.png",
+        "template": "ItemTransfer/All.png",
         "threshold": 0.8,
         "order_by": "Score",
         "action": "Click",
@@ -262,6 +262,7 @@
         "post_wait_freezes": 400,
         "next": [
             "ItemTransferFindItemInRepo",
+            "ItemTransferFindItemFallback",
             "ItemTransferItemNotFound"
         ]
     },
@@ -280,6 +281,7 @@
     "ItemTransferTransferToBag": {
         "action": "Click",
         "target": "ItemTransferFindItemInRepo",
+        "target_offset": [26, 25, -52, -50],
         "next": [
             "ItemTransferCtrlKeyUpRepo"
         ]
@@ -302,7 +304,7 @@
         "expected": [
             "仓库切换",
             "倉庫切換",
-            "Switch Depot",
+            "(?i)Switch\\s*Depot",
             "倉庫切替",
             "Switch",
             "Depot"
@@ -353,6 +355,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",
@@ -372,7 +375,7 @@
         "expected": [
             "已连接",
             "已連接",
-            "Connected",
+            "(?i)Connected",
             "接続済み"
         ],
         "next": [
@@ -433,7 +436,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBag"
+            "ItemTransferFindItemInBag",
+            "ItemTransferFindItemFallbackBag"
         ]
     },
     "ItemTransferCtrlKeyDownBag": {
@@ -446,6 +450,7 @@
     "ItemTransferTransferToRepo": {
         "action": "Click",
         "target": "ItemTransferFindItemInBag",
+        "target_offset": [26, 25, -52, -50],
         "next": [
             "ItemTransferCtrlKeyUpBag"
         ]
@@ -470,9 +475,10 @@
         "expected": [
             "已充满",
             "已充滿",
-            "Full",
+            "(?i)Full",
             "FULL",
-            "已满"
+            "已满",
+            "已滿"
         ],
         "next": [
             "ItemTransferSwitchRepoToOriginReturn"
@@ -489,7 +495,7 @@
         "expected": [
             "仓库切换",
             "倉庫切換",
-            "Switch Depot",
+            "(?i)Switch\\s*Depot",
             "倉庫切替",
             "Switch",
             "Depot"
@@ -540,6 +546,7 @@
         ],
         "expected": [
             "确认",
+            "確定",
             "Confirm"
         ],
         "action": "Click",
@@ -559,7 +566,7 @@
         "expected": [
             "已连接",
             "已連接",
-            "Connected",
+            "(?i)Connected",
             "接続済み"
         ],
         "next": [
@@ -620,7 +627,8 @@
         "dy": 180,
         "post_wait_freezes": 400,
         "next": [
-            "ItemTransferFindItemInBagReturn"
+            "ItemTransferFindItemInBagReturn",
+            "ItemTransferFindItemFallbackBagReturn"
         ]
     },
     "ItemTransferCtrlKeyDownBagReturn": {
@@ -633,6 +641,7 @@
     "ItemTransferTransferToRepoReturn": {
         "action": "Click",
         "target": "ItemTransferFindItemInBagReturn",
+        "target_offset": [26, 25, -52, -50],
         "next": [
             "ItemTransferCtrlKeyUpBagReturn"
         ]
@@ -646,5 +655,120 @@
     },
     "ItemTransferStop": {
         "action": "StopTask"
+    },
+    "ItemTransferDetectAllItems": {
+        "desc": "NND 识别仓库区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            158,
+            203,
+            551,
+            292
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferDetectAllItemsBag": {
+        "desc": "NND 识别背包区域所有物品（无 class 过滤，低阈值）",
+        "recognition": "NeuralNetworkDetect",
+        "roi": [
+            768,
+            209,
+            349,
+            285
+        ],
+        "model": "ItemTransfer/ItemTransfer.onnx",
+        "threshold": 0.3,
+        "order_by": "Horizontal"
+    },
+    "ItemTransferTooltipOCR": {
+        "desc": "悬停后物品名称 OCR（ROI 由 Go 代码在运行时覆盖）",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "expected": [
+            ".*"
+        ]
+    },
+    "ItemTransferFindItemWithOCR": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（仓库侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "repo"
+        },
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferFindItemWithOCRBag": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（背包侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "bag"
+        },
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferFindItemWithOCRBagReturn": {
+        "desc": "无 NND expected 时通过 OCR 二分法查找物品并 Ctrl+Click（背包返还侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferOCRAction",
+        "custom_action_param": {
+            "item_name": "",
+            "side": "bag"
+        },
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
+    },
+    "ItemTransferFindItemFallback": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（仓库侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "repo"
+        },
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "ItemTransferFindItemFallbackBag": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag"
+        },
+        "next": [
+            "ItemTransferCheckIfFull",
+            "ItemTransferSwitchRepoToOrigin",
+            "ItemTransferStop"
+        ]
+    },
+    "ItemTransferFindItemFallbackBagReturn": {
+        "desc": "NND 兜底：hover + OCR + 二分法查找（背包返还侧）",
+        "action": "Custom",
+        "custom_action": "ItemTransferFallbackAction",
+        "custom_action_param": {
+            "target_class": 0,
+            "side": "bag"
+        },
+        "focus": {
+            "Node.Action.Succeeded": "$task.ItemTransfer.bag_return_completed"
+        }
     }
 }

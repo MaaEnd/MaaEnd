@@ -38,11 +38,11 @@
         "next": [
             "AutoGetCredits",
             "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
             "ADBSpecial",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -66,11 +66,11 @@
         },
         "next": [
             "AutoGetCredits",
-            "CreditShoppingBuyFirst",
+            "CreditShoppingReserveCredit",
             "CreditShoppingBuyNormalWithDiscount",
+            "CreditShoppingBuyFirst",
             "CreditShoppingBuyBlacklist",
             "CreditShippingCanNotToBuy",
-            "CreditShoppingReserveCredit",
             "RefreshItem",
             "CreditShoppingNothingToBuy"
         ]
@@ -114,7 +114,10 @@
         "next": [
             "CreditShoppingShopping",
             "[JumpBack]YellowConfirmButtonType1"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "刷新商品"
+        }
     },
     "CreditShoppingReserveCredit": {
         "desc": "信用点 < 300",
@@ -141,10 +144,7 @@
             "AutoGetCreditsBuy"
         ],
         "next": [
-            "[JumpBack]NeedCredit",
-            "CreditShoppingShopping",
-            "CreditShoppingCheckShopPage",
-            "[JumpBack]SceneEnterMenuShop"
+            "NeedCredit"
         ],
         "focus": {
             "Node.Action.Succeeded": "信用点不足,尝试从帝江号会客室获取"
@@ -153,21 +153,19 @@
     "AutoGetCreditsBuy": {
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanNotAfford",
-            "BuyFirstOCR_CanNotAfford"
+            "BuyFirstOCR_CanNotAfford",
+            "BuyFirstCanNotAffordNotSoldOut",
+            "BuyFirstCanNotAfford"
         ],
-        "box_index": 3
+        "box_index": 2
     },
     "CreditShoppingBuyFirst": {
         "desc": "优先购买",
         "recognition": "And",
         "all_of": [
-            "CreditIcon",
-            "NotSoldOut",
-            "CanAfford",
-            "BuyFirstOCR"
+            "BuyFirstOCR",
+            "BuyFirstNotSoldOut",
+            "BuyFirstCanAfford"
         ],
         "box_index": 3,
         "action": "Click",
@@ -189,11 +187,17 @@
             "CreditIcon",
             "NotSoldOut",
             "CanAfford",
-            "BlacklistOCR",
-            "IsDiscount"
+            "IsDiscount",
+            "BlacklistOCR"
         ],
         "box_index": 4,
         "action": "Click",
+        "target_offset": [
+            0,
+            -100,
+            0,
+            0
+        ],
         "next": [
             "CreditShoppingBuyNormalItemWithDiscount"
         ]

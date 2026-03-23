@@ -22,6 +22,7 @@ from _internal.core_utils import (
     Color,
     Drawer,
     cv2,
+    MapName,
     ViewportManager,
     Layer,
     MapImageLayer,
@@ -35,6 +36,7 @@ from _internal.gui_widgets import (
     ScrollableListWidget,
     TextInputWidget,
     MapImageSelectStep,
+    RadioSelectWidget,
 )
 from _internal.location_service import LocationService, unique_map_key
 from _internal.pipeline_handler import (
@@ -145,6 +147,8 @@ class _PathLayer(Layer):
 
         # Draw point index labels
         for i in range(len(points)):
+            if self.view.zoom < 1.0 and i not in (0, len(points) - 1):
+                continue
             sx, sy = self.view.get_view_coords(points[i][0], points[i][1])
             drawer.text(str(i), (sx + 5, sy - 5), 0.5, color=0xFFFFFF)
 
@@ -181,13 +185,18 @@ class PathEditPage(BasePage):
         window_name: str = "MapTracker Tool - Path Editor",
     ):
         super().__init__(window_name, 1280, 720)
+        self._map_dir = map_dir
         self.map_name = _resolve_editor_map_name(str(map_name), map_dir)
+        self._main_map_name = self.map_name
+        self._active_map_name = self.map_name
         self.map_path = os.path.join(map_dir, self.map_name)
         self.img = cv2.imread(self.map_path)
 
         if self.img is None:
             raise ValueError(f"Cannot load map: {self.map_name}")
 
+        self._main_img = self.img.copy()
+        self._main_dim_img = cv2.convertScaleAbs(self._main_img, alpha=0.25)
         self.view = ViewportManager(
             self.window_w, self.window_h, zoom=1.0, min_zoom=0.5, max_zoom=10.0
         )
@@ -231,6 +240,13 @@ class PathEditPage(BasePage):
         self._btn_quick_generate_rect: tuple | None = None
         self._btn_quick_undo_rect: tuple | None = None
         self._quick_undo_state: dict | None = None
+
+        # Tier map selector in sidebar (shown only when tier maps exist)
+        self._tier_selector = RadioSelectWidget(title="Tiers List", item_height=24)
+        self._tier_selector_rect: tuple[int, int, int, int] | None = None
+        self._tier_maps = self._collect_tier_maps(self._main_map_name)
+        if len(self._tier_maps) > 1:
+            self._tier_selector.set_items(self._tier_maps, selected_data=self.map_name)
 
         # Sidebar action buttons rendered by BasePage.
         self._save_button = Button(
@@ -289,6 +305,69 @@ class PathEditPage(BasePage):
             return
         img_h, img_w = self.img.shape[:2]
         self.view.fit_to([(0, 0), (img_w, img_h)], padding=0.02)
+
+    def _collect_tier_maps(self, main_map_name: str) -> list[dict]:
+        main_base = os.path.basename(main_map_name)
+        try:
+            main_parsed = MapName.parse(main_base)
+        except ValueError:
+            return [{"label": "main", "data": main_base}]
+
+        tiers: list[dict] = [{"label": "main", "data": main_base}]
+        if not os.path.isdir(self._map_dir):
+            return tiers
+
+        for file_name in sorted(os.listdir(self._map_dir), key=lambda n: n.lower()):
+            try:
+                parsed = MapName.parse(file_name)
+            except ValueError:
+                continue
+            if (
+                parsed.map_type != "tier"
+                or parsed.map_id != main_parsed.map_id
+                or parsed.map_level_id != main_parsed.map_level_id
+            ):
+                continue
+            tiers.append({"label": f"tier_{parsed.tier_suffix}", "data": file_name})
+        return tiers
+
+    def _switch_active_map(self, map_name: str) -> None:
+        if map_name == self._active_map_name:
+            return
+        if map_name == self._main_map_name:
+            target_path = os.path.join(self._map_dir, self._main_map_name)
+            img = self._main_img
+        else:
+            target_path = os.path.join(self._map_dir, map_name)
+            tier_img = cv2.imread(target_path)
+            if tier_img is None:
+                return
+            # Compose once: dimmed main as base, tier non-black pixels as overlay.
+            img = self._main_dim_img.copy()
+            tier_mask = (
+                (tier_img[:, :, 0] > 2)
+                | (tier_img[:, :, 1] > 2)
+                | (tier_img[:, :, 2] > 2)
+            )
+            img[tier_mask] = tier_img[tier_mask]
+        self._active_map_name = map_name
+        self.map_path = target_path
+        self.img = img
+        self._map_layer = MapImageLayer(self.view, self.img)
+        self.render_page()
+
+    def _sync_tier_by_log_map(self, log_map_name: str) -> None:
+        if len(self._tier_maps) <= 1:
+            return
+        resolved = find_map_file(log_map_name, self._map_dir)
+        if not resolved:
+            return
+        available = {str(item.get("data", "")) for item in self._tier_maps}
+        if resolved not in available:
+            return
+        self._tier_selector.select_by_data(resolved)
+        if resolved != self._active_map_name:
+            self._switch_active_map(resolved)
 
     def _do_save(self):
         if self.pipeline_context is None:
@@ -358,13 +437,14 @@ class PathEditPage(BasePage):
 
         updated = False
         for loc in locations:
-            ts = loc.get("timestamp")
-            if ts is None or ts < self._recording_last_ts:
+            ts = loc.timestamp
+            if ts < self._recording_last_ts:
                 continue
-            x = loc.get("x")
-            y = loc.get("y")
-            if x is None or y is None:
-                continue
+            if loc.map_name:
+                self._sync_tier_by_log_map(loc.map_name)
+
+            x = loc.x
+            y = loc.y
             key = (ts, x, y)
             if key in self._recorded_keys:
                 self._recording_last_ts = max(self._recording_last_ts, ts)
@@ -662,6 +742,18 @@ class PathEditPage(BasePage):
         self._finish_button.text = "[Enter] Finish"
         self._finish_button.base_color = 0xB44022
         self._finish_button.text_color = 0xFFFFFF
+        cy = finish_y1 + 12
+
+        # ── Tier selector (main + tier_*) ─────────────────────────────
+        self._tier_selector_rect = None
+        if len(self._tier_maps) > 1:
+            tier_h = self._tier_selector.get_height()
+            self._tier_selector_rect = (pad, cy, sw - pad, cy + tier_h)
+            self._tier_selector.render(
+                drawer,
+                self._tier_selector_rect,
+                font_scale=0.4,
+            )
 
         # Status messages moved to map area status bar
 
@@ -731,6 +823,16 @@ class PathEditPage(BasePage):
         elif event == cv2.EVENT_LBUTTONDOWN:
             # Sidebar action buttons are handled by BasePage/Button.
             if x < self.SIDEBAR_W:
+                if self._tier_selector_rect is not None:
+                    idx = self._tier_selector.handle_click(
+                        x,
+                        y,
+                        self._tier_selector_rect,
+                    )
+                    if idx >= 0:
+                        selected_map = self._tier_selector.get_selected_data()
+                        if isinstance(selected_map, str) and selected_map:
+                            self._switch_active_map(selected_map)
                 return
 
             if self._hit_button(x, y, self._btn_quick_generate_rect):
@@ -1045,18 +1147,18 @@ class AreaEditPage(BasePage):
             ox = max(self.SIDEBAR_W + 4, min(x1 + 4, self.window_w - 220))
             oy = max(20, y1 - 8)
             drawer.text(origin_text, (ox, oy), 0.45, color=0xFFFFFF)
+            if self.view.zoom >= 1.0:
+                hx = max(self.SIDEBAR_W + 4, min(x1 + 4, self.window_w - 90))
+                h_size = drawer.get_text_size(h_text, 0.45)
+                hy = max(
+                    h_size[1] + 2,
+                    min(y2 + h_size[1] + 2, self.window_h - self.STATUS_BAR_H - 6),
+                )
+                drawer.text(h_text, (hx, hy), 0.45, color=0xA8F0FF)
 
-            hx = max(self.SIDEBAR_W + 4, min(x1 + 4, self.window_w - 90))
-            h_size = drawer.get_text_size(h_text, 0.45)
-            hy = max(
-                h_size[1] + 2,
-                min(y2 + h_size[1] + 2, self.window_h - self.STATUS_BAR_H - 6),
-            )
-            drawer.text(h_text, (hx, hy), 0.45, color=0xA8F0FF)
-
-            wx = max(self.SIDEBAR_W + 4, min(x2 + 8, self.window_w - 90))
-            wy = max(20, min(y2 - 6, self.window_h - self.STATUS_BAR_H - 6))
-            drawer.text(w_text, (wx, wy), 0.45, color=0xA8F0FF)
+                wx = max(self.SIDEBAR_W + 4, min(x2 + 8, self.window_w - 90))
+                wy = max(20, min(y2 - 6, self.window_h - self.STATUS_BAR_H - 6))
+                drawer.text(w_text, (wx, wy), 0.45, color=0xA8F0FF)
 
         drawer.line(
             (self.mouse_pos[0], 0),
@@ -1163,7 +1265,14 @@ class ModeSelectStep(StepPage):
                     hotkey=(ord("m"), ord("M")),
                     icon_name="Move",
                     on_click=lambda: self.stepper.push_step(
-                        MapSelectStep(node_type=NODE_TYPE_MOVE)
+                        MapImageSelectStep(
+                            step_id="map_select",
+                            title="Select Map for Path",
+                            map_dir=MAP_DIR,
+                            on_select=lambda map_name: self.stepper.push_step(
+                                EditorAdapterStep(map_name, mode="create")
+                            ),
+                        )
                     ),
                 )
             )
@@ -1180,7 +1289,14 @@ class ModeSelectStep(StepPage):
                     hotkey=ord("a"),
                     icon_name="AssertLocation",
                     on_click=lambda: self.stepper.push_step(
-                        MapSelectStep(node_type=NODE_TYPE_ASSERT_LOCATION)
+                        MapImageSelectStep(
+                            step_id="map_select",
+                            title="Select Map for Assert Area",
+                            map_dir=MAP_DIR,
+                            on_select=lambda map_name: self.stepper.push_step(
+                                RegionEditorAdapterStep(map_name, mode="create")
+                            ),
+                        )
                     ),
                 )
             )
@@ -1194,23 +1310,6 @@ class ModeSelectStep(StepPage):
                     on_click=lambda: self.stepper.push_step(FileSelectStep()),
                 )
             )
-
-
-class MapSelectStep(MapImageSelectStep):
-    def __init__(self, *, node_type: str = NODE_TYPE_MOVE):
-        title = (
-            "Select Map for Path"
-            if node_type == NODE_TYPE_MOVE
-            else "Select Map for Assert Area"
-        )
-        super().__init__(step_id="map_select", title=title, map_dir=MAP_DIR)
-        self.node_type = node_type
-
-    def on_map_selected(self, map_name: str) -> None:
-        if self.node_type == NODE_TYPE_ASSERT_LOCATION:
-            self.stepper.push_step(RegionEditorAdapterStep(map_name, mode="create"))
-        else:
-            self.stepper.push_step(EditorAdapterStep(map_name, mode="create"))
 
 
 class FileSelectStep(StepPage):

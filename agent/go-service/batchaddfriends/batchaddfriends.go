@@ -38,8 +38,17 @@ type BatchAddFriendsStrangersOnAddAction struct{}
 type BatchAddFriendsStrangersFinishAction struct{}
 type BatchAddFriendsFriendListFullAction struct{}
 
+// Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &BatchAddFriendsAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDLoopTopAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDEnterAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnAddAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDOnEmptyAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsUIDFinishAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsStrangersOnAddAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsStrangersFinishAction{}
+	_ maa.CustomActionRunner = &BatchAddFriendsFriendListFullAction{}
 )
 
 type batchAddState struct {
@@ -270,7 +279,7 @@ func parseMaxCount(v interface{}, def int) int {
 }
 
 func splitUIDs(raw string) []string {
-	// 按空白字符与中文顿号“、”拆分 UID。
+	// 按空白字符与中文顿号"、"拆分 UID。
 	re := regexp.MustCompile(`[、\s]+`)
 	parts := re.Split(strings.TrimSpace(raw), -1)
 	uids := make([]string, 0, len(parts))

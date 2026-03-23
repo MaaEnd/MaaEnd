@@ -44,6 +44,9 @@ type BoardDesc struct {
 
 type Recognition struct{}
 
+// Compile-time interface check
+var _ maa.CustomRecognitionRunner = &Recognition{}
+
 // Known color hues: 77 (green), 206(blue), 169(cyan), 33(orange)
 
 func getPossibleHues(puzzles []*PuzzleDesc) []int {

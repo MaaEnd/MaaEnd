@@ -27,7 +27,7 @@
         "expected": [
             "城郊监测终端",
             "城郊監測終端",
-            "Outskirts Monitoring Terminal",
+            "(?i)Outskirts\\s*Monitoring\\s*Terminal",
             "郊外観測端末",
             "교외 관측 단말기"
         ]

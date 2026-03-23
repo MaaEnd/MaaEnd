@@ -88,6 +88,7 @@ This means a `SPRINT` action should be executed upon reaching that point. Common
 - `INTERACT`: Interact upon arrival.
 - `TRANSFER`: Reach the point precisely, then wait for an external mechanism to relocate the character to the next reachable segment.
 - `PORTAL`: A cross-zone transition point. Once committed, it enters blind-walk mode and waits for the zone switch.
+- `HEADING`: Turn the camera to the specified heading, then tap `W` once.
 
 **3. Strict-arrival point**
 
@@ -112,6 +113,17 @@ The trailing `true` means strict arrival is enabled for that point. For certain 
 ```
 
 This is a **positionless control node** used to declare which zone the following path should belong to. It does not move the character by itself, but it provides zone-validation context for the subsequent path points.
+
+**5. Heading control node `HEADING`**
+
+```json
+{
+    "action": "HEADING",
+    "angle": 90
+}
+```
+
+A positionless node. It turns the camera to the specified heading, then taps `W` once.
 
 #### Return Behavior
 
@@ -215,6 +227,7 @@ It supports:
 3. Deleting points, dragging points, changing actions, and editing strict-arrival settings in the GUI.
 4. Importing existing JSON / JSONC files, recursively searching recognizable `path` data, and continuing editing.
 5. One-click copying of the canonical `path` that can be pasted directly into `custom_action_param.path`.
+6. A separate `Assert Mode` for manually selecting a map and drawing a rectangle, then exporting a `MapLocateAssertLocation` node.
 
 ### Running the Tool
 
@@ -360,6 +373,19 @@ This is especially useful for:
 - Migrating old paths to the new navigation module.
 - Reusing existing routes in collaborative development.
 - Modifying a previously created route.
+
+### Assert Mode
+
+When you do not need to record a route, but instead need to check whether the character is currently inside a certain rectangular area, you can use the `Assert Mode` at the top of the tool.
+
+Workflow:
+
+1. Enable `Assert Mode`.
+2. Select the target `zone` from the dropdown.
+3. Drag a rectangle on the map.
+4. Click `Copy Assert` to copy a complete `MapLocateAssertLocation` node to the clipboard.
+
+This mode does not modify the current path data. It simply reuses the same map rendering workflow to generate area-assertion nodes quickly.
 
 ---
 

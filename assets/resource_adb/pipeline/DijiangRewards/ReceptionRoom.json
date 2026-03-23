@@ -1,17 +1,5 @@
 {
-    "EntryReceptionRoom": {
-        "post_wait_freezes": {
-            "time": 100,
-            "timeout": 1000,
-            "target": [
-                627,
-                594,
-                419,
-                48
-            ]
-        }
-    },
-    "ExitReceptionRoom": {
+    "ReceptionRoomReceiveExit": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -19,7 +7,7 @@
             }
         }
     },
-    "SendClues": {
+    "ReceptionRoomSendExit": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -27,7 +15,23 @@
             }
         }
     },
-    "SendCluesSwipe": {
+    "ReceptionRoomCollectCluesExit": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "ReceptionRoomSendCluesClueCollectionFullClose": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 4
+            }
+        }
+    },
+    "ReceptionRoomSendCluesSwipe": {
         "action": {
             "type": "Swipe",
             "param": {

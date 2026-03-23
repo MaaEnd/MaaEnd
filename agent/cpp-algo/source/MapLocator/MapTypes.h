@@ -4,6 +4,8 @@
 #include <optional>
 #include <string>
 
+#include <MaaUtils/NoWarningCV.hpp>
+
 namespace maplocator
 {
 
@@ -61,6 +63,38 @@ struct LocateResult
     std::string debugMessage; // 用于向 Pipeline 输出日志
 };
 
+enum class GlobalSearchMode
+{
+    LegacyCoarse,
+    FullMapFine,
+    RoiFine,
+};
+
+struct SearchConstraint
+{
+    GlobalSearchMode mode = GlobalSearchMode::LegacyCoarse;
+    bool yolo_validated = false;
+    cv::Rect roi {};
+};
+
+struct YoloCoarseResult
+{
+    bool valid = false;
+    bool is_none = false;
+
+    std::string raw_class;
+    std::string base_class;
+    std::string zone_id;
+    float confidence = 0.0f;
+
+    bool has_roi = false;
+    int roi_x = 0;
+    int roi_y = 0;
+    int roi_w = 0;
+    int roi_h = 0;
+    int infer_margin = 0;
+};
+
 // roi及搜索相关常量
 constexpr int MinimapROIOriginX = 49;
 constexpr int MinimapROIOriginY = 51;
@@ -69,6 +103,17 @@ constexpr int MinimapROIHeight = 120;
 constexpr int MaxLostTrackingCount = 3;
 constexpr double MinMatchScore = 0.7;
 constexpr double MobileSearchRadius = 50.0;
+
+inline bool IsPathHeatmapZone(const std::string& zoneId)
+{
+    constexpr const char* kPathHeatmapZoneMarkers[] = { "OMVBase" };
+    for (const char* marker : kPathHeatmapZoneMarkers) {
+        if (zoneId.find(marker) != std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
 
 struct TrackingConfig
 {

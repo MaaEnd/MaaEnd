@@ -1,0 +1,128 @@
+{
+    //这是一个调用EssenceFilter任务中战斗后识别基质节点的入口，内部节点在EssenceFilter文件夹中，包括以下3个
+    //EssenceFilterAfterBattleMain.json
+    //EssenceFilterAfterBattleCheckItem.json
+    //EssenceFilterAfterBattleLockDiscard.json
+    //使用说明
+    //   一句话版本：
+    //脚本运行到弹出基质战利品界面后，在next里加上"[Jumpback]EssenceFilterAfterBattleStart"，下面直接跟下一个界面的任务即可（我这个任务会自动点退出战利品界面）
+    //任务实现逻辑：
+    //1、这个任务开始是个识别节点，会先判断屏幕中是否有基质，有的话才开始，否则直接返回false跳过自身
+    //2、开始任务后会逐个识别屏幕中的基质，如果符合条件就上锁，不符合就弃置
+    //3、可以自定义设置来决定识别策略和上锁弃置策略，只要在自己的任务option里override"EssenceFilterAfterBattleInit"的"attach"部分即可，具体设置方法同EssenceFilter
+    //4、任务结束后会自己点击退出战利品界面（你就不用另外点击退出了），然后Jumpback回来
+    //5、Jumpback回来后因开始节点识别失败跳过自身，继续你后面的任务
+    //6、如果不想强制退出战利品界面，那就不加[Jumpback]，把"EssenceFilterAfterBattleExit"的next改成你想要的下一个节点
+    "EssenceFilterAfterBattleStart": {
+        "desc": "识别画面中是否有基质，是的话开始任务,完成后会自动退出战利品界面",
+        "enabled": false,
+        //有基质才开始任务，不然直接返回失败
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "template": "EssenceFilter/EssenceGeneral.png",
+                "green_mask": true,
+                "method": 5,
+                "threshold": 0.7
+            }
+        },
+        "next": [
+            "EssenceFilterAfterBattleInit"
+        ],
+        "focus": {
+            "Node.Recognition.Successed": "识别到基质，开始筛选并锁定有用的"
+        }
+    },
+    "EssenceFilterAfterBattleInit": {
+        "desc": "初始化：加载数据与预设[刷完基质版]",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "EssenceFilterInitAction"
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                38,
+                398,
+                922,
+                198
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleRowNextItem"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "初始化完成"
+        },
+        //默认配置
+        "attach": {
+            // 游戏语言：CN|TC|EN|JP|KR（与技能名数据一致）
+            "input_language": "CN",
+            //是否匹配6星武器
+            "rarity6_weapon": true,
+            //是否匹配5星武器
+            "rarity5_weapon": true,
+            //是否匹配4星武器
+            "rarity4_weapon": false,
+            //是否筛选金基质
+            "flawless_essence": true,
+            //是否筛选紫基质
+            "pure_essence": false,
+            //是否保留未来可期的基质
+            "keep_future_promising": false,
+            //“未来可期基质”最低要满足多少总词条
+            "future_promising_min_total": 6,
+            //是否锁上未来可期的基质
+            "lock_future_promising": false,
+            //是否保留高等级技能3的实用基质
+            "keep_slot3_level3_practical": false,
+            //“高等级”对应多少技能等级
+            "slot3_min_level": 3,
+            //是否锁上高等级技能3的实用基质
+            "lock_slot3_practical": false,
+            //是否丢弃不匹配的基质
+            "discard_unmatched": false,
+            //是否输出基质规划（这个分支任务暂时用不了）
+            "export_calculator_script": false,
+            //是否跳过上锁基质（这个分支任务暂时用不了）
+            "skip_locked_row": false
+        }
+    },
+    //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上
+    "EssenceFilterAfterBattleExit": {
+        "desc": "任务完成,点击离开",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    803,
+                    616,
+                    124,
+                    83
+                ],
+                "template": "Common/Button/CancelButtonType1.png",
+                "method": 5,
+                "threshold": 0.7
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceOnSuccess"
+        ]
+    }
+}

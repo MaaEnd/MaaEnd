@@ -477,6 +477,15 @@ func actionName(action ActionType, operator int) string {
 
 type AutoFightExecuteAction struct{}
 
+// Compile-time interface checks
+var (
+	_ maa.CustomRecognitionRunner = &AutoFightEntryRecognition{}
+	_ maa.CustomRecognitionRunner = &AutoFightExitRecognition{}
+	_ maa.CustomRecognitionRunner = &AutoFightPauseRecognition{}
+	_ maa.CustomRecognitionRunner = &AutoFightExecuteRecognition{}
+	_ maa.CustomActionRunner      = &AutoFightExecuteAction{}
+)
+
 func (a *AutoFightExecuteAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	now := time.Now()
 

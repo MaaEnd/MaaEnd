@@ -13,6 +13,7 @@
                 ],
                 "expected": [
                     "^会客室$",
+                    "^會客室$",
                     "Reception"
                 ]
             }
@@ -22,15 +23,87 @@
         },
         "next": [
             "ReceptionRoom_NeedCredit",
-            "WhiteConfirmButtonType1",
+            "EndExchange_NeedCredit",
+            "EntryReceptionRoom_NeedCredit"
+        ],
+        "on_error": [
+            "EntryReceptionRoom_NeedCredit_OnError"
+        ]
+    },
+    "EntryReceptionRoom_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·会客室] 进入会客室区域，开启线索交流获取信用点（出错重试）",
+        "max_hit": 1,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    485,
+                    0,
+                    336,
+                    260
+                ],
+                "expected": [
+                    "^会客室$",
+                    "^會客室$",
+                    "Reception"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "ReceptionRoom_NeedCredit",
+            "EndExchange_NeedCredit",
             "EntryReceptionRoom_NeedCredit"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "进入会客室失败"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_reception_room_entry_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
+    "EndExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 情报交流结束弹窗出现时点击确认结束",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": "Click",
+        "next": [
+            "ReceptionRoom_NeedCredit"
+        ],
+        "on_error": [
+            "EndExchange_NeedCredit_OnError"
+        ]
+    },
+    "EndExchange_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·线索] 情报交流结束弹窗出现时点击确认结束（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "WhiteButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": "Click",
+        "next": [
+            "ReceptionRoom_NeedCredit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     },
     "ReceptionRoom_NeedCredit": {
-        "desc": "[NeedCredit·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
+        "desc": "[信用点商店联动任务·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -43,45 +116,240 @@
                 "expected": [
                     "会客室",
                     "會客室",
-                    "Reception Room",
+                    "(?i)Reception\\s*Room",
                     "応接室",
                     "Reception"
                 ]
             }
         },
         "next": [
-            "[JumpBack]ReceptionRoomSetClues",
-            "InControlNexus_NeedCredit",
-            "WhiteConfirmButtonType1",
-            "[JumpBack]StartExchange"
+            "EndExchange_NeedCredit",
+            "StartExchange_NeedCredit",
+            "CanNotStartExchange_NeedCredit"
         ],
-        "focus": {
-            "Node.PipelineNode.Failed": "线索交流开启失败"
-        }
+        "on_error": [
+            "ReceptionRoom_NeedCredit_OnError"
+        ]
     },
-    "InControlNexus_NeedCredit": {
-        "desc": "[NeedCredit·收尾] 完成会客室后识别回到控制中枢，返回主界面或处理关闭/取消弹窗",
+    "ReceptionRoom_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·会客室] 确认已进入会客室界面，再决定领奖/开始线索交流/退出（出错重试）",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "OCR",
             "param": {
                 "roi": [
-                    143,
-                    467,
-                    77,
-                    77
+                    43,
+                    0,
+                    165,
+                    64
                 ],
-                "template": [
-                    "ClaimDijiangRewards/InControlNexus.png"
+                "roi_offset": [
+                    0,
+                    0,
+                    193,
+                    0
+                ],
+                "expected": [
+                    "会客室",
+                    "會客室",
+                    "(?i)Reception\\s*Room",
+                    "応接室",
+                    "Reception"
                 ]
             }
         },
         "next": [
-            "InMainWindow",
-            "[JumpBack]CloseButtonType2",
-            "[JumpBack]CancelExit"
+            "EndExchange_NeedCredit",
+            "StartExchange_NeedCredit",
+            "CanNotStartExchange_NeedCredit"
         ],
         "focus": {
-            "Node.PipelineNode.Failed": "无法从会客室返回主界面"
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.need_credit_exchange_start_failed",
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
+    "CanNotStartExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    327,
+                    428,
+                    864,
+                    283
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    89,
+                    0
+                ],
+                "expected": [
+                    "情报交流中",
+                    "情報交流中",
+                    "(?i)Exchanging\\s*Clues",
+                    "情報共有中",
+                    "集齐所有线索可开展情报交流",
+                    "集齊所有線索可開展情報交流",
+                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
+                    "手がかりをすべて集めると情報共有可能"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "on_error": [
+            "CanNotStartExchange_NeedCredit_OnError"
+        ]
+    },
+    "CanNotStartExchange_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·线索] 识别无法开始线索交流的提示，点击确认后结束任务（出错重试）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    327,
+                    428,
+                    864,
+                    283
+                ],
+                "roi_offset": [
+                    0,
+                    0,
+                    89,
+                    0
+                ],
+                "expected": [
+                    "情报交流中",
+                    "情報交流中",
+                    "(?i)Exchanging\\s*Clues",
+                    "情報共有中",
+                    "集齐所有线索可开展情报交流",
+                    "集齊所有線索可開展情報交流",
+                    "(?i)Gather\\s*all\\s*clues\\s*to\\s*start\\s*Clue\\s*Exchange",
+                    "手がかりをすべて集めると情報共有可能"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
+    "StartExchange_NeedCredit": {
+        "desc": "[信用点商店联动任务·线索] 识别开始线索交流的按钮，点击进入线索交流",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "StartExchangeText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "CloseExchangeRewards_NeedCredit"
+        ],
+        "on_error": [
+            "StartExchange_NeedCredit_OnError"
+        ]
+    },
+    "StartExchange_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·线索] 识别开始线索交流的按钮，点击进入线索交流（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "StartExchangeText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CloseExchangeRewards_NeedCredit"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
+        }
+    },
+    "CloseExchangeRewards_NeedCredit": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "on_error": [
+            "CloseExchangeRewards_NeedCredit_OnError"
+        ]
+    },
+    "CloseExchangeRewards_NeedCredit_OnError": {
+        "desc": "[信用点商店联动任务·线索] 识别线索交流结束界面关闭按钮（出错重试）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton",
+                    "CloseRewardsButtonText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CreditShoppingShopping",
+            "CreditShoppingCheckShopPage",
+            "[JumpBack]SceneEnterMenuShop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DijiangRewards.focus.on_error_retry_click_lost"
         }
     }
 }

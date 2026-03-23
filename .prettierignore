@@ -9,6 +9,9 @@ agent/cpp-algo/MaaUtils/
 # 跳过 schema 目录，避免与 sync_schema_files 冲突
 tools/schema/
 
+# pipeline-generate 数据文件含大量坐标嵌套数组，跳过自动格式化以保留可读性
+tools/pipeline-generate/
+
 # 锁文件
 pnpm-lock.yaml
 package-lock.json

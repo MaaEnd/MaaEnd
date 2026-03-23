@@ -51,6 +51,7 @@ private:
     bool TickWaitRelocation();
     bool TickAlignHeading();
     bool ConsumeHeadingNodes(bool sync_with_sensor_yaw);
+    bool TryFastPortalZoneTransition(const char* reason, bool require_nearby_portal = true);
     bool HandleImplicitZoneTransition(const std::string& expected_zone_id);
     bool HandleWaypointArrival(
         double real_pos_x,
@@ -89,6 +90,7 @@ private:
     std::function<bool()> should_stop_;
     std::chrono::steady_clock::time_point last_auto_sprint_time_ {};
     std::chrono::steady_clock::time_point relocation_wait_started_ {};
+    std::chrono::steady_clock::time_point respawn_detection_suppressed_until_ {};
     NaviPosition relocation_anchor_pos_ {};
     int relocation_min_pause_ms_ = 0;
     int relocation_stable_hits_ = 0;
@@ -97,6 +99,7 @@ private:
     RelocationCompletionPolicy relocation_completion_policy_ = RelocationCompletionPolicy::ResumeRoute;
     bool pending_transfer_relocation_wait_ = false;
     bool relocation_finish_when_complete_ = false;
+    bool post_zone_transition_reacquire_pending_ = false;
     size_t strict_arrival_walk_reset_node_idx_ = std::numeric_limits<size_t>::max();
 };
 

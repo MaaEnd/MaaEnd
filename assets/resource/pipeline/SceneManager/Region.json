@@ -2,15 +2,32 @@
     // TODO 后面和fast/common中Region.json合并
     "InMapAny": {
         "desc": "在任意地图界面",
-        "recognition": "TemplateMatch",
-        "roi": [
-            -350,
-            0,
-            350,
-            60
-        ],
-        "template": [
-            "SceneManager/MapMind.png"
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    -350,
+                    0,
+                    350,
+                    60
+                ],
+                "template": [
+                    "SceneManager/MapMind.png"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    220,
+                    100
+                ],
+                "template": [
+                    "SceneManager/MapMissionReminder.png"
+                ]
+            }
         ]
     },
     "InMapWulingWulingCity": {
@@ -154,10 +171,67 @@
                     180
                 ],
                 "template": [
-                    "SceneManager/NoticeRewardsIcon.png"
+                    "SceneManager/NoticeRewardsIcon.png",
+                    "SceneManager/NoticeRewardsIcon2.png",
+                    "SceneManager/NoticeRewardsIcon3.png"
                 ],
                 "threshold": 0.9
             }
         }
+    },
+    "InWorldFactory": {
+        "desc": "在大世界工厂模式界面",
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    999,
+                    372,
+                    130,
+                    42
+                ],
+                "expected": [
+                    "装备制造",
+                    "裝備製造",
+                    "Gear Assembly",
+                    "装備製造",
+                    "장비 제작"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    0,
+                    0,
+                    60,
+                    60
+                ],
+                "template": [
+                    "SceneManager/WorldFactoryActive.png"
+                ]
+            },
+            {
+                "recognition": "OCR",
+                "roi": [
+                    500,
+                    0,
+                    300,
+                    100
+                ],
+                "expected": [
+                    "进入俯瞰",
+                    "進入俯瞰",
+                    "見下ろし視点ON",
+                    "탑뷰 모드로 전환",
+                    "Enter Top View",
+                    "退出俯瞰",
+                    "關閉俯瞰",
+                    "見下ろし視点OFF",
+                    "탑뷰 모드 나가기",
+                    "Exit Top View"
+                ]
+            }
+        ]
     }
 }

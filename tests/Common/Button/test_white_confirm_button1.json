@@ -1,0 +1,30 @@
+{
+    "configs": {
+        "name": "通用按钮，测试白色确定按钮类型1(圆环)",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "帝江号_控制中枢_制造舱_确认补货.png",
+            "hits": [
+                "WhiteConfirmButtonType1"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_填充货物.png",
+            "hits": [
+                "WhiteConfirmButtonType1"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物.png",
+            "hits": [
+                "WhiteConfirmButtonType1"
+            ]
+        }
+    ]
+}

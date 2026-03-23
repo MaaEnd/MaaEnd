@@ -2,11 +2,11 @@
 
 **MaaEnd** is developed based on [MaaFramework](https://github.com/MaaXYZ/MaaFramework), adopting [Solution 2](https://github.com/MaaXYZ/MaaFramework/blob/main/docs/zh_cn/1.1-%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B.md#%E6%96%B9%E6%A1%88%E4%BA%8Cjson--%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%BB%E8%BE%91%E6%89%A9%E5%B1%95%E6%8E%A8%E8%8D%90) (JSON + Custom Logic Extension Recommendation).
 Our main workflow uses [Pipeline JSON Low-Code](/assets/resource/pipeline), and complex logic is implemented via coding in [go-service](/agent/go-service).
-If you intend to join the development of MaaEnd, you can first read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated-please refer to the documentation as the primary source~
+If you intend to join the development of MaaEnd, you can first read the [MaaFramework Documentation](https://maafw.com/) to understand low-code logic and the use of related editing/debugging tools. You can also watch the [MaaFramework Tutorial Video](https://www.bilibili.com/video/BV1yr421E7MW), but note that the video is outdated, so please refer to the documentation as the primary source.
 
 ## Local Deployment
 
-We provide an automated **workspace initialization script**-simply execute:
+We provide an automated **workspace initialization script**. Simply execute:
 
 ```bash
 python tools/setup_workspace.py
@@ -66,7 +66,7 @@ This will fully set up the environment required for development.
 
 ### About Development Experience
 
-- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, etc.-please make good use of them. The working directory can be set to the **project root directory** folder.
+- MaaFramework has a wealth of [development tools](https://github.com/MaaXYZ/MaaFramework/tree/main?tab=readme-ov-file#%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7) for low-code editing, debugging, and related tasks. Please make good use of them. The working directory can be set to the project root directory.
 - After modifying the Pipeline each time, you only need to reload the resources in the development tool; however, after modifying go-service each time, you need to execute `python tools/build_and_install.py` to recompile.
 - You can use tools like VS Code to set breakpoints or run go-service step by step (start go-service with debug on your own, or attach via vscode). Dude, are you debugging code just by reading logs?
 - MXU is a GUI for end users-we do not recommend using it for development and debugging. The aforementioned MaaFramework development tools can greatly improve development efficiency. Seriously, are you just trial-and-erroring blindly?
@@ -77,21 +77,59 @@ This will fully set up the environment required for development.
 - **When prompted that features such as "HDR" or "Automatically manage color for apps" are enabled, do not take screenshots or pick colors-this may cause template effects to be inconsistent with the actual display on the user's device.**
 - For color matching, it is recommended to prioritize using HSV or grayscale space for matching. Different GPU vendors (such as NVIDIA, AMD, Intel) have different rendering methods, and using RGB color values directly will have slight deviations on various devices; by fixing the hue in HSV space and only making appropriate adjustments to saturation and brightness, more unified and stable recognition results can be obtained across the three GPU types.
 - The resource folder is in a linked state; modifying `assets` is equivalent to modifying the content in `install`, no additional copying is required. **However, `interface.json` is copied-if modified, you need to manually copy it back to `install` for UI testing (or run build_and_install.py, method as above).**
-- The `resource_fast` folder has default delays removed, which will greatly speed up operation speed but also place higher requirements on the robustness of the pipeline. We recommend using `resource_fast` first, but developers can also choose according to the actual situation of the task.
-  _In plain terms, `resource_fast` is much harder to write-after each operation, the next frame may still show transition animations, and you have to find a way to recognize them. But the running speed is faster-feel free to try it if you are confident. If you can't figure it out or are too lazy to do it, put it in `resource` -the operation is slower but easier to write._
+- About OCR node `expected` i18n: developers do not need to maintain multilingual text manually. Just write `expected` in your own current language, and the `tools/i18n` program will automatically convert OCR `expected` in pipeline files to proper i18n entries.
+- Prefer writing the full expected sentence instead of a partial fragment. For example, write "This is a sample sentence" rather than only "sample sentence".
+- After automatic processing, English `expected` entries are written as case-insensitive regex patterns. To tolerate OCR occasionally dropping spaces between English words, the generated regex uses `\\s*` only between words. For example, `Send Local Clues` becomes `(?i)Send\\s*Local\\s*Clues`.
+- For OCR nodes that are not skipped, the script may also add or adjust `roi_offset` based on the display-width difference between the original text and the longest translated text, so multilingual text can still fit inside the recognition area whenever possible. Nodes with `only_rec: true` are excluded from this ROI adjustment.
+- If you intentionally need partial text, handwritten regex, or do not want the i18n program to auto-process this OCR node, add the skip marker comment `// @i18n-skip` inside the corresponding `expected` array.
+- Example (recommended, auto i18n processing enabled):
 
-### About Reusable Nodes (Common Nodes)
+    ```jsonc
+    "expected": [
+        "This is a sample sentence"
+    ]
+    ```
 
-Some highly reusable nodes have been encapsulated with detailed documentation to avoid reinventing the wheel. See:
+- Example (skip auto i18n processing, suitable for partial matches or handwritten regex):
+
+    ```jsonc
+    "expected": [
+        // @i18n-skip
+        "sample sentence"
+    ]
+    ```
+
+### About Qin Shi Huang Nodes (Custom or Reusable Pipeline Nodes)
+
+Some highly reusable nodes have already been encapsulated and documented in detail to avoid reinventing the wheel. See:
+
+#### Reusable Nodes
+
+The following are reusable nodes based on Pipeline. You can call them directly to implement related logic; see the corresponding documents for details:
+
+- [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
+- [SceneManager Reference Document](./scene-manager.md): Interfaces related to universal jumps and scene navigation.
+
+#### Reusable Custom Nodes
+
+The following are reusable nodes based on `Custom`. They are more business-specific and can be used when appropriate. However, **according to [Go Service Code Specifications](#go-service-code-specifications) and [Cpp Algo Code Specifications](#cpp-algo-code-specifications), you should avoid using these nodes unless necessary**. The reasons are explained in those two sections.
 
 - [MapTracker Reference Document](./map-tracker.md): Nodes related to minimap positioning and automatic pathfinding.
 - [MapNavigator Reference Document](./map-navigator.md): Path recording tool and the `MapNavigateAction` automatic navigation node.
-- [Common Buttons Reference Document](./common-buttons.md): Common button nodes.
 - [Custom Action Reference Document](./custom-action.md): Invoke custom logic in go-service via the `Custom` node.
-- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the game battle scene, it automatically completes the battle until the battle ends and exits.
-- [SceneManager Reference Document](./scene-manager.md): Universal jump and scene navigation related interfaces.
-- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a recognized target.
-- [Node Testing Reference Document](./node-testing.md): Directory conventions, schema, and writing guidelines for static screenshot node tests.
+- [AutoFight Reference Document](./auto-fight.md): In-game automatic operation module. After the user has entered the battle scene, it automatically plays the battle until it ends and exits.
+- [CharacterController Reference Document](./character-controller.md): Nodes for character view rotation, movement, and automatic movement toward a target.
+- [QuantizedSliding Reference Document](./quantized-sliding.md): A shared custom action for adjusting discrete quantity sliders to a target value.
+
+### About Testing
+
+MaaEnd uses `maa-tools` to provide node testing, which is used to verify whether recognition can correctly match the corresponding position in the game. For details, see the [Node Testing Reference Document](./node-testing.md). When you create nodes that rely on recognition, try to add corresponding test cases whenever possible. This helps with future task maintenance and logic refactoring.
+
+### About Task Maintenance
+
+The following tasks have maintenance documentation. When writing new features and modifying other functions, there is no need to review them, but **when you modify these tasks, be sure to read the maintenance documentation for the relevant tasks**. See:
+
+- [AutoStockpile Maintenance Documentation](./auto-stockpile-maintain.md): This document explains how to maintain the item templates, item mappings, price thresholds, and region extensions for `AutoStockpile` (Automatic Stockpiling).
 
 ## Code Specifications
 
@@ -119,4 +157,4 @@ Some highly reusable nodes have been encapsulated with detailed documentation to
 
 ## Communication
 
-Developer QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Working group-welcome to join development, but user issues are not handled here)
+Developer QQ Group: [1072587329](https://qm.qq.com/q/EyirQpBiW4) (Developer group. You are welcome to join development discussions, but user issues are not handled here.)

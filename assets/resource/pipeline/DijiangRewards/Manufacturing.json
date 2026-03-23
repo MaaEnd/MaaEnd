@@ -1,56 +1,58 @@
 {
-    "MFG_ReceiveRewards": {
-        "desc": "[控制中枢·制造舱] 识别制造舱界面，领取奖励和补货",
+    "MFGCabinMain": {
+        "desc": "[制造舱·主界面] 在控制中枢中识别制造舱主界面特征，进入制造舱主界面",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "MFGCabinTips",
+                    "MFGCabinText"
                 ],
-                "expected": [
-                    "制造中",
-                    "製造中",
-                    "制造舱",
-                    "MFG ?CABIN"
-                ]
+                "box_index": 1
             }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
         },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EntryMFGCarbinSuccess"
-        ],
-        "focus": {
-            "Node.PipelineNode.Failed": "制造舱领取奖励或补货流程失败"
-        }
+            "MFGCabinViewIn"
+        ]
     },
-    "EntryMFGCarbinSuccess": {
+    "MFGCabinViewIn": {
+        "desc": "[制造舱·状态] 确认已进入制造舱界面，再决定领取/补货/助力/退出",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "InMFGCarbin",
+                    "InMFGCabin",
                     "FacilityDetails"
                 ],
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedTake",
-            "MFGCarbinNeedReStock",
-            "MFGCarbinNeedAssist",
-            "Exit_MFG_Cabin"
+            "[JumpBack]MFGCabinClaimReward",
+            "[JumpBack]MFGCabinRestock",
+            "[JumpBack]MFGCabinAssist",
+            "MFGCabinExit"
         ]
     },
-    "MFGCarbinNeedReStock": {
-        "desc": "[制造舱·需要补货] 识别需要补货的奖励，点击补货",
+    "MFGCabinRestock": {
+        "desc": "[制造舱·补货] 识别需要补货的订单并点击补货",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -61,24 +63,33 @@
                     118
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Restock.png"
+                    "ClaimDijiangRewards/ItemMaxButton.png"
                 ],
+                "method": 10001,
                 "order_by": "Vertical",
-                "index": -1
+                "index": -1,
+                "green_mask": true,
+                "threshold": [
+                    0.9
+                ]
             }
         },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 1000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedReStockClose"
+            "MFGCabinRestockConfirm"
         ]
     },
-    "MFGCarbinNeedReStockClose": {
-        "desc": "[制造舱·需要补货] 点击补货完成界面确认按钮",
+    "MFGCabinRestockConfirm": {
+        "desc": "[制造舱·补货] 补货完成界面点击确认返回制造舱",
         "recognition": {
             "type": "And",
             "param": {
@@ -89,23 +100,35 @@
                 "box_index": 1
             }
         },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "MFGCarbinNeedAssist",
-            "Exit_MFG_Cabin"
-        ]
+        "rate_limit": 0
     },
-    "MFGCarbinNeedTake": {
-        "desc": "[制造舱·需要领取] 识别需要领取的奖励，点击领取",
+    "MFGCabinClaimReward": {
+        "desc": "[制造舱·领奖] 识别可领取奖励的黄按钮并点击",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "YellowConfirmButtonType1",
-                    "MFGCarbinNeedTakeText"
+                    "MFGCabinNeedTakeText"
                 ],
                 "box_index": 1
             }
@@ -114,20 +137,24 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 150,
+            "timeout": 2000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedTakeClose"
+            "MFGCabinClaimRewardClose"
         ]
     },
-    "MFGCarbinNeedTakeClose": {
-        "desc": "[制造舱·需要领取] 点击领取完成界面确认按钮",
+    "MFGCabinClaimRewardClose": {
+        "desc": "[制造舱·领奖] 领奖完成界面点击关闭返回制造舱",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "CloseRewardsButton",
-                    "MFGCarbinNeedTakeCloseText"
+                    "MFGCabinNeedTakeCloseText"
                 ]
             }
         },
@@ -142,47 +169,67 @@
             ]
         },
         "pre_delay": 0,
-        "action": "Click",
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "MFGCarbinNeedReStock",
-            "MFGCarbinNeedAssist",
-            "Exit_MFG_Cabin"
-        ]
+        "rate_limit": 0
     },
-    "MFGCarbinNeedAssist": {
-        "desc": "[制造舱·需要助力] 识别需要助力的奖励，点击使用助力",
+    "MFGCabinAssist": {
+        "desc": "[制造舱·助力] 识别需要助力的制造单并点击进入助力界面",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "InMFGCarbin",
-                    "NeedAssistColor"
+                    "InMFGCabin",
+                    "NeedAssistColor",
+                    "AssistText"
                 ],
-                "box_index": 1
+                "box_index": 2
             }
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
-            "param": {
-                "target_offset": [
-                    -60,
-                    10,
-                    0,
-                    0
-                ]
-            }
+            "type": "Click"
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedAssistUseAssist"
+            "MFGCabinAssistOpen"
         ]
     },
-    "MFGCarbinNeedAssistUseAssist": {
-        "desc": "[制造舱·需要助力] 点击使用助力",
+    "MFGCabinAssistOpen": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    317,
+                    185
+                ],
+                "expected": [
+                    "生产助力"
+                ]
+            }
+        },
+        "post_delay": 0,
+        "pre_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MFGCabinAssistUse"
+        ]
+    },
+    "MFGCabinAssistUse": {
+        "desc": "[制造舱·助力] 助力界面点击“使用助力”进入确认流程",
         "recognition": {
             "type": "And",
             "param": {
@@ -197,15 +244,41 @@
         "action": {
             "type": "Click"
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedAssistAssistMAX",
-            "MFGCarbinNeedAssistConfirm"
+            "MFGCabinStartAssist"
         ]
     },
-    "MFGCarbinNeedAssistAssistMAX": {
-        "desc": "[制造舱·需要助力] 点击最大助力",
+    "MFGCabinStartAssist": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    602,
+                    120,
+                    404,
+                    189
+                ],
+                "expected": [
+                    "使用助力加速当前生产"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]MFGCabinAssistMax",
+            "MFGCabinAssistConfirm"
+        ]
+    },
+    "MFGCabinAssistMax": {
+        "desc": "[制造舱·助力] 在助力界面点击最大助力",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -216,7 +289,12 @@
                     181
                 ],
                 "template": [
-                    "ClaimDijiangRewards/Restock.png"
+                    "ClaimDijiangRewards/ItemMaxButton.png"
+                ],
+                "method": 10001,
+                "green_mask": true,
+                "threshold": [
+                    0.9
                 ]
             }
         },
@@ -225,13 +303,10 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "MFGCarbinNeedAssistConfirm"
-        ]
+        "rate_limit": 0
     },
-    "MFGCarbinNeedAssistConfirm": {
-        "desc": "[制造舱·需要助力] 点击确认使用助力",
+    "MFGCabinAssistConfirm": {
+        "desc": "[制造舱·助力] 点击确认使用助力",
         "recognition": {
             "type": "And",
             "param": {
@@ -246,14 +321,18 @@
         "action": {
             "type": "Click"
         },
+        "pre_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MFGCarbinNeedAssistClose"
+            "MFGCabinAssistClose"
         ]
     },
-    "MFGCarbinNeedAssistClose": {
-        "desc": "[制造舱·需要助力] 点击助力使用完成界面关闭按钮",
+    "MFGCabinAssistClose": {
+        "desc": "[制造舱·助力] 助力完成后点击关闭返回制造舱",
         "recognition": {
             "type": "And",
             "param": {
@@ -262,44 +341,50 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 80,
+            "timeout": 1000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
         "pre_delay": 0,
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 100,
+            "timeout": 1000
+        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "Exit_MFG_Cabin"
-        ]
+        "rate_limit": 0
     },
-    "Exit_MFG_Cabin": {
-        "desc": "[制造舱·离开] 点击左上制造舱标题(contact=1)返回控制中枢",
+    "MFGCabinExit": {
+        "desc": "[制造舱·退出] 点击左上制造舱标题返回控制中枢",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    43,
-                    0,
-                    165,
-                    64
+                "all_of": [
+                    "InMFGCabin",
+                    "FacilityDetails"
                 ],
-                "expected": [
-                    "制造中",
-                    "製造中",
-                    "MFG ?CABIN",
-                    "制造舱"
-                ]
+                "box_index": 1
             }
         },
+        "pre_delay": 0,
         "action": {
             "type": "Click",
             "param": {
                 "contact": 1
             }
         },
-        "post_wait_freezes": {
-            "time": 80,
-            "timeout": 2000
-        }
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InDijiangControlNexus"
+        ]
     }
 }

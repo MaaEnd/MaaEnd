@@ -44,11 +44,11 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -67,7 +67,7 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -85,7 +85,7 @@
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -157,14 +157,21 @@
         ]
     },
     "GoToEternalSunset": {
-        "desc": "前往栖霞驻影",
+        "desc": "前往栖霞驻影，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToEternalSunsetStartPos",
-            "[JumpBack]SceneEnterWorldWulingJingyuValley2"
+            "GoToEternalSunsetNotAtStartPos"
         ]
     },
     "GoToEternalSunsetStartPos": {
-        "desc": "在栖霞驻影任务开始位置附近，聚宝窟外直接拍照",
+        "desc": "在栖霞驻影任务开始位置附近",
         "recognition": "Custom",
         "custom_recognition": "MapTrackerAssertLocation",
         "custom_recognition_param": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToEternalSunsetMapTrackerMove"
+        ]
+    },
+    "GoToEternalSunsetNotAtStartPos": {
+        "desc": "不在栖霞驻影任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingJingyuValley2"
             ]
         },
         "next": [

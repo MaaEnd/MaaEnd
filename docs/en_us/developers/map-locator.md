@@ -38,7 +38,7 @@ Retrieves the large map zone name (ZoneID or mapName) where the player is curren
 **Required Parameters**: **None**
 
 **Optional Parameters (`custom_recognition_param`)**:
-Supports passing advanced parameter settings in JSON string format to override defaults and specifically fine-tune the locator for extreme or specialized scenarios.
+Supports passing advanced parameter settings in JSON object format to override defaults and specifically fine-tune the locator for extreme or specialized scenarios.
 
 - `loc_threshold`: A floating-point number in the range $[0, 1]$, default is `0.55`. Controls the most lenient primary score threshold for image matching features. If the environment is exceedingly complex and causes frequent unexpected tracking losses, you can appropriately lower this (e.g., `0.45`); in normal situations, it's recommended to keep the default or increase it slightly to guarantee precision.
 - `yolo_threshold`: A floating-point number in the range $[0, 1]$, default is `0.70`. The minimum confidence threshold for YOLO to judge map UI categories. A value too low may misidentify UIs similar to mini-maps (like circular menus).
@@ -55,7 +55,7 @@ Upon successful localization or termination of detection, the node will output c
     - `2 (ScreenBlocked)`: Image overwhelmed/occluded by unknown, massive obstructions.
     - `3 (Teleported)`: Coordinate displacement between two frames severely exceeded human/vehicle movement limits, deduced as a forced teleportation.
     - `4 (YoloFailed)`: The initial YOLO model confirmed the current game screenshot does not contain a minimap recognition area.
-- `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map001_lv001").
+- `mapName`: (On Success) The large map area name with the highest localization matching degree (e.g., "map01_lv001").
 - `x`: (On Success) The global pixel coordinate on the X-axis (horizontal).
 - `y`: (On Success) The global pixel coordinate on the Y-axis (vertical).
 - `rot`: (On Success) The true yaw angle computed output (high precision, usually $0^\circ \sim 360^\circ$ with North as zero).
@@ -94,3 +94,59 @@ When executing a long-distance respawn teleport, or when you need to skip the pr
     }
 }
 ```
+
+### custom_recognition: MapLocateAssertLocation
+
+Checks whether the player is currently inside a specified rectangle within a given `zone_id`.
+
+This node is essentially a thin wrapper around `MapLocateRecognition`: it performs one localization pass first, then validates whether the returned `zone_id` and `(x, y)` satisfy the target condition. It is a pure recognition/assertion node. It does not move the character and does not alter navigation state.
+
+#### Node Parameters
+
+**Required Parameters (`custom_recognition_param`)**:
+
+- `zone_id`: Target zone name. It must exactly match the localized zone name.
+- `target`: An array of 4 numbers `[x, y, w, h]`, representing the top-left corner and the rectangle width and height.
+
+**Optional Parameters (`custom_recognition_param`)**:
+
+- `loc_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+- `yolo_threshold`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+- `force_global_search`: Same meaning as in [MapLocateRecognition](#custom_recognition-maplocaterecognition).
+
+#### Return Value Structure (Out Detail)
+
+This node also writes a JSON object to `out_detail`. Common fields include:
+
+- `status`: Underlying localization status code, with the same meaning as `MapLocateRecognition`.
+- `matched`: Boolean. `true` only when both the zone and the rectangle match.
+- `inTarget`: Equivalent to `matched`, provided for direct "inside target area" checks.
+- `message`: Underlying localization log or failure reason.
+- `zoneId`: The target zone name required by this assertion.
+- `x` / `y` / `rot` / `locConf` / `latencyMs`: The localization result for this check; only meaningful when localization succeeds.
+- `target`: Echoes the `[x, y, w, h]` rectangle used for this assertion.
+
+#### Usage Example
+
+```json
+{
+    "WulingBaseAssert": {
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                605,
+                878,
+                60,
+                20
+            ]
+        },
+        "action": "DoNothing"
+    }
+}
+```
+
+> [!TIP]
+>
+> This node is useful as an entry guard before `MapNavigateAction`. For example, you can first confirm that the character is already near a portal landing area, and then decide whether to continue with the corresponding route.

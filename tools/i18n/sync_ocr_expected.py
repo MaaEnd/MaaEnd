@@ -5,7 +5,6 @@
 规则：
 1) 扫描目录：
    - assets/resource/pipeline
-   - assets/resource_fast/pipeline
    - assets/resource_adb/pipeline
 2) OCR 节点判定：
    - recognition == "OCR"
@@ -19,6 +18,11 @@
    - 也可通过 --i18n-dir 指向临时克隆仓库的 i18n 目录
    - 若存在 I18nHotFix.json，会先将 hotfix 覆盖到对应语言表
    简中(CN) -> 繁中(TC) -> 英文(EN) -> 日文(JP)
+5) 额外处理：
+   - 英文 expected 会转为仅忽略大小写、并在单词间放宽空格的正则
+   - OCR 节点会按新旧文本的最长显示宽度，通过 roi_offset 尝试扩展 roi 宽度
+   - roi 优先读取 recognition.param.roi，其次 node.roi
+   - only_rec: true 的节点不参与 roi 调整
 
 默认 dry-run，不修改文件；使用 --write 才会写入。
 若同一节点仅部分命中语言 ID，会保留未命中的原始 expected 文本，
@@ -30,17 +34,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
+import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from typing import Dict, List, Optional, Sequence, Set, Tuple, Union
 
 
 PIPELINE_DIRS = [
     Path("assets/resource/pipeline"),
-    Path("assets/resource_fast/pipeline"),
     Path("assets/resource_adb/pipeline"),
 ]
 
@@ -353,14 +358,20 @@ def apply_hotfix_to_tables(
     return applied_count, skipped_count, True
 
 
-def build_reverse_index(tables: Dict[str, Dict[str, str]]) -> Dict[str, Set[str]]:
+def build_reverse_index(
+    tables: Dict[str, Dict[str, str]],
+) -> Tuple[Dict[str, Set[str]], Dict[str, Set[str]]]:
     reverse: Dict[str, Set[str]] = defaultdict(set)
-    for table in tables.values():
+    english_reverse: Dict[str, Set[str]] = defaultdict(set)
+    for lang, table in tables.items():
         for lang_id, text in table.items():
             if not text:
                 continue
             reverse[normalize_text(text)].add(lang_id)
-    return reverse
+            if lang == "EN":
+                english_reverse[normalize_english_for_match(text)].add(lang_id)
+                reverse[normalize_text(build_english_ocr_regex(text))].add(lang_id)
+    return reverse, english_reverse
 
 
 def member_map(members: Sequence[Member]) -> Dict[str, Member]:
@@ -381,13 +392,26 @@ def get_object_members(parser: JsoncParser, member: Member) -> Optional[List[Mem
     return members
 
 
-def get_array_member_if_exists(parser: JsoncParser, members: Dict[str, Member], key: str) -> Optional[Member]:
+def get_array_member_if_exists(
+    parser: JsoncParser, members: Dict[str, Member], key: str
+) -> Optional[Member]:
     m = members.get(key)
     if not m:
         return None
     if parser.text[m.value_start] != "[":
         return None
     return m
+
+
+def get_bool_value(parser: JsoncParser, member: Optional[Member]) -> Optional[bool]:
+    if member is None:
+        return None
+    raw = parser.text[member.value_start : member.value_end].strip()
+    if raw == "true":
+        return True
+    if raw == "false":
+        return False
+    return None
 
 
 def detect_line_indent(text: str, key_start: int) -> str:
@@ -399,7 +423,18 @@ def detect_line_indent(text: str, key_start: int) -> str:
     return text[line_start:i]
 
 
-def build_expected_array_text(values: Sequence[str], key_indent: str, newline: str) -> str:
+def detect_closing_brace_indent(text: str, brace_index: int) -> str:
+    line_start = text.rfind("\n", 0, brace_index)
+    line_start = 0 if line_start < 0 else line_start + 1
+    i = line_start
+    while i < len(text) and text[i] in (" ", "\t"):
+        i += 1
+    return text[line_start:i]
+
+
+def build_expected_array_text(
+    values: Sequence[str], key_indent: str, newline: str
+) -> str:
     if not values:
         return "[]"
     inner = ("," + newline).join(
@@ -408,13 +443,178 @@ def build_expected_array_text(values: Sequence[str], key_indent: str, newline: s
     return f"[{newline}{inner}{newline}{key_indent}]"
 
 
+def build_numeric_array_text(
+    values: Sequence[Union[int, float]], key_indent: str, newline: str
+) -> str:
+    def format_number(value: Union[int, float]) -> str:
+        if isinstance(value, float) and value.is_integer():
+            value = int(value)
+        return str(value)
+
+    if not values:
+        return "[]"
+    inner = ("," + newline).join(
+        f"{key_indent}{INDENT}{format_number(v)}" for v in values
+    )
+    return f"[{newline}{inner}{newline}{key_indent}]"
+
+
+def parse_array_number_values(
+    parser: JsoncParser, member: Member
+) -> Optional[List[Union[int, float]]]:
+    if parser.text[member.value_start] != "[":
+        return None
+
+    values: List[Union[int, float]] = []
+    i = member.value_start + 1
+    while True:
+        i = parser.skip_ws_comments(i)
+        if i >= parser.n:
+            raise ValueError("Unterminated numeric array")
+        if parser.text[i] == "]":
+            return values
+
+        value_end = parser.parse_value_end(i)
+        raw = parser.text[i:value_end].strip()
+        try:
+            value = json.loads(raw)
+        except ValueError:
+            return None
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return None
+        values.append(value)
+
+        i = parser.skip_ws_comments(value_end)
+        if i < parser.n and parser.text[i] == ",":
+            i += 1
+            continue
+        i = parser.skip_ws_comments(i)
+        if i < parser.n and parser.text[i] == "]":
+            return values
+        raise ValueError(f"Expected ',' or ']' at index {i}")
+
+
+def build_inserted_array_member_text(
+    key: str,
+    values: Sequence[Union[int, float]],
+    key_indent: str,
+    closing_indent: str,
+    newline: str,
+) -> str:
+    array_text = build_numeric_array_text(values, key_indent, newline)
+    return f",{newline}{key_indent}{json.dumps(key)}: {array_text}{newline}{closing_indent}"
+
+
+def apply_roi_offset(
+    roi_values: Sequence[Union[int, float]],
+    roi_offset_values: Sequence[Union[int, float]],
+) -> Optional[List[Union[int, float]]]:
+    if len(roi_values) != 4 or len(roi_offset_values) != 4:
+        return None
+
+    x, y, w, h = [float(v) for v in roi_values]
+    left, top, right, bottom = [float(v) for v in roi_offset_values]
+    new_w = w + right - left
+    new_h = h + bottom - top
+    if new_w <= 0 or new_h <= 0:
+        return None
+    return [x + left, y + top, new_w, new_h]
+
+
+def locate_node_roi_members(
+    parser: JsoncParser, node_member: Member
+) -> Tuple[Optional[Member], Optional[Member]]:
+    node_members, _ = parser.parse_object_members(node_member.value_start)
+    node_map = member_map(node_members)
+
+    recognition_member = node_map.get("recognition")
+    if recognition_member:
+        recognition_str = get_string_value(parser, recognition_member)
+        if recognition_str != "OCR":
+            rec_members = get_object_members(parser, recognition_member)
+            if rec_members is not None:
+                rec_map = member_map(rec_members)
+                param_member = rec_map.get("param")
+                if param_member:
+                    param_members = get_object_members(parser, param_member)
+                    if param_members is not None:
+                        param_map = member_map(param_members)
+                        roi_member = param_map.get("roi")
+                        roi_offset_member = get_array_member_if_exists(
+                            parser, param_map, "roi_offset"
+                        )
+                        if roi_member is not None:
+                            return roi_member, roi_offset_member
+
+    roi_member = node_map.get("roi")
+    if roi_member is None:
+        return None, None
+    roi_offset_member = get_array_member_if_exists(parser, node_map, "roi_offset")
+    return roi_member, roi_offset_member
+
+
+def resolve_effective_roi(
+    parser: JsoncParser,
+    roi_member: Member,
+    roi_offset_member: Optional[Member],
+    root_member_map: Dict[str, Member],
+    roi_cache: Dict[str, Optional[List[Union[int, float]]]],
+    visiting: Set[str],
+) -> Optional[List[Union[int, float]]]:
+    ch = parser.text[roi_member.value_start]
+    base_roi: Optional[List[Union[int, float]]] = None
+    if ch == "[":
+        base_roi = parse_array_number_values(parser, roi_member)
+    elif ch == '"':
+        roi_ref = get_string_value(parser, roi_member)
+        if roi_ref is None:
+            return None
+        if roi_ref in roi_cache:
+            base_roi = roi_cache[roi_ref]
+        else:
+            ref_member = root_member_map.get(roi_ref)
+            if ref_member is None or roi_ref in visiting:
+                return None
+            visiting.add(roi_ref)
+            ref_roi_member, ref_roi_offset_member = locate_node_roi_members(
+                parser, ref_member
+            )
+            if ref_roi_member is not None:
+                base_roi = resolve_effective_roi(
+                    parser,
+                    ref_roi_member,
+                    ref_roi_offset_member,
+                    root_member_map,
+                    roi_cache,
+                    visiting,
+                )
+            visiting.remove(roi_ref)
+            roi_cache[roi_ref] = base_roi
+    if base_roi is None or len(base_roi) != 4:
+        return None
+
+    if roi_offset_member is None:
+        return base_roi
+    roi_offset_values = parse_array_number_values(parser, roi_offset_member)
+    if roi_offset_values is None or len(roi_offset_values) != 4:
+        return None
+    return apply_roi_offset(base_roi, roi_offset_values)
+
+
 def resolve_lang_ids(
-    expected_values: Sequence[str], reverse_index: Dict[str, Set[str]], tables: Dict[str, Dict[str, str]],
+    expected_values: Sequence[str],
+    reverse_index: Dict[str, Set[str]],
+    english_reverse_index: Dict[str, Set[str]],
+    tables: Dict[str, Dict[str, str]],
 ) -> Tuple[List[str], List[str]]:
     candidates_by_text: List[Tuple[str, Set[str]]] = []
     for text in expected_values:
         norm = normalize_text(text)
         candidates = set(reverse_index.get(norm, set()))
+        if not candidates:
+            candidates = set(
+                english_reverse_index.get(normalize_english_for_match(text), set())
+            )
         candidates_by_text.append((text, candidates))
 
     resolved_in_order: List[str] = []
@@ -434,7 +634,9 @@ def resolve_lang_ids(
     # 第二轮：如果歧义候选与已解析 ID 有交集，用交集兜底
     for text, candidates in candidates_by_text:
         if len(candidates) > 1:
-            intersection = [lang_id for lang_id in resolved_in_order if lang_id in candidates]
+            intersection = [
+                lang_id for lang_id in resolved_in_order if lang_id in candidates
+            ]
             if len(intersection) == 1:
                 # 这里表示“该歧义文本可复用一个已解析 ID”，无需重复加入列表
                 # 只把它视为已解析，不进入 unresolved_texts
@@ -456,21 +658,25 @@ def resolve_lang_ids(
     return resolved_in_order, unresolved_texts
 
 
-def expand_expected_from_ids(lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]) -> List[str]:
+def expand_expected_from_ids(
+    lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]
+) -> List[str]:
     expanded: List[str] = []
     seen: Set[str] = set()
     for lang_id in lang_ids:
         row = [tables[lang].get(lang_id, "") for lang in LANG_ORDER]
         if any(row):
             # 若某一语种缺失，保留空字符串会影响 OCR；这里跳过缺失项，并去重
-            for txt in row:
+            for lang, txt in zip(LANG_ORDER, row):
                 if txt and txt not in seen:
-                    expanded.append(txt)
+                    expanded.append(build_expected_text_for_lang(lang, txt))
                     seen.add(txt)
     return expanded
 
 
-def append_unresolved_texts(base_expected: List[str], unresolved_texts: Sequence[str]) -> List[str]:
+def append_unresolved_texts(
+    base_expected: List[str], unresolved_texts: Sequence[str]
+) -> List[str]:
     """
     将未命中的原始 expected 追加到结果末尾，并避免重复追加。
     """
@@ -481,6 +687,140 @@ def append_unresolved_texts(base_expected: List[str], unresolved_texts: Sequence
             result.append(text)
             existing.add(text)
     return result
+
+
+def build_expected_text_for_lang(lang: str, text: str) -> str:
+    if lang != "EN":
+        return text
+    return build_english_ocr_regex(text)
+
+
+def escape_regex_literal(text: str) -> str:
+    return re.sub(r"([\\.^$*+?{}\[\]|()])", r"\\\1", text)
+
+
+def split_english_text_tokens(text: str) -> List[str]:
+    return re.findall(r"[A-Za-z0-9]+|[^A-Za-z0-9\s]+", text)
+
+
+def build_english_ocr_regex(text: str) -> str:
+    tokens = split_english_text_tokens(text)
+    if not tokens:
+        return r"(?i)\s*"
+    pieces = [escape_regex_literal(token) for token in tokens]
+    return rf"(?i){r'\s*'.join(pieces)}"
+
+
+def normalize_english_for_match(text: str) -> str:
+    tokens = split_english_text_tokens(
+        text.replace("\r\n", "\n").replace("\r", "\n").strip()
+    )
+    return "\u0000".join(token.casefold() for token in tokens)
+
+
+def expected_text_matches_lang_text(
+    expected_text: str, lang: str, lang_text: str
+) -> bool:
+    if lang == "EN":
+        if normalize_text(expected_text) == normalize_text(
+            build_english_ocr_regex(lang_text)
+        ):
+            return True
+        return normalize_english_for_match(
+            expected_text
+        ) == normalize_english_for_match(lang_text)
+    return normalize_text(expected_text) == normalize_text(lang_text)
+
+
+def estimate_text_display_width(text: str) -> float:
+    width = 0.0
+    for ch in text:
+        if ch.isspace():
+            continue
+        if unicodedata.east_asian_width(ch) in ("W", "F"):
+            width += 2.0
+        else:
+            width += 1.0
+    return width
+
+
+def estimate_expected_max_width(
+    expected_values: Sequence[str],
+    lang_ids: Sequence[str],
+    tables: Dict[str, Dict[str, str]],
+) -> float:
+    widths: List[float] = []
+    for expected_text in expected_values:
+        for lang_id in lang_ids:
+            matched = False
+            for lang in LANG_ORDER:
+                lang_text = tables[lang].get(lang_id, "")
+                if not lang_text:
+                    continue
+                if expected_text_matches_lang_text(expected_text, lang, lang_text):
+                    widths.append(estimate_text_display_width(lang_text))
+                    matched = True
+                    break
+            if matched:
+                break
+    return max(widths, default=0.0)
+
+
+def estimate_translated_max_width(
+    lang_ids: Sequence[str], tables: Dict[str, Dict[str, str]]
+) -> float:
+    widths = [
+        estimate_text_display_width(text)
+        for lang_id in lang_ids
+        for lang in LANG_ORDER
+        for text in [tables[lang].get(lang_id, "")]
+        if text
+    ]
+    return max(widths, default=0.0)
+
+
+def estimate_roi_base_width(
+    old_expected: Sequence[str],
+    new_expected: Sequence[str],
+    lang_ids: Sequence[str],
+    tables: Dict[str, Dict[str, str]],
+) -> float:
+    """
+    ROI 宽度基准：
+    - 若本轮生成结果与旧 expected 不同，说明当前 ROI 仍对应“旧文本”，
+      基准宽度取旧 expected 中能匹配回语言表的文本宽度。
+    - 若本轮生成结果与旧 expected 相同，说明节点已经处于当前展开结果，
+      基准宽度取当前展开后的最长文本宽度，避免重复放大。
+    """
+    if list(old_expected) == list(new_expected):
+        return estimate_translated_max_width(lang_ids, tables)
+    return estimate_expected_max_width(old_expected, lang_ids, tables)
+
+
+def compute_expanded_roi(
+    roi_values: Sequence[Union[int, float]],
+    old_max_width: float,
+    new_max_width: float,
+) -> Optional[List[Union[int, float]]]:
+    if len(roi_values) != 4 or old_max_width <= 0 or new_max_width <= old_max_width:
+        return None
+
+    x, y, w, h = roi_values
+    if isinstance(w, bool) or not isinstance(w, (int, float)):
+        return None
+    if isinstance(x, bool) or not isinstance(x, (int, float)):
+        return None
+
+    new_w = int(math.ceil(float(w) * new_max_width / old_max_width))
+    max_w = int(math.floor(1280 - float(x)))
+    if max_w <= int(math.floor(float(w))):
+        return None
+
+    new_w = min(new_w, max_w)
+    if new_w <= float(w):
+        return None
+
+    return [x, y, new_w, h]
 
 
 def has_i18n_skip_marker(text: str, expected_member: Member) -> bool:
@@ -505,24 +845,36 @@ def safe_print(message: str) -> None:
         if hasattr(sys.stdout, "buffer"):
             sys.stdout.buffer.write((message + "\n").encode(encoding, errors="replace"))
         else:
-            print(message.encode(encoding, errors="replace").decode(encoding, errors="replace"))
+            print(
+                message.encode(encoding, errors="replace").decode(
+                    encoding, errors="replace"
+                )
+            )
+
+
+@dataclass
+class Replacement:
+    value_start: int
+    value_end: int
+    replacement: str
 
 
 @dataclass
 class NodeChange:
     node_name: str
-    value_start: int
-    value_end: int
-    replacement: str
+    replacements: List[Replacement]
     old_expected: List[str]
     new_expected: List[str]
     unresolved_texts: List[str]
+    old_roi: Optional[List[Union[int, float]]] = None
+    new_roi: Optional[List[Union[int, float]]] = None
 
 
 def process_pipeline_file(
     path: Path,
     tables: Dict[str, Dict[str, str]],
     reverse_index: Dict[str, Set[str]],
+    english_reverse_index: Dict[str, Set[str]],
 ) -> Tuple[str, List[NodeChange], List[Tuple[str, str, List[str]]], int, int]:
     text = path.read_text(encoding="utf-8")
     parser = JsoncParser(text)
@@ -530,6 +882,8 @@ def process_pipeline_file(
 
     root_start = parser.skip_ws_comments(0)
     root_members, _ = parser.parse_object_members(root_start)
+    root_member_map = {member.key: member for member in root_members}
+    roi_cache: Dict[str, Optional[List[Union[int, float]]]] = {}
 
     changes: List[NodeChange] = []
     unresolved_nodes: List[Tuple[str, str, List[str]]] = []
@@ -541,12 +895,16 @@ def process_pipeline_file(
             continue
 
         node_name = node_member.key
-        node_members, _ = parser.parse_object_members(node_member.value_start)
+        node_members, node_end = parser.parse_object_members(node_member.value_start)
         node_map = member_map(node_members)
+        only_rec = get_bool_value(parser, node_map.get("only_rec")) is True
 
         recognition_member = node_map.get("recognition")
         is_ocr = False
         expected_member: Optional[Member] = None
+        roi_member: Optional[Member] = None
+        roi_offset_member: Optional[Member] = None
+        roi_container_end = node_end
 
         if recognition_member:
             recognition_str = get_string_value(parser, recognition_member)
@@ -557,19 +915,33 @@ def process_pipeline_file(
                 if rec_members is not None:
                     rec_map = member_map(rec_members)
                     type_member = rec_map.get("type")
-                    rec_type = get_string_value(parser, type_member) if type_member else None
+                    rec_type = (
+                        get_string_value(parser, type_member) if type_member else None
+                    )
                     if rec_type == "OCR":
                         is_ocr = True
 
                     # 优先取 recognition.param.expected，其次 recognition.expected
                     param_member = rec_map.get("param")
                     if param_member:
-                        param_members = get_object_members(parser, param_member)
+                        param_members, param_end = parser.parse_object_members(
+                            param_member.value_start
+                        )
                         if param_members is not None:
                             param_map = member_map(param_members)
+                            only_rec = only_rec or (
+                                get_bool_value(parser, param_map.get("only_rec"))
+                                is True
+                            )
                             expected_member = get_array_member_if_exists(
                                 parser, param_map, "expected"
                             )
+                            roi_member = param_map.get("roi")
+                            roi_offset_member = get_array_member_if_exists(
+                                parser, param_map, "roi_offset"
+                            )
+                            if roi_member is not None:
+                                roi_container_end = param_end
                     if expected_member is None:
                         expected_member = get_array_member_if_exists(
                             parser, rec_map, "expected"
@@ -577,6 +949,13 @@ def process_pipeline_file(
 
         if expected_member is None:
             expected_member = get_array_member_if_exists(parser, node_map, "expected")
+        if roi_member is None:
+            roi_member = node_map.get("roi")
+            roi_offset_member = get_array_member_if_exists(
+                parser, node_map, "roi_offset"
+            )
+            if roi_member is not None:
+                roi_container_end = node_end
 
         if not (is_ocr and expected_member):
             continue
@@ -587,33 +966,113 @@ def process_pipeline_file(
 
         ocr_nodes_with_expected += 1
         old_expected, _ = parser.parse_array_string_values(expected_member.value_start)
-        lang_ids, unresolved_texts = resolve_lang_ids(old_expected, reverse_index, tables)
+        lang_ids, unresolved_texts = resolve_lang_ids(
+            old_expected, reverse_index, english_reverse_index, tables
+        )
 
         if not lang_ids:
-            unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))
+            unresolved_nodes.append(
+                (str(path), node_name, unresolved_texts or old_expected)
+            )
             continue
 
         new_expected = expand_expected_from_ids(lang_ids, tables)
         if not new_expected:
-            unresolved_nodes.append((str(path), node_name, unresolved_texts or old_expected))
+            unresolved_nodes.append(
+                (str(path), node_name, unresolved_texts or old_expected)
+            )
             continue
         new_expected = append_unresolved_texts(new_expected, unresolved_texts)
+        replacements: List[Replacement] = []
 
-        if new_expected == old_expected:
+        if new_expected != old_expected:
+            key_indent = detect_line_indent(text, expected_member.key_start)
+            replacement = build_expected_array_text(new_expected, key_indent, newline)
+            replacements.append(
+                Replacement(
+                    value_start=expected_member.value_start,
+                    value_end=expected_member.value_end,
+                    replacement=replacement,
+                )
+            )
+
+        old_roi: Optional[List[Union[int, float]]] = None
+        new_roi: Optional[List[Union[int, float]]] = None
+        if not only_rec and roi_member is not None:
+            effective_roi = resolve_effective_roi(
+                parser,
+                roi_member,
+                roi_offset_member,
+                root_member_map,
+                roi_cache,
+                {node_name},
+            )
+            if effective_roi is not None and len(effective_roi) == 4:
+                old_max_width = estimate_roi_base_width(
+                    old_expected, new_expected, lang_ids, tables
+                )
+                new_max_width = estimate_translated_max_width(lang_ids, tables)
+                expanded_roi = compute_expanded_roi(
+                    effective_roi, old_max_width, new_max_width
+                )
+                if expanded_roi is not None:
+                    delta_w = expanded_roi[2] - effective_roi[2]
+                    if delta_w > 0:
+                        key_indent = detect_line_indent(text, roi_member.key_start)
+                        if roi_offset_member is not None:
+                            roi_offset_values = parse_array_number_values(
+                                parser, roi_offset_member
+                            )
+                            if (
+                                roi_offset_values is not None
+                                and len(roi_offset_values) == 4
+                            ):
+                                new_roi_offset = list(roi_offset_values)
+                                new_roi_offset[2] = float(new_roi_offset[2]) + delta_w
+                                replacements.append(
+                                    Replacement(
+                                        value_start=roi_offset_member.value_start,
+                                        value_end=roi_offset_member.value_end,
+                                        replacement=build_numeric_array_text(
+                                            new_roi_offset, key_indent, newline
+                                        ),
+                                    )
+                                )
+                            else:
+                                delta_w = 0
+                        else:
+                            closing_indent = detect_closing_brace_indent(
+                                text, roi_container_end - 1
+                            )
+                            replacements.append(
+                                Replacement(
+                                    value_start=roi_container_end - 1,
+                                    value_end=roi_container_end - 1,
+                                    replacement=build_inserted_array_member_text(
+                                        "roi_offset",
+                                        [0, 0, delta_w, 0],
+                                        key_indent,
+                                        closing_indent,
+                                        newline,
+                                    ),
+                                )
+                            )
+                        if delta_w > 0:
+                            old_roi = list(effective_roi)
+                            new_roi = expanded_roi
+
+        if not replacements:
             continue
-
-        key_indent = detect_line_indent(text, expected_member.key_start)
-        replacement = build_expected_array_text(new_expected, key_indent, newline)
 
         changes.append(
             NodeChange(
                 node_name=node_name,
-                value_start=expected_member.value_start,
-                value_end=expected_member.value_end,
-                replacement=replacement,
+                replacements=replacements,
                 old_expected=old_expected,
                 new_expected=new_expected,
                 unresolved_texts=unresolved_texts,
+                old_roi=old_roi,
+                new_roi=new_roi,
             )
         )
 
@@ -621,13 +1080,22 @@ def process_pipeline_file(
         return text, [], unresolved_nodes, ocr_nodes_with_expected, skipped_by_marker
 
     new_text = text
-    for change in sorted(changes, key=lambda c: c.value_start, reverse=True):
+    replacements = [
+        replacement for change in changes for replacement in change.replacements
+    ]
+    for change in sorted(replacements, key=lambda c: c.value_start, reverse=True):
         new_text = (
             new_text[: change.value_start]
             + change.replacement
             + new_text[change.value_end :]
         )
-    return new_text, changes, unresolved_nodes, ocr_nodes_with_expected, skipped_by_marker
+    return (
+        new_text,
+        changes,
+        unresolved_nodes,
+        ocr_nodes_with_expected,
+        skipped_by_marker,
+    )
 
 
 def iter_pipeline_files(base_dir: Path) -> List[Path]:
@@ -670,8 +1138,10 @@ def main() -> int:
 
     base_dir = args.base_dir.resolve()
     tables, i18n_dir = load_i18n_tables(base_dir, args.i18n_dir)
-    hotfix_applied, hotfix_skipped, has_hotfix = apply_hotfix_to_tables(tables, i18n_dir)
-    reverse_index = build_reverse_index(tables)
+    hotfix_applied, hotfix_skipped, has_hotfix = apply_hotfix_to_tables(
+        tables, i18n_dir
+    )
+    reverse_index, english_reverse_index = build_reverse_index(tables)
     pipeline_files = iter_pipeline_files(base_dir)
 
     safe_print(f"[INFO] using i18n dir: {i18n_dir}")
@@ -693,8 +1163,10 @@ def main() -> int:
 
     for file_path in pipeline_files:
         try:
-            new_text, changes, unresolved_nodes, ocr_nodes, skipped_nodes = process_pipeline_file(
-                file_path, tables, reverse_index
+            new_text, changes, unresolved_nodes, ocr_nodes, skipped_nodes = (
+                process_pipeline_file(
+                    file_path, tables, reverse_index, english_reverse_index
+                )
             )
         except Exception as exc:
             safe_print(f"[ERROR] {file_path}: {exc}")

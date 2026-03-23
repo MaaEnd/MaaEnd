@@ -444,6 +444,7 @@ enc_temp_folder/*
 
 # MaaDebugger
 .nicegui/*
+.maa
 
 # Build
 install/
@@ -456,6 +457,7 @@ debug
 
 # Claude
 .claude/
+!.claude/skills/
 
 # macOS
 .DS_Store
@@ -478,3 +480,6 @@ venv/
 
 # maa-tools
 tests/maatools
+
+# oh-my-opencode
+.sisyphus/

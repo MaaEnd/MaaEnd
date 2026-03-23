@@ -1,0 +1,222 @@
+{
+    "AutoStockpileCheckOverflow": {
+        "desc": "通过颜色初步判断是否溢出",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    250,
+                    135,
+                    325,
+                    30
+                ],
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        200,
+                        200
+                    ]
+                ],
+                "upper": [
+                    [
+                        20,
+                        255,
+                        255
+                    ]
+                ],
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetGoods": {
+        "desc": "对购买区域进行OCR",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    1170,
+                    500
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "color_filter": "AutoStockpileGoodsFilter",
+                "threshold": 0.75
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileLocateGoods": {
+        "desc": "定位商品，具体模板会在运行时被go覆写",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    1170,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/Goods/Wuling/WulingFrozenPears.Tier1.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGoodsFilter": {
+        "desc": "过滤噪声，只保留价格和商品名",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        70
+                    ]
+                ],
+                "upper": [
+                    [
+                        5,
+                        10,
+                        120
+                    ]
+                ]
+            }
+        }
+    },
+    "AutoStockpileGetQuotaAddition": {
+        "desc": "获取购买数量增加量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    280,
+                    140,
+                    120,
+                    20
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockpileGetQuotaAdditionFilter"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuotaFilter": {
+        "desc": "去除背景干扰",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        100
+                    ]
+                ],
+                "upper": [
+                    [
+                        50,
+                        50,
+                        200
+                    ]
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuotaAdditionFilter": {
+        "desc": "去除背景干扰",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 40,
+                "lower": [
+                    [
+                        0,
+                        0,
+                        0
+                    ]
+                ],
+                "upper": [
+                    [
+                        35,
+                        255,
+                        200
+                    ]
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileGetQuota": {
+        "desc": "获取购买数量",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    120,
+                    140,
+                    160,
+                    20
+                ],
+                "expected": [
+                    ".*"
+                ],
+                "only_rec": true,
+                "color_filter": "AutoStockpileGetQuotaFilter"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockpileFindMarketMark": {
+        "desc": "寻找市场图标，用于精确roi",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    60,
+                    175,
+                    30,
+                    500
+                ],
+                "template": [
+                    "AutoStockpile/MarketMark.png"
+                ],
+                "threshold": [
+                    0.8
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

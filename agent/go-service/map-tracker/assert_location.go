@@ -62,42 +62,45 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 	}
 
 	// Prepare and run MapTrackerInfer
-	nodeName := "MapTrackerAssertLocation_Infer"
-	config := map[string]any{
-		nodeName: map[string]any{
-			"recognition":        "Custom",
-			"custom_recognition": "MapTrackerInfer",
-			"custom_recognition_param": map[string]any{
-				"map_name_regex": mapNameRegex,
-				"precision":      param.Precision,
-				"threshold":      param.Threshold,
-			},
-		},
+	inferConfig := map[string]any{
+		"map_name_regex": mapNameRegex,
+		"precision":      param.Precision,
+		"threshold":      param.Threshold,
 	}
 
-	// We pass the same image provided to this recognition
-	res, err := ctx.RunRecognition(nodeName, arg.Img, config)
+	inferConfigBytes, err := json.Marshal(inferConfig)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to run MapTrackerInfer during location assertion")
+		log.Error().Err(err).Msg("Failed to marshal inference config")
 		return nil, false
 	}
-	if res == nil || res.DetailJson == "" {
+
+	taskDetail, err := ctx.GetTaskJob().GetDetail()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get task detail")
+		return nil, false
+	}
+
+	resultWrapper, hit := mapTrackerInferRunner.Run(ctx, &maa.CustomRecognitionArg{
+		TaskID:                 taskDetail.ID,
+		CurrentTaskName:        taskDetail.Entry,
+		CustomRecognitionName:  "MapTrackerInfer",
+		CustomRecognitionParam: string(inferConfigBytes),
+		Img:                    arg.Img,
+		Roi:                    arg.Roi,
+	})
+
+	if !hit {
+		log.Info().Msg("Location assertion not satisfied, inference not hit")
+		return nil, false
+	}
+	if resultWrapper == nil || resultWrapper.Detail == "" {
 		log.Info().Msg("Location assertion not satisfied, inference returned no result")
 		return nil, false
 	}
 
-	// Extract inference result
+	// Extract result
 	var result MapTrackerInferResult
-	var wrapped struct {
-		Best struct {
-			Detail json.RawMessage `json:"detail"`
-		} `json:"best"`
-	}
-	if err := json.Unmarshal([]byte(res.DetailJson), &wrapped); err != nil {
-		log.Error().Err(err).Msg("Failed to unmarshal wrapped inference result")
-		return nil, false
-	}
-	if err := json.Unmarshal(wrapped.Best.Detail, &result); err != nil {
+	if err := json.Unmarshal([]byte(resultWrapper.Detail), &result); err != nil {
 		log.Error().Err(err).Msg("Failed to unmarshal MapTrackerInferResult")
 		return nil, false
 	}
@@ -113,7 +116,7 @@ func (r *MapTrackerAssertLocation) Run(ctx *maa.Context, arg *maa.CustomRecognit
 
 				return &maa.CustomRecognitionResult{
 					Box:    arg.Roi,
-					Detail: res.DetailJson,
+					Detail: resultWrapper.Detail,
 				}, true
 			}
 		}

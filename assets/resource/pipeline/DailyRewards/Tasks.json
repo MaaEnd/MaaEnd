@@ -22,9 +22,8 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "Operational Manual",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
-                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -77,8 +76,9 @@
                 "expected": [
                     "领取",
                     "領取",
-                    "[Cc]laim",
-                    "受取"
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
                 ]
             }
         },
@@ -90,7 +90,7 @@
     "DailyTaskClaimActivityRewards": {
         "desc": "领取活跃度奖励",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     160,
@@ -98,8 +98,18 @@
                     180,
                     350
                 ],
-                "template": "DailyRewards/ActivityReward.png",
-                "threshold": 0.9
+                "lower": [
+                    240,
+                    100,
+                    0
+                ],
+                "upper": [
+                    255,
+                    130,
+                    15
+                ],
+                "connected": true,
+                "count": 20
             }
         },
         "action": {
@@ -112,15 +122,6 @@
                     0
                 ]
             }
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "target": [
-                230,
-                250,
-                800,
-                200
-            ]
         },
         "next": [
             "SceneNoticeRewardsConfirm"
@@ -153,7 +154,8 @@
                 ],
                 "template": [
                     "DailyRewards/FinishedTaskIcon.png"
-                ]
+                ],
+                "green_mask": true
             }
         },
         "next": [
@@ -174,7 +176,7 @@
                 "expected": [
                     "今日活跃度已达上限",
                     "今日活躍度已達上限",
-                    "Daily Activity Points Maxed",
+                    "(?i)Daily\\s*Activity\\s*Points\\s*Maxed",
                     "上限到達"
                 ]
             }
@@ -225,7 +227,7 @@
                 "expected": [
                     "武器等级",
                     "武器等級",
-                    "Weapon Level",
+                    "(?i)Weapon\\s*Level",
                     "レベル",
                     "Level up a weapon"
                 ]
@@ -253,7 +255,7 @@
                 "expected": [
                     "简易制作",
                     "簡易製作",
-                    "Crafting",
+                    "(?i)Crafting",
                     "道具製作"
                 ]
             }
@@ -280,7 +282,7 @@
                 "expected": [
                     "装备制造",
                     "裝備製造",
-                    "Gear Assembly",
+                    "(?i)Gear\\s*Assembly",
                     "装備製造",
                     "Assemble gear"
                 ]
@@ -301,8 +303,8 @@
                 "roi_offset": [
                     429,
                     -10,
-                    94,
-                    20
+                    110,
+                    60
                 ],
                 "expected": [
                     "前往",
@@ -349,8 +351,8 @@
                 "roi_offset": [
                     429,
                     -10,
-                    94,
-                    20
+                    110,
+                    60
                 ],
                 "expected": [
                     "前往",
@@ -396,8 +398,8 @@
                 "roi_offset": [
                     429,
                     -10,
-                    94,
-                    20
+                    110,
+                    60
                 ],
                 "expected": [
                     "前往",

@@ -26,7 +26,7 @@
         "expected": [
             "室内作物",
             "室內作物",
-            "Indoor Crops",
+            "(?i)Indoor\\s*Crops",
             "室内の作物",
             "실내 작물"
         ]
@@ -44,11 +44,11 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "의뢰 수령",
             "임무로 이동하기"
@@ -67,7 +67,7 @@
         "expected": [
             "接取委托",
             "接取委託",
-            "Accept Job",
+            "(?i)Accept\\s*Job",
             "引き受ける",
             "의뢰 수령"
         ]
@@ -85,7 +85,7 @@
         "expected": [
             "前往任务",
             "前往任務",
-            "Go to Mission",
+            "(?i)Go\\s*to\\s*Mission",
             "任務へ",
             "임무로 이동하기"
         ]
@@ -157,10 +157,17 @@
         ]
     },
     "GoToIndoorCrops": {
-        "desc": "前往室内作物",
+        "desc": "前往室内作物，先回到大世界再进行判断",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "next": [
             "GoToIndoorCropsStartPos",
-            "[JumpBack]SceneEnterWorldWulingWulingCity4"
+            "GoToIndoorCropsNotAtStartPos"
         ]
     },
     "GoToIndoorCropsStartPos": {
@@ -178,6 +185,19 @@
                         15
                     ]
                 }
+            ]
+        },
+        "next": [
+            "GoToIndoorCropsMapTrackerMove"
+        ]
+    },
+    "GoToIndoorCropsNotAtStartPos": {
+        "desc": "不在室内作物任务开始位置附近",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingWulingCity4"
             ]
         },
         "next": [

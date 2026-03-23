@@ -1,0 +1,63 @@
+name: AI Issue Analysis
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to analyze'
+        required: true
+        type: number
+
+jobs:
+  copilot-analysis:
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.action == 'created' &&
+       contains(github.event.comment.body, '@MaaEndBot') &&
+       github.event.comment.user.type != 'Bot')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      # 这个 action 只负责编排，分析质量仍依赖配套的 issue/log analysis skill。
+      # 详细使用文档：https://github.com/MistEO/ai-issue-analysis
+      # 最佳实践参考：
+      # - https://github.com/MaaEnd/MaaEnd/blob/v2/.claude/skills/maaend-issue-log-analysis/SKILL.md
+      # - https://github.com/MaaAssistantArknights/MaaAssistantArknights/blob/dev-v2/.claude/skills/maa-issue-log-analysis/SKILL.md
+      - name: Analyze issue with AI
+        id: analysis
+        uses: Misteo/ai-issue-analysis@main
+        with:
+          github-token: ${{ secrets.MAAEND_BOT_TOKEN }}
+          copilot-github-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          bot-name: '@MaaEndBot'
+          initial-comment-body: |
+            🤖 **MaaEndBot 正在分析该 Issue...**  
+            
+            感谢您的反馈！AI 正在自动分析该问题，预计耗时约 10 分钟。
+          prompt-template: |
+            分析 GitHub Issue {{issue_number}}。把最终结论写到 {{copilot_answer_file}}。
+
+      - name: 查看完整输入输出
+        if: always()
+        env:
+          ANALYSIS_PROMPT: ${{ steps.analysis.outputs.analysis-prompt }}
+          ISSUE_NUMBER: ${{ steps.analysis.outputs.issue-number }}
+          COMMENT_ID: ${{ steps.analysis.outputs.comment-id }}
+          COMMENT_URL: ${{ steps.analysis.outputs.comment-url }}
+          COPILOT_OUTPUT: ${{ steps.analysis.outputs.copilot-output }}
+          FINAL_CONCLUSION: ${{ steps.analysis.outputs.final-conclusion }}
+        run: |
+          printf '%s\n' "$ANALYSIS_PROMPT"
+          echo "issue_number=$ISSUE_NUMBER"
+          echo "comment_id=$COMMENT_ID"
+          echo "comment_url=$COMMENT_URL"
+          printf '%s\n' "$COPILOT_OUTPUT"
+          printf '%s\n' "$FINAL_CONCLUSION"

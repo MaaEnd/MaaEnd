@@ -8,14 +8,24 @@
         "desc": "这块代码是用来前往四号谷地农场的",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmInOriginiumSciencePark2", //检测是否传送成功
-            "[JumpBack]SceneEnterWorldValleyIVOriginiumSciencePark2" //传送到谷地源石园区山道缓坡
+            "_AutoEcoFarmInOriginiumSciencePark2",
+            "[JumpBack]_AutoEcoFarmValleyIV_TeleportRetryOnce",
+            "_AutoEcoFarmGotoValleyIVEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmValleyIV_TeleportRetryOnce": {
+        "desc": "万能跳转兜底至多2次（JumpBack 回到 Start 后 max_hit 用尽即跳过，避免死循环）",
+        "max_hit": 2,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "SceneEnterWorldValleyIVOriginiumSciencePark2"
         ]
     },
     "_AutoEcoFarmGotoValleyIVEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandValleyStart"
+            "_AutoEcoFarmFindFarmlandValleyStart"
         ]
     },
     //武陵的节点出入口
@@ -23,14 +33,24 @@
         "desc": "这块代码是用来前往武陵农场的",
         "max_hit": 1,
         "next": [
-            "_AutoEcoFarmInWulingCityCore", //检测是否传送成功
-            "[JumpBack]SceneEnterWorldWulingWulingCityCore" //传送到谷地源石园区山道缓坡
+            "_AutoEcoFarmInWulingCityCore",
+            "[JumpBack]_AutoEcoFarmWuling_TeleportRetryOnce",
+            "_AutoEcoFarmGotoWulinEcoFarm"
+        ]
+    },
+    "_AutoEcoFarmWuling_TeleportRetryOnce": {
+        "desc": "万能跳转兜底至多2次（JumpBack 回到 Start 后 max_hit 用尽即跳过，避免死循环）",
+        "max_hit": 2,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "SceneEnterWorldWulingWulingCityCore"
         ]
     },
     "_AutoEcoFarmGotoWulinEcoFarmExit": {
         "next": [
             //到目的地后开始识别农田并靠近
-            "_AutoEcoFindFarmFarmlandWulinStart"
+            "_AutoEcoFarmFindFarmlandWulinStart"
         ]
     },
     //内部节点
@@ -49,7 +69,8 @@
                         26
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [
@@ -63,42 +84,44 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map01_lv005",
+            "path_trim": true,
+            "fine_approach": "Never",
             "path": [
                 [
-                    522,
-                    243
+                    522.0,
+                    243.0
                 ],
                 [
-                    522,
-                    254
+                    518.7,
+                    249.5
                 ],
                 [
-                    527,
-                    270
+                    528.2,
+                    268.2
                 ],
                 [
-                    527,
-                    280
+                    525.8,
+                    280.1
                 ],
                 [
-                    526,
-                    292
+                    526.0,
+                    292.0
                 ],
                 [
-                    547,
-                    320
+                    541.5,
+                    320.0
                 ],
                 [
-                    547,
-                    332
+                    546.2,
+                    330.4
                 ],
                 [
-                    554,
-                    332
+                    554.6,
+                    333.2
                 ],
                 [
-                    569,
-                    341
+                    569.0,
+                    341.0
                 ]
             ]
         },
@@ -122,7 +145,8 @@
                         55
                     ]
                 }
-            ]
+            ],
+            "fast_mode": true
         },
         "action": "DoNothing",
         "next": [
@@ -136,38 +160,40 @@
         "custom_action": "MapTrackerMove",
         "custom_action_param": {
             "map_name": "map02_lv002",
+            "path_trim": true,
+            "fine_approach": "Never",
             "path": [
                 [
-                    383,
-                    237
+                    383.0,
+                    237.0
                 ],
                 [
-                    391,
-                    232
+                    390.7,
+                    233.3
                 ],
                 [
-                    403,
-                    229
+                    404.0,
+                    231.6
                 ],
                 [
-                    411,
-                    223
+                    417.0,
+                    228.1
                 ],
                 [
-                    418,
-                    213
+                    424.9,
+                    220.5
                 ],
                 [
-                    426,
-                    200
+                    426.0,
+                    204.4
                 ],
                 [
-                    426,
-                    193
+                    425.9,
+                    189.4
                 ],
                 [
-                    443,
-                    192
+                    443.0,
+                    192.0
                 ]
             ]
         },

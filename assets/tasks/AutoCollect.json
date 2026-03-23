@@ -1,0 +1,89 @@
+{
+    "task": [
+        {
+            "name": "AutoCollect",
+            "label": "$task.AutoCollect.label",
+            "entry": "AutoCollectStart",
+            "description": "$task.AutoCollect.description",
+            "controller": [
+                "Win32-Front"
+            ],
+            "option": [
+                "AutoCollectRoute1",
+                "AutoCollectRoute2",
+                "AutoCollectRoute3"
+            ],
+            "group": [
+                "foreground"
+            ]
+        }
+    ],
+    "option": {
+        "AutoCollectRoute1": {
+            "type": "switch",
+            "label": "$option.AutoCollectRoute1.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoCollectRoute1Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoCollectRoute1Sub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCollectRoute2": {
+            "type": "switch",
+            "label": "$option.AutoCollectRoute2.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoCollectRoute2Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoCollectRoute2Sub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoCollectRoute3": {
+            "type": "switch",
+            "label": "$option.AutoCollectRoute3.label",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoCollectRoute3Sub": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoCollectRoute3Sub": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

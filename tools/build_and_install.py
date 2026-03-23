@@ -148,7 +148,9 @@ def build_go_agent(
 
     go_service_dir = root_dir / "agent" / "go-service"
     if not go_service_dir.exists():
-        print(f"  {Console.err(t('error'))} {t('go_source_not_found')}: {go_service_dir}")
+        print(
+            f"  {Console.err(t('error'))} {t('go_source_not_found')}: {go_service_dir}"
+        )
         return False
 
     # 检测或使用指定的系统和架构
@@ -167,7 +169,9 @@ def build_go_agent(
         goarch = (
             "amd64"
             if machine in ("x86_64", "amd64")
-            else "arm64" if machine in ("aarch64", "arm64") else machine
+            else "arm64"
+            if machine in ("aarch64", "arm64")
+            else machine
         )
 
     ext = ".exe" if goos == "windows" else ""
@@ -181,9 +185,13 @@ def build_go_agent(
 
     env = {**os.environ, "GOOS": goos, "GOARCH": goarch, "CGO_ENABLED": "0"}
 
-    # 每次构建前统一刷新 go.mod / go.sum / vendor，避免依赖漂移。
+    # 开发模式下自动同步 go.mod / go.sum；CI 模式下只校验是否已同步，避免静默改动依赖文件。
+    tidy_cmd = ["go", "mod", "tidy"]
+    if ci_mode:
+        tidy_cmd.append("-diff")
+
     tidy_result = subprocess.run(
-        ["go", "mod", "tidy"],
+        tidy_cmd,
         cwd=go_service_dir,
         capture_output=True,
         text=True,
@@ -193,7 +201,20 @@ def build_go_agent(
     if tidy_result.stdout:
         print(tidy_result.stdout)
     if tidy_result.returncode != 0:
-        print(f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {tidy_result.stderr}")
+        if ci_mode:
+            print(f"  {Console.err(t('error'))} {t('go_mod_files_out_of_sync')}")
+            if tidy_result.stderr:
+                max_stderr_chars = 8 * 1024
+                stderr_snippet = tidy_result.stderr.rstrip()
+                if len(stderr_snippet) > max_stderr_chars:
+                    stderr_snippet = stderr_snippet[-max_stderr_chars:]
+                print(
+                    f"  {Console.err(t('error'))} {t('go_mod_tidy_stderr')}:\n{stderr_snippet}"
+                )
+        else:
+            print(
+                f"  {Console.err(t('error'))} {t('go_mod_tidy_failed')}: {tidy_result.stderr}"
+            )
         return False
     if tidy_result.stderr:
         print(tidy_result.stderr)
@@ -507,7 +528,9 @@ def main():
     # 3. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
     if args.cpp_algo:
         print(Console.step(t("step_build_cpp")))
-        if not build_cpp_algo(root_dir, install_dir, args.target_os, args.target_arch, use_copy):
+        if not build_cpp_algo(
+            root_dir, install_dir, args.target_os, args.target_arch, use_copy
+        ):
             print(f"  {t('error')} {t('build_cpp_failed')}")
             sys.exit(1)
     else:

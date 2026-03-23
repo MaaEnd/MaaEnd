@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "通用按钮，测试白色确定按钮类型2(对号)",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "帝江号_控制中枢_会客室_需要接收.png",
+            "hits": [
+                "WhiteConfirmButtonType2"
+            ]
+        },
+        {
+            "image": "四号谷地_地区建设_据点_选择交易货品.png",
+            "hits": [
+                "WhiteConfirmButtonType2"
+            ]
+        }
+    ]
+}

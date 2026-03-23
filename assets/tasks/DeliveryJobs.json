@@ -8,7 +8,8 @@
             "option": [
                 "ValleyIV",
                 "Wuling",
-                "PackCargoSelectItem"
+                "PackCargoSelectItem",
+                "DeliveryJobsAcceptJobOnly"
             ],
             "group": ["daily"]
         }
@@ -233,6 +234,60 @@
             "label": "$task.DeliveryJobs.WhatToFillWuling",
             "cases": [
                 {
+                    "name": "砂叶粉末",
+                    "label": "$item.SandleafPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/SandleafPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$item.BuckflowerPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/BuckflowerPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$item.CitromePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/CitromePowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$item.AketinePowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/AketinePowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$item.YazhenPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/YazhenPowder.png"
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$item.JincaoPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/JincaoPowder.png"
+                        }
+                    }
+                },
+                {
                     "name": "芽针",
                     "label": "$item.Yazhen",
                     "pipeline_override": {
@@ -251,7 +306,33 @@
                     }
                 }
             ],
-            "default_case": "芽针"
+            "default_case": "砂叶粉末"
+        },
+        "DeliveryJobsAcceptJobOnly": {
+            "type": "switch",
+            "label": "$task.DeliveryJobs.AcceptJobOnly.label",
+            "description": "$task.DeliveryJobs.AcceptJobOnly.description",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        // 确保不会转交任务
+                        "DeliveryJobsEnterDeliveryJob": {
+                            "enabled": false
+                        },
+                        // 回到大世界后直接停止任务，不继续后续流程
+                        "DeliveryJobsBackToDepot": {
+                            "next": [
+                                "DeliveryJobsAcceptJobOnly"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ],
+            "default_case": "No"
         }
     }
 }

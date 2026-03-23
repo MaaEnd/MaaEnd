@@ -1,6 +1,8 @@
 import json
 import os
+import re
 from datetime import datetime, timezone
+from typing import NamedTuple
 
 from .core_utils import MapName
 
@@ -25,6 +27,14 @@ def unique_map_key(name: str) -> str:
         return stem.lower()
 
 
+class LocationRecord(NamedTuple):
+    map_name: str
+    x: float
+    y: float
+    timestamp: float
+    raw: dict
+
+
 class LocationService:
     """Read locations from a jsonl service log."""
 
@@ -36,11 +46,6 @@ class LocationService:
         self._buffer = b""
         self._last_map_key: str | None = None
         self._last_start_time = 0.0
-
-    def _is_target_message(self, message: str | None) -> bool:
-        if not message:
-            return False
-        return any(key in message for key in self.MESSAGE_KEYWORDS)
 
     def _parse_timestamp(self, value) -> float | None:
         if isinstance(value, (int, float)):
@@ -61,26 +66,42 @@ class LocationService:
                 return None
         return None
 
-    def _parse_location_line(self, line: str, expected_map_name: str) -> dict | None:
+    @staticmethod
+    def _main_map_key(name: str) -> str:
+        """Return a tier-insensitive key for map matching."""
+        try:
+            parsed = MapName.parse(name)
+            return f"{parsed.map_id}:{parsed.map_level_id}"
+        except ValueError:
+            stem = os.path.splitext(os.path.basename(name.replace("\\", "/")))[0]
+            stem = re.sub(r"_tier_\w+$", "", stem, flags=re.IGNORECASE)
+            return stem.lower()
+
+    def _is_map_match(self, log_map_name: str, expected_map_name: str) -> bool:
+        if unique_map_key(log_map_name) == unique_map_key(expected_map_name):
+            return True
+        return self._main_map_key(log_map_name) == self._main_map_key(expected_map_name)
+
+    def _parse_location_line(self, line: str) -> LocationRecord | None:
+        # Quick check
+        if not any(kw in line for kw in self.MESSAGE_KEYWORDS):
+            return None
+
+        # Full parse
         try:
             data_obj = json.loads(line)
         except Exception:
             return None
         if not isinstance(data_obj, dict):
             return None
-        if not self._is_target_message(data_obj.get("message") or data_obj.get("msg")):
-            return None
 
         log_map_name = data_obj.get("MapName")
-        if not log_map_name:
-            return None
-        if unique_map_key(log_map_name) != unique_map_key(expected_map_name):
-            return None
-
         x = data_obj.get("X")
         y = data_obj.get("Y")
-        if x is None or y is None:
+
+        if not log_map_name or x is None or y is None:
             return None
+
         try:
             x = float(x)
             y = float(y)
@@ -93,15 +114,16 @@ class LocationService:
                 ts = self._parse_timestamp(data_obj.get(key))
                 if ts is not None:
                     break
+        if ts is None:
+            return None
 
-        return {
-            "x": x,
-            "y": y,
-            "timestamp": ts,
-            "raw": data_obj,
-        }
+        return LocationRecord(
+            map_name=str(log_map_name), x=x, y=y, timestamp=ts, raw=data_obj
+        )
 
-    def get_locations(self, expected_map_name: str, start_time: float) -> list[dict]:
+    def get_locations(
+        self, expected_map_name: str, start_time: float
+    ) -> list[LocationRecord]:
         if not os.path.exists(self.log_file):
             return []
 
@@ -112,7 +134,7 @@ class LocationService:
         self._last_map_key = map_key
         self._last_start_time = start_time
 
-        results: list[dict] = []
+        results: list[LocationRecord] = []
         try:
             with open(self.log_file, "rb") as f:
                 f.seek(0, os.SEEK_END)
@@ -136,24 +158,23 @@ class LocationService:
                     line = raw.decode("utf-8", errors="ignore")
                     if not line.strip():
                         continue
-                    record = self._parse_location_line(line, expected_map_name)
+                    record = self._parse_location_line(line)
                     if record is None:
                         continue
-                    ts = record.get("timestamp")
-                    if ts is None or ts < start_time:
+                    if not self._is_map_match(record.map_name, expected_map_name):
+                        continue
+                    if record.timestamp < start_time:
                         continue
                     results.append(record)
         except Exception:
             return []
 
-        results.sort(key=lambda item: item.get("timestamp") or 0.0)
-        deduped: list[dict] = []
+        results.sort(key=lambda item: item.timestamp)
+        deduped: list[LocationRecord] = []
         last_xy: tuple[float, float] | None = None
         for item in results:
-            x = item.get("x")
-            y = item.get("y")
-            if x is None or y is None:
-                continue
+            x = item.x
+            y = item.y
             xy = (round(x, 1), round(y, 1))
             if last_xy == xy:
                 continue

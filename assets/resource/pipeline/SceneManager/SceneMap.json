@@ -91,7 +91,7 @@
                 "expected": [
                     "协议传送点",
                     "協議傳送點",
-                    "TP Point",
+                    "(?i)TP\\s*Point",
                     "協約転送ポイント",
                     "프로토콜 전송 지점"
                 ]
@@ -240,7 +240,8 @@
                 "template": [
                     "SceneManager/MapOverviewEnter.png"
                 ],
-                "green_mask": true
+                "green_mask": true,
+                "threshold": 0.9
             }
         },
         "action": {
@@ -333,7 +334,7 @@
         "expected": [
             "清空选中",
             "清除選取",
-            "Clear All",
+            "(?i)Clear\\s*All",
             "一括解除",
             "クリア選択",
             "Clear Selection",
@@ -359,7 +360,7 @@
         "expected": [
             "标记显示管理",
             "標記顯示管理",
-            "Marker Tags",
+            "(?i)Marker\\s*Tags",
             "ソート",
             "표식 관리"
         ],
@@ -403,6 +404,7 @@
                     "事务提醒",
                     "事務提醒",
                     "Mission Reminder",
+                    "Reminder",
                     "業務通知",
                     "업무 알림"
                 ]
@@ -423,7 +425,7 @@
         "expected": [
             "协议传送点",
             "協議傳送點",
-            "TP Point",
+            "(?i)TP\\s*Point",
             "協約転送ポイント",
             "프로토콜 전송 지점"
         ],

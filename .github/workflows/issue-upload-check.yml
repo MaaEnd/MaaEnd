@@ -3,6 +3,8 @@ name: Issue Upload Check
 on:
   issues:
     types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
 
 jobs:
   check-upload-status:
@@ -15,28 +17,88 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const isIssueEvent = context.eventName === 'issues';
             const issue = context.payload.issue;
-            const issueBody = issue.body || '';
+
+            if (issue.pull_request) {
+              console.log('当前事件来自 PR，跳过处理');
+              return;
+            }
+
+            const currentLabels = (issue.labels || []).map(label =>
+              typeof label === 'string' ? label : label.name
+            );
+            const missingInfoLabel = 'status: 缺少信息';
+            const textToCheck = isIssueEvent
+              ? (issue.body || '')
+              : (context.payload.comment?.body || '');
+            const attachmentUrlPattern = /https:\/\/github\.com\/.+\/files\/\d+\/.+/i;
             
             // 检查是否包含上传相关的关键词
             const uploadFailedPattern = /Failed to upload/i;
             const uploadingPattern = /Uploading/i;
+            const uploadedLogsPattern = /(MaaEnd-logs-[^\s\])]+\.zip|(?:^|[\\/])maa(?:\.bak)?\.log)(?=$|[^A-Za-z0-9_.-])/i;
             
-            const hasUploadFailed = uploadFailedPattern.test(issueBody);
-            const hasUploading = uploadingPattern.test(issueBody);
+            const hasUploadFailed = uploadFailedPattern.test(textToCheck);
+            const hasUploading = uploadingPattern.test(textToCheck);
+            const hasUploadedLogs = uploadedLogsPattern.test(textToCheck);
+            const hasAttachmentUrl = attachmentUrlPattern.test(textToCheck);
+            const hasMissingInfoLabel = currentLabels.includes(missingInfoLabel);
+            const shouldRemoveLabel = isIssueEvent
+              ? hasUploadedLogs
+              : hasUploadedLogs && hasAttachmentUrl;
+
+            if (shouldRemoveLabel) {
+              if (hasMissingInfoLabel) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: missingInfoLabel
+                  });
+
+                  console.log('已为 issue #' + issue.number + ' 移除标签: ' + missingInfoLabel);
+                } catch (error) {
+                  if (error.status === 404) {
+                    console.log('Issue #' + issue.number + ' 的标签已被移除，跳过');
+                  } else {
+                    throw error;
+                  }
+                }
+              } else {
+                console.log('Issue 已包含日志文件，且无需移除标签');
+              }
+
+              return;
+            }
             
-            if (hasUploadFailed || hasUploading) {
-              // 检查是否已经回复过
-              const comments = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number
-              });
-              
-              const botAlreadyCommented = comments.data.some(comment => 
-                comment.user.type === 'Bot' && 
-                comment.body.includes('我们检测到你的 issue 中包含上传相关的信息')
-              );
+            if (isIssueEvent && (hasUploadFailed || hasUploading)) {
+               if (!hasMissingInfoLabel) {
+                 await github.rest.issues.addLabels({
+                   owner: context.repo.owner,
+                   repo: context.repo.repo,
+                   issue_number: issue.number,
+                   labels: [missingInfoLabel]
+                 });
+
+                 console.log('已为 issue #' + issue.number + ' 添加标签: ' + missingInfoLabel);
+               } else {
+                 console.log('Issue 已存在标签: ' + missingInfoLabel);
+                }
+
+                // 检查是否已经回复过
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  per_page: 100
+                });
+               
+               const botAlreadyCommented = comments.some(comment => 
+                 comment.user.type === 'Bot' && 
+                 comment.body.includes('我们检测到你的 issue 中包含上传相关的信息')
+               );
               
               if (!botAlreadyCommented) {
                 let replyMessage = '👋 你好！我们检测到你的 issue 中包含上传相关的信息。\n\n';

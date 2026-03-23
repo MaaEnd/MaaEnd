@@ -20,11 +20,11 @@
         "expected": [
             "套组装备",
             "套裝裝備",
-            "Set Gear",
+            "(?i)Set\\s*Gear",
             "セット装備",
             "装备",
             "裝備",
-            "Gear",
+            "(?i)Gear",
             "装備"
         ],
         "next": [
@@ -45,7 +45,7 @@
                 ],
                 "expected": [
                     "降序",
-                    "DESC",
+                    "(?i)DESC",
                     "降順"
                 ]
             }
@@ -67,7 +67,7 @@
         "expected": [
             "制作",
             "製作",
-            "Craft",
+            "(?i)Craft",
             "確定"
         ],
         "action": "Click",
@@ -89,7 +89,9 @@
         ],
         "expected": [
             "空间已满",
-            "可销毁或丢弃部分"
+            "空間已滿",
+            "可销毁或丢弃部分",
+            "可銷毀或丟棄部分"
         ],
         "next": [
             "GearAssemblyCreationFinish",
@@ -103,9 +105,9 @@
             "param": {
                 "roi": [
                     590,
-                    590,
+                    581,
                     100,
-                    100
+                    109
                 ], //扩大识图区域，避免界面微调导致识别失败
                 "template": "DailyRewards/CloseReward.png",
                 "threshold": 0.9

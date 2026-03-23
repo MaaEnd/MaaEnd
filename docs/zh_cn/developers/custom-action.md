@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD060 -->
-
 # 开发手册 - Custom 自定义动作参考
 
 `Custom` 是 Pipeline 中用于调用 **自定义动作** 的通用节点类型。  
@@ -15,8 +13,6 @@
 - 做一些统计、日志或埋点上报。
 
 ---
-
-<!-- markdownlint-enable MD060 -->
 
 ## SubTask 动作
 

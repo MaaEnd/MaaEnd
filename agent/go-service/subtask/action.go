@@ -15,6 +15,9 @@ type subTaskParam struct {
 
 type SubTaskAction struct{}
 
+// Compile-time interface check
+var _ maa.CustomActionRunner = &SubTaskAction{}
+
 func (a *SubTaskAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Msg("SubTask got nil custom action arg")

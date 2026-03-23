@@ -57,7 +57,8 @@
                         "PuzzleSolverMaybeLoop": {
                             "next": [
                                 "PuzzleSolverMain"
-                            ]
+                            ],
+                            "focus": {}
                         },
                         "PuzzleSolverOnSuccess": {
                             "next": [

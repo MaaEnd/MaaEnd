@@ -88,7 +88,7 @@
                 "expected": [
                     "地区建设",
                     "地區建設",
-                    "Regional Development",
+                    "(?i)Regional\\s*Development",
                     "地域建設",
                     "지역 건설"
                 ]
@@ -173,7 +173,7 @@
                 "expected": [
                     "活动",
                     "活動",
-                    "Events",
+                    "(?i)Events",
                     "イベント",
                     "이벤트"
                 ]
@@ -209,9 +209,8 @@
                 "expected": [
                     "活动中心",
                     "活動中心",
-                    "Event Center",
+                    "(?i)Event\\s*Center",
                     "イベント",
-                    "EVENT CENTER",
                     "이벤트 센터"
                 ]
             }
@@ -236,12 +235,76 @@
                 "green_mask": true
             }
         },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateWorldEnterMenuEntryValuables",
+            "[JumpBack]__ScenePrivateWorldEnterMenuCheckMainUI"
+        ]
+    },
+    "__ScenePrivateWorldEnterMenuEntryValuables": {
+        "desc": "进入贵重品库菜单",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    0,
+                    425,
+                    80
+                ],
+                "template": [
+                    "SceneManager/ValuableEntry.png"
+                ]
+            }
+        },
         "action": {
             "type": "ClickKey",
             "param": {
                 "key": 78 // N
             }
         },
+        "post_wait_freezes": {
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "next": [
+            "__ScenePrivateValuablesItemsExpired",
+            "__ScenePrivateAnyEnterMenuValuablesSuccess"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "进入贵重品库菜单失败"
+        }
+    },
+    "__ScenePrivateValuablesItemsExpired": {
+        "desc": "贵重品库菜单有物品过期",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    370,
+                    240,
+                    500,
+                    150
+                ],
+                "expected": [
+                    "以下限时道具已过期",
+                    "以下限時道具已過期",
+                    "These limited-time items have expired",
+                    "以下の時限アイテムは有効期限が切れました",
+                    "다음 기간 한정 아이템이 만료되었습니다"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "action": "Click",
         "post_wait_freezes": {
             "time": 400,
             "target": [
@@ -366,9 +429,8 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "Operational Manual",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
-                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -403,9 +465,8 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "Operational Manual",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
-                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -463,7 +524,7 @@
                 "expected": [
                     "通行证",
                     "通行證",
-                    "Protocol Pass",
+                    "(?i)Protocol\\s*Pass",
                     "通行証",
                     "프로토콜 패스"
                 ]
@@ -563,6 +624,7 @@
                         "expected": [
                             "好友",
                             "Friends",
+                            "FRIENDS",
                             "フレンド",
                             "친구"
                         ]
@@ -595,12 +657,12 @@
                 "roi": [
                     0,
                     0,
-                    200,
+                    230,
                     60
                 ],
                 "expected": [
                     "好友",
-                    "Friends",
+                    "(?i)Friends",
                     "フレンド",
                     "친구"
                 ]
@@ -646,7 +708,7 @@
                 ],
                 "expected": [
                     "百科",
-                    "Database",
+                    "(?i)Database",
                     "Wiki",
                     "백과"
                 ]
@@ -682,9 +744,9 @@
                 "expected": [
                     "终末地百科",
                     "終末地百科",
-                    "Endfield Database",
+                    "(?i)Endfield\\s*Database",
                     "エンドフィールドWiki",
-                    "Endfield Database (EFDB)",
+                    "(?i)Endfield\\s*Database\\s*\\(\\s*EFDB\\s*\\)",
                     "엔드필드 백과"
                 ]
             }
@@ -730,7 +792,7 @@
                 "expected": [
                     "装备加工",
                     "裝備加工",
-                    "Gear Assembly",
+                    "(?i)Gear\\s*Assembly",
                     "装備加工",
                     "장비 가공"
                 ]
@@ -823,7 +885,7 @@
                 "expected": [
                     "邮箱",
                     "信箱",
-                    "Mail",
+                    "(?i)Mail",
                     "メールボックス",
                     "메일함"
                 ]
@@ -834,20 +896,10 @@
     },
     "__ScenePrivateWorldFactoryEnterMenuBluePrint": {
         "desc": "从大世界工厂模式进入蓝图菜单",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    60,
-                    60
-                ],
-                "template": [
-                    "SceneManager/WorldFactoryActive.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InWorldFactory"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
@@ -869,20 +921,10 @@
     },
     "__ScenePrivateWorldFactoryEnterMenuGearAssembly": {
         "desc": "从大世界工厂模式进入装备加工界面",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    60,
-                    60
-                ],
-                "template": [
-                    "SceneManager/WorldFactoryActive.png"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InWorldFactory"
+        ],
         "action": {
             "type": "ClickKey",
             "param": {
@@ -971,6 +1013,23 @@
                             "type": "TemplateMatch",
                             "param": {
                                 "roi": [
+                                    -250,
+                                    0,
+                                    200,
+                                    200
+                                ],
+                                "template": [
+                                    "SceneManager/Backpack.png"
+                                ],
+                                "green_mask": true
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "TemplateMatch",
+                            "param": {
+                                "roi": [
                                     0,
                                     0,
                                     400,
@@ -1002,6 +1061,15 @@
                     }
                 ]
             }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "target": [
+                900,
+                100,
+                250,
+                160
+            ]
         },
         "action": {
             "type": "ClickKey",
@@ -1087,7 +1155,7 @@
                     100
                 ],
                 "expected": [
-                    "BAKER"
+                    "Baker"
                 ]
             }
         },
@@ -1108,9 +1176,8 @@
                 "expected": [
                     "行动手册",
                     "行動手冊",
-                    "Operational Manual",
+                    "(?i)Operational\\s*Manual",
                     "案内所",
-                    "OPERATIONAL MANUAL",
                     "작전 매뉴얼"
                 ]
             }
@@ -1144,7 +1211,7 @@
                 ],
                 "expected": [
                     "背包",
-                    "Backpack",
+                    "(?i)Backpack",
                     "道具箱",
                     "가방"
                 ]
@@ -1248,8 +1315,13 @@
             }
         },
         "post_wait_freezes": {
-            "time": 500,
-            "timeout": 2000
+            "time": 400,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
         },
         "next": [
             "__ScenePrivateAnyEnterMenuShopSuccess"
@@ -1272,7 +1344,7 @@
                 "expected": [
                     "采购中心",
                     "採購中心",
-                    "Acquisition Center",
+                    "(?i)Acquisition\\s*Center",
                     "購買部",
                     "Acquisition",
                     "Center",

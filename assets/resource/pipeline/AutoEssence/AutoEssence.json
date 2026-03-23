@@ -20,7 +20,8 @@
             "VFOriginiumScienceParkLocationAssertion",
             "VFOriginLodespringLocationAssertion",
             "VFPowerPlateauLocationAssertion",
-            "WLWulingCityLocationAssertion"
+            "WLWulingCityLocationAssertion",
+            "WLQingboStockadeLocationAssertion"
         ],
         "focus": {
             "Node.Action.Starting": "🔍正在寻找附近的淤积点"
@@ -99,8 +100,58 @@
     "AutoEssenceReadyToStart": {
         "next": [
             "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceLowSpBeforeStart",
             "AutoEssenceClickEssenceStartButton"
         ]
+    },
+    "AutoEssenceLowSpBeforeStart": {
+        "desc": "要是识别理智消耗数字是红色则结束任务，除非在设置里覆写掉",
+        "enabled": true,
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    991,
+                    651,
+                    22,
+                    19
+                ],
+                "method": 40,
+                // 红色特点：高饱和度(>120)，高明度(>100)。H值跨越 [0, 10] 和 [160, 180]
+                "lower": [
+                    [
+                        0,
+                        120,
+                        100
+                    ],
+                    [
+                        160,
+                        120,
+                        100
+                    ]
+                ],
+                "upper": [
+                    [
+                        10,
+                        255,
+                        255
+                    ],
+                    [
+                        180,
+                        255,
+                        255
+                    ]
+                ],
+                "connected": true,
+                "count": 20 // 至少要有 20 个符合条件的像素，防噪点
+            }
+        },
+        "action": {
+            "type": "StopTask"
+        },
+        "focus": {
+            "Node.Action.Starting": "😴**体力不足，任务结束**\n如需继续刷取，请补充足够的体力值~"
+        }
     },
     "AutoEssenceClickEssenceStartButton": {
         "recognition": {
@@ -119,14 +170,10 @@
         "action": {
             "type": "Click"
         },
-        "anchor": {
-            "AutoEssenceAfterWalkAround": "AutoEssenceCheckOngoing"
-        },
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning1",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👆点击开启挑战按钮"
@@ -151,8 +198,7 @@
         "post_delay": 1000,
         "next": [
             "AutoEssenceDismissWarning2",
-            "[JumpBack]AutoEssenceLocationSetup",
-            "[Anchor]AutoEssenceWalkAround"
+            "AutoEssenceChallengeEnter"
         ],
         "focus": {
             "Node.Action.Starting": "👷无视风险，继续刷取"
@@ -207,11 +253,54 @@
         },
         "post_delay": 1000,
         "next": [
+            "AutoEssenceChallengeEnter"
+        ],
+        "focus": {
+            "Node.Action.Starting": "👷无视风险，继续刷取"
+        }
+    },
+    "AutoEssenceChallengeEnter": {
+        "desc": "成功进入挑战场景",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    0,
+                    40,
+                    260,
+                    330
+                ],
+                "template": "AutoEssence/EssenceOngoing.png",
+                "green_mask": true
+            }
+        },
+        "next": [
+            "AutoEssenceClickEssenceChallengeUsingWalk",
+            "AutoEssenceClickEssenceChallengeUsingAutoFight"
+        ]
+    },
+    "AutoEssenceClickEssenceChallengeUsingWalk": {
+        "desc": "使用走路方式挑战，用于部署炮台方式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
             "[JumpBack]AutoEssenceLocationSetup",
             "[Anchor]AutoEssenceWalkAround"
         ],
         "focus": {
-            "Node.Action.Starting": "👷无视风险，继续刷取"
+            "Node.Recognition.Starting": "🚶正在使用走路方式挑战"
+        }
+    },
+    "AutoEssenceClickEssenceChallengeUsingAutoFight": {
+        "desc": "使用自动战斗方式挑战",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[JumpBack]AutoFight",
+            "AutoEssenceCheckOngoing"
+        ],
+        "focus": {
+            "Node.Recognition.Starting": "⚔️正在使用自动战斗方式挑战"
         }
     },
     "AutoEssenceCheckOngoing": {
@@ -447,9 +536,21 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 1000,
+            "target": [
+                210,
+                168,
+                861,
+                422
+            ]
+        },
         "post_delay": 1000,
         "next": [
             "AutoEssenceLowSp",
+            //基质筛选开启时进入基质筛选线，完成后自己退出战利品界面并next到"AutoEssenceOnSuccess"
+            "EssenceFilterAfterBattleStart",
+            //基质筛选未开启或进入失败时直接关闭战利品界面
             "AutoEssenceCloseObtainDialog"
         ],
         "focus": {
@@ -481,6 +582,7 @@
         }
     },
     "AutoEssenceLowSp": {
+        "desc": "判断有无理智不足的对话框，有的话结束任务",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -534,6 +636,7 @@
         }
     },
     "AutoEssenceOnComplete": {
+        "action": "StopTask",
         "focus": {
             "Node.Action.Starting": "🎉**已完成所规定次数的基质刷取**"
         }

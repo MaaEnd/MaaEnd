@@ -15,7 +15,7 @@ import shutil
 import numpy as np
 from collections import defaultdict, deque
 from typing import Dict, List, Tuple, NamedTuple
-from utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2, Point, MapName
+from _internal.core_utils import _R, _G, _Y, _C, _A, _0, Drawer, cv2, Point, MapName
 
 
 class TileInfo(NamedTuple):
@@ -220,15 +220,11 @@ class MergeMapPage:
             for i in range(1, max_x + 1):
                 x_pos = x_offset + (i - 1) * sw * scale + sw * scale / 2
                 y_pos = y_offset + new_h + 15
-                drawer.text_centered(
-                    str(i), (x_pos, y_pos), 0.5, color=0xFFFF00, thickness=1
-                )
+                drawer.text_centered(str(i), (x_pos, y_pos), 0.5, color=0xFFFF00)
             for j in range(1, max_y + 1):
                 x_pos = x_offset - 20
                 y_pos = y_offset + (max_y - j) * sh * scale + sh * scale / 2
-                drawer.text_centered(
-                    str(j), (x_pos, y_pos), 0.5, color=0xFFFF00, thickness=1
-                )
+                drawer.text_centered(str(j), (x_pos, y_pos), 0.5, color=0xFFFF00)
 
             # Draw yellow overlay and adjustment indicators for manual tiles
             for tile in manual_tiles:
@@ -305,7 +301,6 @@ class MergeMapPage:
                 (self.window_w // 2, self.window_h - 50),
                 0.7,
                 color=0xFFFFFF,
-                thickness=2,
             )
 
         # Progress bar
@@ -314,10 +309,7 @@ class MergeMapPage:
         bar_x = (self.window_w - bar_w) // 2
         bar_y = self.window_h - 40
         drawer.rect(
-            (bar_x, bar_y),
-            (bar_x + bar_w, bar_y + bar_h),
-            color=0xFFFFFF,
-            thickness=2,
+            (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), color=0xFFFFFF, thickness=2
         )
         fill_w = int(bar_w * progress)
         drawer.rect(
@@ -334,7 +326,6 @@ class MergeMapPage:
                 (self.window_w // 2, self.window_h - 10),
                 0.5,
                 color=0xFFFFFF,
-                thickness=1,
             )
 
         return drawer.get_image()

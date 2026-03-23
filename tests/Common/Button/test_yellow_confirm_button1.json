@@ -1,0 +1,24 @@
+{
+    "configs": {
+        "name": "通用按钮，测试黄色确定按钮类型1(圆环)",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "帝江号_控制中枢_会客室_开展交流.png",
+            "hits": [
+                "YellowConfirmButtonType1"
+            ]
+        },
+        {
+            "image": "帝江号_控制中枢_会客室_需要接收.png",
+            "hits": [
+                "YellowConfirmButtonType1"
+            ]
+        }
+    ]
+}

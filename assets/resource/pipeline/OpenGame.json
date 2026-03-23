@@ -103,12 +103,18 @@
                     59
                 ],
                 "expected": [
+                    "重新挑战",
+                    "重新挑戰",
+                    "(?i)Retry",
+                    "もう一度",
                     "登录失败",
+                    "登入失敗",
                     "检查网络",
+                    "檢查網路",
                     "状态后重试",
+                    "狀態後重試",
                     "Login Failed",
-                    "Check Network",
-                    "Retry"
+                    "Check Network"
                 ]
             }
         },
@@ -128,6 +134,7 @@
                 ],
                 "expected": [
                     "确认",
+                    "確定",
                     "Confirm"
                 ]
             }
@@ -149,15 +156,15 @@
                 "expected": [
                     "继续",
                     "繼續",
-                    "Continue",
+                    "(?i)Continue",
                     "続ける",
                     "点击",
+                    "點按",
                     "任意",
                     "位置",
                     "Click",
                     "Tap",
-                    "anywhere",
-                    "continue"
+                    "anywhere"
                 ]
             }
         },
@@ -189,8 +196,17 @@
                     121,
                     45
                 ],
+                "roi_offset": [
+                    0,
+                    0,
+                    43,
+                    0
+                ],
                 "expected": [
-                    "NOW",
+                    "截止当前",
+                    "截至目前",
+                    "(?i)Now",
+                    "現在",
                     "LOAD",
                     "ING"
                 ]
@@ -218,10 +234,13 @@
                     159
                 ],
                 "expected": [
+                    "今日",
+                    "(?i)Today",
                     "点击确认今日",
-                    "今日月卡奖励",
+                    "點按確認今日",
                     "Monthly Card",
-                    "today"
+                    "今日月卡奖励",
+                    "今日月卡獎勵"
                 ]
             }
         },
@@ -242,8 +261,9 @@
                 "expected": [
                     "领取",
                     "領取",
-                    "[Cc]laim",
-                    "受取"
+                    "(?i)Claim",
+                    "受取",
+                    "[Cc]laim"
                 ]
             }
         },
@@ -268,7 +288,7 @@
                 "expected": [
                     "获得奖励",
                     "獲得獎勵",
-                    "Rewards Acquired",
+                    "(?i)Rewards\\s*Acquired",
                     "報酬一覧",
                     "Rewards"
                 ]

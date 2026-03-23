@@ -7,13 +7,14 @@ import threading
 import time
 from typing import Callable
 
-from model import ActionType, PathPoint, PathRecorder, is_key_pressed
+from model import ActionType, PathPoint, PathRecorder, is_key_pressed, normalize_zone_id
 from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env
 
 
 StatusCallback = Callable[[str, str], None]
 FinishedCallback = Callable[[list[PathPoint]], None]
 ErrorCallback = Callable[[str], None]
+LocatorDetailCallback = Callable[[str], None]
 
 
 class RecordingService:
@@ -32,16 +33,22 @@ class RecordingService:
         on_status: StatusCallback,
         on_finished: FinishedCallback,
         on_error: ErrorCallback,
+        on_locator_detail: LocatorDetailCallback | None = None,
     ) -> None:
         self._runtime = runtime
         self._on_status = on_status
         self._on_finished = on_finished
         self._on_error = on_error
+        self._on_locator_detail = on_locator_detail
 
         self._recorder = PathRecorder()
         self._agent_process: subprocess.Popen[str] | None = None
         self._worker_thread: threading.Thread | None = None
         self._running_event = threading.Event()
+        self._last_record_log_signature: tuple[object, ...] | None = None
+        self._last_record_log_at = 0.0
+        self._last_skip_log_signature: tuple[object, ...] | None = None
+        self._last_skip_log_at = 0.0
 
     @property
     def is_running(self) -> bool:
@@ -52,6 +59,10 @@ class RecordingService:
             return
 
         self._recorder = PathRecorder()
+        self._last_record_log_signature = None
+        self._last_record_log_at = 0.0
+        self._last_skip_log_signature = None
+        self._last_skip_log_at = 0.0
         self._running_event.set()
         self._worker_thread = threading.Thread(target=self._run, daemon=True)
         self._worker_thread.start()
@@ -145,7 +156,6 @@ class RecordingService:
         )
         get_window_text = ctypes.windll.user32.GetWindowTextW
         is_window_visible = ctypes.windll.user32.IsWindowVisible
-        get_class_name = ctypes.windll.user32.GetClassNameW
 
         result = [0]
 
@@ -157,20 +167,10 @@ class RecordingService:
             get_window_text(hwnd, title_buffer, 512)
             title = title_buffer.value
 
-            class_buffer = ctypes.create_unicode_buffer(512)
-            get_class_name(hwnd, class_buffer, 512)
-            class_name = class_buffer.value
-
             if not title:
                 return True
 
-            title_match = any(keyword in title for keyword in ("Endfield", "EndField", "终末地"))
-            class_match = (
-                "Unity" in class_name
-                or "Unreal" in class_name
-                or "Windows.UI.Core.CoreWindow" not in class_name
-            )
-            if title_match and class_match:
+            if title.strip() == "Endfield":
                 result[0] = hwnd
                 return False
             return True
@@ -189,6 +189,54 @@ class RecordingService:
             return ActionType.SPRINT
         return ActionType.RUN
 
+    def _emit_locator_detail(self, text: str) -> None:
+        timestamp = time.strftime("%H:%M:%S")
+        full_text = f"[{timestamp}] {text}"
+        print(full_text, flush=True)
+        if self._on_locator_detail:
+            self._on_locator_detail(full_text)
+
+    def _emit_skip_summary(self, detail: dict, reason: str) -> None:
+        now = time.monotonic()
+        signature = (
+            detail.get("status"),
+            detail.get("message", ""),
+            detail.get("mapName", ""),
+            reason,
+        )
+        if signature == self._last_skip_log_signature and now - self._last_skip_log_at < 1.5:
+            return
+
+        self._last_skip_log_signature = signature
+        self._last_skip_log_at = now
+        self._emit_locator_detail(
+            "Locator skip: "
+            f"reason={reason} "
+            f"status={detail.get('status')} "
+            f"map={detail.get('mapName', '')!r} "
+            f"msg={detail.get('message', '')!r} "
+            f"x={detail.get('x', '-')!r} "
+            f"y={detail.get('y', '-')!r}"
+        )
+
+    def _emit_record_summary(self, detail: dict, zone_id: str, action: ActionType) -> None:
+        now = time.monotonic()
+        signature = (zone_id, detail.get("status"))
+        if signature == self._last_record_log_signature and now - self._last_record_log_at < 0.5:
+            return
+
+        self._last_record_log_signature = signature
+        self._last_record_log_at = now
+        self._emit_locator_detail(
+            "Locator ok: "
+            f"zone={zone_id} "
+            f"x={detail.get('x', '-')!r} "
+            f"y={detail.get('y', '-')!r} "
+            f"conf={detail.get('locConf', '-')!r} "
+            f"latencyMs={detail.get('latencyMs', '-')!r} "
+            f"action={action.name}"
+        )
+
     def _consume_latest_result(self, tasker, action: ActionType) -> None:
         node = tasker.get_latest_node("MapLocateNode")
         if not node or not node.recognition or not node.recognition.best_result:
@@ -196,17 +244,28 @@ class RecordingService:
 
         detail = node.recognition.best_result.detail
         if isinstance(detail, str):
-            detail = json.loads(detail)
+            try:
+                detail = json.loads(detail)
+            except json.JSONDecodeError:
+                self._emit_locator_detail("Locator skip: reason=detail_parse_failed")
+                return
 
-        if not isinstance(detail, dict) or detail.get("status") != 0:
+        if not isinstance(detail, dict):
             return
 
-        self._recorder.update(
-            detail.get("x", 0),
-            detail.get("y", 0),
-            int(action),
-            detail.get("mapName", ""),
-        )
+        if detail.get("status") != 0:
+            self._emit_skip_summary(detail, reason="status")
+            return
+
+        zone_id = normalize_zone_id(detail.get("mapName", ""))
+        x = detail.get("x")
+        y = detail.get("y")
+        if not zone_id or not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+            self._emit_skip_summary(detail, reason="invalid_zone_or_xy")
+            return
+
+        self._emit_record_summary(detail, zone_id=zone_id, action=action)
+        self._recorder.update(float(x), float(y), int(action), zone_id)
 
     def _shutdown_agent(self) -> None:
         if not self._agent_process:
