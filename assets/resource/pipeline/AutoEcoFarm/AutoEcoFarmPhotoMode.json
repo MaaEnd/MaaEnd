@@ -1,0 +1,115 @@
+{
+    "AutoEcoFarmEnterCameraModeKeyDownR": {
+        "desc": "通过长按R进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "_AutoEcoFarmInWorld"
+        ],
+        "action": "KeyDown",
+        "key": 82, // R 0x52
+        "next": [
+            "AutoEcoFarmEnterCameraModeChooseCamera"
+        ]
+    },
+    "AutoEcoFarmEnterCameraModeChooseCamera": {
+        "desc": "进入拍照模式，选择拍照",
+        "recognition": "TemplateMatch",
+        "roi": [
+            404,
+            117,
+            463,
+            464
+        ],
+        "template": "Common/CameraMode.png",
+        "threshold": 0.8,
+        "action": "Click",
+        "next": [
+            "AutoEcoFarmEnterCameraModeKeyUpR"
+        ]
+    },
+    "AutoEcoFarmEnterCameraModeKeyUpR": {
+        "desc": "松开R解除占用",
+        "recognition": "And",
+        "all_of": [
+            "_AutoEcoFarmInWorld"
+        ],
+        "action": "KeyUp",
+        "key": 82 // R 0x52
+    },
+    "AutoEcoFarmFindShowFactoryFacilities": {
+        "desc": "[识别节点]显示工业设备",
+        "recognition": "OCR",
+        "roi": [
+            44,
+            212,
+            111,
+            31
+        ],
+        "expected": [
+            "显示工业设备",
+            "顯示工業設備",
+            "Show Factory Facilities",
+            "工業設備を表示",
+            "공업 설비 표시"
+        ],
+        "threshold": 0.8
+    },
+    "AutoEcoFarmFindHideFactoryFacilities": {
+        "desc": "[识别节点]工业设备已关",
+        "recognition": "ColorMatch",
+        "roi": [
+            288,
+            220,
+            15,
+            15
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            0,
+            150
+        ],
+        "upper": [
+            180,
+            100,
+            255
+        ],
+        "count": 150,
+        "connected": true
+    },
+    "AutoEcoFarmClickPhotoScene": {
+        "desc": "打开画面菜单（没打开的话）",
+        "recognition": "And",
+        "all_of": [
+            "AutoEcoFarmPhotoScene",
+            "AutoEcoFarmExpandMenu"
+        ],
+        "action": "Click"
+    },
+    "AutoEcoFarmPhotoScene": {
+        "desc": "[识别节点]拍照模式画面按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            53,
+            7,
+            47,
+            42
+        ],
+        "template": "AutoEcoFarm/AutoEcoFarmPhotoScene.png",
+        "threshold": 0.8,
+        "action": "Click"
+    },
+    "AutoEcoFarmExpandMenu": {
+        "desc": "[识别节点]拍照模式打开下拉菜单按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            148,
+            81,
+            72,
+            34
+        ],
+        "template": "AutoEcoFarm/AutoEcoFarmExpandMenu.png",
+        "threshold": 0.8,
+        "action": "Click"
+    }
+}
