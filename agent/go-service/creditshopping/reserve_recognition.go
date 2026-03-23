@@ -52,7 +52,19 @@ func (r *reserveCreditRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		return nil, false
 	}
 
+	action := "pass"
 	if credit >= threshold {
+		action = "ignore"
+	}
+
+	log.Info().
+		Str("component", "CreditShopping").
+		Int("credit", credit).
+		Int("reserve_credit_threshold", threshold).
+		Str("result", action).
+		Msgf("识别到%d,目标%d,%s", credit, threshold, action)
+
+	if action == "ignore" {
 		return nil, false
 	}
 
@@ -60,12 +72,6 @@ func (r *reserveCreditRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 		"credit":    credit,
 		"threshold": threshold,
 	})
-
-	log.Info().
-		Str("component", "CreditShopping").
-		Int("credit", credit).
-		Int("reserve_credit_threshold", threshold).
-		Msg("credit below reserve threshold")
 
 	return &maa.CustomRecognitionResult{
 		Box:    arg.Roi,
