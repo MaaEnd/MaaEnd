@@ -11,6 +11,7 @@
                     290
                 ],
                 "template": "AutoEssence/EssenceTrigger.png",
+                "threshold": 0.75,
                 "green_mask": true
             }
         }
@@ -34,9 +35,9 @@
             "param": {
                 "target_offset": [
                     60,
-                    0,
+                    5,
                     -60,
-                    0
+                    -10
                 ]
             }
         }
