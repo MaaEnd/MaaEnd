@@ -1,15 +1,10 @@
 package matchapi
 
 import (
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 )
-
-func itoa(v int) string {
-	return strconv.Itoa(v)
-}
 
 func cleanChinese(text string) string {
 	return normalizeForMatch(text, LocaleCN)
@@ -189,85 +184,5 @@ func normalizeENToken(tok string) string {
 		return "boost"
 	default:
 		return tok
-	}
-}
-
-// exactMatchReason builds a human-readable reason for MatchExact (prefix + weapon names).
-func exactMatchReason(locale string, weapons []WeaponData) string {
-	loc := NormalizeInputLocale(locale)
-	if len(weapons) == 0 {
-		switch loc {
-		case LocaleEN:
-			return "Exact match"
-		case LocaleTC:
-			return "精準匹配"
-		case LocaleJP:
-			return "完全一致"
-		case LocaleKR:
-			return "정확 일치"
-		default:
-			return "精准匹配"
-		}
-	}
-	names := make([]string, len(weapons))
-	for i, w := range weapons {
-		names[i] = w.ChineseName
-	}
-	switch loc {
-	case LocaleEN:
-		return "Exact match: " + strings.Join(names, ", ")
-	case LocaleTC:
-		return "精準匹配：" + strings.Join(names, "、")
-	case LocaleJP:
-		return "完全一致：" + strings.Join(names, "、")
-	case LocaleKR:
-		return "정확 일치: " + strings.Join(names, ", ")
-	default:
-		return "精准匹配：" + strings.Join(names, "、")
-	}
-}
-
-func reasonNoMatch(locale string) string {
-	switch NormalizeInputLocale(locale) {
-	case LocaleEN:
-		return "No match"
-	case LocaleTC:
-		return "未匹配"
-	case LocaleJP:
-		return "不一致"
-	case LocaleKR:
-		return "불일치"
-	default:
-		return "未匹配"
-	}
-}
-
-func reasonFuturePromising(locale string, sum, min int) string {
-	switch NormalizeInputLocale(locale) {
-	case LocaleEN:
-		return "Future-promising: total level " + itoa(sum) + " ≥ " + itoa(min)
-	case LocaleTC:
-		return "未來可期：總等級 " + itoa(sum) + " ≥ " + itoa(min)
-	case LocaleJP:
-		return "将来有望：合計レベル " + itoa(sum) + " ≥ " + itoa(min)
-	case LocaleKR:
-		return "미래 유망: 총 레벨 " + itoa(sum) + " ≥ " + itoa(min)
-	default:
-		return "未来可期：总等级 " + itoa(sum) + " ≥ " + itoa(min)
-	}
-}
-
-func reasonSlot3Practical(locale string, slot3Name string, slot3Lv, minLv int) string {
-	switch NormalizeInputLocale(locale) {
-	case LocaleEN:
-		return "Practical: slot 3 (" + slot3Name + ") level " + itoa(slot3Lv) + " ≥ " + itoa(minLv)
-	case LocaleTC:
-		return "實用基質：詞條3(" + slot3Name + ")等級 " + itoa(slot3Lv) + " ≥ " + itoa(minLv)
-	case LocaleJP:
-		return "実用：スロット3(" + slot3Name + ")レベル " + itoa(slot3Lv) + " ≥ " + itoa(minLv)
-	case LocaleKR:
-		return "실용: 슬롯3(" + slot3Name + ") 레벨 " + itoa(slot3Lv) + " ≥ " + itoa(minLv)
-	default:
-		return "实用基质：词条3(" + slot3Name + ")等级 " + itoa(slot3Lv) + " ≥ " + itoa(minLv)
 	}
 }

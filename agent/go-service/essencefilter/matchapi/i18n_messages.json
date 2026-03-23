@@ -1,0 +1,79 @@
+{
+    "reason.exact.no_weapons": {
+        "CN": "精准匹配",
+        "TC": "精準匹配",
+        "EN": "Exact match",
+        "JP": "完全一致",
+        "KR": "정확 일치"
+    },
+    "reason.exact.with_weapons": {
+        "CN": "精准匹配：%s",
+        "TC": "精準匹配：%s",
+        "EN": "Exact match: %s",
+        "JP": "完全一致：%s",
+        "KR": "정확 일치: %s"
+    },
+    "reason.no_match": {
+        "CN": "未匹配",
+        "TC": "未匹配",
+        "EN": "No match",
+        "JP": "不一致",
+        "KR": "불일치"
+    },
+    "reason.future_promising": {
+        "CN": "未来可期：总等级 %d ≥ %d",
+        "TC": "未來可期：總等級 %d ≥ %d",
+        "EN": "Future-promising: total level %d ≥ %d",
+        "JP": "将来有望：合計レベル %d ≥ %d",
+        "KR": "미래 유망: 총 레벨 %d ≥ %d"
+    },
+    "reason.slot3_practical": {
+        "CN": "实用基质：词条3(%s)等级 %d ≥ %d",
+        "TC": "實用基質：詞條3(%s)等級 %d ≥ %d",
+        "EN": "Practical: slot 3 (%s) level %d ≥ %d",
+        "JP": "実用：スロット3(%s)レベル %d ≥ %d",
+        "KR": "실용: 슬롯3(%s) 레벨 %d ≥ %d"
+    },
+    "focus.ocr_skills": {
+        "CN": "OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)",
+        "TC": "OCR到技能：%s(+%d) | %s(+%d) | %s(+%d)",
+        "EN": "OCR skills: %s(+%d) | %s(+%d) | %s(+%d)",
+        "JP": "OCRスキル: %s(+%d) | %s(+%d) | %s(+%d)",
+        "KR": "OCR 스킬: %s(+%d) | %s(+%d) | %s(+%d)"
+    },
+    "focus.matched_weapons": {
+        "CN": "<div style=\"color: #064d7c; font-weight: 900;\">匹配到武器：%s</div>",
+        "TC": "<div style=\"color: #064d7c; font-weight: 900;\">匹配到武器：%s</div>",
+        "EN": "<div style=\"color: #064d7c; font-weight: 900;\">Matched weapons: %s</div>",
+        "JP": "<div style=\"color: #064d7c; font-weight: 900;\">一致武器: %s</div>",
+        "KR": "<div style=\"color: #064d7c; font-weight: 900;\">일치 무기: %s</div>"
+    },
+    "focus.ext_rule_lock": {
+        "CN": "<div style=\"color: #064d7c; font-weight: 900;\">🔒 扩展规则命中并锁定：%s</div>",
+        "TC": "<div style=\"color: #064d7c; font-weight: 900;\">🔒 擴展規則命中並鎖定：%s</div>",
+        "EN": "<div style=\"color: #064d7c; font-weight: 900;\">🔒 Extension rule hit and locked: %s</div>",
+        "JP": "<div style=\"color: #064d7c; font-weight: 900;\">🔒 拡張ルール一致でロック: %s</div>",
+        "KR": "<div style=\"color: #064d7c; font-weight: 900;\">🔒 확장 규칙 적중 및 잠금: %s</div>"
+    },
+    "focus.ext_rule_noop": {
+        "CN": "<div style=\"color: #d18b00; font-weight: 900;\">🗂️ 扩展规则命中（不操作）：%s</div>",
+        "TC": "<div style=\"color: #d18b00; font-weight: 900;\">🗂️ 擴展規則命中（不操作）：%s</div>",
+        "EN": "<div style=\"color: #d18b00; font-weight: 900;\">🗂️ Extension rule hit (no action): %s</div>",
+        "JP": "<div style=\"color: #d18b00; font-weight: 900;\">🗂️ 拡張ルール一致（操作なし）: %s</div>",
+        "KR": "<div style=\"color: #d18b00; font-weight: 900;\">🗂️ 확장 규칙 적중 (동작 없음): %s</div>"
+    },
+    "focus.no_match_discard": {
+        "CN": "<div style=\"color: #ff6b6b; font-weight: 900;\">🗑️ 未匹配到目标技能组合，废弃该物品</div>",
+        "TC": "<div style=\"color: #ff6b6b; font-weight: 900;\">🗑️ 未匹配到目標技能組合，廢棄該物品</div>",
+        "EN": "<div style=\"color: #ff6b6b; font-weight: 900;\">🗑️ No target skill combination matched, discarded</div>",
+        "JP": "<div style=\"color: #ff6b6b; font-weight: 900;\">🗑️ 目標スキル組み合わせに一致せず、破棄</div>",
+        "KR": "<div style=\"color: #ff6b6b; font-weight: 900;\">🗑️ 목표 스킬 조합 불일치, 폐기</div>"
+    },
+    "focus.no_match_skip": {
+        "CN": "未匹配到目标技能组合，跳过该物品",
+        "TC": "未匹配到目標技能組合，跳過該物品",
+        "EN": "No target skill combination matched, skip this item",
+        "JP": "目標スキル組み合わせに一致せず、このアイテムをスキップ",
+        "KR": "목표 스킬 조합 불일치, 이 아이템 건너뜀"
+    }
+}

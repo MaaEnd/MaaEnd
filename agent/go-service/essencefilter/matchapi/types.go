@@ -109,8 +109,8 @@ type MatchResult struct {
 	SkillsChinese []string
 	Weapons       []WeaponData
 
-	// Reason is always set for logging/UI: MatchExact uses "精准匹配：" + 武器中文名（、分隔）；
-	// MatchFuturePromising / MatchSlot3Level3Practical use fixed Chinese prefixes; MatchNone is "未匹配".
+	// Reason is always set for logging/UI and localized by engine locale (CN|TC|EN|JP|KR).
+	// Templates are loaded from matchapi/i18n_messages.json.
 	Reason string
 
 	// Final directives for pipeline.
