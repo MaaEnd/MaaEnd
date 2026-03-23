@@ -134,24 +134,6 @@
             }
         }
     },
-    "EndExchangeCountDown": {
-        "desc": "[会客室·线索] 识别线索交流结束倒计时，等待交流结束",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    631,
-                    506,
-                    379,
-                    189
-                ],
-                "expected": [
-                    "00:00:00",
-                    "0:00:00"
-                ]
-            }
-        }
-    },
     "ClueTimeLabel": {
         "desc": "识别线索的剩余天数",
         "recognition": {

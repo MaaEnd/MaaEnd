@@ -22,34 +22,34 @@
         "action": {
             "type": "Click"
         },
-        "post_wait_freezes": {
-            "time": 1000,
-            "timeout": 5000,
-            "target": [
-                14,
-                136,
-                343,
-                354
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]ReceptionRoomClueExchangeWait",
-            "ReceptionRoomViewIn"
+            "ReceptionRoomClueExchangeWait",
+            "ReceptionRoomViewWait",
         ]
     },
     "ReceptionRoomClueExchangeWait": {
         "desc": "等待情报交流结束",
         "recognition": {
-            "type": "Or",
+            "type": "OCR",
             "param": {
-                "any_of": [
-                    "ReceptionRoomClueExchangeConfirm",
-                    "EndExchangeCountDown"
+                "roi": [
+                    400,
+                    0,
+                    500,
+                    250
+                ],
+                "expected": [
+                    "情报交流结束",
+                    "情報交流結束",
+                    "Clue Exchange Ended",
+                    "共有会終了",
+                    "정보 교류 종료"
                 ]
             }
         },
+        "pre_wait_freezes": 100,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -75,7 +75,42 @@
             "type": "Click"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomViewIn"
+        ]
+    },
+    "ReceptionRoomViewWait": {
+        "desc": "[会客室·状态] 确认已进入会客室界面，等若干时间确定没有弹窗干扰",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "FacilityDetails"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                300,
+                100
+            ]
+        },
+        "pre_delay": 1500, // 等待可能出现的情报交流结束弹窗
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomClueExchangeWait",
+            "ReceptionRoomViewIn"
+        ],
+        "focus": {
+            "Node.PipelineNode.Failed": "$task.DijiangRewards.focus.reception_room_flow_failed"
+        }
     },
     "ReceptionRoomViewIn": {
         "desc": "[会客室·状态] 确认已进入会客室界面，收集/领取/赠送和拜访线索",

@@ -35,38 +35,34 @@
         "recognition": "And",
         "all_of": [
             {
-                "type": "OCR",
-                "param": {
-                    "roi": [
-                        43,
-                        0,
-                        167,
-                        64
-                    ],
-                    "expected": [
-                        "会客室",
-                        "會客室",
-                        "(?i)Reception\\s*Room",
-                        "応接室"
-                    ]
-                }
+                "recognition": "OCR",
+                "roi": [
+                    43,
+                    0,
+                    167,
+                    64
+                ],
+                "expected": [
+                    "会客室",
+                    "會客室",
+                    "(?i)Reception\\s*Room",
+                    "応接室"
+                ]
             },
             {
-                "type": "OCR",
-                "param": {
-                    "roi": [
-                        1182,
-                        296,
-                        98,
-                        102
-                    ],
-                    "expected": [
-                        "赠予",
-                        "贈予",
-                        "(?i)Send",
-                        "譲り渡す"
-                    ]
-                }
+                "recognition": "OCR",
+                "roi": [
+                    1182,
+                    296,
+                    98,
+                    102
+                ],
+                "expected": [
+                    "赠予",
+                    "贈予",
+                    "(?i)Send",
+                    "譲り渡す"
+                ]
             }
         ],
         "pre_wait_freezes": {
