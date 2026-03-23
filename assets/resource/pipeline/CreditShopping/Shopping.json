@@ -117,7 +117,25 @@
         ]
     },
     "CreditShoppingReserveCredit": {
-        "desc": "信用点 < 300",
+        "desc": "信用点低于保留阈值",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "CreditShoppingReserveRecognition",
+                "custom_recognition_param": {
+                    "threshold": 300
+                }
+            }
+        },
+        "next": [
+            "CreditShoppingNothingToBuy"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "信用点低于保留阈值, 退出购买流程"
+        }
+    },
+    "CreditShoppingReserveCreditOCRInternal": {
+        "desc": "识别当前信用点",
         "recognition": "OCR",
         "roi": [
             1083,
@@ -125,13 +143,7 @@
             76,
             26
         ],
-        "expected": "^([12]?\\d{1,2})$",
-        "next": [
-            "CreditShoppingNothingToBuy"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "信用点小于300, 退出购买流程"
-        }
+        "expected": "^\\d+$"
     },
     "AutoGetCredits": {
         "desc": "额度不足时候自动去基建获取",

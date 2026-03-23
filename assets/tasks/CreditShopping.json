@@ -816,28 +816,30 @@
             ]
         },
         "CreditShoppingReserve": {
-            "type": "switch",
+            "type": "input",
             "label": "$option.CreditShoppingReserve.label",
             "description": "$option.CreditShoppingReserve.description",
-            "default_case": "No",
-            "cases": [
+            "inputs": [
                 {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "CreditShoppingReserveCredit": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "CreditShoppingReserveCredit": {
-                            "enabled": false
+                    "name": "ReserveCreditThreshold",
+                    "label": "$option.CreditShoppingReserve.inputs.ReserveCreditThreshold.label",
+                    "description": "$option.CreditShoppingReserve.inputs.ReserveCreditThreshold.description",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "300"
+                }
+            ],
+            "pipeline_override": {
+                "CreditShoppingReserveCredit": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "threshold": "{ReserveCreditThreshold}"
+                            }
                         }
                     }
                 }
-            ]
+            }
         },
         "AutoGetCredits": {
             "type": "switch",
