@@ -77,7 +77,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot1"
+            "EssenceAfterBattleYellowSlot1"
         ],
         "on_error": [
             "EssenceFilterAfterBattleRowNextItem"
@@ -111,7 +111,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot1"
+            "EssenceAfterBattleYellowSlot1"
         ],
         "on_error": [
             "EssenceFilterAfterBattleRowNextItem"
@@ -120,22 +120,142 @@
             "Node.Recognition.Succeeded": "是高纯基质"
         }
     },
+    "EssenceAfterBattleYellowSlot1": {
+        "desc": "基于锁下方颜色匹配定位槽位1黄点（HSV中心: [28, 222, 239]）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "EssenceFindLockItem",
+                "roi_offset": [
+                    -246,
+                    170,
+                    206,
+                    170
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    90,
+                    150
+                ],
+                "upper": [
+                    36,
+                    255,
+                    255
+                ],
+                "count": 10,
+                "order_by": "Vertical",
+                "connected": true,
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot1"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleCheckItemOCRFallback"
+        ]
+    },
+    "EssenceAfterBattleYellowSlot2": {
+        "desc": "在槽位1黄点下方定位槽位2黄点（级联）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "EssenceAfterBattleYellowSlot1",
+                "roi_offset": [
+                    -16,
+                    17,
+                    262,
+                    35
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    90,
+                    150
+                ],
+                "upper": [
+                    36,
+                    255,
+                    255
+                ],
+                "count": 10,
+                "order_by": "Vertical",
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot2"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleCheckItemOCRFallback"
+        ]
+    },
+    "EssenceAfterBattleYellowSlot3": {
+        "desc": "在槽位2黄点下方定位槽位3黄点（级联）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "EssenceAfterBattleYellowSlot2",
+                "roi_offset": [
+                    -16,
+                    17,
+                    262,
+                    35
+                ],
+                "method": 40,
+                "lower": [
+                    20,
+                    90,
+                    150
+                ],
+                "upper": [
+                    36,
+                    255,
+                    255
+                ],
+                "count": 10,
+                "order_by": "Vertical",
+                "index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckItemSlot3"
+        ],
+        "on_error": [
+            "EssenceFilterAfterBattleCheckItemOCRFallback"
+        ]
+    },
     "EssenceFilterAfterBattleCheckItemSlot1": {
         "desc": "OCR 识别技能槽 1",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot1",
                 "roi_offset": [
-                    -258,
-                    172,
-                    137,
-                    22
+                    8,
+                    -24,
+                    169,
+                    10
                 ],
                 "expected": [
                     ".*"
                 ],
-                "only_rec": true,
                 "threshold": 0.3
             }
         },
@@ -163,12 +283,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot1",
                 "roi_offset": [
-                    -24,
-                    177,
-                    36,
-                    27
+                    221,
+                    -7,
+                    19,
+                    12
                 ],
                 "expected": [
                     "\\+?\\d+"
@@ -191,7 +311,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot2",
+            "EssenceAfterBattleYellowSlot2",
             "EssenceFilterAfterBattleCheckItemOCRFallback"
         ]
     },
@@ -200,17 +320,16 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot2",
                 "roi_offset": [
-                    -250,
-                    210,
-                    115,
-                    15
+                    8,
+                    -24,
+                    169,
+                    10
                 ],
                 "expected": [
                     ".*"
                 ],
-                "only_rec": true,
                 "threshold": 0.3
             }
         },
@@ -238,12 +357,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot2",
                 "roi_offset": [
-                    -24,
-                    220,
-                    35,
-                    21
+                    221,
+                    -7,
+                    19,
+                    12
                 ],
                 "expected": [
                     "\\+?\\d+"
@@ -266,7 +385,7 @@
         "timeout": 1500,
         "rate_limit": 300,
         "next": [
-            "EssenceFilterAfterBattleCheckItemSlot3",
+            "EssenceAfterBattleYellowSlot3",
             "EssenceFilterAfterBattleCheckItemOCRFallback"
         ]
     },
@@ -275,17 +394,16 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot3",
                 "roi_offset": [
-                    -251,
-                    243,
-                    117,
-                    19
+                    8,
+                    -24,
+                    169,
+                    10
                 ],
                 "expected": [
                     ".*"
                 ],
-                "only_rec": true,
                 "threshold": 0.3
             }
         },
@@ -313,12 +431,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": "EssenceFindLockItem",
+                "roi": "EssenceAfterBattleYellowSlot3",
                 "roi_offset": [
-                    -21,
-                    254,
-                    27,
-                    23
+                    221,
+                    -7,
+                    19,
+                    12
                 ],
                 "expected": [
                     "\\+?\\d+"
