@@ -23,36 +23,10 @@
             "type": "checkbox",
             "label": "$option.CreditShoppingOptions.label",
             "default_case": [
-                "Oroberyl",
-                "ArsenalTicket"
+                "ArsenalTicket",
+                "Oroberyl"
             ],
             "cases": [
-                {
-                    "name": "Oroberyl",
-                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
-                    "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        }
-                    }
-                },
                 {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
@@ -74,6 +48,32 @@
                                     "武庫配額",
                                     "Arsenal Ticket",
                                     "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
                                 ]
                             }
                         }
@@ -210,6 +210,32 @@
                     }
                 },
                 {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "pipeline_override": {
@@ -262,32 +288,6 @@
                     }
                 },
                 {
-                    "name": "ArmsINSPKit",
-                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
-                    "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "pipeline_override": {
@@ -314,32 +314,6 @@
                     }
                 },
                 {
-                    "name": "Protoprism",
-                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
-                    "pipeline_override": {
-                        "BuyFirstOCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        },
-                        "BuyFirstOCR_CanNotAfford": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "pipeline_override": {
@@ -360,6 +334,32 @@
                                     "協議圓盤組",
                                     "Protoset",
                                     "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "BuyFirstOCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
+                                ]
+                            }
+                        },
+                        "BuyFirstOCR_CanNotAfford": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
                                 ]
                             }
                         }
@@ -399,22 +399,6 @@
             "default_case": [],
             "cases": [
                 {
-                    "name": "Oroberyl",
-                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
-                    "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "oroberyl": [
-                                    "嵌晶玉",
-                                    "嵌晶玉",
-                                    "Oroberyl",
-                                    "赤晶玉"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "ArsenalTicket",
                     "label": "$option.CreditShoppingItems.cases.ArsenalTicket.label",
                     "pipeline_override": {
@@ -425,6 +409,22 @@
                                     "武庫配額",
                                     "Arsenal Ticket",
                                     "武庫配給"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Oroberyl",
+                    "label": "$option.CreditShoppingItems.cases.Oroberyl.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "oroberyl": [
+                                    "嵌晶玉",
+                                    "嵌晶玉",
+                                    "Oroberyl",
+                                    "赤晶玉"
                                 ]
                             }
                         }
@@ -511,6 +511,22 @@
                     }
                 },
                 {
+                    "name": "ArmsINSPKit",
+                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "arms_insp_kit": [
+                                    "武器检查装置",
+                                    "武器檢查裝置",
+                                    "Arms INSP Kit",
+                                    "武器検査セット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "CastDie",
                     "label": "$option.CreditShoppingItems.cases.CastDie.label",
                     "pipeline_override": {
@@ -543,22 +559,6 @@
                     }
                 },
                 {
-                    "name": "ArmsINSPKit",
-                    "label": "$option.CreditShoppingItems.cases.ArmsINSPKit.label",
-                    "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "arms_insp_kit": [
-                                    "武器检查装置",
-                                    "武器檢查裝置",
-                                    "Arms INSP Kit",
-                                    "武器検査セット"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "Protodisk",
                     "label": "$option.CreditShoppingItems.cases.Protodisk.label",
                     "pipeline_override": {
@@ -575,22 +575,6 @@
                     }
                 },
                 {
-                    "name": "Protoprism",
-                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
-                    "pipeline_override": {
-                        "BlacklistOCR": {
-                            "attach": {
-                                "protoprism": [
-                                    "协议棱柱",
-                                    "協議稜柱",
-                                    "Protoprism",
-                                    "協約角柱"
-                                ]
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "Protoset",
                     "label": "$option.CreditShoppingItems.cases.Protoset.label",
                     "pipeline_override": {
@@ -601,6 +585,22 @@
                                     "協議圓盤組",
                                     "Protoset",
                                     "協約ディスクセット"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Protoprism",
+                    "label": "$option.CreditShoppingItems.cases.Protoprism.label",
+                    "pipeline_override": {
+                        "BlacklistOCR": {
+                            "attach": {
+                                "protoprism": [
+                                    "协议棱柱",
+                                    "協議稜柱",
+                                    "Protoprism",
+                                    "協約角柱"
                                 ]
                             }
                         }
